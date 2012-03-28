@@ -1,0 +1,9 @@
+*.suo
+Make_Setup.iss
+Setup\ vApus\ and\ Tools.exe
+Build/
+bin/
+*/bin/
+obj/
+*/obj/
+Prerequisites/vApus\ SMT/
