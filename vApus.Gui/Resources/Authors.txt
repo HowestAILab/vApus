@@ -1,0 +1,5 @@
+<Authors>
+	<Author name="Dieter Vandroemme" email="dieter@sizingservers.be, dieter.vandroemme@gmail.com" period="2007-Present" linkedInID="dietervandroemme" />
+	<Author name="Glenn Desmadryl" email="glenn@sizingservers.be" period="2009-Present" linkedInID="glenndesmadryl" />
+	<Author name="Liz van Dijk" email="liz@sizingservers.be" period="2011-Present" linkedInID="lizvandijk" />
+</Authors>

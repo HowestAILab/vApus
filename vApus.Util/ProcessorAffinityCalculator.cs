@@ -1,0 +1,46 @@
+﻿/*
+ * Copyright 2008 (c) Sizing Servers Lab 
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
+using System.Collections.Generic;
+
+namespace vApus.Util
+{
+    /// <summary>
+    /// </summary>
+    public static class ProcessorAffinityCalculator
+    {
+        /// <summary>
+        /// Converts from a hex bitmask to an array of cpu's this process its affinity is set to.
+        /// </summary>
+        /// <param name="bitmask"></param>
+        /// <returns></returns>
+        public static int[] FromBitmaskToArray(IntPtr bitmask)
+        {
+            //To check if the bitmask contains the cpu's a binairy and is used.
+            List<int> cpus = new List<int>();
+            int iBitmask = bitmask.ToInt32();
+            for (int i = 0; i < Environment.ProcessorCount; i++)
+                if ((iBitmask & (int)Math.Pow(2, i)) > 0)
+                    cpus.Add(i);
+            return cpus.ToArray();
+        }
+        /// <summary>
+        /// Converts from an array of cpu's to a hex bitmask this process its affinaty is set to.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static IntPtr FromArrayToBitmask(int[] array)
+        {
+            //Hex = 2^(n)
+            int i = 0;
+            for (int j = 0; j < array.Length; j++)
+                i += (int)Math.Pow(2, array[j]);
+            return new IntPtr(i);
+        }
+    }
+}

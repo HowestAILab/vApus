@@ -1,0 +1,731 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{790522AB-42D5-4C39-83BE-14244D8C3F22}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>vApus.Stresstest</RootNamespace>
+    <AssemblyName>vApus.Stresstest</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Build\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.Stresstest.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>..\..\Build\vApus.Stresstest.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DevelopmentBuild\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EnableBetaFeature</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.Stresstest.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\DevelopmentBuild\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EnableBetaFeature</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.Stresstest.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\TestingBuild\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.Stresstest.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\TestingBuild\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.Stresstest.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FastColoredTextBox">
+      <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.Core">
+      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.SwingAWT">
+      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.SwingAWT.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.Text">
+      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Text.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.OpenJDK.Util">
+      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.Runtime">
+      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Lupus_HTTP_Proxy">
+      <HintPath>..\Prerequisites\Lupus Proxy\Lupus_HTTP_Proxy.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="QuickLZ.Net">
+      <HintPath>..\Prerequisites\QuickLZ.Net\QuickLZ.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Connections\ParallelConnectionProxy.cs" />
+    <Compile Include="Connections\Proxies\Panels\FindAndReplace.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Connections\Proxies\Panels\FindAndReplace.designer.cs">
+      <DependentUpon>FindAndReplace.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\TestAllConnections.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Connections\TestAllConnections.Designer.cs">
+      <DependentUpon>TestAllConnections.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MonitorReportControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\MonitorReportControl.Designer.cs">
+      <DependentUpon>MonitorReportControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\ParameterTokenTextStyle.cs" />
+    <Compile Include="StresstestThreadPool.cs" />
+    <Compile Include="Logs\BulkEditLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs\BulkEditLog.Designer.cs">
+      <DependentUpon>BulkEditLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\RedetermineTokens.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs\RedetermineTokens.Designer.cs">
+      <DependentUpon>RedetermineTokens.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Parameters\Custom List\CustomListGenerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Parameters\Custom List\CustomListGenerator.Designer.cs">
+      <DependentUpon>CustomListGenerator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Parameters\CustomRandom\CompileCustomRandom.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Parameters\CustomRandom\CompileCustomRandom.designer.cs">
+      <DependentUpon>CompileCustomRandom.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Parameters\CustomRandom\CustomRandomParameter.cs" />
+    <Compile Include="Parameters\CustomRandom\CustomRandomParameters.cs" />
+    <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.Designer.cs">
+      <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Parameters\ParameterTokenSynchronization.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Parameters\ParameterTokenSynchronization.Designer.cs">
+      <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RFileHandler.cs" />
+    <Compile Include="Connections\ConnectionView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Connections\ConnectionView.designer.cs">
+      <DependentUpon>ConnectionView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\Proxies\ConnectionProxyCode.cs" />
+    <Compile Include="Connections\Proxies\Panels\AddReferences.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Connections\Proxies\Panels\AddReferences.designer.cs">
+      <DependentUpon>AddReferences.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\Proxies\CodeBlock.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Connections\Proxies\CodeBlock.designer.cs">
+      <DependentUpon>CodeBlock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\Proxies\CodeBlockTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Connections\Proxies\CodeBlockTextBox.designer.cs">
+      <DependentUpon>CodeBlockTextBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\Proxies\Panels\Compile.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Connections\Proxies\Panels\Compile.designer.cs">
+      <DependentUpon>Compile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\Proxies\ConnectionProxies.cs" />
+    <Compile Include="Connections\Proxies\ConnectionProxy.cs" />
+    <Compile Include="Connections\Proxies\Panels\Execute.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Connections\Proxies\Panels\Execute.designer.cs">
+      <DependentUpon>Execute.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\Proxies\ConnectionProxyCodeView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Connections\Proxies\ConnectionProxyCodeView.designer.cs">
+      <DependentUpon>ConnectionProxyCodeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\Proxies\Panels\References.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Connections\Proxies\Panels\References.designer.cs">
+      <DependentUpon>References.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
+    <Compile Include="Connections\RuleSets\ConnectionProxyRuleSetSyntaxItemPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Connections\RuleSets\ConnectionProxyRuleSetSyntaxItemPanel.Designer.cs">
+      <DependentUpon>ConnectionProxyRuleSetSyntaxItemPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\StresstestReportControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\StresstestReportControl.Designer.cs">
+      <DependentUpon>StresstestReportControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\StresstestControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\StresstestControl.Designer.cs">
+      <DependentUpon>StresstestControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Delegates.cs" />
+    <Compile Include="Logs\Controls\ErrorAndFindSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\ErrorAndFindSelector.Designer.cs">
+      <DependentUpon>ErrorAndFindSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\Controls\LogEntryControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\LogEntryControl.Designer.cs">
+      <DependentUpon>LogEntryControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\Controls\UserActionControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\UserActionControl.Designer.cs">
+      <DependentUpon>UserActionControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\Record.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs\Record.Designer.cs">
+      <DependentUpon>Record.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\RuleSets\LogSyntaxItem.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="RuleSetLexer.cs" />
+    <Compile Include="StresstestCore.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="Metrics.cs" />
+    <Compile Include="Parameters\Custom List\CustomListParameters.cs" />
+    <Compile Include="Parameters\Custom List\CustomListParameter.cs" />
+    <Compile Include="Parameters\Numeric\NumericParameters.cs" />
+    <Compile Include="Parameters\Numeric\NumericParameter.cs" />
+    <Compile Include="Parameters\Text\TextParameters.cs" />
+    <Compile Include="Parameters\Text\TextParameter.cs" />
+    <Compile Include="RuleSets\ASTNode.cs" />
+    <Compile Include="Parameters\BaseParameter.cs" />
+    <Compile Include="Parameters\Parameters.cs" />
+    <Compile Include="Parameters\ParameterView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Parameters\ParameterView.Designer.cs">
+      <DependentUpon>ParameterView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StresstestThreadPoolWithRecycling.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TestPatternsAndDelaysGenerator.cs" />
+    <Compile Include="Connections\ConnectionProxyPool.cs" />
+    <Compile Include="Connections\IConnectionProxy.cs" />
+    <Compile Include="Connections\RuleSets\ConnectionProxySyntaxItem.cs" />
+    <Compile Include="Logs\AddEditLogEntry.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs\AddEditLogEntry.Designer.cs">
+      <DependentUpon>AddEditLogEntry.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Connections\Connection.cs" />
+    <Compile Include="Connections\Connections.cs" />
+    <Compile Include="Logs\Controls\LogChildControlBase.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\LogChildControlBase.designer.cs">
+      <DependentUpon>LogChildControlBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\Log.cs" />
+    <Compile Include="Logs\LogEntry.cs" />
+    <Compile Include="Logs\Logs.cs" />
+    <Compile Include="Logs\LogView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs\LogView.Designer.cs">
+      <DependentUpon>LogView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\RuleSets\LogRuleSets.cs" />
+    <Compile Include="Logs\UserAction.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\RuleSets\LogRuleSet.cs" />
+    <Compile Include="RuleSets\BaseRuleSet.cs" />
+    <Compile Include="RuleSets\LexicalResult.cs" />
+    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.Designer.cs">
+      <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RuleSets\Controls\SyntaxItemControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="RuleSets\Controls\SyntaxItemControl.Designer.cs">
+      <DependentUpon>SyntaxItemControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RuleSets\SyntaxItem.cs" />
+    <Compile Include="RuleSets\BaseRuleSets.cs" />
+    <Compile Include="RuleSets\Rule.cs" />
+    <Compile Include="Stresstest.cs" />
+    <Compile Include="StresstestProject.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StresstestResults.cs" />
+    <Compile Include="StresstestView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StresstestView.Designer.cs">
+      <DependentUpon>StresstestView.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\vApus.Monitor\vApus.Monitor.csproj">
+      <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
+      <Name>vApus.Monitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
+      <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>
+      <Name>vApus.SolutionTree</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
+      <Project>{EAFDF189-4D7D-4784-96BC-662D746DEBF8}</Project>
+      <Name>vApus.Util</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WeifenLuo.WinFormsUI\WeifenLuo.WinFormsUI.csproj">
+      <Project>{C75532C4-765B-418E-B09B-46D36B2ABDB1}</Project>
+      <Name>WeifenLuo.WinFormsUI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Connections\ConnectionView.resx">
+      <DependentUpon>ConnectionView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\Proxies\Panels\AddReferences.resx">
+      <DependentUpon>AddReferences.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\Proxies\CodeBlock.resx">
+      <DependentUpon>CodeBlock.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\Proxies\CodeBlockTextBox.resx">
+      <DependentUpon>CodeBlockTextBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\Proxies\Panels\Compile.resx">
+      <DependentUpon>Compile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\Proxies\Panels\FindAndReplace.resx">
+      <DependentUpon>FindAndReplace.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\Proxies\Panels\Execute.resx">
+      <DependentUpon>Execute.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\Proxies\ConnectionProxyCodeView.resx">
+      <DependentUpon>ConnectionProxyCodeView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\Proxies\Panels\References.resx">
+      <DependentUpon>References.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\RuleSets\ConnectionProxyRuleSetSyntaxItemPanel.resx">
+      <DependentUpon>ConnectionProxyRuleSetSyntaxItemPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Connections\TestAllConnections.resx">
+      <DependentUpon>TestAllConnections.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MonitorReportControl.resx">
+      <DependentUpon>MonitorReportControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\StresstestReportControl.resx">
+      <DependentUpon>StresstestReportControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\StresstestControl.resx">
+      <DependentUpon>StresstestControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\AddEditLogEntry.resx">
+      <DependentUpon>AddEditLogEntry.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\Controls\ErrorAndFindSelector.resx">
+      <DependentUpon>ErrorAndFindSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\Controls\UserActionControl.resx">
+      <DependentUpon>UserActionControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\Controls\LogChildControlBase.resx">
+      <DependentUpon>LogChildControlBase.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\Controls\LogEntryControl.resx">
+      <DependentUpon>LogEntryControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\BulkEditLog.resx">
+      <DependentUpon>BulkEditLog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\LogView.resx">
+      <DependentUpon>LogView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\Record.resx">
+      <DependentUpon>Record.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\RedetermineTokens.resx">
+      <DependentUpon>RedetermineTokens.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Parameters\Custom List\CustomListGenerator.resx">
+      <DependentUpon>CustomListGenerator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Parameters\CustomRandom\CompileCustomRandom.resx">
+      <DependentUpon>CompileCustomRandom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Parameters\CustomRandom\CustomRandomParameterView.resx">
+      <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Parameters\ParameterTokenSynchronization.resx">
+      <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Parameters\ParameterView.resx">
+      <DependentUpon>ParameterView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RuleSets\Controls\RuleSetSyntaxItemPanel.resx">
+      <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RuleSets\Controls\SyntaxItemControl.resx">
+      <DependentUpon>SyntaxItemControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StresstestView.resx">
+      <DependentUpon>StresstestView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="RuleSets\app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Resources\StresstestProject.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Stresstest.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Log.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Logs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\connection.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LogRuleSets.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LogRuleSet.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SyntaxItem.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Rule.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Connections.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Unactionize.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Actionize.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LogEntryOK.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LogEntryWarning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LogEntryError.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.VisualBasic.PowerPacks.10.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft Visual Basic PowerPacks 10.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ConnectionRuleSets.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ConnectionRuleSet.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ConnectionSyntaxItem.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Document.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Folder.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Parameters.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CustomListParameters.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NumericParameters.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\TextParameters.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CustomListParameter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NumericParameter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\TextParameter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon.16x16.Terminal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ConnectionProxy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Delay.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Pin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PinGreyedOut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\IgnoreDelay.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Wait.gif" />
+    <None Include="Resources\LogSyntaxItem.png" />
+    <None Include="Resources\Breakpoint.png" />
+    <None Include="Resources\play.png" />
+    <None Include="Resources\stop.png" />
+    <None Include="Resources\csharp.xml" />
+    <None Include="Resources\OK.png" />
+    <None Include="Resources\Error.png" />
+    <None Include="Resources\CustomRandomParameter.png" />
+    <None Include="Resources\CustomRandomParameters.png" />
+    <None Include="Resources\NotParallel.png" />
+    <None Include="Resources\Parallel.png" />
+    <None Include="Resources\RedetermineTokens.png" />
+    <None Include="Resources\RedetermineTokens1.png" />
+    <Content Include="Resources\UserAction.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

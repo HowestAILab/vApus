@@ -1,0 +1,82 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}Why?}{2}
+\contentsline {section}{\numberline {2}Over Viewing the Fundaments {\bf (D)}}{2}
+\contentsline {subsection}{\numberline {2.1}Static GUI}{3}
+\contentsline {subsection}{\numberline {2.2}Managing Modules {The Actual Framework}}{4}
+\contentsline {subsection}{\numberline {2.3}Generated GUI}{5}
+\contentsline {subsubsection}{\numberline {2.3.1}Stresstesting Solution Explorer}{5}
+\contentsline {subsubsection}{\numberline {2.3.2}Tree Nodes}{5}
+\contentsline {subsubsection}{\numberline {2.3.3}Context Menu's}{6}
+\contentsline {paragraph}{Hotkeys}{7}
+\contentsline {subparagraph}{Renaming and Activating a Tree Node}{8}
+\contentsline {paragraph}{Views}{8}
+\contentsline {subsection}{\numberline {2.4}Resource Management (Images)}{8}
+\contentsline {subsection}{\numberline {2.5}File Management (Automated Saving, Loading and Cloning}{9}
+\contentsline {subsection}{\numberline {2.6}Important Other Stuff}{9}
+\contentsline {subsubsection}{\numberline {2.6.1}Comparers and Extensions}{9}
+\contentsline {subsubsection}{\numberline {2.6.2}SpecialFolder}{10}
+\contentsline {subsubsection}{\numberline {2.6.3}ClipboardWrapper}{10}
+\contentsline {subsubsection}{\numberline {2.6.4}SocketWrapper}{10}
+\contentsline {subsubsection}{\numberline {2.6.5}SynchronizedContextWrapper}{11}
+\contentsline {subsubsection}{\numberline {2.6.6}Win32WindowMessageHandler}{11}
+\contentsline {section}{\numberline {3}Stresstesting with vApus v2 (DR)}{11}
+\contentsline {subsection}{\numberline {3.1}What is Stresstesting?}{11}
+\contentsline {subsection}{\numberline {3.2}A New Approach in vApus v2: Standardized Stresstesting Model}{11}
+\contentsline {subsubsection}{\numberline {3.2.1}Lexing and Parsing: Rule Sets}{11}
+\contentsline {subsection}{\numberline {3.3}Lexing and Parsing in vApus v2 (D)}{11}
+\contentsline {subsubsection}{\numberline {3.3.1}Lexing}{11}
+\contentsline {paragraph}{BaseRuleSet}{11}
+\contentsline {paragraph}{SyntaxItem}{11}
+\contentsline {paragraph}{Rule}{11}
+\contentsline {subsubsection}{\numberline {3.3.2}Lexical Result}{11}
+\contentsline {paragraph}{ASTNode}{11}
+\contentsline {subsubsection}{\numberline {3.3.3}Parsing}{11}
+\contentsline {paragraph}{CustomListParameter}{11}
+\contentsline {paragraph}{DoubleParameter}{11}
+\contentsline {paragraph}{StringParameter}{11}
+\contentsline {subsection}{\numberline {3.4}The GUI for All This (and a Quick Note for Researchers)}{12}
+\contentsline {subsubsection}{\numberline {3.4.1}Parameters}{12}
+\contentsline {subsubsection}{\numberline {3.4.2}Connections}{12}
+\contentsline {paragraph}{Connection Proxies (D)}{12}
+\contentsline {subsubsection}{\numberline {3.4.3}Logs}{12}
+\contentsline {subsection}{\numberline {3.5}Stresstesting}{12}
+\contentsline {subsubsection}{\numberline {3.5.1}Configuring a Stresstest (and Some Best Practices)}{12}
+\contentsline {paragraph}{ASAP}{12}
+\contentsline {paragraph}{CR}{12}
+\contentsline {subsubsection}{\numberline {3.5.2}Starting a Stresstest and Handling Errors and Other Problems}{12}
+\contentsline {subsubsection}{\numberline {3.5.3}Saving Results}{12}
+\contentsline {paragraph}{Cascaded Results}{12}
+\contentsline {paragraph}{Listed Results}{12}
+\contentsline {section}{\numberline {4}Stresstesting with vApus v2: Explaining the Code (D)}{12}
+\contentsline {subsection}{\numberline {4.1}Rule Sets}{12}
+\contentsline {subsubsection}{\numberline {4.1.1}Lexing}{12}
+\contentsline {subsubsection}{\numberline {4.1.2}Parsing}{12}
+\contentsline {subsection}{\numberline {4.2}Parameters}{12}
+\contentsline {subsection}{\numberline {4.3}Logs}{12}
+\contentsline {subsection}{\numberline {4.4}Connections}{12}
+\contentsline {subsubsection}{\numberline {4.4.1}IConnectionProxy and Programming Your Own Connection Proxy Class}{12}
+\contentsline {subsubsection}{\numberline {4.4.2}ConnectionProxyPool}{12}
+\contentsline {subsubsection}{\numberline {4.4.3}Free Coding}{12}
+\contentsline {subsubsection}{\numberline {4.4.4}Unit Testing}{12}
+\contentsline {paragraph}{Try Compile}{12}
+\contentsline {paragraph}{Test Code}{12}
+\contentsline {subsection}{\numberline {4.5}Threading}{13}
+\contentsline {subsubsection}{\numberline {4.5.1}StresstestThreadPool}{13}
+\contentsline {subsection}{\numberline {4.6}StresstestResults}{13}
+\contentsline {subsection}{\numberline {4.7}Stresstesting}{13}
+\contentsline {subsubsection}{\numberline {4.7.1}Starting a Test}{13}
+\contentsline {paragraph}{Determining Runs}{13}
+\contentsline {paragraph}{Determining Test- and Delay Patterns}{13}
+\contentsline {subsubsection}{\numberline {4.7.2}Executing the Work}{13}
+\contentsline {subsubsection}{\numberline {4.7.3}Displaying Results}{13}
+\contentsline {paragraph}{Metric Controls}{13}
+\contentsline {paragraph}{LogEntryResultsDrawBox}{13}
+\contentsline {subsubsection}{\numberline {4.7.4}Handling Errors and Other Problems}{13}
+\contentsline {subsubsection}{\numberline {4.7.5}Stopping a Test}{13}
+\contentsline {section}{\numberline {5}Distributed Testing (DR)}{13}
+\contentsline {subsection}{\numberline {5.1}Setting Up a Test (and Some Best Practices)}{13}
+\contentsline {subsubsection}{\numberline {5.1.1}Resource Pool}{13}
+\contentsline {subsubsection}{\numberline {5.1.2}Tiles}{13}
+\contentsline {subsubsection}{\numberline {5.1.3}vApus Jump Start (Experimental)}{13}
+\contentsline {subsection}{\numberline {5.2}Starting a Test, Handling Errors and Handling Other Problems}{13}
+\contentsline {section}{\numberline {6}Distributed Testing: Explaining the Code (D)}{13}

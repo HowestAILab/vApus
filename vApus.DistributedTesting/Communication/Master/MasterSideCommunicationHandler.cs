@@ -1,0 +1,858 @@
+﻿/*
+ * Copyright 2010 (c) Sizing Servers Lab
+ * Technical University Kortrijk, Department GKG
+ *  
+ * Author(s):
+ *    Vandroemme Dieter
+ */
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using vApus.Util;
+
+namespace vApus.DistributedTesting
+{
+    public class MasterSideCommunicationHandler : IDisposable
+    {
+        #region Events
+        public event EventHandler<ListeningErrorEventArgs> ListeningError;
+        public event EventHandler<PushMessageReceivedEventArgs> OnPushMessageReceived;
+        #endregion
+
+        #region Fields
+        private object _lock = new object();
+        //A slave side and a master side socket wrappers for full duplex communication.
+        private Dictionary<SocketWrapper, SocketWrapper> _connectedSlaves = new Dictionary<SocketWrapper, SocketWrapper>();
+        private AsyncCallback _onReceiveCallBack;
+        private IAsyncResult _asyncResult;
+        private bool _isDisposed;
+
+        //When sending a continue --> continue to the right run.
+        private int _continueCounter = -1;
+        #endregion
+
+        #region Properties
+        public bool IsDisposed
+        {
+            get { return _isDisposed; }
+        }
+        #endregion
+
+        #region Functions
+
+        #region Private
+        /// <summary>
+        /// Will begin listening after initializing the test.
+        /// 
+        /// The retry count for connecting is 3 and the connect timeout is 30 seconds.
+        /// </summary>
+        /// <param name="slaveSocketWrapper"></param>
+        /// <param name="processID">-1 for already connected.</param>
+        /// <param name="exception"></param>
+        private void ConnectSlave(SocketWrapper slaveSocketWrapper, out int processID, out Exception exception)
+        {
+            processID = -1;
+            exception = null;
+            try
+            {
+                exception = null;
+                if (!slaveSocketWrapper.Connected)
+                {
+                    slaveSocketWrapper.Connect(30000, 3);
+                    if (slaveSocketWrapper.Connected)
+                    {
+                        var masterSocketWrapper = GetMasterSocketWrapper(slaveSocketWrapper);
+
+                        Message<Key> message = SendAndReceive(slaveSocketWrapper, Key.Poll, null, 30000);
+                        PollMessage pollMessage = (PollMessage)message.Content;
+                        processID = pollMessage.ProcessID;
+
+                        lock (_lock)
+                            if (!_connectedSlaves.ContainsKey(slaveSocketWrapper))
+                                _connectedSlaves.Add(slaveSocketWrapper, masterSocketWrapper);
+                    }
+                    else
+                    {
+                        throw (new Exception(string.Format("Could not connect {0}:{1}.", slaveSocketWrapper.IP.ToString(), slaveSocketWrapper.Port.ToString())));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+        }
+        /// <summary>
+        /// Will start listening too.
+        /// </summary>
+        /// <param name="slaveSocketWrapper"></param>
+        /// <returns></returns>
+        private SocketWrapper GetMasterSocketWrapper(SocketWrapper slaveSocketWrapper)
+        {
+            Exception exception = null;
+
+            SocketWrapper masterSocketWrapper = null;
+            lock (_lock)
+                if (_connectedSlaves.ContainsKey(slaveSocketWrapper))
+                    masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
+
+            if (masterSocketWrapper == null)
+            {
+                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                string ip = SocketListener.GetInstance().IP;
+
+                int start = slaveSocketWrapper.Port * 10;
+                int stop = int.MaxValue;
+
+                for (int i = start; i != stop; i++)
+                {
+                    try
+                    {
+                        masterSocketWrapper = new SocketWrapper(ip, i, socket);
+                        StartListening(masterSocketWrapper);
+                        exception = null;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                    }
+                }
+            }
+
+            if (exception != null)
+                throw exception;
+            return masterSocketWrapper;
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="slaveSocketWrapper">Will be removed from the connected slaves collection.</param>
+        private void DisconnectSlave(SocketWrapper slaveSocketWrapper)
+        {
+            try
+            {
+                foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
+                    if (socketWrapper == slaveSocketWrapper)
+                    {
+                        if (slaveSocketWrapper != null)
+                        {
+                            try
+                            {
+                                var masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
+                                masterSocketWrapper.Close();
+                                masterSocketWrapper = null;
+                            }
+                            catch { }
+
+                            try
+                            {
+                                slaveSocketWrapper.Close();
+                            }
+                            catch { }
+                        }
+                        _connectedSlaves.Remove(socketWrapper);
+                        break;
+                    }
+            }
+            catch { }
+        }
+        /// <summary>
+        /// Gets the slave socket wrapper from the connected slaves. Returns null if not found.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="create"></param>
+        /// <returns></returns>
+        private SocketWrapper Get(string ip, int port)
+        {
+            lock (_lock)
+            {
+                foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
+                    if (socketWrapper.IP.ToString() == ip && socketWrapper.Port == port)
+                        return socketWrapper;
+                return null;
+            }
+        }
+        /// <summary>
+        /// Will try to reconnect if the connection was lost.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="exception"></param>
+        /// <returns></returns>
+        private SocketWrapper Get(string ip, int port, out Exception exception)
+        {
+            exception = null;
+            int processID;
+            SocketWrapper socketWrapper = Get(ip, port);
+            if (socketWrapper != null && !socketWrapper.Connected)
+                ConnectSlave(socketWrapper, out processID, out exception);
+
+            if (socketWrapper == null || !socketWrapper.Connected)
+                exception = new Exception(string.Format("Not connected to {0}:{1}.", ip, port));
+            return socketWrapper;
+        }
+        private Dictionary<SocketWrapper, List<int>> CombineSocketWrappersAndOriginalHashCodes(IEnumerable<TileStresstest> tileStresstests, out Exception exception)
+        {
+            Dictionary<SocketWrapper, List<int>> dict;
+            exception = null;
+            try
+            {
+                dict = new Dictionary<SocketWrapper, List<int>>();
+
+                foreach (TileStresstest tileStresstest in tileStresstests)
+                {
+                    Exception e;
+                    SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out e);
+
+                    if (e == null && socketWrapper != null)
+                        if (dict.ContainsKey(socketWrapper))
+                        {
+                            dict[socketWrapper].Add(tileStresstest.OriginalHashCode);
+                        }
+                        else
+                        {
+                            var originaleHashCodes = new List<int>();
+                            originaleHashCodes.Add(tileStresstest.OriginalHashCode);
+                            dict.Add(socketWrapper, originaleHashCodes);
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+                dict = null;
+            }
+            return dict;
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="socketWrapper"></param>
+        /// <param name="message"></param>
+        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
+        private void Send(SocketWrapper socketWrapper, Message<Key> message, int tempSendTimeout = -1)
+        {
+            socketWrapper.SendTimeout = tempSendTimeout;
+            socketWrapper.Send(message, SendType.Binary);
+            socketWrapper.SendTimeout = -1;
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="socketWrapper"></param>
+        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
+        private void Send(SocketWrapper socketWrapper, Key key, object content, int tempSendTimeout = -1)
+        {
+            Send(socketWrapper, new Message<Key>(key, content), tempSendTimeout);
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="exception"></param>
+        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
+        private void Send(string ip, int port, Key key, object content, out Exception exception, int tempSendTimeout = -1)
+        {
+            exception = null;
+            SocketWrapper socketWrapper = null;
+            try
+            {
+                socketWrapper = Get(ip, port, out exception);
+                if (exception == null)
+                    Send(socketWrapper, key, content, tempSendTimeout);
+            }
+            catch (Exception ex)
+            {
+                DisconnectSlave(socketWrapper);
+                exception = ex;
+            }
+        }
+        /// <summary>
+        /// Send to all slaves.
+        /// Will connect all the slaves if not connected.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="exception"></param>
+        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
+        private void Send(Key key, object content, out Exception exception, int tempSendTimeout = -1)
+        {
+            exception = null;
+            int processID;
+            List<string> failedFor = new List<string>();
+            Dictionary<SocketWrapper, Message<Key>> dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
+            foreach (SocketWrapper slaveSocketWrapper in _connectedSlaves.Keys)
+            {
+                try
+                {
+                    ConnectSlave(slaveSocketWrapper, out processID, out exception);
+                    Send(slaveSocketWrapper, key, content, tempSendTimeout);
+                }
+                catch
+                {
+                    failedFor.Add(string.Format("{0}:{1}", slaveSocketWrapper.IP, slaveSocketWrapper.Port));
+                }
+            }
+
+            if (failedFor.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder("Failed send and receive for ");
+                for (int j = 0; j < failedFor.Count - 1; j++)
+                {
+                    sb.Append(failedFor[j]);
+                    sb.Append(", ");
+                }
+                sb.Append(failedFor[failedFor.Count - 1]);
+                sb.Append('.');
+                exception = new Exception(sb.ToString());
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="socketWrapper"></param>
+        /// <param name="tempReceiveTimeout">A temporarly timeout for the receive, it will be reset to -1 afterwards.</param>
+        /// <returns></returns>
+        private Message<Key> Receive(SocketWrapper socketWrapper, int tempReceiveTimeout = -1)
+        {
+            socketWrapper.ReceiveTimeout = tempReceiveTimeout;
+            var message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
+            socketWrapper.ReceiveTimeout = -1;
+            return message;
+        }
+        /// <summary>
+        /// Thread safe
+        /// </summary>
+        /// <param name="socketWrapper"></param>
+        /// <param name="message"></param>
+        /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
+        /// <returns></returns>
+        private Message<Key> SendAndReceive(SocketWrapper socketWrapper, Message<Key> message, int tempSendReceiveTimeout = -1)
+        {
+            lock (_lock)
+            {
+                Send(socketWrapper, message, tempSendReceiveTimeout);
+                return Receive(socketWrapper, tempSendReceiveTimeout);
+            }
+        }
+        /// <summary>
+        /// Thread safe
+        /// </summary>
+        /// <param name="socketWrapper"></param>
+        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
+        /// <returns></returns>
+        private Message<Key> SendAndReceive(SocketWrapper socketWrapper, Key key, object content, int tempSendReceiveTimeout = -1)
+        {
+            lock (_lock)
+            {
+                Send(socketWrapper, key, content, tempSendReceiveTimeout);
+                return Receive(socketWrapper, tempSendReceiveTimeout);
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="exception"></param>
+        /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
+        /// <returns></returns>
+        private Message<Key> SendAndReceive(string ip, int port, Key key, object content, out Exception exception, int tempSendReceiveTimeout = -1)
+        {
+            exception = null;
+            SocketWrapper socketWrapper = null;
+            try
+            {
+                socketWrapper = Get(ip, port, out exception);
+                if (exception == null)
+                    return SendAndReceive(socketWrapper, key, content, tempSendReceiveTimeout);
+            }
+            catch (Exception ex)
+            {
+                DisconnectSlave(socketWrapper);
+                exception = ex;
+            }
+            return new Message<Key>();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="content"></param>
+        /// <param name="exception"></param>
+        /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
+        /// <returns></returns>
+        private Dictionary<SocketWrapper, Message<Key>> SendAndReceive(Key key, object content, out Exception exception, int tempSendReceiveTimeout = -1)
+        {
+            exception = null;
+            List<string> failedFor = new List<string>();
+            Dictionary<SocketWrapper, Message<Key>> dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
+            foreach (SocketWrapper slaveSocketWrapper in _connectedSlaves.Keys)
+            {
+                Message<Key> message = new Message<Key>();
+                try
+                {
+                    message = SendAndReceive(slaveSocketWrapper, key, content, tempSendReceiveTimeout);
+                }
+                catch
+                {
+                    failedFor.Add(string.Format("{0}:{1}", slaveSocketWrapper.IP, slaveSocketWrapper.Port));
+                }
+                dictionary.Add(slaveSocketWrapper, message);
+            }
+
+            if (failedFor.Count != 0)
+            {
+                StringBuilder sb = new StringBuilder("Failed send and receive for ");
+                for (int j = 0; j < failedFor.Count - 1; j++)
+                {
+                    sb.Append(failedFor[j]);
+                    sb.Append(", ");
+                }
+                sb.Append(failedFor[failedFor.Count - 1]);
+                sb.Append('.');
+                exception = new Exception(sb.ToString());
+            }
+            return dictionary;
+        }
+        /// <summary>
+        /// Increases the buffer size if needed, never decreases it. Use ResetBuffers for that.
+        /// 
+        /// This has a timout of 30 seconds.
+        /// </summary>
+        /// <param name="socketWrapper"></param>
+        /// <param name="toSend"></param>
+        private void SynchronizeBuffers(SocketWrapper socketWrapper, object toSend)
+        {
+            byte[] buffer = socketWrapper.ObjectToByteArray(toSend);
+            int bufferSize = buffer.Length;
+            if (bufferSize > socketWrapper.SendBufferSize)
+            {
+                socketWrapper.SendBufferSize = bufferSize;
+                socketWrapper.ReceiveBufferSize = socketWrapper.SendBufferSize;
+                SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
+                synchronizeBuffersMessage.BufferSize = socketWrapper.SendBufferSize;
+                SendAndReceive(socketWrapper, Key.SynchronizeBuffers, synchronizeBuffersMessage, 30000);
+            }
+        }
+        /// <summary>
+        /// Set the buffer size to the default buffer size (SocketWrapper.DEFAULTBUFFERSIZE).
+        /// This will set the buffer size of the socket on the other end too.
+        ///
+        /// This has a timout of 30 seconds.
+        /// </summary>
+        /// <param name="socketWrapper"></param>
+        private void ResetBuffers(SocketWrapper socketWrapper)
+        {
+            socketWrapper.SendBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
+            socketWrapper.ReceiveBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
+            SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
+            synchronizeBuffersMessage.BufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
+            SendAndReceive(socketWrapper, Key.SynchronizeBuffers, synchronizeBuffersMessage, 30000);
+        }
+
+        /// <summary>
+        /// The maximum number of connections is 100.
+        /// </summary>
+        /// <param name="masterSocketWrapper"></param>
+        private void StartListening(SocketWrapper masterSocketWrapper)
+        {
+            Socket socket = masterSocketWrapper.Socket;
+            socket.Bind(new IPEndPoint(masterSocketWrapper.IP, masterSocketWrapper.Port));
+            socket.Listen(100);
+            socket.BeginAccept(new AsyncCallback(OnAccept), masterSocketWrapper);
+        }
+        private void OnAccept(IAsyncResult ar)
+        {
+            try
+            {
+                SocketWrapper masterSocketWrapper = ar.AsyncState as SocketWrapper;
+                Socket socket = masterSocketWrapper.Socket.EndAccept(ar);
+
+                SocketWrapper socketWrapper = new SocketWrapper(masterSocketWrapper.IP, 1234, socket, SocketFlags.None, SocketFlags.None);
+                socketWrapper.SetTag(masterSocketWrapper.Port);
+                BeginReceive(socketWrapper);
+                masterSocketWrapper.Socket.BeginAccept(new AsyncCallback(OnAccept), null);
+            }
+            catch
+            { }
+        }
+        private void BeginReceive(SocketWrapper socketWrapper)
+        {
+            try
+            {
+                if (_onReceiveCallBack == null)
+                    _onReceiveCallBack = new AsyncCallback(OnReceive);
+                socketWrapper.Buffer = new byte[socketWrapper.ReceiveBufferSize];
+                socketWrapper.Socket.BeginReceive(socketWrapper.Buffer, 0, socketWrapper.ReceiveBufferSize, SocketFlags.None, _onReceiveCallBack, socketWrapper);
+            }
+            catch (SocketException soe)
+            {
+                InvokeListeningError(socketWrapper, soe);
+            }
+            catch
+            {
+                if (socketWrapper != null)
+                    BeginReceive(socketWrapper);
+            }
+        }
+        private void OnReceive(IAsyncResult result)
+        {
+            _asyncResult = result;
+            SocketWrapper socketWrapper = (SocketWrapper)result.AsyncState;
+            try
+            {
+                socketWrapper.Socket.EndReceive(result);
+
+                Message<Key> message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
+
+                if (message.Key == Key.SynchronizeBuffers)
+                {
+                    socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)message.Content).BufferSize;
+                    BeginReceive(socketWrapper);
+                    socketWrapper.Socket.SendBufferSize = socketWrapper.ReceiveBufferSize;
+                }
+                else if (message.Key == Key.Push)
+                {
+                    BeginReceive(socketWrapper);
+                    if (OnPushMessageReceived != null)
+                        OnPushMessageReceived(this, new PushMessageReceivedEventArgs((PushMessage)message.Content));
+                }
+            }
+            catch (SocketException soe)
+            {
+                InvokeListeningError(socketWrapper, soe);
+            }
+            catch
+            {
+                if (socketWrapper != null)
+                    BeginReceive(socketWrapper);
+            }
+        }
+        private void InvokeListeningError(SocketWrapper socketWrapper, Exception ex)
+        {
+            lock (_lock)
+            {
+                try
+                {
+                    SocketWrapper slaveSocketWrapper = null;
+                    foreach (SocketWrapper sw in _connectedSlaves.Keys)
+                    {
+                        SocketWrapper masterSocketWrapper = _connectedSlaves[sw];
+                        int masterSocketWrapperPort = (int)socketWrapper.GetTag();
+
+                        if (masterSocketWrapper.IP.Equals(socketWrapper.IP) && masterSocketWrapper.Port == masterSocketWrapperPort)
+                        {
+                            slaveSocketWrapper = sw;
+                            break;
+                        }
+                    }
+
+                    DisconnectSlave(slaveSocketWrapper);
+
+                    if (ListeningError != null)
+                        ListeningError.Invoke(this, new ListeningErrorEventArgs(slaveSocketWrapper.IP.ToString(), slaveSocketWrapper.Port, ex));
+                }
+                catch { }
+            }
+        }
+        #endregion
+
+        #region Public
+        /// <summary>
+        /// Connects, sends a poll and adds to the collection (if not there already).
+        /// The retry count is 3.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="processID">-1 for already connected.</param>
+        /// <param name="exception"></param>
+        /// <returns></returns>
+        public SocketWrapper ConnectSlave(string ip, int port, out int processID, out Exception exception)
+        {
+            SocketWrapper socketWrapper = null;
+            exception = null;
+            processID = -1;
+            try
+            {
+                socketWrapper = Get(ip, port);
+                if (socketWrapper == null)
+                {
+                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    socketWrapper = new SocketWrapper(ip, port, socket, SocketFlags.None, SocketFlags.None);
+                }
+                ConnectSlave(socketWrapper, out processID, out exception);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            return socketWrapper;
+        }
+        /// <summary>
+        /// Disconnects all slaves
+        /// </summary>
+        public void DisconnectSlaves()
+        {
+            foreach (SocketWrapper slaveSocketWrapper in _connectedSlaves.Keys)
+                if (slaveSocketWrapper != null)
+                {
+                    try
+                    {
+                        var masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
+                        masterSocketWrapper.Close();
+                        masterSocketWrapper = null;
+                    }
+                    catch { }
+
+                    try
+                    {
+                        slaveSocketWrapper.Close();
+                    }
+                    catch { }
+
+                }
+            _connectedSlaves.Clear();
+        }
+        /// <summary>
+        /// Disconnect a certain slave.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        public void DisconnectSlave(string ip, int port)
+        {
+            DisconnectSlave(Get(ip, port));
+        }
+        /// <summary>
+        /// Will begin listening after this.
+        /// 
+        /// No timeouts (except for the synchronization of the buffers (30 seconds)), this can take a while.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="tileStresstest"></param>
+        /// <param name="exception"></param>
+        public void InitializeTest(TileStresstest tileStresstest, out Exception exception)
+        {
+            SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out exception);
+            if (exception == null)
+                try
+                {
+                    tileStresstest.OriginalHashCode = tileStresstest.GetHashCode();
+
+                    InitializeTestMessage initializeTestMessage = new InitializeTestMessage();
+                    initializeTestMessage.TileStresstest = tileStresstest;
+
+                    SocketWrapper masterSocketWrapper;
+                    lock (_lock)
+                        masterSocketWrapper = _connectedSlaves[socketWrapper];
+                    initializeTestMessage.PushIP = masterSocketWrapper.IP.ToString();
+                    initializeTestMessage.PushPort = masterSocketWrapper.Port;
+
+                    Message<Key> message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
+                    //Increases the buffer size, never decreases it.
+                    SynchronizeBuffers(socketWrapper, message);
+
+                    message = SendAndReceive(socketWrapper, message);
+
+                    initializeTestMessage = (InitializeTestMessage)message.Content;
+
+                    // Reset the buffers to keep the messages as small as possible.
+                    ResetBuffers(socketWrapper);
+                    if (initializeTestMessage.Exception != null)
+                        throw new Exception(initializeTestMessage.Exception);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+        }
+        /// <summary>
+        /// Will start the test on all connected slaves.
+        /// 
+        /// The retry count is 3 with a send and a receive timeout of 30 seconds.
+        /// </summary>
+        /// <param name="exception"></param>
+        public void StartTest(IEnumerable<TileStresstest> tileStresstests, out Exception exception)
+        {
+            var toStart = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
+
+            if (exception == null)
+            {
+                Exception e = null;
+                Parallel.ForEach(toStart.Keys, delegate(SocketWrapper socketWrapper)
+                {
+                    for (int i = 1; i != 4; i++)
+                        try
+                        {
+                            StartAndStopMessage startMessage = new StartAndStopMessage();
+                            lock (_lock)
+                                startMessage.TileStresstestHashCodes = toStart[socketWrapper];
+
+                            Message<Key> message = SendAndReceive(socketWrapper, Key.StartTest, startMessage, 30000);
+
+                            startMessage = (StartAndStopMessage)message.Content;
+                            if (startMessage.Exception != null)
+                                throw new Exception(startMessage.Exception);
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            e = new Exception("Failed to start one or more tests on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
+                            Thread.Sleep(i * 500);
+                        }
+                });
+
+                exception = e;
+            }
+        }
+        public void SendBreak()
+        {
+            Exception exception = null;
+            SendAndReceive(Key.Break, null, out exception, 30000);
+        }
+        public void SendContinue()
+        {
+            Exception exception = null;
+            ContinueMessage continueMessage;
+            continueMessage.ContinueCounter = ++_continueCounter;
+
+            SendAndReceive(Key.Continue, continueMessage, out exception, 30000);
+        }
+        /// <summary>
+        /// The retry count is 3 with a send and a receive timeout of 30 seconds.
+        /// </summary>
+        /// <param name="tileStresstest"></param>
+        /// <param name="exception"></param>
+        public void StopTest(IEnumerable<TileStresstest> tileStresstests)
+        {
+            Exception exception;
+            var toStop = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
+
+            if (exception == null)
+            {
+                Parallel.ForEach(toStop.Keys, delegate(SocketWrapper socketWrapper)
+                {
+                    if (socketWrapper != null)
+                        for (int i = 1; i != 4; i++)
+                            try
+                            {
+                                StartAndStopMessage stopMessage = new StartAndStopMessage();
+                                stopMessage.TileStresstestHashCodes = toStop[socketWrapper];
+
+                                Message<Key> message = SendAndReceive(socketWrapper, Key.StopTest, stopMessage, 30000);
+                                break;
+                            }
+                            catch (Exception ex)
+                            {
+                                exception = ex;
+                                Thread.Sleep(i * 500);
+                            }
+                });
+            }
+        }
+        /// <summary>
+        /// Only use after the test is stopped.
+        /// If the result getting fails for a certain slave an empty message is returned.
+        ///
+        /// The retry count is 3 with a send and a receive timeout of 30 seconds.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="exception"></param>
+        /// <returns></returns>
+        public List<ResultsMessage> GetResults(IEnumerable<TileStresstest> tileStresstests)
+        {
+            Exception exception;
+            var toGet = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
+            List<ResultsMessage> l = new List<ResultsMessage>(toGet.Count);
+
+            Parallel.ForEach(toGet.Keys, delegate(SocketWrapper socketWrapper)
+            {
+                if (socketWrapper != null && socketWrapper.Connected)
+                {
+                    ResultsMessage resultsMessage = new ResultsMessage();
+                    lock (_lock)
+                        resultsMessage.TileStresstestHashCodes = toGet[socketWrapper];
+                    resultsMessage.TorrentInfo = new List<byte[]>(resultsMessage.TileStresstestHashCodes.Count);
+
+                    for (int i = 1; i != 4; i++)
+                        try
+                        {
+                            object data = SendAndReceive(socketWrapper, Key.Results, resultsMessage, 30000).Content;
+                            while (data is SynchronizeBuffersMessage)
+                            {
+                                socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)data).BufferSize;
+                                data = Receive(socketWrapper, 30000).Content;
+                            }
+                            resultsMessage = (ResultsMessage)data;
+                            break;
+                        }
+                        catch
+                        {
+                            Thread.Sleep(i * 500);
+                        }
+
+                    lock (_lock)
+                        l.Add(resultsMessage);
+                }
+            });
+            return l;
+        }
+        /// <summary>
+        /// The retry count is 3 with a send timeout of 30 seconds.
+        /// </summary>
+        /// <param name="tileStresstest"></param>
+        /// <param name="torrentName"></param>
+        /// <param name="exception"></param>
+        public void StopSeedingResults(TileStresstest tileStresstest, string torrentName, out Exception exception)
+        {
+            SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out exception);
+            if (exception == null)
+                for (int i = 1; i != 4; i++)
+                    try
+                    {
+                        StopSeedingResultsMessage stopSeedingResultsMessage = new StopSeedingResultsMessage();
+                        stopSeedingResultsMessage.TorrentName = torrentName;
+
+                        Send(socketWrapper, Key.StopSeedingResults, stopSeedingResultsMessage, 30000);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                        Thread.Sleep(i * 500);
+                    }
+        }
+        public void Dispose()
+        {
+            if (!_isDisposed)
+            {
+                try
+                {
+                    _isDisposed = true;
+                    DisconnectSlaves();
+                    _connectedSlaves = null;
+                    _onReceiveCallBack = null;
+                    _asyncResult = null;
+                }
+                catch { }
+            }
+        }
+        #endregion
+
+        #endregion
+    }
+}

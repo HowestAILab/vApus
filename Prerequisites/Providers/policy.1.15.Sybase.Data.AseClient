@@ -1,0 +1,13 @@
+<configuration>
+   <runtime>
+      <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+       <dependentAssembly>
+         <assemblyIdentity name="Sybase.Data.AseClient"
+                           publicKeyToken="26e0f1529304f4a7"
+                           culture="neutral" />
+         <bindingRedirect oldVersion="1.15.0.0-1.15.50.0"
+                          newVersion="1.15.50.0"/>
+       </dependentAssembly>
+      </assemblyBinding>
+   </runtime>
+</configuration>

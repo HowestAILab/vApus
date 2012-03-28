@@ -1,0 +1,32 @@
+[Setup]
+AppName=vApus and Tools
+AppVerName=vApus and Tools
+DefaultDirName={pf}\Sizing Servers\vApus and Tools
+DefaultGroupName=Sizing Servers
+UninstallDisplayIcon={app}\vApus.exe
+Compression=lzma
+SolidCompression=true
+OutputDir=D:\Werk\devteam\vapus\Make_Setup
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
+OutputBaseFilename=Setup vApus and Tools
+VersionInfoCompany=Sizing Servers
+VersionInfoCopyright=Sizing Servers
+DisableProgramGroupPage=true
+ShowLanguageDialog=no
+LanguageDetectionMethod=none
+PrivilegesRequired=admin
+[Registry]
+Root: HKCR; Subkey: .vass; ValueType: string; ValueData: vApus Stresstesting Solution; Flags: uninsdeletevalue
+Root: HKCR; Subkey: vApus Stresstesting Solution; ValueType: string; ValueData: vApus Stresstesting Solution; Flags: uninsdeletekey
+Root: HKCR; Subkey: vApus Stresstesting Solution\DefaultIcon; ValueType: string; ValueData: {app}\vApus.exe,0
+Root: HKCR; Subkey: vApus Stresstesting Solution\shell\open\command; ValueType: string; ValueData: """{app}\vApus.exe"" ""%1"""
+Root: HKCR; Subkey: .r; ValueType: string; ValueData: R-File; Flags: uninsdeletevalue
+Root: HKCR; Subkey: R-File; ValueType: string; ValueData: R-File; Flags: uninsdeletekey
+Root: HKCR; Subkey: R-File\DefaultIcon; ValueType: string; ValueData: {app}\vApus.Report.exe,0
+Root: HKCR; Subkey: R-File\shell\open\command; ValueType: string; ValueData: """{app}\vApus.Report.exe"" ""%1"""
+[Icons]
+Name: {group}\vApus; Filename: {app}\vApus.exe
+Name: {group}\Report; Filename: {app}\vApus.Report.exe
+Name: {group}\Uninstall; Filename: {app}\unins000.exe
+Name: {group}\Log Fixer; Filename: {app}\vApus.LogFixer.exe

@@ -1,0 +1,2 @@
+﻿This is the proxy over a socket to a vApus SMT process somewhere in the network; in the vApus SMT project is the local proxy logic kept.
+Both projects have the same name so dll's can be drop in replaced or the right one can be chosen through reflection. 

@@ -1,0 +1,1 @@
+﻿It's lame but it won't work for x64, it works for x86 though. The project 'vApus.Direct2DChart' is located in the folder 'Research'.

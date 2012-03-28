@@ -1,0 +1,158 @@
+﻿/*
+ * Copyright 2011 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System.ComponentModel;
+using System.IO;
+using System.Windows.Forms;
+using Tamir.SharpSsh;
+
+namespace vApus.Util
+{
+    public enum UpdateNotifierState
+    {
+        [Description("Disabled")]
+        Disabled = 0,
+        [Description("Failed Connecting to the Update Server!")]
+        FailedConnectingToTheUpdateServer,
+        [Description("Please Refresh...")]
+        PleaseRefresh,
+        [Description("New Update Found")]
+        NewUpdateFound,
+        [Description("Up to Date")]
+        UpToDate
+    }
+
+    public static class UpdateNotifier
+    {
+        private static bool _failedRefresh = false;
+        private static bool _versionChanged = false;
+        private static bool _refreshed = false;
+
+        public static UpdateNotifierState UpdateNotifierState
+        {
+            get
+            {
+                if (_failedRefresh)
+                    return Util.UpdateNotifierState.FailedConnectingToTheUpdateServer;
+
+                string host, username, password;
+                int port;
+                GetCredentials(out host, out port, out username, out password);
+
+                if (host.Length == 0 || username.Length == 0 || password.Length == 0)
+                {
+                    return UpdateNotifierState.Disabled;
+                }
+                else if (_refreshed)
+                {
+                    if (_versionChanged)
+                        return Util.UpdateNotifierState.NewUpdateFound;
+                    return UpdateNotifierState.UpToDate;
+                }
+
+                return UpdateNotifierState.PleaseRefresh;
+            }
+        }
+
+        public static void SetCredentials(string host, int port, string username, string password)
+        {
+            vApus.Util.Properties.Settings.Default.Host = host;
+            vApus.Util.Properties.Settings.Default.Port = port;
+            vApus.Util.Properties.Settings.Default.Username = username;
+
+            password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+            vApus.Util.Properties.Settings.Default.Password = password;
+            vApus.Util.Properties.Settings.Default.Save();
+
+            _refreshed = false;
+        }
+        public static void GetCredentials(out string host, out int port, out string username, out string password)
+        {
+            host = vApus.Util.Properties.Settings.Default.Host;
+            port = vApus.Util.Properties.Settings.Default.Port;
+            username = vApus.Util.Properties.Settings.Default.Username;
+            password = vApus.Util.Properties.Settings.Default.Password;
+            password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+        }
+
+        public static void Refresh()
+        {
+            string tempFolder = Path.Combine(Application.StartupPath, "tempForUpdateNotifier");
+
+            try
+            {
+                string host, username, password;
+                int port;
+                GetCredentials(out host, out port, out username, out password);
+
+                _failedRefresh = false;
+                if (host.Length == 0 || username.Length == 0 || password.Length == 0)
+                {
+                    _versionChanged = false;
+                    _refreshed = false;
+                    return;
+                }
+
+                Sftp sftp = new Sftp(host, username, password);
+                sftp.Connect(port);
+
+                if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
+                    Directory.Delete(tempFolder, true);
+
+                Directory.CreateDirectory(tempFolder);
+
+                string tempVersionControl = Path.Combine(tempFolder, "versioncontrol.ini");
+
+                try
+                {
+                    if (File.Exists(tempVersionControl))
+                        File.Delete(tempVersionControl);
+                }
+                catch { }
+
+                sftp.Get("vapus/versioncontrol.ini", tempVersionControl);
+
+                try
+                {
+                    sftp.Close();
+                }
+                finally
+                {
+                    sftp = null;
+                }
+
+                int prevVersion = GetVersion(Path.Combine(Application.StartupPath, "versioncontrol.ini"));
+                int curVersion = GetVersion(tempVersionControl);
+
+                _versionChanged = (prevVersion != curVersion);
+
+                _refreshed = true;
+            }
+            catch
+            {
+                _failedRefresh = true;
+                _refreshed = false;
+            }
+            if (Directory.Exists(tempFolder))
+                Directory.Delete(tempFolder, true);
+        }
+        private static int GetVersion(string versionIniPath)
+        {
+            using (StreamReader sr = new StreamReader(versionIniPath))
+            {
+                int i = 0;
+                while (sr.Peek() != -1)
+                {
+                    string line = sr.ReadLine();
+                    if (i++ == 1)
+                        return int.Parse(line);
+                }
+            }
+            return 0;
+        }
+    }
+}
