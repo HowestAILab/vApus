@@ -65,7 +65,7 @@ namespace vApus.Stresstest
             }
         }
         [PropertyControl(2), SavableCloneable]
-        [DisplayName("Decimal Places")]
+        [DisplayName("Decimal Places"), Description("If this value is greater than 15 it will be ignored and no rounding of the output value will occur.")]
         public int DecimalPlaces
         {
             get { return _decimalPlaces; }

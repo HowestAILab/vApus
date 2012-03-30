@@ -539,6 +539,8 @@
             this.Text = "vApus";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
+            this.LocationChanged += new System.EventHandler(this.MainWindow_LocationChanged);
+            this.SizeChanged += new System.EventHandler(this.MainWindow_SizeChanged);
             this.mainMenu.ResumeLayout(false);
             this.mainMenu.PerformLayout();
             this.statusStrip.ResumeLayout(false);

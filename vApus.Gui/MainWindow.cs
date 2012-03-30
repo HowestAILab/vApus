@@ -113,6 +113,30 @@ namespace vApus.Gui
         }
         #endregion
 
+        private void MainWindow_LocationChanged(object sender, EventArgs e)
+        {
+            RelocateLogErrorToolTip();
+        }
+        private void MainWindow_SizeChanged(object sender, EventArgs e)
+        {
+            RelocateLogErrorToolTip();
+        }
+
+        private void RelocateLogErrorToolTip()
+        {
+            try
+            {
+                if (_logErrorToolTip.Visible)
+                {
+                    int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                    int y = statusStrip.Location.Y - 30;
+
+                    _logErrorToolTip.Location = new Point(x, y);
+                }
+            }
+            catch { }
+        }
+
         #region Menu
 
         private void SetToolStripMenuItemImage(ToolStripMenuItem item)
@@ -388,7 +412,7 @@ namespace vApus.Gui
                             port + " " + username + " " + password);
 
                 launchedNewUpdater = process.Start();
-                if(launchedNewUpdater)
+                if (launchedNewUpdater)
                     process.Exited += new EventHandler(updateProcess_Exited);
             }
             else
@@ -400,7 +424,7 @@ namespace vApus.Gui
                 this.Enabled = true;
 
             this.Cursor = Cursors.Default;
-            
+
             return launchedNewUpdater;
         }
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
