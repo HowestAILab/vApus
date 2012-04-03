@@ -23,20 +23,6 @@ namespace vApus.Gui
 {
     public partial class MainWindow : Form
     {
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct FLASHWINFO
-        {
-            public UInt32 cbSize;
-            public IntPtr hwnd;
-            public UInt32 dwFlags;
-            public UInt32 uCount;
-            public UInt32 dwTimeout;
-        }
-
         #region Fields
         public const UInt32 FLASHW_TRAY = 2;
         private Win32WindowMessageHandler _msgHandler;
@@ -98,8 +84,8 @@ namespace vApus.Gui
             _processorAffinityPanel = new ProcessorAffinityPanel();
             _cleanTempDataPanel = new CleanTempDataPanel();
             string host, username, password;
-            int port;
-            UpdateNotifier.GetCredentials(out host, out port, out username, out password);
+            int port, channel;
+            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
 
             UpdateNotifier.Refresh();
 
@@ -107,7 +93,7 @@ namespace vApus.Gui
                 MessageBox.Show("New update found!\nDo you want to update?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 //Doing stuff automatically
-                if (LaunchUpdater(host, port, username, password))
+                if (Update(host, port, username, password, channel))
                     this.Close();
             }
         }
@@ -382,10 +368,6 @@ namespace vApus.Gui
         }
         #endregion
 
-        private void updateToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LaunchUpdater();
-        }
         /// <summary>
         /// Params are for autoconnect (using auto update)
         /// </summary>
@@ -394,36 +376,36 @@ namespace vApus.Gui
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns>true if a new updater is launched.</returns>
-        private bool LaunchUpdater(string host = null, int port = -1, string username = null, string password = null)
+        private bool Update(string host, int port, string username, string password, int channel)
         {
             bool launchedNewUpdater = false;
 
-            this.Cursor = Cursors.WaitCursor;
-            string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
-            if (File.Exists(path))
+            if (host != null)
             {
-                this.Enabled = false;
-                Process process = new Process();
-                process.EnableRaisingEvents = true;
-                if (host == null)
-                    process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32}");
-                else
+                this.Cursor = Cursors.WaitCursor;
+                string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
+                if (File.Exists(path))
+                {
+                    this.Enabled = false;
+                    Process process = new Process();
+                    process.EnableRaisingEvents = true;
                     process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " +
-                            port + " " + username + " " + password);
+                            port + " " + username + " " + password + " " + channel + " " + true);
 
-                launchedNewUpdater = process.Start();
-                if (launchedNewUpdater)
-                    process.Exited += new EventHandler(updateProcess_Exited);
+                    launchedNewUpdater = process.Start();
+                    if (launchedNewUpdater)
+                        process.Exited += new EventHandler(updateProcess_Exited);
+                }
+                else
+                {
+                    MessageBox.Show("vApus could not be updated because the update tool was not found!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                }
+
+                if (!launchedNewUpdater)
+                    this.Enabled = true;
+
+                this.Cursor = Cursors.Default;
             }
-            else
-            {
-                MessageBox.Show("vApus could not be updated because the update tool was not found!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-            }
-
-            if (!launchedNewUpdater)
-                this.Enabled = true;
-
-            this.Cursor = Cursors.Default;
 
             return launchedNewUpdater;
         }
@@ -484,15 +466,9 @@ namespace vApus.Gui
         {
             if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG)
             {
-                FLASHWINFO fInfo = new FLASHWINFO();
-
-                fInfo.cbSize = Convert.ToUInt32(Marshal.SizeOf(fInfo));
-                fInfo.hwnd = this.Handle;
-                fInfo.dwFlags = FLASHW_TRAY;
-                fInfo.uCount = 3;
-                fInfo.dwTimeout = 0;
-
-                FlashWindowEx(ref fInfo);
+                this.TopMost = true;
+                this.Show();
+                this.TopMost = false;
             }
             base.WndProc(ref m);
         }

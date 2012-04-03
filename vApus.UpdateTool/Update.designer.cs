@@ -30,20 +30,20 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Update));
             this.label1 = new System.Windows.Forms.Label();
-            this.cboHost = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.txtUsername = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.txtPort = new System.Windows.Forms.TextBox();
-            this.chkSaveHost = new System.Windows.Forms.CheckBox();
-            this.chkSaveUsername = new System.Windows.Forms.CheckBox();
-            this.chkSavePassword = new System.Windows.Forms.CheckBox();
             this.pnlConnection = new System.Windows.Forms.Panel();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.chkGetAll = new System.Windows.Forms.CheckBox();
-            this.pnlConnectTo = new System.Windows.Forms.Panel();
+            this.flpConnectTo = new System.Windows.Forms.FlowLayoutPanel();
+            this.txtHost = new System.Windows.Forms.TextBox();
+            this.nudPort = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
+            this.pnlBorderChannel = new System.Windows.Forms.Panel();
+            this.cboChannel = new System.Windows.Forms.ComboBox();
             this.rtxtLog = new System.Windows.Forms.RichTextBox();
             this.btnConnect = new System.Windows.Forms.Button();
             this.btnUpdateOrReinstall = new System.Windows.Forms.Button();
@@ -60,9 +60,10 @@
             this.clmVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmCurrentVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmDownloadProgress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.pnlBorder = new System.Windows.Forms.Panel();
             this.pnlConnection.SuspendLayout();
-            this.pnlConnectTo.SuspendLayout();
+            this.flpConnectTo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
+            this.pnlBorderChannel.SuspendLayout();
             this.pnlUpdate.SuspendLayout();
             this.tcCommit.SuspendLayout();
             this.tpHistory.SuspendLayout();
@@ -72,28 +73,18 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(8, 12);
+            this.label1.Location = new System.Drawing.Point(9, 10);
+            this.label1.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(37, 13);
+            this.label1.Size = new System.Drawing.Size(32, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "sftp://";
-            // 
-            // cboHost
-            // 
-            this.cboHost.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboHost.FormattingEnabled = true;
-            this.cboHost.Location = new System.Drawing.Point(51, 9);
-            this.cboHost.Name = "cboHost";
-            this.cboHost.Size = new System.Drawing.Size(117, 21);
-            this.cboHost.TabIndex = 0;
-            this.cboHost.SelectedIndexChanged += new System.EventHandler(this.cboHost_SelectedIndexChanged);
-            this.cboHost.TextChanged += new System.EventHandler(this.cboHost_TextChanged);
-            this.cboHost.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            this.label1.Text = "Host:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(218, 12);
+            this.label2.Location = new System.Drawing.Point(244, 10);
+            this.label2.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(58, 13);
             this.label2.TabIndex = 2;
@@ -101,17 +92,19 @@
             // 
             // txtUsername
             // 
-            this.txtUsername.Location = new System.Drawing.Point(282, 9);
+            this.txtUsername.Location = new System.Drawing.Point(302, 8);
+            this.txtUsername.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(100, 20);
-            this.txtUsername.TabIndex = 1;
+            this.txtUsername.TabIndex = 2;
             this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
             this.txtUsername.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(220, 43);
+            this.label3.Location = new System.Drawing.Point(414, 10);
+            this.label3.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(56, 13);
             this.label3.TabIndex = 2;
@@ -120,74 +113,23 @@
             // txtPassword
             // 
             this.txtPassword.Enabled = false;
-            this.txtPassword.Location = new System.Drawing.Point(282, 40);
+            this.txtPassword.Location = new System.Drawing.Point(470, 8);
+            this.txtPassword.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new System.Drawing.Size(100, 20);
-            this.txtPassword.TabIndex = 5;
+            this.txtPassword.TabIndex = 3;
             this.txtPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(16, 43);
+            this.label4.Location = new System.Drawing.Point(153, 10);
+            this.label4.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(29, 13);
             this.label4.TabIndex = 2;
             this.label4.Text = "Port:";
-            // 
-            // txtPort
-            // 
-            this.txtPort.ForeColor = System.Drawing.Color.Black;
-            this.txtPort.Location = new System.Drawing.Point(51, 40);
-            this.txtPort.Name = "txtPort";
-            this.txtPort.Size = new System.Drawing.Size(30, 20);
-            this.txtPort.TabIndex = 3;
-            this.txtPort.Text = "5222";
-            this.txtPort.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            this.txtPort.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtPort_KeyPress);
-            this.txtPort.Leave += new System.EventHandler(this.txtPort_Leave);
-            // 
-            // chkSaveHost
-            // 
-            this.chkSaveHost.AutoSize = true;
-            this.chkSaveHost.Checked = true;
-            this.chkSaveHost.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkSaveHost.Location = new System.Drawing.Point(94, 42);
-            this.chkSaveHost.Name = "chkSaveHost";
-            this.chkSaveHost.Size = new System.Drawing.Size(74, 17);
-            this.chkSaveHost.TabIndex = 4;
-            this.chkSaveHost.Text = "Save host";
-            this.chkSaveHost.UseVisualStyleBackColor = true;
-            this.chkSaveHost.CheckedChanged += new System.EventHandler(this.chkSaveHost_CheckedChanged);
-            this.chkSaveHost.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            // 
-            // chkSaveUsername
-            // 
-            this.chkSaveUsername.AutoSize = true;
-            this.chkSaveUsername.Checked = true;
-            this.chkSaveUsername.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkSaveUsername.Location = new System.Drawing.Point(403, 11);
-            this.chkSaveUsername.Name = "chkSaveUsername";
-            this.chkSaveUsername.Size = new System.Drawing.Size(100, 17);
-            this.chkSaveUsername.TabIndex = 2;
-            this.chkSaveUsername.Text = "Save username";
-            this.chkSaveUsername.UseVisualStyleBackColor = true;
-            this.chkSaveUsername.CheckedChanged += new System.EventHandler(this.chkSaveUsername_CheckedChanged);
-            this.chkSaveUsername.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            // 
-            // chkSavePassword
-            // 
-            this.chkSavePassword.AutoSize = true;
-            this.chkSavePassword.Enabled = false;
-            this.chkSavePassword.Location = new System.Drawing.Point(403, 42);
-            this.chkSavePassword.Name = "chkSavePassword";
-            this.chkSavePassword.Size = new System.Drawing.Size(169, 17);
-            this.chkSavePassword.TabIndex = 6;
-            this.chkSavePassword.Text = "Save username and password";
-            this.chkSavePassword.UseVisualStyleBackColor = true;
-            this.chkSavePassword.CheckedChanged += new System.EventHandler(this.chkSavePassword_CheckedChanged);
-            this.chkSavePassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             // 
             // pnlConnection
             // 
@@ -197,12 +139,12 @@
             this.pnlConnection.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlConnection.Controls.Add(this.btnRefresh);
             this.pnlConnection.Controls.Add(this.chkGetAll);
-            this.pnlConnection.Controls.Add(this.pnlConnectTo);
+            this.pnlConnection.Controls.Add(this.flpConnectTo);
             this.pnlConnection.Controls.Add(this.rtxtLog);
             this.pnlConnection.Controls.Add(this.btnConnect);
             this.pnlConnection.Location = new System.Drawing.Point(12, 12);
             this.pnlConnection.Name = "pnlConnection";
-            this.pnlConnection.Size = new System.Drawing.Size(638, 154);
+            this.pnlConnection.Size = new System.Drawing.Size(812, 154);
             this.pnlConnection.TabIndex = 0;
             // 
             // btnRefresh
@@ -232,26 +174,89 @@
             this.chkGetAll.Text = "Get versioned\r\nand non-versioned";
             this.chkGetAll.UseVisualStyleBackColor = true;
             // 
-            // pnlConnectTo
+            // flpConnectTo
             // 
-            this.pnlConnectTo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.flpConnectTo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlConnectTo.Controls.Add(this.label1);
-            this.pnlConnectTo.Controls.Add(this.txtUsername);
-            this.pnlConnectTo.Controls.Add(this.txtPassword);
-            this.pnlConnectTo.Controls.Add(this.label4);
-            this.pnlConnectTo.Controls.Add(this.chkSavePassword);
-            this.pnlConnectTo.Controls.Add(this.txtPort);
-            this.pnlConnectTo.Controls.Add(this.cboHost);
-            this.pnlConnectTo.Controls.Add(this.label3);
-            this.pnlConnectTo.Controls.Add(this.chkSaveUsername);
-            this.pnlConnectTo.Controls.Add(this.chkSaveHost);
-            this.pnlConnectTo.Controls.Add(this.label2);
-            this.pnlConnectTo.Controls.Add(this.pnlBorder);
-            this.pnlConnectTo.Location = new System.Drawing.Point(0, 0);
-            this.pnlConnectTo.Name = "pnlConnectTo";
-            this.pnlConnectTo.Size = new System.Drawing.Size(636, 80);
-            this.pnlConnectTo.TabIndex = 0;
+            this.flpConnectTo.Controls.Add(this.label1);
+            this.flpConnectTo.Controls.Add(this.txtHost);
+            this.flpConnectTo.Controls.Add(this.label4);
+            this.flpConnectTo.Controls.Add(this.nudPort);
+            this.flpConnectTo.Controls.Add(this.label2);
+            this.flpConnectTo.Controls.Add(this.txtUsername);
+            this.flpConnectTo.Controls.Add(this.label3);
+            this.flpConnectTo.Controls.Add(this.txtPassword);
+            this.flpConnectTo.Controls.Add(this.label5);
+            this.flpConnectTo.Controls.Add(this.pnlBorderChannel);
+            this.flpConnectTo.Location = new System.Drawing.Point(0, 0);
+            this.flpConnectTo.Name = "flpConnectTo";
+            this.flpConnectTo.Padding = new System.Windows.Forms.Padding(3);
+            this.flpConnectTo.Size = new System.Drawing.Size(810, 80);
+            this.flpConnectTo.TabIndex = 0;
+            // 
+            // txtHost
+            // 
+            this.txtHost.Location = new System.Drawing.Point(41, 8);
+            this.txtHost.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
+            this.txtHost.Name = "txtHost";
+            this.txtHost.Size = new System.Drawing.Size(100, 20);
+            this.txtHost.TabIndex = 0;
+            this.txtHost.TextChanged += new System.EventHandler(this.txtHost_TextChanged);
+            this.txtHost.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            // 
+            // nudPort
+            // 
+            this.nudPort.Location = new System.Drawing.Point(182, 8);
+            this.nudPort.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
+            this.nudPort.Maximum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            0});
+            this.nudPort.Name = "nudPort";
+            this.nudPort.Size = new System.Drawing.Size(50, 20);
+            this.nudPort.TabIndex = 1;
+            this.nudPort.Value = new decimal(new int[] {
+            5222,
+            0,
+            0,
+            0});
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(582, 10);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(49, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Channel:";
+            // 
+            // pnlBorderChannel
+            // 
+            this.pnlBorderChannel.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderChannel.Controls.Add(this.cboChannel);
+            this.pnlBorderChannel.Location = new System.Drawing.Point(631, 6);
+            this.pnlBorderChannel.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
+            this.pnlBorderChannel.Name = "pnlBorderChannel";
+            this.pnlBorderChannel.Size = new System.Drawing.Size(100, 23);
+            this.pnlBorderChannel.TabIndex = 4;
+            // 
+            // cboChannel
+            // 
+            this.cboChannel.BackColor = System.Drawing.Color.White;
+            this.cboChannel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboChannel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboChannel.FormattingEnabled = true;
+            this.cboChannel.Items.AddRange(new object[] {
+            "Stable",
+            "Nightly"});
+            this.cboChannel.Location = new System.Drawing.Point(1, 1);
+            this.cboChannel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboChannel.Name = "cboChannel";
+            this.cboChannel.Size = new System.Drawing.Size(98, 21);
+            this.cboChannel.TabIndex = 0;
             // 
             // rtxtLog
             // 
@@ -262,7 +267,7 @@
             this.rtxtLog.Location = new System.Drawing.Point(131, 86);
             this.rtxtLog.Name = "rtxtLog";
             this.rtxtLog.ReadOnly = true;
-            this.rtxtLog.Size = new System.Drawing.Size(494, 59);
+            this.rtxtLog.Size = new System.Drawing.Size(668, 59);
             this.rtxtLog.TabIndex = 3;
             this.rtxtLog.Text = "";
             // 
@@ -302,7 +307,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pbTotal.Location = new System.Drawing.Point(85, 324);
             this.pbTotal.Name = "pbTotal";
-            this.pbTotal.Size = new System.Drawing.Size(536, 13);
+            this.pbTotal.Size = new System.Drawing.Size(710, 13);
             this.pbTotal.TabIndex = 2;
             // 
             // pnlUpdate
@@ -317,7 +322,7 @@
             this.pnlUpdate.Controls.Add(this.pbTotal);
             this.pnlUpdate.Location = new System.Drawing.Point(12, 172);
             this.pnlUpdate.Name = "pnlUpdate";
-            this.pnlUpdate.Size = new System.Drawing.Size(638, 352);
+            this.pnlUpdate.Size = new System.Drawing.Size(812, 352);
             this.pnlUpdate.TabIndex = 10;
             // 
             // tcCommit
@@ -330,7 +335,7 @@
             this.tcCommit.Location = new System.Drawing.Point(11, 3);
             this.tcCommit.Name = "tcCommit";
             this.tcCommit.SelectedIndex = 0;
-            this.tcCommit.Size = new System.Drawing.Size(614, 310);
+            this.tcCommit.Size = new System.Drawing.Size(788, 310);
             this.tcCommit.TabIndex = 0;
             // 
             // tpHistory
@@ -340,7 +345,7 @@
             this.tpHistory.Location = new System.Drawing.Point(4, 22);
             this.tpHistory.Name = "tpHistory";
             this.tpHistory.Padding = new System.Windows.Forms.Padding(3);
-            this.tpHistory.Size = new System.Drawing.Size(606, 284);
+            this.tpHistory.Size = new System.Drawing.Size(780, 284);
             this.tpHistory.TabIndex = 1;
             this.tpHistory.Text = "History";
             this.tpHistory.UseVisualStyleBackColor = true;
@@ -356,7 +361,7 @@
             this.rtxtHistoryOfChanges.Name = "rtxtHistoryOfChanges";
             this.rtxtHistoryOfChanges.ReadOnly = true;
             this.rtxtHistoryOfChanges.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.rtxtHistoryOfChanges.Size = new System.Drawing.Size(597, 254);
+            this.rtxtHistoryOfChanges.Size = new System.Drawing.Size(771, 254);
             this.rtxtHistoryOfChanges.TabIndex = 0;
             this.rtxtHistoryOfChanges.Text = "";
             // 
@@ -376,7 +381,7 @@
             this.tpFiles.Controls.Add(this.lvwUpdate);
             this.tpFiles.Location = new System.Drawing.Point(4, 22);
             this.tpFiles.Name = "tpFiles";
-            this.tpFiles.Size = new System.Drawing.Size(606, 284);
+            this.tpFiles.Size = new System.Drawing.Size(780, 284);
             this.tpFiles.TabIndex = 0;
             this.tpFiles.Text = "Files";
             this.tpFiles.UseVisualStyleBackColor = true;
@@ -395,7 +400,7 @@
             this.lvwUpdate.Location = new System.Drawing.Point(0, 0);
             this.lvwUpdate.MultiSelect = false;
             this.lvwUpdate.Name = "lvwUpdate";
-            this.lvwUpdate.Size = new System.Drawing.Size(606, 284);
+            this.lvwUpdate.Size = new System.Drawing.Size(780, 284);
             this.lvwUpdate.TabIndex = 0;
             this.lvwUpdate.UseCompatibleStateImageBehavior = false;
             this.lvwUpdate.View = System.Windows.Forms.View.Details;
@@ -412,32 +417,24 @@
             // 
             // clmVersion
             // 
-            this.clmVersion.Text = "Version";
-            this.clmVersion.Width = 55;
+            this.clmVersion.Text = "MD5 Checksum";
+            this.clmVersion.Width = 88;
             // 
             // clmCurrentVersion
             // 
-            this.clmCurrentVersion.Text = "Current version";
-            this.clmCurrentVersion.Width = 90;
+            this.clmCurrentVersion.Text = "Current MD5 Checksum";
+            this.clmCurrentVersion.Width = 125;
             // 
             // clmDownloadProgress
             // 
             this.clmDownloadProgress.Text = "";
             this.clmDownloadProgress.Width = 100;
             // 
-            // pnlBorder
-            // 
-            this.pnlBorder.BackColor = System.Drawing.Color.Silver;
-            this.pnlBorder.Location = new System.Drawing.Point(50, 8);
-            this.pnlBorder.Name = "pnlBorder";
-            this.pnlBorder.Size = new System.Drawing.Size(119, 23);
-            this.pnlBorder.TabIndex = 7;
-            // 
             // Update
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(662, 536);
+            this.ClientSize = new System.Drawing.Size(836, 536);
             this.Controls.Add(this.pnlUpdate);
             this.Controls.Add(this.pnlConnection);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -448,8 +445,10 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Update_FormClosing);
             this.pnlConnection.ResumeLayout(false);
             this.pnlConnection.PerformLayout();
-            this.pnlConnectTo.ResumeLayout(false);
-            this.pnlConnectTo.PerformLayout();
+            this.flpConnectTo.ResumeLayout(false);
+            this.flpConnectTo.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
+            this.pnlBorderChannel.ResumeLayout(false);
             this.pnlUpdate.ResumeLayout(false);
             this.tcCommit.ResumeLayout(false);
             this.tpHistory.ResumeLayout(false);
@@ -462,16 +461,11 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox cboHost;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtUsername;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox txtPort;
-        private System.Windows.Forms.CheckBox chkSaveHost;
-        private System.Windows.Forms.CheckBox chkSaveUsername;
-        private System.Windows.Forms.CheckBox chkSavePassword;
         private System.Windows.Forms.Panel pnlConnection;
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Button btnUpdateOrReinstall;
@@ -484,7 +478,7 @@
         private System.Windows.Forms.ColumnHeader clmCurrentVersion;
         private System.Windows.Forms.ColumnHeader clmDownloadProgress;
         private System.Windows.Forms.RichTextBox rtxtLog;
-        private System.Windows.Forms.Panel pnlConnectTo;
+        private System.Windows.Forms.FlowLayoutPanel flpConnectTo;
         private System.Windows.Forms.CheckBox chkGetAll;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.TabControl tcCommit;
@@ -492,6 +486,10 @@
         private System.Windows.Forms.TabPage tpHistory;
         private System.Windows.Forms.RichTextBox rtxtHistoryOfChanges;
         private System.Windows.Forms.Label lblVersion;
-        private System.Windows.Forms.Panel pnlBorder;
+        private System.Windows.Forms.TextBox txtHost;
+        private System.Windows.Forms.NumericUpDown nudPort;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Panel pnlBorderChannel;
+        private System.Windows.Forms.ComboBox cboChannel;
     }
 }

@@ -27,7 +27,6 @@ namespace vApus.UpdateTool
         private string _connectionsPath;
         //This exe is run as a copy, so set the startup path to the parent directory.
         private string _startupPath;
-        private List<Connection> _connections = new List<Connection>();
         private List<string[]> _currentVersions;
         private Font _titleFont;
         private Font _dateFont;
@@ -41,7 +40,9 @@ namespace vApus.UpdateTool
         /// <summary>
         /// To auto connect.
         /// </summary>
-        private string _host, _port, _username, _password;
+        private string _host, _username, _password;
+        private int _port = 5222, _channel;
+        private bool _autoUpdate;
 
         #endregion
 
@@ -55,17 +56,19 @@ namespace vApus.UpdateTool
             _startupPath = Directory.GetParent(Application.StartupPath).FullName;
             _connectionsPath = Path.Combine(_startupPath, "vApus.UpdateTool.config");
 
-            if (args.Length == 5)
+            if (args.Length == 7)
             {
                 _host = args[1];
-                _port = args[2];
+                _port = int.Parse(args[2]);
                 _username = args[3];
                 _password = args[4];
+                _channel = int.Parse(args[5]);
+                _autoUpdate = bool.Parse(args[6]);
             }
 
             this.HandleCreated += new EventHandler(Update_HandleCreated);
 
-            if (_host != null)
+            if (_host != null && _autoUpdate)
                 this.Shown += new EventHandler(Update_Shown);
         }
         private void Update_HandleCreated(object sender, EventArgs e)
@@ -80,21 +83,26 @@ namespace vApus.UpdateTool
 
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
 
-                LoadConnections();
+                LoadConnection();
 
-                _currentVersions = LoadVersion(Path.Combine(_startupPath, "versioncontrol.ini"));
+                _currentVersions = LoadVersion(Path.Combine(_startupPath, "version.ini"));
             }
             catch { }
 
+        }
+        private void LoadConnection()
+        {
+            txtHost.Text = _host;
+            nudPort.Value = _port;
+            txtUsername.Text = _username;
+            txtPassword.Text = _password;
+            cboChannel.SelectedIndex = _channel;
         }
         private void Update_Shown(object sender, EventArgs e)
         {
             this.Shown -= Update_Shown;
 
-            cboHost.Text = _host;
-            txtPort.Text = _port;
-            txtUsername.Text = _username;
-            txtPassword.Text = _password;
+            LoadConnection();
 
             //Tries connecting first, if that works then update.
             if (PerformConnectClick())
@@ -102,163 +110,20 @@ namespace vApus.UpdateTool
         }
         #endregion
 
-        #region Connection management
-        private void cboHost_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            switch (cboHost.SelectedIndex)
-            {
-                case 0:
-                    txtPort.Text = "5222";
-                    txtUsername.Text = string.Empty;
-                    break;
-                case 1:
-                    if (MessageBox.Show("Are you sure you want to clear the saved connections?", "Connection management", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                        ClearConnections();
-                    break;
-                default:
-                    if (cboHost.Items.Count != 0)
-                    {
-                        Connection connection = (Connection)cboHost.SelectedItem;
-                        txtPort.Text = connection.Port.ToString();
-                        txtUsername.Text = connection.Username;
-                        txtPassword.Text = connection.Password;
-                        chkSaveUsername.Checked = (txtUsername.Text.Length != 0);
-                        chkSavePassword.Checked = (txtPassword.Text.Length != 0);
-                        Thread t = new Thread(delegate()
-                        {
-                            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                            {
-                                cboHost.Text = connection.Host;
-                            });
-                        });
-                        t.Start();
-                    }
-                    break;
-            }
-        }
-        /// <summary>
-        /// Will also check what to save and if there can be saved.
-        /// </summary>
-        private void SaveSucceededConnection()
-        {
-            bool canSave = true;
-            Connection connection;
-            if (chkSavePassword.Checked)
-                connection = new Connection(cboHost.Text, int.Parse(txtPort.Text), txtUsername.Text, txtPassword.Text);
-            else if (chkSaveUsername.Checked)
-                connection = new Connection(cboHost.Text, int.Parse(txtPort.Text), txtUsername.Text);
-            else if (chkSaveHost.Checked)
-                connection = new Connection(cboHost.Text, int.Parse(txtPort.Text));
-            else return;
-
-            foreach (Connection con in _connections)
-                if (con.Equals(connection))
-                {
-                    canSave = false;
-                    break;
-                }
-            if (canSave)
-            {
-                _connections.Add(connection);
-                StreamWriter sw = new StreamWriter(_connectionsPath);
-                foreach (Connection con in _connections)
-                    con.SaveToCSV(sw);
-                sw.Flush();
-                try
-                {
-                    sw.Dispose();
-                }
-                catch { }
-                sw = null;
-                cboHost.Items.Clear();
-                if (_connections.Count != 0)
-                {
-                    cboHost.Items.Add(string.Empty);
-                    cboHost.Items.Add("<clear>");
-                }
-                foreach (Connection con in _connections)
-                    cboHost.Items.Add(con);
-            }
-        }
-        private void LoadConnections()
-        {
-            if (File.Exists(_connectionsPath))
-            {
-                _connections.Clear();
-                StreamReader sr = new StreamReader(_connectionsPath);
-                while (sr.Peek() != -1)
-                {
-                    Connection connection = new Connection();
-                    connection.LoadFromCSVEntry(sr.ReadLine());
-                    _connections.Add(connection);
-                }
-                cboHost.Items.Clear();
-                if (_connections.Count != 0)
-                {
-                    cboHost.Items.Add(string.Empty);
-                    cboHost.Items.Add("<clear>");
-                }
-                foreach (Connection connection in _connections)
-                    cboHost.Items.Add(connection);
-                try { sr.Close(); }
-                catch { }
-                try { sr.Dispose(); }
-                catch { }
-                sr = null;
-            }
-        }
-        private void ClearConnections()
-        {
-            _connections.Clear();
-            if (File.Exists(_connectionsPath))
-                File.Delete(_connectionsPath);
-            cboHost.Items.Clear();
-        }
-
-        private void chkSaveHost_CheckedChanged(object sender, EventArgs e)
-        {
-            if (!chkSaveHost.Checked)
-                chkSaveUsername.Checked = false;
-        }
-        private void chkSaveUsername_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkSaveUsername.Checked)
-                chkSaveHost.Checked = true;
-            else
-                chkSavePassword.Checked = false;
-        }
-
-        private void chkSavePassword_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkSavePassword.Checked == true)
-                chkSaveUsername.Checked = true;
-        }
-
-        #endregion
-
         #region Connect
-        private void cboHost_TextChanged(object sender, EventArgs e)
+        private void txtHost_TextChanged(object sender, EventArgs e)
         {
-            btnConnect.Enabled = cboHost.Text.Length != 0;
+            btnConnect.Enabled = txtHost.Text.Length != 0;
         }
         private void txtUsername_TextChanged(object sender, EventArgs e)
         {
             txtPassword.Enabled = txtUsername.Text.Length != 0;
-            chkSavePassword.Enabled = txtPassword.Enabled;
             if (!txtPassword.Enabled)
-            {
                 txtPassword.Text = string.Empty;
-                chkSavePassword.Checked = false;
-            }
         }
         private void txtPort_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = !(e.KeyChar == '\b' || e.KeyChar.IsDigit());
-        }
-        private void txtPort_Leave(object sender, EventArgs e)
-        {
-            if (txtPort.Text.Length == 0)
-                txtPort.Text = "5222";
         }
 
         private void _KeyDown(object sender, KeyEventArgs e)
@@ -285,16 +150,18 @@ namespace vApus.UpdateTool
                 case "Connect":
                     try
                     {
-                        AppendLogLine("Connecting to \"" + txtUsername.Text + '@' + cboHost.Text + '\"' + txtPort.Text + '.', Color.Black);
-                        _sftp = new Sftp(cboHost.Text, txtUsername.Text, txtPassword.Text);
-                        _sftp.Connect(int.Parse(txtPort.Text));
-                        pnlConnectTo.Enabled = false;
+                        int port = (int)nudPort.Value;
+
+                        AppendLogLine("Connecting to \"" + txtUsername.Text + '@' + txtHost.Text + '\"' + port + '.', Color.Black);
+                        _sftp = new Sftp(txtHost.Text, txtUsername.Text, txtPassword.Text);
+                        _sftp.Connect(port);
+                        flpConnectTo.Enabled = false;
                         btnRefresh.Enabled = true;
                         btnUpdateOrReinstall.Text = chkGetAll.Checked ? "Reinstall" : "Update";
                         btnConnect.Text = "Disconnect";
                         tcCommit.SelectedIndex = 1;
                         AppendLogLine("Connected.", Color.Green);
-                        SaveSucceededConnection();
+
                         GetFilesToUpdate();
 
                         connected = true;
@@ -324,16 +191,16 @@ namespace vApus.UpdateTool
                         lvwUpdate.Items.Clear();
                         pbTotal.Value = 0;
                         pbTotal.Tag = null;
-                        pnlConnectTo.Enabled = true;
+                        flpConnectTo.Enabled = true;
                         btnRefresh.Enabled = false;
 
                         string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
-                        string tempVersionControl = Path.Combine(tempFolder, "versioncontrol.ini");
-                        string currenVersionControl = Path.Combine(_startupPath, "versioncontrol.ini");
+                        string tempVersion = Path.Combine(tempFolder, "version.ini");
+                        string currenVersion = Path.Combine(_startupPath, "version.ini");
                         try
                         {
-                            if (File.Exists(tempVersionControl))
-                                File.Delete(tempVersionControl);
+                            if (File.Exists(tempVersion))
+                                File.Delete(tempVersion);
                         }
                         catch { }
 
@@ -505,18 +372,18 @@ namespace vApus.UpdateTool
                         sw.Flush();
                     }
 
-                string tempVersionControl = Path.Combine(tempFolder, "versioncontrol.ini");
+                string tempVersion = Path.Combine(tempFolder, "version.ini");
 
                 try
                 {
-                    if (File.Exists(tempVersionControl))
-                        File.Delete(tempVersionControl);
+                    if (File.Exists(tempVersion))
+                        File.Delete(tempVersion);
                 }
                 catch { }
 
-                _sftp.Get("vapus/versioncontrol.ini", tempVersionControl);
+                _sftp.Get("vapus/version.ini", tempVersion);
 
-                List<string[]> serverVersions = LoadVersion(tempVersionControl);
+                List<string[]> serverVersions = LoadVersion(tempVersion);
 
                 foreach (string[] line in serverVersions)
                 {
@@ -604,8 +471,8 @@ namespace vApus.UpdateTool
                             btnRefresh.Enabled = true;
                             chkGetAll.Enabled = true;
 
-                            string tempVersionControl = Path.Combine(tempFolder, "versioncontrol.ini");
-                            string currenVersionControl = Path.Combine(_startupPath, "versioncontrol.ini");
+                            string tempVersion = Path.Combine(tempFolder, "version.ini");
+                            string currenVersion = Path.Combine(_startupPath, "version.ini");
 
                             _sftp.OnTransferProgress -= _sftp_OnTransferProgress;
                             _sftp.OnTransferEnd -= _sftp_OnTransferEnd;

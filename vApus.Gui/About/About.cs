@@ -81,7 +81,7 @@ namespace vApus.Gui
         
         private void ReadVersionControlIni()
         {
-            string ini = Path.Combine(Application.StartupPath, "versioncontrol.ini");
+            string ini = Path.Combine(Application.StartupPath, "version.ini");
             string line = string.Empty;
             bool versionFound = false, historyFound = false;
 

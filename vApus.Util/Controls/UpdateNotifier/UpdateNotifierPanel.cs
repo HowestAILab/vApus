@@ -31,12 +31,13 @@ namespace vApus.Util
             _msgHandler = new Win32WindowMessageHandler();
 
             string host, username, password;
-            int port;
-            UpdateNotifier.GetCredentials(out host, out port, out username, out password);
+            int port, channel;
+            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
             txtHost.Text = host;
-            txtPort.Text = port.ToString();
+            nudPort.Value = port;
             txtUsername.Text = username;
             txtPassword.Text = password;
+            cboChannel.SelectedIndex = channel;
 
             SetEnabled();
             SetUpdatePanel();
@@ -45,25 +46,15 @@ namespace vApus.Util
         {
             return "Update Notifier";
         }
-
-        private void txtHost_TextChanged(object sender, EventArgs e)
-        {
-            // btnConnect.Enabled = cboHost.Text.Length > 0;
-        }
         private void txtUsername_TextChanged(object sender, EventArgs e)
         {
             txtPassword.Enabled = txtUsername.Text.Length > 0;
             if (!txtPassword.Enabled)
                 txtPassword.Text = string.Empty;
         }
-        private void txtPort_KeyPress(object sender, KeyPressEventArgs e)
+        private void cboChannel_SelectedIndexChanged(object sender, EventArgs e)
         {
-            e.Handled = !(e.KeyChar == '\b' || e.KeyChar.IsDigit());
-        }
-        private void txtPort_Leave(object sender, EventArgs e)
-        {
-            if (txtPort.Text.Length == 0)
-                txtPort.Text = "5222";
+            SetEnabled();
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {
@@ -71,23 +62,24 @@ namespace vApus.Util
         }
         private void SetEnabled()
         {
-            if (txtHost.Text.Length != 0 && txtPort.Text.Length != 0 &&
+            if (txtHost.Text.Length != 0 &&
             txtUsername.Text.Length != 0 && txtPassword.Text.Length != 0)
             {
                 string host, username, password;
-                int port;
-                UpdateNotifier.GetCredentials(out host, out port, out username, out password);
+                int port, channel;
+                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
 
                 pnlRefresh.Enabled = true;
-                btnSet.Enabled = (txtHost.Text != host || txtPort.Text != port.ToString() ||
-                txtUsername.Text != username || txtPassword.Text != password);
+                btnSet.Enabled = (txtHost.Text != host || nudPort.Value != port ||
+                txtUsername.Text != username || txtPassword.Text != password ||
+                cboChannel.SelectedIndex != channel);
             }
             else
             {
                 pnlRefresh.Enabled = false;
                 btnSet.Enabled = false;
             }
-            btnClear.Enabled = (txtHost.Text.Length != 0 || txtPort.Text.Length != 0 ||
+            btnClear.Enabled = (txtHost.Text.Length != 0 ||
                 txtUsername.Text.Length != 0 || txtPassword.Text.Length != 0);
         }
         private void btnRefresh_Click(object sender, EventArgs e)
@@ -99,7 +91,7 @@ namespace vApus.Util
             pic.Image = vApus.Util.Properties.Resources.Warning;
             lbl.Text = "Working...";
 
-            UpdateNotifier.SetCredentials(txtHost.Text, int.Parse(txtPort.Text), txtUsername.Text, txtPassword.Text);
+            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
 
             StaticActiveObjectWrapper.ActiveObject.OnResult += new EventHandler<ActiveObject.OnResultEventArgs>(ActiveObject_OnResult);
             StaticActiveObjectWrapper.ActiveObject.Send(_refreshDel);
@@ -111,7 +103,6 @@ namespace vApus.Util
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 SetUpdatePanel();
-
                 this.Cursor = Cursors.Default;
             });
         }
@@ -133,25 +124,33 @@ namespace vApus.Util
             if (enforceUpdate)
                 if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
                     MessageBox.Show("New update found!\nDo you want to update?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                {
-                    this.Cursor = Cursors.WaitCursor;
-                    string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
-                    if (File.Exists(path))
-                    {
-                        this.Enabled = false;
-                        Process process = new Process();
-                        process.EnableRaisingEvents = true;
-                        process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " +
-                            txtPort.Text + " " + txtUsername.Text + " " + txtPassword.Text);
-                        process.Exited += new EventHandler(updateProcess_Exited);
-                        process.Start();
-                    }
-                    else
-                    {
-                        MessageBox.Show("vApus could not be updated because the update tool was not found!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-                    }
-                    this.Cursor = Cursors.Default;
-                }
+                    ShowUpdateDialog(enforceUpdate);
+        }
+        private void ShowUpdateDialog(bool autoUpdate)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
+            if (File.Exists(path))
+            {
+                Process process = new Process();
+                process.EnableRaisingEvents = true;
+                int port = (int)nudPort.Value;
+                if (pnlRefresh.Enabled)
+                    process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " +
+                        port + " " + txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + autoUpdate);
+                else
+                    process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32}");
+
+                this.Enabled = false;
+
+                process.Exited += new EventHandler(updateProcess_Exited);
+                process.Start();
+            }
+            else
+            {
+                MessageBox.Show("vApus could not be updated because the update tool was not found!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+            }
+            this.Cursor = Cursors.Default;
         }
         private void updateProcess_Exited(object sender, EventArgs e)
         {
@@ -165,19 +164,29 @@ namespace vApus.Util
                 SetUpdatePanel(false);
             });
         }
+        private void btnUpdateManually_Click(object sender, EventArgs e)
+        {
+            if (btnSet.Enabled)
+            {
+                btnSet.Enabled = false;
+                UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
+            }
+            ShowUpdateDialog(false);
+        }
         private void btnSet_Click(object sender, EventArgs e)
         {
             btnSet.Enabled = false;
-            UpdateNotifier.SetCredentials(txtHost.Text, int.Parse(txtPort.Text), txtUsername.Text, txtPassword.Text);
+            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
         }
         private void btnClear_Click(object sender, EventArgs e)
         {
             txtHost.Text = string.Empty;
-            txtPort.Text = "5222";
+            nudPort.Value = 5222;
             txtUsername.Text = string.Empty;
             txtPassword.Text = string.Empty;
+            cboChannel.SelectedIndex = 0;
 
-            UpdateNotifier.SetCredentials(txtHost.Text, 5222, txtUsername.Text, txtPassword.Text);
+            UpdateNotifier.SetCredentials(txtHost.Text, 5222, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
 
             pnlRefresh.Enabled = false;
             btnSet.Enabled = false;

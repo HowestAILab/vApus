@@ -10,8 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace vApus.Util
 {
@@ -199,6 +199,7 @@ namespace vApus.Util
                         }
                         catch { }
                     }
+                    Application.DoEvents();
                 }
                 SizeKVPs();
                 LockWindowUpdate(0);

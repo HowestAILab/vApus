@@ -40,8 +40,8 @@ namespace vApus.Util
                     return Util.UpdateNotifierState.FailedConnectingToTheUpdateServer;
 
                 string host, username, password;
-                int port;
-                GetCredentials(out host, out port, out username, out password);
+                int port, channel;
+                GetCredentials(out host, out port, out username, out password, out channel);
 
                 if (host.Length == 0 || username.Length == 0 || password.Length == 0)
                 {
@@ -58,7 +58,7 @@ namespace vApus.Util
             }
         }
 
-        public static void SetCredentials(string host, int port, string username, string password)
+        public static void SetCredentials(string host, int port, string username, string password, int channel)
         {
             vApus.Util.Properties.Settings.Default.Host = host;
             vApus.Util.Properties.Settings.Default.Port = port;
@@ -66,17 +66,27 @@ namespace vApus.Util
 
             password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
             vApus.Util.Properties.Settings.Default.Password = password;
+            vApus.Util.Properties.Settings.Default.Channel = channel;
             vApus.Util.Properties.Settings.Default.Save();
 
             _refreshed = false;
         }
-        public static void GetCredentials(out string host, out int port, out string username, out string password)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="channel">0 == Stable; 1 == Nightly</param>
+        public static void GetCredentials(out string host, out int port, out string username, out string password, out int channel)
         {
             host = vApus.Util.Properties.Settings.Default.Host;
             port = vApus.Util.Properties.Settings.Default.Port;
             username = vApus.Util.Properties.Settings.Default.Username;
             password = vApus.Util.Properties.Settings.Default.Password;
             password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+            channel = vApus.Util.Properties.Settings.Default.Channel;
         }
 
         public static void Refresh()
@@ -86,8 +96,8 @@ namespace vApus.Util
             try
             {
                 string host, username, password;
-                int port;
-                GetCredentials(out host, out port, out username, out password);
+                int port, channel;
+                GetCredentials(out host, out port, out username, out password, out channel);
 
                 _failedRefresh = false;
                 if (host.Length == 0 || username.Length == 0 || password.Length == 0)
@@ -105,7 +115,7 @@ namespace vApus.Util
 
                 Directory.CreateDirectory(tempFolder);
 
-                string tempVersionControl = Path.Combine(tempFolder, "versioncontrol.ini");
+                string tempVersionControl = Path.Combine(tempFolder, "version.ini");
 
                 try
                 {
@@ -114,7 +124,7 @@ namespace vApus.Util
                 }
                 catch { }
 
-                sftp.Get("vapus/versioncontrol.ini", tempVersionControl);
+                sftp.Get("vapus/version.ini", tempVersionControl);
 
                 try
                 {
@@ -125,7 +135,7 @@ namespace vApus.Util
                     sftp = null;
                 }
 
-                int prevVersion = GetVersion(Path.Combine(Application.StartupPath, "versioncontrol.ini"));
+                int prevVersion = GetVersion(Path.Combine(Application.StartupPath, "version.ini"));
                 int curVersion = GetVersion(tempVersionControl);
 
                 _versionChanged = (prevVersion != curVersion);
