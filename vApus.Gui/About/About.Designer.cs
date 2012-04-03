@@ -34,23 +34,25 @@
             this.tc = new System.Windows.Forms.TabControl();
             this.tbpAuthors = new System.Windows.Forms.TabPage();
             this.authorGrid = new vApus.Gui.AuthorGrid();
-            this.tbpHistoryOfChanges = new System.Windows.Forms.TabPage();
+            this.tbpHistory = new System.Windows.Forms.TabPage();
             this.rtxtHistoryOfChanges = new System.Windows.Forms.RichTextBox();
             this.tbpLicenses = new System.Windows.Forms.TabPage();
             this.rtxtLicenses = new System.Windows.Forms.RichTextBox();
             this.lblCopyright = new System.Windows.Forms.Label();
             this.lblVersion = new System.Windows.Forms.Label();
             this.lblDescription = new System.Windows.Forms.Label();
+            this.lblChannel = new System.Windows.Forms.Label();
             this.pnl.SuspendLayout();
             this.tc.SuspendLayout();
             this.tbpAuthors.SuspendLayout();
-            this.tbpHistoryOfChanges.SuspendLayout();
+            this.tbpHistory.SuspendLayout();
             this.tbpLicenses.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnl
             // 
             this.pnl.BackColor = System.Drawing.Color.White;
+            this.pnl.Controls.Add(this.lblChannel);
             this.pnl.Controls.Add(this.lblWebsite);
             this.pnl.Controls.Add(this.tc);
             this.pnl.Controls.Add(this.lblCopyright);
@@ -66,7 +68,7 @@
             // 
             this.lblWebsite.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblWebsite.Location = new System.Drawing.Point(29, 79);
+            this.lblWebsite.Location = new System.Drawing.Point(29, 93);
             this.lblWebsite.Name = "lblWebsite";
             this.lblWebsite.Size = new System.Drawing.Size(580, 18);
             this.lblWebsite.TabIndex = 12;
@@ -80,7 +82,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tc.Controls.Add(this.tbpAuthors);
-            this.tc.Controls.Add(this.tbpHistoryOfChanges);
+            this.tc.Controls.Add(this.tbpHistory);
             this.tc.Controls.Add(this.tbpLicenses);
             this.tc.Location = new System.Drawing.Point(20, 111);
             this.tc.Name = "tc";
@@ -108,16 +110,16 @@
             this.authorGrid.Size = new System.Drawing.Size(575, 285);
             this.authorGrid.TabIndex = 0;
             // 
-            // tbpHistoryOfChanges
+            // tbpHistory
             // 
-            this.tbpHistoryOfChanges.Controls.Add(this.rtxtHistoryOfChanges);
-            this.tbpHistoryOfChanges.Location = new System.Drawing.Point(4, 22);
-            this.tbpHistoryOfChanges.Name = "tbpHistoryOfChanges";
-            this.tbpHistoryOfChanges.Padding = new System.Windows.Forms.Padding(3);
-            this.tbpHistoryOfChanges.Size = new System.Drawing.Size(581, 291);
-            this.tbpHistoryOfChanges.TabIndex = 1;
-            this.tbpHistoryOfChanges.Text = "History of Changes";
-            this.tbpHistoryOfChanges.UseVisualStyleBackColor = true;
+            this.tbpHistory.Controls.Add(this.rtxtHistoryOfChanges);
+            this.tbpHistory.Location = new System.Drawing.Point(4, 22);
+            this.tbpHistory.Name = "tbpHistory";
+            this.tbpHistory.Padding = new System.Windows.Forms.Padding(3);
+            this.tbpHistory.Size = new System.Drawing.Size(581, 291);
+            this.tbpHistory.TabIndex = 1;
+            this.tbpHistory.Text = "History";
+            this.tbpHistory.UseVisualStyleBackColor = true;
             // 
             // rtxtHistoryOfChanges
             // 
@@ -160,7 +162,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCopyright.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCopyright.ForeColor = System.Drawing.Color.SteelBlue;
-            this.lblCopyright.Location = new System.Drawing.Point(28, 61);
+            this.lblCopyright.Location = new System.Drawing.Point(28, 75);
             this.lblCopyright.Name = "lblCopyright";
             this.lblCopyright.Size = new System.Drawing.Size(580, 18);
             this.lblCopyright.TabIndex = 7;
@@ -189,6 +191,18 @@
             this.lblDescription.TabIndex = 5;
             this.lblDescription.Text = "Description";
             // 
+            // lblChannel
+            // 
+            this.lblChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblChannel.ForeColor = System.Drawing.Color.SteelBlue;
+            this.lblChannel.Location = new System.Drawing.Point(28, 56);
+            this.lblChannel.Name = "lblChannel";
+            this.lblChannel.Size = new System.Drawing.Size(580, 18);
+            this.lblChannel.TabIndex = 13;
+            this.lblChannel.Text = "Channel";
+            // 
             // About
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -205,7 +219,7 @@
             this.pnl.ResumeLayout(false);
             this.tc.ResumeLayout(false);
             this.tbpAuthors.ResumeLayout(false);
-            this.tbpHistoryOfChanges.ResumeLayout(false);
+            this.tbpHistory.ResumeLayout(false);
             this.tbpLicenses.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -216,7 +230,7 @@
         private System.Windows.Forms.Panel pnl;
         private System.Windows.Forms.TabControl tc;
         private System.Windows.Forms.TabPage tbpAuthors;
-        private System.Windows.Forms.TabPage tbpHistoryOfChanges;
+        private System.Windows.Forms.TabPage tbpHistory;
         private System.Windows.Forms.RichTextBox rtxtHistoryOfChanges;
         private System.Windows.Forms.TabPage tbpLicenses;
         private System.Windows.Forms.RichTextBox rtxtLicenses;
@@ -225,6 +239,7 @@
         private System.Windows.Forms.Label lblDescription;
         private AuthorGrid authorGrid;
         private System.Windows.Forms.LinkLabel lblWebsite;
+        private System.Windows.Forms.Label lblChannel;
 
 
     }

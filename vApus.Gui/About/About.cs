@@ -66,20 +66,18 @@ namespace vApus.Gui
             InitializeComponent();
 
             lblDescription.Text = AssemblyDescription;
-
-            lblVersion.Text = String.Format("Version {0}", AssemblyVersion);
             lblCopyright.Text = AssemblyCopyright;
 
             _titleFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Bold);
             _dateFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Italic);
             _itemFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Regular);
 
-            ReadVersionControlIni();
+            ReadVersionIni();
 
             rtxtLicenses.Text = Licenses;
         }
         
-        private void ReadVersionControlIni()
+        private void ReadVersionIni()
         {
             string ini = Path.Combine(Application.StartupPath, "version.ini");
             string line = string.Empty;

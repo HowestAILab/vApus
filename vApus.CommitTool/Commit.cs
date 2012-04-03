@@ -74,7 +74,7 @@ namespace vApus.CommitTool
                     }
                 }
             }
-            path = Path.Combine(Application.StartupPath, "versioncontrol.ini");
+            path = Path.Combine(Application.StartupPath, "version.ini");
             if (File.Exists(path))
             {
                 StreamReader sr = new StreamReader(path);
@@ -198,12 +198,12 @@ namespace vApus.CommitTool
                     pnlConnectTo.Enabled = true;
 
                     string tempFolder = Path.Combine(Application.StartupPath, "temp");
-                    string tempVersionControl = Path.Combine(tempFolder, "tempversioncontrol.ini");
-                    string currenVersionControl = Path.Combine(tempFolder, "versioncontrol.ini");
+                    string tempVersion = Path.Combine(tempFolder, "tempversion.ini");
+                    string currentVersion = Path.Combine(tempFolder, "version.ini");
                     try
                     {
-                        if (File.Exists(tempVersionControl))
-                            File.Delete(tempVersionControl);
+                        if (File.Exists(tempVersion))
+                            File.Delete(tempVersion);
                     }
                     catch { }
 
@@ -225,31 +225,31 @@ namespace vApus.CommitTool
 
                 //Get the version file from the server
                 int startupPathLength = Application.StartupPath.Length + 1;
-                string tempVersionControl = Path.Combine(Application.StartupPath, "tempversioncontrol.ini");
+                string tempVersion = Path.Combine(Application.StartupPath, "tempversion.ini");
                 List<string[]> serverVersions = new List<string[]>();
                 List<string[]> currentVersions = new List<string[]>();
-                bool versioncontrolINIAdded = false;
+                bool versionINIAdded = false;
                 _folders = new List<string>();
                 //Get all the files from the directory to commit, exclude the ones in the exclude list.
                 string[] exclude = rtxtExclude.Text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
 
                 try
                 {
-                    if (File.Exists(tempVersionControl))
-                        File.Delete(tempVersionControl);
+                    if (File.Exists(tempVersion))
+                        File.Delete(tempVersion);
                 }
                 catch { }
                 try
                 {
-                    if (_sftp.GetFileList("vapus").Contains("versioncontrol.ini"))
-                        _sftp.Get("vapus/versioncontrol.ini", tempVersionControl);
+                    if (_sftp.GetFileList("vapus").Contains("version.ini"))
+                        _sftp.Get("vapus/version.ini", tempVersion);
                 }
                 catch { }
 
                 //All entries if any will be added to serverVersions.
-                if (File.Exists(tempVersionControl))
+                if (File.Exists(tempVersion))
                 {
-                    StreamReader srTVC = new StreamReader(tempVersionControl);
+                    StreamReader srTVC = new StreamReader(tempVersion);
                     while (srTVC.Peek() != -1)
                     {
                         string[] line = srTVC.ReadLine().Split(',');
@@ -262,7 +262,7 @@ namespace vApus.CommitTool
                     catch { }
                     srTVC = null;
 
-                    try { File.Delete(tempVersionControl); }
+                    try { File.Delete(tempVersion); }
                     catch { }
                 }
 
@@ -274,9 +274,9 @@ namespace vApus.CommitTool
                     {
                         switch (fileName.ToLower())
                         {
-                            case "versioncontrol.ini":
+                            case "version.ini":
                                 currentVersions.Add(new string[] { fileName, string.Empty, string.Empty });
-                                versioncontrolINIAdded = true;
+                                versionINIAdded = true;
                                 break;
                             default:
                                 currentVersions.Add(new string[] { fileName, File.GetLastWriteTime(file).ToString(), "1" });
@@ -295,9 +295,9 @@ namespace vApus.CommitTool
                             {
                                 switch (fileName.ToLower())
                                 {
-                                    case "versioncontrol.ini":
+                                    case "version.ini":
                                         currentVersions.Add(new string[] { fileName, string.Empty, string.Empty });
-                                        versioncontrolINIAdded = true;
+                                        versionINIAdded = true;
                                         break;
                                     default:
                                         currentVersions.Add(new string[] { fileName, File.GetLastWriteTime(file).ToString(), "1" });
@@ -328,9 +328,9 @@ namespace vApus.CommitTool
                     lvwCommit.Items.Add(lvwi);
                     lvwCommit.AddEmbeddedControl(new ProgressBar(), lvwCommit.Columns.Count - 1, lvwCommit.Items.Count - 1);
                 }
-                if (!versioncontrolINIAdded)
+                if (!versionINIAdded)
                 {
-                    lvwCommit.Items.Add(new ListViewItem("versioncontrol.ini"));
+                    lvwCommit.Items.Add(new ListViewItem("version.ini"));
                     lvwCommit.AddEmbeddedControl(new ProgressBar(), lvwCommit.Columns.Count - 1, lvwCommit.Items.Count - 1);
                 }
                 btnCommit.Enabled = lvwCommit.Items.Count > 0;
@@ -417,13 +417,13 @@ namespace vApus.CommitTool
 
                         SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                         {
-                            string tempVersionControl = Path.Combine(Application.StartupPath, "tempversioncontrol.ini");
-                            string currenVersionControl = Path.Combine(Application.StartupPath, "versioncontrol.ini");
+                            string tempVersion = Path.Combine(Application.StartupPath, "tempversion.ini");
+                            string currentVersion = Path.Combine(Application.StartupPath, "version.ini");
 
                             try
                             {
-                                if (File.Exists(tempVersionControl))
-                                    File.Delete(tempVersionControl);
+                                if (File.Exists(tempVersion))
+                                    File.Delete(tempVersion);
                             }
                             catch { }
                             _sftp.OnTransferProgress -= _sftp_OnTransferProgress;
@@ -466,8 +466,8 @@ namespace vApus.CommitTool
                 btnConnect_Click(this, null);
                 AppendLogLine("Failed to update or reinstall: " + ex.Message, Color.Red);
             }
-            //Writing the versioncontrol ini
-            sw = new StreamWriter(Path.Combine(Application.StartupPath, "versioncontrol.ini"));
+            //Writing the version ini
+            sw = new StreamWriter(Path.Combine(Application.StartupPath, "version.ini"));
             sw.WriteLine("Version:");
             sw.WriteLine(nudVersion.Value);
             sw.WriteLine("HistoryOfChanges:");
@@ -475,7 +475,7 @@ namespace vApus.CommitTool
             sw.WriteLine("Files:");
 
             foreach (ListViewItem lvwi in lvwCommit.Items)
-                if (!lvwi.SubItems[0].Text.Equals("versioncontrol.ini", StringComparison.CurrentCultureIgnoreCase))
+                if (!lvwi.SubItems[0].Text.Equals("version.ini", StringComparison.CurrentCultureIgnoreCase))
                     sw.WriteLine(lvwi.SubItems[0].Text + ',' + lvwi.SubItems[1].Text + ',' + lvwi.SubItems[2].Text);
 
             sw.Flush();
