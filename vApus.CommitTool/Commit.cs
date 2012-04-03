@@ -1,352 +1,244 @@
-﻿/*
- * Copyright 2009 (c) Sizing Servers Lab
- * University College of West-Flanders, Department GKG
- * 
- * Author(s):
- *    Dieter Vandroemme
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Threading;
-using System.Windows.Forms;
+using System.Text;
 using Tamir.SharpSsh;
-using vApus.Util;
+using System.IO;
+using System.Security.Cryptography;
+using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace vApus.CommitTool
 {
-    public partial class Commit : Form
+    public class Commit
     {
         #region Fields
-        private Sftp _sftp;
-        private int _previousCaretPosition;
-        private bool _commiting;
         private List<string> _folders;
         #endregion
-
-        #region Init
-        public Commit()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port">Default = 5222 for extern users, 22 for intern users</param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="localGitRepository">The folder containing all the source files (and the .git folder).</param>
+        /// <param name="gitCmd">eg C:\Program Files (x86)\Git\cmd\git.cmd</param>
+        /// <param name="excludedFilesOrFolders"></param>
+        public Commit(string host, int port, string username, string password,
+            string localGitRepository, string gitCmd = @"C:\Program Files (x86)\Git\cmd\git.cmd",
+            params string[] excludedFilesOrFolders)
         {
-            InitializeComponent();
-            if (this.IsHandleCreated)
-                SetGui();
-            else
-                this.HandleCreated += new EventHandler(Commit_HandleCreated);
-        }
-        private void Commit_HandleCreated(object sender, EventArgs e)
-        {
-            SetGui();
-        }
-        private void SetGui()
-        {
-            SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
-
-            string path = Path.Combine(Application.StartupPath, "vApus.CommitTool.config");
-            if (File.Exists(path))
+            Exception exception;
+            Sftp sftp = Connect(host, port, username, password, out exception);
+            if (exception == null)
             {
-                StreamReader sr = new StreamReader(path);
-                while (true)
+                MakeVersionIni(localGitRepository, gitCmd, excludedFilesOrFolders, out exception);
+                if (exception == null)
                 {
-                    string line, line2;
-                    if (sr.Peek() != -1)
-                        line = sr.ReadLine().Trim();
-                    else
-                        break;
-                    if (sr.Peek() != -1)
-                        line2 = sr.ReadLine().Trim();
-                    else
-                        break;
-                    switch (line)
-                    {
-                        case "Host:":
-                            txtHost.Text = line2;
-                            break;
-                        case "Port:":
-                            txtPort.Text = line2;
-                            break;
-                        case "Username:":
-                            txtUsername.Text = line2;
-                            break;
-                        case "Exclude:":
-                            rtxtExclude.Text = line2.Replace(";", Environment.NewLine).Trim();
-                            break;
-                    }
+                    CommitBinaries(out exception);
                 }
             }
-            path = Path.Combine(Application.StartupPath, "version.ini");
-            if (File.Exists(path))
+
+            if (sftp != null)
             {
-                StreamReader sr = new StreamReader(path);
-                while (true)
-                {
-                    string line, line2;
-                    if (sr.Peek() != -1)
-                        line = sr.ReadLine().Trim();
-                    else
-                        break;
-                    if (sr.Peek() != -1)
-                        line2 = sr.ReadLine().Trim();
-                    else
-                        break;
-                    switch (line)
-                    {
-                        case "Version:":
-                            int i;
-                            int.TryParse(line2, out i);
-                            nudVersion.Value = i;
-                            break;
-                        case "HistoryOfChanges:":
-                            rtxtHistoryOfChanges.Text = line2.Substring(9, line2.Length - 19);
-                            break;
-                    }
-                }
+                try { sftp.Close(); }
+                catch { }
+                sftp = null;
             }
         }
-        #endregion
 
-        #region History management
-        private void btnAddNewTitle_Click(object sender, EventArgs e)
+        private Sftp Connect(string host, int port, string username, string password, out Exception exception)
         {
-            InputDialog titleDialog = new InputDialog("Title:", "Add new title");
-            titleDialog.SetInputLength(1, titleDialog.MaximumInputLength);
-            if (titleDialog.ShowDialog() == DialogResult.OK)
-            {
-                InputDialog dateDialog = new InputDialog("Date:", "Set the date", DateTime.Now.ToString("dd-MM-yyyy"));
-                dateDialog.SetInputLength(1, dateDialog.MaximumInputLength);
-                if (dateDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string s = string.Format("<t>{0}<d>{1}</d></t>", titleDialog.Input, dateDialog.Input);
-                    int caretPosition = rtxtHistoryOfChanges.SelectionStart + s.Length;
-                    rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text.Substring(0, rtxtHistoryOfChanges.SelectionStart) + s + rtxtHistoryOfChanges.Text.Substring(rtxtHistoryOfChanges.SelectionStart);
-                    rtxtHistoryOfChanges.Select(caretPosition, 0);
-                }
-            }
-        }
-        private void btnAddNewItem_Click(object sender, EventArgs e)
-        {
-            InputDialog dialog = new InputDialog("Item:", "Add new item");
-            dialog.SetInputLength(1, dialog.MaximumInputLength);
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                string s = string.Format("<i>{0}</i>", dialog.Input);
-                int caretPosition = rtxtHistoryOfChanges.SelectionStart + s.Length;
-                rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text.Substring(0, rtxtHistoryOfChanges.SelectionStart) + s + rtxtHistoryOfChanges.Text.Substring(rtxtHistoryOfChanges.SelectionStart);
-                rtxtHistoryOfChanges.Select(caretPosition, 0);
-            }
-        }
-        #endregion
-
-        #region Connect
-        private void _TextChanged(object sender, EventArgs e)
-        {
-            btnConnect.Enabled = txtHost.Text.Length > 0 && txtUsername.Text.Length > 0 && txtPassword.Text.Length > 0;
-        }
-        private void txtPort_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            e.Handled = !(e.KeyChar == '\b' || e.KeyChar.IsDigit());
-        }
-        private void txtPort_Leave(object sender, EventArgs e)
-        {
-            if (txtPort.Text.Length == 0)
-                txtPort.Text = "5222";
-        }
-        private void _KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter && btnConnect.Enabled == true && btnConnect.Text == "Connect")
-                btnConnect_Click(this, null);
-        }
-        private void btnConnect_Click(object sender, EventArgs e)
-        {
-            this.Cursor = Cursors.WaitCursor;
-            switch (btnConnect.Text)
-            {
-                case "Connect":
-                    try
-                    {
-                        AppendLogLine("Connecting to \"" + txtUsername.Text + '@' + txtHost.Text + '\"' + txtPort.Text + '.', Color.Black);
-                        _sftp = new Sftp(txtHost.Text, txtUsername.Text, txtPassword.Text);
-                        _sftp.Connect(int.Parse(txtPort.Text));
-                        pnlConnectTo.Enabled = false;
-                        btnConnect.Text = "Disconnect";
-                        tcCommit.SelectedIndex = 1;
-                        AppendLogLine("Connected.", Color.Green);
-
-                        GetFilesToCommit();
-                    }
-                    catch (Exception ex)
-                    {
-                        AppendLogLine("Failed to connect: " + ex.Message, Color.Red);
-                    }
-
-                    break;
-                default:
-                    if (_commiting && MessageBox.Show("Are you sure you want to disconnect while comitting?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.No)
-                        return;
-                    _commiting = false;
-                    try
-                    {
-                        _sftp.Close();
-                    }
-                    catch { }
-                    _sftp = null;
-                    btnCommit.Enabled = false;
-                    lvwCommit.ClearEmbeddedControls();
-                    lvwCommit.Items.Clear();
-                    pbTotal.Value = 0;
-                    pbTotal.Tag = null;
-                    pnlConnectTo.Enabled = true;
-
-                    string tempFolder = Path.Combine(Application.StartupPath, "temp");
-                    string tempVersion = Path.Combine(tempFolder, "tempversion.ini");
-                    string currentVersion = Path.Combine(tempFolder, "version.ini");
-                    try
-                    {
-                        if (File.Exists(tempVersion))
-                            File.Delete(tempVersion);
-                    }
-                    catch { }
-
-
-                    btnConnect.Text = "Connect";
-                    AppendLogLine("Disconnected.", Color.Green);
-                    break;
-            }
-            this.Cursor = Cursors.Default;
-        }
-        #endregion
-
-        #region Versioning
-        private void GetFilesToCommit()
-        {
+            exception = null;
+            Sftp sftp = null;
             try
             {
-                AppendLogLine("Getting the list of files needed to be commited.", Color.Green);
+                if (port == 0)
+                    port = 22;
 
-                //Get the version file from the server
-                int startupPathLength = Application.StartupPath.Length + 1;
-                string tempVersion = Path.Combine(Application.StartupPath, "tempversion.ini");
-                List<string[]> serverVersions = new List<string[]>();
-                List<string[]> currentVersions = new List<string[]>();
-                bool versionINIAdded = false;
-                _folders = new List<string>();
-                //Get all the files from the directory to commit, exclude the ones in the exclude list.
-                string[] exclude = rtxtExclude.Text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-                try
-                {
-                    if (File.Exists(tempVersion))
-                        File.Delete(tempVersion);
-                }
-                catch { }
-                try
-                {
-                    if (_sftp.GetFileList("vapus").Contains("version.ini"))
-                        _sftp.Get("vapus/version.ini", tempVersion);
-                }
-                catch { }
-
-                //All entries if any will be added to serverVersions.
-                if (File.Exists(tempVersion))
-                {
-                    StreamReader srTVC = new StreamReader(tempVersion);
-                    while (srTVC.Peek() != -1)
-                    {
-                        string[] line = srTVC.ReadLine().Split(',');
-                        if (line.Length == 3)
-                            serverVersions.Add(line);
-                    }
-                    try { srTVC.Close(); }
-                    catch { }
-                    try { srTVC.Dispose(); }
-                    catch { }
-                    srTVC = null;
-
-                    try { File.Delete(tempVersion); }
-                    catch { }
-                }
-
-                //Get all the files to be commited and the folders.
-                foreach (string file in Directory.GetFiles(Application.StartupPath, "*", SearchOption.TopDirectoryOnly))
-                {
-                    string fileName = file.Substring(startupPathLength);
-                    if (!IsFileOrFolderExcluded(fileName, exclude))
-                    {
-                        switch (fileName.ToLower())
-                        {
-                            case "version.ini":
-                                currentVersions.Add(new string[] { fileName, string.Empty, string.Empty });
-                                versionINIAdded = true;
-                                break;
-                            default:
-                                currentVersions.Add(new string[] { fileName, File.GetLastWriteTime(file).ToString(), "1" });
-                                break;
-                        }
-                    }
-                }
-                foreach (string folder in Directory.GetDirectories(Application.StartupPath, "*", SearchOption.AllDirectories))
-                {
-                    if (!IsFileOrFolderExcluded(folder, exclude))
-                    {
-                        foreach (string file in Directory.GetFiles(folder, "*", SearchOption.TopDirectoryOnly))
-                        {
-                            string fileName = file.Substring(startupPathLength);
-                            if (!IsFileOrFolderExcluded(fileName, exclude))
-                            {
-                                switch (fileName.ToLower())
-                                {
-                                    case "version.ini":
-                                        currentVersions.Add(new string[] { fileName, string.Empty, string.Empty });
-                                        versionINIAdded = true;
-                                        break;
-                                    default:
-                                        currentVersions.Add(new string[] { fileName, File.GetLastWriteTime(file).ToString(), "1" });
-                                        break;
-                                }
-                            }
-                        }
-                        _folders.Add(folder.Substring(startupPathLength).Replace('\\', '/'));
-                    }
-                }
-
-
-                foreach (string[] currentEntry in currentVersions)
-                {
-                    ListViewItem lvwi = new ListViewItem(currentEntry);
-                    foreach (string[] serverEntry in serverVersions)
-                        if (currentEntry[0] == serverEntry[0])
-                        {
-                            if (currentEntry[1] == serverEntry[1])
-                                lvwi.SubItems[2].Text = serverEntry[2];
-                            else
-                                lvwi.SubItems[2].Text = (int.Parse(serverEntry[2]) + 1).ToString();
-                            lvwi.SubItems.Add(serverEntry[2]);
-                            break;
-                        }
-                    if (lvwi.SubItems.Count == 3)
-                        lvwi.SubItems.Add("-1");
-                    lvwCommit.Items.Add(lvwi);
-                    lvwCommit.AddEmbeddedControl(new ProgressBar(), lvwCommit.Columns.Count - 1, lvwCommit.Items.Count - 1);
-                }
-                if (!versionINIAdded)
-                {
-                    lvwCommit.Items.Add(new ListViewItem("version.ini"));
-                    lvwCommit.AddEmbeddedControl(new ProgressBar(), lvwCommit.Columns.Count - 1, lvwCommit.Items.Count - 1);
-                }
-                btnCommit.Enabled = lvwCommit.Items.Count > 0;
-
-                AppendLogLine("Done.", Color.Green);
+                sftp = new Sftp(host, username, password);
+                sftp.Connect(port);
             }
             catch (Exception ex)
             {
-                AppendLogLine("Failed to get the list of files needed to be commited: " + ex.Message, Color.Red);
+                try { sftp.Close(); }
+                catch { }
+                sftp = null;
+                exception = ex;
+            }
+            return sftp;
+        }
+
+        private void MakeVersionIni(string localGitRepository, string gitCmd,
+            string[] excludedFilesOrFolders, out Exception exception)
+        {
+            exception = null;
+            string version = GetVersion(localGitRepository, gitCmd, out exception);
+            if (exception != null) return;
+
+            string channel = GetChannel(localGitRepository, gitCmd, out exception);
+            if (exception != null) return;
+
+            string history = GetHistory(localGitRepository, gitCmd, out exception);
+            if (exception != null) return;
+
+            List<string> fileList, folderList;
+            string files = GetFiles(excludedFilesOrFolders, out fileList, out folderList, out exception);
+            if (exception != null) return;
+
+            using (var sw = new StreamWriter(Path.Combine(Application.StartupPath, "version.ini")))
+            {
+                sw.WriteLine("[VERSION]");
+                sw.WriteLine(version);
+                sw.WriteLine("[CHANNEL]");
+                sw.WriteLine(channel);
+                sw.WriteLine("[HISTORY]");
+                sw.WriteLine(history);
+                sw.WriteLine("[FILES]");
+                sw.WriteLine(files);
+
+                sw.Flush();
             }
         }
-        private bool IsFileOrFolderExcluded(string name, string[] exclude)
+        /// <summary>
+        /// Gets a version from the git tags
+        /// </summary>
+        /// <param name="localGitRepository"></param>
+        /// <param name="gitCmd"></param>
+        /// <param name="exception"></param>
+        /// <returns></returns>
+        private string GetVersion(string localGitRepository, string gitCmd, out Exception exception)
+        {
+            string version = null;
+            try
+            {
+                exception = null;
+                version = GetCMDOutput(localGitRepository, gitCmd + "describe");
+            }
+            catch (Exception ex) { exception = ex; }
+            return version;
+        }
+        private string GetChannel(string localGitRepository, string gitCmd, out Exception exception)
+        {
+            string channel = null;
+            try
+            {
+                exception = null;
+                string branches = GetCMDOutput(localGitRepository, gitCmd + "branch");
+
+                channel = "NIGHTLY";
+                string[] split = branches.Split('\n', '\r');
+                foreach (string branch in split)
+                    if (branch == "* master")
+                    {
+                        channel = "STABLE";
+                        break;
+                    }
+            }
+            catch (Exception ex) { exception = ex; }
+            return channel;
+        }
+        private string GetHistory(string localGitRepository, string gitCmd, out Exception exception)
+        {
+            string history = null;
+            try
+            {
+                exception = null;
+                history = GetCMDOutput(localGitRepository, gitCmd + "log");
+            }
+            catch (Exception ex) { exception = ex; }
+            return history;
+        }
+        private string GetCMDOutput(string localGitRepository, string gitbash)
+        {
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo("cmd", "/K cd \"" + localGitRepository + "\"")
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            p.Start();
+
+            string foo = p.StandardOutput.ReadToEnd();
+
+            p.StandardInput.WriteLine(gitbash);
+            string output = p.StandardOutput.ReadToEnd();
+
+            p.Close();
+            p = null;
+
+            return output;
+        }
+        private string GetFiles(string[] excludedFilesOrFolders, out List<string> fileList, out List<string> folderList, out Exception exception)
+        {
+            exception = null;
+            folderList = new List<string>();
+            fileList = new List<string>();
+
+            string files = null;
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("[FILES]");
+
+                foreach (string line in GetFilesFromFolderFormatted(Application.StartupPath, Application.StartupPath, excludedFilesOrFolders, out fileList))
+                    sb.AppendLine(line);
+
+                foreach (string folder in Directory.GetDirectories(Application.StartupPath, "*", SearchOption.AllDirectories))
+                    if (!IsFileOrFolderExcluded(folder, excludedFilesOrFolders))
+                    {
+                        List<string> tempFileList;
+                        foreach (string line in GetFilesFromFolderFormatted(Application.StartupPath, folder, excludedFilesOrFolders, out tempFileList))
+                            sb.AppendLine(line);
+                        fileList.AddRange(tempFileList);
+                        folderList.Add(folder);
+                    }
+
+                sb.AppendLine("version.ini:\\");
+                files = sb.ToString();
+            }
+            catch (Exception ex) { exception = ex; }
+            return files;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="absolutePartFolder"></param>
+        /// <param name="folder"></param>
+        /// <param name="excludedFilesOrFolders"></param>
+        /// <param name="fileList"></param>
+        /// <returns> List of relativefilename:md5hash</returns>
+        private List<string> GetFilesFromFolderFormatted(string absolutePartFolder, string folder, string[] excludedFilesOrFolders, out List<string> fileList)
+        {
+            List<string> formatted = new List<string>();
+            fileList = new List<string>();
+            int absolutePartDirectoryLength = absolutePartFolder.Length;
+            foreach (string fileName in Directory.GetFiles(folder, "*", SearchOption.TopDirectoryOnly))
+            {
+                fileList.Add(fileName);
+                string shortFileName = fileName.Substring(absolutePartDirectoryLength);
+                if (!IsFileOrFolderExcluded(shortFileName, excludedFilesOrFolders))
+                {
+                    switch (shortFileName.ToLower())
+                    {
+                        case "version.ini":
+                        case "vApus.CommitTool.exe":
+                            break;
+                        default:
+                            formatted.Add(shortFileName + ":" + GetMD5HashFromFile(fileName));
+                            break;
+                    }
+                }
+            }
+            return formatted;
+        }
+        private bool IsFileOrFolderExcluded(string name, string[] excludedFilesOrFolders)
         {
             string[] splittedName = name.Split('\\');
             name = splittedName[splittedName.Length - 1];
-            foreach (string s in exclude)
+            foreach (string s in excludedFilesOrFolders)
                 if ((s.StartsWith("*") && s.EndsWith("*") && name.Contains(s.Substring(1, s.Length - 2)))
                     || (s.StartsWith("*") && name.EndsWith(s.Substring(1)))
                     || (s.EndsWith("*") && name.StartsWith(s.Substring(0, s.Length - 1)))
@@ -354,226 +246,25 @@ namespace vApus.CommitTool
                     return true;
             return false;
         }
-        #endregion
-
-        #region Commit
-        private void btnCommit_Click(object sender, EventArgs e)
+        private string GetMD5HashFromFile(string fileName)
         {
-            _commiting = true;
-            AppendLogLine("Commiting started.", Color.Black);
-            tcCommit.SelectedIndex = 1;
+            FileStream file = new FileStream(fileName, FileMode.Open);
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] retVal = md5.ComputeHash(file);
+            file.Close();
 
-            //Writing the config
-            StreamWriter sw = new StreamWriter(Path.Combine(Application.StartupPath, "vApus.CommitTool.config"));
-            sw.WriteLine("Host:");
-            sw.WriteLine(txtHost.Text);
-            sw.WriteLine("Port:");
-            sw.WriteLine(txtPort.Text);
-            sw.WriteLine("Username:");
-            sw.WriteLine(txtUsername.Text);
-            sw.WriteLine("Exclude:");
-            foreach (string s in rtxtExclude.Text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                sw.Write(s);
-                sw.Write(';');
-            }
-            try { sw.Close(); }
-            catch { }
-            try { sw.Dispose(); }
-            catch { }
-
-            foreach (string s in _folders)
-                try
-                {
-                    _sftp.Mkdir("vapus/" + s);
-                }
-                catch { }
-
-            _sftp.OnTransferProgress += new FileTransferEvent(_sftp_OnTransferProgress);
-            _sftp.OnTransferEnd += new FileTransferEvent(_sftp_OnTransferEnd);
-
-            try
-            {
-                btnCommit.Enabled = false;
-                nudVersion.Enabled = false;
-                rtxtHistoryOfChanges.ReadOnly = true;
-                btnAddNewTitle.Enabled = false;
-                btnAddNewItem.Enabled = false;
-
-                Dictionary<string, string> toCommit = new Dictionary<string, string>(lvwCommit.Items.Count);
-                foreach (ListViewItem lvwi in lvwCommit.Items)
-                {
-                    lvwi.Tag = Path.Combine(Application.StartupPath, lvwi.SubItems[0].Text);
-                    if (chkCommitAll.Checked || lvwi.SubItems[2].Text != lvwi.SubItems[3].Text)
-                        toCommit.Add(lvwi.Tag as string, "vapus/" + lvwi.SubItems[0].Text.Replace('\\', '/'));
-                }
-
-                Thread t = new Thread(delegate()
-                {
-                    try
-                    {
-                        foreach (string key in toCommit.Keys)
-                            _sftp.Put(key, toCommit[key]);
-
-                        SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                        {
-                            string tempVersion = Path.Combine(Application.StartupPath, "tempversion.ini");
-                            string currentVersion = Path.Combine(Application.StartupPath, "version.ini");
-
-                            try
-                            {
-                                if (File.Exists(tempVersion))
-                                    File.Delete(tempVersion);
-                            }
-                            catch { }
-                            _sftp.OnTransferProgress -= _sftp_OnTransferProgress;
-                            _sftp.OnTransferEnd -= _sftp_OnTransferEnd;
-
-                            AppendLogLine("Completed!", Color.Green);
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        try
-                        {
-                            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                            {
-                                AppendLogLine("Failed to update or reinstall: " + ex.Message, Color.Red);
-                            });
-                        }
-                        catch { }
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                            {
-                                nudVersion.Enabled = true;
-                                rtxtHistoryOfChanges.ReadOnly = false;
-                                btnAddNewTitle.Enabled = true;
-                                btnAddNewItem.Enabled = true;
-                            }, nudVersion);
-                            _commiting = false;
-                        }
-                        catch { }
-                    }
-                });
-                t.Start();
-            }
-            catch (Exception ex)
-            {
-                btnConnect_Click(this, null);
-                AppendLogLine("Failed to update or reinstall: " + ex.Message, Color.Red);
-            }
-            //Writing the version ini
-            sw = new StreamWriter(Path.Combine(Application.StartupPath, "version.ini"));
-            sw.WriteLine("Version:");
-            sw.WriteLine(nudVersion.Value);
-            sw.WriteLine("HistoryOfChanges:");
-            sw.WriteLine(string.Format("<history>{0}</history>", rtxtHistoryOfChanges.Text));
-            sw.WriteLine("Files:");
-
-            foreach (ListViewItem lvwi in lvwCommit.Items)
-                if (!lvwi.SubItems[0].Text.Equals("version.ini", StringComparison.CurrentCultureIgnoreCase))
-                    sw.WriteLine(lvwi.SubItems[0].Text + ',' + lvwi.SubItems[1].Text + ',' + lvwi.SubItems[2].Text);
-
-            sw.Flush();
-            try { sw.Close(); }
-            catch { }
-            try { sw.Dispose(); }
-            catch { }
-            sw = null;
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < retVal.Length; i++)
+                sb.Append(retVal[i].ToString("x2"));
+            return sb.ToString();
         }
 
-        private void _sftp_OnTransferEnd(string src, string dst, int transferredBytes, int totalBytes, string message)
+        private void CommitBinaries(List<string> fileList, List<string> folderList, out Exception exception)
         {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-            {
-                for (int i = 0; i < lvwCommit.Items.Count; i++)
-                    if (lvwCommit.Items[i].Tag as string == src)
-                    {
-                        lvwCommit.Items[i].Selected = true;
-                        lvwCommit.SelectedItems[0].EnsureVisible();
-                        ProgressBar pb = lvwCommit.EmbeddedControls[i] as ProgressBar;
-                        pb.Value = pb.Maximum;
-                        break;
-                    }
-                float total;
-                if (pbTotal.Tag == null)
-                    total = (float)pbTotal.Maximum / lvwCommit.Items.Count;
-                else
-                    total = (float)pbTotal.Tag + (float)pbTotal.Maximum / lvwCommit.Items.Count;
-
-                pbTotal.Tag = total;
-                if (total == pbTotal.Maximum)
-                    pbTotal.Value = pbTotal.Maximum;
-                else
-                    pbTotal.Value = (int)total;
-            });
+            exception = null;
+            try { }
+            catch (Exception ex) { exception = ex; }
         }
 
-        private void _sftp_OnTransferProgress(string src, string dst, int transferredBytes, int totalBytes, string message)
-        {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-            {
-                for (int i = 0; i < lvwCommit.Items.Count; i++)
-                    if (lvwCommit.Items[i].Tag as string == src)
-                    {
-                        lvwCommit.Items[i].Selected = true;
-                        lvwCommit.SelectedItems[0].EnsureVisible();
-                        ProgressBar pb = lvwCommit.EmbeddedControls[i] as ProgressBar;
-                        pb.Maximum = totalBytes;
-                        pb.Value = transferredBytes;
-                        break;
-                    }
-            });
-        }
-        #endregion
-
-        #region Other
-        private void AppendLogLine(string line, Color color)
-        {
-            switch (rtxtLog.Text.Length)
-            {
-                case 0:
-                    rtxtLog.Text = line;
-                    break;
-                default:
-                    rtxtLog.Text = rtxtLog.Text + Environment.NewLine + line;
-                    break;
-            }
-            rtxtLog.Select(_previousCaretPosition, rtxtLog.Text.Length - _previousCaretPosition);
-            rtxtLog.SelectionColor = color;
-            rtxtLog.Select(rtxtLog.Text.Length, 0);
-            _previousCaretPosition = rtxtLog.SelectionStart;
-            rtxtLog.ScrollToCaret();
-        }
-        private void Commit_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (_commiting)
-            {
-                if (MessageBox.Show("Are you sure you want to disconnect while commiting?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                {
-                    _commiting = false;
-                    btnConnect_Click(this, null);
-                }
-                else
-                {
-                    e.Cancel = true;
-                }
-            }
-            else if (_sftp != null)
-            {
-                try
-                {
-                    if (_sftp.Connected)
-                        _sftp.Close();
-                }
-                catch { }
-                _sftp = null;
-            }
-        }
-        #endregion
     }
 }

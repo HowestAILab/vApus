@@ -20,7 +20,7 @@ namespace vApus.CommitTool
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Commit());
+            Application.Run(new OldCommit());
         }
     }
 }
