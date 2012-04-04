@@ -24,7 +24,6 @@ namespace vApus.UpdateTool
         #region Fields
         private Sftp _sftp;
         private int _previousCaretPosition;
-        private string _connectionsPath;
         //This exe is run as a copy, so set the startup path to the parent directory.
         private string _startupPath;
         private List<string[]> _currentVersions;
@@ -54,7 +53,6 @@ namespace vApus.UpdateTool
         {
             InitializeComponent();
             _startupPath = Directory.GetParent(Application.StartupPath).FullName;
-            _connectionsPath = Path.Combine(_startupPath, "vApus.UpdateTool.config");
 
             if (args.Length == 7)
             {
@@ -130,6 +128,13 @@ namespace vApus.UpdateTool
         {
             if (e.KeyCode == Keys.Enter && btnConnect.Enabled == true && btnConnect.Text == "Connect")
                 PerformConnectClick();
+        }
+
+        private void cboChannel_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboChannel.SelectedIndex != _channel)
+                if (MessageBox.Show("Are you sure you want to change the channel?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                    cboChannel.SelectedIndex = _channel;
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
@@ -223,7 +228,7 @@ namespace vApus.UpdateTool
         /// <returns></returns>
         private List<string[]> LoadVersion(string versionControl)
         {
-            bool versionFound = false, historyFound = false, filesFound = false;
+            bool versionFound = false, channelFound = false, historyFound = false, filesFound = false;
             List<string[]> fileVersions = new List<string[]>();
             string line = string.Empty;
 
@@ -239,13 +244,16 @@ namespace vApus.UpdateTool
 
                     switch (line)
                     {
-                        case "Version:":
+                        case "[VERSION]":
                             versionFound = true;
                             continue;
-                        case "HistoryOfChanges:":
+                        case "[CHANNEL]":
+                            channelFound = true;
+                            continue;
+                        case "[HISTORY]":
                             historyFound = true;
                             continue;
-                        case "Files:":
+                        case "[FILES]":
                             filesFound = true;
                             continue;
                     }
@@ -261,9 +269,13 @@ namespace vApus.UpdateTool
                         FillHistoryOfChanges(line);
                         historyFound = false;
                     }
+                    else if (channelFound)
+                    { 
+                    //lblChann
+                    }
                     else if (versionFound)
                     {
-                        lblVersion.Text = "Version " + line;
+                        lblVersion.Text = "Version: " + line;
                         versionFound = false;
                     }
                 }

@@ -54,7 +54,15 @@ namespace vApus.Util
         }
         private void cboChannel_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SetEnabled();
+            string host, username, password;
+            int port, channel;
+            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
+
+            if (cboChannel.SelectedIndex != channel)
+                if (MessageBox.Show("Are you sure you want to change the channel?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                    SetEnabled();
+                else 
+                    cboChannel.SelectedIndex = channel;
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {

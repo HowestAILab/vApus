@@ -135,8 +135,8 @@ namespace vApus.Util
                     sftp = null;
                 }
 
-                int prevVersion = GetVersion(Path.Combine(Application.StartupPath, "version.ini"));
-                int curVersion = GetVersion(tempVersionControl);
+                string prevVersion = GetVersion(Path.Combine(Application.StartupPath, "version.ini"));
+                string curVersion = GetVersion(tempVersionControl);
 
                 _versionChanged = (prevVersion != curVersion);
 
@@ -150,19 +150,23 @@ namespace vApus.Util
             if (Directory.Exists(tempFolder))
                 Directory.Delete(tempFolder, true);
         }
-        private static int GetVersion(string versionIniPath)
+        private static string GetVersion(string versionIniPath)
         {
             using (StreamReader sr = new StreamReader(versionIniPath))
             {
                 int i = 0;
+                bool found = false;
                 while (sr.Peek() != -1)
                 {
                     string line = sr.ReadLine();
-                    if (i++ == 1)
-                        return int.Parse(line);
+                    if (found)
+                        return line;
+
+                    if (line.Trim() == "[VERSION]")
+                        found = true;
                 }
             }
-            return 0;
+            return string.Empty;
         }
     }
 }

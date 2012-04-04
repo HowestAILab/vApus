@@ -56,10 +56,10 @@
             this.tpFiles = new System.Windows.Forms.TabPage();
             this.lvwUpdate = new vApus.Util.ExtendedListView();
             this.clmPath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmDateTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmCurrentVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmLocalMD5Checksum = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmRemoteMD5Checksum = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmDownloadProgress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.lblChannel = new System.Windows.Forms.Label();
             this.pnlConnection.SuspendLayout();
             this.flpConnectTo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
@@ -257,6 +257,7 @@
             this.cboChannel.Name = "cboChannel";
             this.cboChannel.Size = new System.Drawing.Size(98, 21);
             this.cboChannel.TabIndex = 0;
+            this.cboChannel.SelectedIndexChanged += new System.EventHandler(this.cboChannel_SelectedIndexChanged);
             // 
             // rtxtLog
             // 
@@ -340,6 +341,7 @@
             // 
             // tpHistory
             // 
+            this.tpHistory.Controls.Add(this.lblChannel);
             this.tpHistory.Controls.Add(this.rtxtHistoryOfChanges);
             this.tpHistory.Controls.Add(this.lblVersion);
             this.tpHistory.Location = new System.Drawing.Point(4, 22);
@@ -357,11 +359,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rtxtHistoryOfChanges.BackColor = System.Drawing.Color.White;
             this.rtxtHistoryOfChanges.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtxtHistoryOfChanges.Location = new System.Drawing.Point(9, 30);
+            this.rtxtHistoryOfChanges.Location = new System.Drawing.Point(9, 58);
             this.rtxtHistoryOfChanges.Name = "rtxtHistoryOfChanges";
             this.rtxtHistoryOfChanges.ReadOnly = true;
             this.rtxtHistoryOfChanges.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.rtxtHistoryOfChanges.Size = new System.Drawing.Size(771, 254);
+            this.rtxtHistoryOfChanges.Size = new System.Drawing.Size(771, 226);
             this.rtxtHistoryOfChanges.TabIndex = 0;
             this.rtxtHistoryOfChanges.Text = "";
             // 
@@ -372,9 +374,9 @@
             this.lblVersion.ForeColor = System.Drawing.Color.SteelBlue;
             this.lblVersion.Location = new System.Drawing.Point(6, 14);
             this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(49, 13);
+            this.lblVersion.Size = new System.Drawing.Size(53, 13);
             this.lblVersion.TabIndex = 1;
-            this.lblVersion.Text = "Version";
+            this.lblVersion.Text = "Version:";
             // 
             // tpFiles
             // 
@@ -391,9 +393,8 @@
             this.lvwUpdate.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lvwUpdate.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clmPath,
-            this.clmDateTime,
-            this.clmVersion,
-            this.clmCurrentVersion,
+            this.clmLocalMD5Checksum,
+            this.clmRemoteMD5Checksum,
             this.clmDownloadProgress});
             this.lvwUpdate.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvwUpdate.FullRowSelect = true;
@@ -410,25 +411,31 @@
             this.clmPath.Text = "Path";
             this.clmPath.Width = 200;
             // 
-            // clmDateTime
+            // clmLocalMD5Checksum
             // 
-            this.clmDateTime.Text = "Date/time";
-            this.clmDateTime.Width = 100;
+            this.clmLocalMD5Checksum.Text = "Local MD5 Checksum";
+            this.clmLocalMD5Checksum.Width = 117;
             // 
-            // clmVersion
+            // clmRemoteMD5Checksum
             // 
-            this.clmVersion.Text = "MD5 Checksum";
-            this.clmVersion.Width = 88;
-            // 
-            // clmCurrentVersion
-            // 
-            this.clmCurrentVersion.Text = "Current MD5 Checksum";
-            this.clmCurrentVersion.Width = 125;
+            this.clmRemoteMD5Checksum.Text = "Remote MD5 Checksum";
+            this.clmRemoteMD5Checksum.Width = 128;
             // 
             // clmDownloadProgress
             // 
             this.clmDownloadProgress.Text = "";
             this.clmDownloadProgress.Width = 100;
+            // 
+            // lblChannel
+            // 
+            this.lblChannel.AutoSize = true;
+            this.lblChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblChannel.ForeColor = System.Drawing.Color.SteelBlue;
+            this.lblChannel.Location = new System.Drawing.Point(6, 34);
+            this.lblChannel.Name = "lblChannel";
+            this.lblChannel.Size = new System.Drawing.Size(57, 13);
+            this.lblChannel.TabIndex = 2;
+            this.lblChannel.Text = "Channel:";
             // 
             // Update
             // 
@@ -473,9 +480,8 @@
         private System.Windows.Forms.Panel pnlUpdate;
         private vApus.Util.ExtendedListView lvwUpdate;
         private System.Windows.Forms.ColumnHeader clmPath;
-        private System.Windows.Forms.ColumnHeader clmDateTime;
-        private System.Windows.Forms.ColumnHeader clmVersion;
-        private System.Windows.Forms.ColumnHeader clmCurrentVersion;
+        private System.Windows.Forms.ColumnHeader clmRemoteMD5Checksum;
+        private System.Windows.Forms.ColumnHeader clmLocalMD5Checksum;
         private System.Windows.Forms.ColumnHeader clmDownloadProgress;
         private System.Windows.Forms.RichTextBox rtxtLog;
         private System.Windows.Forms.FlowLayoutPanel flpConnectTo;
@@ -491,5 +497,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Panel pnlBorderChannel;
         private System.Windows.Forms.ComboBox cboChannel;
+        private System.Windows.Forms.Label lblChannel;
     }
 }

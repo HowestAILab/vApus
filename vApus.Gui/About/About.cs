@@ -68,9 +68,9 @@ namespace vApus.Gui
             lblDescription.Text = AssemblyDescription;
             lblCopyright.Text = AssemblyCopyright;
 
-            _titleFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Bold);
-            _dateFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Italic);
-            _itemFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Regular);
+            _titleFont = new Font(rtxtHistory.Font, FontStyle.Bold);
+            _dateFont = new Font(rtxtHistory.Font, FontStyle.Italic);
+            _itemFont = new Font(rtxtHistory.Font, FontStyle.Regular);
 
             ReadVersionIni();
 
@@ -81,7 +81,7 @@ namespace vApus.Gui
         {
             string ini = Path.Combine(Application.StartupPath, "version.ini");
             string line = string.Empty;
-            bool versionFound = false, historyFound = false;
+            bool versionFound = false, channelFound = false, historyFound = false;
 
             if (File.Exists(ini))
             {
@@ -95,18 +95,26 @@ namespace vApus.Gui
 
                     switch (line)
                     {
-                        case "Version:":
+                        case "[VERSION]":
                             versionFound = true;
                             continue;
-                        case "HistoryOfChanges:":
+                        case "[CHANNEL]":
+                            channelFound = true;
+                            continue;
+                        case "[HISTORY]":
                             historyFound = true;
                             continue;
                     }
 
                     if (historyFound)
                     {
-                        FillHistoryOfChanges(line);
+                        FillHistory(line);
                         break;
+                    }
+                    else if (channelFound)
+                    {
+                        lblChannel.Text = "Channel: " + line;
+                        channelFound = false;
                     }
                     else if (versionFound)
                     {
@@ -121,7 +129,7 @@ namespace vApus.Gui
                 sr = null;
             }
         }
-        private void FillHistoryOfChanges(string historyOfChanges)
+        private void FillHistory(string historyOfChanges)
         {
             List<HistoryPart> parts = new List<HistoryPart>();
             XmlDocument doc = new XmlDocument();
@@ -139,48 +147,48 @@ namespace vApus.Gui
                             switch (nn.Name)
                             {
                                 case "d":
-                                    rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + " (" + nn.InnerText + ")" + Environment.NewLine;
-                                    parts.Add(new HistoryPart("d", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
+                                    rtxtHistory.Text = rtxtHistory.Text + " (" + nn.InnerText + ")" + Environment.NewLine;
+                                    parts.Add(new HistoryPart("d", previousCaretPosition, rtxtHistory.Text.Length - previousCaretPosition));
                                     break;
                                 default:
                                     if (previousCaretPosition > 0)
-                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + Environment.NewLine + nn.InnerText;
+                                        rtxtHistory.Text = rtxtHistory.Text + Environment.NewLine + nn.InnerText;
                                     else
-                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + nn.InnerText;
-                                    parts.Add(new HistoryPart("t", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
+                                        rtxtHistory.Text = rtxtHistory.Text + nn.InnerText;
+                                    parts.Add(new HistoryPart("t", previousCaretPosition, rtxtHistory.Text.Length - previousCaretPosition));
                                     break;
                             }
-                            previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
-                            rtxtHistoryOfChanges.Select(rtxtHistoryOfChanges.Text.Length, 0);
+                            previousCaretPosition = rtxtHistory.Text.Length;
+                            rtxtHistory.Select(rtxtHistory.Text.Length, 0);
                         }
                         break;
                     case "i":
-                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + n.InnerText + Environment.NewLine;
-                        parts.Add(new HistoryPart("i", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
+                        rtxtHistory.Text = rtxtHistory.Text + n.InnerText + Environment.NewLine;
+                        parts.Add(new HistoryPart("i", previousCaretPosition, rtxtHistory.Text.Length - previousCaretPosition));
                         break;
                 }
-                previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
+                previousCaretPosition = rtxtHistory.Text.Length;
             }
             foreach (HistoryPart part in parts)
             {
-                rtxtHistoryOfChanges.Select(part.SelectionStart, part.Length);
+                rtxtHistory.Select(part.SelectionStart, part.Length);
                 switch (part.Type)
                 {
                     case "d":
-                        rtxtHistoryOfChanges.SelectionFont = _dateFont;
-                        rtxtHistoryOfChanges.SelectionColor = Color.Blue;
+                        rtxtHistory.SelectionFont = _dateFont;
+                        rtxtHistory.SelectionColor = Color.Blue;
                         break;
                     case "i":
-                        rtxtHistoryOfChanges.SelectionFont = _itemFont;
-                        rtxtHistoryOfChanges.SelectionBullet = true;
+                        rtxtHistory.SelectionFont = _itemFont;
+                        rtxtHistory.SelectionBullet = true;
                         break;
                     default:
-                        rtxtHistoryOfChanges.SelectionFont = _titleFont;
-                        rtxtHistoryOfChanges.SelectionColor = Color.Green;
+                        rtxtHistory.SelectionFont = _titleFont;
+                        rtxtHistory.SelectionColor = Color.Green;
                         break;
                 }
             }
-            rtxtHistoryOfChanges.Select(0, 0);
+            rtxtHistory.Select(0, 0);
         }
         private void lblWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
