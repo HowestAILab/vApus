@@ -41,9 +41,6 @@
             this.flpConnectTo = new System.Windows.Forms.FlowLayoutPanel();
             this.txtHost = new System.Windows.Forms.TextBox();
             this.nudPort = new System.Windows.Forms.NumericUpDown();
-            this.label5 = new System.Windows.Forms.Label();
-            this.pnlBorderChannel = new System.Windows.Forms.Panel();
-            this.cboChannel = new System.Windows.Forms.ComboBox();
             this.rtxtLog = new System.Windows.Forms.RichTextBox();
             this.btnConnect = new System.Windows.Forms.Button();
             this.btnUpdateOrReinstall = new System.Windows.Forms.Button();
@@ -51,6 +48,7 @@
             this.pnlUpdate = new System.Windows.Forms.Panel();
             this.tcCommit = new System.Windows.Forms.TabControl();
             this.tpHistory = new System.Windows.Forms.TabPage();
+            this.lblChannel = new System.Windows.Forms.Label();
             this.rtxtHistoryOfChanges = new System.Windows.Forms.RichTextBox();
             this.lblVersion = new System.Windows.Forms.Label();
             this.tpFiles = new System.Windows.Forms.TabPage();
@@ -59,11 +57,10 @@
             this.clmLocalMD5Checksum = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmRemoteMD5Checksum = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmDownloadProgress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.lblChannel = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.pnlConnection.SuspendLayout();
             this.flpConnectTo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
-            this.pnlBorderChannel.SuspendLayout();
             this.pnlUpdate.SuspendLayout();
             this.tcCommit.SuspendLayout();
             this.tpHistory.SuspendLayout();
@@ -137,6 +134,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlConnection.BackColor = System.Drawing.Color.White;
             this.pnlConnection.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlConnection.Controls.Add(this.label5);
+            this.pnlConnection.Controls.Add(this.lblChannel);
             this.pnlConnection.Controls.Add(this.btnRefresh);
             this.pnlConnection.Controls.Add(this.chkGetAll);
             this.pnlConnection.Controls.Add(this.flpConnectTo);
@@ -167,11 +166,11 @@
             // chkGetAll
             // 
             this.chkGetAll.AutoSize = true;
-            this.chkGetAll.Location = new System.Drawing.Point(11, 115);
+            this.chkGetAll.Location = new System.Drawing.Point(131, 91);
             this.chkGetAll.Name = "chkGetAll";
-            this.chkGetAll.Size = new System.Drawing.Size(114, 30);
+            this.chkGetAll.Size = new System.Drawing.Size(183, 17);
             this.chkGetAll.TabIndex = 4;
-            this.chkGetAll.Text = "Get versioned\r\nand non-versioned";
+            this.chkGetAll.Text = "Get versioned and non-versioned";
             this.chkGetAll.UseVisualStyleBackColor = true;
             // 
             // flpConnectTo
@@ -186,8 +185,6 @@
             this.flpConnectTo.Controls.Add(this.txtUsername);
             this.flpConnectTo.Controls.Add(this.label3);
             this.flpConnectTo.Controls.Add(this.txtPassword);
-            this.flpConnectTo.Controls.Add(this.label5);
-            this.flpConnectTo.Controls.Add(this.pnlBorderChannel);
             this.flpConnectTo.Location = new System.Drawing.Point(0, 0);
             this.flpConnectTo.Name = "flpConnectTo";
             this.flpConnectTo.Padding = new System.Windows.Forms.Padding(3);
@@ -222,53 +219,16 @@
             0,
             0});
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(582, 10);
-            this.label5.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(49, 13);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "Channel:";
-            // 
-            // pnlBorderChannel
-            // 
-            this.pnlBorderChannel.BackColor = System.Drawing.Color.Silver;
-            this.pnlBorderChannel.Controls.Add(this.cboChannel);
-            this.pnlBorderChannel.Location = new System.Drawing.Point(631, 6);
-            this.pnlBorderChannel.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
-            this.pnlBorderChannel.Name = "pnlBorderChannel";
-            this.pnlBorderChannel.Size = new System.Drawing.Size(100, 23);
-            this.pnlBorderChannel.TabIndex = 4;
-            // 
-            // cboChannel
-            // 
-            this.cboChannel.BackColor = System.Drawing.Color.White;
-            this.cboChannel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboChannel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboChannel.FormattingEnabled = true;
-            this.cboChannel.Items.AddRange(new object[] {
-            "Stable",
-            "Nightly"});
-            this.cboChannel.Location = new System.Drawing.Point(1, 1);
-            this.cboChannel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.cboChannel.Name = "cboChannel";
-            this.cboChannel.Size = new System.Drawing.Size(98, 21);
-            this.cboChannel.TabIndex = 0;
-            this.cboChannel.SelectedIndexChanged += new System.EventHandler(this.cboChannel_SelectedIndexChanged);
-            // 
             // rtxtLog
             // 
             this.rtxtLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rtxtLog.BackColor = System.Drawing.Color.White;
             this.rtxtLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtxtLog.Location = new System.Drawing.Point(131, 86);
+            this.rtxtLog.Location = new System.Drawing.Point(449, 86);
             this.rtxtLog.Name = "rtxtLog";
             this.rtxtLog.ReadOnly = true;
-            this.rtxtLog.Size = new System.Drawing.Size(668, 59);
+            this.rtxtLog.Size = new System.Drawing.Size(350, 59);
             this.rtxtLog.TabIndex = 3;
             this.rtxtLog.Text = "";
             // 
@@ -341,7 +301,6 @@
             // 
             // tpHistory
             // 
-            this.tpHistory.Controls.Add(this.lblChannel);
             this.tpHistory.Controls.Add(this.rtxtHistoryOfChanges);
             this.tpHistory.Controls.Add(this.lblVersion);
             this.tpHistory.Location = new System.Drawing.Point(4, 22);
@@ -351,6 +310,17 @@
             this.tpHistory.TabIndex = 1;
             this.tpHistory.Text = "History";
             this.tpHistory.UseVisualStyleBackColor = true;
+            // 
+            // lblChannel
+            // 
+            this.lblChannel.AutoSize = true;
+            this.lblChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblChannel.ForeColor = System.Drawing.Color.SteelBlue;
+            this.lblChannel.Location = new System.Drawing.Point(257, 120);
+            this.lblChannel.Name = "lblChannel";
+            this.lblChannel.Size = new System.Drawing.Size(57, 13);
+            this.lblChannel.TabIndex = 2;
+            this.lblChannel.Text = "Channel:";
             // 
             // rtxtHistoryOfChanges
             // 
@@ -426,16 +396,16 @@
             this.clmDownloadProgress.Text = "";
             this.clmDownloadProgress.Width = 100;
             // 
-            // lblChannel
+            // label5
             // 
-            this.lblChannel.AutoSize = true;
-            this.lblChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblChannel.ForeColor = System.Drawing.Color.SteelBlue;
-            this.lblChannel.Location = new System.Drawing.Point(6, 34);
-            this.lblChannel.Name = "lblChannel";
-            this.lblChannel.Size = new System.Drawing.Size(57, 13);
-            this.lblChannel.TabIndex = 2;
-            this.lblChannel.Text = "Channel:";
+            this.label5.AutoSize = true;
+            this.label5.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.label5.Location = new System.Drawing.Point(12, 120);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(240, 13);
+            this.label5.TabIndex = 5;
+            this.label5.Text = "Can only switch channel in the Update Notifier -->";
             // 
             // Update
             // 
@@ -455,7 +425,6 @@
             this.flpConnectTo.ResumeLayout(false);
             this.flpConnectTo.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
-            this.pnlBorderChannel.ResumeLayout(false);
             this.pnlUpdate.ResumeLayout(false);
             this.tcCommit.ResumeLayout(false);
             this.tpHistory.ResumeLayout(false);
@@ -494,9 +463,7 @@
         private System.Windows.Forms.Label lblVersion;
         private System.Windows.Forms.TextBox txtHost;
         private System.Windows.Forms.NumericUpDown nudPort;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Panel pnlBorderChannel;
-        private System.Windows.Forms.ComboBox cboChannel;
         private System.Windows.Forms.Label lblChannel;
+        private System.Windows.Forms.Label label5;
     }
 }

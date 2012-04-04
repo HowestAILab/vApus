@@ -124,7 +124,8 @@ namespace vApus.Util
                 }
                 catch { }
 
-                sftp.Get("vapus/version.ini", tempVersionControl);
+                string channelDir = channel == 0 ? "stable" : "nightly";
+                sftp.Get(channelDir + "/version.ini", tempVersionControl);
 
                 try
                 {
@@ -138,7 +139,9 @@ namespace vApus.Util
                 string prevVersion = GetVersion(Path.Combine(Application.StartupPath, "version.ini"));
                 string curVersion = GetVersion(tempVersionControl);
 
-                _versionChanged = (prevVersion != curVersion);
+                string prevChannel= GetChannel(Path.Combine(Application.StartupPath, "version.ini"));
+
+                _versionChanged = (prevVersion != curVersion) || (channelDir != prevChannel.ToLower());
 
                 _refreshed = true;
             }
@@ -154,7 +157,6 @@ namespace vApus.Util
         {
             using (StreamReader sr = new StreamReader(versionIniPath))
             {
-                int i = 0;
                 bool found = false;
                 while (sr.Peek() != -1)
                 {
@@ -163,6 +165,23 @@ namespace vApus.Util
                         return line;
 
                     if (line.Trim() == "[VERSION]")
+                        found = true;
+                }
+            }
+            return string.Empty;
+        }
+        private static string GetChannel(string versionIniPath)
+        {
+            using (StreamReader sr = new StreamReader(versionIniPath))
+            {
+                bool found = false;
+                while (sr.Peek() != -1)
+                {
+                    string line = sr.ReadLine();
+                    if (found)
+                        return line;
+
+                    if (line.Trim() == "[CHANNEL]")
                         found = true;
                 }
             }

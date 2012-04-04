@@ -336,7 +336,6 @@ namespace vApus.CommitTool
                         }
                 }
                 //No hash for this, but it doesn't matter, this always needs to be updated.
-                sb.Append(@"\version.ini:\");
                 fileList.Add(Path.Combine(Application.StartupPath, "version.ini"));
                 files = sb.ToString();
             }
@@ -351,8 +350,8 @@ namespace vApus.CommitTool
         /// <param name="excludedFilesOrFolders"></param>
         /// <param name="fileList"></param>
         /// <returns>The files section of the version.ini. List of relativefilename:md5hash,
-        /// version.ini, history.xml and vApus.CommitTool.Xml are automatically excluded,
-        /// don't forget to add version.ini manually.
+        /// version.ini, history.xml and vApus.CommitTool.Xml are automatically excluded in the version.ini text,
+        /// however version.ini will always be sent to the server.
         /// </returns>
         private List<string> GetFilesFromFolderFormatted(string absolutePartFolder, string folder, string[] excludedFilesOrFolders, MD5CryptoServiceProvider md5, out List<string> fileList)
         {

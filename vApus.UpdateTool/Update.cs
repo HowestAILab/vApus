@@ -94,7 +94,6 @@ namespace vApus.UpdateTool
             nudPort.Value = _port;
             txtUsername.Text = _username;
             txtPassword.Text = _password;
-            cboChannel.SelectedIndex = _channel;
         }
         private void Update_Shown(object sender, EventArgs e)
         {
@@ -128,13 +127,6 @@ namespace vApus.UpdateTool
         {
             if (e.KeyCode == Keys.Enter && btnConnect.Enabled == true && btnConnect.Text == "Connect")
                 PerformConnectClick();
-        }
-
-        private void cboChannel_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cboChannel.SelectedIndex != _channel)
-                if (MessageBox.Show("Are you sure you want to change the channel?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
-                    cboChannel.SelectedIndex = _channel;
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
@@ -201,7 +193,6 @@ namespace vApus.UpdateTool
 
                         string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
                         string tempVersion = Path.Combine(tempFolder, "version.ini");
-                        string currenVersion = Path.Combine(_startupPath, "version.ini");
                         try
                         {
                             if (File.Exists(tempVersion))
@@ -260,8 +251,8 @@ namespace vApus.UpdateTool
 
                     if (filesFound)
                     {
-                        string[] splittedLine = line.Split(',');
-                        if (splittedLine.Length == 3)
+                        string[] splittedLine = line.Split(':');
+                        if (splittedLine.Length == 2)
                             fileVersions.Add(splittedLine);
                     }
                     else if (historyFound)
@@ -270,8 +261,9 @@ namespace vApus.UpdateTool
                         historyFound = false;
                     }
                     else if (channelFound)
-                    { 
-                    //lblChann
+                    {
+                        lblChannel.Text = "Channel: " + line;
+                        channelFound = false;
                     }
                     else if (versionFound)
                     {
@@ -393,17 +385,18 @@ namespace vApus.UpdateTool
                 }
                 catch { }
 
-                _sftp.Get("vapus/version.ini", tempVersion);
+                string channelDir = _channel == 0 ? "stable" : "nightly";
+                _sftp.Get(channelDir + "/version.ini", tempVersion);
 
                 List<string[]> serverVersions = LoadVersion(tempVersion);
 
                 foreach (string[] line in serverVersions)
                 {
-                    string version = string.Empty;
-                    if (chkGetAll.Checked | !AlreadyVersioned(line, _currentVersions, out version))
+                    string md5Hash = string.Empty;
+                    if (chkGetAll.Checked | !AlreadyVersioned(line, _currentVersions, out md5Hash))
                     {
                         ListViewItem lvwi = new ListViewItem(line);
-                        lvwi.SubItems.Add(version);
+                        lvwi.SubItems.Add(md5Hash);
                         lvwUpdate.Items.Add(lvwi);
                         lvwUpdate.AddEmbeddedControl(new ProgressBar(), lvwUpdate.Columns.Count - 1, lvwUpdate.Items.Count - 1);
                     }
@@ -420,9 +413,9 @@ namespace vApus.UpdateTool
                 AppendLogLine("Failed to get the list of files needed to be versioned: " + ex.Message, Color.Red);
             }
         }
-        private bool AlreadyVersioned(string[] entry, List<string[]> versioned, out string version)
+        private bool AlreadyVersioned(string[] entry, List<string[]> versioned, out string md5Hash)
         {
-            version = string.Empty;
+            md5Hash = string.Empty;
             foreach (string[] line in versioned)
             {
                 List<bool> equals = new List<bool>(line.Length);
@@ -430,7 +423,7 @@ namespace vApus.UpdateTool
                     equals.Add(line[i] == entry[i]);
 
                 if (equals[0] == true)
-                    version = line[2];
+                    md5Hash = line[1];
                 if (!equals.Contains(false))
                     return true;
             }
@@ -457,6 +450,9 @@ namespace vApus.UpdateTool
                 chkGetAll.Enabled = false;
                 btnUpdateOrReinstall.Enabled = false;
                 string possibleNonExistingFolder;
+
+                string channelDir = _channel == 0 ? "stable" : "nightly";
+
                 Dictionary<string, string> toUpdate = new Dictionary<string, string>(lvwUpdate.Items.Count);
                 foreach (ListViewItem lvwi in lvwUpdate.Items)
                 {
@@ -468,7 +464,7 @@ namespace vApus.UpdateTool
                         Directory.CreateDirectory(possibleNonExistingFolder);
 
                     lvwi.Tag = Path.Combine(tempFolder, lvwi.SubItems[0].Text);
-                    toUpdate.Add("vapus/" + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
+                    toUpdate.Add(channelDir + "/" + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
                 }
 
                 Thread t = new Thread(delegate()
@@ -482,9 +478,6 @@ namespace vApus.UpdateTool
                         {
                             btnRefresh.Enabled = true;
                             chkGetAll.Enabled = true;
-
-                            string tempVersion = Path.Combine(tempFolder, "version.ini");
-                            string currenVersion = Path.Combine(_startupPath, "version.ini");
 
                             _sftp.OnTransferProgress -= _sftp_OnTransferProgress;
                             _sftp.OnTransferEnd -= _sftp_OnTransferEnd;
@@ -634,7 +627,7 @@ namespace vApus.UpdateTool
                 }
                 else
                 {
-                    MessageBox.Show("Not all files where update due to access or authorization errors!\nThose files are stored in the 'UpdateTempFiles' folder located in the top directory of vApus, so you can put them at the right place manually.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show("Not all files where updated due to access or authorization errors!\nThose files are stored in the 'UpdateTempFiles' folder located in the top directory of vApus, so you can put them at the right place manually.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
             }
             catch
@@ -646,7 +639,9 @@ namespace vApus.UpdateTool
                 //Start JumpStart
                 try
                 {
-                    Process.Start(Path.Combine(_startupPath, "vApus.JumpStart.exe"));
+                    string jumpStartPath = Path.Combine(_startupPath, "vApus.JumpStart.exe");
+                    if (File.Exists(jumpStartPath))
+                        Process.Start(jumpStartPath);
                 }
                 catch { }
                 this.Enabled = true;
