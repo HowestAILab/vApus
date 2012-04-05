@@ -280,6 +280,7 @@ namespace vApus.CommitTool
 
             p.BeginOutputReadLine();
 
+            p.StandardInput.WriteLine(localGitRepository.Split('\\')[0]);
             p.StandardInput.WriteLine("cd \"" + localGitRepository + "\"");
             p.StandardInput.WriteLine(gitbash);
 
@@ -407,15 +408,4 @@ namespace vApus.CommitTool
         }
         #endregion
     }
-
-    //public static class SftpExtensions
-    //{
-    //    public static void Rmdir(this Sftp sftp, string directory)
-    //    {
-    //        var prop = sftp.GetType().GetProperty("SftpChannel", BindingFlags.NonPublic | BindingFlags.Instance);
-    //        var methodInfo = prop.GetGetMethod(true);
-    //        var sftpChannel = methodInfo.Invoke(sftp, null);
-    //        ((Tamir.SharpSsh.jsch.ChannelSftp)sftpChannel).rm(directory);
-    //    }
-    //}
 }
