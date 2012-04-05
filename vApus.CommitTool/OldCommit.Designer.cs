@@ -1,6 +1,6 @@
 ﻿namespace vApus.CommitTool
 {
-    partial class Commit
+    partial class OldCommit
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Commit));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OldCommit));
             this.label2 = new System.Windows.Forms.Label();
             this.pnlUpdate = new System.Windows.Forms.Panel();
             this.tcCommit = new System.Windows.Forms.TabControl();
