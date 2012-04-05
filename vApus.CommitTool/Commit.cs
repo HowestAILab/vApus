@@ -124,8 +124,8 @@ namespace vApus.CommitTool
                     //Remake the channel dir for a clean start
                     ssh.Write("rm -rf " + channelDir);
                     ssh.ReadResponse();
-                    //A bit sad, but otherwise the following command doesn't work
-                    Thread.Sleep(20000);
+                    //A bit sad, but otherwise the following command doesn't work (10 seconds should be okay, just being sure)
+                    Thread.Sleep(60000);
                 }
                 catch { }
                 try { sftp.Mkdir(channelDir); }
