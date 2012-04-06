@@ -63,6 +63,10 @@ namespace vApus.UpdateTool
                 _channel = int.Parse(args[5]);
                 _autoUpdate = bool.Parse(args[6]);
             }
+            else if (args.Length == 2)
+            {
+                _channel = int.Parse(args[1]);
+            }
 
             this.HandleCreated += new EventHandler(Update_HandleCreated);
 
@@ -464,8 +468,8 @@ namespace vApus.UpdateTool
                     if (!Directory.Exists(possibleNonExistingFolder))
                         Directory.CreateDirectory(possibleNonExistingFolder);
 
-                    lvwi.Tag = Path.Combine(tempFolder, lvwi.SubItems[0].Text);
-                    toUpdate.Add(channelDir + "/" + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
+                    lvwi.Tag = tempFolder + lvwi.SubItems[0].Text;
+                    toUpdate.Add(channelDir + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
                 }
 
                 Thread t = new Thread(delegate()
@@ -486,7 +490,6 @@ namespace vApus.UpdateTool
                             AppendLogLine("Completed!", Color.Green);
 
                             OverwriteFiles();
-
                         });
                     }
                     catch (Exception ex)
@@ -575,7 +578,7 @@ namespace vApus.UpdateTool
                 string filename;
                 foreach (ListViewItem lvwi in lvwUpdate.Items)
                 {
-                    filename = Path.Combine(_startupPath, lvwi.Text);
+                    filename = _startupPath + lvwi.Text;
                     if (File.Exists(filename))
                     {
                         int sleepTime = 0;
