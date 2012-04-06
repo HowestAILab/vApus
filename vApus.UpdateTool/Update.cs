@@ -392,14 +392,15 @@ namespace vApus.UpdateTool
 
                 foreach (string[] line in serverVersions)
                 {
-                    string md5Hash = string.Empty;
-                    if (chkGetAll.Checked | !AlreadyVersioned(line, _currentVersions, out md5Hash))
-                    {
-                        ListViewItem lvwi = new ListViewItem(line);
-                        lvwi.SubItems.Add(md5Hash);
-                        lvwUpdate.Items.Add(lvwi);
-                        lvwUpdate.AddEmbeddedControl(new ProgressBar(), lvwUpdate.Columns.Count - 1, lvwUpdate.Items.Count - 1);
-                    }
+                    string remoteMD5Hash = string.Empty;
+                    if (chkGetAll.Checked | !AlreadyVersioned(line, _currentVersions, out remoteMD5Hash))
+                        if (remoteMD5Hash.Length != 0)
+                        {
+                            ListViewItem lvwi = new ListViewItem(line);
+                            lvwi.SubItems.Add(remoteMD5Hash);
+                            lvwUpdate.Items.Add(lvwi);
+                            lvwUpdate.AddEmbeddedControl(new ProgressBar(), lvwUpdate.Columns.Count - 1, lvwUpdate.Items.Count - 1);
+                        }
                 }
 
                 btnUpdateOrReinstall.Enabled = lvwUpdate.Items.Count != 0;

@@ -11,10 +11,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Tamir.SharpSsh;
-using System.Reflection;
-using System.Threading;
 
 namespace vApus.CommitTool
 {

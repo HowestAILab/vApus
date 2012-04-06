@@ -192,7 +192,6 @@ namespace vApus.Util
             nudPort.Value = 5222;
             txtUsername.Text = string.Empty;
             txtPassword.Text = string.Empty;
-            cboChannel.SelectedIndex = 0;
 
             UpdateNotifier.SetCredentials(txtHost.Text, 5222, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
 
