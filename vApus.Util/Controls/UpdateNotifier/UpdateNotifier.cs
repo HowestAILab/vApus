@@ -87,6 +87,11 @@ namespace vApus.Util
             password = vApus.Util.Properties.Settings.Default.Password;
             password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
             channel = vApus.Util.Properties.Settings.Default.Channel;
+
+            //Trust the one in version.ini before the one in the settings.
+            string versionIni = Path.Combine(Application.StartupPath, "version.ini");
+            if (File.Exists(versionIni))
+                channel = GetChannel(Path.Combine(Application.StartupPath, "version.ini")) == "Stable" ? 0 : 1;
         }
 
         public static void Refresh()
@@ -139,7 +144,7 @@ namespace vApus.Util
                 string prevVersion = GetVersion(Path.Combine(Application.StartupPath, "version.ini"));
                 string curVersion = GetVersion(tempVersionControl);
 
-                string prevChannel= GetChannel(Path.Combine(Application.StartupPath, "version.ini"));
+                string prevChannel = GetChannel(Path.Combine(Application.StartupPath, "version.ini"));
 
                 _versionChanged = (prevVersion != curVersion) || (channelDir != prevChannel.ToLower());
 

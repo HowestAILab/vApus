@@ -18,6 +18,13 @@ namespace vApus.CommitTool
         [STAThread]
         static void Main(string[] args)
         {
+            Console.WriteLine("/*");
+            Console.WriteLine("* Copyright 2012 (c) Sizing Servers Lab");
+            Console.WriteLine("* University College of West-Flanders, Department GKG");
+            Console.WriteLine("*");
+            Console.WriteLine(" * Author(s):");
+            Console.WriteLine("*    Dieter Vandroemme");
+            Console.WriteLine("*/");
             Console.WriteLine("Committing a new vApus update to the update server!");
 
             Commit commit = Commit.GetInstance();

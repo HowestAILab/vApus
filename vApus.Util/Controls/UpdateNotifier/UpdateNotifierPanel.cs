@@ -147,7 +147,7 @@ namespace vApus.Util
                     process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " +
                         port + " " + txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + autoUpdate);
                 else
-                    process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32}");
+                    process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + cboChannel.SelectedIndex);
 
                 this.Enabled = false;
 
@@ -192,7 +192,6 @@ namespace vApus.Util
             nudPort.Value = 5222;
             txtUsername.Text = string.Empty;
             txtPassword.Text = string.Empty;
-            cboChannel.SelectedIndex = 0;
 
             UpdateNotifier.SetCredentials(txtHost.Text, 5222, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
 

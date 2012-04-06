@@ -63,6 +63,10 @@ namespace vApus.UpdateTool
                 _channel = int.Parse(args[5]);
                 _autoUpdate = bool.Parse(args[6]);
             }
+            else if (args.Length == 2)
+            {
+                _channel = int.Parse(args[1]);
+            }
 
             this.HandleCreated += new EventHandler(Update_HandleCreated);
 
@@ -392,14 +396,15 @@ namespace vApus.UpdateTool
 
                 foreach (string[] line in serverVersions)
                 {
-                    string md5Hash = string.Empty;
-                    if (chkGetAll.Checked | !AlreadyVersioned(line, _currentVersions, out md5Hash))
-                    {
-                        ListViewItem lvwi = new ListViewItem(line);
-                        lvwi.SubItems.Add(md5Hash);
-                        lvwUpdate.Items.Add(lvwi);
-                        lvwUpdate.AddEmbeddedControl(new ProgressBar(), lvwUpdate.Columns.Count - 1, lvwUpdate.Items.Count - 1);
-                    }
+                    string remoteMD5Hash = string.Empty;
+                    if (chkGetAll.Checked | !AlreadyVersioned(line, _currentVersions, out remoteMD5Hash))
+                        if (remoteMD5Hash.Length != 0)
+                        {
+                            ListViewItem lvwi = new ListViewItem(line);
+                            lvwi.SubItems.Add(remoteMD5Hash);
+                            lvwUpdate.Items.Add(lvwi);
+                            lvwUpdate.AddEmbeddedControl(new ProgressBar(), lvwUpdate.Columns.Count - 1, lvwUpdate.Items.Count - 1);
+                        }
                 }
 
                 btnUpdateOrReinstall.Enabled = lvwUpdate.Items.Count != 0;
@@ -463,8 +468,8 @@ namespace vApus.UpdateTool
                     if (!Directory.Exists(possibleNonExistingFolder))
                         Directory.CreateDirectory(possibleNonExistingFolder);
 
-                    lvwi.Tag = Path.Combine(tempFolder, lvwi.SubItems[0].Text);
-                    toUpdate.Add(channelDir + "/" + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
+                    lvwi.Tag = tempFolder + lvwi.SubItems[0].Text;
+                    toUpdate.Add(channelDir + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
                 }
 
                 Thread t = new Thread(delegate()
@@ -485,7 +490,6 @@ namespace vApus.UpdateTool
                             AppendLogLine("Completed!", Color.Green);
 
                             OverwriteFiles();
-
                         });
                     }
                     catch (Exception ex)
@@ -574,7 +578,7 @@ namespace vApus.UpdateTool
                 string filename;
                 foreach (ListViewItem lvwi in lvwUpdate.Items)
                 {
-                    filename = Path.Combine(_startupPath, lvwi.Text);
+                    filename = _startupPath + lvwi.Text;
                     if (File.Exists(filename))
                     {
                         int sleepTime = 0;
