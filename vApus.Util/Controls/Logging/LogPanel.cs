@@ -10,8 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace vApus.Util
 {
@@ -199,6 +199,7 @@ namespace vApus.Util
                         }
                         catch { }
                     }
+                    Application.DoEvents();
                 }
                 SizeKVPs();
                 LockWindowUpdate(0);
@@ -214,20 +215,20 @@ namespace vApus.Util
 
                 if (entry.Length >= 3)
                 {
-                    DateTime timestamp;
+                    DateTime timeStamp;
                     LogLevel logLevel;
                     string message = string.Empty;
 
                     string[] timeStampSplit = entry[0].Split(',');
                     string dateTimePart = timeStampSplit[0];
-                    if (DateTime.TryParse(dateTimePart, out timestamp) && Enum.TryParse<LogLevel>(entry[1], out logLevel))
+                    if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse<LogLevel>(entry[1], out logLevel))
                         if ((int)logLevel >= cboLogLevel.SelectedIndex)
                         {
                             if (timeStampSplit.Length > 1)
                             {
                                 double ms = 0.0d;
                                 if (double.TryParse(timeStampSplit[1], out ms))
-                                    timestamp = timestamp.AddMilliseconds(ms);
+                                    timeStamp = timeStamp.AddMilliseconds(ms);
                             }
 
                             for (int i = 2; i != entry.Length; i++)
@@ -236,7 +237,7 @@ namespace vApus.Util
                             message = message.Substring(0, message.Length - 1);
 
 
-                            linesWithMetaData.Add(new KeyValuePair<string[], string>(new string[] { timestamp.TimeOfDay.ToShortFormattedString(), logLevel.ToString(), message }, string.Empty));
+                            linesWithMetaData.Add(new KeyValuePair<string[], string>(new string[] { timeStamp.ToString("dd/MM/yyyy HH:mm:ss.fff"), logLevel.ToString(), message }, string.Empty));
                             //Continue if valid line
                             continue;
                         }
@@ -252,12 +253,12 @@ namespace vApus.Util
             }
             return linesWithMetaData;
         }
-        private KeyValuePairControl GetEntrieKVP(string timestamp, string logLevel, string message, string metaData)
+        private KeyValuePairControl GetEntrieKVP(string timeStamp, string logLevel, string message, string metaData)
         {
             KeyValuePairControl kvp = new KeyValuePairControl();
-            kvp.Key = timestamp;
+            kvp.Key = timeStamp;
             kvp.Tooltip = "Click for details...";
-            kvp.Tag = timestamp + ';' + logLevel + ';' + message + '\n' + metaData;
+            kvp.Tag = timeStamp + ';' + logLevel + ';' + message + '\n' + metaData;
             kvp.Cursor = Cursors.Hand;
             kvp.Click += new EventHandler(kvp_Click);
 

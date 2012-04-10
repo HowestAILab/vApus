@@ -8,6 +8,7 @@
 using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
@@ -64,11 +65,14 @@ namespace vApus.Stresstest
             }
         }
         [PropertyControl(2), SavableCloneable]
-        [DisplayName("Decimal Places")]
+        [DisplayName("Decimal Places"), Description("If this value is greater than 15 it will be ignored and no rounding of the output value will occur.")]
         public int DecimalPlaces
         {
             get { return _decimalPlaces; }
-            set { _decimalPlaces = value; }
+            set {
+                if (_decimalPlaces < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than 0.");
+                _decimalPlaces = value; }
         }
         [PropertyControl(3), SavableCloneable]
         [Description("Only applicable if random equals false.")]
@@ -150,19 +154,23 @@ namespace vApus.Stresstest
 
             if (_random)
             {
-                _doubleValue = Math.Round((_maxValue * _r.NextDouble()) - _minValue, _decimalPlaces);
-                _value = GetFixedValue();
+                _doubleValue = ((_maxValue - _minValue) * _r.NextDouble()) + _minValue;
             }
             else
             {
-                _doubleValue = Math.Round(_doubleValue + _step, _decimalPlaces);
+                _doubleValue += _step;
                 if (_doubleValue >= _maxValue)
                 {
                     _doubleValue = _minValue;
                     _chosenValues.Clear();
                 }
-                _value = GetFixedValue();
             }
+
+            if (_decimalPlaces < 15) //Can only round to max 15 digits
+                _doubleValue = Math.Round(_doubleValue, _decimalPlaces);
+
+            _value = GetFixedValue();
+
         }
         public override void ResetValue()
         {
@@ -176,7 +184,7 @@ namespace vApus.Stresstest
         /// <returns></returns>
         private string GetFixedValue()
         {
-            string pre = _prefix, suf = _suffix, value = _doubleValue.ToString();
+            string pre = _prefix, suf = _suffix, value = StringUtil.DoubleToLongString(_doubleValue);
             int length;
             if (_fixed == Fixed.Suffix)
             {

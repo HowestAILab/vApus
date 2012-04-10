@@ -25,8 +25,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.DistributedTesting", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Report", "vApus.Report\vApus.Report.csproj", "{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApusSMT.Proxy.Remote", "vApusSMT.Proxy\vApusSMT.Proxy.Remote.csproj", "{602C4D31-321A-4062-AF83-D01E1FAF1AAF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.JumpStart", "vApus.JumpStart\vApus.JumpStart.csproj", "{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.JumpStartStructures", "vApus.JumpStartStructures\vApus.JumpStartStructures.csproj", "{0B87A110-73F8-496A-B656-9050272CFE7B}"
@@ -302,24 +300,6 @@ Global
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|x64.Build.0 = TestingBuild|x64
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|x86.ActiveCfg = TestingBuild|x86
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|x86.Build.0 = TestingBuild|x86
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.DevelopmentBuild|Any CPU.ActiveCfg = DevelopmentBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.DevelopmentBuild|Any CPU.Build.0 = DevelopmentBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.DevelopmentBuild|Mixed Platforms.ActiveCfg = DevelopmentBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.DevelopmentBuild|Mixed Platforms.Build.0 = DevelopmentBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.DevelopmentBuild|x64.ActiveCfg = DevelopmentBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.DevelopmentBuild|x86.ActiveCfg = DevelopmentBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.Release|x64.ActiveCfg = Release|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.Release|x86.ActiveCfg = Release|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.TestingBuild|Any CPU.ActiveCfg = TestingBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.TestingBuild|Any CPU.Build.0 = TestingBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.TestingBuild|x64.ActiveCfg = TestingBuild|Any CPU
-		{602C4D31-321A-4062-AF83-D01E1FAF1AAF}.TestingBuild|x86.ActiveCfg = TestingBuild|Any CPU
 		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.DevelopmentBuild|Any CPU.ActiveCfg = DevelopmentBuild|Any CPU
 		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.DevelopmentBuild|Any CPU.Build.0 = DevelopmentBuild|Any CPU
 		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.DevelopmentBuild|Mixed Platforms.ActiveCfg = DevelopmentBuild|Any CPU

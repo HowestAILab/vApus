@@ -252,7 +252,7 @@
             this.tpSelectedNode.Location = new System.Drawing.Point(4, 22);
             this.tpSelectedNode.Name = "tpSelectedNode";
             this.tpSelectedNode.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSelectedNode.Size = new System.Drawing.Size(475, 197);
+            this.tpSelectedNode.Size = new System.Drawing.Size(477, 199);
             this.tpSelectedNode.TabIndex = 1;
             this.tpSelectedNode.Text = "Selected Node";
             this.tpSelectedNode.UseVisualStyleBackColor = true;
@@ -267,7 +267,7 @@
             this.rtxtSelectedNode.Name = "rtxtSelectedNode";
             this.rtxtSelectedNode.ReadOnly = true;
             this.rtxtSelectedNode.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.rtxtSelectedNode.Size = new System.Drawing.Size(469, 191);
+            this.rtxtSelectedNode.Size = new System.Drawing.Size(471, 193);
             this.rtxtSelectedNode.TabIndex = 0;
             this.rtxtSelectedNode.Text = "";
             // 
@@ -343,6 +343,7 @@
             this.ruleSetSyntaxItemPanel.Name = "ruleSetSyntaxItemPanel";
             this.ruleSetSyntaxItemPanel.Size = new System.Drawing.Size(400, 163);
             this.ruleSetSyntaxItemPanel.TabIndex = 11;
+            this.ruleSetSyntaxItemPanel.InputChanged += new System.EventHandler(this.ruleSetSyntaxItemPanel_InputChanged);
             // 
             // Execute
             // 

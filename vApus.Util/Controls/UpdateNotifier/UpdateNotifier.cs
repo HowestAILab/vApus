@@ -40,8 +40,8 @@ namespace vApus.Util
                     return Util.UpdateNotifierState.FailedConnectingToTheUpdateServer;
 
                 string host, username, password;
-                int port;
-                GetCredentials(out host, out port, out username, out password);
+                int port, channel;
+                GetCredentials(out host, out port, out username, out password, out channel);
 
                 if (host.Length == 0 || username.Length == 0 || password.Length == 0)
                 {
@@ -58,7 +58,7 @@ namespace vApus.Util
             }
         }
 
-        public static void SetCredentials(string host, int port, string username, string password)
+        public static void SetCredentials(string host, int port, string username, string password, int channel)
         {
             vApus.Util.Properties.Settings.Default.Host = host;
             vApus.Util.Properties.Settings.Default.Port = port;
@@ -66,17 +66,32 @@ namespace vApus.Util
 
             password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
             vApus.Util.Properties.Settings.Default.Password = password;
+            vApus.Util.Properties.Settings.Default.Channel = channel;
             vApus.Util.Properties.Settings.Default.Save();
 
             _refreshed = false;
         }
-        public static void GetCredentials(out string host, out int port, out string username, out string password)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="channel">0 == Stable; 1 == Nightly</param>
+        public static void GetCredentials(out string host, out int port, out string username, out string password, out int channel)
         {
             host = vApus.Util.Properties.Settings.Default.Host;
             port = vApus.Util.Properties.Settings.Default.Port;
             username = vApus.Util.Properties.Settings.Default.Username;
             password = vApus.Util.Properties.Settings.Default.Password;
             password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+            channel = vApus.Util.Properties.Settings.Default.Channel;
+
+            //Trust the one in version.ini before the one in the settings.
+            string versionIni = Path.Combine(Application.StartupPath, "version.ini");
+            if (File.Exists(versionIni))
+                channel = GetChannel(Path.Combine(Application.StartupPath, "version.ini")) == "Stable" ? 0 : 1;
         }
 
         public static void Refresh()
@@ -86,8 +101,8 @@ namespace vApus.Util
             try
             {
                 string host, username, password;
-                int port;
-                GetCredentials(out host, out port, out username, out password);
+                int port, channel;
+                GetCredentials(out host, out port, out username, out password, out channel);
 
                 _failedRefresh = false;
                 if (host.Length == 0 || username.Length == 0 || password.Length == 0)
@@ -105,7 +120,7 @@ namespace vApus.Util
 
                 Directory.CreateDirectory(tempFolder);
 
-                string tempVersionControl = Path.Combine(tempFolder, "versioncontrol.ini");
+                string tempVersionControl = Path.Combine(tempFolder, "version.ini");
 
                 try
                 {
@@ -114,7 +129,8 @@ namespace vApus.Util
                 }
                 catch { }
 
-                sftp.Get("vapus/versioncontrol.ini", tempVersionControl);
+                string channelDir = channel == 0 ? "stable" : "nightly";
+                sftp.Get(channelDir + "/version.ini", tempVersionControl);
 
                 try
                 {
@@ -125,10 +141,12 @@ namespace vApus.Util
                     sftp = null;
                 }
 
-                int prevVersion = GetVersion(Path.Combine(Application.StartupPath, "versioncontrol.ini"));
-                int curVersion = GetVersion(tempVersionControl);
+                string prevVersion = GetVersion(Path.Combine(Application.StartupPath, "version.ini"));
+                string curVersion = GetVersion(tempVersionControl);
 
-                _versionChanged = (prevVersion != curVersion);
+                string prevChannel = GetChannel(Path.Combine(Application.StartupPath, "version.ini"));
+
+                _versionChanged = (prevVersion != curVersion) || (channelDir != prevChannel.ToLower());
 
                 _refreshed = true;
             }
@@ -140,19 +158,39 @@ namespace vApus.Util
             if (Directory.Exists(tempFolder))
                 Directory.Delete(tempFolder, true);
         }
-        private static int GetVersion(string versionIniPath)
+        private static string GetVersion(string versionIniPath)
         {
             using (StreamReader sr = new StreamReader(versionIniPath))
             {
-                int i = 0;
+                bool found = false;
                 while (sr.Peek() != -1)
                 {
                     string line = sr.ReadLine();
-                    if (i++ == 1)
-                        return int.Parse(line);
+                    if (found)
+                        return line;
+
+                    if (line.Trim() == "[VERSION]")
+                        found = true;
                 }
             }
-            return 0;
+            return string.Empty;
+        }
+        private static string GetChannel(string versionIniPath)
+        {
+            using (StreamReader sr = new StreamReader(versionIniPath))
+            {
+                bool found = false;
+                while (sr.Peek() != -1)
+                {
+                    string line = sr.ReadLine();
+                    if (found)
+                        return line;
+
+                    if (line.Trim() == "[CHANNEL]")
+                        found = true;
+                }
+            }
+            return string.Empty;
         }
     }
 }
