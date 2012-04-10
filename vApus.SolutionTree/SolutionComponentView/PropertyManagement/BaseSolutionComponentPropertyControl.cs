@@ -33,7 +33,9 @@ namespace vApus.SolutionTree
                     _propertyInfo.SetValue(_target, value, null);
                     try
                     {
-                        InvokeSolutionComponentEdited();
+                        var attributes = _propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
+                        if (attributes.Length != 0)
+                            InvokeSolutionComponentEdited();
                     }
                     catch { }
                 }
@@ -44,7 +46,7 @@ namespace vApus.SolutionTree
         /// </summary>
         protected internal object ExistingParent
         {
-            get 
+            get
             {
                 object value = Value;
                 if (value != null)
@@ -54,7 +56,7 @@ namespace vApus.SolutionTree
                         _existingParent = p;
                 }
 
-                return _existingParent; 
+                return _existingParent;
             }
         }
         protected internal string DisplayName

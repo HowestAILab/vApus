@@ -21,12 +21,10 @@ namespace vApus.Stresstest
         public Compile Compile;
         private ConnectionProxyCode _connectionProxyCode;
         private ConnectionProxyPool _connectionProxyPool;
-        //private List<string> _flags = new List<string>();
         private Dictionary<string, List<TreeNode>> _dict = new Dictionary<string, List<TreeNode>>();
 
         private int _processed;
         #endregion
-
         
         [ReadOnly(true)]
         public ConnectionProxyCode ConnectionProxyCode
@@ -34,6 +32,7 @@ namespace vApus.Stresstest
             get { return _connectionProxyCode; }
             set
             {
+                ruleSetSyntaxItemPanel.InputChanged -= ruleSetSyntaxItemPanel_InputChanged;
                 _connectionProxyCode = value;
 
                 nudThreads.Value = _connectionProxyCode.Threads;
@@ -44,9 +43,13 @@ namespace vApus.Stresstest
                 flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLogEntryIndex")));
 
                 ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connectionProxyCode.ConnectionProxyRuleSet, _connectionProxyCode.TestConnectionString);
+                ruleSetSyntaxItemPanel.InputChanged += ruleSetSyntaxItemPanel_InputChanged;
             }
         }
-
+        private void ruleSetSyntaxItemPanel_InputChanged(object sender, EventArgs e)
+        {
+            _connectionProxyCode.TestConnectionString = ruleSetSyntaxItemPanel.Input;
+        }
         public Execute()
         {
             InitializeComponent();

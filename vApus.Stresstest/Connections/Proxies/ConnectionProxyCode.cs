@@ -195,28 +195,25 @@ _isDisposed = true;
 
         #region Properties
         //Never use this in a distributed test.
-        
+
         public ConnectionProxyRuleSet ConnectionProxyRuleSet
         {
             get { return Parent[0] as ConnectionProxyRuleSet; }
         }
         [SavableCloneable]
         [DisplayName("Threads")]
-        
         public int Threads
         {
             get { return _threads; }
             set { _threads = value; }
         }
         [DisplayName("Test Log")]
-        
         public Log TestLog
         {
             get { return _testLog; }
             set { _testLog = value; }
         }
         [DisplayName("Test Log Entry Index"), Description("- 1 for all.")]
-        
         public int TestLogEntryIndex
         {
             get { return _testLogEntryIndex; }
@@ -228,14 +225,12 @@ _isDisposed = true;
             }
         }
         [DisplayName("Test Connection String")]
-        
         public string TestConnectionString
         {
             get { return _testConnectionString; }
             set { _testConnectionString = value; }
         }
         [SavableCloneable]
-        
         public string Code
         {
             get { return _code; }
