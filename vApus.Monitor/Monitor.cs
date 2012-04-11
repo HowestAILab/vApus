@@ -26,7 +26,7 @@ namespace vApus.Monitor
         private int _monitorSourceIndex;
 
         private int _previousMonitorSourceIndexForCounters;
-        private Dictionary<string, List<CounterInfo>> _wiw = new Dictionary<string, List<CounterInfo>>();
+        private Dictionary<Entity, List<CounterInfo>> _wiw = new Dictionary<Entity, List<CounterInfo>>();
 
         private object[] _parameters = new object[0];
         private string[] _filter = new string[0];
@@ -67,7 +67,7 @@ namespace vApus.Monitor
         /// <summary>
         ///The counters you want to monitor.
         /// </summary>
-        public Dictionary<string, List<CounterInfo>> Wiw
+        public Dictionary<Entity, List<CounterInfo>> Wiw
         {
             get { return _wiw; }
             internal set { _wiw = value; }
@@ -87,7 +87,12 @@ namespace vApus.Monitor
         public string WIWRepresentation
         {
             get { return _wiw.ToBinaryToString(); }
-            set { _wiw = value.ToByteArrayToObject() as Dictionary<string, List<CounterInfo>>; }
+            set
+            {
+                _wiw = value.ToByteArrayToObject() as Dictionary<Entity, List<CounterInfo>>;
+                if (_wiw == null)
+                    _wiw = new Dictionary<Entity, List<CounterInfo>>();
+            }
         }
         /// <summary>
         /// To be able to load and save this.

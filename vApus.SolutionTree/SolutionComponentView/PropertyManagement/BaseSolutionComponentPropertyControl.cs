@@ -33,8 +33,8 @@ namespace vApus.SolutionTree
                     _propertyInfo.SetValue(_target, value, null);
                     try
                     {
-                        var attributes = _propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
-                        if (attributes.Length != 0)
+                        //var attributes = _propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
+                        //if (attributes.Length != 0)
                             InvokeSolutionComponentEdited();
                     }
                     catch { }
