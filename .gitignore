@@ -1,8 +1,4 @@
 *.suo
-Make_Setup.iss
-*/Make_Setup.iss
-Setup\ vApus\ and\ Tools.exe
-*/Setup\ vApus\ and\ Tools.exe
 Build/
 bin/
 */bin/
