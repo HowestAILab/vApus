@@ -130,7 +130,7 @@ namespace vApus.Stresstest
 
             document.CodeTextChangedDelayed += new EventHandler(document_CodeTextChangedDelayed);
             document.CodeLineCountChanged += new EventHandler<CodeBlock.CodeLineCountChangedEventArgs>(document_CodeLineCountChanged);
-            document.CaretPositionChanged += new EventHandler<CodeBlock.CaretPositionChangedEventArgs>(document_CaretPositionChanged);
+            document.CaretPositionChangedUsingKeyboard += new EventHandler<CodeBlock.CaretPositionChangedEventArgs>(document_CaretPositionChangedUsingKeyboard);
 
             string body = _dllreferences.Code.Trim();
             List<string> filenames = new List<string>();
@@ -166,7 +166,7 @@ namespace vApus.Stresstest
             if (_autoScrollPositionSet)
                 _autoScrollPosition = new Point(-1 * scrollablePanel.AutoScrollPosition.X, -1 * scrollablePanel.AutoScrollPosition.Y);
         }
-        private void document_CaretPositionChanged(object sender, CodeBlock.CaretPositionChangedEventArgs e)
+        private void document_CaretPositionChangedUsingKeyboard(object sender, CodeBlock.CaretPositionChangedEventArgs e)
         {
             //Can only set one at a time (begin invoke!)
             if (_autoScrollPositionSet)

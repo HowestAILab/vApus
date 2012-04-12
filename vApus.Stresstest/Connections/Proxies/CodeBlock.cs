@@ -33,7 +33,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// sender is this or a child code block.
         /// </summary>
-        public event EventHandler<CaretPositionChangedEventArgs> CaretPositionChanged;
+        public event EventHandler<CaretPositionChangedEventArgs> CaretPositionChangedUsingKeyboard;
 
         #region Fields
         private Graphics _g;
@@ -298,7 +298,7 @@ namespace vApus.Stresstest
             _codeBlockTextBox.TextChanged += new EventHandler(_codeBlockTextBox_TextChanged);
             _codeBlockTextBox.TextChangedDelayed += new EventHandler(_codeBlockTextBox_TextChangedDelayed);
             _codeBlockTextBox.LineCountChanged += new EventHandler(_codeBlockTextBox_LineCountChanged);
-            _codeBlockTextBox.CaretPositionChanged += new EventHandler(_codeBlockTextBox_CaretPositionChanged);
+            _codeBlockTextBox.CaretPositionChangedUsingKeyboard += new EventHandler(_codeBlockTextBox_CaretPositionChangedUsingKeyboard);
 
             if (!_codeBlockTextBox.ReadOnly)
             {
@@ -496,10 +496,10 @@ namespace vApus.Stresstest
             if (CodeTextChangedDelayed != null)
                 CodeTextChangedDelayed(this, e);
         }
-        private void _codeBlockTextBox_CaretPositionChanged(object sender, EventArgs e)
+        private void _codeBlockTextBox_CaretPositionChangedUsingKeyboard(object sender, EventArgs e)
         {
-            if (CaretPositionChanged != null)
-                CaretPositionChanged(this, new CaretPositionChangedEventArgs(CaretPosition.Get()));
+            if (CaretPositionChangedUsingKeyboard != null)
+                CaretPositionChangedUsingKeyboard(this, new CaretPositionChangedEventArgs(CaretPosition.Get()));
         }
         private void _codeBlockTextBox_LineCountChanged(object sender, EventArgs e)
         {
@@ -579,7 +579,7 @@ namespace vApus.Stresstest
             codeBlock.CodeTextChanged += new EventHandler(codeBlock_CodeTextChanged);
             codeBlock.CodeTextChangedDelayed += new EventHandler(codeBlock_CodeTextChangedDelayed);
             codeBlock.CodeLineCountChanged += new EventHandler<CodeLineCountChangedEventArgs>(codeBlock_CodeLineCountChanged);
-            codeBlock.CaretPositionChanged += new EventHandler<CaretPositionChangedEventArgs>(codeBlock_CaretPositionChanged);
+            codeBlock.CaretPositionChangedUsingKeyboard += new EventHandler<CaretPositionChangedEventArgs>(codeBlock_CaretPositionChangedUsingKeyboard);
             codeBlock.SizeChanged += new EventHandler(codeBlock_SizeChanged);
 
             if (splitContainer.Panel2.Controls.Count > 0)
@@ -628,10 +628,10 @@ namespace vApus.Stresstest
         }
 
         #region Events
-        private void codeBlock_CaretPositionChanged(object sender, CaretPositionChangedEventArgs e)
+        private void codeBlock_CaretPositionChangedUsingKeyboard(object sender, CaretPositionChangedEventArgs e)
         {
-            if (CaretPositionChanged != null)
-                CaretPositionChanged(sender, e);
+            if (CaretPositionChangedUsingKeyboard != null)
+                CaretPositionChangedUsingKeyboard(sender, e);
         }
         private void codeBlock_CodeLineCountChanged(object sender, CodeLineCountChangedEventArgs e)
         {
