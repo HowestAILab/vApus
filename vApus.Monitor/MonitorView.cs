@@ -72,7 +72,7 @@ namespace vApus.Monitor
             {
                 _showLabelControl = value;
                 foreach (SolutionComponentCommonPropertyControl ctrl in propertyPanel.SolutionComponentPropertyControls)
-                    if (ctrl.Label == "Label:")
+                    if (ctrl.Label == "Label")
                     {
                         ctrl.Visible = _showLabelControl;
                         break;
