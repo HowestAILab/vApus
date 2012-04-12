@@ -131,7 +131,8 @@ namespace vApus.Stresstest
         {
             _lastPressedKeys = e.KeyCode;
         }
-        private void fastColoredTextBox_Click(object sender, EventArgs e)
+        //The only event fired before the selection changed
+        private void fastColoredTextBox_MouseDown(object sender, MouseEventArgs e)
         {
             _lastPressedKeys = Keys.None;
         }
@@ -292,11 +293,13 @@ namespace vApus.Stresstest
         }
         private void fastColoredTextBox_Enter(object sender, EventArgs e)
         {
+            _lastPressedKeys = Keys.None;
             if (EnterTextBox != null)
                 EnterTextBox(this, e);
         }
         private void fastColoredTextBox_Leave(object sender, EventArgs e)
         {
+            _lastPressedKeys = Keys.None;
             if (LeaveTextBox != null)
                 LeaveTextBox(this, e);
         }
