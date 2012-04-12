@@ -171,7 +171,10 @@ namespace vApus.Monitor
             foreach (string header in _headers)
                 this.Columns[this.Columns.Add(clmPrefix + header, header)].SortMode = DataGridViewColumnSortMode.NotSortable;
 
-            this.VisibleChanged += new EventHandler(MonitorControl_VisibleChanged);
+            if (this.Visible)
+                SetColumns();
+            else
+                this.VisibleChanged += new EventHandler(MonitorControl_VisibleChanged);
         }
 
         void MonitorControl_VisibleChanged(object sender, EventArgs e)
@@ -179,12 +182,15 @@ namespace vApus.Monitor
             if (this.Visible)
             {
                 this.VisibleChanged -= MonitorControl_VisibleChanged;
-
-                this.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
-                this.Columns[0].Width = 200;
-
-                Filter(_filter);
+                SetColumns();
             }
+        }
+        private void SetColumns()
+        {
+            this.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
+            this.Columns[0].Width = 200;
+
+            Filter(_filter);
         }
         /// <summary>
         /// This will add values to the collection and will update the Gui.
