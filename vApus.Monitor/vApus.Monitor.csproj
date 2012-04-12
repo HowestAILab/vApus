@@ -168,11 +168,12 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="vApusSMT.Base">
+    <Reference Include="vApusSMT.Base, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\vApus SMT\vApusSMT.Base.dll</HintPath>
     </Reference>
-    <Reference Include="vApusSMT.Communication">
-      <HintPath>..\Prerequisites\vApus SMT\vApusSMT.Communication.dll</HintPath>
+    <Reference Include="vApusSMT.Proxy">
+      <HintPath>..\Prerequisites\vApus SMT\vApusSMT.Proxy.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -104,96 +104,9 @@ namespace vApus.Monitor
             set { base.DoubleBuffered = true; }
         }
         /// <summary>
-        /// This will add values to the collection and will update the Gui.
+        /// Must always happen before the first value was added.
         /// </summary>
-        /// <param name="monitorValues"></param>
-        public void AddMonitorValues(Dictionary<string, HashSet<MonitorValueCollection>> monitorValues)
-        {
-            SetHeaders(monitorValues);
-            AddRow(monitorValues);
-
-            if (_keepAtEnd)
-            {
-                this.Scroll -= MonitorControl_Scroll;
-                FirstDisplayedScrollingRowIndex = RowCount - 1;
-                this.Scroll += MonitorControl_Scroll;
-            }
-        }
-        private void SetHeaders(Dictionary<string, HashSet<MonitorValueCollection>> monitorValues)
-        {
-            if (this.ColumnCount == 0)
-            {
-                _headers = ExtractHeaders(monitorValues);
-                string clmPrefix = this.ToString() + "clm";
-                foreach (string header in _headers)
-                    this.Columns[this.Columns.Add(clmPrefix + header, header)].SortMode = DataGridViewColumnSortMode.NotSortable;
-
-                this.RowCount = 0;
-
-                this.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
-                this.Columns[0].Width = 200;
-
-                Filter(_filter);
-            }
-        }
-        private string[] ExtractHeaders(Dictionary<string, HashSet<MonitorValueCollection>> monitorValues)
-        {
-            List<string> l = new List<string>();
-            l.Add(string.Empty);
-            foreach (string entity in monitorValues.Keys)
-                foreach (MonitorValueCollection monitorValueCollection in monitorValues[entity])
-                {
-                    StringBuilder sb = new StringBuilder();
-                    if (monitorValueCollection.Instance == String.Empty)
-                        sb.Append(entity);
-                    else
-                        sb.Append(entity + "/" + monitorValueCollection.Instance);
-                    sb.Append("//");
-                    sb.Append(monitorValueCollection.Counter);
-                    if (!string.IsNullOrEmpty(monitorValueCollection.Unit))
-                    {
-                        sb.Append(" [");
-                        sb.Append(monitorValueCollection.Unit);
-                        sb.Append("]");
-                    }
-                    l.Add(sb.ToString());
-                }
-            return l.ToArray();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="monitorValues"></param>
-        private void AddRow(Dictionary<string, HashSet<MonitorValueCollection>> monitorValues)
-        {
-            if (monitorValues.Count != 0 && this.ColumnCount != 0)
-            {
-                DateTime timestamp = DateTime.MinValue;
-
-                object[] row = new object[this.ColumnCount];
-                int i = 1;
-                foreach (string entity in monitorValues.Keys)
-                    foreach (MonitorValueCollection monitorValueCollection in monitorValues[entity])
-                        foreach (MonitorValue monitorValue in monitorValueCollection)
-                        {
-                            row[i++] = monitorValue.Value;
-                            if (timestamp == DateTime.MinValue)
-                                timestamp = monitorValue.TimeStamp;
-                        }
-
-                row[0] = timestamp;
-                lock (_lock)
-                {
-                    _cache.Add(row);
-                    ++this.RowCount;
-                }
-            }
-        }
-        /// <summary>
-        /// This will clear all the values and will remove the accordeon controls.
-        /// </summary>
-        public void ClearMonitorValues()
+        public void Init(Dictionary<Entity, List<CounterInfo>> wiw, string[] units)
         {
             this.Rows.Clear();
             this.Columns.Clear();
@@ -204,7 +117,101 @@ namespace vApus.Monitor
             _filteredColumnIndices.Clear();
 
             this.RowCount = 0;
+
+            List<string> lHeaders = new List<string>();
+            lHeaders.Add(string.Empty);
+
+            int unitIndex = 0;
+            foreach (Entity entity in wiw.Keys)
+                foreach (CounterInfo counterInfo in wiw[entity])
+                    if (counterInfo.Instances.Count == 0)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append(entity.Name);
+                        sb.Append("/");
+                        sb.Append(counterInfo.Counter);
+                        string unit = units[unitIndex++];
+                        if (!string.IsNullOrEmpty(unit))
+                        {
+                            sb.Append(" [");
+                            sb.Append(unit);
+                            sb.Append("]");
+                        }
+
+                        lHeaders.Add(sb.ToString());
+                    }
+                    else
+                    {
+                        foreach (string instance in counterInfo.Instances)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append(entity.Name);
+                            sb.Append("/");
+                            sb.Append(counterInfo.Counter);
+                           
+                            string unit = units[unitIndex++];
+                            if (!string.IsNullOrEmpty(unit))
+                            {
+                                sb.Append(" [");
+                                sb.Append(unit);
+                                sb.Append("]");
+                            }
+
+                            if (instance != String.Empty)
+                            {
+                                sb.Append("/");
+                                sb.Append(instance);
+                            }
+                            lHeaders.Add(sb.ToString());
+                        }
+                    }
+
+            _headers = lHeaders.ToArray();
+            string clmPrefix = this.ToString() + "clm";
+            foreach (string header in _headers)
+                this.Columns[this.Columns.Add(clmPrefix + header, header)].SortMode = DataGridViewColumnSortMode.NotSortable;
+
+            if (this.Visible)
+                SetColumns();
+            else
+                this.VisibleChanged += new EventHandler(MonitorControl_VisibleChanged);
         }
+
+        void MonitorControl_VisibleChanged(object sender, EventArgs e)
+        {
+            if (this.Visible)
+            {
+                this.VisibleChanged -= MonitorControl_VisibleChanged;
+                SetColumns();
+            }
+        }
+        private void SetColumns()
+        {
+            this.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
+            this.Columns[0].Width = 200;
+
+            Filter(_filter);
+        }
+        /// <summary>
+        /// This will add values to the collection and will update the Gui.
+        /// </summary>
+        /// <param name="monitorValues"></param>
+        public void AddMonitorValues(object[] monitorValues)
+        {
+            if (this.ColumnCount != 0)
+                lock (_lock)
+                {
+                    _cache.Add(monitorValues);
+                    ++this.RowCount;
+                }
+            if (_keepAtEnd)
+            {
+                this.Scroll -= MonitorControl_Scroll;
+                FirstDisplayedScrollingRowIndex = RowCount - 1;
+                this.Scroll += MonitorControl_Scroll;
+            }
+        }
+
         /// <summary>
         /// Save all monitor values.
         /// </summary>

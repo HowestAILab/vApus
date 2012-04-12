@@ -18,7 +18,10 @@
             {
                 if (_monitorProxy != null)
                 {
-                    try { _monitorProxy.StopMonitoring(); }
+                    try {
+                        System.Exception stopEx;
+                        _monitorProxy.Stop(out stopEx);
+                    }
                     catch { }
                     try { _monitorProxy.Dispose(); }
                     catch { }
