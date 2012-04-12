@@ -99,7 +99,7 @@ namespace vApus.Monitor
             _wdyhDel = new WDYHDel(__WDYH);
 
             if (this.IsHandleCreated)
-                SetGuiAndConnectToSMT();
+                InitMonitorView();
             else
                 this.HandleCreated += new System.EventHandler(MonitorView_HandleCreated);
         }
@@ -168,14 +168,12 @@ namespace vApus.Monitor
         private void MonitorView_HandleCreated(object sender, System.EventArgs e)
         {
             this.HandleCreated -= MonitorView_HandleCreated;
-            SetGuiAndConnectToSMT();
-            //Use this for filtering the counters.
-            SolutionComponent.SolutionComponentChanged += new System.EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+            InitMonitorView();
         }
         /// <summary>
         /// Sets the Gui and connects to smt.
         /// </summary>
-        private void SetGuiAndConnectToSMT()
+        private void InitMonitorView()
         {
             Text = SolutionComponent.ToString();
             string ip = _localOrRemoteSMT.IP;
@@ -202,6 +200,9 @@ namespace vApus.Monitor
                     MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 LogWrapper.LogByLevel(message, LogLevel.Error);
             }
+
+            //Use this for filtering the counters.
+            SolutionComponent.SolutionComponentChanged += new System.EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
         /// <summary>
         /// Destroys the previous one if any and returns a new one.
@@ -1127,7 +1128,7 @@ namespace vApus.Monitor
                 btnConfiguration.Enabled = false;
 
                 int _monitorSourceIndex = _monitor.MonitorSourceIndex;
-                SetGuiAndConnectToSMT();
+                InitMonitorView();
                 try
                 {
                     _monitor.MonitorSource = _monitor._monitorSources[_monitorSourceIndex];
