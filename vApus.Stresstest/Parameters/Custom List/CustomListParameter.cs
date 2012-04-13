@@ -84,7 +84,7 @@ namespace vApus.Stresstest
         {
             get
             {
-                return ((this[1].IsEmpty) ? this[0] : this[1]) as BaseParameter;
+                return ((this[0].IsEmpty) ? this[1] : this[0]) as BaseParameter;
             }
             set
             {
