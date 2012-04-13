@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using vApus.SolutionTree;
 
 namespace vApus.Stresstest
 {
@@ -29,6 +30,8 @@ namespace vApus.Stresstest
             {
                 if (cboParameterType.SelectedIndex == -1)
                     cboParameterType.SelectedIndex = _customListParameter.GenerateFromParameter is NumericParameter ? 0 : 1;
+                else
+                    timer.Start();
             }
             else
             {
@@ -40,6 +43,8 @@ namespace vApus.Stresstest
         {
             if (cboParameterType.SelectedIndex == -1)
                 cboParameterType.SelectedIndex = _customListParameter.GenerateFromParameter is NumericParameter ? 0 : 1;
+            else
+                timer.Start();
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -78,10 +83,24 @@ namespace vApus.Stresstest
 
         private void cboParameterType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            timer.Stop();
             _customListParameter.GenerateFromParameter = (cboParameterType.SelectedIndex == 0) ?
                 new NumericParameter() as BaseParameter : new TextParameter();
 
             parameterTypeSolutionComponentPropertyPanel.SolutionComponent = _customListParameter.GenerateFromParameter;
+            timer.Start();
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            if (!this.IsDisposed && this.IsHandleCreated && this.Visible)
+                foreach (SolutionComponentCommonPropertyControl ctrl in parameterTypeSolutionComponentPropertyPanel.SolutionComponentPropertyControls)
+                    if (ctrl.Label == "Label")
+                    {
+                        ctrl.Visible = false;
+                        timer.Stop();
+                        break;
+                    }
         }
     }
 }

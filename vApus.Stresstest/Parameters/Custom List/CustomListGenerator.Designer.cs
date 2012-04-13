@@ -28,11 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.nudGenerate = new System.Windows.Forms.NumericUpDown();
             this.cboParameterType = new System.Windows.Forms.ComboBox();
             this.parameterTypeSolutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.timer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.nudGenerate)).BeginInit();
             this.SuspendLayout();
             // 
@@ -127,6 +129,11 @@
             this.btnCancel.UseVisualStyleBackColor = false;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // timer
+            // 
+            this.timer.Interval = 10;
+            this.timer.Tick += new System.EventHandler(this.timer_Tick);
+            // 
             // CustomListGenerator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -157,6 +164,7 @@
         private System.Windows.Forms.ComboBox cboParameterType;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Timer timer;
 
     }
 }
