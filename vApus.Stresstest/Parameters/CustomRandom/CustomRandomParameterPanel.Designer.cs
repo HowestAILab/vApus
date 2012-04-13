@@ -28,33 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.cbGenerate = new CodeBlock(true);
+            this.cbGenerate = new vApus.Stresstest.CodeBlock();
             this.chkUnique = new System.Windows.Forms.CheckBox();
             this.compileCustomRandom = new vApus.Stresstest.CompileCustomRandom();
             this.SuspendLayout();
-            // 
-            // chkUnique
-            // 
-            this.chkUnique.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkUnique.AutoSize = true;
-            this.chkUnique.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkUnique.Location = new System.Drawing.Point(12, 298);
-            this.chkUnique.Name = "chkUnique";
-            this.chkUnique.Size = new System.Drawing.Size(441, 22);
-            this.chkUnique.TabIndex = 2;
-            this.chkUnique.Text = "Return value is unique for each call (keep infinite loops in mind!)";
-            this.chkUnique.UseVisualStyleBackColor = true;
-            // 
-            // compileCustomRandom
-            // 
-            this.compileCustomRandom.BackColor = System.Drawing.Color.White;
-            this.compileCustomRandom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.compileCustomRandom.Location = new System.Drawing.Point(0, 326);
-            this.compileCustomRandom.Name = "compileCustomRandom";
-            this.compileCustomRandom.Padding = new System.Windows.Forms.Padding(9);
-            this.compileCustomRandom.Size = new System.Drawing.Size(915, 173);
-            this.compileCustomRandom.TabIndex = 1;
-            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.CompileCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
             // 
             // cbGenerate
             // 
@@ -77,6 +54,30 @@
             this.cbGenerate.Size = new System.Drawing.Size(891, 101);
             this.cbGenerate.TabIndex = 0;
             this.cbGenerate.CodeTextChangedDelayed += new System.EventHandler(this.cbGenerate_CodeTextChangedDelayed);
+            // 
+            // chkUnique
+            // 
+            this.chkUnique.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkUnique.AutoSize = true;
+            this.chkUnique.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkUnique.Location = new System.Drawing.Point(12, 298);
+            this.chkUnique.Name = "chkUnique";
+            this.chkUnique.Size = new System.Drawing.Size(441, 22);
+            this.chkUnique.TabIndex = 2;
+            this.chkUnique.Text = "Return value is unique for each call (keep infinite loops in mind!)";
+            this.chkUnique.UseVisualStyleBackColor = true;
+            // 
+            // compileCustomRandom
+            // 
+            this.compileCustomRandom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.compileCustomRandom.BackColor = System.Drawing.Color.White;
+            this.compileCustomRandom.Location = new System.Drawing.Point(0, 326);
+            this.compileCustomRandom.Name = "compileCustomRandom";
+            this.compileCustomRandom.Padding = new System.Windows.Forms.Padding(9);
+            this.compileCustomRandom.Size = new System.Drawing.Size(915, 173);
+            this.compileCustomRandom.TabIndex = 1;
+            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.CompileCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
             // 
             // CustomRandomParameterPanel
             // 

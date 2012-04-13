@@ -208,7 +208,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// For setting the line numbers
         /// </summary>
-        
+
         public int LineNumberOffset
         {
             get
@@ -254,7 +254,10 @@ namespace vApus.Stresstest
         /// <summary>
         /// Design time constructor.
         /// </summary>
-        public CodeBlock(bool showLineNumbers = false)
+        public CodeBlock()
+            : this(false)
+        { }
+        public CodeBlock(bool showLineNumbers)
         {
             InitializeComponent();
             InitBodyForText(showLineNumbers);

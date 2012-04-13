@@ -125,7 +125,6 @@
             this.pnlPlaceHolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlPlaceHolder.BackColor = System.Drawing.Color.White;
-            this.pnlPlaceHolder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlPlaceHolder.Location = new System.Drawing.Point(0, 0);
             this.pnlPlaceHolder.Name = "pnlPlaceHolder";
             this.pnlPlaceHolder.Size = new System.Drawing.Size(784, 524);

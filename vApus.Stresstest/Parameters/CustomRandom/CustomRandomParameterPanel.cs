@@ -34,7 +34,7 @@ namespace vApus.Stresstest
         }
         private void cbGenerate_CodeTextChangedDelayed(object sender, EventArgs e)
         {
-            cbGenerate.RefreshLineNumbers();
+            cbGenerate.RefreshLineNumbers(2);
             _parameter.GenerateFunction = cbGenerate.Code;
             _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }

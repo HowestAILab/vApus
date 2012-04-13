@@ -17,6 +17,7 @@ namespace vApus.Stresstest
         private SolutionComponentPropertyPanel _parameterTypeSolutionComponentPropertyPanel = new SolutionComponentPropertyPanel();
         private CustomRandomParameterPanel _customRandomParameterPanel = new CustomRandomParameterPanel();
         private CustomListParameter _customListParameter;
+        private BaseParameter _generateFromParameter;
 
         public CustomListGenerator()
         {
@@ -52,23 +53,28 @@ namespace vApus.Stresstest
         private void btnOK_Click(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
-            BaseParameter generateFromParameter = _customListParameter.GenerateFromParameter;
-
             List<string> entries = new List<string>(_customListParameter.CustomList);
 
-            if (generateFromParameter is TextParameter || (generateFromParameter as NumericParameter).Random)
-                for (int i = 0; i < nudGenerate.Value; i++)
+            if (_generateFromParameter is TextParameter ||
+                (_generateFromParameter is NumericParameter && (_generateFromParameter as NumericParameter).Random))
+                for (int i = 0; i != nudGenerate.Value; i++)
                 {
-                    generateFromParameter.Next();
-                    entries.Add(generateFromParameter.Value);
+                    _generateFromParameter.Next();
+                    entries.Add(_generateFromParameter.Value);
+                }
+            else if (_generateFromParameter is CustomRandomParameter)
+                for (int i = 0; i != nudGenerate.Value; i++)
+                {
+                    _generateFromParameter.Next();
+                    entries.Add(_generateFromParameter.Value);
                 }
             else
-                for (int i = 0; i < nudGenerate.Value; i++)
+                for (int i = 0; i != nudGenerate.Value; i++)
                 {
-                    entries.Add(generateFromParameter.Value);
-                    generateFromParameter.Next();
+                    entries.Add(_generateFromParameter.Value);
+                    _generateFromParameter.Next();
                 }
-            generateFromParameter.ResetValue();
+            _generateFromParameter.ResetValue();
 
             _customListParameter.CustomList = entries.ToArray();
             Cursor = Cursors.Default;
@@ -86,25 +92,24 @@ namespace vApus.Stresstest
         private void cboParameterType_SelectedIndexChanged(object sender, EventArgs e)
         {
             timer.Stop();
-            BaseParameter p = null;
             if (cboParameterType.SelectedIndex == 0)
-                p = new NumericParameter();
+                _generateFromParameter = new NumericParameter();
             else if (cboParameterType.SelectedIndex == 1)
-                p = new TextParameter();
+                _generateFromParameter = new TextParameter();
             else
-                p = new CustomRandomParameter();
+                _generateFromParameter = new CustomRandomParameter();
 
-            _customListParameter.GenerateFromParameter = p;
+            _customListParameter.GenerateFromParameter = _generateFromParameter;
 
-            if (p is CustomRandomParameter)
+            if (_generateFromParameter is CustomRandomParameter)
             {
                 if (pnlPlaceHolder.Controls.Count == 0 || pnlPlaceHolder.Controls[0] != _customRandomParameterPanel)
                 {
                     pnlPlaceHolder.Controls.Clear();
                     pnlPlaceHolder.Controls.Add(_customRandomParameterPanel);
-                    _parameterTypeSolutionComponentPropertyPanel.Dock = DockStyle.Fill;
+                    _customRandomParameterPanel.Dock = DockStyle.Fill;
                 }
-                _customRandomParameterPanel.Init(p);
+                _customRandomParameterPanel.Init(_generateFromParameter);
             }
             else
             {
