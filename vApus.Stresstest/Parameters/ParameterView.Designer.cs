@@ -53,49 +53,72 @@
             // 
             // btnGenerate
             // 
-            this.btnGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnGenerate.AutoSize = true;
-            this.btnGenerate.Location = new System.Drawing.Point(449, 7);
+            this.btnGenerate.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnGenerate.BackColor = System.Drawing.Color.White;
+            this.btnGenerate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnGenerate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnGenerate.Location = new System.Drawing.Point(124, 7);
+            this.btnGenerate.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnGenerate.Name = "btnGenerate";
-            this.btnGenerate.Size = new System.Drawing.Size(116, 23);
-            this.btnGenerate.TabIndex = 1;
+            this.btnGenerate.Size = new System.Drawing.Size(139, 24);
+            this.btnGenerate.TabIndex = 2;
             this.btnGenerate.Text = "Generate from type...";
-            this.btnGenerate.UseVisualStyleBackColor = true;
+            this.btnGenerate.UseVisualStyleBackColor = false;
             this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
             // 
             // btnAddFromText
             // 
-            this.btnAddFromText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddFromText.Location = new System.Drawing.Point(343, 7);
+            this.btnAddFromText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnAddFromText.AutoSize = true;
+            this.btnAddFromText.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnAddFromText.BackColor = System.Drawing.Color.White;
+            this.btnAddFromText.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddFromText.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnAddFromText.Location = new System.Drawing.Point(12, 7);
+            this.btnAddFromText.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnAddFromText.Name = "btnAddFromText";
-            this.btnAddFromText.Size = new System.Drawing.Size(100, 23);
-            this.btnAddFromText.TabIndex = 10;
+            this.btnAddFromText.Size = new System.Drawing.Size(106, 24);
+            this.btnAddFromText.TabIndex = 1;
             this.btnAddFromText.Text = "Add from text...";
-            this.btnAddFromText.UseVisualStyleBackColor = true;
+            this.btnAddFromText.UseVisualStyleBackColor = false;
             this.btnAddFromText.Click += new System.EventHandler(this.btnAddFromText_Click);
             // 
             // btnClear
             // 
             this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClear.AutoSize = true;
+            this.btnClear.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnClear.BackColor = System.Drawing.Color.White;
             this.btnClear.Enabled = false;
-            this.btnClear.Location = new System.Drawing.Point(697, 7);
+            this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnClear.Location = new System.Drawing.Point(724, 7);
+            this.btnClear.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 23);
-            this.btnClear.TabIndex = 14;
+            this.btnClear.Size = new System.Drawing.Size(48, 24);
+            this.btnClear.TabIndex = 4;
             this.btnClear.Text = "Clear";
-            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.UseVisualStyleBackColor = false;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
             // btnRemoveDuplicates
             // 
             this.btnRemoveDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemoveDuplicates.AutoSize = true;
+            this.btnRemoveDuplicates.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnRemoveDuplicates.BackColor = System.Drawing.Color.White;
             this.btnRemoveDuplicates.Enabled = false;
-            this.btnRemoveDuplicates.Location = new System.Drawing.Point(571, 7);
+            this.btnRemoveDuplicates.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemoveDuplicates.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRemoveDuplicates.Location = new System.Drawing.Point(591, 7);
+            this.btnRemoveDuplicates.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnRemoveDuplicates.Name = "btnRemoveDuplicates";
-            this.btnRemoveDuplicates.Size = new System.Drawing.Size(120, 23);
-            this.btnRemoveDuplicates.TabIndex = 15;
+            this.btnRemoveDuplicates.Size = new System.Drawing.Size(127, 24);
+            this.btnRemoveDuplicates.TabIndex = 3;
             this.btnRemoveDuplicates.Text = "Remove duplicates";
-            this.btnRemoveDuplicates.UseVisualStyleBackColor = true;
+            this.btnRemoveDuplicates.UseVisualStyleBackColor = false;
             this.btnRemoveDuplicates.Click += new System.EventHandler(this.btnRemoveDuplicates_Click);
             // 
             // pnlCustomList

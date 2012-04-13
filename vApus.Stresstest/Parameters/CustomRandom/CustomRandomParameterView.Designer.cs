@@ -30,7 +30,7 @@
         {
             this.chkUnique = new System.Windows.Forms.CheckBox();
             this.compileCustomRandom = new vApus.Stresstest.CompileCustomRandom();
-            this.cbGenerate = new vApus.Stresstest.CodeBlock();
+            this.cbGenerate = new vApus.Stresstest.CodeBlock(false);
             this.SuspendLayout();
             // 
             // chkUnique
