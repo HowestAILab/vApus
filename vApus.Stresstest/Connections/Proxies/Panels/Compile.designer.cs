@@ -36,12 +36,18 @@
             // btnTryCompile
             // 
             this.btnTryCompile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTryCompile.Location = new System.Drawing.Point(471, 138);
+            this.btnTryCompile.AutoSize = true;
+            this.btnTryCompile.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnTryCompile.BackColor = System.Drawing.Color.White;
+            this.btnTryCompile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTryCompile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTryCompile.Location = new System.Drawing.Point(461, 138);
+            this.btnTryCompile.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnTryCompile.Name = "btnTryCompile";
-            this.btnTryCompile.Size = new System.Drawing.Size(75, 23);
+            this.btnTryCompile.Size = new System.Drawing.Size(85, 24);
             this.btnTryCompile.TabIndex = 1;
             this.btnTryCompile.Text = "Try Compile";
-            this.btnTryCompile.UseVisualStyleBackColor = true;
+            this.btnTryCompile.UseVisualStyleBackColor = false;
             this.btnTryCompile.Click += new System.EventHandler(this.btnTryCompile_Click);
             // 
             // lblCount
@@ -65,7 +71,7 @@
             this.flpCompileLog.Location = new System.Drawing.Point(12, 12);
             this.flpCompileLog.Name = "flpCompileLog";
             this.flpCompileLog.Size = new System.Drawing.Size(534, 120);
-            this.flpCompileLog.TabIndex = 4;
+            this.flpCompileLog.TabIndex = 0;
             this.flpCompileLog.SizeChanged += new System.EventHandler(this.flpCompileLog_SizeChanged);
             // 
             // Compile

@@ -234,6 +234,10 @@ namespace vApus.Stresstest
                     {
                         Process.Start(sfd.FileName);
                     }
+                    catch (FileNotFoundException fnfe)
+                    {
+                        MessageBox.Show("Could not open the file!\nThe file could not be found.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                     catch
                     {
                         MessageBox.Show("Could not open the file!\nNo Application is associated with the 'cs' extension.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);

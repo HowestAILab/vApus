@@ -36,7 +36,6 @@
             // btnTryCompile
             // 
             this.btnTryCompile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTryCompile.AutoEllipsis = true;
             this.btnTryCompile.AutoSize = true;
             this.btnTryCompile.BackColor = System.Drawing.Color.White;
             this.btnTryCompile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -71,7 +70,7 @@
             this.flpCompileLog.Location = new System.Drawing.Point(12, 12);
             this.flpCompileLog.Name = "flpCompileLog";
             this.flpCompileLog.Size = new System.Drawing.Size(534, 120);
-            this.flpCompileLog.TabIndex = 4;
+            this.flpCompileLog.TabIndex = 0;
             this.flpCompileLog.SizeChanged += new System.EventHandler(this.flpCompileLog_SizeChanged);
             // 
             // CompileCustomRandom

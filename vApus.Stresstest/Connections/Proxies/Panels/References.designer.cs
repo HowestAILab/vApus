@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -35,28 +36,43 @@
             this.clm = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lblDefaultReferences = new System.Windows.Forms.Label();
             this.btnAdd = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // btnBrowse
             // 
             this.btnBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBrowse.AutoSize = true;
+            this.btnBrowse.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnBrowse.BackColor = System.Drawing.Color.White;
+            this.btnBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBrowse.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBrowse.Location = new System.Drawing.Point(329, 139);
+            this.btnBrowse.MaximumSize = new System.Drawing.Size(1000, 24);
+            this.btnBrowse.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowse.TabIndex = 1;
+            this.btnBrowse.Size = new System.Drawing.Size(75, 24);
+            this.btnBrowse.TabIndex = 2;
             this.btnBrowse.Text = "Browse...";
-            this.btnBrowse.UseVisualStyleBackColor = true;
+            this.btnBrowse.UseVisualStyleBackColor = false;
             this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // btnRemove
             // 
             this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemove.AutoSize = true;
+            this.btnRemove.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnRemove.BackColor = System.Drawing.Color.White;
+            this.btnRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemove.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRemove.Location = new System.Drawing.Point(410, 139);
+            this.btnRemove.MaximumSize = new System.Drawing.Size(1000, 24);
+            this.btnRemove.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(75, 23);
-            this.btnRemove.TabIndex = 2;
+            this.btnRemove.Size = new System.Drawing.Size(75, 24);
+            this.btnRemove.TabIndex = 3;
             this.btnRemove.Text = "Remove";
-            this.btnRemove.UseVisualStyleBackColor = true;
+            this.btnRemove.UseVisualStyleBackColor = false;
             this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
             // 
             // openFileDialog
@@ -78,7 +94,7 @@
             this.lvwCustomReferences.Name = "lvwCustomReferences";
             this.lvwCustomReferences.Size = new System.Drawing.Size(470, 108);
             this.lvwCustomReferences.Sorting = System.Windows.Forms.SortOrder.Ascending;
-            this.lvwCustomReferences.TabIndex = 3;
+            this.lvwCustomReferences.TabIndex = 0;
             this.lvwCustomReferences.UseCompatibleStateImageBehavior = false;
             this.lvwCustomReferences.View = System.Windows.Forms.View.Details;
             // 
@@ -100,12 +116,20 @@
             // btnAdd
             // 
             this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAdd.AutoSize = true;
+            this.btnAdd.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnAdd.BackColor = System.Drawing.Color.White;
+            this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAdd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnAdd.Location = new System.Drawing.Point(248, 139);
+            this.btnAdd.MaximumSize = new System.Drawing.Size(1000, 24);
+            this.btnAdd.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(75, 23);
+            this.btnAdd.Size = new System.Drawing.Size(75, 24);
             this.btnAdd.TabIndex = 1;
             this.btnAdd.Text = "Add...";
-            this.btnAdd.UseVisualStyleBackColor = true;
+            this.toolTip.SetToolTip(this.btnAdd, "From Gac");
+            this.btnAdd.UseVisualStyleBackColor = false;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
             // References
@@ -134,6 +158,7 @@
         private System.Windows.Forms.ColumnHeader clm;
         private System.Windows.Forms.Label lblDefaultReferences;
         private System.Windows.Forms.Button btnAdd;
+        private System.Windows.Forms.ToolTip toolTip;
 
     }
 }
