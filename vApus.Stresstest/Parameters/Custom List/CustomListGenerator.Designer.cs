@@ -31,10 +31,10 @@
             this.components = new System.ComponentModel.Container();
             this.nudGenerate = new System.Windows.Forms.NumericUpDown();
             this.cboParameterType = new System.Windows.Forms.ComboBox();
-            this.parameterTypeSolutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.timer = new System.Windows.Forms.Timer(this.components);
+            this.pnlPlaceHolder = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.nudGenerate)).BeginInit();
             this.SuspendLayout();
             // 
@@ -70,27 +70,13 @@
             this.cboParameterType.FormattingEnabled = true;
             this.cboParameterType.Items.AddRange(new object[] {
             "Numeric",
-            "Text"});
+            "Text",
+            "Custom Random"});
             this.cboParameterType.Location = new System.Drawing.Point(12, 533);
             this.cboParameterType.Name = "cboParameterType";
             this.cboParameterType.Size = new System.Drawing.Size(180, 21);
             this.cboParameterType.TabIndex = 1;
             this.cboParameterType.SelectedIndexChanged += new System.EventHandler(this.cboParameterType_SelectedIndexChanged);
-            // 
-            // parameterTypeSolutionComponentPropertyPanel
-            // 
-            this.parameterTypeSolutionComponentPropertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.parameterTypeSolutionComponentPropertyPanel.BackColor = System.Drawing.Color.White;
-            this.parameterTypeSolutionComponentPropertyPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.parameterTypeSolutionComponentPropertyPanel.Cursor = System.Windows.Forms.Cursors.Default;
-            this.parameterTypeSolutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.parameterTypeSolutionComponentPropertyPanel.Location = new System.Drawing.Point(0, 0);
-            this.parameterTypeSolutionComponentPropertyPanel.Name = "parameterTypeSolutionComponentPropertyPanel";
-            this.parameterTypeSolutionComponentPropertyPanel.Size = new System.Drawing.Size(784, 524);
-            this.parameterTypeSolutionComponentPropertyPanel.SolutionComponent = null;
-            this.parameterTypeSolutionComponentPropertyPanel.TabIndex = 0;
             // 
             // btnOK
             // 
@@ -134,15 +120,26 @@
             this.timer.Interval = 10;
             this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
+            // pnlPlaceHolder
+            // 
+            this.pnlPlaceHolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlPlaceHolder.BackColor = System.Drawing.Color.White;
+            this.pnlPlaceHolder.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnlPlaceHolder.Location = new System.Drawing.Point(0, 0);
+            this.pnlPlaceHolder.Name = "pnlPlaceHolder";
+            this.pnlPlaceHolder.Size = new System.Drawing.Size(784, 524);
+            this.pnlPlaceHolder.TabIndex = 0;
+            // 
             // CustomListGenerator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(784, 562);
+            this.Controls.Add(this.pnlPlaceHolder);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
-            this.Controls.Add(this.parameterTypeSolutionComponentPropertyPanel);
             this.Controls.Add(this.nudGenerate);
             this.Controls.Add(this.cboParameterType);
             this.MinimizeBox = false;
@@ -159,12 +156,12 @@
 
         #endregion
 
-        private SolutionTree.SolutionComponentPropertyPanel parameterTypeSolutionComponentPropertyPanel;
         private System.Windows.Forms.NumericUpDown nudGenerate;
         private System.Windows.Forms.ComboBox cboParameterType;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Timer timer;
+        private System.Windows.Forms.Panel pnlPlaceHolder;
 
     }
 }

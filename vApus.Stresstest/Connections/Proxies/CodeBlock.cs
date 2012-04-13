@@ -354,15 +354,22 @@ namespace vApus.Stresstest
                 lines = newLines;
             }
         }
-
-        public void RefreshLineNumbers()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lineNumberOffset">You normally don't need this.</param>
+        public void RefreshLineNumbers(int lineNumberOffset = -1)
         {
-            ResetLineNumbers();
+            ResetLineNumbers(lineNumberOffset);
             SetLineNumbers();
         }
-        private void ResetLineNumbers()
+        private void ResetLineNumbers(int lineNumberOffset = -1)
         {
-            LineNumberOffset = (_parentLevelControl) ? 2 : 1;
+            if (lineNumberOffset == -1)
+                LineNumberOffset = (_parentLevelControl) ? 2 : 1;
+            else
+                LineNumberOffset = lineNumberOffset;
+
             if (_codeBlockTextBox == null)
             {
                 foreach (Control control in splitContainer.Panel2.Controls)

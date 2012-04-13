@@ -46,6 +46,10 @@ namespace vApus.Stresstest
             p = new TextParameter();
             p.ShowInGui = false;
             AddAsDefaultItem(p);
+
+            p = new CustomRandomParameter();
+            p.ShowInGui = false;
+            AddAsDefaultItem(p);
         }
 
         #region Functions
@@ -84,7 +88,10 @@ namespace vApus.Stresstest
         {
             get
             {
-                return ((this[0].IsEmpty) ? this[1] : this[0]) as BaseParameter;
+                foreach (BaseParameter p in this)
+                    if (!p.IsEmpty)
+                        return p;
+                return this[0] as BaseParameter;
             }
             set
             {
@@ -92,11 +99,19 @@ namespace vApus.Stresstest
                 {
                     this[0].IsEmpty = false;
                     this[1].IsEmpty = true;
+                    this[2].IsEmpty = true;
+                }
+                else if (value is TextParameter)
+                {
+                    this[0].IsEmpty = true;
+                    this[1].IsEmpty = false;
+                    this[2].IsEmpty = true;
                 }
                 else
                 {
                     this[0].IsEmpty = true;
-                    this[1].IsEmpty = false;
+                    this[1].IsEmpty = true;
+                    this[2].IsEmpty = false;
                 }
             }
         }
