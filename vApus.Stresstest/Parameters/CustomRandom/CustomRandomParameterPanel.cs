@@ -31,6 +31,10 @@ namespace vApus.Stresstest
             cbGenerate.Code = _parameter.GenerateFunction;
             cbGenerate.RefreshLineNumbers(2);
             cbGenerate.CodeTextChangedDelayed += cbGenerate_CodeTextChangedDelayed;
+
+            chkUnique.CheckedChanged -= chkUnique_CheckedChanged;
+            chkUnique.Checked = _parameter.Unique;
+            chkUnique.CheckedChanged += chkUnique_CheckedChanged;
         }
         private void cbGenerate_CodeTextChangedDelayed(object sender, EventArgs e)
         {
@@ -39,9 +43,19 @@ namespace vApus.Stresstest
             _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void compileCustomRandom_CompileErrorButtonClicked(object sender, CompileCustomRandom.CompileErrorButtonClickedEventArgs e)
+        private void compileCustomRandom_CompileErrorButtonClicked(object sender, TestCustomRandom.CompileErrorButtonClickedEventArgs e)
         {
             e.CodePart.SelectLine(e.LineNumber);
+        }
+        internal void TryCompileAndTestCode(out Exception exception)
+        {
+            compileCustomRandom.TryCompileAndTestCode(out exception);
+        }
+
+        private void chkUnique_CheckedChanged(object sender, EventArgs e)
+        {
+            _parameter.Unique = chkUnique.Checked;
+            _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, null);
         }
     }
 }

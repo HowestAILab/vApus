@@ -119,6 +119,7 @@ namespace vApus.Stresstest
         {
             if (_customList.Length > 0)
                 _value = _customList[0];
+            _chosenValues.Clear();
         }
         #endregion
     }

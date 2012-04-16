@@ -9,10 +9,11 @@ using System;
 using System.CodeDom.Compiler;
 using System.Drawing;
 using System.Windows.Forms;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
-    public partial class CompileCustomRandom : UserControl
+    public partial class TestCustomRandom : UserControl
     {
         public event EventHandler<CompileErrorButtonClickedEventArgs> CompileErrorButtonClicked;
 
@@ -21,7 +22,7 @@ namespace vApus.Stresstest
         public CustomRandomParameter Parameter;
         #endregion
 
-        public CompileCustomRandom()
+        public TestCustomRandom()
         {
             InitializeComponent();
         }
@@ -32,20 +33,27 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="deleteTempFiles"></param>
         /// <returns>bull if fails</returns>
-        private void TryCompile()
+        internal void TryCompileAndTestCode(out Exception exception)
         {
             this.Cursor = Cursors.WaitCursor;
-
-            var results = Parameter.CreateInstance();
-
-
             flpCompileLog.Controls.Clear();
+
+            TryCompile(out exception);
+
+            if (exception == null)
+                TestCode(out exception);
+
+            this.Cursor = Cursors.Default;
+        }
+        private void TryCompile(out Exception exception)
+        {
+            exception = null;
+            var results = Parameter.CreateInstance();
 
             int errors = 0;
             int warnings = 0;
 
             lblCount.Text = string.Empty;
-
 
             foreach (CompilerError errorOrWarning in results.Errors)
             {
@@ -57,34 +65,48 @@ namespace vApus.Stresstest
                 AddErrorOrWarningButton(errorOrWarning);
             }
 
+            Parameter.ResetValue();
             if (errors != 0 && warnings != 0)
-            {
-                Parameter.ResetValue();
-
                 lblCount.Text = errors + " error(s), " + warnings + " warning(s)";
-            }
             else if (errors != 0)
-            {
-                Parameter.ResetValue();
-
                 lblCount.Text = errors + " error(s)";
-            }
             else if (warnings != 0)
-            {
                 lblCount.Text = warnings + " warning(s)";
-            }
 
-            if (errors == 0)
-                AddSuccessButton();
-
-            this.Cursor = Cursors.Default;
+            if (errors != 0)
+                exception = new Exception("The custom code does not compile!\nPlease check it for errors.");
         }
+        private void TestCode(out Exception exception)
+        {
+            exception = null;
 
+            string[] values = { "null", "null", "null" };
+            try
+            {
+                for (int i = 0; i != 3; i++)
+                {
+                    Parameter.Next();
+                    values[i] = Parameter.Value;
+                }
+                AddSuccessButton(values);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+
+                string[] lines = Parameter.BuildCode().Replace("\r\n", "\n").Replace("\n\r", "\n").Split('\r', '\n');
+
+                var error = new CompilerError(string.Empty, lines.Length -1, 6, "-1", exception.Message + "\nGenerated values: " + values.Combine(", "));
+                error.IsWarning = false;
+                AddErrorOrWarningButton(error);
+            }
+        }
         private void btnTryCompile_Click(object sender, EventArgs e)
         {
-            TryCompile();
+            Exception exception;
+            TryCompileAndTestCode(out exception);
         }
-        private void AddSuccessButton()
+        private void AddSuccessButton(string[] values)
         {
             Button btn = new Button();
             btn.AutoSize = true;
@@ -95,7 +117,7 @@ namespace vApus.Stresstest
             btn.FlatAppearance.MouseOverBackColor = BackColor;
             btn.FlatAppearance.BorderColor = Color.DarkGreen;
 
-            btn.Text = "Success!";
+            btn.Text = "Success!\nGenerated values: " + values.Combine(", ");
             flpCompileLog.Controls.Add(btn);
 
             btn.Width = flpCompileLog.ClientSize.Width - 18;

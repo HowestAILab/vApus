@@ -32,9 +32,18 @@ namespace vApus.Stresstest
             if (this.IsHandleCreated)
             {
                 if (cboParameterType.SelectedIndex == -1)
-                    cboParameterType.SelectedIndex = _customListParameter.GenerateFromParameter is NumericParameter ? 0 : 1;
+                {
+                    if (_customListParameter.GenerateFromParameter is NumericParameter)
+                        cboParameterType.SelectedIndex = 0;
+                    else if (_customListParameter.GenerateFromParameter is TextParameter)
+                        cboParameterType.SelectedIndex = 1;
+                    else
+                        cboParameterType.SelectedIndex = 2;
+                }
                 else
+                {
                     timer.Start();
+                }
             }
             else
             {
@@ -45,15 +54,25 @@ namespace vApus.Stresstest
         private void CustomListGenerator_HandleCreated(object sender, EventArgs e)
         {
             if (cboParameterType.SelectedIndex == -1)
-                cboParameterType.SelectedIndex = _customListParameter.GenerateFromParameter is NumericParameter ? 0 : 1;
+            {
+                if (_customListParameter.GenerateFromParameter is NumericParameter)
+                    cboParameterType.SelectedIndex = 0;
+                else if (_customListParameter.GenerateFromParameter is TextParameter)
+                    cboParameterType.SelectedIndex = 1;
+                else
+                    cboParameterType.SelectedIndex = 2;
+            }
             else
+            {
                 timer.Start();
+            }
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
             List<string> entries = new List<string>(_customListParameter.CustomList);
+            bool customRandomParameterException = false;
 
             if (_generateFromParameter is TextParameter ||
                 (_generateFromParameter is NumericParameter && (_generateFromParameter as NumericParameter).Random))
@@ -63,10 +82,22 @@ namespace vApus.Stresstest
                     entries.Add(_generateFromParameter.Value);
                 }
             else if (_generateFromParameter is CustomRandomParameter)
-                for (int i = 0; i != nudGenerate.Value; i++)
+                try
                 {
-                    _generateFromParameter.Next();
-                    entries.Add(_generateFromParameter.Value);
+                    Exception exception;
+                    _customRandomParameterPanel.TryCompileAndTestCode(out exception);
+                    if (exception != null)
+                        throw exception;
+
+                    for (int i = 0; i != nudGenerate.Value; i++)
+                    {
+                        _generateFromParameter.Next();
+                        entries.Add(_generateFromParameter.Value);
+                    }
+                }
+                catch
+                {
+                    customRandomParameterException = true;
                 }
             else
                 for (int i = 0; i != nudGenerate.Value; i++)
@@ -76,11 +107,15 @@ namespace vApus.Stresstest
                 }
             _generateFromParameter.ResetValue();
 
-            _customListParameter.CustomList = entries.ToArray();
             Cursor = Cursors.Default;
 
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            if (!customRandomParameterException)
+            {
+                _customListParameter.CustomList = entries.ToArray();
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

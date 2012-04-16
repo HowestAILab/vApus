@@ -30,7 +30,7 @@
         {
             this.cbGenerate = new vApus.Stresstest.CodeBlock();
             this.chkUnique = new System.Windows.Forms.CheckBox();
-            this.compileCustomRandom = new vApus.Stresstest.CompileCustomRandom();
+            this.compileCustomRandom = new vApus.Stresstest.TestCustomRandom();
             this.SuspendLayout();
             // 
             // cbGenerate
@@ -66,6 +66,7 @@
             this.chkUnique.TabIndex = 2;
             this.chkUnique.Text = "Return value is unique for each call (keep infinite loops in mind!)";
             this.chkUnique.UseVisualStyleBackColor = true;
+            this.chkUnique.CheckedChanged += new System.EventHandler(this.chkUnique_CheckedChanged);
             // 
             // compileCustomRandom
             // 
@@ -77,7 +78,7 @@
             this.compileCustomRandom.Padding = new System.Windows.Forms.Padding(9);
             this.compileCustomRandom.Size = new System.Drawing.Size(915, 173);
             this.compileCustomRandom.TabIndex = 1;
-            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.CompileCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
+            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
             // 
             // CustomRandomParameterPanel
             // 
@@ -97,7 +98,7 @@
         #endregion
 
         private CodeBlock cbGenerate;
-        private CompileCustomRandom compileCustomRandom;
+        private TestCustomRandom compileCustomRandom;
         private System.Windows.Forms.CheckBox chkUnique;
     }
 }

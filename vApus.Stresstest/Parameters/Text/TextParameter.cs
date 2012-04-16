@@ -120,6 +120,7 @@ namespace vApus.Stresstest
         public override void ResetValue()
         {
             _value = string.Empty;
+            _chosenValues.Clear();
         }
         /// <summary>
         /// Value with prefix and suffix if any.

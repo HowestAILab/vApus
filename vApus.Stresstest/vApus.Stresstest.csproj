@@ -248,11 +248,11 @@
     <Compile Include="Parameters\Custom List\CustomListGenerator.Designer.cs">
       <DependentUpon>CustomListGenerator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\CompileCustomRandom.cs">
+    <Compile Include="Parameters\CustomRandom\TestCustomRandom.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\CompileCustomRandom.designer.cs">
-      <DependentUpon>CompileCustomRandom.cs</DependentUpon>
+    <Compile Include="Parameters\CustomRandom\TestCustomRandom.designer.cs">
+      <DependentUpon>TestCustomRandom.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\CustomRandom\CustomRandomParameter.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameters.cs" />
@@ -552,8 +552,8 @@
     <EmbeddedResource Include="Parameters\Custom List\CustomListGenerator.resx">
       <DependentUpon>CustomListGenerator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\CustomRandom\CompileCustomRandom.resx">
-      <DependentUpon>CompileCustomRandom.cs</DependentUpon>
+    <EmbeddedResource Include="Parameters\CustomRandom\TestCustomRandom.resx">
+      <DependentUpon>TestCustomRandom.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\CustomRandom\CustomRandomParameterView.resx">
       <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
