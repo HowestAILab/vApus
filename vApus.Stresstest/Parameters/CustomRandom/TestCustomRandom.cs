@@ -80,13 +80,16 @@ namespace vApus.Stresstest
         {
             exception = null;
 
-            string[] values = { "null", "null", "null" };
+            string[] values = new string[3];
+            int index = 0;
             try
             {
-                for (int i = 0; i != 3; i++)
+                for (int i = 0; i != values.Length; i++)
                 {
                     Parameter.Next();
                     values[i] = Parameter.Value;
+                
+                    index = i;
                 }
                 AddSuccessButton(values);
             }
@@ -94,9 +97,12 @@ namespace vApus.Stresstest
             {
                 exception = ex;
 
+                for (int i = index; i != values.Length; i++)
+                    values[i] = values[index];
+
                 string[] lines = Parameter.BuildCode().Replace("\r\n", "\n").Replace("\n\r", "\n").Split('\r', '\n');
 
-                var error = new CompilerError(string.Empty, lines.Length -1, 6, "-1", exception.Message + "\nGenerated values: " + values.Combine(", "));
+                var error = new CompilerError(string.Empty, lines.Length -1, 6, "-1", exception.Message + "\nGenerated three values: " + values.Combine(", "));
                 error.IsWarning = false;
                 AddErrorOrWarningButton(error);
             }
@@ -117,7 +123,7 @@ namespace vApus.Stresstest
             btn.FlatAppearance.MouseOverBackColor = BackColor;
             btn.FlatAppearance.BorderColor = Color.DarkGreen;
 
-            btn.Text = "Success!\nGenerated values: " + values.Combine(", ");
+            btn.Text = "Success!\nGenerated three values: " + values.Combine(", ");
             flpCompileLog.Controls.Add(btn);
 
             btn.Width = flpCompileLog.ClientSize.Width - 18;

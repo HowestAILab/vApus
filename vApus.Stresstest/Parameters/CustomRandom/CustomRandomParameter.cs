@@ -50,7 +50,7 @@ namespace vApus.Stresstest
             }
             catch
             {
-                throw new Exception("The custom code does not compile!\nPlease check it for errors.");
+                throw new Exception("[" + this + "] The custom code does not compile!\nPlease check it for errors.");
             }
 
             if (_unique)
@@ -68,7 +68,7 @@ namespace vApus.Stresstest
                     _value = _customRandomParameter.Generate();
 
                     if (++loops == maxLoops)
-                        throw new Exception("You created an infinite loop in the custom code!\nAll generated values must be unique.");
+                        throw new Exception("[" + this + "] Your code cannot provide unique values!");
                 }
             }
         }

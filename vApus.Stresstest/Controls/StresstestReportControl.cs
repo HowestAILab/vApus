@@ -179,26 +179,37 @@ namespace vApus.Stresstest
         /// </summary>
         public void SetConfigurationLabels()
         {
+            Exception exception = null;
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
-                kvpSolution.Value = StresstestResults.Solution;
-                kvpStresstest.Key = StresstestResults.Stresstest;
-                kvpConnection.Key = StresstestResults.Connection;
-                kvpConnectionProxy.Key = StresstestResults.ConnectionProxy;
+                try
+                {
+                    kvpSolution.Value = StresstestResults.Solution;
+                    kvpStresstest.Key = StresstestResults.Stresstest;
+                    kvpConnection.Key = StresstestResults.Connection;
+                    kvpConnectionProxy.Key = StresstestResults.ConnectionProxy;
 
-                kvpLog.Key = StresstestResults.Log;
-                kvpLogRuleSet.Key = StresstestResults.LogRuleSet;
+                    kvpLog.Key = StresstestResults.Log;
+                    kvpLogRuleSet.Key = StresstestResults.LogRuleSet;
 
-                kvpMonitor.Key = StresstestResults.Monitors;
+                    kvpMonitor.Key = StresstestResults.Monitors;
 
-                kvpConcurrentUsers.Value = StresstestResults.ConcurrentUsers.Combine(", ");
+                    kvpConcurrentUsers.Value = StresstestResults.ConcurrentUsers.Combine(", ");
 
-                kvpPrecision.Value = StresstestResults.Precision.ToString();
-                kvpDynamicRunMultiplier.Value = StresstestResults.DynamicRunMultiplier.ToString();
-                kvpDelay.Value = (StresstestResults.MinimumDelay == StresstestResults.MaximumDelay ? StresstestResults.MinimumDelay.ToString() : StresstestResults.MinimumDelay + " - " + StresstestResults.MaximumDelay) + " ms";
-                kvpShuffle.Value = StresstestResults.Shuffle ? "Yes" : "No";
-                kvpDistribute.Value = StresstestResults.Distribute.ToString();
+                    kvpPrecision.Value = StresstestResults.Precision.ToString();
+                    kvpDynamicRunMultiplier.Value = StresstestResults.DynamicRunMultiplier.ToString();
+                    kvpDelay.Value = (StresstestResults.MinimumDelay == StresstestResults.MaximumDelay ? StresstestResults.MinimumDelay.ToString() : StresstestResults.MinimumDelay + " - " + StresstestResults.MaximumDelay) + " ms";
+                    kvpShuffle.Value = StresstestResults.Shuffle ? "Yes" : "No";
+                    kvpDistribute.Value = StresstestResults.Distribute.ToString();
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
             });
+
+            if (exception != null)
+                throw (exception);
         }
 
         private void btnSaveTheConfigurationAndTheChosenResultSet_Click(object sender, EventArgs e)

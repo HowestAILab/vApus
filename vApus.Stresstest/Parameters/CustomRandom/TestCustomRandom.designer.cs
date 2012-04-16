@@ -48,7 +48,7 @@
             this.btnTestCode.Size = new System.Drawing.Size(85, 24);
             this.btnTestCode.TabIndex = 1;
             this.btnTestCode.Text = "Test Code";
-            this.toolTip.SetToolTip(this.btnTestCode, "Returns 3 generated values.");
+            this.toolTip.SetToolTip(this.btnTestCode, "Returns three generated values.");
             this.btnTestCode.UseVisualStyleBackColor = false;
             this.btnTestCode.Click += new System.EventHandler(this.btnTryCompile_Click);
             // 
