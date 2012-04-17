@@ -148,25 +148,25 @@ namespace vApus.Util
         /// </summary>
         /// <param name="f"></param>
         /// <returns></returns>
-        public static string FloatToLongString(float f)
+        public static string FloatToLongString(float f, bool thousandSeparator = false)
         {
-            return NumberToLongString(f);
+            return NumberToLongString(f, thousandSeparator && f > 999);
         }
         /// <summary>
         /// No Scientific notation ToString().
         /// </summary>
         /// <param name="f"></param>
         /// <returns></returns>
-        public static string DoubleToLongString(double d)
+        public static string DoubleToLongString(double d, bool thousandSeparator = false)
         {
-            return NumberToLongString(d);
+            return NumberToLongString(d, thousandSeparator && d > 999);
         }
         /// <summary>
         /// No Scientific notation ToString().
         /// </summary>
-        /// <param name="f"></param>
+        /// <param name="o"></param>
         /// <returns></returns>
-        private static string NumberToLongString(object o)
+        private static string NumberToLongString(object o, bool thousandSeparator)
         {
             string s = o.ToString().ToUpper();
 
@@ -185,10 +185,16 @@ namespace vApus.Util
             int exponentValue = int.Parse(exponentParts[1]);
             //positive exponent
             if (exponentValue > 0)
-                return newNumber + GetZeros(exponentValue - decimalParts[1].Length);
+                s = newNumber + GetZeros(exponentValue - decimalParts[1].Length);
+            else
+                //negative exponent
+                s = ("0" + separator + GetZeros(exponentValue + decimalParts[0].Length) + newNumber).TrimEnd('0');
 
-            //negative exponent
-            return ("0" + separator + GetZeros(exponentValue + decimalParts[0].Length) + newNumber).TrimEnd('0');
+            if (thousandSeparator)
+                s = SeparateThousands(s);
+
+            return s;
+
         }
         private static string GetZeros(int zeroCount)
         {
@@ -196,6 +202,30 @@ namespace vApus.Util
                 zeroCount = Math.Abs(zeroCount);
 
             return new string('0', zeroCount);
+        }
+        private static string SeparateThousands(string s)
+        {
+            string separator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            string[] split = s.Split(separator[0]);
+
+            StringBuilder sb = new StringBuilder(split[0].Length + 1);
+
+            int j = 0;
+            for (int i = split[0].Length - 1; i != -1; i--)
+            {
+                sb.Append(split[0][i]);
+                if (++j == 3)
+                {
+                    j = 0;
+                    sb.Append(" ");
+                }
+            }
+
+            s = sb.ToString().TrimEnd().Reverse();
+            if (split.Length == 2 && !string.IsNullOrEmpty(split[1]))
+                s += separator + split[1];
+
+            return s;
         }
     }
 }
