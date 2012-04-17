@@ -31,6 +31,7 @@
             this.cbGenerate = new vApus.Stresstest.CodeBlock();
             this.chkUnique = new System.Windows.Forms.CheckBox();
             this.compileCustomRandom = new vApus.Stresstest.TestCustomRandom();
+            this.lblReadMe = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // cbGenerate
@@ -50,7 +51,7 @@
             this.cbGenerate.Name = "cbGenerate";
             this.cbGenerate.ParentLevelControl = false;
             this.cbGenerate.ReadOnly = false;
-            this.cbGenerate.ShowLineNumbers = false;
+            this.cbGenerate.ShowLineNumbers = true;
             this.cbGenerate.Size = new System.Drawing.Size(891, 101);
             this.cbGenerate.TabIndex = 0;
             this.cbGenerate.CodeTextChangedDelayed += new System.EventHandler(this.cbGenerate_CodeTextChangedDelayed);
@@ -80,10 +81,20 @@
             this.compileCustomRandom.TabIndex = 1;
             this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
             // 
+            // lblReadMe
+            // 
+            this.lblReadMe.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblReadMe.AutoSize = true;
+            this.lblReadMe.Location = new System.Drawing.Point(459, 303);
+            this.lblReadMe.Name = "lblReadMe";
+            this.lblReadMe.Size = new System.Drawing.Size(0, 13);
+            this.lblReadMe.TabIndex = 3;
+            // 
             // CustomRandomParameterPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lblReadMe);
             this.Controls.Add(this.chkUnique);
             this.Controls.Add(this.compileCustomRandom);
             this.Controls.Add(this.cbGenerate);
@@ -100,5 +111,6 @@
         private CodeBlock cbGenerate;
         private TestCustomRandom compileCustomRandom;
         private System.Windows.Forms.CheckBox chkUnique;
+        private System.Windows.Forms.Label lblReadMe;
     }
 }

@@ -260,7 +260,8 @@ namespace vApus.Stresstest
         public CodeBlock(bool showLineNumbers)
         {
             InitializeComponent();
-            InitBodyForText(showLineNumbers);
+            try { InitBodyForText(showLineNumbers); }
+            catch { }
         }
 
         /// <summary>

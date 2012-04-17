@@ -27,6 +27,8 @@ namespace vApus.Stresstest
             compileCustomRandom.Document = cbGenerate;
             compileCustomRandom.Parameter = _parameter;
 
+            lblReadMe.Text = _parameter.ReadMe;
+
             cbGenerate.ShowLineNumbers = true;
             cbGenerate.Code = _parameter.GenerateFunction;
             cbGenerate.RefreshLineNumbers(2);
