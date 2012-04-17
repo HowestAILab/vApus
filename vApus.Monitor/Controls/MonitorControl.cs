@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using vApus.Util;
 using vApusSMT.Base;
+using System.Threading;
 
 namespace vApus.Monitor
 {
@@ -53,13 +54,21 @@ namespace vApus.Monitor
             if (value is float)
             {
                 float f = (float)value;
+                string s = null;
                 if (f == -1f)
                 {
                     var headerCell = this.Columns[e.ColumnIndex].HeaderCell;
                     if (headerCell.Style.BackColor != Color.Yellow)
                         headerCell.Style.BackColor = Color.Yellow;
+
+                    s = f.ToString();
                 }
-                value = StringUtil.FloatToLongString(f);
+                else
+                {
+#warning This can be set to true, but the output is not seen as a number in excel
+                    s = StringUtil.FloatToLongString(f, false);
+                }
+                value = s;
             }
             else
             {
@@ -148,7 +157,7 @@ namespace vApus.Monitor
                             sb.Append(entity.Name);
                             sb.Append("/");
                             sb.Append(counterInfo.Counter);
-                           
+
                             string unit = units[unitIndex++];
                             if (!string.IsNullOrEmpty(unit))
                             {
