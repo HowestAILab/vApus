@@ -290,11 +290,11 @@ namespace vApus.Util
 
         private void kvp_Click(object sender, EventArgs e)
         {
-            MessageDialog md = new MessageDialog();
-            md.Title = "You can send this message to a dev!";
-            md.Text = (sender as Control).Tag as string;
-            md.StartPosition = FormStartPosition.CenterParent;
-            md.ShowDialog(this);
+            LogMessageDialog lmd = new LogMessageDialog();
+            lmd.Title = "You can report this bug, be sure it is not the cause of a configuration problem.";
+            lmd.Text = (sender as Control).Tag as string;
+            lmd.StartPosition = FormStartPosition.CenterParent;
+            lmd.ShowDialog(this);
         }
         #endregion
 

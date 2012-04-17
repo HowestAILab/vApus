@@ -249,11 +249,11 @@
     <Compile Include="Controls\UpdateNotifier\UpdateNotifierPanel.Designer.cs">
       <DependentUpon>UpdateNotifierPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\MessageDialog.cs">
+    <Compile Include="Dialogs\LogMessageDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\MessageDialog.Designer.cs">
-      <DependentUpon>MessageDialog.cs</DependentUpon>
+    <Compile Include="Dialogs\LogMessageDialog.Designer.cs">
+      <DependentUpon>LogMessageDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\ExtendedSchedule.cs">
       <SubType>Form</SubType>
@@ -387,8 +387,8 @@
     <EmbeddedResource Include="Controls\UpdateNotifier\UpdateNotifierPanel.resx">
       <DependentUpon>UpdateNotifierPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\MessageDialog.resx">
-      <DependentUpon>MessageDialog.cs</DependentUpon>
+    <EmbeddedResource Include="Dialogs\LogMessageDialog.resx">
+      <DependentUpon>LogMessageDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ExtendedSchedule.resx">
       <DependentUpon>ExtendedSchedule.cs</DependentUpon>
