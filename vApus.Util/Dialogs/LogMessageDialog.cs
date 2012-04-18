@@ -69,7 +69,8 @@ namespace vApus.Util
                 btnReportThisBug.Width = 123;
                 btnReportThisBug.Text = "Report this bug";
                 btnReportThisBug.Enabled = true;
-                
+
+                LogWrapper.LogByLevel("[" + this + "] " +  e.Exception.ToString(), LogLevel.Error);
                 MessageBox.Show(e.Exception.Message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             _reporting = false;
