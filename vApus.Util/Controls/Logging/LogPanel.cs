@@ -290,8 +290,14 @@ namespace vApus.Util
 
         private void kvp_Click(object sender, EventArgs e)
         {
+            var kvp = sender as Control;
             LogMessageDialog lmd = new LogMessageDialog();
-            lmd.Title = "You can report this bug, be sure it is not the cause of a configuration problem.";
+
+            if (kvp.BackColor == Color.FromArgb(255, 128, 0) || kvp.BackColor == Color.Red)
+                lmd.Title = "You can report this bug, be sure it is not the cause of a configuration problem.";
+            else
+                lmd.ReportThisBugVisible = false;
+
             lmd.Text = (sender as Control).Tag as string;
             lmd.StartPosition = FormStartPosition.CenterParent;
             lmd.ShowDialog(this);
