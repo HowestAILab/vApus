@@ -22,20 +22,20 @@ namespace vApus.Stresstest
         public event EventHandler LogRuleSetChanged;
 
         #region Fields
-        private string _catagory = string.Empty, _childDelimiter = string.Empty, _description = string.Empty;
+        private string _childDelimiter = string.Empty, _description = string.Empty;
         private string _singleLineCommentString = string.Empty, _beginCommentString = string.Empty, _endCommentString = string.Empty;
         private bool _actionizeOnComment = true, _actionizeOnFile = true;
         private uint _beginTimestampIndex, _endTimestampIndex;
         #endregion
 
         #region Properties
-        [SavableCloneable, PropertyControl(1)]
-        [Description("A value to specify that different rule sets are compatible with each other, for example: log and connection rule sets")]
-        public string Category
-        {
-            get { return _catagory; }
-            set { _catagory = value; }
-        }
+        //[SavableCloneable, PropertyControl(1)]
+        //[Description("A value to specify that different rule sets are compatible with each other, for example: log and connection rule sets")]
+        //public string Category
+        //{
+        //    get { return _catagory; }
+        //    set { _catagory = value; }
+        //}
         [SavableCloneable, PropertyControl(2)]
         [Description("If the length of the delimiter is zero, the given string will not be splitted into parts (space = valid)."), DisplayName("Child Delimiter")]
         public virtual string ChildDelimiter

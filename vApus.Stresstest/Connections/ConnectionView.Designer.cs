@@ -32,6 +32,7 @@
             this.split = new System.Windows.Forms.SplitContainer();
             this.solutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.ruleSetSyntaxItemPanel = new vApus.Stresstest.ConnectionProxyRuleSetSyntaxItemPanel();
+            this.tracertControl = new vApus.Util.TracertControl();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -50,7 +51,7 @@
             this.btnTestConnection.MinimumSize = new System.Drawing.Size(112, 24);
             this.btnTestConnection.Name = "btnTestConnection";
             this.btnTestConnection.Size = new System.Drawing.Size(112, 24);
-            this.btnTestConnection.TabIndex = 1;
+            this.btnTestConnection.TabIndex = 2;
             this.btnTestConnection.Text = "Test Connection";
             this.btnTestConnection.UseVisualStyleBackColor = false;
             this.btnTestConnection.Click += new System.EventHandler(this.btnTestConnection_Click);
@@ -77,7 +78,7 @@
             this.split.Panel2.Controls.Add(this.ruleSetSyntaxItemPanel);
             this.split.Size = new System.Drawing.Size(768, 520);
             this.split.SplitterDistance = 130;
-            this.split.TabIndex = 3;
+            this.split.TabIndex = 0;
             // 
             // solutionComponentPropertyPanel
             // 
@@ -98,11 +99,25 @@
             this.ruleSetSyntaxItemPanel.Size = new System.Drawing.Size(766, 384);
             this.ruleSetSyntaxItemPanel.TabIndex = 0;
             // 
+            // tracertControl
+            // 
+            this.tracertControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tracertControl.Location = new System.Drawing.Point(6, 532);
+            this.tracertControl.MaximumSize = new System.Drawing.Size(9999, 35);
+            this.tracertControl.MinimumSize = new System.Drawing.Size(0, 35);
+            this.tracertControl.Name = "tracertControl";
+            this.tracertControl.Size = new System.Drawing.Size(656, 35);
+            this.tracertControl.TabIndex = 1;
+            this.tracertControl.Visible = false;
+            this.tracertControl.Done += new System.EventHandler(this.tracertControl_Done);
+            // 
             // ConnectionView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(792, 573);
+            this.Controls.Add(this.tracertControl);
             this.Controls.Add(this.split);
             this.Controls.Add(this.btnTestConnection);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -123,5 +138,6 @@
         private ConnectionProxyRuleSetSyntaxItemPanel ruleSetSyntaxItemPanel;
         private System.Windows.Forms.SplitContainer split;
         private SolutionTree.SolutionComponentPropertyPanel solutionComponentPropertyPanel;
+        private Util.TracertControl tracertControl;
     }
 }

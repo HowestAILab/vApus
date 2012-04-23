@@ -19,18 +19,19 @@ namespace vApus.Stresstest
     public class ConnectionProxyRuleSet : BaseItem
     {
         #region Fields
-        private string _catagory = string.Empty, _childDelimiter = string.Empty, _description = string.Empty;
+        private string _childDelimiter = string.Empty, _description = string.Empty;
         private bool _connected = true;
+        private uint _tracertField = 1;
         #endregion
 
         #region Properties
-        [SavableCloneable, PropertyControl(1)]
-        [Description("A value to specify that different rule sets are compatible with each other, for example: log and connection rule sets")]
-        public string Category
-        {
-            get { return _catagory; }
-            set { _catagory = value; }
-        }
+        //[SavableCloneable, PropertyControl(1)]
+        //[Description("A value to specify that different rule sets are compatible with each other, for example: log and connection rule sets")]
+        //public string Category
+        //{
+        //    get { return _catagory; }
+        //    set { _catagory = value; }
+        //}
         [SavableCloneable, PropertyControl(2)]
         [Description("If the length of the delimiter is zero, the given string will not be splitted into parts (space = valid)."), DisplayName("Child Delimiter")]
         public virtual string ChildDelimiter
@@ -52,6 +53,13 @@ namespace vApus.Stresstest
         {
             get { return _connected; }
             set { _connected = value; }
+        }
+        [SavableCloneable, PropertyControl(3)]
+        [Description("The one-base index of the syntax item that is used for tracing the route of communication."), DisplayName("Trace Route Field")]
+        public uint TracertField
+        {
+            get { return _tracertField; }
+            set { _tracertField = value; }
         }
         #endregion
 
