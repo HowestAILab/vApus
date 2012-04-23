@@ -147,6 +147,5 @@ namespace vApus.Stresstest
             _canUpdateGui = true;
         }
         #endregion
-
     }
 }

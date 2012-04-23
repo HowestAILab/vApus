@@ -195,8 +195,8 @@ namespace vApus.Stresstest
         {
             if (_autoScrollPositionSet)
                 _autoScrollPosition = new Point(-1 * scrollablePanel.AutoScrollPosition.X, -1 * scrollablePanel.AutoScrollPosition.Y);
-
         }
+
         #region Tools
         private void references_ReferencesChanged(object sender, EventArgs e)
         {
@@ -294,6 +294,5 @@ namespace vApus.Stresstest
         #endregion
 
         #endregion
-
     }
 }

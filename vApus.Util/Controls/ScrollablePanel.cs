@@ -19,5 +19,13 @@ namespace vApus.Util
         {
             return DisplayRectangle.Location;
         }
+        protected override void OnScroll(ScrollEventArgs se)
+        {
+            base.OnScroll(se);
+            if (se.ScrollOrientation == ScrollOrientation.VerticalScroll)
+                VerticalScroll.Value = se.NewValue;
+            else if (se.ScrollOrientation == ScrollOrientation.HorizontalScroll)
+                HorizontalScroll.Value = se.NewValue;
+        }
     }
 }

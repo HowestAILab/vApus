@@ -72,7 +72,7 @@ namespace vApus.Monitor
             }
             catch (Exception ex)
             {
-                LogWrapper.LogByLevel("[" + this + "] " + "The serverInfo is not a wellformed xml.\n" + ex.ToString(), LogLevel.Error);
+                LogWrapper.LogByLevel("[" + this + "] " + "The configuration is not a wellformed xml.\n" + ex.ToString(), LogLevel.Error);
                 this.Close();
             }
         }
