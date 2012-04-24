@@ -17,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.UpdateToolLoader", "v
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.UpdateTool", "vApus.UpdateTool\vApus.UpdateTool.csproj", "{1ED4D650-26D8-4D6D-B7D5-9705E37703CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.CommitTool", "vApus.CommitTool\vApus.CommitTool.csproj", "{ECC9F609-0B28-4638-8273-B2FE275BFBFF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeifenLuo.WinFormsUI", "WeifenLuo.WinFormsUI\WeifenLuo.WinFormsUI.csproj", "{C75532C4-765B-418E-B09B-46D36B2ABDB1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.DistributedTesting", "vApus.DistributedTesting\vApus.DistributedTesting.csproj", "{A766CB72-67C0-4F24-85B5-70B8EB76882A}"
@@ -215,27 +213,6 @@ Global
 		{1ED4D650-26D8-4D6D-B7D5-9705E37703CC}.TestingBuild|x64.ActiveCfg = TestingBuild|x64
 		{1ED4D650-26D8-4D6D-B7D5-9705E37703CC}.TestingBuild|x64.Build.0 = TestingBuild|x64
 		{1ED4D650-26D8-4D6D-B7D5-9705E37703CC}.TestingBuild|x86.ActiveCfg = TestingBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.DevelopmentBuild|Any CPU.ActiveCfg = DevelopmentBuild|Any CPU
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.DevelopmentBuild|Any CPU.Build.0 = DevelopmentBuild|Any CPU
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.DevelopmentBuild|Mixed Platforms.ActiveCfg = DevelopmentBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.DevelopmentBuild|Mixed Platforms.Build.0 = DevelopmentBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.DevelopmentBuild|x64.ActiveCfg = DevelopmentBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.DevelopmentBuild|x64.Build.0 = DevelopmentBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.DevelopmentBuild|x86.ActiveCfg = DevelopmentBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.Release|Any CPU.ActiveCfg = Release|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.Release|Any CPU.Build.0 = Release|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.Release|Mixed Platforms.Build.0 = Release|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.Release|x64.ActiveCfg = Release|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.Release|x64.Build.0 = Release|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.Release|x86.ActiveCfg = Release|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.TestingBuild|Any CPU.ActiveCfg = TestingBuild|Any CPU
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.TestingBuild|Any CPU.Build.0 = TestingBuild|Any CPU
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.TestingBuild|x64.ActiveCfg = TestingBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.TestingBuild|x64.Build.0 = TestingBuild|x64
-		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.TestingBuild|x86.ActiveCfg = TestingBuild|x64
 		{C75532C4-765B-418E-B09B-46D36B2ABDB1}.DevelopmentBuild|Any CPU.ActiveCfg = DevelopmentBuild|Any CPU
 		{C75532C4-765B-418E-B09B-46D36B2ABDB1}.DevelopmentBuild|Any CPU.Build.0 = DevelopmentBuild|Any CPU
 		{C75532C4-765B-418E-B09B-46D36B2ABDB1}.DevelopmentBuild|Mixed Platforms.ActiveCfg = DevelopmentBuild|x64

@@ -25,7 +25,6 @@ namespace vApus.Util
         [Description("Up to Date")]
         UpToDate
     }
-
     public static class UpdateNotifier
     {
         private static bool _failedRefresh = false;
@@ -94,7 +93,11 @@ namespace vApus.Util
                 channel = GetChannel(Path.Combine(Application.StartupPath, "version.ini")) == "Stable" ? 0 : 1;
         }
 
-        public static void Refresh()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>true if can update.</returns>
+        public static bool Refresh()
         {
             string tempFolder = Path.Combine(Application.StartupPath, "tempForUpdateNotifier");
 
@@ -109,7 +112,7 @@ namespace vApus.Util
                 {
                     _versionChanged = false;
                     _refreshed = false;
-                    return;
+                    return false;
                 }
 
                 Sftp sftp = new Sftp(host, username, password);
@@ -149,33 +152,39 @@ namespace vApus.Util
                 _versionChanged = (prevVersion != curVersion) || (channelDir != prevChannel.ToLower());
 
                 _refreshed = true;
+
+                if (UpdateNotifierState == UpdateNotifierState.NewUpdateFound)
+                {
+                    UpdateNotifierDialog dialog = new UpdateNotifierDialog(prevVersion, curVersion, channelDir, GetHistory(tempVersionControl));
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                        return true;
+                }
             }
             catch
             {
                 _failedRefresh = true;
                 _refreshed = false;
             }
-            if (Directory.Exists(tempFolder))
-                Directory.Delete(tempFolder, true);
+            finally
+            {
+                if (Directory.Exists(tempFolder))
+                    Directory.Delete(tempFolder, true);
+            }
+            return false;
         }
         private static string GetVersion(string versionIniPath)
         {
-            using (StreamReader sr = new StreamReader(versionIniPath))
-            {
-                bool found = false;
-                while (sr.Peek() != -1)
-                {
-                    string line = sr.ReadLine();
-                    if (found)
-                        return line;
-
-                    if (line.Trim() == "[VERSION]")
-                        found = true;
-                }
-            }
-            return string.Empty;
+            return Get(versionIniPath, "[VERSION]");
         }
         private static string GetChannel(string versionIniPath)
+        {
+            return Get(versionIniPath, "[CHANNEL]");
+        }
+        private static string GetHistory(string versionIniPath)
+        {
+            return Get(versionIniPath, "[HISTORY]");
+        }
+        private static string Get(string versionIniPath, string part)
         {
             using (StreamReader sr = new StreamReader(versionIniPath))
             {
@@ -186,11 +195,12 @@ namespace vApus.Util
                     if (found)
                         return line;
 
-                    if (line.Trim() == "[CHANNEL]")
+                    if (line.Trim() == part)
                         found = true;
                 }
             }
             return string.Empty;
         }
+
     }
 }

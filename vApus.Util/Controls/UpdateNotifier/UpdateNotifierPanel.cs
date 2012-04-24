@@ -16,7 +16,7 @@ namespace vApus.Util
     public partial class UpdateNotifierPanel : Panel
     {
         private Win32WindowMessageHandler _msgHandler;
-        private delegate void RefreshDel();
+        private delegate bool RefreshDel();
         private RefreshDel _refreshDel;
 
         public UpdateNotifierPanel()

@@ -243,6 +243,12 @@
     <Compile Include="Controls\ScrollablePanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\UpdateNotifier\UpdateNotifierDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\UpdateNotifier\UpdateNotifierDialog.Designer.cs">
+      <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\UpdateNotifier\UpdateNotifierPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -397,6 +403,9 @@
     <EmbeddedResource Include="Controls\LargeList.resx">
       <DependentUpon>LargeList.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\UpdateNotifier\UpdateNotifierDialog.resx">
+      <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\UpdateNotifier\UpdateNotifierPanel.resx">
       <DependentUpon>UpdateNotifierPanel.cs</DependentUpon>
