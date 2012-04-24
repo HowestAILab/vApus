@@ -41,7 +41,9 @@
             this.btnDeleteAll = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -55,12 +57,10 @@
             this.groupBox1.Controls.Add(this.btnOpenLogs);
             this.groupBox1.Controls.Add(this.btnDeleteConnectionProxyTempFiles);
             this.groupBox1.Controls.Add(this.btnOpenConnectionProxyTempFiles);
-            this.groupBox1.Controls.Add(this.btnDeleteSlaveSideResults);
-            this.groupBox1.Controls.Add(this.btnOpenSlaveSideResults);
-            this.groupBox1.Location = new System.Drawing.Point(12, 48);
+            this.groupBox1.Location = new System.Drawing.Point(12, 109);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(397, 190);
-            this.groupBox1.TabIndex = 0;
+            this.groupBox1.Size = new System.Drawing.Size(397, 129);
+            this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             // 
             // btnDeleteUpdateTempFiles
@@ -74,7 +74,7 @@
             this.btnDeleteUpdateTempFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDeleteUpdateTempFiles.Image = global::vApus.Gui.Properties.Resources.delete16x16;
             this.btnDeleteUpdateTempFiles.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnDeleteUpdateTempFiles.Location = new System.Drawing.Point(367, 148);
+            this.btnDeleteUpdateTempFiles.Location = new System.Drawing.Point(367, 82);
             this.btnDeleteUpdateTempFiles.Name = "btnDeleteUpdateTempFiles";
             this.btnDeleteUpdateTempFiles.Size = new System.Drawing.Size(24, 24);
             this.btnDeleteUpdateTempFiles.TabIndex = 7;
@@ -93,7 +93,7 @@
             this.btnOpenUpdateTempFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOpenUpdateTempFiles.Image = global::vApus.Gui.Properties.Resources.FolderOpen_16x16_72;
             this.btnOpenUpdateTempFiles.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnOpenUpdateTempFiles.Location = new System.Drawing.Point(6, 147);
+            this.btnOpenUpdateTempFiles.Location = new System.Drawing.Point(6, 81);
             this.btnOpenUpdateTempFiles.Name = "btnOpenUpdateTempFiles";
             this.btnOpenUpdateTempFiles.Size = new System.Drawing.Size(355, 25);
             this.btnOpenUpdateTempFiles.TabIndex = 6;
@@ -114,7 +114,7 @@
             this.btnDeleteLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDeleteLogs.Image = global::vApus.Gui.Properties.Resources.delete16x16;
             this.btnDeleteLogs.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnDeleteLogs.Location = new System.Drawing.Point(367, 117);
+            this.btnDeleteLogs.Location = new System.Drawing.Point(367, 51);
             this.btnDeleteLogs.Name = "btnDeleteLogs";
             this.btnDeleteLogs.Size = new System.Drawing.Size(24, 24);
             this.btnDeleteLogs.TabIndex = 5;
@@ -133,7 +133,7 @@
             this.btnOpenLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOpenLogs.Image = global::vApus.Gui.Properties.Resources.FolderOpen_16x16_72;
             this.btnOpenLogs.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnOpenLogs.Location = new System.Drawing.Point(6, 116);
+            this.btnOpenLogs.Location = new System.Drawing.Point(6, 50);
             this.btnOpenLogs.Name = "btnOpenLogs";
             this.btnOpenLogs.Size = new System.Drawing.Size(355, 25);
             this.btnOpenLogs.TabIndex = 4;
@@ -154,7 +154,7 @@
             this.btnDeleteConnectionProxyTempFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDeleteConnectionProxyTempFiles.Image = global::vApus.Gui.Properties.Resources.delete16x16;
             this.btnDeleteConnectionProxyTempFiles.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnDeleteConnectionProxyTempFiles.Location = new System.Drawing.Point(367, 85);
+            this.btnDeleteConnectionProxyTempFiles.Location = new System.Drawing.Point(367, 19);
             this.btnDeleteConnectionProxyTempFiles.Name = "btnDeleteConnectionProxyTempFiles";
             this.btnDeleteConnectionProxyTempFiles.Size = new System.Drawing.Size(24, 24);
             this.btnDeleteConnectionProxyTempFiles.TabIndex = 3;
@@ -173,7 +173,7 @@
             this.btnOpenConnectionProxyTempFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOpenConnectionProxyTempFiles.Image = global::vApus.Gui.Properties.Resources.FolderOpen_16x16_72;
             this.btnOpenConnectionProxyTempFiles.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnOpenConnectionProxyTempFiles.Location = new System.Drawing.Point(6, 85);
+            this.btnOpenConnectionProxyTempFiles.Location = new System.Drawing.Point(6, 19);
             this.btnOpenConnectionProxyTempFiles.Name = "btnOpenConnectionProxyTempFiles";
             this.btnOpenConnectionProxyTempFiles.Size = new System.Drawing.Size(355, 25);
             this.btnOpenConnectionProxyTempFiles.TabIndex = 2;
@@ -235,7 +235,7 @@
             this.btnDeleteAll.Location = new System.Drawing.Point(12, 247);
             this.btnDeleteAll.Name = "btnDeleteAll";
             this.btnDeleteAll.Size = new System.Drawing.Size(397, 25);
-            this.btnDeleteAll.TabIndex = 1;
+            this.btnDeleteAll.TabIndex = 2;
             this.btnDeleteAll.Text = "Delete All [?MB]";
             this.btnDeleteAll.UseVisualStyleBackColor = false;
             this.btnDeleteAll.Click += new System.EventHandler(this.btnDeleteAll_Click);
@@ -251,15 +251,30 @@
             this.label1.Text = "Here you can delete or clean (eg the current log cannot be deleted) the following" +
     " directories.";
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.btnOpenSlaveSideResults);
+            this.groupBox2.Controls.Add(this.btnDeleteSlaveSideResults);
+            this.groupBox2.Location = new System.Drawing.Point(12, 48);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(397, 55);
+            this.groupBox2.TabIndex = 0;
+            this.groupBox2.TabStop = false;
+            // 
             // CleanTempDataPanel
             // 
             this.ClientSize = new System.Drawing.Size(421, 284);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.btnDeleteAll);
             this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.label1);
             this.Name = "CleanTempDataPanel";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -278,6 +293,7 @@
         private System.Windows.Forms.Button btnDeleteAll;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.GroupBox groupBox2;
 
     }
 }
