@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -355,6 +354,7 @@ namespace vApus.Monitor
         {
             if (lvwEntities.SelectedItems.Count != 0)
             {
+                lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
                 tvwCounters.Nodes.Clear();
 
@@ -363,6 +363,7 @@ namespace vApus.Monitor
 
                 tvwCounters.Nodes.AddRange(FilterCounters(_monitor.Filter, selected.Tag as TreeNode[]));
                 tvwCounters.AfterCheck += tvwCounter_AfterCheck;
+                lvwEntities.ItemChecked += lvwEntities_ItemChecked;
 
                 PushSavedWiW();
 
@@ -427,10 +428,8 @@ namespace vApus.Monitor
                     }
 
                     if (counterNode == null)
-                    {
                         counterNode = new TreeNode(counter);
-                        newTag[i] = counterNode;
-                    }
+                    newTag[i] = counterNode;
 
                     if (counterInfo.Instances.Count != 0)
                     {
@@ -479,7 +478,10 @@ namespace vApus.Monitor
                 Entity entity = GetEntity(_monitor.Wiw, entityName);
                 lvwi.Checked = entity.Name.Length != 0;
                 if (lvwi.Checked)
+                {
+                    ParseTag(lvwi);
                     newWIW.Add(entity, new List<CounterInfo>());
+                }
 
                 TreeNode[] nodes = lvwi.Tag as TreeNode[];
                 if (nodes != null)
@@ -754,9 +756,9 @@ namespace vApus.Monitor
                 lvwi.ImageIndex = (int)entity.PowerState;
                 lvwi.StateImageIndex = lvwi.ImageIndex;
                 lvwi.Tag = entitiesAndCounters[entity];
+                lvwi.Checked = false;
 
                 lvwEntities.Items.Add(lvwi);
-                lvwi.Checked = false;
             }
             split.Panel2.Enabled = lvwEntities.Items.Count != 0;
 
@@ -766,10 +768,9 @@ namespace vApus.Monitor
 
         private void lvwEntities_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var lvw = sender as ListView;
-            if (lvw.SelectedItems.Count != 0)
+            if (lvwEntities.SelectedItems.Count != 0)
             {
-                lvw.Tag = lvw.SelectedItems[0];
+                lvwEntities.Tag = lvwEntities.SelectedItems[0];
                 FillCounters();
             }
         }
