@@ -103,13 +103,13 @@
             // 
             this.tracertControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tracertControl.Location = new System.Drawing.Point(6, 532);
+            this.tracertControl.Location = new System.Drawing.Point(9, 532);
             this.tracertControl.MaximumSize = new System.Drawing.Size(9999, 35);
             this.tracertControl.MinimumSize = new System.Drawing.Size(0, 35);
             this.tracertControl.Name = "tracertControl";
-            this.tracertControl.Size = new System.Drawing.Size(656, 35);
+            this.tracertControl.Size = new System.Drawing.Size(653, 35);
             this.tracertControl.TabIndex = 1;
-            this.tracertControl.Visible = false;
+            this.tracertControl.BeforeTrace += new System.EventHandler(this.tracertControl_BeforeTrace);
             this.tracertControl.Done += new System.EventHandler(this.tracertControl_Done);
             // 
             // ConnectionView

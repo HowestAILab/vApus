@@ -14,12 +14,21 @@ namespace vApus.Util
 {
     public partial class TracertControl : UserControl
     {
+        /// <summary>
+        /// You can call SetToTrace here last minute.
+        /// </summary>
+        public event EventHandler BeforeTrace;
         public event EventHandler Done;
 
         #region Fields
         private Tracert _tracert;
         private int _hops;
         private IPStatus _lastStatus;
+
+        private string _hostNameOrIP;
+        private int _maxHops, _timeout;
+
+        private TracertDialog _tracertDialog = new TracertDialog();
         #endregion
 
         public TracertControl()
@@ -28,34 +37,54 @@ namespace vApus.Util
         }
 
         #region Functions
-        public void Trace(string hostNameOrIP, int maxHops = 100, int timeout = 5000)
+        public void SetToTrace(string hostNameOrIP, int maxHops = 100, int timeout = 5000)
         {
-            kvpHops.Key = "? Hops";
-            kvpRoundtripTime.Key = "? Roundtrip Time";
+            _hostNameOrIP = hostNameOrIP;
+            _maxHops = maxHops;
+            _timeout = timeout;
+        }
+        private void Trace()
+        {
+            kvpHops.Key = "0 Hops";
+            kvpRoundtripTime.Key = "Roundtrip Time N/A";
             btnStatus.Text = "Tracing...";
             btnStatus.BackColor = Color.LightBlue;
 
             _tracert = new Tracert();
-            _tracert.TracedNode += new EventHandler<Tracert.TracedNodeEventArgs>(_tracert_TracedNode);
+            _tracert.Hop += new EventHandler<Tracert.HopEventArgs>(_tracert_Hop);
             _tracert.Done += new EventHandler(_tracert_Done);
 
-            _tracert.Trace(hostNameOrIP, maxHops, timeout);
+            _tracert.Trace(_hostNameOrIP, _maxHops, _timeout);
         }
-        private void _tracert_TracedNode(object sender, Tracert.TracedNodeEventArgs e)
+        private void btnTraceRoute_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (BeforeTrace != null)
+                BeforeTrace(this, null);
+        }
+        private void btnTraceRoute_Click(object sender, EventArgs e)
+        {
+            btnTraceRoute.Enabled = false;
+            Trace();
+        }
+        private void _tracert_Hop(object sender, Tracert.HopEventArgs e)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
-                kvpHops.Key = (++_hops) + " Hops";
+                kvpHops.Key = ((++_hops) == 1 ?  "1 Hop" : _hops + " Hop");
+                string roundtripTime = "N/A";
                 if (e.Status == IPStatus.Success)
                 {
                     TimeSpan ts = TimeSpan.FromMilliseconds(e.RoundTripTime);
-                    kvpRoundtripTime.Key = ts.ToShortFormattedString() + " Roundtrip Time";
+                    roundtripTime = ts.ToShortFormattedString();
+                    kvpRoundtripTime.Key = roundtripTime + " Roundtrip Time";
                 }
-                else 
+                else
                 {
-                    kvpRoundtripTime.Key = "\\ Roundtrip Time";
+                    kvpRoundtripTime.Key = "Roundtrip Time N/A";
                 }
                 _lastStatus = e.Status;
+
+                _tracertDialog.AddHop(e.IP, e.HostName, roundtripTime);
             });
         }
         private void _tracert_Done(object sender, EventArgs e)
@@ -65,19 +94,26 @@ namespace vApus.Util
                 if (_lastStatus == IPStatus.Success)
                 {
                     btnStatus.Text = "Success...";
-                    btnStatus.BackColor = Color.Green;
+                    btnStatus.BackColor = Color.LightGreen;
                 }
                 else
                 {
                     btnStatus.Text = "Failed...";
                     btnStatus.BackColor = Color.Orange;
                 }
-            });
-            _tracert.Dispose();
-            _tracert = null;
+                btnTraceRoute.Enabled = true;
 
-            if (Done != null)
-                Done(this, null);
+                _tracert.Dispose();
+                _tracert = null;
+
+                if (Done != null)
+                    Done(this, null);
+            });
+        }
+
+        private void btnStatus_Click(object sender, EventArgs e)
+        {
+            _tracertDialog.ShowDialog();
         }
         #endregion
     }

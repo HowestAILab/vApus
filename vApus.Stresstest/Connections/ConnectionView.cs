@@ -5,13 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using System;
 using System.CodeDom.Compiler;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
-using System;
-using System.Threading;
 
 namespace vApus.Stresstest
 {
@@ -27,7 +26,7 @@ namespace vApus.Stresstest
         /// </summary>
         private bool _canUpdateGui = true;
 
-       // private AutoResetEvent _tracertWaitHandle = new AutoResetEvent(false);
+        private bool _testing = false, _tracing = false;
         #endregion
 
         #region Constructors
@@ -72,44 +71,23 @@ namespace vApus.Stresstest
 
         private void btnTestConnection_Click(object sender, System.EventArgs e)
         {
+            _testing = true;
             split.Enabled = false;
             btnTestConnection.Enabled = false;
             btnTestConnection.Text = "Testing...";
 
-            Tracert();
-
             StaticActiveObjectWrapper.ActiveObject.Send(_testConnectionDel);
-        }
-        private void Tracert()
-        {
-            tracertControl.Visible = true;
-
-            string[] split = _connection.ConnectionString.Split(new string[] { _connection.ConnectionProxy.ConnectionProxyRuleSet.ChildDelimiter }, StringSplitOptions.None);
-            string tracertField = split[_connection.ConnectionProxy.ConnectionProxyRuleSet.TracertField - 1];
-
-            if (tracertField.ContainsChars('/'))
-            {
-                if (tracertField.StartsWith("http://"))
-                    tracertField = tracertField.Substring("http://".Length);
-
-                tracertField = tracertField.Split('/')[0];
-            }
-
-            tracertControl.Trace(tracertField);
-        }
-        private void tracertControl_Done(object sender, EventArgs e)
-        {
-            //_tracertWaitHandle.Set();
         }
         private void TestConnection()
         {
+            _testing = false;
             if (_connection.ConnectionProxy.IsEmpty)
             {
-                //_tracertWaitHandle.WaitOne();
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     btnTestConnection.Text = "Test Connection";
-                    split.Enabled = true;
+                    if (!_tracing)
+                        split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
                     MessageBox.Show(this, "This connection has no connection proxy assigned to!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
@@ -130,11 +108,11 @@ namespace vApus.Stresstest
                     sb.AppendLine();
                 }
 
-               // _tracertWaitHandle.WaitOne();
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     btnTestConnection.Text = "Test Connection";
-                    split.Enabled = true;
+                    if (!_tracing)
+                        split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
                     MessageBox.Show(this, sb.ToString(), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
@@ -144,12 +122,12 @@ namespace vApus.Stresstest
             {
                 string error;
                 connectionProxyPool.TestConnection(out error);
-                
-               // _tracertWaitHandle.WaitOne();
+
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     btnTestConnection.Text = "Test Connection";
-                    split.Enabled = true;
+                    if (!_tracing)
+                        split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
                     if (error == null)
@@ -160,6 +138,30 @@ namespace vApus.Stresstest
             }
             connectionProxyPool.Dispose();
             connectionProxyPool = null;
+        }
+        private void tracertControl_BeforeTrace(object sender, EventArgs e)
+        {
+            _tracing = true;
+            split.Enabled = false;
+
+            string[] sp = _connection.ConnectionString.Split(new string[] { _connection.ConnectionProxy.ConnectionProxyRuleSet.ChildDelimiter }, StringSplitOptions.None);
+            string tracertField = sp[_connection.ConnectionProxy.ConnectionProxyRuleSet.TracertField - 1];
+
+            if (tracertField.ContainsChars('/'))
+            {
+                if (tracertField.StartsWith("http://"))
+                    tracertField = tracertField.Substring("http://".Length);
+
+                tracertField = tracertField.Split('/')[0];
+            }
+
+            tracertControl.SetToTrace(tracertField);
+        }
+        private void tracertControl_Done(object sender, EventArgs e)
+        {
+            _tracing = false;
+            if (!_testing)
+                split.Enabled = true;
         }
         public override void Refresh()
         {
@@ -172,5 +174,6 @@ namespace vApus.Stresstest
             _canUpdateGui = true;
         }
         #endregion
+
     }
 }

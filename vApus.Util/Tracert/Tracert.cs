@@ -8,12 +8,13 @@
 using System;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Threading;
 
 namespace vApus.Util
 {
     public class Tracert : IDisposable
     {
-        public event EventHandler<TracedNodeEventArgs> TracedNode;
+        public event EventHandler<HopEventArgs> Hop;
         public event EventHandler Done;
 
         #region Fields
@@ -62,7 +63,7 @@ namespace vApus.Util
 
             if (IPAddress.IsLoopback(_ip))
             {
-                ProcessTraceNode(_ip, IPStatus.Success);
+                ProcessHop(_ip, IPStatus.Success);
             }
             else
             {
@@ -75,26 +76,28 @@ namespace vApus.Util
         }
         private void OnPingCompleted(object sender, PingCompletedEventArgs e)
         {
-            try
+            ThreadPool.QueueUserWorkItem(delegate
             {
-                if (!_isDone)
+                try
                 {
-                    _options.Ttl += 1;
-                    //The expectation was that SendAsync will throw an exception
-                    if (_ping == null)
+                    if (!_isDone)
                     {
-                        ProcessTraceNode(_ip, IPStatus.Unknown);
-                    }
-                    else
-                    {
-                        ProcessTraceNode(e.Reply.Address, e.Reply.Status);
-                        _ping.SendAsync(_ip, _timeout, Tracert.Buffer, _options, null);
+                        _options.Ttl += 1;
+                        if (_ping == null)
+                        {
+                            ProcessHop(_ip, IPStatus.Unknown);
+                        }
+                        else
+                        {
+                            ProcessHop(e.Reply.Address, e.Reply.Status);
+                            _ping.SendAsync(_ip, _timeout, Tracert.Buffer, _options, null);
+                        }
                     }
                 }
-            }
-            catch { }
+                catch { }
+            });
         }
-        protected void ProcessTraceNode(IPAddress address, IPStatus status)
+        protected void ProcessHop(IPAddress address, IPStatus status)
         {
             long roundTripTime = 0;
             if (status == IPStatus.TtlExpired || status == IPStatus.Success)
@@ -115,20 +118,20 @@ namespace vApus.Util
                 pingIntermediate.Dispose();
             }
 
-            FireTracedNode(address, roundTripTime, status);
+            FireHop(address, roundTripTime, status);
 
             _isDone = address.Equals(_ip) || ++_hops == _maxHops;
             if (_isDone)
                 FireDone();
         }
-        private void FireTracedNode(IPAddress ip, long roundTripTime, IPStatus status)
+        private void FireHop(IPAddress ip, long roundTripTime, IPStatus status)
         {
-            if (TracedNode != null)
+            if (Hop != null)
             {
                 string hostName = string.Empty;
                 try { hostName = Dns.GetHostEntry(ip).HostName; }
                 catch { }
-                TracedNode(this, new TracedNodeEventArgs(ip.ToString(), hostName, roundTripTime, status));
+                Hop(this, new HopEventArgs(ip.ToString(), hostName, roundTripTime, status));
             }
         }
         private void FireDone()
@@ -138,7 +141,7 @@ namespace vApus.Util
         }
         #endregion
 
-        public class TracedNodeEventArgs : EventArgs
+        public class HopEventArgs : EventArgs
         {
             public readonly string IP, HostName;
             /// <summary>
@@ -153,7 +156,7 @@ namespace vApus.Util
             /// <param name="hostName"></param>
             /// <param name="roundTripTime">in ms</param>
             /// <param name="status"></param>
-            public TracedNodeEventArgs(string ip, string hostName, long roundTripTime, IPStatus status)
+            public HopEventArgs(string ip, string hostName, long roundTripTime, IPStatus status)
             {
                 IP = ip;
                 HostName = hostName;
@@ -164,6 +167,7 @@ namespace vApus.Util
 
         public void Dispose()
         {
+            _isDone = true;
             if (_ping != null)
                 try
                 {
