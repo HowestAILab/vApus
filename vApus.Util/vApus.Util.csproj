@@ -364,6 +364,19 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\UpdateNotifier\UpdateNotifier.cs" />
+    <Compile Include="Tracert\Tracert.cs" />
+    <Compile Include="Tracert\TracertControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Tracert\TracertControl.Designer.cs">
+      <DependentUpon>TracertControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tracert\TracertDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Tracert\TracertDialog.Designer.cs">
+      <DependentUpon>TracertDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="WeightedRandom.cs" />
     <Compile Include="Win32WindowMessageHandler.cs" />
   </ItemGroup>
@@ -426,6 +439,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tracert\TracertControl.resx">
+      <DependentUpon>TracertControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tracert\TracertDialog.resx">
+      <DependentUpon>TracertDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
