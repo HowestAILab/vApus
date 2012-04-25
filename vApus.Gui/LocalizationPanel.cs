@@ -11,7 +11,7 @@ using System.Threading;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Gui
+namespace vApus.Util
 {
     public partial class LocalizationPanel : Panel
     {

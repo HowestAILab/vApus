@@ -90,6 +90,8 @@
             this.toolStripStatusLabel12 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblCleanTempData = new System.Windows.Forms.ToolStripStatusLabel();
             this.tmrSetStatusStrip = new System.Windows.Forms.Timer(this.components);
+            this.lblLastPipe = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
             this.mainMenu.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -270,14 +272,14 @@
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.optionsToolStripMenuItem.Text = "Options...";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
             // reportToolStripMenuItem
             // 
             this.reportToolStripMenuItem.Name = "reportToolStripMenuItem";
-            this.reportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.reportToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.reportToolStripMenuItem.Text = "Report...";
             this.reportToolStripMenuItem.Click += new System.EventHandler(this.reportToolStripMenuItem_Click);
             // 
@@ -379,7 +381,9 @@
             this.lblSocketListener,
             this.toolStripStatusLabel10,
             this.toolStripStatusLabel12,
-            this.lblCleanTempData});
+            this.lblCleanTempData,
+            this.lblLastPipe,
+            this.lblMicrosoftFirewallAutoUpdateEnabled});
             this.statusStrip.Location = new System.Drawing.Point(0, 640);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(984, 22);
@@ -514,6 +518,21 @@
             this.tmrSetStatusStrip.Interval = 2000;
             this.tmrSetStatusStrip.Tick += new System.EventHandler(this.tmrSetStatusStrip_Tick);
             // 
+            // lblLastPipe
+            // 
+            this.lblLastPipe.Name = "lblLastPipe";
+            this.lblLastPipe.Size = new System.Drawing.Size(10, 17);
+            this.lblLastPipe.Text = "|";
+            // 
+            // lblMicrosoftFirewallAutoUpdateEnabled
+            // 
+            this.lblMicrosoftFirewallAutoUpdateEnabled.IsLink = true;
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Name = "lblMicrosoftFirewallAutoUpdateEnabled";
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Size = new System.Drawing.Size(153, 17);
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Text = "FirewallAutoUpdateEnabled";
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Visible = false;
+            this.lblMicrosoftFirewallAutoUpdateEnabled.VisitedLinkColor = System.Drawing.Color.Blue;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -588,6 +607,8 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel12;
         private System.Windows.Forms.ToolStripStatusLabel lblCleanTempData;
+        private System.Windows.Forms.ToolStripStatusLabel lblLastPipe;
+        private System.Windows.Forms.ToolStripStatusLabel lblMicrosoftFirewallAutoUpdateEnabled;
     }
 }
 

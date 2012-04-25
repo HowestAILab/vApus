@@ -37,6 +37,7 @@ namespace vApus.Gui
         private LocalizationPanel _localizationPanel;
         private ProcessorAffinityPanel _processorAffinityPanel;
         private CleanTempDataPanel _cleanTempDataPanel;
+        private DisableFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
         #endregion
 
         public MainWindow(string[] args = null)
@@ -83,6 +84,8 @@ namespace vApus.Gui
             _localizationPanel = new LocalizationPanel();
             _processorAffinityPanel = new ProcessorAffinityPanel();
             _cleanTempDataPanel = new CleanTempDataPanel();
+            _disableFirewallAutoUpdatePanel = new DisableFirewallAutoUpdatePanel();
+
             string host, username, password;
             int port, channel;
             UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
