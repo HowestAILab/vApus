@@ -188,71 +188,83 @@
     <Compile Include="CompilerUnit.cs" />
     <Compile Include="CodeEditing\XMLTextStyle.cs" />
     <Compile Include="CodeEditing\CSharpTextStyle.cs" />
-    <Compile Include="Controls\Charts\ChartTypes\Direct3D\D3D9BaseChart.cs" />
-    <Compile Include="Controls\Charts\ChartTypes\Direct3D\D3D9LineChart.cs" />
-    <Compile Include="Controls\Charts\ChartTypes\GDIPlus\GDIPlusBaseChart.cs">
+    <Compile Include="ControlsAndPanels\Charts\ChartTypes\Direct3D\D3D9BaseChart.cs" />
+    <Compile Include="ControlsAndPanels\Charts\ChartTypes\Direct3D\D3D9LineChart.cs" />
+    <Compile Include="ControlsAndPanels\Charts\ChartTypes\GDIPlus\GDIPlusBaseChart.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\KeyValuePairControl.cs">
+    <Compile Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.Designer.cs">
+      <DependentUpon>DisableFirewallAutoUpdatePanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\KeyValuePairControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\KeyValuePairControl.Designer.cs">
+    <Compile Include="ControlsAndPanels\KeyValuePairControl.Designer.cs">
       <DependentUpon>KeyValuePairControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TabControlWithAdjustableBorders.cs">
+    <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\EventPanel\EventPanel.cs">
+    <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.designer.cs">
+      <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\TabControlWithAdjustableBorders.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\EventPanel\EventPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\EventPanel\EventPanel.designer.cs">
+    <Compile Include="ControlsAndPanels\EventPanel\EventPanel.designer.cs">
       <DependentUpon>EventPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EventPanel\EventPanelEvent.cs" />
-    <Compile Include="Controls\EventPanel\EventProgressBar\EventProgressBar.cs">
+    <Compile Include="ControlsAndPanels\EventPanel\EventPanelEvent.cs" />
+    <Compile Include="ControlsAndPanels\EventPanel\EventProgressBar\EventProgressBar.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\EventPanel\EventProgressBar\ProgressEvent.cs" />
-    <Compile Include="Controls\EventPanel\EventView\EventViewEventType.cs" />
-    <Compile Include="Controls\EventPanel\EventView\EventView.cs">
+    <Compile Include="ControlsAndPanels\EventPanel\EventProgressBar\ProgressEvent.cs" />
+    <Compile Include="ControlsAndPanels\EventPanel\EventView\EventViewEventType.cs" />
+    <Compile Include="ControlsAndPanels\EventPanel\EventView\EventView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\EventPanel\EventView\EventView.designer.cs">
+    <Compile Include="ControlsAndPanels\EventPanel\EventView\EventView.designer.cs">
       <DependentUpon>EventView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EventPanel\EventView\EventViewItem.cs">
+    <Compile Include="ControlsAndPanels\EventPanel\EventView\EventViewItem.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\ExtendedListView\ExtendedListView.cs">
+    <Compile Include="ControlsAndPanels\ExtendedListView\ExtendedListView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\ExtendedListView\ListViewDateSorter.cs" />
-    <Compile Include="Controls\ExtendedListView\ListViewDoubleSorter.cs" />
-    <Compile Include="Controls\ExtendedListView\ListViewInt32Sorter.cs" />
-    <Compile Include="Controls\ExtendedListView\ListViewSorter.cs" />
-    <Compile Include="Controls\ExtendedListView\ListViewTextCaseInsensitiveSorter.cs" />
-    <Compile Include="Controls\ExtendedListView\SortableListviewColumnHeader.cs">
+    <Compile Include="ControlsAndPanels\ExtendedListView\ListViewDateSorter.cs" />
+    <Compile Include="ControlsAndPanels\ExtendedListView\ListViewDoubleSorter.cs" />
+    <Compile Include="ControlsAndPanels\ExtendedListView\ListViewInt32Sorter.cs" />
+    <Compile Include="ControlsAndPanels\ExtendedListView\ListViewSorter.cs" />
+    <Compile Include="ControlsAndPanels\ExtendedListView\ListViewTextCaseInsensitiveSorter.cs" />
+    <Compile Include="ControlsAndPanels\ExtendedListView\SortableListviewColumnHeader.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\LargeList.cs">
+    <Compile Include="ControlsAndPanels\LargeList.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\LargeList.designer.cs">
+    <Compile Include="ControlsAndPanels\LargeList.designer.cs">
       <DependentUpon>LargeList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ScrollablePanel.cs">
+    <Compile Include="ControlsAndPanels\ScrollablePanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\UpdateNotifier\UpdateNotifierDialog.cs">
+    <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\UpdateNotifier\UpdateNotifierDialog.Designer.cs">
+    <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.Designer.cs">
       <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\UpdateNotifier\UpdateNotifierPanel.cs">
+    <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\UpdateNotifier\UpdateNotifierPanel.Designer.cs">
+    <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierPanel.Designer.cs">
       <DependentUpon>UpdateNotifierPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\LogMessageDialog.cs">
@@ -286,35 +298,35 @@
     <Compile Include="Dialogs\OptionsDialog.Designer.cs">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Charts\Axis\XAxis.cs">
+    <Compile Include="ControlsAndPanels\Charts\Axis\XAxis.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\Charts\Axis\XAxis.Designer.cs">
+    <Compile Include="ControlsAndPanels\Charts\Axis\XAxis.Designer.cs">
       <DependentUpon>XAxis.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Charts\Axis\XAxisLabel.cs">
+    <Compile Include="ControlsAndPanels\Charts\Axis\XAxisLabel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\Charts\Axis\YAxis.cs">
+    <Compile Include="ControlsAndPanels\Charts\Axis\YAxis.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\Charts\Chart.cs">
+    <Compile Include="ControlsAndPanels\Charts\Chart.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\Charts\Chart.Designer.cs">
+    <Compile Include="ControlsAndPanels\Charts\Chart.Designer.cs">
       <DependentUpon>Chart.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Charts\ChartArea.cs">
+    <Compile Include="ControlsAndPanels\Charts\ChartArea.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\Charts\ChartArea.Designer.cs">
+    <Compile Include="ControlsAndPanels\Charts\ChartArea.Designer.cs">
       <DependentUpon>ChartArea.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Charts\ChartTypes\ChartType.cs" />
-    <Compile Include="Controls\Charts\ChartTypes\BaseChart.cs">
+    <Compile Include="ControlsAndPanels\Charts\ChartTypes\ChartType.cs" />
+    <Compile Include="ControlsAndPanels\Charts\ChartTypes\BaseChart.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\Charts\ChartTypes\GDIPlus\GDIPlusLineChart.cs">
+    <Compile Include="ControlsAndPanels\Charts\ChartTypes\GDIPlus\GDIPlusLineChart.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Dialogs\PostNewIssue.cs" />
@@ -325,25 +337,25 @@
       <DependentUpon>Schedule.cs</DependentUpon>
     </Compile>
     <Compile Include="DictionaryUtil.cs" />
-    <Compile Include="Controls\Charts\Enums.cs" />
-    <Compile Include="Controls\Charts\Legend.cs">
+    <Compile Include="ControlsAndPanels\Charts\Enums.cs" />
+    <Compile Include="ControlsAndPanels\Charts\Legend.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\Charts\Legend.Designer.cs">
+    <Compile Include="ControlsAndPanels\Charts\Legend.Designer.cs">
       <DependentUpon>Legend.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Charts\Series.cs" />
+    <Compile Include="ControlsAndPanels\Charts\Series.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FastSerializer.cs" />
-    <Compile Include="Controls\Logging\ExceptionHelper.cs" />
-    <Compile Include="Controls\Logging\Logger.cs" />
-    <Compile Include="Controls\Logging\LogPanel.cs">
+    <Compile Include="ControlsAndPanels\Logging\ExceptionHelper.cs" />
+    <Compile Include="ControlsAndPanels\Logging\Logger.cs" />
+    <Compile Include="ControlsAndPanels\Logging\LogPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\Logging\LogPanel.Designer.cs">
+    <Compile Include="ControlsAndPanels\Logging\LogPanel.Designer.cs">
       <DependentUpon>LogPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Logging\LogWrapper.cs" />
+    <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
     <Compile Include="ProcessorAffinityCalculator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -366,10 +378,10 @@
     <Compile Include="StringUtil.cs" />
     <Compile Include="SynchronizationContextWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Controls\ToggleButton.cs">
+    <Compile Include="ControlsAndPanels\ToggleButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\UpdateNotifier\UpdateNotifier.cs" />
+    <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifier.cs" />
     <Compile Include="Tracert\Tracert.cs" />
     <Compile Include="Tracert\TracertControl.cs">
       <SubType>UserControl</SubType>
@@ -387,27 +399,33 @@
     <Compile Include="Win32WindowMessageHandler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Controls\EventPanel\EventPanel.resx">
+    <EmbeddedResource Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.resx">
+      <DependentUpon>DisableFirewallAutoUpdatePanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\EventPanel\EventPanel.resx">
       <DependentUpon>EventPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\EventPanel\EventView\EventView.resx">
+    <EmbeddedResource Include="ControlsAndPanels\EventPanel\EventView\EventView.resx">
       <DependentUpon>EventView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ExtendedListView\ExtendedListView.resx">
+    <EmbeddedResource Include="ControlsAndPanels\ExtendedListView\ExtendedListView.resx">
       <DependentUpon>ExtendedListView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\KeyValuePairControl.resx">
+    <EmbeddedResource Include="ControlsAndPanels\KeyValuePairControl.resx">
       <DependentUpon>KeyValuePairControl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\LargeList.resx">
+    <EmbeddedResource Include="ControlsAndPanels\LargeList.resx">
       <DependentUpon>LargeList.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\UpdateNotifier\UpdateNotifierDialog.resx">
+    <EmbeddedResource Include="ControlsAndPanels\ProcessorAffinityPanel.resx">
+      <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.resx">
       <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\UpdateNotifier\UpdateNotifierPanel.resx">
+    <EmbeddedResource Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierPanel.resx">
       <DependentUpon>UpdateNotifierPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\LogMessageDialog.resx">
@@ -426,19 +444,19 @@
     <EmbeddedResource Include="Dialogs\OptionsDialog.resx">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Charts\Axis\XAxis.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Charts\Axis\XAxis.resx">
       <DependentUpon>XAxis.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Charts\Chart.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Charts\Chart.resx">
       <DependentUpon>Chart.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Charts\ChartArea.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Charts\ChartArea.resx">
       <DependentUpon>ChartArea.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Charts\Legend.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Charts\Legend.resx">
       <DependentUpon>Legend.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Logging\LogPanel.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Logging\LogPanel.resx">
       <DependentUpon>LogPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Schedule.resx">
@@ -487,7 +505,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Controls\Charts\ChartTypes\Direct2D\README.txt" />
+    <Content Include="ControlsAndPanels\Charts\ChartTypes\Direct2D\README.txt" />
     <Content Include="quicklz150_64_1.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
