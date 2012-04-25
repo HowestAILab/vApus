@@ -33,9 +33,8 @@ namespace vApus.Monitor
         public MonitorControl()
         {
             AllowUserToAddRows = AllowUserToDeleteRows = AllowUserToResizeRows = AllowUserToOrderColumns = false;
-            ReadOnly = true;
-            VirtualMode = true;
-            DoubleBuffered = true;
+            ReadOnly = VirtualMode = DoubleBuffered = true;
+            ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
             this.CellValueNeeded += new DataGridViewCellValueEventHandler(MonitorControl_CellValueNeeded);
             this.Scroll += new ScrollEventHandler(MonitorControl_Scroll);
@@ -47,35 +46,42 @@ namespace vApus.Monitor
 
         private void MonitorControl_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            object value = null;
-            lock (_lock)
-                value = _cache[e.RowIndex][e.ColumnIndex];
-
-            if (value is float)
+            try
             {
-                float f = (float)value;
-                string s = null;
-                if (f == -1f)
-                {
-                    var headerCell = this.Columns[e.ColumnIndex].HeaderCell;
-                    if (headerCell.Style.BackColor != Color.Yellow)
-                        headerCell.Style.BackColor = Color.Yellow;
+                object value = null;
+                lock (_lock)
+                    value = _cache[e.RowIndex][e.ColumnIndex];
 
-                    s = f.ToString();
+                if (value is float)
+                {
+                    float f = (float)value;
+                    string s = null;
+                    if (f == -1f)
+                    {
+                        var headerCell = this.Columns[e.ColumnIndex].HeaderCell;
+                        if (headerCell.Style.BackColor != Color.Yellow)
+                            headerCell.Style.BackColor = Color.Yellow;
+
+                        s = f.ToString();
+                    }
+                    else
+                    {
+#warning This can be set to true, but the output is not seen as a number in excel
+                        s = StringUtil.FloatToLongString(f, false);
+                    }
+                    value = s;
                 }
                 else
                 {
-#warning This can be set to true, but the output is not seen as a number in excel
-                    s = StringUtil.FloatToLongString(f, false);
+                    value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
                 }
-                value = s;
-            }
-            else
-            {
-                value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
-            }
 
-            e.Value = value;
+                e.Value = value;
+            }
+            catch
+            {
+                //index out of range exception, the user is notified about this on receiving the monitor values
+            }
         }
         public new bool AllowUserToAddRows
         {
@@ -111,6 +117,12 @@ namespace vApus.Monitor
         {
             get { return base.DoubleBuffered; }
             set { base.DoubleBuffered = true; }
+        }
+        //disabling resizing --> faster adding
+        public new DataGridViewColumnHeadersHeightSizeMode ColumnHeadersHeightSizeMode
+        {
+            get { return base.ColumnHeadersHeightSizeMode; }
+            set { base.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing; }
         }
         /// <summary>
         /// Must always happen before the first value was added.
@@ -176,9 +188,24 @@ namespace vApus.Monitor
                     }
 
             _headers = lHeaders.ToArray();
+
+            //Add to columns, fillweight 1 --> to enable max 65 535 columns.
+            DataGridViewColumn[] clms = new DataGridViewColumn[_headers.Length];
             string clmPrefix = this.ToString() + "clm";
-            foreach (string header in _headers)
-                this.Columns[this.Columns.Add(clmPrefix + header, header)].SortMode = DataGridViewColumnSortMode.NotSortable;
+            for (int headerIndex = 0; headerIndex != _headers.Length; headerIndex++)
+            {
+                string header = _headers[headerIndex];
+                DataGridViewColumn clm = new DataGridViewTextBoxColumn();
+                clm.Name = clmPrefix + header;
+                clm.HeaderText = header;
+
+                clm.SortMode = DataGridViewColumnSortMode.NotSortable;
+                clm.FillWeight = 1;
+
+                clms[headerIndex] = clm;
+            }
+
+            this.Columns.AddRange(clms);
 
             if (this.Visible)
                 SetColumns();
@@ -186,7 +213,7 @@ namespace vApus.Monitor
                 this.VisibleChanged += new EventHandler(MonitorControl_VisibleChanged);
         }
 
-        void MonitorControl_VisibleChanged(object sender, EventArgs e)
+        private void MonitorControl_VisibleChanged(object sender, EventArgs e)
         {
             if (this.Visible)
             {
@@ -212,6 +239,9 @@ namespace vApus.Monitor
                 {
                     _cache.Add(monitorValues);
                     ++this.RowCount;
+
+                    if (monitorValues.Length != _headers.Length)
+                        LogWrapper.LogByLevel("[Monitoring] The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", LogLevel.Error);
                 }
             if (_keepAtEnd)
             {
