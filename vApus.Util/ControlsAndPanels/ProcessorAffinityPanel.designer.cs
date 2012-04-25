@@ -1,4 +1,4 @@
-namespace vApus.Gui
+namespace vApus.Util
 {
     partial class ProcessorAffinityPanel
     {

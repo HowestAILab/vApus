@@ -70,7 +70,6 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblUpdateNotifier = new System.Windows.Forms.ToolStripStatusLabel();
@@ -89,9 +88,10 @@
             this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel12 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblCleanTempData = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tmrSetStatusStrip = new System.Windows.Forms.Timer(this.components);
-            this.lblLastPipe = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblPipeMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tmrSetStatusStrip = new System.Windows.Forms.Timer(this.components);
+            this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.mainMenu.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -107,7 +107,7 @@
             this.helpToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
-            this.mainMenu.Size = new System.Drawing.Size(984, 24);
+            this.mainMenu.Size = new System.Drawing.Size(1092, 24);
             this.mainMenu.TabIndex = 0;
             // 
             // fileToolStripMenuItem
@@ -306,62 +306,6 @@
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
-            // dockPanel
-            // 
-            this.dockPanel.ActiveAutoHideContent = null;
-            this.dockPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dockPanel.DockBackColor = System.Drawing.SystemColors.Control;
-            this.dockPanel.Location = new System.Drawing.Point(0, 24);
-            this.dockPanel.Name = "dockPanel";
-            this.dockPanel.Size = new System.Drawing.Size(984, 616);
-            dockPanelGradient1.EndColor = System.Drawing.SystemColors.ControlLight;
-            dockPanelGradient1.StartColor = System.Drawing.SystemColors.ControlLight;
-            autoHideStripSkin1.DockStripGradient = dockPanelGradient1;
-            tabGradient1.EndColor = System.Drawing.SystemColors.Control;
-            tabGradient1.StartColor = System.Drawing.SystemColors.Control;
-            tabGradient1.TextColor = System.Drawing.SystemColors.ControlDarkDark;
-            autoHideStripSkin1.TabGradient = tabGradient1;
-            dockPanelSkin1.AutoHideStripSkin = autoHideStripSkin1;
-            tabGradient2.EndColor = System.Drawing.SystemColors.ControlLightLight;
-            tabGradient2.StartColor = System.Drawing.SystemColors.ControlLightLight;
-            tabGradient2.TextColor = System.Drawing.SystemColors.ControlText;
-            dockPaneStripGradient1.ActiveTabGradient = tabGradient2;
-            dockPanelGradient2.EndColor = System.Drawing.SystemColors.Control;
-            dockPanelGradient2.StartColor = System.Drawing.SystemColors.Control;
-            dockPaneStripGradient1.DockStripGradient = dockPanelGradient2;
-            tabGradient3.EndColor = System.Drawing.SystemColors.ControlLight;
-            tabGradient3.StartColor = System.Drawing.SystemColors.ControlLight;
-            tabGradient3.TextColor = System.Drawing.SystemColors.ControlText;
-            dockPaneStripGradient1.InactiveTabGradient = tabGradient3;
-            dockPaneStripSkin1.DocumentGradient = dockPaneStripGradient1;
-            tabGradient4.EndColor = System.Drawing.SystemColors.ActiveCaption;
-            tabGradient4.LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
-            tabGradient4.StartColor = System.Drawing.SystemColors.GradientActiveCaption;
-            tabGradient4.TextColor = System.Drawing.SystemColors.ActiveCaptionText;
-            dockPaneStripToolWindowGradient1.ActiveCaptionGradient = tabGradient4;
-            tabGradient5.EndColor = System.Drawing.SystemColors.Control;
-            tabGradient5.StartColor = System.Drawing.SystemColors.Control;
-            tabGradient5.TextColor = System.Drawing.SystemColors.ControlText;
-            dockPaneStripToolWindowGradient1.ActiveTabGradient = tabGradient5;
-            dockPanelGradient3.EndColor = System.Drawing.SystemColors.ControlLight;
-            dockPanelGradient3.StartColor = System.Drawing.SystemColors.ControlLight;
-            dockPaneStripToolWindowGradient1.DockStripGradient = dockPanelGradient3;
-            tabGradient6.EndColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            tabGradient6.LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
-            tabGradient6.StartColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            tabGradient6.TextColor = System.Drawing.SystemColors.ControlText;
-            dockPaneStripToolWindowGradient1.InactiveCaptionGradient = tabGradient6;
-            tabGradient7.EndColor = System.Drawing.Color.Transparent;
-            tabGradient7.StartColor = System.Drawing.Color.Transparent;
-            tabGradient7.TextColor = System.Drawing.SystemColors.ControlDarkDark;
-            dockPaneStripToolWindowGradient1.InactiveTabGradient = tabGradient7;
-            dockPaneStripSkin1.ToolWindowGradient = dockPaneStripToolWindowGradient1;
-            dockPanelSkin1.DockPaneStripSkin = dockPaneStripSkin1;
-            this.dockPanel.Skin = dockPanelSkin1;
-            this.dockPanel.TabIndex = 1;
-            // 
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -382,11 +326,11 @@
             this.toolStripStatusLabel10,
             this.toolStripStatusLabel12,
             this.lblCleanTempData,
-            this.lblLastPipe,
+            this.lblPipeMicrosoftFirewallAutoUpdateEnabled,
             this.lblMicrosoftFirewallAutoUpdateEnabled});
             this.statusStrip.Location = new System.Drawing.Point(0, 640);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(984, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1092, 22);
             this.statusStrip.TabIndex = 4;
             this.statusStrip.Text = "statusStrip";
             // 
@@ -512,32 +456,90 @@
             this.lblCleanTempData.VisitedLinkColor = System.Drawing.Color.Blue;
             this.lblCleanTempData.Click += new System.EventHandler(this.lblCleanTempData_Click);
             // 
+            // lblPipeMicrosoftFirewallAutoUpdateEnabled
+            // 
+            this.lblPipeMicrosoftFirewallAutoUpdateEnabled.Name = "lblPipeMicrosoftFirewallAutoUpdateEnabled";
+            this.lblPipeMicrosoftFirewallAutoUpdateEnabled.Size = new System.Drawing.Size(10, 17);
+            this.lblPipeMicrosoftFirewallAutoUpdateEnabled.Text = "|";
+            this.lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = false;
+            // 
+            // lblMicrosoftFirewallAutoUpdateEnabled
+            // 
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Image = global::vApus.Gui.Properties.Resources.Warning;
+            this.lblMicrosoftFirewallAutoUpdateEnabled.IsLink = true;
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Name = "lblMicrosoftFirewallAutoUpdateEnabled";
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Size = new System.Drawing.Size(16, 17);
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Visible = false;
+            this.lblMicrosoftFirewallAutoUpdateEnabled.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lblMicrosoftFirewallAutoUpdateEnabled.Click += new System.EventHandler(this.lblMicrosoftFirewallAutoUpdateEnabled_Click);
+            // 
             // tmrSetStatusStrip
             // 
             this.tmrSetStatusStrip.Enabled = true;
             this.tmrSetStatusStrip.Interval = 2000;
             this.tmrSetStatusStrip.Tick += new System.EventHandler(this.tmrSetStatusStrip_Tick);
             // 
-            // lblLastPipe
+            // dockPanel
             // 
-            this.lblLastPipe.Name = "lblLastPipe";
-            this.lblLastPipe.Size = new System.Drawing.Size(10, 17);
-            this.lblLastPipe.Text = "|";
-            // 
-            // lblMicrosoftFirewallAutoUpdateEnabled
-            // 
-            this.lblMicrosoftFirewallAutoUpdateEnabled.IsLink = true;
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Name = "lblMicrosoftFirewallAutoUpdateEnabled";
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Size = new System.Drawing.Size(153, 17);
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Text = "FirewallAutoUpdateEnabled";
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Visible = false;
-            this.lblMicrosoftFirewallAutoUpdateEnabled.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.dockPanel.ActiveAutoHideContent = null;
+            this.dockPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dockPanel.DockBackColor = System.Drawing.SystemColors.Control;
+            this.dockPanel.Location = new System.Drawing.Point(0, 24);
+            this.dockPanel.Name = "dockPanel";
+            this.dockPanel.Size = new System.Drawing.Size(1092, 616);
+            dockPanelGradient1.EndColor = System.Drawing.SystemColors.ControlLight;
+            dockPanelGradient1.StartColor = System.Drawing.SystemColors.ControlLight;
+            autoHideStripSkin1.DockStripGradient = dockPanelGradient1;
+            tabGradient1.EndColor = System.Drawing.SystemColors.Control;
+            tabGradient1.StartColor = System.Drawing.SystemColors.Control;
+            tabGradient1.TextColor = System.Drawing.SystemColors.ControlDarkDark;
+            autoHideStripSkin1.TabGradient = tabGradient1;
+            dockPanelSkin1.AutoHideStripSkin = autoHideStripSkin1;
+            tabGradient2.EndColor = System.Drawing.SystemColors.ControlLightLight;
+            tabGradient2.StartColor = System.Drawing.SystemColors.ControlLightLight;
+            tabGradient2.TextColor = System.Drawing.SystemColors.ControlText;
+            dockPaneStripGradient1.ActiveTabGradient = tabGradient2;
+            dockPanelGradient2.EndColor = System.Drawing.SystemColors.Control;
+            dockPanelGradient2.StartColor = System.Drawing.SystemColors.Control;
+            dockPaneStripGradient1.DockStripGradient = dockPanelGradient2;
+            tabGradient3.EndColor = System.Drawing.SystemColors.ControlLight;
+            tabGradient3.StartColor = System.Drawing.SystemColors.ControlLight;
+            tabGradient3.TextColor = System.Drawing.SystemColors.ControlText;
+            dockPaneStripGradient1.InactiveTabGradient = tabGradient3;
+            dockPaneStripSkin1.DocumentGradient = dockPaneStripGradient1;
+            tabGradient4.EndColor = System.Drawing.SystemColors.ActiveCaption;
+            tabGradient4.LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
+            tabGradient4.StartColor = System.Drawing.SystemColors.GradientActiveCaption;
+            tabGradient4.TextColor = System.Drawing.SystemColors.ActiveCaptionText;
+            dockPaneStripToolWindowGradient1.ActiveCaptionGradient = tabGradient4;
+            tabGradient5.EndColor = System.Drawing.SystemColors.Control;
+            tabGradient5.StartColor = System.Drawing.SystemColors.Control;
+            tabGradient5.TextColor = System.Drawing.SystemColors.ControlText;
+            dockPaneStripToolWindowGradient1.ActiveTabGradient = tabGradient5;
+            dockPanelGradient3.EndColor = System.Drawing.SystemColors.ControlLight;
+            dockPanelGradient3.StartColor = System.Drawing.SystemColors.ControlLight;
+            dockPaneStripToolWindowGradient1.DockStripGradient = dockPanelGradient3;
+            tabGradient6.EndColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            tabGradient6.LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
+            tabGradient6.StartColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            tabGradient6.TextColor = System.Drawing.SystemColors.ControlText;
+            dockPaneStripToolWindowGradient1.InactiveCaptionGradient = tabGradient6;
+            tabGradient7.EndColor = System.Drawing.Color.Transparent;
+            tabGradient7.StartColor = System.Drawing.Color.Transparent;
+            tabGradient7.TextColor = System.Drawing.SystemColors.ControlDarkDark;
+            dockPaneStripToolWindowGradient1.InactiveTabGradient = tabGradient7;
+            dockPaneStripSkin1.ToolWindowGradient = dockPaneStripToolWindowGradient1;
+            dockPanelSkin1.DockPaneStripSkin = dockPaneStripSkin1;
+            this.dockPanel.Skin = dockPanelSkin1;
+            this.dockPanel.TabIndex = 1;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(984, 662);
+            this.ClientSize = new System.Drawing.Size(1092, 662);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.mainMenu);
             this.Controls.Add(this.dockPanel);
@@ -607,7 +609,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel12;
         private System.Windows.Forms.ToolStripStatusLabel lblCleanTempData;
-        private System.Windows.Forms.ToolStripStatusLabel lblLastPipe;
+        private System.Windows.Forms.ToolStripStatusLabel lblPipeMicrosoftFirewallAutoUpdateEnabled;
         private System.Windows.Forms.ToolStripStatusLabel lblMicrosoftFirewallAutoUpdateEnabled;
     }
 }

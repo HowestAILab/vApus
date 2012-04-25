@@ -431,6 +431,7 @@ namespace vApus.Gui
                 _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
+                _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.ShowDialog(this);
@@ -524,7 +525,7 @@ namespace vApus.Gui
                 lblCleanTempData.Text = tempDataSizeInMB + "MB";
                 lblCleanTempData.Font = new Font(lblCleanTempData.Font, tempDataSizeInMB == 0 ? FontStyle.Regular : FontStyle.Bold);
             }
-
+            SetWindowsFirewallAutoUpdateLabel();
         }
         private void SetProcessorAffinityLabel()
         {
@@ -536,7 +537,29 @@ namespace vApus.Gui
             s += (cpus[cpus.Length - 1] + 1);
             lblProcessorAffinity.Text = s.Trim();
         }
+        private void SetWindowsFirewallAutoUpdateLabel()
+        {
+            var status = _disableFirewallAutoUpdatePanel.CheckStatus();
+            switch (status)
+            {
+                case DisableFirewallAutoUpdatePanel.Status.AllDisabled:
+                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblMicrosoftFirewallAutoUpdateEnabled.Visible = false;
+                    break;
+                case DisableFirewallAutoUpdatePanel.Status.WindowsFirewallEnabled:
+                    lblMicrosoftFirewallAutoUpdateEnabled.Text = "Windows Firewall Enabled!";
+                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblMicrosoftFirewallAutoUpdateEnabled.Visible = true;
+                    break;
+                case DisableFirewallAutoUpdatePanel.Status.WindowsAutoUpdateEnabled:
+                    lblMicrosoftFirewallAutoUpdateEnabled.Text = "Windows Auto Update Enabled!";
+                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblMicrosoftFirewallAutoUpdateEnabled.Visible = true;
+                    break;
+                case DisableFirewallAutoUpdatePanel.Status.AllEnabled:
+                    lblMicrosoftFirewallAutoUpdateEnabled.Text = "Windows Firewall and Auto Update Enabled!";
+                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblMicrosoftFirewallAutoUpdateEnabled.Visible = true;
+                    break;
+            }
 
+        }
         private void lblUpdateNotifier_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(0);
@@ -560,6 +583,10 @@ namespace vApus.Gui
         private void lblCleanTempData_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(5);
+        }
+        private void lblMicrosoftFirewallAutoUpdateEnabled_Click(object sender, EventArgs e)
+        {
+            ShowOptionsDialog(6);
         }
         #endregion
     }

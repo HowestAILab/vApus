@@ -9,9 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
-using vApus.Util;
 
-namespace vApus.Gui
+namespace vApus.Util
 {
     public partial class ProcessorAffinityPanel : Panel
     {
