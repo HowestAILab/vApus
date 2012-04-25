@@ -26,5 +26,9 @@ namespace vApus.Util
         {
             lvw.Items.Add(new ListViewItem(new string[] { (lvw.Items.Count + 1).ToString(), ip, hostName, roundtripTime }));
         }
+        public void ClearHops()
+        {
+            lvw.Items.Clear();
+        }
     }
 }

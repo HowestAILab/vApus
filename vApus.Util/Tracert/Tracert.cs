@@ -53,51 +53,49 @@ namespace vApus.Util
             if (_ping != null)
                 throw new Exception("Another trace is still in route!");
 
-            //Set the fields --> asynchonically handled
-            _ip = Dns.GetHostEntry(hostNameOrIP).AddressList[0];
-            _hops = 0;
-            _maxHops = maxHops;
-            _timeout = timeout;
-
-            _isDone = false;
-
-            if (IPAddress.IsLoopback(_ip))
+            try
             {
-                ProcessHop(_ip, IPStatus.Success);
+                //Set the fields --> asynchonically handled
+                _ip = Dns.GetHostEntry(hostNameOrIP).AddressList[0];
+                _hops = 0;
+                _maxHops = maxHops;
+                _timeout = timeout;
+
+                _isDone = false;
+
+                if (IPAddress.IsLoopback(_ip))
+                {
+                    ProcessHop(_ip, IPStatus.Success);
+                }
+                else
+                {
+                    _ping = new Ping();
+
+                    _ping.PingCompleted += new PingCompletedEventHandler(OnPingCompleted);
+                    _options = new PingOptions(1, true);
+                    _ping.SendAsync(_ip, _timeout, Tracert.Buffer, _options, null);
+                }
             }
-            else
+            catch
             {
-                _ping = new Ping();
-
-                _ping.PingCompleted += new PingCompletedEventHandler(OnPingCompleted);
-                _options = new PingOptions(1, true);
-                _ping.SendAsync(_ip, _timeout, Tracert.Buffer, _options, null);
+                ProcessHop(_ip, IPStatus.Unknown);
             }
         }
         private void OnPingCompleted(object sender, PingCompletedEventArgs e)
         {
             ThreadPool.QueueUserWorkItem(delegate
             {
-                try
-                {
-                    if (!_isDone)
+                if (!_isDone)
+                    try
                     {
                         _options.Ttl += 1;
-                        if (_ping == null)
-                        {
-                            ProcessHop(_ip, IPStatus.Unknown);
-                        }
-                        else
-                        {
-                            ProcessHop(e.Reply.Address, e.Reply.Status);
-                            _ping.SendAsync(_ip, _timeout, Tracert.Buffer, _options, null);
-                        }
+                        ProcessHop(e.Reply.Address, e.Reply.Status);
+                        _ping.SendAsync(_ip, _timeout, Tracert.Buffer, _options, null);
                     }
-                }
-                catch { }
+                    catch { }
             });
         }
-        protected void ProcessHop(IPAddress address, IPStatus status)
+        protected void ProcessHop(IPAddress ip, IPStatus status)
         {
             long roundTripTime = 0;
             if (status == IPStatus.TtlExpired || status == IPStatus.Success)
@@ -106,7 +104,7 @@ namespace vApus.Util
                 try
                 {
                     //Compute roundtrip time to the address by pinging it
-                    PingReply reply = pingIntermediate.Send(address, _timeout);
+                    PingReply reply = pingIntermediate.Send(ip, _timeout);
                     roundTripTime = reply.RoundtripTime;
                     status = reply.Status;
                 }
@@ -118,9 +116,15 @@ namespace vApus.Util
                 pingIntermediate.Dispose();
             }
 
-            FireHop(address, roundTripTime, status);
-
-            _isDone = address.Equals(_ip) || ++_hops == _maxHops;
+            if (ip == null)
+            {
+                _isDone = true;
+            }
+            else
+            {
+                FireHop(ip, roundTripTime, status);
+                _isDone = ip.Equals(_ip) || ++_hops == _maxHops;
+            }
             if (_isDone)
                 FireDone();
         }

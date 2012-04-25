@@ -20,18 +20,19 @@ namespace vApus.Util
         private Font _dateFont;
         private Font _itemFont;
 
-        private string _currentVersion, _newVersion, _channel, _history;
+        private string _currentVersion, _newVersion, _currentChannel, _newChannel, _history;
 
         public UpdateNotifierDialog()
         {
             InitializeComponent();
         }
-        public UpdateNotifierDialog(string currentVersion, string newVersion, string channel, string history)
+        public UpdateNotifierDialog(string currentVersion, string newVersion, string currentChannel, string newChannel, string history)
             :this()
         {
             _currentVersion = currentVersion;
             _newVersion = newVersion;
-            _channel = channel;
+            _currentChannel = currentChannel;
+            _newChannel = newChannel;
             _history = history;
 
             this.HandleCreated += new EventHandler(UpdateNotifierDialog_HandleCreated);
@@ -43,8 +44,8 @@ namespace vApus.Util
             _dateFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Italic);
             _itemFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Regular);
 
-            lblVersion.Text = "Version: " + _currentVersion + "-->" + _newVersion;
-            lblChannel.Text = "Channel: " + _channel;
+            lblVersion.Text = "Version: " + _currentVersion + " --> " + _newVersion;
+            lblChannel.Text = "Channel: " + _currentChannel + (_currentChannel == _newChannel ? string.Empty : " --> " + _newChannel);
 
             FillHistory(_history);
         }

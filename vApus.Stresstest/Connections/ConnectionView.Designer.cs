@@ -41,12 +41,12 @@
             // 
             // btnTestConnection
             // 
-            this.btnTestConnection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnTestConnection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnTestConnection.AutoSize = true;
             this.btnTestConnection.BackColor = System.Drawing.Color.White;
             this.btnTestConnection.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnTestConnection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTestConnection.Location = new System.Drawing.Point(668, 536);
+            this.btnTestConnection.Location = new System.Drawing.Point(12, 538);
             this.btnTestConnection.MaximumSize = new System.Drawing.Size(112, 24);
             this.btnTestConnection.MinimumSize = new System.Drawing.Size(112, 24);
             this.btnTestConnection.Name = "btnTestConnection";
@@ -103,11 +103,11 @@
             // 
             this.tracertControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tracertControl.Location = new System.Drawing.Point(9, 532);
+            this.tracertControl.Location = new System.Drawing.Point(179, 532);
             this.tracertControl.MaximumSize = new System.Drawing.Size(9999, 35);
             this.tracertControl.MinimumSize = new System.Drawing.Size(0, 35);
             this.tracertControl.Name = "tracertControl";
-            this.tracertControl.Size = new System.Drawing.Size(653, 35);
+            this.tracertControl.Size = new System.Drawing.Size(600, 35);
             this.tracertControl.TabIndex = 1;
             this.tracertControl.BeforeTrace += new System.EventHandler(this.tracertControl_BeforeTrace);
             this.tracertControl.Done += new System.EventHandler(this.tracertControl_Done);

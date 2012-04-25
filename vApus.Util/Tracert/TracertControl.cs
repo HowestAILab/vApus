@@ -45,6 +45,9 @@ namespace vApus.Util
         }
         private void Trace()
         {
+            _lastStatus = IPStatus.Unknown;
+            _hops = 0;
+
             kvpHops.Key = "0 Hops";
             kvpRoundtripTime.Key = "Roundtrip Time N/A";
             btnStatus.Text = "Tracing...";
@@ -63,6 +66,7 @@ namespace vApus.Util
         }
         private void btnTraceRoute_Click(object sender, EventArgs e)
         {
+            _tracertDialog.ClearHops();
             btnTraceRoute.Enabled = false;
             Trace();
         }

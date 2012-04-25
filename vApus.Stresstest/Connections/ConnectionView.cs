@@ -90,7 +90,10 @@ namespace vApus.Stresstest
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
-                    MessageBox.Show(this, "This connection has no connection proxy assigned to!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    string error = "This connection has no connection proxy assigned to!";
+                    MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+
+                    LogWrapper.LogByLevel("[" + _connection + "] " + error, LogLevel.Warning);
                 });
                 return;
             }
@@ -100,11 +103,12 @@ namespace vApus.Stresstest
 
             if (compilerResults.Errors.HasErrors)
             {
-                StringBuilder sb = new StringBuilder("Failed at compiling the connection proxy class: ");
+                string error = "Failed at compiling the connection proxy class";
+                StringBuilder sb = new StringBuilder(error + ": ");
                 sb.AppendLine();
-                foreach (CompilerError error in compilerResults.Errors)
+                foreach (CompilerError ce in compilerResults.Errors)
                 {
-                    sb.AppendFormat("Error number {0}, Line {1}, Column {2}: {3}", error.ErrorNumber, error.Line, error.Column, error.ErrorText);
+                    sb.AppendFormat("Error number {0}, Line {1}, Column {2}: {3}", ce.ErrorNumber, ce.Line, ce.Column, ce.ErrorText);
                     sb.AppendLine();
                 }
 
@@ -115,13 +119,15 @@ namespace vApus.Stresstest
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
-                    MessageBox.Show(this, sb.ToString(), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+
+                    LogWrapper.LogByLevel("[" + _connection + "] " + sb.ToString(), LogLevel.Warning);
                 });
             }
             else
             {
-                string error;
-                connectionProxyPool.TestConnection(out error);
+                string errorMessage;
+                connectionProxyPool.TestConnection(out errorMessage);
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
@@ -130,10 +136,17 @@ namespace vApus.Stresstest
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
-                    if (error == null)
+                    if (errorMessage == null)
+                    {
                         MessageBox.Show(this, "The connection has been established! and closed again successfully.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+                    }
                     else
-                        MessageBox.Show(this, "The connection could not be made, please make sure everything is filled in correctly.\nException: " + error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    {
+                        string error = "The connection could not be made, please make sure everything is filled in correctly.";
+                        MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+
+                        LogWrapper.LogByLevel("[" + _connection + "] " + error + "\n" + errorMessage, LogLevel.Warning);
+                    }
                 });
             }
             connectionProxyPool.Dispose();

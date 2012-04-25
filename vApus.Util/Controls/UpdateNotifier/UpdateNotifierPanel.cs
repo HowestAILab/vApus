@@ -16,7 +16,7 @@ namespace vApus.Util
     public partial class UpdateNotifierPanel : Panel
     {
         private Win32WindowMessageHandler _msgHandler;
-        private delegate bool RefreshDel();
+        private delegate void RefreshDel();
         private RefreshDel _refreshDel;
 
         public UpdateNotifierPanel()
@@ -131,7 +131,7 @@ namespace vApus.Util
 
             if (enforceUpdate)
                 if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
-                    MessageBox.Show("New update found!\nDo you want to update?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
                     ShowUpdateDialog(enforceUpdate);
         }
         private void ShowUpdateDialog(bool autoUpdate)

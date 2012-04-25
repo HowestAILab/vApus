@@ -27,6 +27,11 @@ namespace vApus.Util
     }
     public static class UpdateNotifier
     {
+        /// <summary>
+        /// Keep this to create a update notifier dialog when needed.
+        /// </summary>
+        private static string _currentVersion, _newVersion, _currentChannel, _newChannel, _newHistory;
+
         private static bool _failedRefresh = false;
         private static bool _versionChanged = false;
         private static bool _refreshed = false;
@@ -97,7 +102,7 @@ namespace vApus.Util
         /// 
         /// </summary>
         /// <returns>true if can update.</returns>
-        public static bool Refresh()
+        public static void Refresh()
         {
             string tempFolder = Path.Combine(Application.StartupPath, "tempForUpdateNotifier");
 
@@ -112,7 +117,7 @@ namespace vApus.Util
                 {
                     _versionChanged = false;
                     _refreshed = false;
-                    return false;
+                    return;
                 }
 
                 Sftp sftp = new Sftp(host, username, password);
@@ -123,17 +128,18 @@ namespace vApus.Util
 
                 Directory.CreateDirectory(tempFolder);
 
-                string tempVersionControl = Path.Combine(tempFolder, "version.ini");
+                string tempVersion = Path.Combine(tempFolder, "version.ini");
+                string currentVersion = Path.Combine(Application.StartupPath, "version.ini");
 
                 try
                 {
-                    if (File.Exists(tempVersionControl))
-                        File.Delete(tempVersionControl);
+                    if (File.Exists(tempVersion))
+                        File.Delete(tempVersion);
                 }
                 catch { }
 
                 string channelDir = channel == 0 ? "stable" : "nightly";
-                sftp.Get(channelDir + "/version.ini", tempVersionControl);
+                sftp.Get(channelDir + "/version.ini", tempVersion);
 
                 try
                 {
@@ -144,21 +150,17 @@ namespace vApus.Util
                     sftp = null;
                 }
 
-                string prevVersion = GetVersion(Path.Combine(Application.StartupPath, "version.ini"));
-                string curVersion = GetVersion(tempVersionControl);
+                _currentVersion = GetVersion(currentVersion);
+                _newVersion = GetVersion(tempVersion);
 
-                string prevChannel = GetChannel(Path.Combine(Application.StartupPath, "version.ini"));
+                _currentChannel = GetChannel(currentVersion);
+                _newChannel = GetChannel(tempVersion);
 
-                _versionChanged = (prevVersion != curVersion) || (channelDir != prevChannel.ToLower());
+                _newHistory = GetHistory(tempVersion);
+
+                _versionChanged = (_currentVersion != _newVersion) || (_currentChannel != _newChannel);
 
                 _refreshed = true;
-
-                if (UpdateNotifierState == UpdateNotifierState.NewUpdateFound)
-                {
-                    UpdateNotifierDialog dialog = new UpdateNotifierDialog(prevVersion, curVersion, channelDir, GetHistory(tempVersionControl));
-                    if (dialog.ShowDialog() == DialogResult.OK)
-                        return true;
-                }
             }
             catch
             {
@@ -170,7 +172,6 @@ namespace vApus.Util
                 if (Directory.Exists(tempFolder))
                     Directory.Delete(tempFolder, true);
             }
-            return false;
         }
         private static string GetVersion(string versionIniPath)
         {
@@ -202,5 +203,9 @@ namespace vApus.Util
             return string.Empty;
         }
 
+        public static UpdateNotifierDialog GetUpdateNotifierDialog()
+        {
+            return new UpdateNotifierDialog(_currentVersion, _newVersion, _currentChannel, _newChannel, _newHistory);
+        }
     }
 }

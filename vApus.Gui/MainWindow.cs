@@ -90,12 +90,10 @@ namespace vApus.Gui
             UpdateNotifier.Refresh();
 
             if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
-                MessageBox.Show("New update found!\nDo you want to update?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
+                UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
                 //Doing stuff automatically
                 if (Update(host, port, username, password, channel))
                     this.Close();
-            }
         }
         #endregion
 
