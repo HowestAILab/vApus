@@ -53,22 +53,29 @@ namespace vApus.Util
         {
             _status = Status.AllDisabled;
 
-            EvaluateValue((int)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
-            EvaluateValue((int)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
-            EvaluateValue((int)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
+            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
+            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
+            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
 
-            EvaluateValue((int)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 0), 0, Status.WindowsAutoUpdateEnabled);
-            EvaluateValue((int)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "IncludeRecommendedUpdates", 0), 0, Status.WindowsAutoUpdateEnabled);
-            EvaluateValue((int)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "ElevateNonAdmins", 1), 1, Status.WindowsAutoUpdateEnabled);
+            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 0), 0, Status.WindowsAutoUpdateEnabled);
+            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "IncludeRecommendedUpdates", 0), 0, Status.WindowsAutoUpdateEnabled);
+            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "ElevateNonAdmins", 1), 1, Status.WindowsAutoUpdateEnabled);
 
             if (Handle != null)
                 SetGui();
             return _status;
         }
-        private void EvaluateValue(int value, int validValue, Status append)
+        private void EvaluateValue(object value, int validValue, Status append)
         {
-            if (value != validValue)
-                _status |= append;
+            try
+            {
+                if ((int)value != validValue)
+                    _status |= append;
+            }
+            catch
+            {
+                LogWrapper.LogByLevel("[" + this + "] Failed checking if the firewall and Windows auto update are enabled or not!\nCould not find a registry key.", LogLevel.Error);
+            }
         }
         private void SetGui()
         {
@@ -103,27 +110,41 @@ namespace vApus.Util
         }
         private void DisableThemCallback()
         {
-            //Disabling Windows Firewall
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile", "EnableFirewall", 0, RegistryValueKind.DWord);
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile", "EnableFirewall", 0, RegistryValueKind.DWord);
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile", "EnableFirewall", 0, RegistryValueKind.DWord);
+            try
+            {
+                //Disabling Windows Firewall
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile", "EnableFirewall", 0, RegistryValueKind.DWord);
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile", "EnableFirewall", 0, RegistryValueKind.DWord);
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile", "EnableFirewall", 0, RegistryValueKind.DWord);
 
-            //Restarting the process
-            StartProcess("NET", "STOP MpsSvc");
-            StartProcess("NET", "START MpsSvc");
+                //Restarting the process
+                StartProcess("NET", "STOP MpsSvc");
+                StartProcess("NET", "START MpsSvc");
+            }
+            catch (Exception ex)
+            {
+                LogWrapper.LogByLevel("[" + this + "] Failed disabling the firewall!\nCould not find a registry key.\n" + ex.ToString(), LogLevel.Error);
+            }
 
-            //Disabling Auto Update
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 0, RegistryValueKind.DWord);
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "IncludeRecommendedUpdates", 0, RegistryValueKind.DWord);
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "ElevateNonAdmins", 1, RegistryValueKind.DWord);
+            try
+            {
+                //Disabling Auto Update
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 0, RegistryValueKind.DWord);
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "IncludeRecommendedUpdates", 0, RegistryValueKind.DWord);
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "ElevateNonAdmins", 1, RegistryValueKind.DWord);
 
-            //Restarting the process
-            StartProcess("NET", "STOP wuauserv");
-            StartProcess("NET", "START wuauserv");
+                //Restarting the process
+                StartProcess("NET", "STOP wuauserv");
+                StartProcess("NET", "START wuauserv");
+            }
+            catch (Exception ex)
+            {
+                LogWrapper.LogByLevel("[" + this + "] Failed disabling Windows auto update!\nCould not find a registry key.\n" + ex.ToString(), LogLevel.Error);
+            }
         }
         private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
         {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate 
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 btnDisableThem.Text = "Disable Them";
                 CheckStatus();
