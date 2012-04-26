@@ -56,6 +56,7 @@
             this.split = new System.Windows.Forms.SplitContainer();
             this.lblMonitorSourceMismatch = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.parameterPanel = new vApus.Monitor.ParameterPanel();
             this.propertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnConfiguration = new System.Windows.Forms.Button();
             this.btnGetCounters = new System.Windows.Forms.Button();
@@ -76,12 +77,11 @@
             this.txtFilterMonitorControlColumns = new System.Windows.Forms.TextBox();
             this.btnSaveFilteredMonitoredCounters = new System.Windows.Forms.Button();
             this.btnSaveAllMonitorCounters = new System.Windows.Forms.Button();
+            this.monitorControl = new vApus.Monitor.MonitorControl();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.parameterPanel = new vApus.Monitor.ParameterPanel();
-            this.monitorControl = new vApus.Monitor.MonitorControl();
             this.toolStrip.SuspendLayout();
             this.tpConfigure.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
@@ -93,8 +93,8 @@
             this.tpMonitor.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picFilterMonitorControlColumns)).BeginInit();
-            this.tc.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.monitorControl)).BeginInit();
+            this.tc.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip
@@ -237,6 +237,18 @@
             this.label4.TabIndex = 8;
             this.label4.Text = "Monitor Source Parameters";
             // 
+            // parameterPanel
+            // 
+            this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.parameterPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.parameterPanel.Location = new System.Drawing.Point(597, 23);
+            this.parameterPanel.Name = "parameterPanel";
+            this.parameterPanel.ParametersWithValues = null;
+            this.parameterPanel.Size = new System.Drawing.Size(404, 291);
+            this.parameterPanel.TabIndex = 1;
+            this.parameterPanel.ParameterValueChanged += new System.EventHandler(this.parameterPanel_ParameterValueChanged);
+            // 
             // propertyPanel
             // 
             this.propertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -370,7 +382,7 @@
             this.lvwEntities.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lvwEntities.MultiSelect = false;
             this.lvwEntities.Name = "lvwEntities";
-            this.lvwEntities.Size = new System.Drawing.Size(353, 337);
+            this.lvwEntities.Size = new System.Drawing.Size(353, 340);
             this.lvwEntities.SmallImageList = this.imgListEntityState;
             this.lvwEntities.TabIndex = 0;
             this.lvwEntities.UseCompatibleStateImageBehavior = false;
@@ -411,7 +423,7 @@
             this.tvwCounters.Location = new System.Drawing.Point(359, 33);
             this.tvwCounters.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.tvwCounters.Name = "tvwCounters";
-            this.tvwCounters.Size = new System.Drawing.Size(642, 307);
+            this.tvwCounters.Size = new System.Drawing.Size(642, 310);
             this.tvwCounters.TabIndex = 2;
             this.tvwCounters.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwCounter_AfterCheck);
             this.tvwCounters.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwCounter_BeforeExpand);
@@ -527,6 +539,31 @@
             this.btnSaveAllMonitorCounters.UseVisualStyleBackColor = false;
             this.btnSaveAllMonitorCounters.Click += new System.EventHandler(this.btnSaveAllMonitorCounters_Click);
             // 
+            // monitorControl
+            // 
+            this.monitorControl.AllowUserToAddRows = false;
+            this.monitorControl.AllowUserToDeleteRows = false;
+            this.monitorControl.AllowUserToResizeRows = false;
+            this.monitorControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.monitorControl.BackgroundColor = System.Drawing.Color.White;
+            this.monitorControl.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.monitorControl.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
+            this.monitorControl.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.monitorControl.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.monitorControl.DoubleBuffered = true;
+            this.monitorControl.EnableHeadersVisualStyles = false;
+            this.monitorControl.Font = new System.Drawing.Font("Consolas", 9.75F);
+            this.monitorControl.Location = new System.Drawing.Point(0, 80);
+            this.monitorControl.Name = "monitorControl";
+            this.monitorControl.ReadOnly = true;
+            this.monitorControl.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.monitorControl.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.monitorControl.Size = new System.Drawing.Size(1007, 615);
+            this.monitorControl.TabIndex = 3;
+            this.monitorControl.VirtualMode = true;
+            // 
             // tc
             // 
             this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -559,43 +596,6 @@
             // 
             this.saveFileDialog.Filter = "TXT Files | *.txt";
             // 
-            // parameterPanel
-            // 
-            this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.parameterPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.parameterPanel.Location = new System.Drawing.Point(597, 23);
-            this.parameterPanel.Name = "parameterPanel";
-            this.parameterPanel.ParametersWithValues = null;
-            this.parameterPanel.Size = new System.Drawing.Size(404, 291);
-            this.parameterPanel.TabIndex = 1;
-            this.parameterPanel.ParameterValueChanged += new System.EventHandler(this.parameterPanel_ParameterValueChanged);
-            // 
-            // monitorControl
-            // 
-            this.monitorControl.AllowUserToAddRows = false;
-            this.monitorControl.AllowUserToDeleteRows = false;
-            this.monitorControl.AllowUserToResizeRows = false;
-            this.monitorControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.monitorControl.BackgroundColor = System.Drawing.Color.White;
-            this.monitorControl.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.monitorControl.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
-            this.monitorControl.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.monitorControl.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.monitorControl.DoubleBuffered = true;
-            this.monitorControl.EnableHeadersVisualStyles = false;
-            this.monitorControl.Font = new System.Drawing.Font("Consolas", 9.75F);
-            this.monitorControl.Location = new System.Drawing.Point(0, 80);
-            this.monitorControl.Name = "monitorControl";
-            this.monitorControl.ReadOnly = true;
-            this.monitorControl.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.monitorControl.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.monitorControl.Size = new System.Drawing.Size(1007, 615);
-            this.monitorControl.TabIndex = 3;
-            this.monitorControl.VirtualMode = true;
-            // 
             // MonitorView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -622,8 +622,8 @@
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picFilterMonitorControlColumns)).EndInit();
-            this.tc.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.monitorControl)).EndInit();
+            this.tc.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

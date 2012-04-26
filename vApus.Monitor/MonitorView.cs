@@ -776,7 +776,14 @@ namespace vApus.Monitor
         }
         private void lvwEntities_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
+            bool itemChecked = e.Item.Checked;
             e.Item.Selected = true;
+
+            //Push wiw clears this otherwise.
+            lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
+            e.Item.Checked = itemChecked;
+            lvwEntities.ItemChecked += lvwEntities_ItemChecked;
+            
             ExtractWIWForListViewAction();
         }
         private void ExtractWIWForListViewAction()
