@@ -267,6 +267,21 @@
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierPanel.Designer.cs">
       <DependentUpon>UpdateNotifierPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\BaseValueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\BaseValueControl.Designer.cs">
+      <DependentUpon>BaseValueControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\BoolValueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\BoolValueControl.Designer.cs">
+      <DependentUpon>BoolValueControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\ValueControlPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Dialogs\LogMessageDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -427,6 +442,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierPanel.resx">
       <DependentUpon>UpdateNotifierPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\BaseValueControl.resx">
+      <DependentUpon>BaseValueControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\LogMessageDialog.resx">
       <DependentUpon>LogMessageDialog.cs</DependentUpon>

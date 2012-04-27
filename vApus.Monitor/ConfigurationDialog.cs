@@ -36,10 +36,10 @@ namespace vApus.Monitor
             try
             {
                 this.Cursor = Cursors.WaitCursor;
-                
+
                 StringReader stringReader = new StringReader(configuration);
                 _configuration = new XmlDocument();
-                
+
                 try { _configuration.Load(stringReader); }
                 catch { throw; }
                 finally { stringReader.Close(); }
@@ -100,22 +100,30 @@ namespace vApus.Monitor
         private void tv_AfterSelect(object sender, TreeViewEventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
-            rtxt.Text = "";
-            FillRtxt(tv.SelectedNode, 0);
+            rtxt.Clear();
+            rtxt.Text = GetText(tv.SelectedNode, 0);
             this.Cursor = Cursors.Default;
         }
-        private void FillRtxt(TreeNode node, int indent)
+        private string GetText(TreeNode node, int indent)
         {
+            StringBuilder sb = new StringBuilder();
             string spaces = new string(' ', indent * 2);
-            rtxt.Text += spaces + node.Text.ToUpper();
+            sb.Append(spaces);
+            sb.Append(node.Text.ToUpper());
+
             if (node.Tag != null)
-                rtxt.Text += ": " + node.Tag.ToString() + "\n";
-            else
-                rtxt.Text += "\n";
+            {
+                sb.Append(": ");
+                sb.Append(node.Tag);
+            }
+            sb.AppendLine();
+
             indent++;
 
             foreach (TreeNode childnode in node.Nodes)
-                FillRtxt(childnode, indent);
+                sb.Append(GetText(childnode, indent));
+
+            return sb.ToString();
         }
         private void btnSave_Click(object sender, EventArgs e)
         {

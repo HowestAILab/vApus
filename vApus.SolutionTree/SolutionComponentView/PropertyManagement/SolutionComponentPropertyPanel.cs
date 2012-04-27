@@ -193,8 +193,8 @@ namespace vApus.SolutionTree
         {
             _locked = false;
             foreach (Control control in flp.Controls)
-                if(control.IsHandleCreated)
-                (control as BaseSolutionComponentPropertyControl).Unlock();
+                if (control.IsHandleCreated)
+                    (control as BaseSolutionComponentPropertyControl).Unlock();
                 else
                     control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
         }
