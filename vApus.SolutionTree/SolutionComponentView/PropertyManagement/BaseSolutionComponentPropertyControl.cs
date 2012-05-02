@@ -26,11 +26,11 @@ namespace vApus.SolutionTree
             get { return _propertyInfo.GetValue(_target, null); }
             set
             {
-                //Very needed, for when leaving when disposed, or key up == enter while creating.
                 //Equals is used instead of  ==  because == results in a shallow check (just handles (pointers)).
                 if (!Value.Equals(value))
                 {
                     _propertyInfo.SetValue(_target, value, null);
+                    //Very needed, for when leaving when disposed, or key up == enter while creating.
                     try
                     {
                         //var attributes = _propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);

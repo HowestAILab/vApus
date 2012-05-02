@@ -279,6 +279,25 @@
     <Compile Include="ControlsAndPanels\ValueControlPanel\BoolValueControl.Designer.cs">
       <DependentUpon>BoolValueControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\CharValueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\CharValueControl.Designer.cs">
+      <DependentUpon>CharValueControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\EnumValueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\EnumValueControl.Designer.cs">
+      <DependentUpon>EnumValueControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\StringValueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\StringValueControl.Designer.cs">
+      <DependentUpon>StringValueControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\IValueControl.cs" />
     <Compile Include="ControlsAndPanels\ValueControlPanel\ValueControlPanel.cs">
       <SubType>Component</SubType>
     </Compile>

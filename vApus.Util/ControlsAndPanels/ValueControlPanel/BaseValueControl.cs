@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2009 (c) Sizing Servers Lab
+ * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
@@ -9,12 +9,9 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using vApus.Util;
 
 namespace vApus.Util
 {
@@ -25,10 +22,12 @@ namespace vApus.Util
     /// Or else you can always make your own control derived from "BaseSolutionComponentPropertyControl".
     /// The value of the property may not be null or an exception will be thrown.
     /// </summary>
-    public abstract partial class BaseValueControl : UserControl
+    public partial class BaseValueControl : UserControl
     {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
+
+        public event EventHandler<ValueChangedEventArgs> ValueChanged;
 
         #region Enums
         public enum ToggleState
@@ -39,7 +38,7 @@ namespace vApus.Util
         #endregion
 
         #region Fields
-        private object _value;
+        private BaseValueControl.Value _value;
         private TextBox _collapsedTextBox;
         private bool _lock, _isEncrypted, _isReadOnly;
         #endregion
@@ -65,16 +64,25 @@ namespace vApus.Util
             get { return _isEncrypted; }
             set { _isEncrypted = value; }
         }
-        public object Value
+        /// <summary>
+        /// This will not fire the value changed event, this event is invoked through user actions.
+        /// </summary>
+        public Value __Value
         {
             get { return _value; }
-            internal set { _value = value; }
+            internal set
+            {
+                _value = value;
+
+                lblLabel.Text = _value.Label == null ? string.Empty : _value.Label; ;
+                rtxtDescription.Text = _value.Description == null ? string.Empty : _value.Description;
+            }
         }
         protected internal object ValueParent
         {
             get
             {
-                object value = Value;
+                object value = _value.__Value;
                 if (value != null)
                 {
                     object p = value.GetParent();
@@ -91,6 +99,13 @@ namespace vApus.Util
             {
                 split.Panel1.Controls.Clear();
                 split.Panel1.Controls.Add(value);
+
+                if (_value.IsEncrypted && value is TextBox)
+                    (value as TextBox).UseSystemPasswordChar = true;
+
+                value.Enabled = !_value.IsReadOnly;
+
+                Toggle(ToggleState.Collapse);
             }
         }
         #endregion
@@ -105,14 +120,33 @@ namespace vApus.Util
         #endregion
 
         #region Functions
-        public abstract void SetValueAndControl(object value);
-        private void SetValue()
+
+        internal void HandleValueChanged(object value)
         {
-            throw new NotImplementedException();
+            SetValue(value);
         }
-        public override void Refresh()
+
+        internal void HandleKeyUp(Keys key, object value)
         {
-            base.Refresh();
+            if (key == Keys.Enter)
+                SetValue(value);
+            else
+                Refresh();
+        }
+        private void SetValue(object value)
+        {
+            //Equals is used instead of  ==  because == results in a shallow check (just handles (pointers)).
+            if (!_value.__Value.Equals(value))
+            {
+                object oldValue = _value.__Value;
+                _value.__Value = value;
+                try
+                {
+                    if (ValueChanged != null)
+                        ValueChanged(this, new ValueChangedEventArgs(oldValue, value));
+                }
+                catch { }
+            }
         }
 
         #region Toggle
@@ -180,12 +214,15 @@ namespace vApus.Util
                 if (!IsReadOnly)
                     _collapsedTextBox.BackColor = Color.White;
 
+                if (IsEncrypted)
+                    _collapsedTextBox.UseSystemPasswordChar = true;
+
                 _collapsedTextBox.GotFocus += new EventHandler(_collapsedTextBox_GotFocus);
             }
             if (IsEncrypted)
                 _collapsedTextBox.UseSystemPasswordChar = true;
 
-            object value = Value;
+            object value = _value.__Value;
             if (value == null)
                 value = string.Empty;
             if (ValueParent != null && ValueParent is IEnumerable && !(value is IEnumerable))
@@ -261,17 +298,26 @@ namespace vApus.Util
 
         #endregion
 
-        internal void HandleValueChanged(object newValue)
+        public struct Value
         {
-            SetValue();
+            public string Label, Description;
+            public object __Value;
+
+            public bool IsReadOnly;
+            /// <summary>
+            /// Only applicable for strings.
+            /// </summary>
+            public bool IsEncrypted;
         }
 
-        internal void HandleKeyUp(Keys key)
+        public class ValueChangedEventArgs : EventArgs
         {
-            if (key == Keys.Enter)
-                SetValue();
-            else
-                Refresh();
+            public readonly object OldValue, NewValue;
+            public ValueChangedEventArgs(object oldValue, object newValue)
+            {
+                OldValue = oldValue;
+                NewValue = newValue;
+            }
         }
     }
 }

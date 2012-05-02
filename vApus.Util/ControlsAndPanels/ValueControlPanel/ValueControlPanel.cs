@@ -1,9 +1,14 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace vApus.Util
 {
@@ -18,17 +23,18 @@ namespace vApus.Util
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
-        public event EventHandler ValueChanged;
+        public event EventHandler<ValueChangedEventArgs> ValueChanged;
 
         #region Fields
-        private object[] _values = { };
+        private BaseValueControl.Value[] _values = { };
         //Filled with default controls --> these are encapsulated in ValueControls
-        //key = value type, value = control type
-        private Dictionary<Type, Type> _controls;
+        //key = value type, value = BaseValueControl impl type
+        private Dictionary<Type, Type> _controlTypes;
+        private bool _locked;
         #endregion
 
         #region Properties
-        public object[] Values
+        public BaseValueControl.Value[] Values
         {
             get { return _values; }
         }
@@ -36,39 +42,110 @@ namespace vApus.Util
 
         public ValueControlPanel()
         {
-            FillControls();
+            FillControlTypes();
+            this.HandleCreated += new EventHandler(ValueControlPanel_HandleCreated);
         }
 
         #region Functions
-        public void SetValues(params object[] values)
+        private void ValueControlPanel_HandleCreated(object sender, EventArgs e)
+        {
+            if (_locked)
+                Lock();
+            else
+                Unlock();
+        }
+        private void FillControlTypes()
+        {
+            _controlTypes = new Dictionary<Type, Type>();
+            AddControlType(typeof(bool), typeof(BoolValueControl));
+            AddControlType(typeof(char), typeof(CharValueControl));
+            AddControlType(typeof(string), typeof(StringValueControl));
+            //AddControl(typeof(Enum), typeof(ComboBox));
+
+        }
+        public void AddControlType(Type valueType, Type controlType)
+        {
+            _controlTypes.Add(valueType, controlType);
+        }
+
+        /// <summary>
+        /// Fills the panel with controls, recycles previous ones if possible.
+        /// </summary>
+        /// <param name="values"></param>
+        public void SetValues(params BaseValueControl.Value[] values)
         {
             LockWindowUpdate(this.Handle.ToInt32());
-
-            //ClearValues(); --> recycle controls!
             _values = values;
-            foreach (object value in _values)
-            { }
+            //Keep the values here before adding them.
+            var range = new List<BaseValueControl>(_values.Length);
 
+            foreach (BaseValueControl.Value value in _values)
+            {
+                BaseValueControl control = null;
+                Type controlType = _controlTypes[value.__Value.GetType()];
+                //Find a control with the right type if any.
+                foreach (BaseValueControl ctrl in this.Controls)
+                    if (controlType == ctrl.GetType() && !range.Contains(ctrl))
+                    {
+                        control = ctrl;
+                        break;
+                    }
+                //Otherwise make a new one.
+                if (control == null)
+                {
+                    control = Activator.CreateInstance(controlType) as BaseValueControl;
+                    control.ValueChanged += new EventHandler<BaseValueControl.ValueChangedEventArgs>(ValueControlPanel_ValueChanged);
+                }
+                (control as IValueControl).Init(value);
+
+                range.Add(control);
+            }
+
+            this.Controls.Clear();
+            this.Controls.AddRange(range.ToArray());
             LockWindowUpdate(0);
         }
-        private void ClearValues()
+        private void ValueControlPanel_ValueChanged(object sender, BaseValueControl.ValueChangedEventArgs e)
         {
-            _values = new object[0];
-            this.Controls.Clear();
+            if (ValueChanged != null)
+                ValueChanged(this, new ValueChangedEventArgs(this.Controls.IndexOf(sender as Control), e.OldValue, e.NewValue));
         }
 
-        private void FillControls()
+        /// <summary>
+        /// Lock all containing "BaseValueControl"'s.
+        /// </summary>
+        public void Lock()
         {
-            _controls = new Dictionary<Type, Type>();
-            AddControl(typeof(bool), typeof(CheckBox));
-            AddControl(typeof(char), typeof(TextBox));
-            AddControl(typeof(string), typeof(TextBox));
-            AddControl(typeof(Enum), typeof(ComboBox));
-
+            _locked = true;
+            foreach (BaseValueControl control in this.Controls)
+                if (control.IsHandleCreated)
+                    control.Lock();
+                else
+                    control.HandleCreated += new EventHandler(control_lock_HandleCreated);
         }
-        public void AddControl(Type valueType, Type controlType)
+        private void control_lock_HandleCreated(object sender, EventArgs e)
         {
-
+            BaseValueControl control = sender as BaseValueControl;
+            control.HandleCreated -= control_lock_HandleCreated;
+            control.Lock();
+        }
+        /// <summary>
+        /// Unlock all containing "BaseValueControl"'s.
+        /// </summary>
+        public void Unlock()
+        {
+            _locked = false;
+            foreach (BaseValueControl control in this.Controls)
+                if (control.IsHandleCreated)
+                    control.Unlock();
+                else
+                    control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
+        }
+        private void control_unlock_HandleCreated(object sender, EventArgs e)
+        {
+            BaseValueControl control = sender as BaseValueControl;
+            control.HandleCreated -= control_lock_HandleCreated;
+            control.Unlock();
         }
         #endregion
 
