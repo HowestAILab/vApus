@@ -223,6 +223,12 @@
       <DependentUpon>MonitorReportControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
+    <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.Designer.cs">
+      <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
+    </Compile>
     <Compile Include="StresstestThreadPool.cs" />
     <Compile Include="Logs\BulkEditLog.cs">
       <SubType>Form</SubType>
@@ -242,19 +248,19 @@
     <Compile Include="Parameters\Custom List\CustomListGenerator.Designer.cs">
       <DependentUpon>CustomListGenerator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\CompileCustomRandom.cs">
+    <Compile Include="Parameters\CustomRandom\TestCustomRandom.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\CompileCustomRandom.designer.cs">
-      <DependentUpon>CompileCustomRandom.cs</DependentUpon>
+    <Compile Include="Parameters\CustomRandom\TestCustomRandom.designer.cs">
+      <DependentUpon>TestCustomRandom.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\CustomRandom\CustomRandomParameter.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameters.cs" />
-    <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">
-      <SubType>Form</SubType>
+    <Compile Include="Parameters\CustomRandom\CustomRandomParameterPanel.cs">
+      <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.Designer.cs">
-      <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
+    <Compile Include="Parameters\CustomRandom\CustomRandomParameterPanel.Designer.cs">
+      <DependentUpon>CustomRandomParameterPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\ParameterTokenSynchronization.cs">
       <SubType>Form</SubType>
@@ -546,11 +552,14 @@
     <EmbeddedResource Include="Parameters\Custom List\CustomListGenerator.resx">
       <DependentUpon>CustomListGenerator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\CustomRandom\CompileCustomRandom.resx">
-      <DependentUpon>CompileCustomRandom.cs</DependentUpon>
+    <EmbeddedResource Include="Parameters\CustomRandom\TestCustomRandom.resx">
+      <DependentUpon>TestCustomRandom.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\CustomRandom\CustomRandomParameterView.resx">
       <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Parameters\CustomRandom\CustomRandomParameterPanel.resx">
+      <DependentUpon>CustomRandomParameterPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\ParameterTokenSynchronization.resx">
       <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>

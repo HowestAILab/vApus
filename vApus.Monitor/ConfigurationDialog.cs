@@ -10,6 +10,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using vApus.Util;
 
 namespace vApus.Monitor
 {
@@ -32,44 +33,48 @@ namespace vApus.Monitor
         #region Functions
         private void LoadConfiguration(string configuration)
         {
-            this.Cursor = Cursors.WaitCursor;
-            StringReader stringReader = new StringReader(configuration);
-            _configuration = new XmlDocument();
             try
             {
-                _configuration.Load(stringReader);
+                this.Cursor = Cursors.WaitCursor;
+
+                StringReader stringReader = new StringReader(configuration);
+                _configuration = new XmlDocument();
+
+                try { _configuration.Load(stringReader); }
+                catch { throw; }
+                finally { stringReader.Close(); }
+
+                foreach (XmlNode node in _configuration.ChildNodes)
+                {
+                    if (node.Name != null && node.NodeType != XmlNodeType.Text && node.Name != "xml")
+                    {
+                        TreeNode treeNode = new TreeNode();
+                        treeNode.Text = node.Name;
+                        foreach (XmlAttribute attribute in node.Attributes)
+                            treeNode.Text += " " + attribute.Name + "= " + attribute.Value;
+
+                        tv.Nodes.Add(treeNode);
+                        if (node.HasChildNodes)
+                        {
+                            if (node.FirstChild.NodeType == XmlNodeType.Text)
+                                treeNode.Tag = node.FirstChild.Value;
+                            AddNodesToTreeView(node, treeNode);
+                        }
+                    }
+                }
+                if (tv.Nodes.Count != 0)
+                {
+                    tv.SelectedNode = tv.Nodes[0];
+                    tv.SelectedNode.Expand();
+                }
+
+                this.Cursor = Cursors.Default;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("The serverInfo is not a wellformed xml.\n" + ex.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                LogWrapper.LogByLevel("[" + this + "] " + "The configuration is not a wellformed xml.\n" + ex.ToString(), LogLevel.Error);
                 this.Close();
             }
-
-            stringReader.Close();
-            foreach (XmlNode node in _configuration.ChildNodes)
-            {
-                if (node.Name != null && node.NodeType != XmlNodeType.Text && node.Name != "xml")
-                {
-                    TreeNode treeNode = new TreeNode();
-                    treeNode.Text = node.Name;
-                    foreach (XmlAttribute attribute in node.Attributes)
-                        treeNode.Text += " " + attribute.Name + "= " + attribute.Value;
-
-                    tv.Nodes.Add(treeNode);
-                    if (node.HasChildNodes)
-                    {
-                        if (node.FirstChild.NodeType == XmlNodeType.Text)
-                            treeNode.Tag = node.FirstChild.Value;
-                        AddNodesToTreeView(node, treeNode);
-                    }
-                }
-            }
-            if (tv.Nodes.Count != 0)
-            {
-                tv.SelectedNode = tv.Nodes[0];
-                tv.SelectedNode.Expand();
-            }
-            this.Cursor = Cursors.Default;
         }
         private void AddNodesToTreeView(XmlNode xmlNode, TreeNode treeNode)
         {
@@ -95,22 +100,30 @@ namespace vApus.Monitor
         private void tv_AfterSelect(object sender, TreeViewEventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
-            rtxt.Text = "";
-            FillRtxt(tv.SelectedNode, 0);
+            rtxt.Clear();
+            rtxt.Text = GetText(tv.SelectedNode, 0);
             this.Cursor = Cursors.Default;
         }
-        private void FillRtxt(TreeNode node, int indent)
+        private string GetText(TreeNode node, int indent)
         {
+            StringBuilder sb = new StringBuilder();
             string spaces = new string(' ', indent * 2);
-            rtxt.Text += spaces + node.Text.ToUpper();
+            sb.Append(spaces);
+            sb.Append(node.Text.ToUpper());
+
             if (node.Tag != null)
-                rtxt.Text += ": " + node.Tag.ToString() + "\n";
-            else
-                rtxt.Text += "\n";
+            {
+                sb.Append(": ");
+                sb.Append(node.Tag);
+            }
+            sb.AppendLine();
+
             indent++;
 
             foreach (TreeNode childnode in node.Nodes)
-                FillRtxt(childnode, indent);
+                sb.Append(GetText(childnode, indent));
+
+            return sb.ToString();
         }
         private void btnSave_Click(object sender, EventArgs e)
         {

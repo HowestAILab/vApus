@@ -168,28 +168,29 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="vApusSMT.Base">
+    <Reference Include="vApusSMT.Base, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\vApus SMT\vApusSMT.Base.dll</HintPath>
     </Reference>
-    <Reference Include="vApusSMT.Communication">
-      <HintPath>..\Prerequisites\vApus SMT\vApusSMT.Communication.dll</HintPath>
+    <Reference Include="vApusSMT.Proxy">
+      <HintPath>..\Prerequisites\vApus SMT\vApusSMT.Proxy.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\MonitorControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\ParameterControl.cs">
+    <Compile Include="Controls\MonitorParameterControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\ParameterControl.designer.cs">
-      <DependentUpon>ParameterControl.cs</DependentUpon>
+    <Compile Include="Controls\MonitorParameterControl.designer.cs">
+      <DependentUpon>MonitorParameterControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ParameterPanel.cs">
+    <Compile Include="Controls\MonitorParameterPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\ParameterPanel.designer.cs">
-      <DependentUpon>ParameterPanel.cs</DependentUpon>
+    <Compile Include="Controls\MonitorParameterPanel.designer.cs">
+      <DependentUpon>MonitorParameterPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="LocalMonitor.cs" />
     <Compile Include="LocalOrRemoteSMT.cs">
@@ -241,11 +242,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Controls\ParameterControl.resx">
-      <DependentUpon>ParameterControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\MonitorParameterControl.resx">
+      <DependentUpon>MonitorParameterControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ParameterPanel.resx">
-      <DependentUpon>ParameterPanel.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\MonitorParameterPanel.resx">
+      <DependentUpon>MonitorParameterPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LocalOrRemoteSMT.resx">
       <DependentUpon>LocalOrRemoteSMT.cs</DependentUpon>

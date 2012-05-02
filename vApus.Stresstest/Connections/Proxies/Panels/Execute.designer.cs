@@ -184,7 +184,9 @@
             // 
             // cboThread
             // 
+            this.cboThread.BackColor = System.Drawing.Color.White;
             this.cboThread.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboThread.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cboThread.FormattingEnabled = true;
             this.cboThread.Location = new System.Drawing.Point(86, 7);
             this.cboThread.Name = "cboThread";

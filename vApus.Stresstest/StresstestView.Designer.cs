@@ -102,10 +102,10 @@
             // 
             this.tpStresstest.BackColor = System.Drawing.Color.White;
             this.tpStresstest.Controls.Add(this.stresstestControl);
-            this.tpStresstest.Location = new System.Drawing.Point(0, 19);
+            this.tpStresstest.Location = new System.Drawing.Point(0, 22);
             this.tpStresstest.Name = "tpStresstest";
             this.tpStresstest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstest.Size = new System.Drawing.Size(790, 497);
+            this.tpStresstest.Size = new System.Drawing.Size(790, 494);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
             // 
@@ -115,7 +115,7 @@
             this.stresstestControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestControl.MonitorConfigurationControlVisible = true;
             this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(784, 491);
+            this.stresstestControl.Size = new System.Drawing.Size(784, 488);
             this.stresstestControl.TabIndex = 0;
             this.stresstestControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
             // 
@@ -123,10 +123,10 @@
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
             this.tpReport.Controls.Add(this.tcReport);
-            this.tpReport.Location = new System.Drawing.Point(0, 19);
+            this.tpReport.Location = new System.Drawing.Point(0, 22);
             this.tpReport.Name = "tpReport";
             this.tpReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpReport.Size = new System.Drawing.Size(790, 497);
+            this.tpReport.Size = new System.Drawing.Size(790, 494);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
             // 
@@ -140,7 +140,7 @@
             this.tcReport.Name = "tcReport";
             this.tcReport.RightVisible = false;
             this.tcReport.SelectedIndex = 0;
-            this.tcReport.Size = new System.Drawing.Size(784, 491);
+            this.tcReport.Size = new System.Drawing.Size(784, 488);
             this.tcReport.TabIndex = 1;
             this.tcReport.TopVisible = false;
             // 
@@ -150,7 +150,7 @@
             this.tpStresstestReport.Location = new System.Drawing.Point(0, 19);
             this.tpStresstestReport.Name = "tpStresstestReport";
             this.tpStresstestReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstestReport.Size = new System.Drawing.Size(783, 471);
+            this.tpStresstestReport.Size = new System.Drawing.Size(783, 468);
             this.tpStresstestReport.TabIndex = 0;
             this.tpStresstestReport.Text = "Stresstest Report";
             this.tpStresstestReport.UseVisualStyleBackColor = true;
@@ -161,7 +161,7 @@
             this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(777, 465);
+            this.stresstestReportControl.Size = new System.Drawing.Size(777, 462);
             this.stresstestReportControl.TabIndex = 0;
             // 
             // toolStrip

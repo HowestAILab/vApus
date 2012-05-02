@@ -18,7 +18,10 @@
             {
                 if (_monitorProxy != null)
                 {
-                    try { _monitorProxy.StopMonitoring(); }
+                    try {
+                        System.Exception stopEx;
+                        _monitorProxy.Stop(out stopEx);
+                    }
                     catch { }
                     try { _monitorProxy.Dispose(); }
                     catch { }
@@ -41,13 +44,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MonitorView));
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
             this.btnLocalOrRemoteSMT = new System.Windows.Forms.ToolStripButton();
-            this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer();
+            this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.split = new System.Windows.Forms.SplitContainer();
             this.lblMonitorSourceMismatch = new System.Windows.Forms.Label();
@@ -62,9 +66,9 @@
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.lvwEntities = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.imgListEntityState = new System.Windows.Forms.ImageList();
+            this.clmEntities = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmChosenCounters = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.imgListEntityState = new System.Windows.Forms.ImageList(this.components);
             this.tvwCounters = new System.Windows.Forms.TreeView();
             this.tpMonitor = new System.Windows.Forms.TabPage();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
@@ -75,8 +79,8 @@
             this.btnSaveAllMonitorCounters = new System.Windows.Forms.Button();
             this.monitorControl = new vApus.Monitor.MonitorControl();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
-            this.tmrSchedule = new System.Windows.Forms.Timer();
-            this.toolTip = new System.Windows.Forms.ToolTip();
+            this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolStrip.SuspendLayout();
             this.tpConfigure.SuspendLayout();
@@ -369,8 +373,8 @@
             this.lvwEntities.CheckBoxes = true;
             this.lvwEntities.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3});
+            this.clmEntities,
+            this.clmChosenCounters});
             this.lvwEntities.FullRowSelect = true;
             this.lvwEntities.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.lvwEntities.HideSelection = false;
@@ -378,7 +382,7 @@
             this.lvwEntities.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lvwEntities.MultiSelect = false;
             this.lvwEntities.Name = "lvwEntities";
-            this.lvwEntities.Size = new System.Drawing.Size(353, 344);
+            this.lvwEntities.Size = new System.Drawing.Size(353, 340);
             this.lvwEntities.SmallImageList = this.imgListEntityState;
             this.lvwEntities.TabIndex = 0;
             this.lvwEntities.UseCompatibleStateImageBehavior = false;
@@ -391,15 +395,15 @@
             this.columnHeader1.Text = "";
             this.columnHeader1.Width = 40;
             // 
-            // columnHeader2
+            // clmEntities
             // 
-            this.columnHeader2.Text = "Entities";
-            this.columnHeader2.Width = 195;
+            this.clmEntities.Text = "Entities";
+            this.clmEntities.Width = 185;
             // 
-            // columnHeader3
+            // clmChosenCounters
             // 
-            this.columnHeader3.Text = "Chosen Counters";
-            this.columnHeader3.Width = 105;
+            this.clmChosenCounters.Text = "Chosen Counters";
+            this.clmChosenCounters.Width = 105;
             // 
             // imgListEntityState
             // 
@@ -419,7 +423,7 @@
             this.tvwCounters.Location = new System.Drawing.Point(359, 33);
             this.tvwCounters.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.tvwCounters.Name = "tvwCounters";
-            this.tvwCounters.Size = new System.Drawing.Size(642, 314);
+            this.tvwCounters.Size = new System.Drawing.Size(642, 310);
             this.tvwCounters.TabIndex = 2;
             this.tvwCounters.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwCounter_AfterCheck);
             this.tvwCounters.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwCounter_BeforeExpand);
@@ -545,9 +549,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.monitorControl.BackgroundColor = System.Drawing.Color.White;
             this.monitorControl.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.monitorControl.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
+            this.monitorControl.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
             this.monitorControl.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.monitorControl.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.monitorControl.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.monitorControl.DoubleBuffered = true;
             this.monitorControl.EnableHeadersVisualStyles = false;
             this.monitorControl.Font = new System.Drawing.Font("Consolas", 9.75F);
@@ -638,7 +642,7 @@
         private System.Windows.Forms.Button btnConfiguration;
         private System.Windows.Forms.ListView lvwEntities;
         private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader clmEntities;
         private System.Windows.Forms.ImageList imgListEntityState;
         private System.Windows.Forms.TreeView tvwCounters;
         private System.Windows.Forms.ToolStripButton btnSchedule;
@@ -648,7 +652,7 @@
         private System.Windows.Forms.SplitContainer split;
         private System.Windows.Forms.ToolStripButton btnLocalOrRemoteSMT;
         private System.Windows.Forms.TextBox txtFilter;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.ColumnHeader clmChosenCounters;
         private System.Windows.Forms.Label lblMonitorSourceMismatch;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Label label4;

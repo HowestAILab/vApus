@@ -106,12 +106,12 @@ namespace vApus.Stresstest
                 return;
             if (_error)
             {
-               if( MessageBox.Show("The chosen delimiters do occur in the log entries as they were imported.\nThese can only be applied if these are modified themself.\nA unique string that replaces the newly chosen delimiters and it's content will be generated prefixed with 'begin' or 'end'.\nAre you sure?", string.Empty,MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                   return;
+                if (MessageBox.Show("The chosen delimiters do occur in the log entries as they were imported.\nThese can only be applied if these are modified themself.\nA unique string that replaces the newly chosen delimiters and it's content will be generated prefixed with 'begin' or 'end'.\nAre you sure?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                    return;
 
                 string replacement = _log.ReplaceTokenDelimitersInLogEntryStringAsImported(lblNewBegin.Text, lblNewEnd.Text);
 
-                MessageBox.Show("Replaced '" + lblNewBegin.Text + "' with 'begin" + replacement + "'; Replaced '" + lblNewEnd.Text + "' with 'end" + replacement + "'.", string.Empty, MessageBoxButtons.OK); 
+                MessageBox.Show("Replaced '" + lblNewBegin.Text + "' with 'begin" + replacement + "'; Replaced '" + lblNewEnd.Text + "' with 'end" + replacement + "'.", string.Empty, MessageBoxButtons.OK);
             }
 
             //Old indices are equal to the new ones.

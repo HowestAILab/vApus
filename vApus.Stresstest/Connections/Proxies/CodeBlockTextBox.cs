@@ -31,7 +31,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// Only occurs when focussed and the left, right, up, down, home or end was last pressed.
         /// </summary>
-        public event EventHandler CaretPositionChanged;
+        public event EventHandler CaretPositionChangedUsingKeyboard;
 
         public event EventHandler EnterTextBox, LeaveTextBox;
 
@@ -131,14 +131,18 @@ namespace vApus.Stresstest
         {
             _lastPressedKeys = e.KeyCode;
         }
+        //The only event fired before the selection changed
+        private void fastColoredTextBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            _lastPressedKeys = Keys.None;
+        }
         private void fastColoredTextBox_SelectionChanged(object sender, EventArgs e)
         {
-            if (fastColoredTextBox.Focused && _lastPressedKeys != Keys.None && CaretPositionChanged != null)
-                CaretPositionChanged(this, null);
+            if (fastColoredTextBox.Focused && _lastPressedKeys != Keys.None && CaretPositionChangedUsingKeyboard != null)
+                CaretPositionChangedUsingKeyboard(this, null);
             else
                 _lastPressedKeys = Keys.None;
         }
-        
         /// <summary>
         /// 
         /// </summary>
@@ -289,11 +293,13 @@ namespace vApus.Stresstest
         }
         private void fastColoredTextBox_Enter(object sender, EventArgs e)
         {
+            _lastPressedKeys = Keys.None;
             if (EnterTextBox != null)
                 EnterTextBox(this, e);
         }
         private void fastColoredTextBox_Leave(object sender, EventArgs e)
         {
+            _lastPressedKeys = Keys.None;
             if (LeaveTextBox != null)
                 LeaveTextBox(this, e);
         }

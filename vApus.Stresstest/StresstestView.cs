@@ -487,7 +487,9 @@ namespace vApus.Stresstest
         }
         private void btnStop_Click(object sender, EventArgs e)
         {
-            if (_stresstestCore != null)
+            if (_stresstestCore == null)
+                Stop();
+            else
                 // Can only be cancelled once, calling multiple times is not a problem.
                 _stresstestCore.Cancel();
         }
@@ -530,15 +532,11 @@ namespace vApus.Stresstest
         /// </summary>
         private void StopStresstest()
         {
-            if (_stresstestCore == null)
-            {
-                if (btnSchedule.Tag != null && btnSchedule.Tag is DateTime)
-                {
-                    DateTime scheduledDateTime = (DateTime)btnSchedule.Tag;
-                    btnSchedule.Text = (scheduledDateTime > DateTime.Now) ? "Scheduled at " + scheduledDateTime : "Schedule...";
-                }
-            }
-            else
+            btnSchedule.Tag = null;
+            btnSchedule.Text = "Schedule...";
+            tmrSchedule.Stop();
+
+            if (_stresstestCore != null)
             {
                 stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                 stresstestControl.UpdateFastResults();

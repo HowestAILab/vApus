@@ -9,6 +9,7 @@ using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
 using vApus.Util;
+using System.Globalization;
 
 namespace vApus.Stresstest
 {
@@ -20,8 +21,9 @@ namespace vApus.Stresstest
 
         private int _minValue = int.MinValue, _maxValue = int.MaxValue, _decimalPlaces;
         private double _step = 1;
-        private bool _random;
+        private string _decimalSeparator = ",";
 
+        private bool _random;
 
         private string _prefix = string.Empty, _suffix = string.Empty;
         private Fixed _fixed;
@@ -75,6 +77,18 @@ namespace vApus.Stresstest
                 _decimalPlaces = value; }
         }
         [PropertyControl(3), SavableCloneable]
+        [DisplayName("Decimal Separator"), Description("Only . or , allowed.\nThe output of a parameter is a string, so this is important!")]
+        public string DecimalSeparator
+        {
+            get { return _decimalSeparator; }
+            set 
+            {
+                if (value != "." && value != ",")
+                    throw new ArgumentException("Only . or , allowed.");
+                _decimalSeparator = value; 
+            }
+        }
+        [PropertyControl(4), SavableCloneable]
         [Description("Only applicable if random equals false.")]
         public double Step
         {
@@ -86,7 +100,7 @@ namespace vApus.Stresstest
                 _step = value;
             }
         }
-        [PropertyControl(4), SavableCloneable]
+        [PropertyControl(5), SavableCloneable]
         [Description("If false output values will be chosen in sequence using the step.")]
         public bool Random
         {
@@ -122,6 +136,7 @@ namespace vApus.Stresstest
             _value = _minValue.ToString();
             _doubleValue = _minValue;
 
+            _decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
         public NumericParameter(int minValue, int maxValue)
@@ -185,6 +200,9 @@ namespace vApus.Stresstest
         private string GetFixedValue()
         {
             string pre = _prefix, suf = _suffix, value = StringUtil.DoubleToLongString(_doubleValue);
+            if (_decimalSeparator != CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)
+                value = value.Replace(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, _decimalSeparator);
+
             int length;
             if (_fixed == Fixed.Suffix)
             {

@@ -261,7 +261,7 @@ namespace vApus.UpdateTool
                     }
                     else if (historyFound)
                     {
-                        FillHistoryOfChanges(line);
+                        FillHistory(line);
                         historyFound = false;
                     }
                     else if (channelFound)
@@ -283,7 +283,7 @@ namespace vApus.UpdateTool
             }
             return fileVersions;
         }
-        private void FillHistoryOfChanges(string historyOfChanges)
+        private void FillHistory(string historyOfChanges)
         {
             rtxtHistoryOfChanges.Text = string.Empty;
 

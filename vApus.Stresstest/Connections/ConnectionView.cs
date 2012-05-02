@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using System;
 using System.CodeDom.Compiler;
 using System.Text;
 using System.Windows.Forms;
@@ -24,6 +25,8 @@ namespace vApus.Stresstest
         /// For endless loops.
         /// </summary>
         private bool _canUpdateGui = true;
+
+        private bool _testing = false, _tracing = false;
         #endregion
 
         #region Constructors
@@ -59,36 +62,38 @@ namespace vApus.Stresstest
             ruleSetSyntaxItemPanel.InputChanged += new System.EventHandler(ruleSetSyntaxItemPanel_InputChanged);
         }
 
-        #region Dynamically adapt GUI.
         private void ruleSetSyntaxItemPanel_InputChanged(object sender, System.EventArgs e)
         {
             _connection.ConnectionString = ruleSetSyntaxItemPanel.Input;
             _canUpdateGui = false;
             _connection.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
-        #endregion
 
         private void btnTestConnection_Click(object sender, System.EventArgs e)
         {
-            this.Cursor = Cursors.WaitCursor;
+            _testing = true;
             split.Enabled = false;
             btnTestConnection.Enabled = false;
             btnTestConnection.Text = "Testing...";
-            StaticActiveObjectWrapper.ActiveObject.Send(_testConnectionDel);
 
+            StaticActiveObjectWrapper.ActiveObject.Send(_testConnectionDel);
         }
         private void TestConnection()
         {
+            _testing = false;
             if (_connection.ConnectionProxy.IsEmpty)
             {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     btnTestConnection.Text = "Test Connection";
-                    split.Enabled = true;
+                    if (!_tracing)
+                        split.Enabled = true;
                     btnTestConnection.Enabled = true;
-                    this.Cursor = Cursors.Default;
 
-                    MessageBox.Show(this, "This connection has no connection proxy assigned to!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    string error = "This connection has no connection proxy assigned to!";
+                    MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+
+                    LogWrapper.LogByLevel("[" + _connection + "] " + error, LogLevel.Warning);
                 });
                 return;
             }
@@ -98,43 +103,78 @@ namespace vApus.Stresstest
 
             if (compilerResults.Errors.HasErrors)
             {
-                StringBuilder sb = new StringBuilder("Failed at compiling the connection proxy class: ");
+                string error = "Failed at compiling the connection proxy class";
+                StringBuilder sb = new StringBuilder(error + ": ");
                 sb.AppendLine();
-                foreach (CompilerError error in compilerResults.Errors)
+                foreach (CompilerError ce in compilerResults.Errors)
                 {
-                    sb.AppendFormat("Error number {0}, Line {1}, Column {2}: {3}", error.ErrorNumber, error.Line, error.Column, error.ErrorText);
+                    sb.AppendFormat("Error number {0}, Line {1}, Column {2}: {3}", ce.ErrorNumber, ce.Line, ce.Column, ce.ErrorText);
                     sb.AppendLine();
                 }
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     btnTestConnection.Text = "Test Connection";
-                    split.Enabled = true;
+                    if (!_tracing)
+                        split.Enabled = true;
                     btnTestConnection.Enabled = true;
-                    this.Cursor = Cursors.Default;
 
-                    MessageBox.Show(this, sb.ToString(), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+
+                    LogWrapper.LogByLevel("[" + _connection + "] " + sb.ToString(), LogLevel.Warning);
                 });
             }
             else
             {
-                string error;
-                connectionProxyPool.TestConnection(out error);
+                string errorMessage;
+                connectionProxyPool.TestConnection(out errorMessage);
+
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     btnTestConnection.Text = "Test Connection";
-                    split.Enabled = true;
+                    if (!_tracing)
+                        split.Enabled = true;
                     btnTestConnection.Enabled = true;
-                    this.Cursor = Cursors.Default;
 
-                    if (error == null)
+                    if (errorMessage == null)
+                    {
                         MessageBox.Show(this, "The connection has been established! and closed again successfully.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+                    }
                     else
-                        MessageBox.Show(this, "The connection could not be made, please make sure everything is filled in correctly.\nException: " + error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    {
+                        string error = "The connection could not be made, please make sure everything is filled in correctly.";
+                        MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+
+                        LogWrapper.LogByLevel("[" + _connection + "] " + error + "\n" + errorMessage, LogLevel.Warning);
+                    }
                 });
             }
             connectionProxyPool.Dispose();
             connectionProxyPool = null;
+        }
+        private void tracertControl_BeforeTrace(object sender, EventArgs e)
+        {
+            _tracing = true;
+            split.Enabled = false;
+
+            string[] sp = _connection.ConnectionString.Split(new string[] { _connection.ConnectionProxy.ConnectionProxyRuleSet.ChildDelimiter }, StringSplitOptions.None);
+            string tracertField = sp[_connection.ConnectionProxy.ConnectionProxyRuleSet.TracertField - 1];
+
+            if (tracertField.ContainsChars('/'))
+            {
+                if (tracertField.StartsWith("http://"))
+                    tracertField = tracertField.Substring("http://".Length);
+
+                tracertField = tracertField.Split('/')[0];
+            }
+
+            tracertControl.SetToTrace(tracertField);
+        }
+        private void tracertControl_Done(object sender, EventArgs e)
+        {
+            _tracing = false;
+            if (!_testing)
+                split.Enabled = true;
         }
         public override void Refresh()
         {

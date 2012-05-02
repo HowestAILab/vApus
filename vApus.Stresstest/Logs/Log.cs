@@ -228,8 +228,12 @@ namespace vApus.Stresstest
                 }
 
             foreach (LogEntry entry in GetAllLogEntries())
+            {
                 foreach (string oldToken in oldAndNewTokens.Keys)
+                {
                     entry.LogEntryString = entry.LogEntryString.Replace(oldToken, oldAndNewTokens[oldToken]);
+                }
+            }
 
             this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }

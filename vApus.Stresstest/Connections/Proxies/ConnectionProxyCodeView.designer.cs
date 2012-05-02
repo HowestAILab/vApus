@@ -32,7 +32,7 @@ namespace vApus.Stresstest
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConnectionProxyCodeView));
             this.splitCode = new System.Windows.Forms.SplitContainer();
             this.scrollablePanel = new vApus.Util.ScrollablePanel();
-            this.document = new vApus.Stresstest.CodeBlock(false);
+            this.document = new vApus.Stresstest.CodeBlock();
             this.btnFoldUnfold = new System.Windows.Forms.Button();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
@@ -90,7 +90,7 @@ namespace vApus.Stresstest
             this.scrollablePanel.Location = new System.Drawing.Point(3, 3);
             this.scrollablePanel.Name = "scrollablePanel";
             this.scrollablePanel.Size = new System.Drawing.Size(799, 344);
-            this.scrollablePanel.TabIndex = 2;
+            this.scrollablePanel.TabIndex = 0;
             this.scrollablePanel.Scroll += new System.Windows.Forms.ScrollEventHandler(this.scrollablePanel_Scroll);
             // 
             // document
@@ -111,8 +111,9 @@ namespace vApus.Stresstest
             this.document.Name = "document";
             this.document.ParentLevelControl = true;
             this.document.ReadOnly = false;
+            this.document.ShowLineNumbers = false;
             this.document.Size = new System.Drawing.Size(787, 76);
-            this.document.TabIndex = 1;
+            this.document.TabIndex = 0;
             this.document.SizeChanged += new System.EventHandler(this.document_SizeChanged);
             // 
             // btnFoldUnfold
@@ -218,7 +219,7 @@ namespace vApus.Stresstest
             this.find.Location = new System.Drawing.Point(3, 3);
             this.find.Name = "find";
             this.find.Padding = new System.Windows.Forms.Padding(9);
-            this.find.Size = new System.Drawing.Size(781, 145);
+            this.find.Size = new System.Drawing.Size(783, 147);
             this.find.TabIndex = 0;
             this.find.FoundReplacedButtonClicked += new System.EventHandler<vApus.Stresstest.FindAndReplace.FoundReplacedButtonClickedEventArgs>(this.find_FoundButtonClicked);
             // 
@@ -239,7 +240,7 @@ namespace vApus.Stresstest
             this.compile.Location = new System.Drawing.Point(3, 3);
             this.compile.Name = "compile";
             this.compile.Padding = new System.Windows.Forms.Padding(9);
-            this.compile.Size = new System.Drawing.Size(781, 145);
+            this.compile.Size = new System.Drawing.Size(783, 147);
             this.compile.TabIndex = 0;
             this.compile.CompileError += new System.EventHandler(this.compile_CompileError);
             this.compile.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.Compile.CompileErrorButtonClickedEventArgs>(this.compile_CompileErrorButtonClicked);
@@ -257,11 +258,12 @@ namespace vApus.Stresstest
             // 
             // execute
             // 
+            this.execute.BackColor = System.Drawing.Color.White;
             this.execute.Dock = System.Windows.Forms.DockStyle.Fill;
             this.execute.Location = new System.Drawing.Point(3, 3);
             this.execute.Name = "execute";
             this.execute.Padding = new System.Windows.Forms.Padding(9);
-            this.execute.Size = new System.Drawing.Size(781, 145);
+            this.execute.Size = new System.Drawing.Size(783, 147);
             this.execute.TabIndex = 0;
             // 
             // sfd

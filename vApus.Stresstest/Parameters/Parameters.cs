@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using System.Threading;
 
 namespace vApus.Stresstest
 {
@@ -27,13 +28,29 @@ namespace vApus.Stresstest
         /// Threadsafe call.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<BaseParameter> GetAllParameters()
+        public List<BaseParameter> GetAllParameters()
         {
             lock (_lock)
             {
-                foreach (BaseItem item in this)
-                    foreach (BaseParameter parameter in item)
-                        yield return parameter;
+                var l = new List<BaseParameter>();
+                int failedTries = 0;
+            Retry:
+                try
+                {
+                    foreach (BaseItem item in this)
+                        foreach (BaseParameter parameter in item)
+                            l.Add(parameter);
+                }
+                catch
+                {
+                    //Handle if the collection changed.
+                    if (++failedTries != 3)
+                    {
+                        Thread.Sleep(1000 * failedTries);
+                        goto Retry;
+                    }
+                }
+                return l;
             }
         }
         /// <summary>

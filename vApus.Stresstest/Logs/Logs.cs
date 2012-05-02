@@ -34,6 +34,21 @@ namespace vApus.Stresstest
                 {
                     Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices;
                     parameters.SynchronizeTokenNumericIdentifierToIndices(out oldAndNewIndices);
+                    //We must loop over the collection in reverse order if a parameter was removed, otherwise replacing the parameter tokens will go wrong.
+                    if (e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Removed)
+                    {
+                        var keys = new List<BaseParameter>(oldAndNewIndices.Count);
+                        foreach (BaseParameter key in oldAndNewIndices.Keys)
+                            keys.Add(key);
+
+                        keys.Reverse();
+
+                        var reversed = new Dictionary<BaseParameter, KeyValuePair<int, int>>(oldAndNewIndices.Count);
+                        foreach (BaseParameter key in keys)
+                            reversed.Add(key, oldAndNewIndices[key]);
+
+                        oldAndNewIndices = reversed;
+                    }
 
                     foreach (BaseItem item in this)
                         if (item is Log)

@@ -47,6 +47,7 @@ namespace vApus.Stresstest
             this.fastColoredTextBox.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fastColoredTextBox_TextChangedDelayed);
             this.fastColoredTextBox.Enter += new System.EventHandler(this.fastColoredTextBox_Enter);
             this.fastColoredTextBox.Leave += new System.EventHandler(this.fastColoredTextBox_Leave);
+            this.fastColoredTextBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.fastColoredTextBox_MouseDown);
             this.fastColoredTextBox.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.fastColoredTextBox_PreviewKeyDown);
             // 
             // CodeBlockTextBox

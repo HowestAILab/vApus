@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -18,7 +17,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 using vApusSMT.Base;
-using vApusSMT.Communication;
+using vApusSMT.Proxy;
 
 namespace vApus.Monitor
 {
@@ -72,7 +71,7 @@ namespace vApus.Monitor
             {
                 _showLabelControl = value;
                 foreach (SolutionComponentCommonPropertyControl ctrl in propertyPanel.SolutionComponentPropertyControls)
-                    if (ctrl.Label == "Label:")
+                    if (ctrl.Label == "Label")
                     {
                         ctrl.Visible = _showLabelControl;
                         break;
@@ -99,7 +98,7 @@ namespace vApus.Monitor
             _wdyhDel = new WDYHDel(__WDYH);
 
             if (this.IsHandleCreated)
-                SetGuiAndConnectToSMT();
+                InitMonitorView();
             else
                 this.HandleCreated += new System.EventHandler(MonitorView_HandleCreated);
         }
@@ -168,14 +167,12 @@ namespace vApus.Monitor
         private void MonitorView_HandleCreated(object sender, System.EventArgs e)
         {
             this.HandleCreated -= MonitorView_HandleCreated;
-            SetGuiAndConnectToSMT();
-            //Use this for filtering the counters.
-            SolutionComponent.SolutionComponentChanged += new System.EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+            InitMonitorView();
         }
         /// <summary>
         /// Sets the Gui and connects to smt.
         /// </summary>
-        private void SetGuiAndConnectToSMT()
+        private void InitMonitorView()
         {
             Text = SolutionComponent.ToString();
             string ip = _localOrRemoteSMT.IP;
@@ -185,7 +182,7 @@ namespace vApus.Monitor
             if (SynchronizationContextWrapper.SynchronizationContext == null)
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
 
-            Exception exception = ConnectToSMT("127.0.0.1");
+            Exception exception = InitMonitorProxy();
             propertyPanel.SolutionComponent = _monitor;
             SetFilterTextBox();
 
@@ -202,13 +199,15 @@ namespace vApus.Monitor
                     MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 LogWrapper.LogByLevel(message, LogLevel.Error);
             }
+
+            //Use this for filtering the counters.
+            SolutionComponent.SolutionComponentChanged += new System.EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
         /// <summary>
-        /// 
+        /// Destroys the previous one if any and returns a new one.
         /// </summary>
-        /// <param name="ip">Not used atm only 127.0.0.1 instead of remote smt's</param>
         /// <returns></returns>
-        private Exception ConnectToSMT(string ip)
+        private Exception InitMonitorProxy()
         {
             Exception exception = null;
 
@@ -216,18 +215,18 @@ namespace vApus.Monitor
             {
                 if (_monitorProxy != null)
                 {
-                    try { _monitorProxy.StopMonitoring(); }
+                    try
+                    {
+                        Exception stopEx;
+                        _monitorProxy.Stop(out stopEx);
+                    }
                     catch { }
                     try { _monitorProxy.Dispose(); }
                     catch { }
                     _monitorProxy = null;
                 }
 
-                _monitorProxy = CreateMonitorProxy(ip);
-                _monitorProxy.OnHandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnHandledException);
-                _monitorProxy.OnUnhandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnUnhandledException);
-                _monitorProxy.OnMonitor += new EventHandler<OnMonitorEventArgs>(_monitorProxy_OnMonitor);
-                _monitorProxy.ConnectSMT(out exception, ip);
+                _monitorProxy = CreateMonitorProxy();
             }
             catch (Exception ex)
             {
@@ -247,18 +246,62 @@ namespace vApus.Monitor
             }
             return exception;
         }
+        /*
+                 private Exception ConnectToSMT(string ip)
+        {
+            Exception exception = null;
 
+            try
+            {
+                if (_monitorProxy != null)
+                {
+                    try {
+                        Exception stopEx;
+                        _monitorProxy.Stop(out stopEx); }
+                    catch { }
+                    try { _monitorProxy.Dispose(); }
+                    catch { }
+                    _monitorProxy = null;
+                }
+
+                _monitorProxy = CreateMonitorProxy(ip);
+                _monitorProxy.OnHandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnHandledException);
+                _monitorProxy.OnUnhandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnUnhandledException);
+                _monitorProxy.OnMonitor += new EventHandler<OnMonitorEventArgs>(_monitorProxy_OnMonitor);
+                _monitorProxy.Connect(out exception);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            if (exception == null)
+            {
+                //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
+                System.IO.Directory.SetCurrentDirectory(Application.StartupPath);
+
+                var sources = _monitorProxy.GetMonitorSources(out exception);
+                //Ignore this exception
+                _monitor.SetMonitorSources(sources);
+
+                exception = null;
+            }
+            return exception;
+        }
+*/
         /// <summary>
         /// Creates an instance using reflection.
         /// </summary>
         /// <param name="ip">If 127.0.0.1 the local one will be used, otherwise the remote one.</param>
         /// <returns></returns>
-        private IMonitorProxy CreateMonitorProxy(string ip)
+        private IMonitorProxy CreateMonitorProxy()
         {
-            string assemblyName = (ip == "127.0.0.1") ? "vApusSMT.Proxy.Local" : "vApusSMT.Proxy.Remote";
-            Assembly ass = Assembly.LoadFrom(Path.Combine(Application.StartupPath, assemblyName) + ".dll");
-            Type t = ass.GetType(assemblyName + ".MonitorProxy");
-            return Activator.CreateInstance(t) as IMonitorProxy;
+            var monitorProxy = new MonitorProxy();
+            monitorProxy.OnHandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnHandledException);
+            monitorProxy.OnUnhandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnUnhandledException);
+            monitorProxy.OnMonitor += new EventHandler<OnMonitorEventArgs>(_monitorProxy_OnMonitor);
+
+            return monitorProxy;
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
@@ -271,14 +314,8 @@ namespace vApus.Monitor
 
                     Exception exception;
                     if (_monitorProxy == null)
-                    {
-                        string ip = "127.0.0.1";
-                        _monitorProxy = CreateMonitorProxy(ip);
-                        _monitorProxy.OnHandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnHandledException);
-                        _monitorProxy.OnUnhandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnUnhandledException);
-                        _monitorProxy.OnMonitor += new EventHandler<OnMonitorEventArgs>(_monitorProxy_OnMonitor);
-                        _monitorProxy.ConnectSMT(out exception, ip);
-                    }
+                        _monitorProxy = CreateMonitorProxy();
+
                     Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
                     SetParameters(parameters);
                 }
@@ -317,6 +354,7 @@ namespace vApus.Monitor
         {
             if (lvwEntities.SelectedItems.Count != 0)
             {
+                lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
                 tvwCounters.Nodes.Clear();
 
@@ -325,6 +363,7 @@ namespace vApus.Monitor
 
                 tvwCounters.Nodes.AddRange(FilterCounters(_monitor.Filter, selected.Tag as TreeNode[]));
                 tvwCounters.AfterCheck += tvwCounter_AfterCheck;
+                lvwEntities.ItemChecked += lvwEntities_ItemChecked;
 
                 PushSavedWiW();
 
@@ -389,10 +428,8 @@ namespace vApus.Monitor
                     }
 
                     if (counterNode == null)
-                    {
                         counterNode = new TreeNode(counter);
-                        newTag[i] = counterNode;
-                    }
+                    newTag[i] = counterNode;
 
                     if (counterInfo.Instances.Count != 0)
                     {
@@ -415,26 +452,42 @@ namespace vApus.Monitor
                 item.Tag = newTag;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="wiw"></param>
+        /// <param name="entityName"></param>
+        /// <returns>If not found a new entity with an empty name is returned</returns>
+        private Entity GetEntity(Dictionary<Entity, List<CounterInfo>> wiw, string entityName)
+        {
+            foreach (Entity entity in wiw.Keys)
+                if (entity.Name == entityName)
+                    return entity;
+            return new Entity(string.Empty, vApusSMT.Base.PowerState.Off);
+        }
         private void PushSavedWiW()
         {
             lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
             tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
 
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
-            var newWIW = new Dictionary<string, List<CounterInfo>>();
+            var newWIW = new Dictionary<Entity, List<CounterInfo>>();
             foreach (ListViewItem lvwi in lvwEntities.Items)
             {
-                string entitiy = lvwi.SubItems[1].Text;
-                lvwi.Checked = _monitor.Wiw.ContainsKey(entitiy);
+                string entityName = lvwi.SubItems[1].Text;
+                Entity entity = GetEntity(_monitor.Wiw, entityName);
+                lvwi.Checked = entity.Name.Length != 0;
                 if (lvwi.Checked)
-                    newWIW.Add(entitiy, new List<CounterInfo>());
+                {
+                    ParseTag(lvwi);
+                    newWIW.Add(entity, new List<CounterInfo>());
+                }
 
                 TreeNode[] nodes = lvwi.Tag as TreeNode[];
                 if (nodes != null)
                     if (lvwi.Checked)
                     {
-                        List<CounterInfo> l = _monitor.Wiw[entitiy];
+                        List<CounterInfo> l = _monitor.Wiw[entity];
                         foreach (TreeNode node in nodes)
                         {
                             CounterInfo info = GetCounterInfo(node.Text, l);
@@ -468,8 +521,8 @@ namespace vApus.Monitor
                                     foreach (TreeNode child in childNodes)
                                         child.Checked = false;
 
-                            if(newInfo != null)
-                                newWIW[entitiy].Add(newInfo);
+                            if (newInfo != null)
+                                newWIW[entity].Add(newInfo);
                         }
                     }
                     else
@@ -579,52 +632,31 @@ namespace vApus.Monitor
         }
         private void __WDYH(bool forStresstest)
         {
-            Exception exception = null;
-            try
-            {
-                if (_monitorProxy != null)
-                {
-                    try { _monitorProxy.StopMonitoring(); }
-                    catch { }
-                    try { _monitorProxy.Dispose(); }
-                    catch { }
-                    _monitorProxy = null;
-                }
+            if (_monitorProxy == null)
+                _monitorProxy = CreateMonitorProxy();
 
-                string ip = "127.0.0.1";
-                _monitorProxy = CreateMonitorProxy(ip);
-                _monitorProxy.OnHandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnHandledException);
-                _monitorProxy.OnUnhandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnUnhandledException);
-                _monitorProxy.OnMonitor += new EventHandler<OnMonitorEventArgs>(_monitorProxy_OnMonitor);
-                _monitorProxy.ConnectSMT(out exception, ip);
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-            Dictionary<Entity, List<CounterInfo>> entitiesAndCounters = null;
+            Dictionary<Entity, List<CounterInfo>> wdyh = null;
             string configuration = null;
 
-            if (exception == null)
+            //Set the parameters and the values in the gui and in the proxy
+            Exception exception;
+            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
-                //Take encryption into account
-                object[] parameters = new object[_parametersWithValues.Count];
-                int i = 0;
-                foreach (Parameter key in _parametersWithValues.Keys)
-                {
-                    object value = _parametersWithValues[key];
-                    if (key.Encrypted && value is string)
-                        value = (value as string).Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-                    parameters[i++] = value;
-                }
-                entitiesAndCounters = _monitorProxy.ConnectToMonitorSource(_monitor.MonitorSource.Source, out exception, parameters);
-            }
+                SetParameters(parameters);
+            });
+            if (exception == null)
+                _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
 
             if (exception == null)
                 _refreshTimeInMS = _monitorProxy.GetRefreshRateInMs(_monitor.MonitorSource.Source, out exception);
 
             if (exception == null)
-                configuration = _monitorProxy.GetConfiguration(out exception);
+                configuration = _monitorProxy.GetConfigurationXML(out exception);
+
+            if (exception == null)
+                wdyh = _monitorProxy.GetWDYH(out exception);
+
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 if (exception == null)
@@ -633,7 +665,7 @@ namespace vApus.Monitor
                     btnConfiguration.Tag = configuration;
                     try
                     {
-                        FillEntities(entitiesAndCounters);
+                        FillEntities(wdyh);
                     }
                     catch (Exception ex)
                     {
@@ -679,6 +711,20 @@ namespace vApus.Monitor
                     }
                     _parametersWithValues.Add(parameter, value);
                 }
+
+                object[] parameterValues = new object[_parametersWithValues.Count];
+
+                int valueIndex = 0;
+                foreach (Parameter key in _parametersWithValues.Keys)
+                {
+                    object value = _parametersWithValues[key];
+                    //Take encryption into account.
+                    if (key.Encrypted && value is string)
+                        value = (value as string).Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+                    parameterValues[valueIndex++] = value;
+                }
+                Exception ex;
+                _monitorProxy.SetParameterValues(parameterValues, out ex);
             }
             parameterPanel.ParametersWithValues = _parametersWithValues;
         }
@@ -710,9 +756,9 @@ namespace vApus.Monitor
                 lvwi.ImageIndex = (int)entity.PowerState;
                 lvwi.StateImageIndex = lvwi.ImageIndex;
                 lvwi.Tag = entitiesAndCounters[entity];
+                lvwi.Checked = false;
 
                 lvwEntities.Items.Add(lvwi);
-                lvwi.Checked = false;
             }
             split.Panel2.Enabled = lvwEntities.Items.Count != 0;
 
@@ -722,16 +768,22 @@ namespace vApus.Monitor
 
         private void lvwEntities_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var lvw = sender as ListView;
-            if (lvw.SelectedItems.Count != 0)
+            if (lvwEntities.SelectedItems.Count != 0)
             {
-                lvw.Tag = lvw.SelectedItems[0];
+                lvwEntities.Tag = lvwEntities.SelectedItems[0];
                 FillCounters();
             }
         }
         private void lvwEntities_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
+            bool itemChecked = e.Item.Checked;
             e.Item.Selected = true;
+
+            //Push wiw clears this otherwise.
+            lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
+            e.Item.Checked = itemChecked;
+            lvwEntities.ItemChecked += lvwEntities_ItemChecked;
+            
             ExtractWIWForListViewAction();
         }
         private void ExtractWIWForListViewAction()
@@ -763,7 +815,10 @@ namespace vApus.Monitor
                         ApplyToWIW(counterNode);
                 }
                 if (!selectedChecked)
-                    _monitor.Wiw.Remove(selected.SubItems[1].Text);
+                {
+                    Entity entity = GetEntity(_monitor.Wiw, selected.SubItems[1].Text);
+                    _monitor.Wiw.Remove(entity);
+                }
                 tvwCounters.AfterCheck += tvwCounter_AfterCheck;
 
                 SetChosenCountersInListViewItems();
@@ -784,12 +839,12 @@ namespace vApus.Monitor
             foreach (ListViewItem lvwi in lvwEntities.Items)
                 applyCountTo.Add(lvwi);
 
-            foreach (string entityName in _monitor.Wiw.Keys)
+            foreach (Entity entity in _monitor.Wiw.Keys)
             {
-                var l = _monitor.Wiw[entityName];
+                var l = _monitor.Wiw[entity];
                 int count = GetTotalCountOfCounters(l);
                 foreach (ListViewItem lvwi in lvwEntities.Items)
-                    if (lvwi.SubItems[1].Text == entityName)
+                    if (lvwi.SubItems[1].Text == entity.Name)
                     {
                         lvwi.SubItems[2].Text = "[" + count + "]";
                         applyCountTo.Remove(lvwi);
@@ -917,24 +972,26 @@ namespace vApus.Monitor
         {
             lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
 
-            ListViewItem entity = lvwEntities.Tag as ListViewItem;
-            string entityName = entity.SubItems[1].Text;
+            ListViewItem lvwiEntity = lvwEntities.Tag as ListViewItem;
+            string entityName = lvwiEntity.SubItems[1].Text;
+            Entity entity = GetEntity(_monitor.Wiw, entityName);
 
-            entity.Checked = false;
+            lvwiEntity.Checked = false;
             foreach (TreeNode node in tvwCounters.Nodes)
                 if (node.Checked)
                 {
-                    entity.Checked = true;
+                    lvwiEntity.Checked = true;
                     break;
                 }
 
-            if (entity.Checked)
-                if (_monitor.Wiw.ContainsKey(entityName))
+            if (lvwiEntity.Checked)
+            {
+                if (_monitor.Wiw.ContainsKey(entity))
                 {
-                    foreach (CounterInfo info in _monitor.Wiw[entityName])
+                    foreach (CounterInfo info in _monitor.Wiw[entity])
                         if (info.Counter == counterNode.Text)
                         {
-                            _monitor.Wiw[entityName].Remove(info);
+                            _monitor.Wiw[entity].Remove(info);
                             break;
                         }
                     if (counterNode.Checked)
@@ -952,7 +1009,7 @@ namespace vApus.Monitor
                                     newCounterInfo.Instances.Add(node.Text);
                         }
 
-                        _monitor.Wiw[entityName].Add(newCounterInfo);
+                        _monitor.Wiw[entity].Add(newCounterInfo);
                     }
                 }
                 else
@@ -971,10 +1028,14 @@ namespace vApus.Monitor
                                 newCounterInfo.Instances.Add(node.Text);
                     }
                     counters.Add(newCounterInfo);
-                    _monitor.Wiw.Add(entityName, counters);
+
+                    //Random powerstate, doesn't matter
+                    entity = new Entity(entityName, vApusSMT.Base.PowerState.On);
+                    _monitor.Wiw.Add(entity, counters);
                 }
+            }
             else
-                _monitor.Wiw.Remove(entityName);
+                _monitor.Wiw.Remove(entity);
 
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
         }
@@ -1056,7 +1117,11 @@ namespace vApus.Monitor
             {
                 if (_monitorProxy != null)
                 {
-                    try { _monitorProxy.StopMonitoring(); }
+                    try
+                    {
+                        Exception stopEx;
+                        _monitorProxy.Stop(out stopEx);
+                    }
                     catch { }
                     try { _monitorProxy.Dispose(); }
                     catch { }
@@ -1071,7 +1136,7 @@ namespace vApus.Monitor
                 btnConfiguration.Enabled = false;
 
                 int _monitorSourceIndex = _monitor.MonitorSourceIndex;
-                SetGuiAndConnectToSMT();
+                InitMonitorView();
                 try
                 {
                     _monitor.MonitorSource = _monitor._monitorSources[_monitorSourceIndex];
@@ -1185,9 +1250,9 @@ namespace vApus.Monitor
                 {
                     errorMessage = this.Text + ": No counters were chosen.";
                     if (_monitor.Wiw.Count != 0)
-                        foreach (string key in _monitor.Wiw.Keys)
+                        foreach (Entity entity in _monitor.Wiw.Keys)
                         {
-                            if (_monitor.Wiw[key].Count != 0)
+                            if (_monitor.Wiw[entity].Count != 0)
                                 errorMessage = null;
                             break;
                         }
@@ -1258,34 +1323,21 @@ namespace vApus.Monitor
         {
             this.Cursor = Cursors.WaitCursor;
             Exception exception;
+            string[] units = { };
 
-            _monitorProxy.ConnectSMT(out exception, _localOrRemoteSMT.IP);
-
-#warning This is wrong, but it works for setting the parameters again :/
-            if (!_forStresstest && exception == null)
-            {
-                //Take encryption into account
-                object[] parameters = new object[_parametersWithValues.Count];
-                int i = 0;
-                foreach (Parameter key in _parametersWithValues.Keys)
-                {
-                    object value = _parametersWithValues[key];
-                    if (key.Encrypted && value is string)
-                        value = (value as string).Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-                    parameters[i++] = value;
-                }
-                var entitiesAndCounters = _monitorProxy.ConnectToMonitorSource(_monitor.MonitorSource.Source, out exception, parameters);
-            }
+            //Set the parameters and the values in the gui and in the proxy
+            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
+            SetParameters(parameters);
 
             if (exception == null)
-                _monitorProxy.StartMonitoring(_monitor.Wiw, out exception);
+                _monitorProxy.SetWIW(_monitor.Wiw, out exception);
+            if (exception == null)
+                units = _monitorProxy.GetUnits(out exception);
 
             if (exception == null)
             {
-                monitorControl.ClearMonitorValues();
-
+                monitorControl.Init(_monitor.Wiw, units);
                 btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
-
 
                 int refreshInS = _refreshTimeInMS / 1000;
                 lblCountDown.Tag = refreshInS;
@@ -1298,6 +1350,11 @@ namespace vApus.Monitor
                 tmrProgressDelayCountDown.Start();
 
                 tc.SelectedIndex = 1;
+            }
+
+            if (exception == null)
+            {
+                _monitorProxy.Start(out exception);
             }
             else
             {
@@ -1326,7 +1383,11 @@ namespace vApus.Monitor
                 tmrProgressDelayCountDown.Stop();
 
                 if (_monitorProxy != null)
-                    try { _monitorProxy.StopMonitoring(); }
+                    try
+                    {
+                        Exception stopEx;
+                        _monitorProxy.Stop(out stopEx);
+                    }
                     catch { }
 
                 ExtendedSchedule schedule = btnSchedule.Tag as ExtendedSchedule;

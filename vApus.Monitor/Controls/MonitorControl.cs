@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using vApus.Util;
 using vApusSMT.Base;
+using System.Threading;
 
 namespace vApus.Monitor
 {
@@ -32,9 +33,8 @@ namespace vApus.Monitor
         public MonitorControl()
         {
             AllowUserToAddRows = AllowUserToDeleteRows = AllowUserToResizeRows = AllowUserToOrderColumns = false;
-            ReadOnly = true;
-            VirtualMode = true;
-            DoubleBuffered = true;
+            ReadOnly = VirtualMode = DoubleBuffered = true;
+            ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
             this.CellValueNeeded += new DataGridViewCellValueEventHandler(MonitorControl_CellValueNeeded);
             this.Scroll += new ScrollEventHandler(MonitorControl_Scroll);
@@ -46,27 +46,42 @@ namespace vApus.Monitor
 
         private void MonitorControl_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            object value = null;
-            lock (_lock)
-                value = _cache[e.RowIndex][e.ColumnIndex];
-
-            if (value is float)
+            try
             {
-                float f = (float)value;
-                if (f == -1f)
+                object value = null;
+                lock (_lock)
+                    value = _cache[e.RowIndex][e.ColumnIndex];
+
+                if (value is float)
                 {
-                    var headerCell = this.Columns[e.ColumnIndex].HeaderCell;
-                    if (headerCell.Style.BackColor != Color.Yellow)
-                        headerCell.Style.BackColor = Color.Yellow;
-                }
-                value = StringUtil.FloatToLongString(f);
-            }
-            else
-            {
-                value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
-            }
+                    float f = (float)value;
+                    string s = null;
+                    if (f == -1f)
+                    {
+                        var headerCell = this.Columns[e.ColumnIndex].HeaderCell;
+                        if (headerCell.Style.BackColor != Color.Yellow)
+                            headerCell.Style.BackColor = Color.Yellow;
 
-            e.Value = value;
+                        s = f.ToString();
+                    }
+                    else
+                    {
+#warning This can be set to true, but the output is not seen as a number in excel
+                        s = StringUtil.FloatToLongString(f, false);
+                    }
+                    value = s;
+                }
+                else
+                {
+                    value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                }
+
+                e.Value = value;
+            }
+            catch
+            {
+                //index out of range exception, the user is notified about this on receiving the monitor values
+            }
         }
         public new bool AllowUserToAddRows
         {
@@ -103,97 +118,16 @@ namespace vApus.Monitor
             get { return base.DoubleBuffered; }
             set { base.DoubleBuffered = true; }
         }
-        /// <summary>
-        /// This will add values to the collection and will update the Gui.
-        /// </summary>
-        /// <param name="monitorValues"></param>
-        public void AddMonitorValues(Dictionary<string, HashSet<MonitorValueCollection>> monitorValues)
+        //disabling resizing --> faster adding
+        public new DataGridViewColumnHeadersHeightSizeMode ColumnHeadersHeightSizeMode
         {
-            SetHeaders(monitorValues);
-            AddRow(monitorValues);
-
-            if (_keepAtEnd)
-            {
-                this.Scroll -= MonitorControl_Scroll;
-                FirstDisplayedScrollingRowIndex = RowCount - 1;
-                this.Scroll += MonitorControl_Scroll;
-            }
-        }
-        private void SetHeaders(Dictionary<string, HashSet<MonitorValueCollection>> monitorValues)
-        {
-            if (this.ColumnCount == 0)
-            {
-                _headers = ExtractHeaders(monitorValues);
-                string clmPrefix = this.ToString() + "clm";
-                foreach (string header in _headers)
-                    this.Columns[this.Columns.Add(clmPrefix + header, header)].SortMode = DataGridViewColumnSortMode.NotSortable;
-
-                this.RowCount = 0;
-
-                this.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
-                this.Columns[0].Width = 200;
-
-                Filter(_filter);
-            }
-        }
-        private string[] ExtractHeaders(Dictionary<string, HashSet<MonitorValueCollection>> monitorValues)
-        {
-            List<string> l = new List<string>();
-            l.Add(string.Empty);
-            foreach (string entity in monitorValues.Keys)
-                foreach (MonitorValueCollection monitorValueCollection in monitorValues[entity])
-                {
-                    StringBuilder sb = new StringBuilder();
-                    if (monitorValueCollection.Instance == String.Empty)
-                        sb.Append(entity);
-                    else
-                        sb.Append(entity + "/" + monitorValueCollection.Instance);
-                    sb.Append("//");
-                    sb.Append(monitorValueCollection.Counter);
-                    if (!string.IsNullOrEmpty(monitorValueCollection.Unit))
-                    {
-                        sb.Append(" [");
-                        sb.Append(monitorValueCollection.Unit);
-                        sb.Append("]");
-                    }
-                    l.Add(sb.ToString());
-                }
-            return l.ToArray();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="monitorValues"></param>
-        private void AddRow(Dictionary<string, HashSet<MonitorValueCollection>> monitorValues)
-        {
-            if (monitorValues.Count != 0 && this.ColumnCount != 0)
-            {
-                DateTime timestamp = DateTime.MinValue;
-
-                object[] row = new object[this.ColumnCount];
-                int i = 1;
-                foreach (string entity in monitorValues.Keys)
-                    foreach (MonitorValueCollection monitorValueCollection in monitorValues[entity])
-                        foreach (MonitorValue monitorValue in monitorValueCollection)
-                        {
-                            row[i++] = monitorValue.Value;
-                            if (timestamp == DateTime.MinValue)
-                                timestamp = monitorValue.TimeStamp;
-                        }
-
-                row[0] = timestamp;
-                lock (_lock)
-                {
-                    _cache.Add(row);
-                    ++this.RowCount;
-                }
-            }
+            get { return base.ColumnHeadersHeightSizeMode; }
+            set { base.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing; }
         }
         /// <summary>
-        /// This will clear all the values and will remove the accordeon controls.
+        /// Must always happen before the first value was added.
         /// </summary>
-        public void ClearMonitorValues()
+        public void Init(Dictionary<Entity, List<CounterInfo>> wiw, string[] units)
         {
             this.Rows.Clear();
             this.Columns.Clear();
@@ -204,7 +138,119 @@ namespace vApus.Monitor
             _filteredColumnIndices.Clear();
 
             this.RowCount = 0;
+
+            List<string> lHeaders = new List<string>();
+            lHeaders.Add(string.Empty);
+
+            int unitIndex = 0;
+            foreach (Entity entity in wiw.Keys)
+                foreach (CounterInfo counterInfo in wiw[entity])
+                    if (counterInfo.Instances.Count == 0)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append(entity.Name);
+                        sb.Append("/");
+                        sb.Append(counterInfo.Counter);
+                        string unit = units[unitIndex++];
+                        if (!string.IsNullOrEmpty(unit))
+                        {
+                            sb.Append(" [");
+                            sb.Append(unit);
+                            sb.Append("]");
+                        }
+
+                        lHeaders.Add(sb.ToString());
+                    }
+                    else
+                    {
+                        foreach (string instance in counterInfo.Instances)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append(entity.Name);
+                            sb.Append("/");
+                            sb.Append(counterInfo.Counter);
+
+                            string unit = units[unitIndex++];
+                            if (!string.IsNullOrEmpty(unit))
+                            {
+                                sb.Append(" [");
+                                sb.Append(unit);
+                                sb.Append("]");
+                            }
+
+                            if (instance != String.Empty)
+                            {
+                                sb.Append("/");
+                                sb.Append(instance);
+                            }
+                            lHeaders.Add(sb.ToString());
+                        }
+                    }
+
+            _headers = lHeaders.ToArray();
+
+            //Add to columns, fillweight 1 --> to enable max 65 535 columns.
+            DataGridViewColumn[] clms = new DataGridViewColumn[_headers.Length];
+            string clmPrefix = this.ToString() + "clm";
+            for (int headerIndex = 0; headerIndex != _headers.Length; headerIndex++)
+            {
+                string header = _headers[headerIndex];
+                DataGridViewColumn clm = new DataGridViewTextBoxColumn();
+                clm.Name = clmPrefix + header;
+                clm.HeaderText = header;
+
+                clm.SortMode = DataGridViewColumnSortMode.NotSortable;
+                clm.FillWeight = 1;
+
+                clms[headerIndex] = clm;
+            }
+
+            this.Columns.AddRange(clms);
+
+            if (this.Visible)
+                SetColumns();
+            else
+                this.VisibleChanged += new EventHandler(MonitorControl_VisibleChanged);
         }
+
+        private void MonitorControl_VisibleChanged(object sender, EventArgs e)
+        {
+            if (this.Visible)
+            {
+                this.VisibleChanged -= MonitorControl_VisibleChanged;
+                SetColumns();
+            }
+        }
+        private void SetColumns()
+        {
+            this.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
+            this.Columns[0].Width = 200;
+
+            Filter(_filter);
+        }
+        /// <summary>
+        /// This will add values to the collection and will update the Gui.
+        /// </summary>
+        /// <param name="monitorValues"></param>
+        public void AddMonitorValues(object[] monitorValues)
+        {
+            if (this.ColumnCount != 0)
+                lock (_lock)
+                {
+                    _cache.Add(monitorValues);
+                    ++this.RowCount;
+
+                    if (monitorValues.Length != _headers.Length)
+                        LogWrapper.LogByLevel("[Monitoring] The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", LogLevel.Error);
+                }
+            if (_keepAtEnd)
+            {
+                this.Scroll -= MonitorControl_Scroll;
+                FirstDisplayedScrollingRowIndex = RowCount - 1;
+                this.Scroll += MonitorControl_Scroll;
+            }
+        }
+
         /// <summary>
         /// Save all monitor values.
         /// </summary>

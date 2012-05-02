@@ -56,6 +56,11 @@ namespace vApus.Stresstest
             get { return _tokenNumericIdentifier; }
             internal set { _tokenNumericIdentifier = value; }
         }
+        [PropertyControl(int.MaxValue), DisplayName("Read Me")]
+        public string ReadMe
+        {
+            get { return "All parameter values are determined before the stresstest starts."; }
+        }
         #endregion
 
         public BaseParameter()

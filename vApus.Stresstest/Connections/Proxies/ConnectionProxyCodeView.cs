@@ -130,7 +130,7 @@ namespace vApus.Stresstest
 
             document.CodeTextChangedDelayed += new EventHandler(document_CodeTextChangedDelayed);
             document.CodeLineCountChanged += new EventHandler<CodeBlock.CodeLineCountChangedEventArgs>(document_CodeLineCountChanged);
-            document.CaretPositionChanged += new EventHandler<CodeBlock.CaretPositionChangedEventArgs>(document_CaretPositionChanged);
+            document.CaretPositionChangedUsingKeyboard += new EventHandler<CodeBlock.CaretPositionChangedEventArgs>(document_CaretPositionChangedUsingKeyboard);
 
             string body = _dllreferences.Code.Trim();
             List<string> filenames = new List<string>();
@@ -166,7 +166,7 @@ namespace vApus.Stresstest
             if (_autoScrollPositionSet)
                 _autoScrollPosition = new Point(-1 * scrollablePanel.AutoScrollPosition.X, -1 * scrollablePanel.AutoScrollPosition.Y);
         }
-        private void document_CaretPositionChanged(object sender, CodeBlock.CaretPositionChangedEventArgs e)
+        private void document_CaretPositionChangedUsingKeyboard(object sender, CodeBlock.CaretPositionChangedEventArgs e)
         {
             //Can only set one at a time (begin invoke!)
             if (_autoScrollPositionSet)
@@ -195,8 +195,8 @@ namespace vApus.Stresstest
         {
             if (_autoScrollPositionSet)
                 _autoScrollPosition = new Point(-1 * scrollablePanel.AutoScrollPosition.X, -1 * scrollablePanel.AutoScrollPosition.Y);
-
         }
+
         #region Tools
         private void references_ReferencesChanged(object sender, EventArgs e)
         {
@@ -233,6 +233,10 @@ namespace vApus.Stresstest
                     try
                     {
                         Process.Start(sfd.FileName);
+                    }
+                    catch (FileNotFoundException fnfe)
+                    {
+                        MessageBox.Show("Could not open the file!\nThe file could not be found.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     catch
                     {
@@ -290,6 +294,5 @@ namespace vApus.Stresstest
         #endregion
 
         #endregion
-
     }
 }
