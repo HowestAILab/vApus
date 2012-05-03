@@ -62,6 +62,8 @@ namespace vApus.Util
             cbo.SelectedItem = attr2.Length > 0 ? attr2[0].Description : value.ToString();
 
             cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
+
+            base.ValueControl = cbo;
         }
         private void cbo_SelectedIndexChanged(object sender, EventArgs e)
         {

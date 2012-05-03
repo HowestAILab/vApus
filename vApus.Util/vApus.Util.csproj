@@ -285,11 +285,23 @@
     <Compile Include="ControlsAndPanels\ValueControlPanel\CharValueControl.Designer.cs">
       <DependentUpon>CharValueControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionValueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionValueControl.Designer.cs">
+      <DependentUpon>CollectionValueControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\EnumValueControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\EnumValueControl.Designer.cs">
       <DependentUpon>EnumValueControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\NumericValueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\NumericValueControl.Designer.cs">
+      <DependentUpon>NumericValueControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\StringValueControl.cs">
       <SubType>UserControl</SubType>
@@ -298,6 +310,12 @@
       <DependentUpon>StringValueControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\IValueControl.cs" />
+    <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionControl.Designer.cs">
+      <DependentUpon>CollectionControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\ValueControlPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -465,6 +483,9 @@
     <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\BaseValueControl.resx">
       <DependentUpon>BaseValueControl.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\CollectionControl.resx">
+      <DependentUpon>CollectionControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\LogMessageDialog.resx">
       <DependentUpon>LogMessageDialog.cs</DependentUpon>
