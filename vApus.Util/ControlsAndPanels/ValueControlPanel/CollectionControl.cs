@@ -10,12 +10,17 @@ using System.Collections;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace vApus.Util
 {
     public partial class CollectionControl : UserControl
     {
         public event EventHandler ValueChanged;
+        /// <summary>
+        /// If the input is not in the correct format.
+        /// </summary>
+        public event EventHandler Failed;
 
         private Type _elementType;
         private IEnumerable _value;
@@ -141,20 +146,91 @@ namespace vApus.Util
                 catch { }
                 dataGridView.CellValueChanged += dataGridView_CellValueChanged;
                 dataGridView.RowsRemoved += dataGridView_RowsRemoved;
-                if (ValueChanged != null)
-                    ValueChanged(this, null);
+                HandleValueChanged();
             }
         }
 
         private void dataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            if (ValueChanged != null)
-                ValueChanged(this, null);
+            HandleValueChanged();
         }
         private void dataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
-            if (ValueChanged != null)
-                ValueChanged(this, null);
+            HandleValueChanged();
+        }
+        private void HandleValueChanged()
+        {
+            try
+            {
+                ArrayList arrayList = new ArrayList(dataGridView.Rows.Count - 1);
+                Type elementType = (_value as IEnumerable).AsQueryable().ElementType;
+
+                if (elementType == typeof(bool))
+                    for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
+                        arrayList.Add((bool)dataGridView.Rows[i].Cells[0].Value);
+                else if (elementType == typeof(char))
+                    for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
+                    {
+                        string s = dataGridView.Rows[i].Cells[0].Value.ToString();
+                        if (s.Length == 0) arrayList.Add('\0'); else arrayList.Add(s[0]);
+                    }
+                else if (elementType == typeof(string))
+                    for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
+                        arrayList.Add(dataGridView.Rows[i].Cells[0].Value as string);
+                else if (elementType.BaseType == typeof(Enum))
+                    for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
+                        arrayList.Add(Enum.Parse(elementType, dataGridView.Rows[i].Cells[0].Value.ToString()));
+                else if (StringUtil.IsNumericType(elementType))
+                    for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
+                        arrayList.Add(ConvertToNumericValue(elementType, dataGridView.Rows[i].Cells[0].Value.ToString()));
+
+                if (_value is Array)
+                {
+                    _value = arrayList.ToArray(elementType);
+                }
+                else if (_value is IList)
+                {
+                    IList list = _value as IList;
+                    list.Clear();
+                    for (int i = 0; i < arrayList.Count; i++)
+                        list.Add(arrayList[i]);
+                    _value = list;
+                }
+
+                if (ValueChanged != null)
+                    ValueChanged(this, null);
+            }
+            catch 
+            {
+                if (Failed != null)
+                    Failed(this, null);
+            }
+        }
+        private object ConvertToNumericValue(Type numericValueType, string s)
+        {
+            return ConvertToNumericValue(numericValueType, double.Parse(s));
+        }
+        private object ConvertToNumericValue(Type numericValueType, object o)
+        {
+            if (numericValueType == typeof(short))
+                return Convert.ToInt16(o);
+            else if (numericValueType == typeof(int))
+                return Convert.ToInt32(o);
+            else if (numericValueType == typeof(long))
+                return Convert.ToInt64(o);
+            else if (numericValueType == typeof(ushort))
+                return Convert.ToUInt16(o);
+            else if (numericValueType == typeof(uint))
+                return Convert.ToUInt32(o);
+            else if (numericValueType == typeof(ulong))
+                return Convert.ToUInt64(o);
+            else if (numericValueType == typeof(float))
+                return Convert.ToSingle(o);
+            else if (numericValueType == typeof(double))
+                return Convert.ToDouble(o);
+            else if (numericValueType == typeof(decimal))
+                return Convert.ToDecimal(o);
+            throw new InvalidCastException("numericValueType");
         }
     }
 }

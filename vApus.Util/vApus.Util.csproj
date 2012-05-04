@@ -199,6 +199,9 @@
     <Compile Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.Designer.cs">
       <DependentUpon>DisableFirewallAutoUpdatePanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\FixedNumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ControlsAndPanels\KeyValuePairControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

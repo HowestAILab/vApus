@@ -216,7 +216,7 @@ namespace vApus.SolutionTree
         }
         private void NumericControl(object value)
         {
-            NumericUpDown nud = new NumericUpDown();
+            FixedNumericUpDown nud = new FixedNumericUpDown();
             string[] split = value.ToString().Split(new char[] { '.', ',' });
             if (split.Length == 2)
                 nud.DecimalPlaces = split[1].Length;
@@ -456,7 +456,7 @@ namespace vApus.SolutionTree
                     }
                     else if (StringUtil.IsNumeric(value))
                     {
-                        NumericUpDown nud = _commonPropertyControl as NumericUpDown;
+                        FixedNumericUpDown nud = _commonPropertyControl as FixedNumericUpDown;
                         Value = ConvertToNumericValue(value.GetType(), nud.Value);
                     }
                     else if (value is IEnumerable)
@@ -602,7 +602,7 @@ namespace vApus.SolutionTree
                 }
                 else if (StringUtil.IsNumeric(value))
                 {
-                    NumericUpDown nud = _commonPropertyControl as NumericUpDown;
+                    FixedNumericUpDown nud = _commonPropertyControl as FixedNumericUpDown;
                     nud.TextChanged -= _ValueChanged;
                     nud.Value = Convert.ToDecimal(value);
 

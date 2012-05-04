@@ -54,17 +54,22 @@ namespace vApus.Util
         private void txt_TextChanged(object sender, EventArgs e)
         {
             TextBox txt = sender as TextBox;
-            base.HandleValueChanged(txt.Text[0]);
+            if (txt.Text.Length != 0)
+                base.HandleValueChanged(txt.Text[0]);
         }
         private void txt_KeyUp(object sender, KeyEventArgs e)
         {
             TextBox txt = sender as TextBox;
-            base.HandleKeyUp(e.KeyCode, txt.Text[0]);
+            if (txt.Text.Length != 0)
+                base.HandleKeyUp(e.KeyCode, txt.Text[0]);
         }
         private void txt_Leave(object sender, EventArgs e)
         {
             TextBox txt = sender as TextBox;
-            base.HandleValueChanged(txt.Text[0]);
+            if (txt.Text.Length == 0)
+                txt.Text = base.__Value.__Value.ToString();
+            else
+                base.HandleValueChanged(txt.Text[0]);
         }
     }
 }

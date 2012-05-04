@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace vApus.Util
 {
@@ -38,6 +39,10 @@ namespace vApus.Util
         {
             get { return _values; }
         }
+        public bool Locked
+        {
+            get { return _locked; }
+        }
         #endregion
 
         public ValueControlPanel()
@@ -60,8 +65,19 @@ namespace vApus.Util
             AddControlType(typeof(bool), typeof(BoolValueControl));
             AddControlType(typeof(char), typeof(CharValueControl));
             AddControlType(typeof(string), typeof(StringValueControl));
-            //AddControl(typeof(Enum), typeof(ComboBox));
-
+            AddControlType(typeof(short), typeof(NumericValueControl));
+            AddControlType(typeof(int), typeof(NumericValueControl));
+            AddControlType(typeof(long), typeof(NumericValueControl));
+            AddControlType(typeof(ushort), typeof(NumericValueControl));
+            AddControlType(typeof(uint), typeof(NumericValueControl));
+            AddControlType(typeof(ulong), typeof(NumericValueControl));
+            AddControlType(typeof(float), typeof(NumericValueControl));
+            AddControlType(typeof(double), typeof(NumericValueControl));
+            AddControlType(typeof(decimal), typeof(NumericValueControl));
+            AddControlType(typeof(Enum), typeof(EnumValueControl));
+            AddControlType(typeof(IList), typeof(CollectionValueControl));
+            AddControlType(typeof(Array), typeof(CollectionValueControl));
+            AddControlType(typeof(object), typeof(CollectionValueControl));
         }
         public void AddControlType(Type valueType, Type controlType)
         {
@@ -82,7 +98,16 @@ namespace vApus.Util
             foreach (BaseValueControl.Value value in _values)
             {
                 BaseValueControl control = null;
-                Type controlType = _controlTypes[value.__Value.GetType()];
+                Type valueType = value.__Value.GetType();
+                Type controlType = null;
+                while (controlType == null)
+                {
+                    if (_controlTypes.TryGetValue(valueType, out controlType))
+                        break;
+
+                    valueType = valueType.BaseType;
+                }
+
                 //Find a control with the right type if any.
                 foreach (BaseValueControl ctrl in this.Controls)
                     if (controlType == ctrl.GetType() && !range.Contains(ctrl))

@@ -49,8 +49,9 @@ namespace vApus.Util
             }
 
             cbo.SelectedIndexChanged -= cbo_SelectedIndexChanged;
+            cbo.Items.Clear();
             //Extract all the values.
-            Type valueType = value.GetType();
+            Type valueType = value.__Value.GetType();
             foreach (Enum e in Enum.GetValues(valueType))
             {
                 //The description value will be used instead of the tostring of the enum, if any.
@@ -58,8 +59,8 @@ namespace vApus.Util
                 cbo.Items.Add(attr.Length != 0 ? attr[0].Description : e.ToString());
             }
 
-            DescriptionAttribute[] attr2 = valueType.GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
-            cbo.SelectedItem = attr2.Length > 0 ? attr2[0].Description : value.ToString();
+            DescriptionAttribute[] attr2 = valueType.GetField(value.__Value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+            cbo.SelectedItem = attr2.Length > 0 ? attr2[0].Description : value.__Value.ToString();
 
             cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
 
@@ -83,7 +84,7 @@ namespace vApus.Util
 
         private object ExtractValue(ComboBox cbo)
         {
-            Type valueType = base.__Value.GetType();
+            Type valueType = base.__Value.__Value.GetType();
             foreach (Enum e in Enum.GetValues(valueType))
             {
                 DescriptionAttribute[] attr = valueType.GetField(e.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];

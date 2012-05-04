@@ -758,14 +758,14 @@ namespace vApus.UpdateTool
             if (_updating)
             {
                 if (MessageBox.Show("Are you sure you want to disconnect while updating?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                {
-                    _updating = false;
-                    PerformConnectClick();
-                }
+                    try
+                    {
+                        _updating = false;
+                        PerformConnectClick();
+                    }
+                    catch { }
                 else
-                {
                     e.Cancel = true;
-                }
             }
             else if (_sftp != null)
             {
