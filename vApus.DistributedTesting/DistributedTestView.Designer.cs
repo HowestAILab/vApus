@@ -304,7 +304,6 @@
             this.propertiesSolutionComponentPropertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.propertiesSolutionComponentPropertyPanel.Cursor = System.Windows.Forms.Cursors.WaitCursor;
             this.propertiesSolutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.propertiesSolutionComponentPropertyPanel.Location = new System.Drawing.Point(3, 3);
             this.propertiesSolutionComponentPropertyPanel.Name = "propertiesSolutionComponentPropertyPanel";

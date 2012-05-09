@@ -1,6 +1,6 @@
-﻿namespace vApus.SolutionTree
+﻿namespace vApus.Util
 {
-    partial class SelectBaseItemsDialog
+    partial class SelectCollectionItemsDialog
     {
         /// <summary>
         /// Required designer variable.

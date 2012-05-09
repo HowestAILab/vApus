@@ -39,8 +39,9 @@ namespace vApus.Stresstest
                 nudThreads.ValueChanged += new EventHandler(nudThreads_ValueChanged);
 
                 flp.Controls.Clear();
-                flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLog")));
-                flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLogEntryIndex")));
+                #warning Fix this
+                //flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLog")));
+                //flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLogEntryIndex")));
 
                 ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connectionProxyCode.ConnectionProxyRuleSet, _connectionProxyCode.TestConnectionString);
                 ruleSetSyntaxItemPanel.InputChanged += ruleSetSyntaxItemPanel_InputChanged;

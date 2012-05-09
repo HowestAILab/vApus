@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.button1 = new System.Windows.Forms.Button();
-            this.valueControlPanel1 = new vApus.Util.ValueControlPanel();
             this.button2 = new System.Windows.Forms.Button();
             this.lblValueChanged = new System.Windows.Forms.Label();
+            this.valueControlPanel1 = new vApus.Util.ValueControlPanel();
             this.SuspendLayout();
             // 
             // button1
@@ -44,18 +44,6 @@
             this.button1.Text = "SetValues";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // valueControlPanel1
-            // 
-            this.valueControlPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.valueControlPanel1.BackColor = System.Drawing.Color.White;
-            this.valueControlPanel1.Location = new System.Drawing.Point(0, 0);
-            this.valueControlPanel1.Name = "valueControlPanel1";
-            this.valueControlPanel1.Size = new System.Drawing.Size(985, 652);
-            this.valueControlPanel1.TabIndex = 0;
-            this.valueControlPanel1.ValueChanged += new System.EventHandler<vApus.Util.ValueControlPanel.ValueChangedEventArgs>(this.valueControlPanel1_ValueChanged);
             // 
             // button2
             // 
@@ -76,6 +64,19 @@
             this.lblValueChanged.Name = "lblValueChanged";
             this.lblValueChanged.Size = new System.Drawing.Size(0, 13);
             this.lblValueChanged.TabIndex = 3;
+            // 
+            // valueControlPanel1
+            // 
+            this.valueControlPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.valueControlPanel1.BackColor = System.Drawing.Color.White;
+            this.valueControlPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.valueControlPanel1.Location = new System.Drawing.Point(0, 0);
+            this.valueControlPanel1.Name = "valueControlPanel1";
+            this.valueControlPanel1.Size = new System.Drawing.Size(985, 652);
+            this.valueControlPanel1.TabIndex = 0;
+            this.valueControlPanel1.ValueChanged += new System.EventHandler<vApus.Util.ValueControlPanel.ValueChangedEventArgs>(this.valueControlPanel1_ValueChanged);
             // 
             // TestValueControlPanel
             // 

@@ -77,7 +77,7 @@ namespace vApus.SolutionTree
         public override string ToString()
         {
             if (IsEmpty)
-                return null;
+                return "<none>";
             return _label == string.Empty ? Name + ' ' + Index : Name + ' ' + Index + ": " + _label;
         }
         #endregion

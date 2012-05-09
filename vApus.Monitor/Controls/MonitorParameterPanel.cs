@@ -7,11 +7,8 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using vApus.Util;
-using vApus.SolutionTree;
 using vApusSMT.Base;
 
 namespace vApus.Monitor

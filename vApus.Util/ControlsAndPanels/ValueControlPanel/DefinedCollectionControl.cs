@@ -7,14 +7,12 @@
  */
 using System;
 using System.Collections;
-using System.ComponentModel;
 using System.Windows.Forms;
-using vApus.Util;
 
-namespace vApus.SolutionTree
+namespace vApus.Util
 {
     /// <summary>
-    /// For selecting multiple base items with the same parent.
+    /// For selecting multiple items with the same parent.
     /// </summary>
     public partial class DefinedCollectionControl : UserControl
     {
@@ -31,7 +29,7 @@ namespace vApus.SolutionTree
             get { return dataGridView.Rows; }
         }
         /// <summary>
-        /// For selecting multiple base items with the same parent.
+        /// For selecting multiple items with the same parent.
         /// </summary>
         public DefinedCollectionControl()
         {
@@ -50,13 +48,13 @@ namespace vApus.SolutionTree
         {
             try
             {
-                var parent = (SolutionComponent)value.GetParent();
+                var parent = (IEnumerable)value.GetParent();
 
             }
             catch (Exception ex)
             {
 
-                throw new Exception("value must be of type BaseItem (direct or indirect) and must have a parent of the type SolutionComponent (also direct or indirect type).", ex);
+                throw new Exception("value must be of type IEnumerable (direct or indirect) and must have a parent of the type IEnumerable (also direct or indirect type).", ex);
             }
             _value = value;
 
@@ -84,7 +82,7 @@ namespace vApus.SolutionTree
         private void btnEdit_Click(object sender, EventArgs e)
         {
 
-            SelectBaseItemsDialog selectBaseItemsDialog = new SelectBaseItemsDialog();
+            SelectCollectionItemsDialog selectBaseItemsDialog = new SelectCollectionItemsDialog();
             selectBaseItemsDialog.SetValue(_value);
 
             if (selectBaseItemsDialog.ShowDialog() == DialogResult.OK)

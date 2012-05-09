@@ -29,50 +29,90 @@ namespace vApus.Util
         {
             base.__Value = value;
 
+            if (value.__Value.GetParent() == null)
+                SetUndefinedCollectionControl();
+            else
+                SetDefinedCollectionControl();
+        }
+        public void SetUndefinedCollectionControl()
+        {
             //Only take the value into account, the other properties are taken care off.
             //Keep control recycling in mind.
-            CollectionControl cc = null;
+            UndefinedCollectionControl ucc = null;
 
-            var ienumerable = value.__Value as IEnumerable;
-            if (base.ValueControl == null)
+            var ienumerable = base.__Value.__Value as IEnumerable;
+            if (base.ValueControl == null || !(base.ValueControl is UndefinedCollectionControl))
             {
                 Type elementType = ienumerable.AsQueryable().ElementType;
 
-                cc = new CollectionControl(elementType);
+                ucc = new UndefinedCollectionControl(elementType);
 
                 //Hard coded for the purpose of simplicity.
-                cc.Height = 170;
-                cc.Dock = DockStyle.Top;
+                ucc.Height = 170;
+                ucc.Dock = DockStyle.Top;
 
-                cc.ValueChanged += new EventHandler(cc_ValueChanged);
-                cc.Failed += new EventHandler(cc_Failed);
+                ucc.ValueChanged += new EventHandler(ucc_ValueChanged);
+                ucc.Failed += new EventHandler(ucc_Failed);
             }
             else
             {
-                cc = base.ValueControl as CollectionControl;
+                ucc = base.ValueControl as UndefinedCollectionControl;
             }
 
-            cc.ValueChanged -= cc_ValueChanged;
-            cc.SetValue(ienumerable);
-            cc.ValueChanged += cc_ValueChanged;
+            ucc.ValueChanged -= ucc_ValueChanged;
+            ucc.SetValue(ienumerable);
+            ucc.ValueChanged += ucc_ValueChanged;
 
-            base.ValueControl = cc;
+            base.ValueControl = ucc;
+        }
+        public void SetDefinedCollectionControl()
+        {
+            //Only take the value into account, the other properties are taken care off.
+            //Keep control recycling in mind.
+            DefinedCollectionControl dcc = null;
+
+            var ienumerable = base.__Value.__Value as IEnumerable;
+            if (base.ValueControl == null || !(base.ValueControl is DefinedCollectionControl))
+            {
+                dcc = new DefinedCollectionControl();
+
+                //Hard coded for the purpose of simplicity.
+                dcc.Height = 170;
+                dcc.Dock = DockStyle.Top;
+
+                dcc.ValueChanged += new EventHandler(dcc_ValueChanged);
+            }
+            else
+            {
+                dcc = base.ValueControl as DefinedCollectionControl;
+            }
+
+            dcc.ValueChanged -= dcc_ValueChanged;
+            dcc.SetValue(ienumerable);
+            dcc.ValueChanged += dcc_ValueChanged;
+
+            base.ValueControl = dcc;
         }
 
-        private void cc_ValueChanged(object sender, EventArgs e)
+        private void ucc_ValueChanged(object sender, EventArgs e)
         {
-            CollectionControl cc = sender as CollectionControl;
+            UndefinedCollectionControl cc = sender as UndefinedCollectionControl;
             base.HandleValueChanged(cc.Value);
         }
-        private void cc_Failed(object sender, EventArgs e)
+        private void dcc_ValueChanged(object sender, EventArgs e)
+        {
+            DefinedCollectionControl cc = sender as DefinedCollectionControl;
+            base.HandleValueChanged(cc.Value);
+        }
+        private void ucc_Failed(object sender, EventArgs e)
         {
             MessageBox.Show("The new value is not of the right data type.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            CollectionControl cc = sender as CollectionControl;
+            UndefinedCollectionControl cc = sender as UndefinedCollectionControl;
             var ienumerable = base.__Value.__Value as IEnumerable;
-            
-            cc.ValueChanged -= cc_ValueChanged;
+
+            cc.ValueChanged -= ucc_ValueChanged;
             cc.SetValue(ienumerable);
-            cc.ValueChanged += cc_ValueChanged;
+            cc.ValueChanged += ucc_ValueChanged;
         }
     }
 }

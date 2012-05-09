@@ -113,7 +113,7 @@ namespace vApus.Util
 
                 value.Enabled = !IsReadOnly;
 
-                Toggle(ToggleState.Collapse);
+                Toggle(_toggleState);
             }
         }
         #endregion
@@ -141,8 +141,12 @@ namespace vApus.Util
         }
         private void SetValue(object value)
         {
+            if (value == null && _value.__Value == null)
+                return;
             //Equals is used instead of  ==  because == results in a shallow check (just handles (pointers)).
-            if (!_value.__Value.Equals(value))
+            if ((value == null && _value.__Value != null) || 
+                (value != null && _value.__Value == null) || 
+                !_value.__Value.Equals(value))
             {
                 object oldValue = _value.__Value;
                 _value.__Value = value;
@@ -243,11 +247,11 @@ namespace vApus.Util
             object value = _value.__Value;
             if (value == null)
                 value = string.Empty;
-            if (ValueParent != null && ValueParent is IEnumerable && !(value is IEnumerable))
+            if (ValueControl is ComboBox)
             {
                 try
                 {
-                    _collapsedTextBox.Text = (ValueControl as ComboBox).SelectedItem.ToString();
+                    _collapsedTextBox.Text = value.ToString();
                 }
                 catch { }
             }

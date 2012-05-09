@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace vApus.Util
 {
-    public partial class CollectionControl : UserControl
+    public partial class UndefinedCollectionControl : UserControl
     {
         public event EventHandler ValueChanged;
         /// <summary>
@@ -36,11 +36,11 @@ namespace vApus.Util
         /// <summary>
         /// Designer time constructor.
         /// </summary>
-        public CollectionControl()
+        public UndefinedCollectionControl()
         {
             InitializeComponent();
         }
-        public CollectionControl(Type elementType)
+        public UndefinedCollectionControl(Type elementType)
         {
             InitializeComponent();
 

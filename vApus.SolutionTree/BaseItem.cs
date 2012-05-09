@@ -585,7 +585,7 @@ namespace vApus.SolutionTree
         }
         public override string ToString()
         {
-            return IsEmpty ? null : Name;
+            return IsEmpty ? "<none>" : Name;
         }
         #endregion
     }

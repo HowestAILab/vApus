@@ -6,14 +6,13 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Windows.Forms;
 using System.Collections;
-using vApus.Util;
 using System.Linq;
+using System.Windows.Forms;
 
-namespace vApus.SolutionTree
+namespace vApus.Util
 {
-    public partial class SelectBaseItemsDialog : Form
+    public partial class SelectCollectionItemsDialog : Form
     {
         #region Fields
         private IEnumerable _value, _newValue;
@@ -27,7 +26,7 @@ namespace vApus.SolutionTree
         #endregion
 
         #region Constructor
-        public SelectBaseItemsDialog()
+        public SelectCollectionItemsDialog()
         {
             InitializeComponent();
         }
@@ -37,8 +36,8 @@ namespace vApus.SolutionTree
         public void SetValue(IEnumerable value)
         {
             _value = value;
-            var parent = value.GetParent() as SolutionComponent;
-            foreach (BaseItem item in parent)
+            var parent = value.GetParent() as IEnumerable;
+            foreach (object item in parent)
             {
                 var lvwi = new ListViewItem(item.ToString());
                 lvwi.Tag = item;

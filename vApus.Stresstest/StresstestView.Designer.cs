@@ -60,7 +60,6 @@
             // 
             // solutionComponentPropertyPanel
             // 
-            this.solutionComponentPropertyPanel.Cursor = System.Windows.Forms.Cursors.WaitCursor;
             this.solutionComponentPropertyPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.solutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.solutionComponentPropertyPanel.Location = new System.Drawing.Point(3, 3);

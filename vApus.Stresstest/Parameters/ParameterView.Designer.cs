@@ -43,7 +43,6 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.solutionComponentPropertyPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.solutionComponentPropertyPanel.Cursor = System.Windows.Forms.Cursors.WaitCursor;
             this.solutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.solutionComponentPropertyPanel.Location = new System.Drawing.Point(0, 0);
             this.solutionComponentPropertyPanel.Name = "solutionComponentPropertyPanel";

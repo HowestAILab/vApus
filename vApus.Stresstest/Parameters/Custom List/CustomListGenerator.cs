@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
@@ -162,7 +163,7 @@ namespace vApus.Stresstest
         private void timer_Tick(object sender, EventArgs e)
         {
             if (!this.IsDisposed && this.IsHandleCreated && this.Visible)
-                foreach (SolutionComponentCommonPropertyControl ctrl in _parameterTypeSolutionComponentPropertyPanel.SolutionComponentPropertyControls)
+                foreach (BaseValueControl ctrl in _parameterTypeSolutionComponentPropertyPanel.ValueControls)
                     if (ctrl.Label == "Label")
                     {
                         ctrl.Visible = false;

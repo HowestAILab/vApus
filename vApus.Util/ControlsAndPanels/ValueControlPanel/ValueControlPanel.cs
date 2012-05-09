@@ -6,10 +6,10 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Collections;
 
 namespace vApus.Util
 {
@@ -38,6 +38,17 @@ namespace vApus.Util
         public BaseValueControl.Value[] Values
         {
             get { return _values; }
+        }
+        public IEnumerable ControlTypes
+        {
+            get { foreach (Type t in _controlTypes.Keys) yield return t; }
+        }
+        /// <summary>
+        /// Use this read only please.
+        /// </summary>
+        public ControlCollection ValueControls
+        {
+            get { return this.Controls; } 
         }
         public bool Locked
         {
@@ -77,8 +88,13 @@ namespace vApus.Util
             AddControlType(typeof(Enum), typeof(EnumValueControl));
             AddControlType(typeof(IList), typeof(CollectionValueControl));
             AddControlType(typeof(Array), typeof(CollectionValueControl));
-            AddControlType(typeof(object), typeof(CollectionValueControl));
+            AddControlType(typeof(object), typeof(CollectionItemValueControl));
         }
+        /// <summary>
+        /// There are a lot off dirrerent control types (ControlTypes property) already available, you can still add your own though.
+        /// </summary>
+        /// <param name="valueType"></param>
+        /// <param name="controlType"></param>
         public void AddControlType(Type valueType, Type controlType)
         {
             _controlTypes.Add(valueType, controlType);
@@ -86,6 +102,10 @@ namespace vApus.Util
 
         /// <summary>
         /// Fills the panel with controls, recycles previous ones if possible.
+        /// 
+        /// Note: IList and Array -- If those types have a parent that is a collection (.SetParent()) the choice is limited to the items of that parent collection.
+        /// 
+        /// Object -- The given object must have a parent that is a collection (either Ilist or Array), the choice is limited to a value of that collection. (all items must have the collection for a parent)
         /// </summary>
         /// <param name="values"></param>
         public void SetValues(params BaseValueControl.Value[] values)
@@ -128,6 +148,13 @@ namespace vApus.Util
 
             this.Controls.Clear();
             this.Controls.AddRange(range.ToArray());
+
+            this.AutoScroll = true;
+
+            //Ensure it is selected when it becomes visible.
+            if (this.Controls.Count != 0)
+                this.Controls[0].VisibleChanged += new EventHandler(ValueControl_VisibleChanged);
+
             LockWindowUpdate(0);
         }
         private void ValueControlPanel_ValueChanged(object sender, BaseValueControl.ValueChangedEventArgs e)
@@ -135,7 +162,15 @@ namespace vApus.Util
             if (ValueChanged != null)
                 ValueChanged(this, new ValueChangedEventArgs(this.Controls.IndexOf(sender as Control), e.OldValue, e.NewValue));
         }
-
+        private void ValueControl_VisibleChanged(object sender, EventArgs e)
+        {
+            Control control = sender as Control;
+            if (control.Visible)
+            {
+                control.VisibleChanged -= ValueControl_VisibleChanged;
+                control.Select();
+            }
+        }
         /// <summary>
         /// Lock all containing "BaseValueControl"'s.
         /// </summary>
