@@ -1,6 +1,6 @@
 ﻿namespace vApus.Monitor
 {
-    partial class ParameterPanel
+    partial class MonitorParameterPanel
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,32 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.flp = new System.Windows.Forms.FlowLayoutPanel();
-            this.SuspendLayout();
-            // 
-            // flp
-            // 
-            this.flp.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flp.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flp.Location = new System.Drawing.Point(0, 0);
-            this.flp.Name = "flp";
-            this.flp.Size = new System.Drawing.Size(200, 150);
-            this.flp.TabIndex = 1;
-            // 
-            // SolutionComponentPropertyPanel
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.flp);
-            this.Name = "SolutionComponentPropertyPanel";
-            this.Size = new System.Drawing.Size(200, 150);
-            this.ResumeLayout(false);
-
+            components = new System.ComponentModel.Container();
         }
 
         #endregion
-
-        private System.Windows.Forms.FlowLayoutPanel flp;
-
     }
 }

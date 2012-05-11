@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace vApus.Util
 {
@@ -31,7 +32,7 @@ namespace vApus.Util
         //Filled with default controls --> these are encapsulated in ValueControls
         //key = value type, value = BaseValueControl impl type
         private Dictionary<Type, Type> _controlTypes;
-        private bool _locked;
+        private bool _locked, _autoSelectControl = true;
         #endregion
 
         #region Properties
@@ -48,11 +49,17 @@ namespace vApus.Util
         /// </summary>
         public ControlCollection ValueControls
         {
-            get { return this.Controls; } 
+            get { return this.Controls; }
         }
         public bool Locked
         {
             get { return _locked; }
+        }
+        [DefaultValue(true)]
+        public bool AutoSelectControl
+        {
+            get { return _autoSelectControl; }
+            set { _autoSelectControl = value; }
         }
         #endregion
 
@@ -152,10 +159,48 @@ namespace vApus.Util
             this.AutoScroll = true;
 
             //Ensure it is selected when it becomes visible.
-            if (this.Controls.Count != 0)
-                this.Controls[0].VisibleChanged += new EventHandler(ValueControl_VisibleChanged);
+            if (_autoSelectControl && this.Controls.Count != 0)
+            {
+                Control control = this.Controls[0];
+                if (control.IsHandleCreated && control.Visible)
+                    control.Select();
+                else
+                    control.VisibleChanged += new EventHandler(ValueControl_VisibleChanged);
+            }
 
             LockWindowUpdate(0);
+        }
+        /// <summary>
+        /// This allows recycling of the controls.
+        /// </summary>
+        /// <param name="values"></param>
+        public void Set__Values(params object[] values)
+        {
+            LockWindowUpdate(this.Handle.ToInt32());
+            for (int i = 0; i != this.Controls.Count; i++)
+                Set__ValueAt(i, values[i]);
+            LockWindowUpdate(0);
+        }
+        /// <summary>
+        /// This allows recycling of the controls.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="value">Must be of the correct data type for the present value control</param>
+        private void Set__ValueAt(int index, object value)
+        {
+            BaseValueControl valueControl = this.Controls[index] as BaseValueControl;
+            //First check is a null check :).
+            if (valueControl.__Value.__Value != null &&
+                value != null &&
+                !valueControl.__Value.__Value.Equals(value))
+                (valueControl as IValueControl).Init(new BaseValueControl.Value
+                {
+                    __Value = value,
+                    Description = valueControl.Description,
+                    IsEncrypted = valueControl.IsEncrypted,
+                    IsReadOnly = valueControl.IsReadOnly,
+                    Label = valueControl.Label
+                });
         }
         private void ValueControlPanel_ValueChanged(object sender, BaseValueControl.ValueChangedEventArgs e)
         {

@@ -144,8 +144,8 @@ namespace vApus.Util
             if (value == null && _value.__Value == null)
                 return;
             //Equals is used instead of  ==  because == results in a shallow check (just handles (pointers)).
-            if ((value == null && _value.__Value != null) || 
-                (value != null && _value.__Value == null) || 
+            if (_value.__Value != null &&
+                value != null &&
                 !_value.__Value.Equals(value))
             {
                 object oldValue = _value.__Value;

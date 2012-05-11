@@ -174,7 +174,6 @@ namespace vApus.DistributedTesting
         {
             //show the monitorview
             var view = SolutionComponentViewManager.Show(monitor) as Monitor.MonitorView;
-            view.ShowLabelControl = false;
             view.Tag = new MonitorReportControl();
             //For each view initialized, DistributedStresstestControl takes care of starting the test.
             view.MonitorInitialized += new EventHandler<MonitorView.MonitorInitializedEventArgs>(view_MonitorInitialized);

@@ -309,14 +309,6 @@ namespace vApus.Stresstest
             }
             return LexicalResult.OK;
         }
-        /// <summary>
-        /// Gets a control based on the first rule if any.
-        /// </summary>
-        /// <returns></returns>
-        internal Control GetControl()
-        {
-            return null;
-        }
         #endregion
     }
 }

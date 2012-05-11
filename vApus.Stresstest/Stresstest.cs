@@ -12,6 +12,7 @@ using System.Linq;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
+using System.Reflection;
 
 namespace vApus.Stresstest
 {
@@ -39,14 +40,6 @@ namespace vApus.Stresstest
         #endregion
 
         #region Properties
-        
-        [SavableCloneable, PropertyControl(0)]
-        public new string Label
-        {
-            get { return base.Label; }
-            set { base.Label = value; }
-        }
-        
         [Description("The connection to the application to test.")]
         [SavableCloneable, PropertyControl(1)]
         public Connection Connection
@@ -56,11 +49,13 @@ namespace vApus.Stresstest
             {
                 if (value == null)
                     throw new ArgumentNullException("Use the .Empty function, not null.");
+                value.ParentIsNull -= _connection_ParentIsNull;
                 _connection = value;
+                _connection.ParentIsNull += _connection_ParentIsNull;
             }
         }
         [ReadOnly(true)]
-        [Description("This is used in and defines the connection."), DisplayName("Connection Proxy")]
+        [DisplayName("Connection Proxy")]
         [PropertyControl(2)]
         public string ConnectionProxy
         {
@@ -71,7 +66,7 @@ namespace vApus.Stresstest
                 return _connection.ConnectionProxy.ToString();
             }
         }
-        
+
         [Description("The log used to test the application.")]
         [SavableCloneable, PropertyControl(3)]
         public Log Log
@@ -81,11 +76,13 @@ namespace vApus.Stresstest
             {
                 if (value == null)
                     throw new ArgumentNullException("Use the .Empty function, not null.");
+                value.ParentIsNull -= _log_ParentIsNull;
                 _log = value;
+                _log.ParentIsNull += _log_ParentIsNull;
             }
         }
         [ReadOnly(true)]
-        [Description("This is used in and defines the log entries."), DisplayName("Log Rule Set")]
+        [DisplayName("Log Rule Set")]
         [PropertyControl(4)]
         public string LogRuleSet
         {
@@ -96,7 +93,7 @@ namespace vApus.Stresstest
                 return _log.LogRuleSet.ToString();
             }
         }
-        
+
         [SavableCloneable]
         public int[] MonitorIndices
         {
@@ -121,7 +118,7 @@ namespace vApus.Stresstest
                 }
             }
         }
-        
+
         [Description("The monitors used to link stresstest results to performance counters. Maximum 5 allowed.")]
         [PropertyControl(5)]
         public Monitor.Monitor[] Monitors
@@ -149,7 +146,7 @@ namespace vApus.Stresstest
                 }
             }
         }
-        
+
         [Description("The count(s) of the concurrent users generated, the minimum given value equals one."), DisplayName("Concurrent Users")]
         [SavableCloneable, PropertyControl(6)]
         public int[] ConcurrentUsers
@@ -165,7 +162,7 @@ namespace vApus.Stresstest
                 _concurrentUsers = value;
             }
         }
-        
+
         [Description("A static multiplier of the runtime for each concurrency level. Must be greater than zero.")]
         [SavableCloneable, PropertyControl(7)]
         public int Precision
@@ -178,7 +175,7 @@ namespace vApus.Stresstest
                 _precision = value;
             }
         }
-        
+
         [Description("Useful for tests with low or no delay. It appends the runtime for every concurrency level in a way they even out. For example: a minimum request of 10 with 5 concurrent users makes the runtime twice as long, of 15 three times."), DisplayName("Dynamic Run Multiplier")]
         [SavableCloneable, PropertyControl(8)]
         public int DynamicRunMultiplier
@@ -191,7 +188,7 @@ namespace vApus.Stresstest
                 _dynamicRunMultiplier = value;
             }
         }
-        
+
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
         [PropertyControl(9)]
         public int MinimumDelay
@@ -209,14 +206,14 @@ namespace vApus.Stresstest
         /// <summary>
         /// Only for saving and loading, should not be used.
         /// </summary>
-        
+
         [SavableCloneable]
         public int MinimumDelayOverride
         {
             get { return _minimumDelay; }
             set { _minimumDelay = value; }
         }
-        
+
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
         [PropertyControl(10)]
         public int MaximumDelay
@@ -234,14 +231,14 @@ namespace vApus.Stresstest
         /// <summary>
         /// Only for saving and loading, should not be used.
         /// </summary>
-        
+
         [SavableCloneable]
         public int MaximumDelayOverride
         {
             get { return _maximumDelay; }
             set { _maximumDelay = value; }
         }
-        
+
         [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns; obligatory for Fast Action and Log Entry Distribution.")]
         [SavableCloneable, PropertyControl(11)]
         public bool Shuffle
@@ -254,7 +251,7 @@ namespace vApus.Stresstest
                 _shuffle = value;
             }
         }
-        
+
         [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance. Note:This can't be used in combination with parameters (works but it breaks the parameter refresh logic, giving a wrong result).")]
         [SavableCloneable, PropertyControl(12)]
         public ActionAndLogEntryDistribution Distribute
@@ -290,25 +287,10 @@ namespace vApus.Stresstest
         public Stresstest()
         {
             if (Solution.ActiveSolution != null)
-            {
-                _log = BaseItem.Empty(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-                _connection = BaseItem.Empty(typeof(Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
-                _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
-
-                List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorIndices.Length);
-                foreach (int index in _monitorIndices)
-                    if (index < _monitorProject.Count)
-                        l.Add(_monitorProject[index] as Monitor.Monitor);
-
-                _monitors = l.ToArray();
-                _monitors.SetParent(_monitorProject);
-
-                SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponentChanged_SolutionComponentChanged);
-            }
+                Init();
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
-
         #endregion
 
         #region Functions
@@ -328,8 +310,12 @@ namespace vApus.Stresstest
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            _log = BaseItem.Empty(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-            _connection = BaseItem.Empty(typeof(Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
+            Init();
+        }
+        private void Init()
+        {
+            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
             _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
 
             List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorIndices.Length);
@@ -341,6 +327,14 @@ namespace vApus.Stresstest
             _monitors.SetParent(_monitorProject);
 
             SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponentChanged_SolutionComponentChanged);
+        }
+        private void _connection_ParentIsNull(object sender, EventArgs e)
+        {
+            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
+        }
+        private void _log_ParentIsNull(object sender, EventArgs e)
+        {
+            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
         public override void Activate()
         {

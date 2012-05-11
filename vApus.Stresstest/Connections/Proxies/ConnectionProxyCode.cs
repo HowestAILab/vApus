@@ -211,7 +211,12 @@ _isDisposed = true;
         public Log TestLog
         {
             get { return _testLog; }
-            set { _testLog = value; }
+            set
+            {
+                value.ParentIsNull -= _testLog_ParentIsNull;
+                _testLog = value;
+                _testLog.ParentIsNull += _testLog_ParentIsNull;
+            }
         }
         [DisplayName("Test Log Entry Index"), Description("- 1 for all.")]
         public int TestLogEntryIndex
@@ -246,18 +251,22 @@ _isDisposed = true;
         public ConnectionProxyCode()
         {
             if (Solution.ActiveSolution != null)
-                _testLog = BaseItem.Empty(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+                TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
-        }
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            _testLog = BaseItem.Empty(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
         #endregion
 
         #region Functions
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
+        {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+        }
+        private void _testLog_ParentIsNull(object sender, EventArgs e)
+        {
+            TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+        }
         public string BuildConnectionProxyClass(ConnectionProxyRuleSet connectionProxyRuleSet, string connectionString)
         {
             string[] split = _code.Split(new string[] { "// -- RuleSetFields --" }, StringSplitOptions.None);

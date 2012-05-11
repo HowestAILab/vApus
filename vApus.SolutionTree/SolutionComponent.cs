@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Resources;
 using System.Windows.Forms;
+using vApus.Util;
 
 namespace vApus.SolutionTree
 {
@@ -22,6 +23,15 @@ namespace vApus.SolutionTree
     public abstract class SolutionComponent : Object, ICollection<BaseItem>
     {
         public static event EventHandler<SolutionComponentChangedEventArgs> SolutionComponentChanged;
+
+        /// <summary>
+        /// When creating a empty base item, it checks if the parent becomes null. (Happens when removed from a collection, don't set the parent null yourself)
+        /// 
+        /// Call SolutionComponent.GetNextChild when this happens, don't forget to suscribe to this event again for the new item.
+        /// 
+        /// Note: this event is fired on another thread.
+        /// </summary>
+        public event EventHandler ParentIsNull;
 
         #region Fields
         protected List<BaseItem> _items = new List<BaseItem>();
@@ -46,36 +56,70 @@ namespace vApus.SolutionTree
                 }
             }
         }
-        [Description("The count of the child items.")]
+        /// <summary>
+        /// The count of the child items (regardless the parent of those items).
+        /// </summary>
+        [Description("The count of the child items (regardless the parent of those items).")]
         public int Count
         {
             get { return _items.Count; }
+        }
+        /// <summary>
+        /// The count of the child items (where the parent of those items is null or not this).
+        /// </summary>
+        [Description("The count of the child items (where the parent of those items is null or not this).")]
+        public int CountOFParentLess
+        {
+            get
+            {
+                int count = 0;
+                foreach (object item in _items)
+                    if (item.GetParent() != this)
+                        ++count;
+
+                return count;
+            }
+        }
+        /// <summary>
+        /// The count of the child items that are of a derived type from BaseItem (where the parent is this).
+        /// </summary>
+        /// <param name="derivedType"></param>
+        /// <returns></returns>
+        [Description("The count of the child items that are of a derived type from BaseItem (where the parent is this).")]
+        public int CountOf(Type derivedType)
+        {
+            int count = 0;
+            foreach (object item in _items)
+                if (item.GetType() == derivedType && item.GetParent() == this)
+                    ++count;
+
+            return count;
         }
         public BaseItem this[int index]
         {
             get { return _items[index]; }
         }
-        
+
         public bool IsReadOnly
         {
             get { return false; }
         }
         [SavableCloneable]
-        
+
         public bool ShowInGui
         {
             get { return _showInGui; }
             set { _showInGui = value; }
         }
         [SavableCloneable]
-        
+
         public bool IsDefaultItem
         {
             get { return _isDefaultItem; }
             set { _isDefaultItem = value; }
         }
         [SavableCloneable]
-        
+
         public bool IsEmpty
         {
             get { return _isEmpty; }
@@ -83,7 +127,29 @@ namespace vApus.SolutionTree
         }
         #endregion
 
+        public SolutionComponent()
+        {
+            /// <summary>
+            /// To Check if the parent has become null.
+            /// 
+            /// That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
+            ObjectExtension.ParentChanged += new ObjectExtension.ParentChangedEventHandler(ObjectExtension_ParentChanged);
+        }
+
         #region Functions
+        /// <summary>
+        /// Checks if the parent has become null.
+        /// 
+        /// That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
+        /// </summary>
+        protected void ObjectExtension_ParentChanged(ObjectExtension.ParentOrTagChangedEventArgs parentOrTagChangedEventArgs)
+        {
+            if (Solution.ActiveSolution != null)
+                if (parentOrTagChangedEventArgs.Child == this)
+                    if (parentOrTagChangedEventArgs.New == null && ParentIsNull != null)
+                        foreach (EventHandler del in ParentIsNull.GetInvocationList())
+                            del.BeginInvoke(this, null, null, null);
+        }
         /// <summary>
         /// </summary>
         /// <param name="item"></param>
@@ -396,7 +462,23 @@ namespace vApus.SolutionTree
                 item.ForceSettingChildsParent();
             }
         }
+        /// <summary>
+        /// Sets the next child if available, otherwise you get an empty variant.
+        /// 
+        /// You are responisble to suscribe to ParentIsNull afterwards.
+        /// </summary>
+        /// <param name="childType">The parent can contain childs of different types, therefore this is important</param>
+        /// <param name="parent"></param>
+        public static BaseItem GetNextOrEmptyChild(Type childType, SolutionComponent parent)
+        {
+            int count = parent.CountOf(childType);
+            if (count != 0)
+                foreach (object item in parent)
+                    if (item.GetType() == childType && item.GetParent() == parent) //GetParent is the parent from the global cache, default items in a collection don't know their parents.
+                        return item as BaseItem;
 
+            return BaseItem.Empty(childType, parent);
+        }
         /// <summary>
         /// Virtual method for activation, example: SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)) --> default.
         /// </summary>

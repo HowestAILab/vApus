@@ -62,7 +62,9 @@ namespace vApus.SolutionTree
 
         #region Functions
         /// <summary>
-        /// It is adviced to use this when having base items not contained in the items collection.
+        /// It is adviced to use Solution.GetNextOrEmptyChild instead of this when having base items not contained in the items collection.
+        /// However this is sometimes handy to add a new and empty item to the collection.
+        /// 
         /// </summary>
         /// <param name="baseItemType"></param>
         /// <param name="parent">Required! Use Solution.ActiveSolution.GetSolutionComponent or .GetLabeledBaseItem to retrieve the right one.</param>
@@ -71,9 +73,11 @@ namespace vApus.SolutionTree
         {
             BaseItem emptyItem = Activator.CreateInstance(baseItemType) as BaseItem;
             emptyItem.Parent = parent;
-            emptyItem.IsEmpty = true;
+            emptyItem.IsEmpty = true; //Default true;
+
             return emptyItem;
         }
+
         /// <summary>
         /// Returns the siblings of the same type as this.
         /// </summary>

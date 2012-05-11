@@ -21,15 +21,8 @@ namespace vApus.DistributedTesting
         private bool _use = false;
         #endregion
 
-        #region Properties
+        #region Properties       
         [SavableCloneable, PropertyControl(0)]
-        public new string Label
-        {
-            get { return base.Label; }
-            set { base.Label = value; }
-        }
-        
-        [SavableCloneable, PropertyControl(1)]
         [DisplayName("Use this Tile")]
         public bool Use
         {

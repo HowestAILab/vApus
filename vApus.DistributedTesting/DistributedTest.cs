@@ -28,15 +28,7 @@ namespace vApus.DistributedTesting
         private string _resultPath = SpecialFolder.GetPath(SpecialFolder.Folder.Desktop);
         #endregion
 
-        #region Properties
-        [Browsable(true)]
-        [SavableCloneable]
-        public new string Label
-        {
-            get { return base.Label; }
-            set { base.Label = value; }
-        }
-                
+        #region Properties                
         [SavableCloneable]
         [DisplayName("Run Synchronization")]
         public RunSynchronization RunSynchronization

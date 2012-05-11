@@ -19,18 +19,11 @@ namespace vApus.Stresstest
     public abstract class BaseRuleSet : LabeledBaseItem
     {
         #region Fields
-        private string _catagory = string.Empty, _childDelimiter = string.Empty, _description = string.Empty;
+        protected string _childDelimiter = string.Empty, _description = string.Empty;
         #endregion
 
         #region Properties
         [SavableCloneable, PropertyControl(1)]
-        [Description("A value to specify that different rule sets are compatible with each other, for example: log and connection rule sets")]
-        public string Category
-        {
-            get { return _catagory; }
-            set { _catagory = value; }
-        }
-        [SavableCloneable, PropertyControl(2)]
         [Description("If the length of the delimiter is zero, the given string will not be splitted into parts (space = valid)."), DisplayName("Child Delimiter")]
         public virtual string ChildDelimiter
         {
@@ -53,7 +46,6 @@ namespace vApus.Stresstest
         /// Otherwise the string will be split and each part will be checked against a SyntaxItem having the same index. The array of strings must have a length that at least equals the number of SyntaxItems.
         /// However those items can be optional, so if a rule deeper in the structure does not comply with the matching index in the array, that part of the array will be matched against the next non-optional SyntaxItem.
         /// If the split input has more parts than there are SyntaxItems those are returned as meta-data.
-        /// Category is a field to group different rule sets together.
         /// </summary>
         public BaseRuleSet()
         { }
@@ -64,10 +56,16 @@ namespace vApus.Stresstest
         {
             Add(new SyntaxItem());
         }
-        public IEnumerable<Control> GetControls()
+        /// <summary>
+        /// Lexes the input if possible and builds an AST.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="parameters">Can be null.</param>
+        /// <param name="output"></param>
+        /// <returns></returns>
+        public LexicalResult TryLexicalAnalysis(string input, Parameters parameters, out ASTNode output)
         {
-            foreach (BaseItem item in this)
-                yield return (item as SyntaxItem).GetControl();
+            return RuleSetLexer.TryLexicalAnalysis(input, this, _childDelimiter, parameters, out output);
         }
         #endregion
     }

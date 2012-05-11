@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2009 (c) Sizing Servers Lab
+ * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
@@ -27,13 +27,12 @@ namespace vApus.SolutionTree
 
         #region Fields
         private SolutionComponent _solutionComponent;
+        private bool _solutionComponentTypeChanged;
         //Can be sorted, kept here.
         private List<PropertyInfo> _properties;
-        //If this updates the solution, this must nog be refresht.
-        private bool _canRefresh = true;
 
         //For restoring the parents --> temp solution.
-        private Dictionary<Type, SolutionComponent> _parentCache = new Dictionary<Type, SolutionComponent>();
+        // private Dictionary<Type, SolutionComponent> _parentCache = new Dictionary<Type, SolutionComponent>();
         #endregion
 
         /// <summary>
@@ -46,8 +45,14 @@ namespace vApus.SolutionTree
             {
                 if (_solutionComponent != value)
                 {
+                    this.ValueChanged -= SolutionComponentPropertyPanel_ValueChanged;
+
+                    _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
                     SetGui();
+                    _solutionComponentTypeChanged = false;
+
+                    this.ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
                 }
             }
         }
@@ -71,9 +76,13 @@ namespace vApus.SolutionTree
             this.ValueChanged += new EventHandler<ValueChangedEventArgs>(SolutionComponentPropertyPanel_ValueChanged);
         }
 
+        #endregion
+
+        #region Functions
         private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueControlPanel.ValueChangedEventArgs e)
         {
-            SetValue(e.Index, e.NewValue, e.OldValue, true);
+            if (Solution.ActiveSolution != null)
+                SetValue(e.Index, e.NewValue, e.OldValue, true);
         }
         private void SetValue(int index, object newValue, object oldValue, bool invokeEvent)
         {
@@ -94,16 +103,12 @@ namespace vApus.SolutionTree
             if (invokeEvent)
                 try
                 {
-                    _canRefresh = false;
                     //var attributes = _propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
                     //if (attributes.Length != 0)
                     _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
                 catch { }
         }
-        #endregion
-
-        #region Functions
         private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e)
         {
             SetGui();
@@ -112,7 +117,7 @@ namespace vApus.SolutionTree
         {
             if (_solutionComponent != null && IsHandleCreated)
             {
-                if (_properties == null)
+                if (_solutionComponentTypeChanged || _properties == null)
                 {
                     _properties = new List<PropertyInfo>();
                     foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties())
@@ -124,59 +129,40 @@ namespace vApus.SolutionTree
                     }
                     _properties.Sort(PropertyInfoComparer.GetInstance());
                     _properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
-                }
 
-                BaseValueControl.Value[] values = new BaseValueControl.Value[_properties.Count];
-                for (int i = 0; i != values.Length; i++)
-                {
-                    PropertyInfo propertyInfo = _properties[i];
-
-                    object[] attributes = propertyInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true);
-                    string label = (attributes.Length > 0) ? (attributes[0] as DisplayNameAttribute).DisplayName : propertyInfo.Name;
-
-                    attributes = propertyInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
-                    string description = (attributes.Length > 0) ? (attributes[0] as DescriptionAttribute).Description : string.Empty;
-
-                    attributes = propertyInfo.GetCustomAttributes(typeof(ReadOnlyAttribute), true);
-                    bool isReadOnly = !propertyInfo.CanWrite || (attributes.Length > 0 && (attributes[0] as ReadOnlyAttribute).IsReadOnly);
-
-                    attributes = propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
-                    bool isEncrypted = (attributes.Length > 0 && (attributes[0] as SavableCloneableAttribute).Encrypt);
-
-                    object value = _properties[i].GetValue(_solutionComponent, null);
-
-#warning checking if the value still exists in the solution must happen in the right base item class
-                    //Check if the value still exists in the solution
-                    if (value is BaseItem)
+                    BaseValueControl.Value[] values = new BaseValueControl.Value[_properties.Count];
+                    for (int i = 0; i != values.Length; i++)
                     {
-                        object parent = value.GetParent();
-                        if (parent == null)
-                        {
-                            var newValue = (value as BaseItem).GetEmptyVariant();
-                            newValue.SetParent(_parentCache[value.GetType()]);
-                            SetValue(i, newValue, value, false);
-                            value = newValue;
-                        }
-                        else
-                        {
-                            Type t = value.GetType();
-                            if (!_parentCache.ContainsKey(t))
-                                _parentCache.Add(t, parent as SolutionComponent);
-                        }
-                    }
-                    values[i] = new BaseValueControl.Value { __Value = value, Description = description, IsEncrypted = isEncrypted, IsReadOnly = isReadOnly, Label = label };
-                }
+                        PropertyInfo propertyInfo = _properties[i];
 
-                base.SetValues(values);
-            }
-        }
-        private void SolutionComponentPropertyControl_VisibleChanged(object sender, EventArgs e)
-        {
-            Control control = sender as Control;
-            if (control.Visible)
-            {
-                control.VisibleChanged -= SolutionComponentPropertyControl_VisibleChanged;
-                control.Select();
+                        object value = _properties[i].GetValue(_solutionComponent, null);
+
+                        object[] attributes = propertyInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+                        string label = (attributes.Length != 0) ? (attributes[0] as DisplayNameAttribute).DisplayName : propertyInfo.Name;
+
+                        attributes = propertyInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
+                        string description = (attributes.Length != 0) ? (attributes[0] as DescriptionAttribute).Description : string.Empty;
+
+                        attributes = propertyInfo.GetCustomAttributes(typeof(ReadOnlyAttribute), true);
+                        bool isReadOnly = !propertyInfo.CanWrite || (attributes.Length > 0 && (attributes[0] as ReadOnlyAttribute).IsReadOnly);
+
+                        attributes = propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
+                        bool isEncrypted = (attributes.Length != 0 && (attributes[0] as SavableCloneableAttribute).Encrypt);
+
+
+                        values[i] = new BaseValueControl.Value { __Value = value, Description = description, IsEncrypted = isEncrypted, IsReadOnly = isReadOnly, Label = label };
+                    }
+
+                    base.SetValues(values);
+                }
+                else //Recycle controls
+                {
+                    object[] values = new object[_properties.Count];
+                    for (int i = 0; i != values.Length; i++)
+                        values[i] = _properties[i].GetValue(_solutionComponent, null);
+
+                    base.Set__Values(values);
+                }
             }
         }
         /// <summary>
@@ -184,12 +170,8 @@ namespace vApus.SolutionTree
         /// </summary>
         public override void Refresh()
         {
-            if (_canRefresh)
-            {
-                base.Refresh();
-                SetGui();
-            }
-            _canRefresh = true;
+            base.Refresh();
+            SetGui();
         }
         #endregion
     }

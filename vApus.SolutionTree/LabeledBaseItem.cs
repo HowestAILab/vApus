@@ -24,7 +24,7 @@ namespace vApus.SolutionTree
         #endregion
 
         #region Properties
-        [SavableCloneable, PropertyControl]
+        [SavableCloneable]
         public virtual string Label
         {
             get { return _label; }

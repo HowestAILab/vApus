@@ -1,6 +1,6 @@
 ﻿namespace vApus.Stresstest
 {
-    partial class SyntaxItemControl
+    partial class OldSyntaxItemControl
     {
         /// <summary> 
         /// Required designer variable.

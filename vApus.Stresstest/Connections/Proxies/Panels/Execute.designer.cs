@@ -52,7 +52,7 @@
             this.btnNextError = new System.Windows.Forms.ToolStripButton();
             this.split = new System.Windows.Forms.SplitContainer();
             this.flp = new System.Windows.Forms.FlowLayoutPanel();
-            this.ruleSetSyntaxItemPanel = new vApus.Stresstest.ConnectionProxyRuleSetSyntaxItemPanel();
+            this.ruleSetSyntaxItemPanel = new vApus.Stresstest.RuleSetSyntaxItemPanel();
             this.flpTest.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudThreads)).BeginInit();
             this.panel1.SuspendLayout();
@@ -385,7 +385,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cboThread;
         private System.Windows.Forms.FlowLayoutPanel flp;
-        private ConnectionProxyRuleSetSyntaxItemPanel ruleSetSyntaxItemPanel;
+        private RuleSetSyntaxItemPanel ruleSetSyntaxItemPanel;
         private System.Windows.Forms.ProgressBar pb;
         private System.Windows.Forms.Label lblProgress;
         private System.Windows.Forms.ImageList imageList;

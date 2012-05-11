@@ -40,7 +40,12 @@ namespace vApus.Stresstest
         public LogRuleSet LogRuleSet
         {
             get { return _logRuleSet; }
-            set { _logRuleSet = value; }
+            set
+            {
+                value.ParentIsNull -= _logRuleSet_ParentIsNull;
+                _logRuleSet = value;
+                _logRuleSet.ParentIsNull += _logRuleSet_ParentIsNull;
+            }
         }
 
         /// <summary>
@@ -48,7 +53,7 @@ namespace vApus.Stresstest
         /// Set: if it is outside boundaries this will be corrected by going to the last or first possible index.
         /// </summary>
         [SavableCloneable]
-        
+
         public int PreferredTokenDelimiterIndex
         {
             get { return _preferredTokenDelimiterIndex; }
@@ -63,7 +68,7 @@ namespace vApus.Stresstest
             }
         }
 
-        
+
         public LexicalResult LexicalResult
         {
             get { return _lexicalResult; }
@@ -87,7 +92,7 @@ namespace vApus.Stresstest
         public Log()
         {
             if (Solution.ActiveSolution != null)
-                _logRuleSet = BaseItem.Empty(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+                LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
@@ -98,8 +103,12 @@ namespace vApus.Stresstest
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            _logRuleSet = BaseItem.Empty(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+            LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
             _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+        }
+        private void _logRuleSet_ParentIsNull(object sender, EventArgs e)
+        {
+            LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
 
         public override void Activate()

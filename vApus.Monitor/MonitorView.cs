@@ -52,32 +52,7 @@ namespace vApus.Monitor
         //The refresht ime of the counter pushing In ms 
         private int _refreshTimeInMS;
 
-        /// <summary>
-        /// Show the label control in the first panel.
-        /// </summary>
-        private bool _showLabelControl = true;
-
         private bool _forStresstest = false;
-        #endregion
-
-        #region Properties
-        /// <summary>
-        /// Show the label control in the first panel.
-        /// </summary>
-        public bool ShowLabelControl
-        {
-            get { return _showLabelControl; }
-            set
-            {
-                _showLabelControl = value;
-                foreach (BaseValueControl ctrl in propertyPanel.ValueControls)
-                    if (ctrl.Label == "Label")
-                    {
-                        ctrl.Visible = _showLabelControl;
-                        break;
-                    }
-            }
-        }
         #endregion
 
         #region Constructors
@@ -177,7 +152,6 @@ namespace vApus.Monitor
             Text = SolutionComponent.ToString();
             string ip = _localOrRemoteSMT.IP;
             btnLocalOrRemoteSMT.Text = (ip == "127.0.0.1") ? "SMT: <local>" : "SMT: Remote at " + ip;
-            ShowLabelControl = _showLabelControl;
 
             if (SynchronizationContextWrapper.SynchronizationContext == null)
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
@@ -1148,8 +1122,6 @@ namespace vApus.Monitor
                 {
                     propertyPanel.SolutionComponent = null;
                     propertyPanel.SolutionComponent = _monitor;
-
-                    ShowLabelControl = _showLabelControl;
                 }
                 catch { throw; }
                 finally

@@ -17,7 +17,7 @@ namespace vApus.Stresstest
 {
     /// <summary>
     /// </summary>
-    public partial class SyntaxItemControl : UserControl
+    public partial class OldSyntaxItemControl : UserControl
     {
         #region Events
         public event EventHandler InputChanged;
@@ -49,7 +49,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// Only use while designing.
         /// </summary>
-        public SyntaxItemControl()
+        public OldSyntaxItemControl()
         {
             InitializeComponent();
         }
@@ -57,7 +57,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="target"></param>
         /// <param name="propertyInfo"></param>
-        public SyntaxItemControl(SyntaxItem syntaxItem, string value)
+        public OldSyntaxItemControl(SyntaxItem syntaxItem, string value)
         {
             InitializeComponent();
             _syntaxItem = syntaxItem;
@@ -494,8 +494,8 @@ namespace vApus.Stresstest
         {
             if (Parent != null)
                 foreach (Control control in Parent.Controls)
-                    if (control != this && control is SyntaxItemControl)
-                        (control as SyntaxItemControl).Toggle(ToggleState.Collapse);
+                    if (control != this && control is OldSyntaxItemControl)
+                        (control as OldSyntaxItemControl).Toggle(ToggleState.Collapse);
             Toggle(ToggleState.Expand);
         }
         #endregion
