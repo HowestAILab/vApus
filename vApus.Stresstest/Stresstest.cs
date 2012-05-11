@@ -41,10 +41,17 @@ namespace vApus.Stresstest
 
         #region Properties
         [Description("The connection to the application to test.")]
-        [SavableCloneable, PropertyControl(1)]
+        [SavableCloneable, PropertyControl(0)]
         public Connection Connection
         {
-            get { return _connection; }
+            get
+            {
+
+                if (_connection != null)
+                    _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
+
+                return _connection;
+            }
             set
             {
                 if (value == null)
@@ -56,22 +63,27 @@ namespace vApus.Stresstest
         }
         [ReadOnly(true)]
         [DisplayName("Connection Proxy")]
-        [PropertyControl(2)]
         public string ConnectionProxy
         {
             get
             {
                 if (_connection == null || _connection.IsEmpty || _connection.ConnectionProxy.IsEmpty)
-                    return "<none>";
+                    return "Connection Proxy: <none>";
                 return _connection.ConnectionProxy.ToString();
             }
         }
 
         [Description("The log used to test the application.")]
-        [SavableCloneable, PropertyControl(3)]
+        [SavableCloneable, PropertyControl(1)]
         public Log Log
         {
-            get { return _log; }
+            get
+            {
+                if (_log != null)
+                    _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
+
+                return _log;
+            }
             set
             {
                 if (value == null)
@@ -83,13 +95,12 @@ namespace vApus.Stresstest
         }
         [ReadOnly(true)]
         [DisplayName("Log Rule Set")]
-        [PropertyControl(4)]
         public string LogRuleSet
         {
             get
             {
                 if (_log == null || _log.IsEmpty || _log.LogRuleSet.IsEmpty)
-                    return "<none>";
+                    return "Log Rule Set: <none>";
                 return _log.LogRuleSet.ToString();
             }
         }
@@ -120,7 +131,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The monitors used to link stresstest results to performance counters. Maximum 5 allowed.")]
-        [PropertyControl(5)]
+        [PropertyControl(2)]
         public Monitor.Monitor[] Monitors
         {
             get { return _monitors; }
@@ -148,7 +159,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The count(s) of the concurrent users generated, the minimum given value equals one."), DisplayName("Concurrent Users")]
-        [SavableCloneable, PropertyControl(6)]
+        [SavableCloneable, PropertyControl(3)]
         public int[] ConcurrentUsers
         {
             get { return _concurrentUsers; }
@@ -164,7 +175,7 @@ namespace vApus.Stresstest
         }
 
         [Description("A static multiplier of the runtime for each concurrency level. Must be greater than zero.")]
-        [SavableCloneable, PropertyControl(7)]
+        [SavableCloneable, PropertyControl(4)]
         public int Precision
         {
             get { return _precision; }
@@ -177,7 +188,7 @@ namespace vApus.Stresstest
         }
 
         [Description("Useful for tests with low or no delay. It appends the runtime for every concurrency level in a way they even out. For example: a minimum request of 10 with 5 concurrent users makes the runtime twice as long, of 15 three times."), DisplayName("Dynamic Run Multiplier")]
-        [SavableCloneable, PropertyControl(8)]
+        [SavableCloneable, PropertyControl(5)]
         public int DynamicRunMultiplier
         {
             get { return _dynamicRunMultiplier; }
@@ -190,7 +201,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(9)]
+        [PropertyControl(6)]
         public int MinimumDelay
         {
             get { return _minimumDelay; }
@@ -215,7 +226,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(10)]
+        [PropertyControl(7)]
         public int MaximumDelay
         {
             get { return _maximumDelay; }
@@ -240,7 +251,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns; obligatory for Fast Action and Log Entry Distribution.")]
-        [SavableCloneable, PropertyControl(11)]
+        [SavableCloneable, PropertyControl(8)]
         public bool Shuffle
         {
             get { return _shuffle; }
@@ -253,7 +264,7 @@ namespace vApus.Stresstest
         }
 
         [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance. Note:This can't be used in combination with parameters (works but it breaks the parameter refresh logic, giving a wrong result).")]
-        [SavableCloneable, PropertyControl(12)]
+        [SavableCloneable, PropertyControl(9)]
         public ActionAndLogEntryDistribution Distribute
         {
             get { return _distribute; }
@@ -267,7 +278,7 @@ namespace vApus.Stresstest
 
 #if EnableBetaFeature
         [Description("If this equals false then the parallel switch for log entries is ignored."), DisplayName("Use Parallel Execution of Log Entries")]
-        [SavableCloneable, PropertyControl(13)]
+        [SavableCloneable, PropertyControl(10)]
         public bool UseParallelExecutionOfLogEntries
         {
             get { return _useParallelExecutionOfLogEntries; }

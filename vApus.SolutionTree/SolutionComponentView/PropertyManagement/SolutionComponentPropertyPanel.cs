@@ -140,8 +140,13 @@ namespace vApus.SolutionTree
                         object[] attributes = propertyInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true);
                         string label = (attributes.Length != 0) ? (attributes[0] as DisplayNameAttribute).DisplayName : propertyInfo.Name;
 
-                        attributes = propertyInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
-                        string description = (attributes.Length != 0) ? (attributes[0] as DescriptionAttribute).Description : string.Empty;
+                        //for dynamic descriptions you can choose to call SetDescription however usage of the description attribute is adviced.
+                        string description = value.GetDescription();
+                        if (description == null)
+                        {
+                            attributes = propertyInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
+                            description = (attributes.Length != 0) ? (attributes[0] as DescriptionAttribute).Description : string.Empty;
+                        }
 
                         attributes = propertyInfo.GetCustomAttributes(typeof(ReadOnlyAttribute), true);
                         bool isReadOnly = !propertyInfo.CanWrite || (attributes.Length > 0 && (attributes[0] as ReadOnlyAttribute).IsReadOnly);
@@ -159,7 +164,10 @@ namespace vApus.SolutionTree
                 {
                     object[] values = new object[_properties.Count];
                     for (int i = 0; i != values.Length; i++)
+                    {
                         values[i] = _properties[i].GetValue(_solutionComponent, null);
+                        base.SetDescriptionAt(i, values[i].GetDescription());
+                    }
 
                     base.Set__Values(values);
                 }

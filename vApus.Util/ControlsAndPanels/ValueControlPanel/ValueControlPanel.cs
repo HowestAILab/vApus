@@ -202,6 +202,26 @@ namespace vApus.Util
                     Label = valueControl.Label
                 });
         }
+        /// <summary>
+        /// For dynamic descriptions, will only set it if not null and if not the same as the old one.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="description"></param>
+        public void SetDescriptionAt(int index, string description)
+        {
+            BaseValueControl valueControl = this.Controls[index] as BaseValueControl;
+            if (valueControl.__Value.Description != null &&
+                description != null &&
+                !valueControl.__Value.Description.Equals(description))
+                (valueControl as IValueControl).Init(new BaseValueControl.Value
+                {
+                    __Value = valueControl.__Value.__Value,
+                    Description = description,
+                    IsEncrypted = valueControl.IsEncrypted,
+                    IsReadOnly = valueControl.IsReadOnly,
+                    Label = valueControl.Label
+                });
+        }
         private void ValueControlPanel_ValueChanged(object sender, BaseValueControl.ValueChangedEventArgs e)
         {
             if (ValueChanged != null)

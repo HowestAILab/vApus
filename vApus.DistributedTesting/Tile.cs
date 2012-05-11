@@ -22,8 +22,7 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Properties       
-        [SavableCloneable, PropertyControl(0)]
-        [DisplayName("Use this Tile")]
+        [SavableCloneable]
         public bool Use
         {
             get { return _use; }

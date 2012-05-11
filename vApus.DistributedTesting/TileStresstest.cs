@@ -61,15 +61,14 @@ namespace vApus.DistributedTesting
         {
             get { return "Test"; }
         }
-        [SavableCloneable, PropertyControl(0)]
-        [DisplayName("Use this Tile Stresstest")]
+        [SavableCloneable]
         public bool Use
         {
             get { return _use; }
             set { _use = value; }
         }
 
-        [SavableCloneable, PropertyControl(1)]
+        [SavableCloneable, PropertyControl(0)]
         [Description("The IP of a computer running vApus."), DisplayName("Slave IP")]
         public string SlaveIP
         {
@@ -77,7 +76,7 @@ namespace vApus.DistributedTesting
             set { _slaveIP = value.Length == 0 ? "?" : value; }
         }
 
-        [SavableCloneable, PropertyControl(2)]
+        [SavableCloneable, PropertyControl(1)]
         [Description("The port the running instance of vApus is listening to."), DisplayName("Slave Port")]
         public int SlavePort
         {
@@ -90,7 +89,7 @@ namespace vApus.DistributedTesting
             }
         }
 
-        [SavableCloneable, PropertyControl(3)]
+        [SavableCloneable, PropertyControl(2)]
         [Description("The one-based indices of the logical processing units to where the slave process should be affinated to (if possible). Leave empty to affinate to all PU's."), DisplayName("Processor Affinity")]
         public int[] ProcessorAffinity
         {
@@ -123,10 +122,16 @@ namespace vApus.DistributedTesting
         }
 
         [Description("The connection to the application to test.")]
-        [SavableCloneable, PropertyControl(4)]
+        [SavableCloneable, PropertyControl(3)]
         public Connection Connection
         {
-            get { return _connection; }
+            get
+            {
+                if (_connection != null)
+                    _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
+
+                return _connection;
+            }
             set
             {
                 if (value == null)
@@ -137,23 +142,28 @@ namespace vApus.DistributedTesting
                 _connection.ParentIsNull += _connection_ParentIsNull;
             }
         }
-        [Description("This is used in and defines the connection."), DisplayName("Connection Proxy")]
-        [PropertyControl(5)]
+        [DisplayName("Connection Proxy")]
         public string ConnectionProxy
         {
             get
             {
                 if (_connection == null || _connection.IsEmpty || _connection.ConnectionProxy.IsEmpty)
-                    return "<none>";
+                    return "Connection Proxy: <none>";
                 return _connection.ConnectionProxy.ToString();
             }
         }
 
         [Description("The log used to test the application.")]
-        [SavableCloneable, PropertyControl(6)]
+        [SavableCloneable, PropertyControl(4)]
         public Log Log
         {
-            get { return _log; }
+            get
+            {
+                if (_log != null)
+                    _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
+
+                return _log;
+            }
             set
             {
                 if (value == null)
@@ -165,14 +175,13 @@ namespace vApus.DistributedTesting
             }
         }
         [ReadOnly(true)]
-        [Description("This is used in and defines the log entries."), DisplayName("Log Rule Set")]
-        [PropertyControl(7)]
+        [DisplayName("Log Rule Set")]
         public string LogRuleSet
         {
             get
             {
                 if (_log == null || _log.IsEmpty || _log.LogRuleSet.IsEmpty)
-                    return "<none>";
+                    return "Log Rule Set: <none>";
                 return _log.LogRuleSet.ToString();
             }
         }
@@ -202,7 +211,7 @@ namespace vApus.DistributedTesting
             }
         }
         [Description("The monitors used to link stresstest results to performance counters. Maximum 5 allowed.")]
-        [PropertyControl(8)]
+        [PropertyControl(5)]
         public Monitor.Monitor[] Monitors
         {
             get { return _monitors; }
@@ -230,7 +239,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("The count(s) of the concurrent users generated, the minimum given value equals one."), DisplayName("Concurrent Users")]
-        [SavableCloneable, PropertyControl(9)]
+        [SavableCloneable, PropertyControl(6)]
         public int[] ConcurrentUsers
         {
             get { return _concurrentUsers; }
@@ -246,7 +255,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("A static multiplier of the runtime for each concurrency level. Must be greater than zero.")]
-        [SavableCloneable, PropertyControl(10)]
+        [SavableCloneable, PropertyControl(7)]
         public int Precision
         {
             get { return _precision; }
@@ -259,7 +268,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("Useful for test with low or no delay. It appends the runtime for every concurrency level in a way they even out. For example: a minimimum request of 10 with 5 concurrent users makes the runtime twice as long, of 15 three times."), DisplayName("Dynamic Run Multiplier")]
-        [SavableCloneable, PropertyControl(11)]
+        [SavableCloneable, PropertyControl(8)]
         public int DynamicRunMultiplier
         {
             get { return _dynamicRunMultiplier; }
@@ -272,7 +281,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(12)]
+        [PropertyControl(9)]
         public int MinimumDelay
         {
             get { return _minimumDelay; }
@@ -297,7 +306,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(13)]
+        [PropertyControl(10)]
         public int MaximumDelay
         {
             get { return _maximumDelay; }
@@ -322,7 +331,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns, obligatory for Fast Action and Log Entry Distribution.")]
-        [SavableCloneable, PropertyControl(14)]
+        [SavableCloneable, PropertyControl(11)]
         public bool Shuffle
         {
             get { return _shuffle; }
@@ -335,7 +344,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance. Note:This can't be used in combination with parameters (works but it breaks the parameter refresh logic, giving a wrong result).")]
-        [SavableCloneable, PropertyControl(15)]
+        [SavableCloneable, PropertyControl(12)]
         public ActionAndLogEntryDistribution Distribute
         {
             get { return _distribute; }
@@ -348,7 +357,7 @@ namespace vApus.DistributedTesting
         }
         [ReadOnly(true)]
         [Description("Saves the results slave-side in the directory \"\\SlaveSideResults\". The name of the sub folder is \"PID \" + the process Id of the vApus instance."), DisplayName("Slave-Side Result Saving")]
-        [PropertyControl(16)]
+        [PropertyControl(int.MaxValue)]
         public bool SlaveSideResultSaving
         {
             get { return true; }
@@ -356,7 +365,7 @@ namespace vApus.DistributedTesting
 
 #if EnableBetaFeature
         [Description("If this equals false then the parallel switch for log entries is ignored."), DisplayName("Use Parallel Execution of Log Entries")]
-        [SavableCloneable, PropertyControl(17)]
+        [SavableCloneable, PropertyControl(14)]
         public bool UseParallelExecutionOfLogEntries
         {
             get { return _useParallelExecutionOfLogEntries; }

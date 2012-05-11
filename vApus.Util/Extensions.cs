@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.ComponentModel;
 
 namespace vApus.Util
 {
@@ -351,6 +352,8 @@ namespace vApus.Util
         private static Hashtable _tags = new Hashtable();
         [NonSerialized]
         private static Hashtable _parents = new Hashtable();
+        [NonSerialized]
+        private static Hashtable _descriptions = new Hashtable();
         /// <summary>
         ///Nifty hack to make this work everywhere (also in derived types when shallow copying).
         ///Having just a static field for tag and parent doesn't work, they will be the same for every object you assign them.
@@ -425,52 +428,22 @@ namespace vApus.Util
                 return null;
             return _parents.Contains(o) ? _parents[o] : null;
         }
-        public static HashSet<T> GetFromCache<T>()
+
+        public static void SetDescription(this object o, string description)
         {
-            lock (_lock)
-            {
-                HashSet<T> objects = new HashSet<T>();
-                foreach (object o in _tags.Keys)
-                    if (o is T)
-                        objects.Add((T)o);
-                foreach (object o in _parents.Keys)
-                    if (o is T)
-                        objects.Add((T)o);
-                return objects;
-            }
+            lock (_descriptions.SyncRoot)
+                if (o != null)
+                    if (_parents.Contains(o))
+                        _descriptions[o] = description;
+                    else
+                        _descriptions.Add(o, description);
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tag">If this is 'null' it will not be used.</param>
-        /// <param name="parent">If this is 'null' it will not be used.</param>
-        /// <returns></returns>
-        public static HashSet<T> GetFromCache<T>(object tag, object parent)
+        public static string GetDescription(this object o)
         {
-            lock (_lock)
-            {
-                HashSet<T> objects = new HashSet<T>();
-                if (tag == null)
-                {
-                    foreach (object o in _tags.Keys)
-                        if (o is T && _tags[o] == tag)
-                            objects.Add((T)o);
-                }
-                else if (parent == null)
-                {
-                    foreach (object o in _parents.Keys)
-                        if (o is T && _parents[o] == parent)
-                            objects.Add((T)o);
-                }
-                else
-                {
-                    foreach (object o in _tags.Keys)
-                        if (o is T && _tags[o] == tag && _parents[o] == parent)
-                            objects.Add((T)o);
-                }
-                return objects;
-            }
+            //Threadsafe for reader threads.
+            if (o == null)
+                return null;
+            return (_descriptions.Contains(o) ? _descriptions[o] : null) as string;
         }
         /// <summary>
         /// 
@@ -499,7 +472,7 @@ namespace vApus.Util
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="o">Child</param>
+        /// <param name="o"></param>
         /// <returns>True if the object was removed.</returns>
         public static bool RemoveTagFromCache(this object o)
         {
@@ -523,12 +496,29 @@ namespace vApus.Util
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="o"></param>
+        /// <returns>True if the object was removed.</returns>
+        public static bool RemoveDescriptionFromCache(this object o)
+        {
+            lock (_lock)
+            {
+                if (_descriptions.Contains(o))
+                {
+                    _descriptions.Remove(o);
+                    return true;
+                }
+                return false;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns>True if the cache was not empty.</returns>
         public static bool ClearCache()
         {
             lock (_lock)
             {
-                bool cleared = _tags.Count > 0 || _parents.Count > 0;
+                bool cleared = _tags.Count != 0 || _parents.Count != 0 || _descriptions.Count != 0;
                 foreach (object o in _tags.Keys)
                 {
                     if (TagChanged != null)
@@ -543,6 +533,7 @@ namespace vApus.Util
                 }
                 _tags.Clear();
                 _parents.Clear();
+                _descriptions.Clear();
                 return cleared;
             }
         }
