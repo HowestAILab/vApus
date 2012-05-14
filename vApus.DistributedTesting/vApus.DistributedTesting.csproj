@@ -182,6 +182,43 @@
     <Compile Include="Controls\DistributedStresstestControl.Designer.cs">
       <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\TreeView\AddTileTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TreeView\AddTileTreeViewItem.Designer.cs">
+      <DependentUpon>AddTileTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TreeView\AddTileStresstestTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TreeView\AddTileStresstestTreeViewItem.Designer.cs">
+      <DependentUpon>AddTileStresstestTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TreeView\ITestTreeViewItem.cs" />
+    <Compile Include="Controls\TreeView\TileStresstestTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TreeView\TileStresstestTreeViewItem.Designer.cs">
+      <DependentUpon>TileStresstestTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TreeView\DistributedTestTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TreeView\DistributedTestTreeViewItem.Designer.cs">
+      <DependentUpon>DistributedTestTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TreeView\TestTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TreeView\TestTreeView.Designer.cs">
+      <DependentUpon>TestTreeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TreeView\TileTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TreeView\TileTreeViewItem.Designer.cs">
+      <DependentUpon>TileTreeViewItem.cs</DependentUpon>
+    </Compile>
     <Compile Include="JumpStart\JumpStart.cs" />
     <Compile Include="JumpStart\LinkageControl.cs">
       <SubType>UserControl</SubType>
@@ -273,6 +310,24 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\DistributedStresstestControl.resx">
       <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TreeView\AddTileTreeViewItem.resx">
+      <DependentUpon>AddTileTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TreeView\AddTileStresstestTreeViewItem.resx">
+      <DependentUpon>AddTileStresstestTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TreeView\TileStresstestTreeViewItem.resx">
+      <DependentUpon>TileStresstestTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TreeView\DistributedTestTreeViewItem.resx">
+      <DependentUpon>DistributedTestTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TreeView\TestTreeView.resx">
+      <DependentUpon>TestTreeView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TreeView\TileTreeViewItem.resx">
+      <DependentUpon>TileTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="JumpStart\LinkageControl.resx">
       <DependentUpon>LinkageControl.cs</DependentUpon>
@@ -370,6 +425,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\wait.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Collapse_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Expand_small.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

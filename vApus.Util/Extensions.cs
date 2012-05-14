@@ -433,7 +433,7 @@ namespace vApus.Util
         {
             lock (_descriptions.SyncRoot)
                 if (o != null)
-                    if (_parents.Contains(o))
+                    if (_descriptions.Contains(o))
                         _descriptions[o] = description;
                     else
                         _descriptions.Add(o, description);

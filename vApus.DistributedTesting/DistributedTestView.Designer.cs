@@ -63,6 +63,7 @@
             this.btnCollapseExpandStresstest = new System.Windows.Forms.Button();
             this.flpStresstestTiles = new System.Windows.Forms.FlowLayoutPanel();
             this.flpStresstestTileStresstests = new System.Windows.Forms.FlowLayoutPanel();
+            this.distributedStresstestControl = new vApus.DistributedTesting.DistributedStresstestControl();
             this.tpReport = new System.Windows.Forms.TabPage();
             this.splitReport = new System.Windows.Forms.SplitContainer();
             this.pnlDistributedTestReport = new System.Windows.Forms.Panel();
@@ -78,7 +79,7 @@
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
             this.tmrCheckTvwTiles = new System.Windows.Forms.Timer(this.components);
-            this.distributedStresstestControl = new vApus.DistributedTesting.DistributedStresstestControl();
+            this.testTreeView1 = new vApus.DistributedTesting.TestTreeView();
             this.toolStrip.SuspendLayout();
             this.tc.SuspendLayout();
             this.tpConfigure.SuspendLayout();
@@ -315,9 +316,9 @@
             // 
             this.tpStresstest.BackColor = System.Drawing.Color.White;
             this.tpStresstest.Controls.Add(this.splitStresstest);
-            this.tpStresstest.Location = new System.Drawing.Point(0, 22);
+            this.tpStresstest.Location = new System.Drawing.Point(0, 19);
             this.tpStresstest.Name = "tpStresstest";
-            this.tpStresstest.Size = new System.Drawing.Size(883, 595);
+            this.tpStresstest.Size = new System.Drawing.Size(199, 80);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
             // 
@@ -336,8 +337,8 @@
             // splitStresstest.Panel2
             // 
             this.splitStresstest.Panel2.Controls.Add(this.distributedStresstestControl);
-            this.splitStresstest.Size = new System.Drawing.Size(883, 595);
-            this.splitStresstest.SplitterDistance = 100;
+            this.splitStresstest.Size = new System.Drawing.Size(199, 80);
+            this.splitStresstest.SplitterDistance = 51;
             this.splitStresstest.TabIndex = 3;
             // 
             // pnlDistributedTestStresstest
@@ -350,7 +351,7 @@
             this.pnlDistributedTestStresstest.Location = new System.Drawing.Point(0, 0);
             this.pnlDistributedTestStresstest.Name = "pnlDistributedTestStresstest";
             this.pnlDistributedTestStresstest.Padding = new System.Windows.Forms.Padding(3);
-            this.pnlDistributedTestStresstest.Size = new System.Drawing.Size(883, 100);
+            this.pnlDistributedTestStresstest.Size = new System.Drawing.Size(199, 51);
             this.pnlDistributedTestStresstest.TabIndex = 0;
             // 
             // btnCollapseExpandStresstest
@@ -360,7 +361,7 @@
             this.btnCollapseExpandStresstest.FlatAppearance.BorderSize = 0;
             this.btnCollapseExpandStresstest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCollapseExpandStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCollapseExpandStresstest.Location = new System.Drawing.Point(857, 73);
+            this.btnCollapseExpandStresstest.Location = new System.Drawing.Point(173, 24);
             this.btnCollapseExpandStresstest.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.btnCollapseExpandStresstest.Name = "btnCollapseExpandStresstest";
             this.btnCollapseExpandStresstest.Size = new System.Drawing.Size(20, 21);
@@ -375,10 +376,10 @@
             this.flpStresstestTiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpStresstestTiles.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.flpStresstestTiles.Location = new System.Drawing.Point(3, 71);
+            this.flpStresstestTiles.Location = new System.Drawing.Point(3, 22);
             this.flpStresstestTiles.Name = "flpStresstestTiles";
             this.flpStresstestTiles.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.flpStresstestTiles.Size = new System.Drawing.Size(877, 26);
+            this.flpStresstestTiles.Size = new System.Drawing.Size(193, 26);
             this.flpStresstestTiles.TabIndex = 1;
             // 
             // flpStresstestTileStresstests
@@ -390,16 +391,27 @@
             this.flpStresstestTileStresstests.Location = new System.Drawing.Point(3, 3);
             this.flpStresstestTileStresstests.Name = "flpStresstestTileStresstests";
             this.flpStresstestTileStresstests.Padding = new System.Windows.Forms.Padding(3);
-            this.flpStresstestTileStresstests.Size = new System.Drawing.Size(877, 62);
+            this.flpStresstestTileStresstests.Size = new System.Drawing.Size(193, 13);
             this.flpStresstestTileStresstests.TabIndex = 0;
+            // 
+            // distributedStresstestControl
+            // 
+            this.distributedStresstestControl.DistributedTest = null;
+            this.distributedStresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.distributedStresstestControl.Location = new System.Drawing.Point(0, 0);
+            this.distributedStresstestControl.Margin = new System.Windows.Forms.Padding(0);
+            this.distributedStresstestControl.Name = "distributedStresstestControl";
+            this.distributedStresstestControl.Size = new System.Drawing.Size(199, 25);
+            this.distributedStresstestControl.TabIndex = 0;
+            this.distributedStresstestControl.DrillDownChanged += new System.EventHandler(this.distributedStresstestControl_DrillDownChanged);
             // 
             // tpReport
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
             this.tpReport.Controls.Add(this.splitReport);
-            this.tpReport.Location = new System.Drawing.Point(0, 22);
+            this.tpReport.Location = new System.Drawing.Point(0, 19);
             this.tpReport.Name = "tpReport";
-            this.tpReport.Size = new System.Drawing.Size(883, 595);
+            this.tpReport.Size = new System.Drawing.Size(199, 80);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
             // 
@@ -418,8 +430,8 @@
             // splitReport.Panel2
             // 
             this.splitReport.Panel2.Controls.Add(this.tcReport);
-            this.splitReport.Size = new System.Drawing.Size(883, 595);
-            this.splitReport.SplitterDistance = 100;
+            this.splitReport.Size = new System.Drawing.Size(199, 80);
+            this.splitReport.SplitterDistance = 51;
             this.splitReport.TabIndex = 4;
             // 
             // pnlDistributedTestReport
@@ -432,7 +444,7 @@
             this.pnlDistributedTestReport.Location = new System.Drawing.Point(0, 0);
             this.pnlDistributedTestReport.Name = "pnlDistributedTestReport";
             this.pnlDistributedTestReport.Padding = new System.Windows.Forms.Padding(3);
-            this.pnlDistributedTestReport.Size = new System.Drawing.Size(883, 100);
+            this.pnlDistributedTestReport.Size = new System.Drawing.Size(199, 51);
             this.pnlDistributedTestReport.TabIndex = 2;
             // 
             // btnCollapseExpandReport
@@ -442,7 +454,7 @@
             this.btnCollapseExpandReport.FlatAppearance.BorderSize = 0;
             this.btnCollapseExpandReport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCollapseExpandReport.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCollapseExpandReport.Location = new System.Drawing.Point(857, 73);
+            this.btnCollapseExpandReport.Location = new System.Drawing.Point(173, 24);
             this.btnCollapseExpandReport.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.btnCollapseExpandReport.Name = "btnCollapseExpandReport";
             this.btnCollapseExpandReport.Size = new System.Drawing.Size(20, 21);
@@ -456,9 +468,9 @@
             // 
             this.flpReportTiles.BackColor = System.Drawing.Color.WhiteSmoke;
             this.flpReportTiles.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flpReportTiles.Location = new System.Drawing.Point(3, 71);
+            this.flpReportTiles.Location = new System.Drawing.Point(3, 22);
             this.flpReportTiles.Name = "flpReportTiles";
-            this.flpReportTiles.Size = new System.Drawing.Size(877, 26);
+            this.flpReportTiles.Size = new System.Drawing.Size(193, 26);
             this.flpReportTiles.TabIndex = 1;
             // 
             // flpReportTileStresstests
@@ -470,7 +482,7 @@
             this.flpReportTileStresstests.Location = new System.Drawing.Point(3, 3);
             this.flpReportTileStresstests.Name = "flpReportTileStresstests";
             this.flpReportTileStresstests.Padding = new System.Windows.Forms.Padding(3);
-            this.flpReportTileStresstests.Size = new System.Drawing.Size(877, 62);
+            this.flpReportTileStresstests.Size = new System.Drawing.Size(193, 13);
             this.flpReportTileStresstests.TabIndex = 0;
             // 
             // tcReport
@@ -483,7 +495,7 @@
             this.tcReport.Name = "tcReport";
             this.tcReport.RightVisible = false;
             this.tcReport.SelectedIndex = 0;
-            this.tcReport.Size = new System.Drawing.Size(883, 491);
+            this.tcReport.Size = new System.Drawing.Size(199, 25);
             this.tcReport.TabIndex = 5;
             this.tcReport.TopVisible = false;
             // 
@@ -494,14 +506,13 @@
             this.tpStresstestReport.Location = new System.Drawing.Point(0, 19);
             this.tpStresstestReport.Name = "tpStresstestReport";
             this.tpStresstestReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstestReport.Size = new System.Drawing.Size(882, 471);
+            this.tpStresstestReport.Size = new System.Drawing.Size(198, 5);
             this.tpStresstestReport.TabIndex = 0;
             this.tpStresstestReport.Text = "Stresstest Report";
             this.tpStresstestReport.UseVisualStyleBackColor = true;
             // 
             // btnOpenRFilesFolder
             // 
-            this.btnOpenRFilesFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.btnOpenRFilesFolder.AutoSize = true;
             this.btnOpenRFilesFolder.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnOpenRFilesFolder.BackColor = System.Drawing.SystemColors.Control;
@@ -523,7 +534,7 @@
             this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(876, 465);
+            this.stresstestReportControl.Size = new System.Drawing.Size(192, 0);
             this.stresstestReportControl.TabIndex = 3;
             // 
             // tmrSchedule
@@ -549,20 +560,19 @@
             this.tmrCheckTvwTiles.Interval = 200;
             this.tmrCheckTvwTiles.Tick += new System.EventHandler(this.tmrCheckTvwTiles_Tick);
             // 
-            // distributedStresstestControl
+            // testTreeView1
             // 
-            this.distributedStresstestControl.DistributedTest = null;
-            this.distributedStresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.distributedStresstestControl.Location = new System.Drawing.Point(0, 0);
-            this.distributedStresstestControl.Margin = new System.Windows.Forms.Padding(0);
-            this.distributedStresstestControl.Name = "distributedStresstestControl";
-            this.distributedStresstestControl.Size = new System.Drawing.Size(883, 491);
-            this.distributedStresstestControl.TabIndex = 0;
-            this.distributedStresstestControl.DrillDownChanged += new System.EventHandler(this.distributedStresstestControl_DrillDownChanged);
+            this.testTreeView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.testTreeView1.Location = new System.Drawing.Point(0, 65);
+            this.testTreeView1.Name = "testTreeView1";
+            this.testTreeView1.Size = new System.Drawing.Size(336, 597);
+            this.testTreeView1.TabIndex = 0;
             // 
             // DistributedTestView
             // 
             this.ClientSize = new System.Drawing.Size(884, 662);
+            this.Controls.Add(this.testTreeView1);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.tc);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -637,5 +647,6 @@
         private System.Windows.Forms.TabPage tpStresstestReport;
         private System.Windows.Forms.FlowLayoutPanel flpStresstestTiles;
         private System.Windows.Forms.Timer tmrCheckTvwTiles;
+        private TestTreeView testTreeView1;
     }
 }

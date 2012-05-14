@@ -22,6 +22,7 @@ namespace vApus.Util
     /// Or else you can always make your own control derived from "BaseSolutionComponentPropertyControl".
     /// The value of the property may not be null or an exception will be thrown.
     /// </summary>
+    [ToolboxItem(false)]
     public partial class BaseValueControl : UserControl
     {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]

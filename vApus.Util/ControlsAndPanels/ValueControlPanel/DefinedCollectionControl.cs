@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace vApus.Util
@@ -14,6 +15,7 @@ namespace vApus.Util
     /// <summary>
     /// For selecting multiple items with the same parent.
     /// </summary>
+    [ToolboxItem(false)]
     public partial class DefinedCollectionControl : UserControl
     {
         public event EventHandler ValueChanged;
