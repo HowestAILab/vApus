@@ -73,7 +73,7 @@
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picDelete.TabIndex = 15;
             this.picDelete.TabStop = false;
-            this.toolTip.SetToolTip(this.picDelete, "Remove <delete>");
+            this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>");
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
@@ -85,24 +85,27 @@
             this.chk.Name = "chk";
             this.chk.Size = new System.Drawing.Size(12, 11);
             this.chk.TabIndex = 11;
+            this.chk.TabStop = false;
+            this.toolTip.SetToolTip(this.chk, "Use <ctrl+u>");
             this.chk.UseVisualStyleBackColor = true;
             this.chk.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
             this.chk.Enter += new System.EventHandler(this._Enter);
+            this.chk.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.chk.Leave += new System.EventHandler(this._Leave);
             // 
             // txtTileStresstest
             // 
             this.txtTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTileStresstest.ForeColor = System.Drawing.SystemColors.ControlDark;
             this.txtTileStresstest.Location = new System.Drawing.Point(40, 3);
             this.txtTileStresstest.Name = "txtTileStresstest";
             this.txtTileStresstest.Size = new System.Drawing.Size(489, 20);
-            this.txtTileStresstest.TabIndex = 12;
-            this.txtTileStresstest.Text = "Give this Tile Stresstest a custom label.";
+            this.txtTileStresstest.TabIndex = 0;
             this.txtTileStresstest.Visible = false;
             this.txtTileStresstest.Enter += new System.EventHandler(this._Enter);
-            this.txtTileStresstest.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtTileStresstest_KeyUp);
+            this.txtTileStresstest.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            this.txtTileStresstest.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.txtTileStresstest.Leave += new System.EventHandler(this._Leave);
             // 
             // lblTileStresstest

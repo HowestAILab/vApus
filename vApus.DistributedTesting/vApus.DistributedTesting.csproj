@@ -219,6 +219,12 @@
     <Compile Include="Controls\TreeView\TileTreeViewItem.Designer.cs">
       <DependentUpon>TileTreeViewItem.cs</DependentUpon>
     </Compile>
+    <Compile Include="DistributedTestView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DistributedTestView.Designer.cs">
+      <DependentUpon>DistributedTestView.cs</DependentUpon>
+    </Compile>
     <Compile Include="JumpStart\JumpStart.cs" />
     <Compile Include="JumpStart\LinkageControl.cs">
       <SubType>UserControl</SubType>
@@ -255,11 +261,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="DistributedTest.cs" />
-    <Compile Include="DistributedTestView.cs">
+    <Compile Include="OldDistributedTestView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DistributedTestView.Designer.cs">
-      <DependentUpon>DistributedTestView.cs</DependentUpon>
+    <Compile Include="OldDistributedTestView.Designer.cs">
+      <DependentUpon>OldDistributedTestView.cs</DependentUpon>
     </Compile>
     <Compile Include="DistributedTestingProject.cs" />
     <Compile Include="Communication\Slave\SocketListener.cs" />
@@ -329,6 +335,9 @@
     <EmbeddedResource Include="Controls\TreeView\TileTreeViewItem.resx">
       <DependentUpon>TileTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="DistributedTestView.resx">
+      <DependentUpon>DistributedTestView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="JumpStart\LinkageControl.resx">
       <DependentUpon>LinkageControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -344,8 +353,8 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="DistributedTestView.resx">
-      <DependentUpon>DistributedTestView.cs</DependentUpon>
+    <EmbeddedResource Include="OldDistributedTestView.resx">
+      <DependentUpon>OldDistributedTestView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TileStresstestView.resx">
       <DependentUpon>TileStresstestView.cs</DependentUpon>

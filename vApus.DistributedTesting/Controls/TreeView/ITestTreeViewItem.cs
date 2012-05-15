@@ -17,6 +17,6 @@ namespace vApus.DistributedTesting
         /// <param name="visible"></param>
         void SetVisibleControls(bool visible);
 
-        void RefreshLabel();
+        void RefreshGui();
     }
 }

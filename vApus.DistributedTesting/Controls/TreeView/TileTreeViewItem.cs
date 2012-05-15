@@ -7,13 +7,22 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using System.Runtime.InteropServices;
+using vApus.Util;
 
 namespace vApus.DistributedTesting
 {
     [ToolboxItem(false)]
     public partial class TileTreeViewItem : UserControl, ITestTreeViewItem
     {
-        public event EventHandler CollapsedChanged;
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
+        #region Events
+        public event EventHandler AfterSelect;
+        public event EventHandler DuplicateClicked;
+        public event EventHandler DeleteClicked;
+        #endregion
 
         #region Fields
         private Tile _tile = new Tile();
@@ -21,8 +30,17 @@ namespace vApus.DistributedTesting
 
         private List<Control> _childControls = new List<Control>();
 
+        /// <summary>
+        /// Check if the ctrl key is pressed.
+        /// </summary>
+        private bool _ctrl;
         #endregion
 
+        #region Properties
+        public Tile Tile
+        {
+            get { return _tile; }
+        }
         public bool Collapsed
         {
             get { return _collapsed; }
@@ -35,8 +53,27 @@ namespace vApus.DistributedTesting
                         global::vApus.DistributedTesting.Properties.Resources.Expand_small :
                         global::vApus.DistributedTesting.Properties.Resources.Collapse_small;
 
-                    if (CollapsedChanged != null)
-                        CollapsedChanged(this, null);
+                    //Cannot be null!
+                    var largeList = this.GetParent() as LargeList;
+                    LockWindowUpdate(largeList.Handle.ToInt32());
+
+                    if (_collapsed)
+                    {
+                        largeList.RemoveRange(new List<Control>(_childControls.ToArray()));
+                    }
+                    else
+                    {
+                        //Correcting on wich view the controls must be inserted.
+                        var index = largeList.IndexOf(this);
+                        if (index.Value == largeList[index.Key].Count - 1)
+                            index = new KeyValuePair<int, int>(index.Key + 1, 0);
+                        else
+                            index = new KeyValuePair<int, int>(index.Key, index.Value + 1);
+
+                        //Always inserted because they are never the last controls. (AddTileTreeViewItem is always the last)
+                        largeList.InsertRange(new List<Control>(_childControls.ToArray()), index);
+                    }
+                    LockWindowUpdate(0);
                 }
             }
         }
@@ -44,6 +81,19 @@ namespace vApus.DistributedTesting
         {
             get { return _childControls; }
         }
+
+        private int UsedTileStresstestCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (TileStresstest ts in _tile)
+                    if (ts.Use)
+                        ++count;
+                return count;
+            }
+        }
+        #endregion
 
         #region Constructors
         public TileTreeViewItem()
@@ -54,38 +104,48 @@ namespace vApus.DistributedTesting
             : this()
         {
             _tile = tile;
-            RefreshLabel();
+            RefreshGui();
+
+            chk.CheckedChanged -= chk_CheckedChanged;
+            chk.Checked = _tile.Use;
+            chk.CheckedChanged += chk_CheckedChanged;
+
+            //To check if the use has changed of the child controls.
+            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
         #endregion
 
         #region Functions
-        private void txtTile_Enter(object sender, EventArgs e)
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (_tile.Label == string.Empty)
+            //To set if the tile is used or not.
+            if (sender is TileStresstest)
             {
-                txtTile.ForeColor = SystemColors.WindowText;
-                txtTile.Text = string.Empty;
-
-                lblTile.Text = _tile.ToString() + " [#" + _tile.Count + "]";
-            }
-            else
-            {
-                lblTile.Text = _tile.Label + " [#" + _tile.Count + "]";
-            }
-        }
-        private void txtTile_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter && _tile.Label != txtTile.Text)
-            {
-                txtTile.Text = txtTile.Text.Trim();
-                if (_tile.Label != txtTile.Text)
+                TileStresstest tileStresstest = sender as TileStresstest;
+                if (_tile.Contains(tileStresstest))
                 {
-                    _tile.Label = txtTile.Text;
-                    lblTile.Text = (_tile.Label == string.Empty ? _tile.ToString() : _tile.Label) + " [#" + _tile.Count + "]";
-
-                    _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                    _tile.Use = false;
+                    foreach (TileStresstest ts in _tile)
+                        if (ts.Use)
+                        {
+                            _tile.Use = true;
+                            break;
+                        }
+                    if (chk.Checked != _tile.Use)
+                    {
+                        chk.CheckedChanged -= chk_CheckedChanged;
+                        chk.Checked = _tile.Use;
+                        chk.CheckedChanged += chk_CheckedChanged;
+                    }
                 }
             }
+        }
+        private void _Enter(object sender, EventArgs e)
+        {
+            SetVisibleControls(true);
+
+            if (AfterSelect != null)
+                AfterSelect(this, null);
         }
         private void txtTile_Leave(object sender, EventArgs e)
         {
@@ -95,19 +155,8 @@ namespace vApus.DistributedTesting
                 _tile.Label = txtTile.Text;
                 _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
-            if (txtTile.Text == string.Empty)
-            {
-                txtTile.Text = "Give this Tile a custom label.";
-                txtTile.ForeColor = SystemColors.ControlDark;
-
-                lblTile.Text = _tile.ToString() + " [#" + _tile.Count + "]";
-            }
-            else
-            {
-                lblTile.Text = _tile.Label + " [#" + _tile.Count + "]";
-            }
+            lblTile.Text = _tile.Label + " (#" + UsedTileStresstestCount + "/" + _tile.Count + ")";
         }
-
         private void _MouseEnter(object sender, EventArgs e)
         {
             SetVisibleControls(true);
@@ -124,35 +173,90 @@ namespace vApus.DistributedTesting
 
         public void SetVisibleControls()
         {
-            SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
+            if (this.Focused || txtTile.Focused)
+                SetVisibleControls(true);
+            else
+                SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
         }
-        public void RefreshLabel()
+        public void RefreshGui()
         {
             string label = string.Empty;
             if (_tile.Label == string.Empty)
-            {
-               label = _tile.ToString() + " [#" + _tile.Count + "]";
-            }
+                label = _tile.ToString() + " (#" + UsedTileStresstestCount + "/" + _tile.Count + ")";
             else
-            {
-                txtTile.ForeColor = SystemColors.WindowText;
-                label = _tile.Label + " [#" + _tile.Count + "]";
-            }
+                label = _tile.Label + " (#" + UsedTileStresstestCount + "/" + _tile.Count + ")";
+
             if (lblTile.Text != label)
+            {
                 lblTile.Text = label;
+                txtTile.Text = (_tile.Label == string.Empty) ? _tile.ToString() : _tile.Label;
+            }
+
+            _tile.Use = UsedTileStresstestCount != 0;
+            if (_tile.Use != chk.Checked)
+            {
+                chk.CheckedChanged -= chk_CheckedChanged;
+                chk.Checked = _tile.Use;
+                chk.CheckedChanged += chk_CheckedChanged;
+            }
         }
 
+        private void _KeyUp(object sender, KeyEventArgs e)
+        {
+            if (sender == txtTile)
+                if (e.KeyCode == Keys.Enter && _tile.Label != txtTile.Text)
+                {
+                    txtTile.Text = txtTile.Text.Trim();
+                    if (_tile.Label != txtTile.Text)
+                    {
+                        _tile.Label = txtTile.Text;
+                        lblTile.Text = (_tile.Label == string.Empty ? _tile.ToString() : _tile.Label) + " (#" + _tile.Count + ")";
+
+                        _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                    }
+                }
+
+
+            if (e.KeyCode == Keys.ControlKey)
+                _ctrl = false;
+            else if (_ctrl)
+                if (e.KeyCode == Keys.R && DeleteClicked != null)
+                    DeleteClicked(this, null);
+                else if (e.KeyCode == Keys.D && DuplicateClicked != null)
+                    DuplicateClicked(this, null);
+                else if (e.KeyCode == Keys.U)
+                    chk.Checked = !chk.Checked;
+        }
+        private void _KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.ControlKey)
+                _ctrl = true;
+        }
         private void picDuplicate_Click(object sender, EventArgs e)
         {
-
+            if (DuplicateClicked != null)
+                DuplicateClicked(this, null);
         }
         private void picDelete_Click(object sender, EventArgs e)
         {
-
+            if (DeleteClicked != null)
+                DeleteClicked(this, null);
         }
         private void picCollapseExpand_Click(object sender, EventArgs e)
         {
             Collapsed = !Collapsed;
+        }
+
+        private void chk_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_tile.Use != chk.Checked)
+            {
+                _tile.Use = chk.Checked;
+                foreach (TileStresstest ts in _tile)
+                    ts.Use = _tile.Use;
+
+                _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }
         }
         #endregion
     }

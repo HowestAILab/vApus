@@ -73,6 +73,7 @@
             this.Name = "AddTileTreeViewItem";
             this.Size = new System.Drawing.Size(150, 25);
             this.Click += new System.EventHandler(this._Click);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.MouseEnter += new System.EventHandler(this._MouseEnter);
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.picAdd)).EndInit();

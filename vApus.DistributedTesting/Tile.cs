@@ -37,25 +37,10 @@ namespace vApus.DistributedTesting
         public Tile()
         {
             ShowInGui = false;
-            if (Solution.ActiveSolution != null)
-                InitTileStresstests();
         }
         #endregion
 
         #region Functions
-        private void InitTileStresstests()
-        {
-            if (this.Count == 0)
-            {
-                SolutionComponent stresstestProject = Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject));
-                foreach (BaseItem item in stresstestProject)
-                    if (item is Stresstest.Stresstest)
-                    {
-                        TileStresstest tileStresstest = new TileStresstest(item as Stresstest.Stresstest);
-                        this.AddWithoutInvokingEvent(tileStresstest);
-                    }
-            }
-        }
         /// <summary>
         /// Synchronize the tile stresstests with the real ones, meaning if one is deleted or added the number of tile stresstests must equal those of the real. 
         /// </summary>

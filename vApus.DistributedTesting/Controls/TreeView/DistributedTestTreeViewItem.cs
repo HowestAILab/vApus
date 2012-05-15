@@ -13,6 +13,12 @@ namespace vApus.DistributedTesting
     public partial class DistributedTestTreeViewItem : UserControl, ITestTreeViewItem
     {
         private DistributedTest _distributedTest = new DistributedTest();
+
+        public DistributedTest DistributedTest
+        {
+            get { return _distributedTest; }
+        }
+     
         public DistributedTestTreeViewItem()
         {
             InitializeComponent();
@@ -32,7 +38,7 @@ namespace vApus.DistributedTesting
         public void SetVisibleControls(bool visible)
         {
         }
-        public void RefreshLabel()
+        public void RefreshGui()
         {
         }
     }

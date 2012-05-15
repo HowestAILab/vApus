@@ -33,7 +33,7 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
-            this.chkIndex = new System.Windows.Forms.CheckBox();
+            this.chk = new System.Windows.Forms.CheckBox();
             this.txtTile = new System.Windows.Forms.TextBox();
             this.lblTile = new System.Windows.Forms.Label();
             this.picCollapseExpand = new System.Windows.Forms.PictureBox();
@@ -75,34 +75,39 @@
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picDelete.TabIndex = 15;
             this.picDelete.TabStop = false;
-            this.toolTip.SetToolTip(this.picDelete, "Remove <delete>");
+            this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>");
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
-            // chkIndex
+            // chk
             // 
-            this.chkIndex.AutoSize = true;
-            this.chkIndex.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkIndex.Location = new System.Drawing.Point(8, 7);
-            this.chkIndex.Name = "chkIndex";
-            this.chkIndex.Size = new System.Drawing.Size(12, 11);
-            this.chkIndex.TabIndex = 11;
-            this.chkIndex.UseVisualStyleBackColor = true;
-            this.chkIndex.MouseEnter += new System.EventHandler(this._MouseEnter);
+            this.chk.AutoSize = true;
+            this.chk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chk.Location = new System.Drawing.Point(8, 7);
+            this.chk.Name = "chk";
+            this.chk.Size = new System.Drawing.Size(12, 11);
+            this.chk.TabIndex = 11;
+            this.chk.TabStop = false;
+            this.toolTip.SetToolTip(this.chk, "Use <ctrl+u>");
+            this.chk.UseVisualStyleBackColor = true;
+            this.chk.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
+            this.chk.Enter += new System.EventHandler(this._Enter);
+            this.chk.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
+            this.chk.MouseEnter += new System.EventHandler(this._MouseEnter);
             // 
             // txtTile
             // 
             this.txtTile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTile.ForeColor = System.Drawing.SystemColors.ControlDark;
             this.txtTile.Location = new System.Drawing.Point(26, 3);
             this.txtTile.Name = "txtTile";
             this.txtTile.Size = new System.Drawing.Size(503, 20);
-            this.txtTile.TabIndex = 12;
-            this.txtTile.Text = "Give this Tile a custom label.";
+            this.txtTile.TabIndex = 0;
             this.txtTile.Visible = false;
-            this.txtTile.Enter += new System.EventHandler(this.txtTile_Enter);
-            this.txtTile.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtTile_KeyUp);
+            this.txtTile.Enter += new System.EventHandler(this._Enter);
+            this.txtTile.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            this.txtTile.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.txtTile.Leave += new System.EventHandler(this.txtTile_Leave);
             // 
             // lblTile
@@ -135,12 +140,13 @@
             this.Controls.Add(this.txtTile);
             this.Controls.Add(this.picCollapseExpand);
             this.Controls.Add(this.picDuplicate);
-            this.Controls.Add(this.chkIndex);
+            this.Controls.Add(this.chk);
             this.Controls.Add(this.picDelete);
             this.Controls.Add(this.lblTile);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TileTreeViewItem";
             this.Size = new System.Drawing.Size(598, 25);
+            this.Enter += new System.EventHandler(this._Enter);
             this.MouseEnter += new System.EventHandler(this._MouseEnter);
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
@@ -155,7 +161,7 @@
 
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picDelete;
-        private System.Windows.Forms.CheckBox chkIndex;
+        private System.Windows.Forms.CheckBox chk;
         private System.Windows.Forms.TextBox txtTile;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.PictureBox picCollapseExpand;

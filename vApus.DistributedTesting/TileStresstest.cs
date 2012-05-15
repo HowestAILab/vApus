@@ -23,7 +23,7 @@ namespace vApus.DistributedTesting
     public class TileStresstest : LabeledBaseItem
     {
         #region Fields
-        private bool _use = false;
+        private bool _use = true;
         private string _slaveIP = "?";
         private int _slavePort = SocketListener.DEFAULTPORT;
         private int[] _processorAffinity = new int[] { };
@@ -401,6 +401,7 @@ namespace vApus.DistributedTesting
         /// </summary>
         public TileStresstest()
         {
+            ShowInGui = false;
             //To update the monitor settings
             vApus.SolutionTree.SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 

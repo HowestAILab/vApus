@@ -28,7 +28,7 @@ namespace vApus.DistributedTesting
         private string _resultPath = SpecialFolder.GetPath(SpecialFolder.Folder.Desktop);
         #endregion
 
-        #region Properties                
+        #region Properties
         [SavableCloneable]
         [DisplayName("Run Synchronization")]
         public RunSynchronization RunSynchronization
@@ -75,7 +75,7 @@ namespace vApus.DistributedTesting
         }
         public override void Activate()
         {
-            SolutionComponentViewManager.Show(this);
+            SolutionComponentViewManager.Show(this, typeof(NewDistributedTestView));
         }
         #endregion
     }

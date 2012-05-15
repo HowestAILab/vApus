@@ -160,4 +160,31 @@
         0n8eVwtXCbxCAr8B80x3bKbwKw8AAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="btnLinkageOverview.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFYSURBVDhPY2AYBdQJgfbZO307Zm9f2DJnx+OqqRsfl3Ys
+        W5hWO9sXZDo+ObDt7XO2hy5cf+r59Ydv///9////x+///28/cuN/fsui57nNC/twyXkk1IWCDeiYs33T
+        vWef/hc2zznEp+V1Rccl/crERYcfLdp6+f+s9Zt+rT9wC0if/CxpHHwNJFc9YeWhhRtP/zcLLNoENqB+
+        2tovQIv/cyt73tdyStSavfnSWRD/+7///599/P//yuNf/49f//yfT9O3NyS3W6tpxub7x6+9/69kmfIF
+        YsDkjZtOX3v2P69pzqHQ3O4r9dO2XOGT9/nNqeL+H4Z1nRKeweSmLD10qGPOzv8yZuEQF5R2rQhtmrr+
+        +cod5/+fuPb6/+7TT//XT93839I//7l3SnMfLjkhLT9IGIBAZEGfr3tC3UKLoMLHGs7xj2XMIxYKaPuA
+        YwGfHHXSwNA3BQDYs/MK1krSkQAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <metadata name="tmrSchedule.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>446, 17</value>
+  </metadata>
+  <metadata name="fbd.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>566, 17</value>
+  </metadata>
+  <metadata name="tmrProgressDelayCountDown.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>233, 17</value>
+  </metadata>
+  <metadata name="tmrProgress.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>115, 17</value>
+  </metadata>
+  <metadata name="tmrCheckTvwTiles.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>636, 17</value>
+  </metadata>
 </root>
