@@ -29,8 +29,8 @@ namespace vApus.DistributedTesting
             {
                 _tileStresstest = tileStresstest;
                 solutionComponentPropertyPanelDefaultTo.SolutionComponent = _tileStresstest;
-                //solutionComponentPropertyPanelBasic.SolutionComponent = _tileStresstest.BasicTileStresstest;
-                //solutionComponentPropertyPanelAdvanced.SolutionComponent = _tileStresstest.AdvancedTileStresstest;
+                solutionComponentPropertyPanelBasic.SolutionComponent = _tileStresstest.BasicTileStresstest;
+                solutionComponentPropertyPanelAdvanced.SolutionComponent = _tileStresstest.AdvancedTileStresstest;
             }
         }
     }

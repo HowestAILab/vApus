@@ -37,6 +37,7 @@
             // 
             this.solutionComponentPropertyPanelBasic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+            this.solutionComponentPropertyPanelBasic.AutoSelectControl = false;
             this.solutionComponentPropertyPanelBasic.BackColor = System.Drawing.Color.White;
             this.solutionComponentPropertyPanelBasic.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.solutionComponentPropertyPanelBasic.Location = new System.Drawing.Point(3, 109);
@@ -50,6 +51,7 @@
             this.solutionComponentPropertyPanelAdvanced.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.solutionComponentPropertyPanelAdvanced.AutoSelectControl = false;
             this.solutionComponentPropertyPanelAdvanced.BackColor = System.Drawing.Color.White;
             this.solutionComponentPropertyPanelAdvanced.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.solutionComponentPropertyPanelAdvanced.Location = new System.Drawing.Point(263, 109);
@@ -62,6 +64,7 @@
             // 
             this.solutionComponentPropertyPanelDefaultTo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.solutionComponentPropertyPanelDefaultTo.AutoSelectControl = false;
             this.solutionComponentPropertyPanelDefaultTo.BackColor = System.Drawing.Color.White;
             this.solutionComponentPropertyPanelDefaultTo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.solutionComponentPropertyPanelDefaultTo.Location = new System.Drawing.Point(3, 3);

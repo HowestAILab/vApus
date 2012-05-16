@@ -118,7 +118,7 @@ namespace vApus.DistributedTesting
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
             tvi.SetParent(largeList);
-            tvi.AfterSelect +=new EventHandler(_AfterSelect);
+            tvi.AfterSelect += new EventHandler(_AfterSelect);
             tvi.AddTileStresstestClicked += new EventHandler(tvi_AddTileStresstestClicked);
             tvi.DuplicateClicked += new EventHandler(tvi_DuplicateClicked);
             tvi.DeleteClicked += new EventHandler(tvi_DeleteClicked);
@@ -183,7 +183,7 @@ namespace vApus.DistributedTesting
             if (tvi.Tile.Parent != null)
                 tvi.Tile.Parent.Remove(tvi.Tile);
 
-            foreach(var child in tvi.ChildControls)
+            foreach (var child in tvi.ChildControls)
                 largeList.Remove(child, false);
 
             largeList.Remove(tvi);
@@ -212,7 +212,7 @@ namespace vApus.DistributedTesting
             var tsvi = new TileStresstestTreeViewItem(tileStresstest);
             //To be able to delete the control.
             tsvi.SetParent(parent);
-            tsvi.AfterSelect +=new EventHandler(_AfterSelect);
+            tsvi.AfterSelect += new EventHandler(_AfterSelect);
             tsvi.DuplicateClicked += new EventHandler(tsvi_DuplicateClicked);
             tsvi.DeleteClicked += new EventHandler(tsvi_DeleteClicked);
             return tsvi;

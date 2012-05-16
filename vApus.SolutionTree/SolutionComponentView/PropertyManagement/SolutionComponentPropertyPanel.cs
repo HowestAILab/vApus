@@ -35,6 +35,13 @@ namespace vApus.SolutionTree
         // private Dictionary<Type, SolutionComponent> _parentCache = new Dictionary<Type, SolutionComponent>();
         #endregion
 
+        [DefaultValue(true)]
+        public new bool AutoSelectControl
+        {
+            get { return base.AutoSelectControl; }
+            set { base.AutoSelectControl = value; }
+        }
+
         /// <summary>
         /// Set the gui if the panel is empty.
         /// </summary>

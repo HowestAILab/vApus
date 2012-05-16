@@ -55,7 +55,7 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-       // [PropertyControl(1)]
+        [PropertyControl(1)]
         public Monitor.Monitor[] Monitors
         {
             get { return _monitors; }
@@ -81,7 +81,7 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-       // [PropertyControl(2), SavableCloneable]
+        // [PropertyControl(2), SavableCloneable]
         public Slave[] Slaves
         {
             get { return _slaves; }
