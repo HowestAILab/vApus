@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -11,12 +18,31 @@ namespace vApus.DistributedTesting
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
+        /// <summary>
+        /// The selected item is the sender
+        /// </summary>
+        public event EventHandler AfterSelect;
+
+        #region Fields
+        private DistributedTestMode _distributedTestMode;
+        #endregion
+
+        #region Properties
+        public DistributedTestMode DistributedTestMode
+        {
+            get { return _distributedTestMode; }
+        }
+        #endregion
+
+        #region Constructors
         public TestTreeView()
         {
             InitializeComponent();
-            //TestGui();
+            // TestGui();
         }
+        #endregion
 
+        #region Functions
         public void TestGui()
         {
 
@@ -44,20 +70,46 @@ namespace vApus.DistributedTesting
 
             SetDistributedTest(test);
         }
+
+        public void SetMode(DistributedTestMode distributedTestMode)
+        {
+            if (_distributedTestMode != distributedTestMode)
+            {
+                _distributedTestMode = distributedTestMode;
+            }
+        }
+
         public void SetDistributedTest(DistributedTest distributedTest)
         {
             LockWindowUpdate(this.Handle.ToInt32());
             largeList.Clear();
             var dttvi = new DistributedTestTreeViewItem(distributedTest);
+            dttvi.AfterSelect += new EventHandler(_AfterSelect);
+            dttvi.AddTileClicked += new EventHandler(dttvi_AddTileClicked);
             largeList.Add(dttvi);
 
             bool addControlsVisible = ClientRectangle.Contains(PointToClient(Cursor.Position));
             foreach (Tile tile in distributedTest)
                 AddAndCreateTileTreeViewItem(tile);
 
-            largeList.Add(CreateAddTileTreeViewItem(dttvi));
-
             SetGui();
+
+            dttvi.Select();
+            LockWindowUpdate(0);
+        }
+
+        private void dttvi_AddTileClicked(object sender, EventArgs e)
+        {
+            LockWindowUpdate(this.Handle.ToInt32());
+
+            DistributedTestTreeViewItem dttvi = sender as DistributedTestTreeViewItem;
+
+            Tile tile = new Tile();
+            AddAndCreateTileTreeViewItem(tile);
+
+            dttvi.DistributedTest.Add(tile);
+
+            dttvi.DistributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
             LockWindowUpdate(0);
         }
 
@@ -66,6 +118,8 @@ namespace vApus.DistributedTesting
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
             tvi.SetParent(largeList);
+            tvi.AfterSelect +=new EventHandler(_AfterSelect);
+            tvi.AddTileStresstestClicked += new EventHandler(tvi_AddTileStresstestClicked);
             tvi.DuplicateClicked += new EventHandler(tvi_DuplicateClicked);
             tvi.DeleteClicked += new EventHandler(tvi_DeleteClicked);
 
@@ -76,19 +130,63 @@ namespace vApus.DistributedTesting
                 tvi.ChildControls.Add(tsvi);
                 largeList.Add(tsvi);
             }
-            var atstvi = CreateAddTileStresstestTreeViewItem(tvi);
-            tvi.ChildControls.Add(atstvi);
-            largeList.Add(atstvi);
+
+            tvi.Select();
+        }
+        private void tvi_AddTileStresstestClicked(object sender, EventArgs e)
+        {
+            LockWindowUpdate(this.Handle.ToInt32());
+
+            TileTreeViewItem tvi = sender as TileTreeViewItem;
+
+            TileStresstest ts = new TileStresstest();
+            var tsvi = CreateTileStresstestTreeViewItem(tvi, ts);
+            tvi.ChildControls.Add(tsvi);
+
+            TileTreeViewItem closestNextTileTreeViewItem = GetClosestNextTileTreeViewItem(tvi);
+            if (closestNextTileTreeViewItem == null)
+                largeList.Add(tsvi);
+            else
+                largeList.Insert(tsvi, largeList.IndexOf(closestNextTileTreeViewItem));
+
+            tsvi.Select();
+
+            tvi.Tile.Add(ts);
+            tvi.RefreshGui();
+
+            tvi.Tile.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
+            LockWindowUpdate(0);
+        }
+        private TileTreeViewItem GetClosestNextTileTreeViewItem(Control control)
+        {
+            KeyValuePair<int, int> index = largeList.IndexOf(control);
+            for (int i = index.Key; i < largeList.ViewCount; i++)
+                if (i == index.Key)
+                {
+                    for (int j = index.Value + 1; j < largeList[i].Count; j++)
+                        if (largeList[i][j] is TileTreeViewItem)
+                            return largeList[i][j] as TileTreeViewItem;
+                }
+                else
+                {
+                    for (int j = 0; j < largeList[i].Count; j++)
+                        if (largeList[i][j] is TileTreeViewItem)
+                            return largeList[i][j] as TileTreeViewItem;
+                }
+            return null;
         }
         private void tvi_DeleteClicked(object sender, EventArgs e)
         {
             LockWindowUpdate(this.Handle.ToInt32());
 
             TileTreeViewItem tvi = sender as TileTreeViewItem;
-            largeList.Remove(tvi);
-            largeList.RemoveRange(tvi.ChildControls);
             if (tvi.Tile.Parent != null)
                 tvi.Tile.Parent.Remove(tvi.Tile);
+
+            foreach(var child in tvi.ChildControls)
+                largeList.Remove(child, false);
+
+            largeList.Remove(tvi);
 
             LockWindowUpdate(0);
         }
@@ -114,6 +212,7 @@ namespace vApus.DistributedTesting
             var tsvi = new TileStresstestTreeViewItem(tileStresstest);
             //To be able to delete the control.
             tsvi.SetParent(parent);
+            tsvi.AfterSelect +=new EventHandler(_AfterSelect);
             tsvi.DuplicateClicked += new EventHandler(tsvi_DuplicateClicked);
             tsvi.DeleteClicked += new EventHandler(tsvi_DeleteClicked);
             return tsvi;
@@ -123,11 +222,12 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(this.Handle.ToInt32());
 
             TileStresstestTreeViewItem tsvi = sender as TileStresstestTreeViewItem;
-            largeList.Remove(tsvi);
             if (tsvi.GetParent() != null)
                 (tsvi.GetParent() as TileTreeViewItem).ChildControls.Remove(tsvi);
             if (tsvi.TileStresstest.Parent != null)
                 tsvi.TileStresstest.Parent.Remove(tsvi.TileStresstest);
+
+            largeList.Remove(tsvi);
 
             LockWindowUpdate(0);
         }
@@ -142,60 +242,10 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private AddTileStresstestTreeViewItem CreateAddTileStresstestTreeViewItem(TileTreeViewItem tileTreeViewItem)
+        private void _AfterSelect(object sender, EventArgs e)
         {
-            var atstvi = new AddTileStresstestTreeViewItem();
-            //For adding to the right tile
-            atstvi.SetParent(tileTreeViewItem);
-            atstvi.AddClick += new EventHandler(atstvi_AddClick);
-            return atstvi;
-        }
-        private void atstvi_AddClick(object sender, EventArgs e)
-        {
-            LockWindowUpdate(this.Handle.ToInt32());
-
-            AddTileStresstestTreeViewItem atstvi = sender as AddTileStresstestTreeViewItem;
-            if (atstvi.GetParent() != null)
-            {
-                var parent = atstvi.GetParent() as TileTreeViewItem;
-                TileStresstest ts = new TileStresstest();
-                var tsvi = CreateTileStresstestTreeViewItem(parent, ts);
-                parent.ChildControls.Insert(parent.ChildControls.Count - 1, tsvi);
-
-                largeList.Insert(tsvi, largeList.IndexOf(parent.ChildControls[parent.ChildControls.Count - 1]));
-
-                parent.Tile.Add(ts);
-
-                tsvi.Select();
-            }
-            LockWindowUpdate(0);
-        }
-
-        private AddTileTreeViewItem CreateAddTileTreeViewItem(DistributedTestTreeViewItem distributedTestTreeViewItem)
-        {
-            var attvi = new AddTileTreeViewItem();
-            //For adding to the right test
-            attvi.SetParent(distributedTestTreeViewItem);
-            attvi.AddClick += new EventHandler(attvi_AddClick);
-            return attvi;
-        }
-        private void attvi_AddClick(object sender, EventArgs e)
-        {
-            LockWindowUpdate(this.Handle.ToInt32());
-
-            AddTileTreeViewItem attvi = sender as AddTileTreeViewItem;
-            var parent = attvi.GetParent() as DistributedTestTreeViewItem;
-
-            Tile tile = new Tile();
-            parent.DistributedTest.Add(tile);
-
-            largeList.Remove(attvi);
-
-            AddAndCreateTileTreeViewItem(tile);
-
-            largeList.Add(attvi);
-
-            LockWindowUpdate(0);
+            if (AfterSelect != null)
+                AfterSelect(sender, null);
         }
 
         private void timer_Tick(object sender, EventArgs e)
@@ -204,56 +254,13 @@ namespace vApus.DistributedTesting
         }
         private void SetGui()
         {
-            Control hoveredControl = null;
             foreach (ITestTreeViewItem ctrl in largeList.AllControls)
             {
                 ctrl.SetVisibleControls();
-
                 //To determine what add tile stresstest control can be visible
-                Control control = ctrl as Control;
-                if (control.ClientRectangle.Contains(control.PointToClient(Cursor.Position)))
-                    hoveredControl = control;
-
-                if (ctrl is AddTileTreeViewItem)
-                    ctrl.SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
-
                 ctrl.RefreshGui();
             }
-
-            //To determine what add tile stresstest control can be visible
-            if (hoveredControl == null)
-            {
-                foreach (ITestTreeViewItem ctrl in largeList.AllControls)
-                    if (ctrl is AddTileStresstestTreeViewItem)
-                        ctrl.SetVisibleControls(false);
-            }
-            else
-            {
-                var addControl = GetClosestAddControl(hoveredControl);
-                foreach (ITestTreeViewItem ctrl in largeList.AllControls)
-                    if (ctrl is AddTileStresstestTreeViewItem)
-                        ctrl.SetVisibleControls(ctrl == addControl);
-            }
         }
-        /// <summary>Gets the closest add control.</summary>
-        /// <returns></returns>
-        private AddTileStresstestTreeViewItem GetClosestAddControl(Control control)
-        {
-            KeyValuePair<int, int> index = largeList.IndexOf(control);
-            for (int i = index.Key; i < largeList.ViewCount; i++)
-                if (i == index.Key)
-                {
-                    for (int j = index.Value; j < largeList[i].Count; j++)
-                        if (largeList[i][j] is AddTileStresstestTreeViewItem)
-                            return largeList[i][j] as AddTileStresstestTreeViewItem;
-                }
-                else
-                {
-                    for (int j = 0; j < largeList[i].Count; j++)
-                        if (largeList[i][j] is AddTileStresstestTreeViewItem)
-                            return largeList[i][j] as AddTileStresstestTreeViewItem;
-                }
-            return null;
-        }
+        #endregion
     }
 }

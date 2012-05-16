@@ -24,5 +24,14 @@ namespace vApus.DistributedTesting
             testTreeView.SetDistributedTest(solutionComponent as DistributedTest);
 
         }
+
+        private void testTreeView_AfterSelect(object sender, EventArgs e)
+        {
+            if (sender is TileStresstestTreeViewItem)
+            {
+                TileStresstestTreeViewItem tstvi = sender as TileStresstestTreeViewItem;
+                configureTileStresstest.SetTileStresstest(tstvi.TileStresstest);
+            }
+        }
     }
 }

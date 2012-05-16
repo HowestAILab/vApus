@@ -128,4 +128,21 @@ Break on First: If a run from a test is finished the other runs will break.
 Break on Last: Runs will re-run untill the longest one is finished for the first time.
 (note: the vApus think time is included in the test duration of a run)  </value>
   </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="picAddTile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7O
+        HOkAAAAEZ0FNQQAAsY8L/GEFAAACWUlEQVRYR+2Wy08TURTGwScqRNkZEg17wwpBohv/CRPj3lIqvrcu
+        jHGBkSCggmItxjBUUEGlYJVKCE1l4aOtUdtOX6IRUdyLxuTzfDMMQTNtZEpqDG3y2zT33PO73z0zbVFR
+        4VNIoJDA/5ZAta1/886DPTAjL2ehwB6He24y9hWLqbP3Iu8C3WMpEIqsbIFA9F8l8CQFl+CPfMnPFexw
+        9JfW2d2Vu+29P5/KvbO5y5fCxBtdoKpBKc/EkgfU7DGrtSnfa2zKDzYLRGa15i5fGuOvdYFd9co3M7iX
+        JQE2McP/dlaLnc2dwtirzxgNzeBRcAbel580hl9Mw/N8GkPPPmrvDEsCjNbpS+pRC87RJLoeJ9HpTaLj
+        YQIXRxJo88TR8kDF+UEVTQMqzt6O4UxfFKdvRXFKiUhN2rrA3ckPOHkjqNMdxAnhuCuEY9dDOEqcIRwR
+        Dl8Lo1E41CVcDcMhNFwJwy6cG4jmJkCJO0Jf4D3c/in0TEzh5vg7eQGlF5ozkcuSSPtwHK0eFS33Y2gW
+        mqQ5sXwFmd75/N4pA2icnM2zrbUkkGlo+FtQW6/McRYaGbnAky9rk2wTawh0ehNac973BRnCfAkUVx3o
+        KGcCl0bi+rAJvO95geIlP25/UbBK1qwR1gkllXsdWynQJsPG5tqkDy4IbJA164W1wmohZyFuws1KhE1C
+        WUX1vu0UaB1S0XxPlea/TfoWrhE2ztewlgew/GGxIcBNyypq9m/L8o/IEKAspY0kLAuwkDEaSTBexkyZ
+        0j9g08UnX5YryGROKTNyOmmheGUm8Au4oUunIR+haQAAAABJRU5ErkJggg==
+</value>
+  </data>
 </root>

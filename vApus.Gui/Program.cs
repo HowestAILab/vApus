@@ -45,7 +45,6 @@ namespace vApus.Gui
                 System.IO.Directory.SetCurrentDirectory(Application.StartupPath);
 
                 Application.Run(new MainWindow(args));
-                //Application.Run(new TestValueControlPanel());
 
             }
             catch (Exception ex)

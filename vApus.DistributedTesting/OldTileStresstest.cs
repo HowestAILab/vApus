@@ -20,7 +20,7 @@ namespace vApus.DistributedTesting
     /// The configuration of a certain stresstest in a certain tile.
     /// </summary>
     [Serializable]
-    public class TileStresstest : LabeledBaseItem
+    public class OldTileStresstest : LabeledBaseItem
     {
         #region Fields
         private bool _use = true;
@@ -399,7 +399,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// The configuration of a certain stresstest in a certain tile.
         /// </summary>
-        public TileStresstest()
+        public OldTileStresstest()
         {
             ShowInGui = false;
             //To update the monitor settings
@@ -430,7 +430,7 @@ namespace vApus.DistributedTesting
         /// This will copy the properties of the default stresstest and also store this default stresstest.
         /// </summary>
         /// <param name="defaultStresstest"></param>
-        public TileStresstest(Stresstest.Stresstest defaultStresstest)
+        public OldTileStresstest(Stresstest.Stresstest defaultStresstest)
             : this()
         {
             _defaultStresstest = defaultStresstest;

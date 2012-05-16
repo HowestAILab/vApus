@@ -1,13 +1,16 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.SolutionTree;
-using System.Runtime.InteropServices;
 using vApus.Util;
 
 namespace vApus.DistributedTesting
@@ -20,6 +23,7 @@ namespace vApus.DistributedTesting
 
         #region Events
         public event EventHandler AfterSelect;
+        public event EventHandler AddTileStresstestClicked;
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
         #endregion
@@ -27,9 +31,7 @@ namespace vApus.DistributedTesting
         #region Fields
         private Tile _tile = new Tile();
         private bool _collapsed = false;
-
         private List<Control> _childControls = new List<Control>();
-
         /// <summary>
         /// Check if the ctrl key is pressed.
         /// </summary>
@@ -70,8 +72,10 @@ namespace vApus.DistributedTesting
                         else
                             index = new KeyValuePair<int, int>(index.Key, index.Value + 1);
 
-                        //Always inserted because they are never the last controls. (AddTileTreeViewItem is always the last)
-                        largeList.InsertRange(new List<Control>(_childControls.ToArray()), index);
+                        if (index.Key == largeList.ViewCount || index.Value == largeList[index.Key].Count)
+                            largeList.AddRange(_childControls);
+                        else
+                            largeList.InsertRange(_childControls, index);
                     }
                     LockWindowUpdate(0);
                 }
@@ -81,7 +85,6 @@ namespace vApus.DistributedTesting
         {
             get { return _childControls; }
         }
-
         private int UsedTileStresstestCount
         {
             get
@@ -142,7 +145,7 @@ namespace vApus.DistributedTesting
         }
         private void _Enter(object sender, EventArgs e)
         {
-            SetVisibleControls(true);
+            SetVisibleControls();
 
             if (AfterSelect != null)
                 AfterSelect(this, null);
@@ -159,18 +162,16 @@ namespace vApus.DistributedTesting
         }
         private void _MouseEnter(object sender, EventArgs e)
         {
-            SetVisibleControls(true);
+            SetVisibleControls();
         }
         private void _MouseLeave(object sender, EventArgs e)
         {
-            if (!ClientRectangle.Contains(PointToClient(Cursor.Position)))
-                SetVisibleControls(false);
+            SetVisibleControls();
         }
         public void SetVisibleControls(bool visible)
         {
-            txtTile.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+            txtTile.Visible = picAddTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
         }
-
         public void SetVisibleControls()
         {
             if (this.Focused || txtTile.Focused)
@@ -178,6 +179,7 @@ namespace vApus.DistributedTesting
             else
                 SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
         }
+
         public void RefreshGui()
         {
             string label = string.Empty;
@@ -200,7 +202,6 @@ namespace vApus.DistributedTesting
                 chk.CheckedChanged += chk_CheckedChanged;
             }
         }
-
         private void _KeyUp(object sender, KeyEventArgs e)
         {
             if (sender == txtTile)
@@ -220,7 +221,9 @@ namespace vApus.DistributedTesting
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
             else if (_ctrl)
-                if (e.KeyCode == Keys.R && DeleteClicked != null)
+                if (e.KeyCode == Keys.I && AddTileStresstestClicked != null)
+                    AddTileStresstestClicked(this, null);
+                else if (e.KeyCode == Keys.R && DeleteClicked != null)
                     DeleteClicked(this, null);
                 else if (e.KeyCode == Keys.D && DuplicateClicked != null)
                     DuplicateClicked(this, null);
@@ -231,6 +234,11 @@ namespace vApus.DistributedTesting
         {
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
+        }
+        private void picAddTileStresstest_Click(object sender, EventArgs e)
+        {
+            if (AddTileStresstestClicked != null)
+                AddTileStresstestClicked(this, null);
         }
         private void picDuplicate_Click(object sender, EventArgs e)
         {
@@ -246,7 +254,6 @@ namespace vApus.DistributedTesting
         {
             Collapsed = !Collapsed;
         }
-
         private void chk_CheckedChanged(object sender, EventArgs e)
         {
             if (_tile.Use != chk.Checked)
@@ -259,5 +266,15 @@ namespace vApus.DistributedTesting
             }
         }
         #endregion
+
+
+        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
+        {
+        }
+
+        public DistributedTestMode DistributedTestMode
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

@@ -95,7 +95,7 @@ namespace vApus.DistributedTesting
         /// Set the configuration for the chosen tile stresstest.
         /// </summary>
         /// <param name="tileStresstest"></param>
-        public void SetSlaveConfigurationControls(TileStresstest tileStresstest, List<MonitorView> monitorViews)
+        public void SetSlaveConfigurationControls(OldTileStresstest tileStresstest, List<MonitorView> monitorViews)
         {
             stresstestControl.SetConfigurationControls(tileStresstest.GetNewStresstest());
             _monitorViews = monitorViews;
@@ -250,7 +250,7 @@ namespace vApus.DistributedTesting
         /// <param name="tileStresstest"></param>
         /// <param name="pushMessage"></param>
         /// <param name="overalEndOfTimeFrame">The end of time frame for the full test.</param>
-        public void SetSlaveProgress(TileStresstest tileStresstest, PushMessage pushMessage, DateTime overalBeginOfTimeFrame, DateTime overalEndOfTimeFrame)
+        public void SetSlaveProgress(OldTileStresstest tileStresstest, PushMessage pushMessage, DateTime overalBeginOfTimeFrame, DateTime overalEndOfTimeFrame)
         {
             LockWindowUpdate(this.Handle.ToInt32());
 
@@ -295,7 +295,7 @@ namespace vApus.DistributedTesting
 
             LockWindowUpdate(0);
         }
-        public void SetOverallFastResults(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        public void SetOverallFastResults(Dictionary<OldTileStresstest, TileStresstestProgressResults> progress)
         {
             if (cboDrillDown.SelectedIndex == 0)
                 SetConcurrentUsersProgress(progress);
@@ -305,7 +305,7 @@ namespace vApus.DistributedTesting
                 SetRunProgress(progress);
 
         }
-        private void SetConcurrentUsersProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        private void SetConcurrentUsersProgress(Dictionary<OldTileStresstest, TileStresstestProgressResults> progress)
         {
             dgvFastResults.Rows.Clear();
 
@@ -314,7 +314,7 @@ namespace vApus.DistributedTesting
                 "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
 
             //Add the rows
-            foreach (TileStresstest key in progress.Keys)
+            foreach (OldTileStresstest key in progress.Keys)
                 if (progress[key] != null)
                     foreach (TileConcurrentUsersProgressResult result in progress[key].TileConcurrentUsersProgressResults)
                     {
@@ -331,7 +331,7 @@ namespace vApus.DistributedTesting
                             metrics.AverageDelay.TotalMilliseconds, metrics.Errors);
                     }
         }
-        private void SetPrecisionProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        private void SetPrecisionProgress(Dictionary<OldTileStresstest, TileStresstestProgressResults> progress)
         {
             dgvFastResults.Rows.Clear();
 
@@ -340,7 +340,7 @@ namespace vApus.DistributedTesting
                 "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
 
             //Add the rows.
-            foreach (TileStresstest key in progress.Keys)
+            foreach (OldTileStresstest key in progress.Keys)
                 if (progress[key] != null)
                     foreach (TileConcurrentUsersProgressResult cu in progress[key].TileConcurrentUsersProgressResults)
                         foreach (TilePrecisionProgressResult result in cu.TilePrecisionProgressResults)
@@ -359,7 +359,7 @@ namespace vApus.DistributedTesting
                                 metrics.AverageDelay.TotalMilliseconds, metrics.Errors);
                         }
         }
-        private void SetRunProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        private void SetRunProgress(Dictionary<OldTileStresstest, TileStresstestProgressResults> progress)
         {
             dgvFastResults.Rows.Clear();
 
@@ -368,7 +368,7 @@ namespace vApus.DistributedTesting
                 "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
 
             //Add the rows.
-            foreach (TileStresstest key in progress.Keys)
+            foreach (OldTileStresstest key in progress.Keys)
                 if (progress[key] != null)
                     foreach (TileConcurrentUsersProgressResult cu in progress[key].TileConcurrentUsersProgressResults)
                         foreach (TilePrecisionProgressResult p in cu.TilePrecisionProgressResults)

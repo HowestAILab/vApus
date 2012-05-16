@@ -32,7 +32,7 @@ namespace vApus.DistributedTesting
         /// Communication to the master --> wrong place for this!
         /// </summary>
         private SocketWrapper _masterSocketWrapper;
-        private TileStresstest _tileStresstest;
+        private OldTileStresstest _tileStresstest;
 
         //To report progress to the master.
         private TileStresstestProgressResults _tileStresstestProgressResults;
@@ -56,7 +56,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// Store to identify the right stresstest.
         /// </summary>
-        public TileStresstest TileStresstest
+        public OldTileStresstest TileStresstest
         {
             get { return _tileStresstest; }
         }
@@ -85,7 +85,7 @@ namespace vApus.DistributedTesting
         public TileStresstestView(SolutionComponent solutionComponent, params object[] args)
             : base(solutionComponent, args)
         {
-            _tileStresstest = SolutionComponent as TileStresstest;
+            _tileStresstest = SolutionComponent as OldTileStresstest;
             _stresstest = _tileStresstest.GetNewStresstest();
            
             InitializeComponent();

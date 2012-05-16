@@ -34,15 +34,16 @@
             this.cboRunSync = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.picAddTile = new System.Windows.Forms.PictureBox();
             this.pnlRunSync.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlRunSync
             // 
-            this.pnlRunSync.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlRunSync.BackColor = System.Drawing.Color.Silver;
             this.pnlRunSync.Controls.Add(this.cboRunSync);
-            this.pnlRunSync.Location = new System.Drawing.Point(468, 6);
+            this.pnlRunSync.Location = new System.Drawing.Point(66, 6);
             this.pnlRunSync.Name = "pnlRunSync";
             this.pnlRunSync.Size = new System.Drawing.Size(127, 23);
             this.pnlRunSync.TabIndex = 18;
@@ -64,12 +65,14 @@
             this.cboRunSync.Size = new System.Drawing.Size(125, 21);
             this.cboRunSync.TabIndex = 0;
             this.toolTip.SetToolTip(this.cboRunSync, resources.GetString("cboRunSync.ToolTip"));
+            this.cboRunSync.Enter += new System.EventHandler(this._Enter);
+            this.cboRunSync.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            this.cboRunSync.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             // 
             // label1
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(405, 11);
+            this.label1.Location = new System.Drawing.Point(3, 11);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(57, 13);
             this.label1.TabIndex = 19;
@@ -82,16 +85,36 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // picAddTile
+            // 
+            this.picAddTile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picAddTile.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picAddTile.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picAddTile.Image = ((System.Drawing.Image)(resources.GetObject("picAddTile.Image")));
+            this.picAddTile.Location = new System.Drawing.Point(251, 6);
+            this.picAddTile.Name = "picAddTile";
+            this.picAddTile.Size = new System.Drawing.Size(23, 23);
+            this.picAddTile.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picAddTile.TabIndex = 20;
+            this.picAddTile.TabStop = false;
+            this.toolTip.SetToolTip(this.picAddTile, "Add Tile Stresstest <ctrl+i>");
+            this.picAddTile.Click += new System.EventHandler(this.picAddTile_Click);
+            // 
             // DistributedTestTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.picAddTile);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnlRunSync);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "DistributedTestTreeViewItem";
-            this.Size = new System.Drawing.Size(598, 35);
+            this.Size = new System.Drawing.Size(274, 35);
+            this.Enter += new System.EventHandler(this._Enter);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.pnlRunSync.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -103,6 +126,7 @@
         private System.Windows.Forms.ComboBox cboRunSync;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.PictureBox picAddTile;
 
     }
 }

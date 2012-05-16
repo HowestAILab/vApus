@@ -151,6 +151,7 @@ namespace vApus.SolutionTree
                             del.BeginInvoke(this, null, null, null);
         }
         /// <summary>
+        /// Will only invoke SolutionComponentChanged if the ShowOnGui property of the item equals true.
         /// </summary>
         /// <param name="item"></param>
         public void Add(BaseItem item)

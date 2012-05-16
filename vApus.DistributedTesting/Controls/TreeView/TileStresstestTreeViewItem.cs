@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
@@ -21,7 +24,6 @@ namespace vApus.DistributedTesting
 
         #region Fields
         private TileStresstest _tileStresstest = new TileStresstest();
-
         /// <summary>
         /// Check if the ctrl key is pressed.
         /// </summary>
@@ -53,13 +55,15 @@ namespace vApus.DistributedTesting
 
             //Use if the parent is used explicitely.
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+
+            eventProgressBar.SetProgressBarToNow();
         }
         #endregion
 
         #region Functions
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender == _tileStresstest.Parent)
+            if (sender == _tileStresstest.Parent && e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Edited)
             {
                 Tile parent = sender as Tile;
                 _tileStresstest.Use = parent.Use;
@@ -71,10 +75,11 @@ namespace vApus.DistributedTesting
                 }
             }
         }
+       
         private void _Enter(object sender, EventArgs e)
         {
             this.BackColor = SystemColors.Control;
-            SetVisibleControls(true);
+            SetVisibleControls();
 
             if (AfterSelect != null)
                 AfterSelect(this, null);
@@ -95,12 +100,11 @@ namespace vApus.DistributedTesting
         }
         private void _MouseEnter(object sender, EventArgs e)
         {
-            SetVisibleControls(true);
+            SetVisibleControls();
         }
         private void _MouseLeave(object sender, EventArgs e)
         {
-            if (!ClientRectangle.Contains(PointToClient(Cursor.Position)))
-                SetVisibleControls(false);
+            SetVisibleControls();
         }
         public void SetVisibleControls(bool visible)
         {
@@ -119,8 +123,8 @@ namespace vApus.DistributedTesting
         {
             string label = string.Empty;
             if (_tileStresstest.Label == string.Empty)
-                label = (_tileStresstest.Connection == null || _tileStresstest.Connection.IsEmpty) ?
-                    string.Empty : _tileStresstest.Connection.ToString();
+                label = (_tileStresstest.BasicTileStresstest.Connection == null || _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
+                    string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString();
             else
                 label = _tileStresstest.Label;
 
@@ -131,6 +135,7 @@ namespace vApus.DistributedTesting
                     txtTileStresstest.Text = label;
             }
         }
+  
         private void _KeyUp(object sender, KeyEventArgs e)
         {
             if (sender == txtTileStresstest)
@@ -141,7 +146,7 @@ namespace vApus.DistributedTesting
                     {
                         _tileStresstest.Label = txtTileStresstest.Text;
                         if (_tileStresstest.Label == string.Empty)
-                            lblTileStresstest.Text = (_tileStresstest.Connection == null || _tileStresstest.Connection.IsEmpty) ? string.Empty : _tileStresstest.Connection.ToString();
+                            lblTileStresstest.Text = (_tileStresstest.BasicTileStresstest.Connection == null || _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ? string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString();
                         else
                             lblTileStresstest.Text = _tileStresstest.Label;
 
@@ -180,5 +185,20 @@ namespace vApus.DistributedTesting
             _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         #endregion
+
+        private void picStresstestStatus_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
+        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
+        {
+        }
+
+        public DistributedTestMode DistributedTestMode
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

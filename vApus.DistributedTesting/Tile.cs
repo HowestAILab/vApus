@@ -53,12 +53,12 @@ namespace vApus.DistributedTesting
             foreach (BaseItem item in stresstestProject)
                 if (item is Stresstest.Stresstest)
                     stresstests.Add(item as Stresstest.Stresstest);
-            TileStresstest[] inOrder = new TileStresstest[stresstests.Count];
+            OldTileStresstest[] inOrder = new OldTileStresstest[stresstests.Count];
 
             //Put the tile stresstests in order and check the synchronization.
             for (int i = 0; i < this.Count; i++)
             {
-                TileStresstest tileStresstest = this[i] as TileStresstest;
+                OldTileStresstest tileStresstest = this[i] as OldTileStresstest;
                 for (int j = 0; j < stresstests.Count; j++)
                 {
                     Stresstest.Stresstest stresstest = stresstests[j];
@@ -83,7 +83,7 @@ namespace vApus.DistributedTesting
                 for (int i = 0; i < inOrder.Length; i++)
                     if (inOrder[i] == null)
                     {
-                        this.AddAsDefaultItem(new TileStresstest(stresstests[0]));
+                        this.AddAsDefaultItem(new OldTileStresstest(stresstests[0]));
                         stresstests.RemoveAt(0);
                     }
                     else

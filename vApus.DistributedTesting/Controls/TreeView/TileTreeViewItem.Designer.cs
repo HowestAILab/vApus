@@ -34,11 +34,13 @@
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.chk = new System.Windows.Forms.CheckBox();
+            this.picAddTileStresstest = new System.Windows.Forms.PictureBox();
             this.txtTile = new System.Windows.Forms.TextBox();
             this.lblTile = new System.Windows.Forms.Label();
             this.picCollapseExpand = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picAddTileStresstest)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCollapseExpand)).BeginInit();
             this.SuspendLayout();
             // 
@@ -96,13 +98,28 @@
             this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.chk.MouseEnter += new System.EventHandler(this._MouseEnter);
             // 
+            // picAddTileStresstest
+            // 
+            this.picAddTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picAddTileStresstest.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picAddTileStresstest.Image = ((System.Drawing.Image)(resources.GetObject("picAddTileStresstest.Image")));
+            this.picAddTileStresstest.Location = new System.Drawing.Point(513, 6);
+            this.picAddTileStresstest.Name = "picAddTileStresstest";
+            this.picAddTileStresstest.Size = new System.Drawing.Size(16, 16);
+            this.picAddTileStresstest.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picAddTileStresstest.TabIndex = 17;
+            this.picAddTileStresstest.TabStop = false;
+            this.toolTip.SetToolTip(this.picAddTileStresstest, "Add Tile Stresstest <ctrl+i>");
+            this.picAddTileStresstest.Visible = false;
+            this.picAddTileStresstest.Click += new System.EventHandler(this.picAddTileStresstest_Click);
+            // 
             // txtTile
             // 
             this.txtTile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtTile.Location = new System.Drawing.Point(26, 3);
             this.txtTile.Name = "txtTile";
-            this.txtTile.Size = new System.Drawing.Size(503, 20);
+            this.txtTile.Size = new System.Drawing.Size(481, 20);
             this.txtTile.TabIndex = 0;
             this.txtTile.Visible = false;
             this.txtTile.Enter += new System.EventHandler(this._Enter);
@@ -139,6 +156,7 @@
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(153)))), ((int)(((byte)(180)))), ((int)(((byte)(209)))));
             this.Controls.Add(this.txtTile);
             this.Controls.Add(this.picCollapseExpand);
+            this.Controls.Add(this.picAddTileStresstest);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.chk);
             this.Controls.Add(this.picDelete);
@@ -151,6 +169,7 @@
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picAddTileStresstest)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCollapseExpand)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -166,5 +185,6 @@
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.PictureBox picCollapseExpand;
         private System.Windows.Forms.Label lblTile;
+        private System.Windows.Forms.PictureBox picAddTileStresstest;
     }
 }

@@ -875,7 +875,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="control"></param>
         /// <param name="refresh"></param>
-        private void Remove(Control control, bool refresh)
+        public void Remove(Control control, bool refresh)
         {
             int key = -1;
             for (int i = 0; i < _controls.Count; i++)

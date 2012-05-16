@@ -26,7 +26,7 @@ namespace vApus.DistributedTesting
         private DistributedTest _distributedTest;
         private MasterSideCommunicationHandler _masterCommunication = new MasterSideCommunicationHandler();
         private List<Tile> _usedTiles = new List<Tile>();
-        private List<TileStresstest> _usedTileStresstests = new List<TileStresstest>();
+        private List<OldTileStresstest> _usedTileStresstests = new List<OldTileStresstest>();
         private bool _isDisposed;
 
         private volatile int[] _ok = new int[] { };
@@ -49,11 +49,11 @@ namespace vApus.DistributedTesting
                     yield return tile;
             }
         }
-        public IEnumerable<TileStresstest> UsedTileStresstests
+        public IEnumerable<OldTileStresstest> UsedTileStresstests
         {
             get
             {
-                foreach (TileStresstest tileStresstest in _usedTileStresstests)
+                foreach (OldTileStresstest tileStresstest in _usedTileStresstests)
                     yield return tileStresstest;
             }
         }
@@ -135,7 +135,7 @@ namespace vApus.DistributedTesting
                 if (tile.Use)
                     foreach (BaseItem childItem in tile)
                     {
-                        TileStresstest tileStresstest = childItem as TileStresstest;
+                        OldTileStresstest tileStresstest = childItem as OldTileStresstest;
                         if (tileStresstest.Use)
                         {
                             Exception exception;
@@ -172,7 +172,7 @@ namespace vApus.DistributedTesting
         {
             InvokeMessage("Initializing test on slaves...");
             _sw.Start();
-            Parallel.ForEach(_usedTileStresstests, delegate(TileStresstest tileStresstest)
+            Parallel.ForEach(_usedTileStresstests, delegate(OldTileStresstest tileStresstest)
             {
                 Exception exception;
                 tileStresstest.RunSynchronization = _distributedTest.RunSynchronization;
@@ -227,7 +227,7 @@ namespace vApus.DistributedTesting
                 {
                     try
                     {
-                        foreach (TileStresstest tileStresstest in _usedTileStresstests)
+                        foreach (OldTileStresstest tileStresstest in _usedTileStresstests)
                             if (tileStresstest.SlaveIP == e.SlaveIP && tileStresstest.SlavePort == e.SlavePort)
                                 _failed = AddUniqueToIntArray(_failed, tileStresstest.OriginalHashCode);
 
@@ -390,7 +390,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// Stops the seeding at the torrent server.
         /// </summary>
-        public void StopSeedingResults(TileStresstest tileStresstest, string torrentName)
+        public void StopSeedingResults(OldTileStresstest tileStresstest, string torrentName)
         {
             lock (this)
             {

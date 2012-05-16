@@ -52,7 +52,7 @@ namespace vApus.DistributedTesting
         }
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender is TileStresstest || sender is DistributedTest)
+            if (sender is OldTileStresstest || sender is DistributedTest)
             {
                 if (this.IsDisposed)
                     SolutionComponent.SolutionComponentChanged -= new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
@@ -78,7 +78,7 @@ namespace vApus.DistributedTesting
                 Tile tile = item as Tile;
                 foreach (BaseItem child in tile)
                 {
-                    TileStresstest tileStresstest = child as TileStresstest;
+                    OldTileStresstest tileStresstest = child as OldTileStresstest;
                     string key = tileStresstest.SlaveIP + ':' + tileStresstest.SlavePort;
 
                     LinkageControl lc = null;
@@ -229,7 +229,7 @@ namespace vApus.DistributedTesting
                 Tile tile = item as Tile;
                 foreach (BaseItem child in tile)
                 {
-                    TileStresstest tileStresstest = child as TileStresstest;
+                    OldTileStresstest tileStresstest = child as OldTileStresstest;
                     string key = tileStresstest.SlaveIP + ':' + tileStresstest.SlavePort;
 
                     LinkageControl lc = null;

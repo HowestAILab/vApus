@@ -197,7 +197,7 @@ namespace vApus.DistributedTesting
                 exception = new Exception(string.Format("Not connected to {0}:{1}.", ip, port));
             return socketWrapper;
         }
-        private Dictionary<SocketWrapper, List<int>> CombineSocketWrappersAndOriginalHashCodes(IEnumerable<TileStresstest> tileStresstests, out Exception exception)
+        private Dictionary<SocketWrapper, List<int>> CombineSocketWrappersAndOriginalHashCodes(IEnumerable<OldTileStresstest> tileStresstests, out Exception exception)
         {
             Dictionary<SocketWrapper, List<int>> dict;
             exception = null;
@@ -205,7 +205,7 @@ namespace vApus.DistributedTesting
             {
                 dict = new Dictionary<SocketWrapper, List<int>>();
 
-                foreach (TileStresstest tileStresstest in tileStresstests)
+                foreach (OldTileStresstest tileStresstest in tileStresstests)
                 {
                     Exception e;
                     SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out e);
@@ -644,7 +644,7 @@ namespace vApus.DistributedTesting
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public void InitializeTest(TileStresstest tileStresstest, out Exception exception)
+        public void InitializeTest(OldTileStresstest tileStresstest, out Exception exception)
         {
             SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out exception);
             if (exception == null)
@@ -685,7 +685,7 @@ namespace vApus.DistributedTesting
         /// The retry count is 3 with a send and a receive timeout of 30 seconds.
         /// </summary>
         /// <param name="exception"></param>
-        public void StartTest(IEnumerable<TileStresstest> tileStresstests, out Exception exception)
+        public void StartTest(IEnumerable<OldTileStresstest> tileStresstests, out Exception exception)
         {
             var toStart = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
 
@@ -736,7 +736,7 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public void StopTest(IEnumerable<TileStresstest> tileStresstests)
+        public void StopTest(IEnumerable<OldTileStresstest> tileStresstests)
         {
             Exception exception;
             var toStop = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
@@ -773,7 +773,7 @@ namespace vApus.DistributedTesting
         /// <param name="port"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public List<ResultsMessage> GetResults(IEnumerable<TileStresstest> tileStresstests)
+        public List<ResultsMessage> GetResults(IEnumerable<OldTileStresstest> tileStresstests)
         {
             Exception exception;
             var toGet = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
@@ -817,7 +817,7 @@ namespace vApus.DistributedTesting
         /// <param name="tileStresstest"></param>
         /// <param name="torrentName"></param>
         /// <param name="exception"></param>
-        public void StopSeedingResults(TileStresstest tileStresstest, string torrentName, out Exception exception)
+        public void StopSeedingResults(OldTileStresstest tileStresstest, string torrentName, out Exception exception)
         {
             SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out exception);
             if (exception == null)

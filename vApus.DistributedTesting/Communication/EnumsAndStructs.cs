@@ -55,8 +55,8 @@ namespace vApus.DistributedTesting
         public string PushIP;
         public int PushPort;
         public string Exception;
-        public TileStresstest TileStresstest;
-        public InitializeTestMessage(string pushIP, int pushPort, string exception, TileStresstest tileStresstest)
+        public OldTileStresstest TileStresstest;
+        public InitializeTestMessage(string pushIP, int pushPort, string exception, OldTileStresstest tileStresstest)
         {
             PushIP = pushIP;
             PushPort = pushPort;

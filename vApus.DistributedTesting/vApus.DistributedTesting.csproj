@@ -173,27 +173,24 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdvancedTileStresstest.cs" />
+    <Compile Include="BasicTileStresstest.cs" />
     <Compile Include="Communication\EnumsAndStructs.cs" />
     <Compile Include="Communication\Master\TorrentClient.cs" />
     <Compile Include="Communication\Slave\TorrentServer.cs" />
+    <Compile Include="Controls\ConfigureTileStresstest.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ConfigureTileStresstest.Designer.cs">
+      <DependentUpon>ConfigureTileStresstest.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\DistributedStresstestControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\DistributedStresstestControl.Designer.cs">
       <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TreeView\AddTileTreeViewItem.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\TreeView\AddTileTreeViewItem.Designer.cs">
-      <DependentUpon>AddTileTreeViewItem.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\TreeView\AddTileStresstestTreeViewItem.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\TreeView\AddTileStresstestTreeViewItem.Designer.cs">
-      <DependentUpon>AddTileStresstestTreeViewItem.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Controls\TreeView\Enums.cs" />
     <Compile Include="Controls\TreeView\ITestTreeViewItem.cs" />
     <Compile Include="Controls\TreeView\TileStresstestTreeViewItem.cs">
       <SubType>UserControl</SubType>
@@ -254,6 +251,7 @@
     <Compile Include="JumpStart\LinkageOverview.Designer.cs">
       <DependentUpon>LinkageOverview.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewTileStresstest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -274,6 +272,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Slave.cs" />
+    <Compile Include="Slaves.cs" />
     <Compile Include="TileStresstestProgressResults.cs" />
     <Compile Include="TileStresstestView.cs">
       <SubType>Form</SubType>
@@ -282,7 +282,7 @@
       <DependentUpon>TileStresstestView.cs</DependentUpon>
     </Compile>
     <Compile Include="Tile.cs" />
-    <Compile Include="TileStresstest.cs" />
+    <Compile Include="OldTileStresstest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.JumpStartStructures\vApus.JumpStartStructures.csproj">
@@ -314,14 +314,11 @@
     <EmbeddedResource Include="Communication\SocketListenerManagerPanel.resx">
       <DependentUpon>SocketListenerManagerPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ConfigureTileStresstest.resx">
+      <DependentUpon>ConfigureTileStresstest.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\DistributedStresstestControl.resx">
       <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TreeView\AddTileTreeViewItem.resx">
-      <DependentUpon>AddTileTreeViewItem.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TreeView\AddTileStresstestTreeViewItem.resx">
-      <DependentUpon>AddTileStresstestTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TreeView\TileStresstestTreeViewItem.resx">
       <DependentUpon>TileStresstestTreeViewItem.cs</DependentUpon>

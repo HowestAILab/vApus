@@ -36,8 +36,11 @@
             this.chk = new System.Windows.Forms.CheckBox();
             this.txtTileStresstest = new System.Windows.Forms.TextBox();
             this.lblTileStresstest = new System.Windows.Forms.Label();
+            this.eventProgressBar = new vApus.Util.EventProgressBar();
+            this.picStresstestStatus = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -116,24 +119,57 @@
             this.lblTileStresstest.Size = new System.Drawing.Size(0, 13);
             this.lblTileStresstest.TabIndex = 20;
             // 
+            // eventProgressBar
+            // 
+            this.eventProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.eventProgressBar.BeginOfTimeFrame = new System.DateTime(((long)(0)));
+            this.eventProgressBar.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.eventProgressBar.EndOfTimeFrame = new System.DateTime(2012, 5, 16, 8, 0, 0, 0);
+            this.eventProgressBar.EventToolTip = true;
+            this.eventProgressBar.Location = new System.Drawing.Point(22, 23);
+            this.eventProgressBar.Margin = new System.Windows.Forms.Padding(0);
+            this.eventProgressBar.Name = "eventProgressBar";
+            this.eventProgressBar.ProgressBarColor = System.Drawing.Color.SteelBlue;
+            this.eventProgressBar.Size = new System.Drawing.Size(551, 6);
+            this.eventProgressBar.TabIndex = 21;
+            this.eventProgressBar.Visible = false;
+            // 
+            // picStresstestStatus
+            // 
+            this.picStresstestStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picStresstestStatus.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picStresstestStatus.Image = global::vApus.DistributedTesting.Properties.Resources.Busy;
+            this.picStresstestStatus.Location = new System.Drawing.Point(22, 6);
+            this.picStresstestStatus.Name = "picStresstestStatus";
+            this.picStresstestStatus.Size = new System.Drawing.Size(16, 16);
+            this.picStresstestStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picStresstestStatus.TabIndex = 22;
+            this.picStresstestStatus.TabStop = false;
+            this.picStresstestStatus.Visible = false;
+            this.picStresstestStatus.Click += new System.EventHandler(this.picStresstestStatus_Click);
+            // 
             // TileStresstestTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.eventProgressBar);
             this.Controls.Add(this.txtTileStresstest);
             this.Controls.Add(this.lblTileStresstest);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.chk);
             this.Controls.Add(this.picDelete);
+            this.Controls.Add(this.picStresstestStatus);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TileStresstestTreeViewItem";
-            this.Size = new System.Drawing.Size(598, 25);
+            this.Size = new System.Drawing.Size(598, 32);
             this.Enter += new System.EventHandler(this._Enter);
             this.Leave += new System.EventHandler(this._Leave);
             this.MouseEnter += new System.EventHandler(this._MouseEnter);
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -147,5 +183,7 @@
         private System.Windows.Forms.TextBox txtTileStresstest;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblTileStresstest;
+        private Util.EventProgressBar eventProgressBar;
+        private System.Windows.Forms.PictureBox picStresstestStatus;
     }
 }

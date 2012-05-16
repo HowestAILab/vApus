@@ -122,12 +122,12 @@ namespace vApus.DistributedTesting
                         node.Text = node.Tag.ToString();
                         if (!node.Checked)
                             foreach (TreeNode childNode in node.Nodes)
-                                (childNode.Tag as TileStresstest).Use = false;
+                                (childNode.Tag as OldTileStresstest).Use = false;
 
                         foreach (TreeNode childNode in node.Nodes)
                         {
                             childNode.Text = childNode.Tag.ToString();
-                            childNode.Checked = (childNode.Tag as TileStresstest).Use;
+                            childNode.Checked = (childNode.Tag as OldTileStresstest).Use;
                         }
                     }
                 }
@@ -168,7 +168,7 @@ namespace vApus.DistributedTesting
             foreach (TreeNode childNode in node.Nodes)
             {
                 childNode.NodeFont = new Font(tvwTiles.Font, FontStyle.Regular);
-                childNode.Checked = (childNode.Tag as TileStresstest).Use;
+                childNode.Checked = (childNode.Tag as OldTileStresstest).Use;
             }
 
             tvwTiles.Nodes.Add(node);
@@ -212,11 +212,11 @@ namespace vApus.DistributedTesting
             if (e.Node.Level == 0)
             {
                 foreach (TreeNode node in e.Node.Nodes)
-                    (node.Tag as TileStresstest).Use = e.Node.Checked;
+                    (node.Tag as OldTileStresstest).Use = e.Node.Checked;
             }
             else
             {
-                (e.Node.Tag as TileStresstest).Use = e.Node.Checked;
+                (e.Node.Tag as OldTileStresstest).Use = e.Node.Checked;
             }
             tmrCheckTvwTiles.Start();
         }
@@ -235,7 +235,7 @@ namespace vApus.DistributedTesting
 
                 foreach (TreeNode childNode in node.Nodes)
                 {
-                    bool checkChildNode = (childNode.Tag as TileStresstest).Use;
+                    bool checkChildNode = (childNode.Tag as OldTileStresstest).Use;
                     if (checkChildNode)
                         checkNode = true;
 
@@ -295,14 +295,14 @@ namespace vApus.DistributedTesting
                     if (MessageBox.Show("This will set the property values of the stresstests in this tile as they are in the solution (Monitor not included!). Continue?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
                         foreach (TreeNode node in tvwTiles.SelectedNode.Nodes)
-                            (node.Tag as TileStresstest).SetDefaults();
+                            (node.Tag as OldTileStresstest).SetDefaults();
                         refresh = true;
                     }
                     break;
                 case 1:
                     if (MessageBox.Show("This will set the property values of the stresstest as they are in the solution (Monitor not included!). Continue?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
-                        (tvwTiles.SelectedNode.Tag as TileStresstest).SetDefaults();
+                        (tvwTiles.SelectedNode.Tag as OldTileStresstest).SetDefaults();
                         refresh = true;
                     }
                     break;
@@ -376,7 +376,7 @@ namespace vApus.DistributedTesting
         {
             int numberOfRuns = -1;
             foreach (Tile t in _distributedTest)
-                foreach (TileStresstest ts in t)
+                foreach (OldTileStresstest ts in t)
                     if (ts.Use)
                     {
                         //Get the amount of runs.  
@@ -463,7 +463,7 @@ namespace vApus.DistributedTesting
                     flpStresstestTileStresstests.Controls.Clear();
                     flpReportTileStresstests.Controls.Clear();
 
-                    foreach (TileStresstest tileStresstest in _distributedTestCore.UsedTileStresstests)
+                    foreach (OldTileStresstest tileStresstest in _distributedTestCore.UsedTileStresstests)
                     {
                         TileStresstestSelectorControl tileStresstestControl = new TileStresstestSelectorControl(tileStresstest);
                         tileStresstestControl.Margin = new Padding(0, 6, 6, 3);
@@ -701,7 +701,7 @@ namespace vApus.DistributedTesting
         }
         private void SetOverallProgress()
         {
-            var progress = new Dictionary<TileStresstest, TileStresstestProgressResults>(flpStresstestTileStresstests.Controls.Count);
+            var progress = new Dictionary<OldTileStresstest, TileStresstestProgressResults>(flpStresstestTileStresstests.Controls.Count);
             foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
                 progress.Add(tileStresstestSelectorControl.TileStresstest, tileStresstestSelectorControl.MostRecentPushMessage.TileStresstestProgressResults);
 
@@ -841,7 +841,7 @@ namespace vApus.DistributedTesting
         private void tileStresstestSelectorControl_GotFocus(object sender, EventArgs e)
         {
             _focussedTileStresstestSelectorControl = sender as TileStresstestSelectorControl;
-            TileStresstest tileStresstest = _focussedTileStresstestSelectorControl.TileStresstest;
+            OldTileStresstest tileStresstest = _focussedTileStresstestSelectorControl.TileStresstest;
             PushMessage pushMessage = _focussedTileStresstestSelectorControl.MostRecentPushMessage;
             DateTime beginOfTimeFrame, endOfTimeFrame;
             GetTimeFrame(out beginOfTimeFrame, out endOfTimeFrame);

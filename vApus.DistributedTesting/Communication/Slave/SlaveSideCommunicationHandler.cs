@@ -70,7 +70,7 @@ namespace vApus.DistributedTesting
             CleanSendQueues();
 
             InitializeTestMessage initializeTestMessage = (InitializeTestMessage)message.Content;
-            TileStresstest tileStresstest = initializeTestMessage.TileStresstest;
+            OldTileStresstest tileStresstest = initializeTestMessage.TileStresstest;
 
             //Set if possible.
             IntPtr originalProcessorAffinity = Process.GetCurrentProcess().ProcessorAffinity;
@@ -289,7 +289,7 @@ namespace vApus.DistributedTesting
 
         #region Message Sending
         private delegate void SendPushMessageDelegate(SocketWrapper socketWrapper,
-                TileStresstest tileStresstest,
+                OldTileStresstest tileStresstest,
                 TileStresstestProgressResults tileStresstestProgressResults,
                 StresstestResult stresstestResult,
                 StresstestCore stresstestCore,
@@ -324,7 +324,7 @@ namespace vApus.DistributedTesting
         /// <param name="events"></param>
         /// <param name="concurrentUsersStateChange"></param>
         public static void SendPushMessage(SocketWrapper socketWrapper,
-                TileStresstest tileStresstest,
+                OldTileStresstest tileStresstest,
                 TileStresstestProgressResults tileStresstestProgressResults,
                 StresstestResult stresstestResult,
                 StresstestCore stresstestCore,
@@ -342,7 +342,7 @@ namespace vApus.DistributedTesting
         }
 
         private static void SendQueuedPushMessage(SocketWrapper socketWrapper,
-            TileStresstest tileStresstest,
+            OldTileStresstest tileStresstest,
             TileStresstestProgressResults tileStresstestProgressResults,
             StresstestResult stresstestResult,
             StresstestCore stresstestCore,
