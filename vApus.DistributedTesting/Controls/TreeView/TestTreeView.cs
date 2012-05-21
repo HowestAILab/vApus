@@ -89,7 +89,7 @@ namespace vApus.DistributedTesting
             largeList.Add(dttvi);
 
             bool addControlsVisible = ClientRectangle.Contains(PointToClient(Cursor.Position));
-            foreach (Tile tile in distributedTest)
+            foreach (Tile tile in distributedTest.Tiles)
                 AddAndCreateTileTreeViewItem(tile);
 
             SetGui();
@@ -107,7 +107,7 @@ namespace vApus.DistributedTesting
             Tile tile = new Tile();
             AddAndCreateTileTreeViewItem(tile);
 
-            dttvi.DistributedTest.Add(tile);
+            dttvi.DistributedTest.Tiles.Add(tile);
 
             dttvi.DistributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
             LockWindowUpdate(0);
@@ -149,7 +149,7 @@ namespace vApus.DistributedTesting
             else
                 largeList.Insert(tsvi, largeList.IndexOf(closestNextTileTreeViewItem));
 
-            tsvi.Select();
+           // tsvi.Select();
 
             tvi.Tile.Add(ts);
             tvi.RefreshGui();

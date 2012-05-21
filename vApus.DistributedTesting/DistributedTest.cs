@@ -46,13 +46,23 @@ namespace vApus.DistributedTesting
             get { return _resultPath; }
             set { _resultPath = value; }
         }
+
+        public Tiles Tiles
+        {
+            get { return this[0] as Tiles; }
+        }
+        public Slaves Slaves
+        {
+            get { return this[1] as Slaves; }
+        }
         #endregion
 
         #region Constructor
         public DistributedTest()
         {
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
-            AddAsDefaultItem(new Tile());
+            AddAsDefaultItem(new Tiles());
+            AddAsDefaultItem(new Slaves());
         }
         #endregion
 
@@ -63,7 +73,7 @@ namespace vApus.DistributedTesting
             {
                 bool didSynchronize = true;
                 //Only needs to be checked once.
-                foreach (BaseItem item in this)
+                foreach (BaseItem item in Tiles)
                     if (!(item as Tile).SynchronizeTileStresstests())
                     {
                         didSynchronize = false;

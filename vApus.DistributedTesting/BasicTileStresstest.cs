@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using vApus.Stresstest;
 using vApus.SolutionTree;
+using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting
@@ -15,20 +15,40 @@ namespace vApus.DistributedTesting
         private Monitor.MonitorProject _monitorProject;
         private int[] _monitorIndices = { };
         private Monitor.Monitor[] _monitors = { };
+
+        private int[] _slaveIndices = { };
         private Slave[] _slaves = { };
         private int[] _WorkDistribution = { };
         #endregion
 
         #region Properties
+        [Description("The connection to the application to test.")]
         [PropertyControl(0), SavableCloneable]
         public Connection Connection
         {
-            get { return _connection; }
+            get
+            {
+                if (_connection != null)
+                    _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
+
+                return _connection;
+            }
             set
             {
                 value.ParentIsNull -= _connection_ParentIsNull;
                 _connection = value;
                 _connection.ParentIsNull += _connection_ParentIsNull;
+            }
+        }
+        [ReadOnly(true)]
+        [DisplayName("Connection Proxy")]
+        public string ConnectionProxy
+        {
+            get
+            {
+                if (_connection == null || _connection.IsEmpty || _connection.ConnectionProxy.IsEmpty)
+                    return "Connection Proxy: <none>";
+                return _connection.ConnectionProxy.ToString();
             }
         }
         [SavableCloneable]
@@ -45,11 +65,13 @@ namespace vApus.DistributedTesting
                 {
                     List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorIndices.Length);
                     foreach (int index in _monitorIndices)
-                    {
-                        var monitor = _monitorProject[index] as Monitor.Monitor;
-                        if (index < _monitorProject.Count && !l.Contains(monitor))
-                            l.Add(monitor);
-                    }
+                        if (index < _monitorProject.Count)
+                        {
+                            var monitor = _monitorProject[index] as Monitor.Monitor;
+                            if (!l.Contains(monitor))
+                                l.Add(monitor);
+                        }
+
                     _monitors = l.ToArray();
                     _monitors.SetParent(_monitorProject);
                 }
@@ -71,7 +93,6 @@ namespace vApus.DistributedTesting
                 {
                     _monitors.SetParent(_monitorProject);
 
-
                     List<int> l = new List<int>(_monitors.Length);
                     for (int index = 0; index != _monitorProject.Count; index++)
                         if (_monitors.Contains(_monitorProject[index]) && !l.Contains(index))
@@ -81,17 +102,79 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        // [PropertyControl(2), SavableCloneable]
+        [SavableCloneable]
+        public int[] SlaveIndices
+        {
+            get { return _slaveIndices; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+
+                _slaveIndices = value;
+
+                Slaves slavesParent = SlavesParent;
+                if (slavesParent != null)
+                {
+                    List<Slave> l = new List<Slave>(_slaveIndices.Length);
+                    foreach (int index in _slaveIndices)
+                        if (index < slavesParent.Count)
+                        {
+                            var slave = SlavesParent[index] as Slave;
+                            if (!l.Contains(slave))
+                                l.Add(slave);
+                        }
+
+                    _slaves = l.ToArray();
+                    _slaves.SetParent(slavesParent);
+                }
+            }
+        }
+        [PropertyControl(2)]
         public Slave[] Slaves
         {
-            get { return _slaves; }
-            set { _slaves = value; }
+            get
+            {
+
+                _slaves.SetParent(SlavesParent);
+                return _slaves;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+
+                _slaves = value;
+
+                Slaves slavesParent = SlavesParent;
+                if (slavesParent != null)
+                {
+                    _slaves.SetParent(slavesParent);
+
+                    List<int> l = new List<int>(_slaves.Length);
+                    for (int index = 0; index != slavesParent.Count; index++)
+                        if (_slaves.Contains(slavesParent[index]) && !l.Contains(index))
+                            l.Add(index);
+
+                    _slaveIndices = l.ToArray();
+                }
+            }
         }
-        [PropertyControl(3), SavableCloneable]
-        public int[] WorkDistribution
+        private Slaves SlavesParent
         {
-            get { return _WorkDistribution; }
-            set { _WorkDistribution = value; }
+            get
+            {
+                try
+                {
+                    if (this.Parent != null &&
+                        this.Parent.GetParent() != null &&
+                        this.Parent.GetParent().GetParent() != null &&
+                        this.Parent.GetParent().GetParent().GetParent() != null)
+                        return (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).Slaves;
+                }
+                catch { }
+                return null;
+            }
         }
         #endregion
 
@@ -107,21 +190,50 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Functions
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
+        {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            Init();
+        }
         private void Init()
         {
             Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
             _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
 
             Monitors = new Monitor.Monitor[0];
-        }
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            Init();
+            Slaves = new Slave[0];
+
+            SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponentChanged_SolutionComponentChanged);
         }
         private void _connection_ParentIsNull(object sender, EventArgs e)
         {
             Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
+        }
+        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
+        {
+            //Cleanup _monitors if _monitorProject Changed
+            if (sender == _monitorProject || sender is Monitor.Monitor)
+            {
+                List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorProject.Count);
+                foreach (Monitor.Monitor monitor in _monitors)
+                    if (!l.Contains(monitor) && _monitorProject.Contains(monitor))
+                        l.Add(monitor);
+
+                Monitors = l.ToArray();
+            }
+            else //Cleanup slaves
+            {
+                Slaves slavesParent = SlavesParent;
+                if (sender == slavesParent || sender is Slave)
+                {
+                    List<Slave> l = new List<Slave>(slavesParent.Count);
+                    foreach (Slave slave in _slaves)
+                        if (!l.Contains(slave) && slavesParent.Contains(slave))
+                            l.Add(slave);
+
+                    Slaves = l.ToArray();
+                }
+            }
         }
         #endregion
     }

@@ -149,7 +149,7 @@ namespace vApus.DistributedTesting
         {
             tvwTiles.AfterCheck -= tvwTiles_AfterCheck;
             tvwTiles.Nodes.Clear();
-            foreach (BaseItem item in _distributedTest)
+            foreach (BaseItem item in _distributedTest.Tiles)
                 AddTreeNode(item);
             if (tvwTiles.Nodes.Count > 0)
                 tvwTiles.SelectedNode = tvwTiles.Nodes[0];
@@ -375,7 +375,7 @@ namespace vApus.DistributedTesting
         private bool CheckNumberOfRuns()
         {
             int numberOfRuns = -1;
-            foreach (Tile t in _distributedTest)
+            foreach (Tile t in _distributedTest.Tiles)
                 foreach (OldTileStresstest ts in t)
                     if (ts.Use)
                     {

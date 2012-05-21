@@ -73,7 +73,7 @@ namespace vApus.DistributedTesting
             var newLinkageControls = new Dictionary<string, LinkageControl>();
             flp.Controls.Clear();
 
-            foreach (BaseItem item in _distributedTest)
+            foreach (BaseItem item in _distributedTest.Tiles)
             {
                 Tile tile = item as Tile;
                 foreach (BaseItem child in tile)
@@ -224,7 +224,7 @@ namespace vApus.DistributedTesting
             foreach (LinkageControl lc in flp.Controls)
                 lc.Label = string.Empty;
 
-            foreach (BaseItem item in _distributedTest)
+            foreach (BaseItem item in _distributedTest.Tiles)
             {
                 Tile tile = item as Tile;
                 foreach (BaseItem child in tile)

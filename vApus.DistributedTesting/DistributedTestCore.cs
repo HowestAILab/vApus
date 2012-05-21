@@ -129,7 +129,7 @@ namespace vApus.DistributedTesting
             _sw.Start();
             _usedTiles.Clear();
             _usedTileStresstests.Clear();
-            foreach (BaseItem item in _distributedTest)
+            foreach (BaseItem item in _distributedTest.Tiles)
             {
                 Tile tile = item as Tile;
                 if (tile.Use)

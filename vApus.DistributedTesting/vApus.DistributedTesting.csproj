@@ -274,6 +274,7 @@
     </Compile>
     <Compile Include="Slave.cs" />
     <Compile Include="Slaves.cs" />
+    <Compile Include="Tiles.cs" />
     <Compile Include="TileStresstestProgressResults.cs" />
     <Compile Include="TileStresstestView.cs">
       <SubType>Form</SubType>

@@ -31,7 +31,37 @@ namespace vApus.DistributedTesting
                 solutionComponentPropertyPanelDefaultTo.SolutionComponent = _tileStresstest;
                 solutionComponentPropertyPanelBasic.SolutionComponent = _tileStresstest.BasicTileStresstest;
                 solutionComponentPropertyPanelAdvanced.SolutionComponent = _tileStresstest.AdvancedTileStresstest;
+
+                llblAdvancedSettings.Visible = chkAutomatic.Visible = true;
+                chkAutomatic.Checked = _tileStresstest.AutomaticDefaultAdvancedSettings;
+
+                Handle_chkAutomatic_CheckedChanged();
             }
+        }
+
+        private void chkAutomatic_CheckedChanged(object sender, EventArgs e)
+        {
+            Handle_chkAutomatic_CheckedChanged();
+        }
+
+        private void Handle_chkAutomatic_CheckedChanged()
+        {
+            if (chkAutomatic.Checked)
+                solutionComponentPropertyPanelAdvanced.Lock();
+            else
+                solutionComponentPropertyPanelAdvanced.Unlock();
+
+            if (_tileStresstest.AutomaticDefaultAdvancedSettings != chkAutomatic.Checked)
+            {
+                solutionComponentPropertyPanelAdvanced.Visible = true;
+                _tileStresstest.AutomaticDefaultAdvancedSettings = chkAutomatic.Checked;
+                _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }
+        }
+
+        private void llblAdvancedSettings_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            solutionComponentPropertyPanelAdvanced.Visible = !solutionComponentPropertyPanelAdvanced.Visible;
         }
     }
 }

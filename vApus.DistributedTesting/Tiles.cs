@@ -6,9 +6,9 @@ using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting
 {
-    public class Slave : LabeledBaseItem
+    public class Tiles : BaseItem
     {
-        public Slave()
+        public Tiles()
         {
             ShowInGui = false;
         }

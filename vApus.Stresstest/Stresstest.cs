@@ -214,10 +214,10 @@ namespace vApus.Stresstest
                 _minimumDelay = value;
             }
         }
+
         /// <summary>
         /// Only for saving and loading, should not be used.
         /// </summary>
-
         [SavableCloneable]
         public int MinimumDelayOverride
         {
@@ -239,10 +239,10 @@ namespace vApus.Stresstest
                 _maximumDelay = value;
             }
         }
+
         /// <summary>
         /// Only for saving and loading, should not be used.
         /// </summary>
-
         [SavableCloneable]
         public int MaximumDelayOverride
         {
@@ -305,19 +305,6 @@ namespace vApus.Stresstest
         #endregion
 
         #region Functions
-        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            //Cleanup _monitors if _monitorProject Changed
-            if (sender == _monitorProject || sender is Monitor.Monitor)
-            {
-                List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorProject.Count);
-                foreach (Monitor.Monitor monitor in _monitors)
-                    if (!l.Contains(monitor) && _monitorProject.Contains(monitor))
-                        l.Add(monitor);
-
-                Monitors = l.ToArray();
-            }
-        }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
@@ -346,6 +333,19 @@ namespace vApus.Stresstest
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
             Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+        }
+        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
+        {
+            //Cleanup _monitors if _monitorProject Changed
+            if (sender == _monitorProject || sender is Monitor.Monitor)
+            {
+                List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorProject.Count);
+                foreach (Monitor.Monitor monitor in _monitors)
+                    if (!l.Contains(monitor) && _monitorProject.Contains(monitor))
+                        l.Add(monitor);
+
+                Monitors = l.ToArray();
+            }
         }
         public override void Activate()
         {

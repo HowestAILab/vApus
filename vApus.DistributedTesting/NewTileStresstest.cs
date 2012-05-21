@@ -1,23 +1,31 @@
 ﻿using System;
 using vApus.SolutionTree;
+using System.ComponentModel;
 
 namespace vApus.DistributedTesting
 {
     public class TileStresstest : LabeledBaseItem
     {
-        private Stresstest.Stresstest _defaultTo;
-        private bool _use = true;
+        private Stresstest.Stresstest _defaultSettingsTo;
+        private bool _use = true, _automaticDefaultAdvancedSettings = true;
 
         [SavableCloneable, PropertyControl]
-        public Stresstest.Stresstest DefaultTo
+        [DisplayName("Default Settings To")]
+        public Stresstest.Stresstest DefaultSettingsTo
         {
-            get { return _defaultTo; }
+            get { return _defaultSettingsTo; }
             set
             {
                 value.ParentIsNull -= _defaultTo_ParentIsNull;
-                _defaultTo = value;
-                _defaultTo.ParentIsNull += new EventHandler(_defaultTo_ParentIsNull);
+                _defaultSettingsTo = value;
+                _defaultSettingsTo.ParentIsNull += new EventHandler(_defaultTo_ParentIsNull);
             }
+        }
+        [SavableCloneable]
+        public bool AutomaticDefaultAdvancedSettings
+        {
+            get { return _automaticDefaultAdvancedSettings; }
+            set { _automaticDefaultAdvancedSettings = value; }
         }
         [SavableCloneable]
         public bool Use
@@ -42,7 +50,7 @@ namespace vApus.DistributedTesting
             AddAsDefaultItem(new AdvancedTileStresstest());
 
             if (Solution.ActiveSolution != null)
-                DefaultTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
+                DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
@@ -50,11 +58,11 @@ namespace vApus.DistributedTesting
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            DefaultTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
+            DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
         }
         private void _defaultTo_ParentIsNull(object sender, EventArgs e)
         {
-            DefaultTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
+            DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
         }
     }
 }
