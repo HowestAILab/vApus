@@ -33,6 +33,7 @@
             this.solutionComponentPropertyPanelDefaultTo = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.chkAutomatic = new System.Windows.Forms.CheckBox();
             this.llblAdvancedSettings = new System.Windows.Forms.LinkLabel();
+            this.lblUsage = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // solutionComponentPropertyPanelBasic
@@ -48,6 +49,7 @@
             this.solutionComponentPropertyPanelBasic.Size = new System.Drawing.Size(300, 427);
             this.solutionComponentPropertyPanelBasic.SolutionComponent = null;
             this.solutionComponentPropertyPanelBasic.TabIndex = 1;
+            this.solutionComponentPropertyPanelBasic.Visible = false;
             // 
             // solutionComponentPropertyPanelAdvanced
             // 
@@ -74,6 +76,7 @@
             this.solutionComponentPropertyPanelDefaultTo.Size = new System.Drawing.Size(300, 70);
             this.solutionComponentPropertyPanelDefaultTo.SolutionComponent = null;
             this.solutionComponentPropertyPanelDefaultTo.TabIndex = 0;
+            this.solutionComponentPropertyPanelDefaultTo.Visible = false;
             // 
             // chkAutomatic
             // 
@@ -105,10 +108,25 @@
             this.llblAdvancedSettings.Visible = false;
             this.llblAdvancedSettings.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblAdvancedSettings_LinkClicked);
             // 
+            // lblUsage
+            // 
+            this.lblUsage.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblUsage.AutoSize = true;
+            this.lblUsage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUsage.ForeColor = System.Drawing.Color.DimGray;
+            this.lblUsage.Location = new System.Drawing.Point(50, 237);
+            this.lblUsage.Name = "lblUsage";
+            this.lblUsage.Size = new System.Drawing.Size(499, 26);
+            this.lblUsage.TabIndex = 3;
+            this.lblUsage.Text = "Add a Tile to the Distributed Test and a Tile Stresstest to a Tile clicking the \'" +
+    "+ button\'.\r\nSelect a Tile Stresstest to configure it.";
+            this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
             // ConfigureTileStresstest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lblUsage);
             this.Controls.Add(this.solutionComponentPropertyPanelAdvanced);
             this.Controls.Add(this.solutionComponentPropertyPanelBasic);
             this.Controls.Add(this.chkAutomatic);
@@ -128,5 +146,6 @@
         private SolutionTree.SolutionComponentPropertyPanel solutionComponentPropertyPanelDefaultTo;
         private System.Windows.Forms.CheckBox chkAutomatic;
         private System.Windows.Forms.LinkLabel llblAdvancedSettings;
+        private System.Windows.Forms.Label lblUsage;
     }
 }

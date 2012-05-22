@@ -60,7 +60,7 @@ namespace vApus.DistributedTesting
                     throw new ArgumentException();
                 foreach (int i in value)
                     if (i < 1)
-                        throw new ArgumentOutOfRangeException("A value in Concurrent Users cannot be smaller then one.");
+                        throw new ArgumentOutOfRangeException("A value in Concurrent Users cannot be smaller than one.");
                 _concurrentUsers = value;
             }
         }
@@ -105,7 +105,7 @@ namespace vApus.DistributedTesting
                 _minimumDelay = value;
             }
         }
-      
+
         /// <summary>
         /// Only for saving and loading, should not be used.
         /// </summary>
@@ -130,7 +130,7 @@ namespace vApus.DistributedTesting
                 _maximumDelay = value;
             }
         }
-     
+
         /// <summary>
         /// Only for saving and loading, should not be used.
         /// </summary>
@@ -171,6 +171,7 @@ namespace vApus.DistributedTesting
         #region Constructors
         public AdvancedTileStresstest()
         {
+            ShowInGui = false;
             if (Solution.ActiveSolution != null)
                 Init();
             else
@@ -191,6 +192,24 @@ namespace vApus.DistributedTesting
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
             Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+        }
+        /// <summary>
+        /// Create a clone of this.
+        /// </summary>
+        /// <returns></returns>
+        public AdvancedTileStresstest Clone()
+        {
+            var clone = new AdvancedTileStresstest();
+            clone.Log = _log;
+            clone._concurrentUsers = new int[_concurrentUsers.Length];
+            _concurrentUsers.CopyTo(clone._concurrentUsers, 0);
+            clone.Precision = _precision;
+            clone.DynamicRunMultiplier = _dynamicRunMultiplier;
+            clone.MinimumDelayOverride = _minimumDelay;
+            clone.MaximumDelayOverride = _maximumDelay;
+            clone.Shuffle = _shuffle;
+            clone.Distribute = _distribute;
+            return clone;
         }
         #endregion
     }

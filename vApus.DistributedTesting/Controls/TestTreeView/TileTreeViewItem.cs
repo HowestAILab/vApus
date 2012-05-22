@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.SolutionTree;
@@ -16,12 +17,15 @@ using vApus.Util;
 namespace vApus.DistributedTesting
 {
     [ToolboxItem(false)]
-    public partial class TileTreeViewItem : UserControl, ITestTreeViewItem
+    public partial class TileTreeViewItem : UserControl, ITreeViewItem
     {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
         #region Events
+        /// <summary>
+        /// Call unfocus for the other items in the panel.
+        /// </summary>
         public event EventHandler AfterSelect;
         public event EventHandler AddTileStresstestClicked;
         public event EventHandler DuplicateClicked;
@@ -145,10 +149,15 @@ namespace vApus.DistributedTesting
         }
         private void _Enter(object sender, EventArgs e)
         {
+            this.BackColor = SystemColors.Control;
             SetVisibleControls();
 
             if (AfterSelect != null)
                 AfterSelect(this, null);
+        }
+        public void Unfocus()
+        {
+            this.BackColor = Color.Transparent;
         }
         private void txtTile_Leave(object sender, EventArgs e)
         {
@@ -174,7 +183,7 @@ namespace vApus.DistributedTesting
         }
         public void SetVisibleControls()
         {
-            if (this.Focused || txtTile.Focused)
+            if (this.BackColor == SystemColors.Control)
                 SetVisibleControls(true);
             else
                 SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
@@ -237,6 +246,7 @@ namespace vApus.DistributedTesting
         }
         private void picAddTileStresstest_Click(object sender, EventArgs e)
         {
+            this.Focus();
             if (AddTileStresstestClicked != null)
                 AddTileStresstestClicked(this, null);
         }
@@ -252,6 +262,7 @@ namespace vApus.DistributedTesting
         }
         private void picCollapseExpand_Click(object sender, EventArgs e)
         {
+            this.Focus();
             Collapsed = !Collapsed;
         }
         private void chk_CheckedChanged(object sender, EventArgs e)

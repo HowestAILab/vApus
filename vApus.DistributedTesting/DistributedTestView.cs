@@ -21,7 +21,9 @@ namespace vApus.DistributedTesting
         {
             InitializeComponent();
 
-            testTreeView.SetDistributedTest(solutionComponent as DistributedTest);
+            var distributedTest = solutionComponent as DistributedTest;
+            testTreeView.SetDistributedTest(distributedTest);
+            slaveTreeView.SetDistributedTest(distributedTest);
 
         }
 
@@ -31,6 +33,10 @@ namespace vApus.DistributedTesting
             {
                 TileStresstestTreeViewItem tstvi = sender as TileStresstestTreeViewItem;
                 configureTileStresstest.SetTileStresstest(tstvi.TileStresstest);
+            }
+            else
+            {
+                configureTileStresstest.ClearTileStresstest();
             }
         }
     }

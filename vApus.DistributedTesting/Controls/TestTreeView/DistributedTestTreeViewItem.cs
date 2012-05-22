@@ -8,13 +8,17 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace vApus.DistributedTesting
 {
     [ToolboxItem(false)]
-    public partial class DistributedTestTreeViewItem : UserControl, ITestTreeViewItem
+    public partial class DistributedTestTreeViewItem : UserControl, ITreeViewItem
     {
         #region Events
+        /// <summary>
+        /// Call unfocus for the other items in the panel.
+        /// </summary>
         public event EventHandler AfterSelect;
         public event EventHandler AddTileClicked;
         #endregion
@@ -48,23 +52,61 @@ namespace vApus.DistributedTesting
             cboRunSync.SelectedIndexChanged += new EventHandler(cboRunSync_SelectedIndexChanged);
         }
 
+        #endregion
+
+        #region Functions
         private void cboRunSync_SelectedIndexChanged(object sender, EventArgs e)
         {
             _distributedTest.RunSynchronization = (Stresstest.RunSynchronization)cboRunSync.SelectedIndex;
             _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-        #endregion
 
-        #region Functions
+            lblRunSync.Text = "" + cboRunSync.SelectedItem;
+        }
+        private void _Enter(object sender, EventArgs e)
+        {
+            this.BackColor = SystemColors.Control;
+            if (AfterSelect != null)
+                AfterSelect(this, null);
+        }
+        public void Unfocus()
+        {
+            this.BackColor = Color.Transparent;
+        }
+        private void cboRunSync_Leave(object sender, EventArgs e)
+        {
+            //no tostring for if cborun has no selected item; 
+            lblRunSync.Text = "" + cboRunSync.SelectedItem;
+        }
+        private void _MouseEnter(object sender, EventArgs e)
+        {
+            SetVisibleControls();
+        }
+        private void _MouseLeave(object sender, EventArgs e)
+        {
+            SetVisibleControls();
+        }
         public void SetVisibleControls()
-        { }
+        {
+            if (this.BackColor == SystemColors.Control)
+                SetVisibleControls(true);
+            else
+                SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
+        }
         public void SetVisibleControls(bool visible)
-        { }
+        {
+            pnlRunSync.Visible = picAddTile.Visible = visible;
+        }
         public void RefreshGui()
-        { }
+        {
+            //no tostring for if cborun has no selected item; 
+            string label = "" + cboRunSync.SelectedItem;
+            if (lblRunSync.Text != label)
+                lblRunSync.Text = label;
+        }
 
         private void picAddTile_Click(object sender, EventArgs e)
         {
+            this.Focus();
             if (AddTileClicked != null)
                 AddTileClicked(this, null);
         }
@@ -89,12 +131,6 @@ namespace vApus.DistributedTesting
         public DistributedTestMode DistributedTestMode
         {
             get { throw new NotImplementedException(); }
-        }
-
-        private void _Enter(object sender, EventArgs e)
-        {
-            if (AfterSelect != null)
-                AfterSelect(this, null);
         }
     }
 }

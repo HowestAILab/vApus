@@ -1,14 +1,17 @@
 ﻿using System;
-using vApus.SolutionTree;
 using System.ComponentModel;
+using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting
 {
     public class TileStresstest : LabeledBaseItem
     {
+        #region Fields
         private Stresstest.Stresstest _defaultSettingsTo;
         private bool _use = true, _automaticDefaultAdvancedSettings = true;
+        #endregion
 
+        #region Properties
         [SavableCloneable, PropertyControl]
         [DisplayName("Default Settings To")]
         public Stresstest.Stresstest DefaultSettingsTo
@@ -42,7 +45,9 @@ namespace vApus.DistributedTesting
         {
             get { return this[1] as AdvancedTileStresstest; }
         }
+        #endregion
 
+        #region Constructors
         public TileStresstest()
         {
             ShowInGui = false;
@@ -54,7 +59,9 @@ namespace vApus.DistributedTesting
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
+        #endregion
 
+        #region Functions
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
@@ -64,5 +71,24 @@ namespace vApus.DistributedTesting
         {
             DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
         }
+
+        /// <summary>
+        /// Create a clone of this.
+        /// </summary>
+        /// <returns></returns>
+        public TileStresstest Clone()
+        {
+            var clone = new TileStresstest();
+            clone.Label = Label;
+            clone.Use = _use;
+            clone.DefaultSettingsTo = _defaultSettingsTo;
+            clone.AutomaticDefaultAdvancedSettings = _automaticDefaultAdvancedSettings;
+
+            clone.ClearWithoutInvokingEvent();
+            clone.AddWithoutInvokingEvent(BasicTileStresstest.Clone());
+            clone.AddWithoutInvokingEvent(AdvancedTileStresstest.Clone());
+            return clone;
+        }
+        #endregion
     }
 }

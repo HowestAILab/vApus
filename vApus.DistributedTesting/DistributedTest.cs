@@ -19,9 +19,9 @@ namespace vApus.DistributedTesting
     [DisplayName("Distributed Test")]
     public class DistributedTest : LabeledBaseItem
     {
-        #region Events
-        public event EventHandler TilesSynchronized;
-        #endregion
+        //#region Events
+        //public event EventHandler TilesSynchronized;
+        //#endregion
 
         #region Fields
         private RunSynchronization _runSynchronization;
@@ -69,19 +69,19 @@ namespace vApus.DistributedTesting
         #region Functions
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender is Stresstest.Stresstest || sender is Stresstest.StresstestProject)
-            {
-                bool didSynchronize = true;
-                //Only needs to be checked once.
-                foreach (BaseItem item in Tiles)
-                    if (!(item as Tile).SynchronizeTileStresstests())
-                    {
-                        didSynchronize = false;
-                        break;
-                    }
-                if (didSynchronize && TilesSynchronized != null)
-                    TilesSynchronized(this, null);
-            }
+            //if (sender is Stresstest.Stresstest || sender is Stresstest.StresstestProject)
+            //{
+            //    bool didSynchronize = true;
+            //    //Only needs to be checked once.
+            //    foreach (BaseItem item in Tiles)
+            //        if (!(item as Tile).SynchronizeTileStresstests())
+            //        {
+            //            didSynchronize = false;
+            //            break;
+            //        }
+            //    if (didSynchronize && TilesSynchronized != null)
+            //        TilesSynchronized(this, null);
+            //}
         }
         public override void Activate()
         {

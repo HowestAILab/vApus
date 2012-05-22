@@ -95,7 +95,6 @@
             this.chk.Enter += new System.EventHandler(this._Enter);
             this.chk.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.chk.Leave += new System.EventHandler(this._Leave);
             // 
             // txtTileStresstest
             // 
@@ -109,7 +108,7 @@
             this.txtTileStresstest.Enter += new System.EventHandler(this._Enter);
             this.txtTileStresstest.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.txtTileStresstest.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.txtTileStresstest.Leave += new System.EventHandler(this._Leave);
+            this.txtTileStresstest.Leave += new System.EventHandler(this.txtTileStresstest_Leave);
             // 
             // lblTileStresstest
             // 
@@ -164,7 +163,6 @@
             this.Name = "TileStresstestTreeViewItem";
             this.Size = new System.Drawing.Size(598, 32);
             this.Enter += new System.EventHandler(this._Enter);
-            this.Leave += new System.EventHandler(this._Leave);
             this.MouseEnter += new System.EventHandler(this._MouseEnter);
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();

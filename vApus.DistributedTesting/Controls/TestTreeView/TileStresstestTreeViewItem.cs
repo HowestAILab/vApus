@@ -14,9 +14,12 @@ using vApus.SolutionTree;
 namespace vApus.DistributedTesting
 {
     [ToolboxItem(false)]
-    public partial class TileStresstestTreeViewItem : UserControl, ITestTreeViewItem
+    public partial class TileStresstestTreeViewItem : UserControl, ITreeViewItem
     {
         #region Events
+        /// <summary>
+        /// Call unfocus for the other items in the panel.
+        /// </summary>
         public event EventHandler AfterSelect;
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
@@ -75,7 +78,7 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-       
+
         private void _Enter(object sender, EventArgs e)
         {
             this.BackColor = SystemColors.Control;
@@ -84,19 +87,19 @@ namespace vApus.DistributedTesting
             if (AfterSelect != null)
                 AfterSelect(this, null);
         }
-        private void _Leave(object sender, EventArgs e)
+        public void Unfocus()
         {
-            if (sender == txtTileStresstest)
-            {
-                txtTileStresstest.Text = lblTileStresstest.Text = txtTileStresstest.Text.Trim();
-                if (_tileStresstest.Label != txtTileStresstest.Text)
-                {
-                    _tileStresstest.Label = txtTileStresstest.Text;
-                    _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                }
-                lblTileStresstest.Text = _tileStresstest.Label;
-            }
             this.BackColor = Color.Transparent;
+        }
+        private void txtTileStresstest_Leave(object sender, EventArgs e)
+        {
+            txtTileStresstest.Text = lblTileStresstest.Text = txtTileStresstest.Text.Trim();
+            if (_tileStresstest.Label != txtTileStresstest.Text)
+            {
+                _tileStresstest.Label = txtTileStresstest.Text;
+                _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }
+            lblTileStresstest.Text = _tileStresstest.Label;
         }
         private void _MouseEnter(object sender, EventArgs e)
         {
@@ -113,7 +116,7 @@ namespace vApus.DistributedTesting
 
         public void SetVisibleControls()
         {
-            if (this.Focused || txtTileStresstest.Focused)
+            if (this.BackColor == SystemColors.Control)
                 SetVisibleControls(true);
             else
                 SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
@@ -135,7 +138,7 @@ namespace vApus.DistributedTesting
                     txtTileStresstest.Text = label;
             }
         }
-  
+
         private void _KeyUp(object sender, KeyEventArgs e)
         {
             if (sender == txtTileStresstest)

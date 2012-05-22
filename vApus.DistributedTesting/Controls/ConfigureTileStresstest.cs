@@ -25,6 +25,13 @@ namespace vApus.DistributedTesting
 
         public void SetTileStresstest(TileStresstest tileStresstest)
         {
+            lblUsage.Visible = false;
+
+            solutionComponentPropertyPanelDefaultTo.Visible =
+            solutionComponentPropertyPanelBasic.Visible =
+            llblAdvancedSettings.Visible =
+            chkAutomatic.Visible = true;
+
             if (_tileStresstest != tileStresstest)
             {
                 _tileStresstest = tileStresstest;
@@ -32,13 +39,22 @@ namespace vApus.DistributedTesting
                 solutionComponentPropertyPanelBasic.SolutionComponent = _tileStresstest.BasicTileStresstest;
                 solutionComponentPropertyPanelAdvanced.SolutionComponent = _tileStresstest.AdvancedTileStresstest;
 
-                llblAdvancedSettings.Visible = chkAutomatic.Visible = true;
+
                 chkAutomatic.Checked = _tileStresstest.AutomaticDefaultAdvancedSettings;
 
                 Handle_chkAutomatic_CheckedChanged();
             }
         }
+        public void ClearTileStresstest()
+        {
+            solutionComponentPropertyPanelDefaultTo.Visible =
+            solutionComponentPropertyPanelBasic.Visible =
+            llblAdvancedSettings.Visible =
+            chkAutomatic.Visible = false;
 
+            lblUsage.Visible = true;
+
+        }
         private void chkAutomatic_CheckedChanged(object sender, EventArgs e)
         {
             Handle_chkAutomatic_CheckedChanged();

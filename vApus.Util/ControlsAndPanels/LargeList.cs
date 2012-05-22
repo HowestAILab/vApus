@@ -549,7 +549,7 @@ namespace vApus.Util
         /// <param name="control"></param>
         /// <param name="index"></param>
         /// <param name="refresh"></param>
-        private void Insert(Control control, KeyValuePair<int, int> index, bool refresh)
+        public void Insert(Control control, KeyValuePair<int, int> index, bool refresh)
         {
             _controls[index.Key].Insert(index.Value, control);
             switch (refresh)

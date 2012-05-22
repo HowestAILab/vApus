@@ -78,7 +78,7 @@ namespace vApus.DistributedTesting
             cboRunSynchronization.SelectedIndex = (int)_distributedTest.RunSynchronization;
             SetTiles();
 
-            _distributedTest.TilesSynchronized += new EventHandler(_distributedTest_TilesSynchronized);
+            //_distributedTest.TilesSynchronized += new EventHandler(_distributedTest_TilesSynchronized);
             cboRunSynchronization.SelectedIndexChanged += new EventHandler(cboRunSynchronization_SelectedIndexChanged);
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }

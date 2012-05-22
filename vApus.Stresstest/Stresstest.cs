@@ -33,8 +33,11 @@ namespace vApus.Stresstest
         private Connection _connection;
         private Log _log;
         //This will be saved, I don't want to extend the save logic so I hack around it.
+        [NonSerialized]
         private Monitor.MonitorProject _monitorProject;
+        [NonSerialized]
         private int[] _monitorIndices = { };
+        [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
         private bool _useParallelExecutionOfLogEntries;
         #endregion

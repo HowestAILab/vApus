@@ -190,30 +190,42 @@
     <Compile Include="Controls\DistributedStresstestControl.Designer.cs">
       <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TreeView\Enums.cs" />
-    <Compile Include="Controls\TreeView\ITestTreeViewItem.cs" />
-    <Compile Include="Controls\TreeView\TileStresstestTreeViewItem.cs">
+    <Compile Include="Controls\SlaveTreeView\SlaveCollectionTreeViewItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\TreeView\TileStresstestTreeViewItem.Designer.cs">
+    <Compile Include="Controls\SlaveTreeView\SlaveCollectionTreeViewItem.Designer.cs">
+      <DependentUpon>SlaveCollectionTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveTreeView.Designer.cs">
+      <DependentUpon>SlaveTreeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Enums.cs" />
+    <Compile Include="Controls\ITreeViewItem.cs" />
+    <Compile Include="Controls\TestTreeView\TileStresstestTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\TileStresstestTreeViewItem.Designer.cs">
       <DependentUpon>TileStresstestTreeViewItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TreeView\DistributedTestTreeViewItem.cs">
+    <Compile Include="Controls\TestTreeView\DistributedTestTreeViewItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\TreeView\DistributedTestTreeViewItem.Designer.cs">
+    <Compile Include="Controls\TestTreeView\DistributedTestTreeViewItem.Designer.cs">
       <DependentUpon>DistributedTestTreeViewItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TreeView\TestTreeView.cs">
+    <Compile Include="Controls\TestTreeView\TestTreeView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\TreeView\TestTreeView.Designer.cs">
+    <Compile Include="Controls\TestTreeView\TestTreeView.Designer.cs">
       <DependentUpon>TestTreeView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TreeView\TileTreeViewItem.cs">
+    <Compile Include="Controls\TestTreeView\TileTreeViewItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\TreeView\TileTreeViewItem.Designer.cs">
+    <Compile Include="Controls\TestTreeView\TileTreeViewItem.Designer.cs">
       <DependentUpon>TileTreeViewItem.cs</DependentUpon>
     </Compile>
     <Compile Include="DistributedTestView.cs">
@@ -251,7 +263,7 @@
     <Compile Include="JumpStart\LinkageOverview.Designer.cs">
       <DependentUpon>LinkageOverview.cs</DependentUpon>
     </Compile>
-    <Compile Include="NewTileStresstest.cs" />
+    <Compile Include="TileStresstest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -321,16 +333,22 @@
     <EmbeddedResource Include="Controls\DistributedStresstestControl.resx">
       <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TreeView\TileStresstestTreeViewItem.resx">
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveCollectionTreeViewItem.resx">
+      <DependentUpon>SlaveCollectionTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveTreeView.resx">
+      <DependentUpon>SlaveTreeView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\TileStresstestTreeViewItem.resx">
       <DependentUpon>TileStresstestTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TreeView\DistributedTestTreeViewItem.resx">
+    <EmbeddedResource Include="Controls\TestTreeView\DistributedTestTreeViewItem.resx">
       <DependentUpon>DistributedTestTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TreeView\TestTreeView.resx">
+    <EmbeddedResource Include="Controls\TestTreeView\TestTreeView.resx">
       <DependentUpon>TestTreeView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TreeView\TileTreeViewItem.resx">
+    <EmbeddedResource Include="Controls\TestTreeView\TileTreeViewItem.resx">
       <DependentUpon>TileTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DistributedTestView.resx">
@@ -439,6 +457,7 @@
   <ItemGroup>
     <None Include="Resources\Expand_small.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

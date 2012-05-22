@@ -153,7 +153,6 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(153)))), ((int)(((byte)(180)))), ((int)(((byte)(209)))));
             this.Controls.Add(this.txtTile);
             this.Controls.Add(this.picCollapseExpand);
             this.Controls.Add(this.picAddTileStresstest);
@@ -163,7 +162,7 @@
             this.Controls.Add(this.lblTile);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TileTreeViewItem";
-            this.Size = new System.Drawing.Size(598, 25);
+            this.Size = new System.Drawing.Size(598, 32);
             this.Enter += new System.EventHandler(this._Enter);
             this.MouseEnter += new System.EventHandler(this._MouseEnter);
             this.MouseLeave += new System.EventHandler(this._MouseLeave);

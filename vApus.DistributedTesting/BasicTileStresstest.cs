@@ -235,6 +235,21 @@ namespace vApus.DistributedTesting
                 }
             }
         }
+
+        /// <summary>
+        /// Create clone of this.
+        /// </summary>
+        /// <returns></returns>
+        public BasicTileStresstest Clone()
+        {
+            var clone = new BasicTileStresstest();
+            clone.Connection = _connection;
+            clone.MonitorIndices = new int[_monitorIndices.Length];
+            _monitorIndices.CopyTo(clone.MonitorIndices, 0);
+            clone.SlaveIndices = new int[_slaveIndices.Length];
+            _slaveIndices.CopyTo(clone.SlaveIndices, 0);
+            return clone;
+        }
         #endregion
     }
 }

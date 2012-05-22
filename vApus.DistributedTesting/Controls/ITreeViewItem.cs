@@ -7,7 +7,7 @@
  */
 namespace vApus.DistributedTesting
 {
-    public interface ITestTreeViewItem
+    public interface ITreeViewItem
     {
         DistributedTestMode DistributedTestMode { get; }
 
@@ -27,5 +27,9 @@ namespace vApus.DistributedTesting
         /// Refresh properties from the base items in the gui (Label, Use).
         /// </summary>
         void RefreshGui();
+        /// <summary>
+        /// 
+        /// </summary>
+        void Unfocus();
     }
 }

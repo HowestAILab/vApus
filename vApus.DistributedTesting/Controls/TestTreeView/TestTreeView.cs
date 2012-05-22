@@ -90,7 +90,7 @@ namespace vApus.DistributedTesting
 
             bool addControlsVisible = ClientRectangle.Contains(PointToClient(Cursor.Position));
             foreach (Tile tile in distributedTest.Tiles)
-                AddAndCreateTileTreeViewItem(tile);
+                CreateAndAddTileTreeViewItem(tile);
 
             SetGui();
 
@@ -105,7 +105,7 @@ namespace vApus.DistributedTesting
             DistributedTestTreeViewItem dttvi = sender as DistributedTestTreeViewItem;
 
             Tile tile = new Tile();
-            AddAndCreateTileTreeViewItem(tile);
+            CreateAndAddTileTreeViewItem(tile);
 
             dttvi.DistributedTest.Tiles.Add(tile);
 
@@ -113,7 +113,7 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private void AddAndCreateTileTreeViewItem(Tile tile)
+        private void CreateAndAddTileTreeViewItem(Tile tile)
         {
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
@@ -130,6 +130,24 @@ namespace vApus.DistributedTesting
                 tvi.ChildControls.Add(tsvi);
                 largeList.Add(tsvi);
             }
+        }
+        private void CreateAndInsertTileTreeViewItem(Tile tile, KeyValuePair<int,int> index)
+        {
+            var tvi = new TileTreeViewItem(tile);
+            //Used for handling collapsing and expanding.
+            tvi.SetParent(largeList);
+            tvi.AfterSelect += new EventHandler(_AfterSelect);
+            tvi.AddTileStresstestClicked += new EventHandler(tvi_AddTileStresstestClicked);
+            tvi.DuplicateClicked += new EventHandler(tvi_DuplicateClicked);
+            tvi.DeleteClicked += new EventHandler(tvi_DeleteClicked);
+
+            for(int i = tile.Count - 1; i != -1; i--)
+            {
+                var tsvi = CreateTileStresstestTreeViewItem(tvi, tile[i] as TileStresstest);
+                tvi.ChildControls.Add(tsvi);
+                largeList.Insert(tsvi, index, false);
+            }
+            largeList.Insert(tvi, index);
 
             tvi.Select();
         }
@@ -149,12 +167,12 @@ namespace vApus.DistributedTesting
             else
                 largeList.Insert(tsvi, largeList.IndexOf(closestNextTileTreeViewItem));
 
-           // tsvi.Select();
 
             tvi.Tile.Add(ts);
             tvi.RefreshGui();
 
             tvi.Tile.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
+           
             LockWindowUpdate(0);
         }
         private TileTreeViewItem GetClosestNextTileTreeViewItem(Control control)
@@ -188,6 +206,8 @@ namespace vApus.DistributedTesting
 
             largeList.Remove(tvi);
 
+            largeList.Select();
+
             LockWindowUpdate(0);
         }
         private void tvi_DuplicateClicked(object sender, EventArgs e)
@@ -197,11 +217,14 @@ namespace vApus.DistributedTesting
             TileTreeViewItem tvi = sender as TileTreeViewItem;
             if (tvi.Tile.Parent != null)
             {
-                Tile clone = new Tile();
-                //foreach(TileStresstest ts in tvi.Tile)
-                //    clone.AddWithoutInvokingEvent(ts.
+                var clone = tvi.Tile.Clone();
 
-                tvi.Tile.Parent.Add(clone);
+                var parent = tvi.Tile.Parent as Tiles;
+                parent.InsertWithoutInvokingEvent(parent.IndexOf(tvi.Tile), clone);
+                
+                CreateAndInsertTileTreeViewItem(clone, largeList.IndexOf(tvi));
+                
+                parent.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
             }
 
             LockWindowUpdate(0);
@@ -229,6 +252,8 @@ namespace vApus.DistributedTesting
 
             largeList.Remove(tsvi);
 
+            largeList.Select();
+
             LockWindowUpdate(0);
         }
         private void tsvi_DuplicateClicked(object sender, EventArgs e)
@@ -237,15 +262,34 @@ namespace vApus.DistributedTesting
 
             TileStresstestTreeViewItem tsvi = sender as TileStresstestTreeViewItem;
             if (tsvi.TileStresstest.Parent != null)
-            { }
+            {
+                var clone = tsvi.TileStresstest.Clone();
+                var parent = tsvi.TileStresstest.Parent as Tile;
+                parent.InsertWithoutInvokingEvent(parent.IndexOf(tsvi.TileStresstest), clone);
+
+                var cloneTsvi = CreateTileStresstestTreeViewItem(tsvi.GetParent() as TileTreeViewItem, clone);
+                //Make it appear that the clone is the original one, it is the most simple thing to do and the user doesn't notice.
+                largeList.Insert(cloneTsvi, largeList.IndexOf(tsvi));
+                tsvi.Select();
+
+                parent.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
+            }
 
             LockWindowUpdate(0);
         }
 
         private void _AfterSelect(object sender, EventArgs e)
         {
+            LockWindowUpdate(this.Handle.ToInt32());
+
+            foreach (ITreeViewItem item in largeList.AllControls)
+                if (item != sender)
+                    item.Unfocus();
+
             if (AfterSelect != null)
                 AfterSelect(sender, null);
+
+            LockWindowUpdate(0);
         }
 
         private void timer_Tick(object sender, EventArgs e)
@@ -254,7 +298,7 @@ namespace vApus.DistributedTesting
         }
         private void SetGui()
         {
-            foreach (ITestTreeViewItem ctrl in largeList.AllControls)
+            foreach (ITreeViewItem ctrl in largeList.AllControls)
             {
                 ctrl.SetVisibleControls();
                 //To determine what add tile stresstest control can be visible
