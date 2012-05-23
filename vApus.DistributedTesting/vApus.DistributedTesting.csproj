@@ -175,6 +175,7 @@
   <ItemGroup>
     <Compile Include="AdvancedTileStresstest.cs" />
     <Compile Include="BasicTileStresstest.cs" />
+    <Compile Include="Client.cs" />
     <Compile Include="Communication\EnumsAndStructs.cs" />
     <Compile Include="Communication\Master\TorrentClient.cs" />
     <Compile Include="Communication\Slave\TorrentServer.cs" />
@@ -190,11 +191,11 @@
     <Compile Include="Controls\DistributedStresstestControl.Designer.cs">
       <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveCollectionTreeViewItem.cs">
+    <Compile Include="Controls\SlaveTreeView\ClientsAndSlavesTreeViewItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveCollectionTreeViewItem.Designer.cs">
-      <DependentUpon>SlaveCollectionTreeViewItem.cs</DependentUpon>
+    <Compile Include="Controls\SlaveTreeView\ClientsAndSlavesTreeViewItem.Designer.cs">
+      <DependentUpon>ClientsAndSlavesTreeViewItem.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\SlaveTreeView\SlaveTreeView.cs">
       <SubType>UserControl</SubType>
@@ -204,6 +205,12 @@
     </Compile>
     <Compile Include="Controls\Enums.cs" />
     <Compile Include="Controls\ITreeViewItem.cs" />
+    <Compile Include="Controls\SlaveTreeView\ClientTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\ClientTreeViewItem.Designer.cs">
+      <DependentUpon>ClientTreeViewItem.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TestTreeView\TileStresstestTreeViewItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -263,6 +270,7 @@
     <Compile Include="JumpStart\LinkageOverview.Designer.cs">
       <DependentUpon>LinkageOverview.cs</DependentUpon>
     </Compile>
+    <Compile Include="Slave.cs" />
     <Compile Include="TileStresstest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -284,8 +292,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Slave.cs" />
-    <Compile Include="Slaves.cs" />
+    <Compile Include="ClientsAndSlaves.cs" />
     <Compile Include="Tiles.cs" />
     <Compile Include="TileStresstestProgressResults.cs" />
     <Compile Include="TileStresstestView.cs">
@@ -333,11 +340,14 @@
     <EmbeddedResource Include="Controls\DistributedStresstestControl.resx">
       <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveCollectionTreeViewItem.resx">
-      <DependentUpon>SlaveCollectionTreeViewItem.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\SlaveTreeView\ClientsAndSlavesTreeViewItem.resx">
+      <DependentUpon>ClientsAndSlavesTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\SlaveTreeView\SlaveTreeView.resx">
       <DependentUpon>SlaveTreeView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\ClientTreeViewItem.resx">
+      <DependentUpon>ClientTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TestTreeView\TileStresstestTreeViewItem.resx">
       <DependentUpon>TileStresstestTreeViewItem.cs</DependentUpon>

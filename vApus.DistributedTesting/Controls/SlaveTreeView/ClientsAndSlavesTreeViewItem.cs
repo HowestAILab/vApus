@@ -40,32 +40,17 @@ namespace vApus.DistributedTesting
         #region Functions
         private void _Enter(object sender, EventArgs e)
         {
-            this.BackColor = SystemColors.Control;
             if (AfterSelect != null)
                 AfterSelect(this, null);
         }
         public void Unfocus()
         {
-            this.BackColor = Color.Transparent;
-        }
-        private void _MouseEnter(object sender, EventArgs e)
-        {
-            SetVisibleControls();
-        }
-        private void _MouseLeave(object sender, EventArgs e)
-        {
-            SetVisibleControls();
         }
         public void SetVisibleControls()
         {
-            if (this.BackColor == SystemColors.Control)
-                SetVisibleControls(true);
-            else
-                SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
         }
         public void SetVisibleControls(bool visible)
         {
-           picAddClient.Visible = visible;
         }
         public void RefreshGui()
         {

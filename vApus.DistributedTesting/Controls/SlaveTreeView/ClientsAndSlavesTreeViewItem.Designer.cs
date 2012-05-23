@@ -103,8 +103,6 @@
             this.Enter += new System.EventHandler(this._Enter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.MouseEnter += new System.EventHandler(this._MouseEnter);
-            this.MouseLeave += new System.EventHandler(this._MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

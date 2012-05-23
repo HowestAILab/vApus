@@ -113,7 +113,7 @@ namespace vApus.DistributedTesting
 
                 _slaveIndices = value;
 
-                Slaves slavesParent = SlavesParent;
+                ClientsAndSlaves slavesParent = SlavesParent;
                 if (slavesParent != null)
                 {
                     List<Slave> l = new List<Slave>(_slaveIndices.Length);
@@ -146,7 +146,7 @@ namespace vApus.DistributedTesting
 
                 _slaves = value;
 
-                Slaves slavesParent = SlavesParent;
+                ClientsAndSlaves slavesParent = SlavesParent;
                 if (slavesParent != null)
                 {
                     _slaves.SetParent(slavesParent);
@@ -160,7 +160,7 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        private Slaves SlavesParent
+        private ClientsAndSlaves SlavesParent
         {
             get
             {
@@ -170,7 +170,7 @@ namespace vApus.DistributedTesting
                         this.Parent.GetParent() != null &&
                         this.Parent.GetParent().GetParent() != null &&
                         this.Parent.GetParent().GetParent().GetParent() != null)
-                        return (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).Slaves;
+                        return (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).ClientsAndSlaves;
                 }
                 catch { }
                 return null;
@@ -223,7 +223,7 @@ namespace vApus.DistributedTesting
             }
             else //Cleanup slaves
             {
-                Slaves slavesParent = SlavesParent;
+                ClientsAndSlaves slavesParent = SlavesParent;
                 if (sender == slavesParent || sender is Slave)
                 {
                     List<Slave> l = new List<Slave>(slavesParent.Count);

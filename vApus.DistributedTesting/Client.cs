@@ -9,11 +9,11 @@ using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting
 {
-    public class Slave : LabeledBaseItem
+    public class Client : BaseItem
     {
         #region Fields
-        private bool _use = true;
-        private int _port = 1337;
+        private bool _use = false;
+        private string _ip = string.Empty, _hostName = string.Empty;
         #endregion
 
         #region Properties
@@ -24,28 +24,36 @@ namespace vApus.DistributedTesting
             set { _use = value; }
         }
         [SavableCloneable]
-        public int Port
+        public string HostName
         {
-            get { return _port; }
-            set { _port = value; }
+            get { return _hostName; }
+            set { _hostName = value; }
+        }
+        [SavableCloneable]
+        public string IP
+        {
+            get { return _ip; }
+            set { _ip = value; }
         }
         #endregion
 
-        #region Constructor
-        public Slave()
+        #region Constructors
+        public Client()
         {
             ShowInGui = false;
+            AddAsDefaultItem(new Slave());
         }
         #endregion
 
         #region Functions
         public override string ToString()
         {
-            object parent = Parent;
-            if (parent != null)
-                return parent.ToString() + " - " + _port;
-
-            return base.ToString();
+            if (_hostName.Length == 0)
+                return _ip;
+            if (_ip.Length == 0)
+                return _hostName;
+            
+            return _hostName + " / " + _ip;
         }
         #endregion
     }

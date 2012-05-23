@@ -88,7 +88,6 @@ namespace vApus.DistributedTesting
             dttvi.AddTileClicked += new EventHandler(dttvi_AddTileClicked);
             largeList.Add(dttvi);
 
-            bool addControlsVisible = ClientRectangle.Contains(PointToClient(Cursor.Position));
             foreach (Tile tile in distributedTest.Tiles)
                 CreateAndAddTileTreeViewItem(tile);
 

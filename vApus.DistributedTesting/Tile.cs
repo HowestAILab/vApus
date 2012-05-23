@@ -37,6 +37,7 @@ namespace vApus.DistributedTesting
         public Tile()
         {
             ShowInGui = false;
+            this.AddAsDefaultItem(new TileStresstest());
         }
         #endregion
 

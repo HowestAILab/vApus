@@ -51,9 +51,9 @@ namespace vApus.DistributedTesting
         {
             get { return this[0] as Tiles; }
         }
-        public Slaves Slaves
+        public ClientsAndSlaves ClientsAndSlaves
         {
-            get { return this[1] as Slaves; }
+            get { return this[1] as ClientsAndSlaves; }
         }
         #endregion
 
@@ -62,7 +62,7 @@ namespace vApus.DistributedTesting
         {
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
             AddAsDefaultItem(new Tiles());
-            AddAsDefaultItem(new Slaves());
+            AddAsDefaultItem(new ClientsAndSlaves());
         }
         #endregion
 

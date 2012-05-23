@@ -52,11 +52,10 @@ namespace vApus.DistributedTesting
             sctvi.AddClientClicked += new EventHandler(sctvi_AddClientClicked);
             largeList.Add(sctvi);
 
-            //bool addControlsVisible = ClientRectangle.Contains(PointToClient(Cursor.Position));
-            //foreach (Tile tile in distributedTest.Tiles)
-            //    CreateAndAddTileTreeViewItem(tile);
+            foreach (Client client in distributedTest.ClientsAndSlaves)
+                CreateAndAddClientTreeViewItem(client);
 
-           // SetGui();
+            //SetGui();
 
             sctvi.Select();
             LockWindowUpdate(0);
@@ -64,7 +63,57 @@ namespace vApus.DistributedTesting
 
         private void sctvi_AddClientClicked(object sender, EventArgs e)
         {
+            LockWindowUpdate(this.Handle.ToInt32());
+
+            CreateAndAddClientTreeViewItem(new Client());
+        
+            LockWindowUpdate(0);
         }
+
+        private void CreateAndAddClientTreeViewItem(Client client)
+        {
+            var cvi = new ClientTreeViewItem(client);
+            //Used for handling collapsing and expanding.
+            cvi.SetParent(largeList);
+            cvi.AfterSelect += new EventHandler(_AfterSelect);
+            //cvi.DuplicateClicked += new EventHandler(cvi_DuplicateClicked);
+            cvi.DeleteClicked += new EventHandler(cvi_DeleteClicked);
+
+            largeList.Add(cvi);
+        }
+        private void cvi_DeleteClicked(object sender, EventArgs e)
+        {
+            LockWindowUpdate(this.Handle.ToInt32());
+
+            ClientTreeViewItem cvi = sender as ClientTreeViewItem;
+            if (cvi.Client.Parent != null)
+                cvi.Client.Parent.Remove(cvi.Client);
+
+            largeList.Remove(cvi);
+
+            largeList.Select();
+
+            LockWindowUpdate(0);
+        }
+        //private void cvi_DuplicateClicked(object sender, EventArgs e)
+        //{
+        //    LockWindowUpdate(this.Handle.ToInt32());
+
+        //    TileTreeViewItem tvi = sender as TileTreeViewItem;
+        //    if (tvi.Tile.Parent != null)
+        //    {
+        //        var clone = tvi.Tile.Clone();
+
+        //        var parent = tvi.Tile.Parent as Tiles;
+        //        parent.InsertWithoutInvokingEvent(parent.IndexOf(tvi.Tile), clone);
+
+        //        CreateAndInsertTileTreeViewItem(clone, largeList.IndexOf(tvi));
+
+        //        parent.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
+        //    }
+
+        //    LockWindowUpdate(0);
+        //}
 
         private void _AfterSelect(object sender, EventArgs e)
         {
