@@ -6,9 +6,9 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.SolutionTree;
@@ -29,6 +29,7 @@ namespace vApus.DistributedTesting
         public event EventHandler AfterSelect;
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
+        public event EventHandler HostNameAndIPSet;
         #endregion
 
         #region Fields
@@ -37,6 +38,15 @@ namespace vApus.DistributedTesting
         /// Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
+
+        /// <summary>
+        /// To set the host name and ip
+        /// </summary>
+        private ActiveObject _activeObject = new ActiveObject();
+        private delegate void SetHostNameAndIPDel(out string ip, out string hostname, out  bool online);
+        private SetHostNameAndIPDel _SetHostNameAndIPDel;
+
+        private int _chosenImageIndex = 2;
         #endregion
 
         #region Properties
@@ -61,6 +71,9 @@ namespace vApus.DistributedTesting
         public ClientTreeViewItem()
         {
             InitializeComponent();
+
+            _SetHostNameAndIPDel = SetHostNameAndIP_Callback;
+            _activeObject.OnResult += new EventHandler<ActiveObject.OnResultEventArgs>(_activeObject_OnResult);
         }
         public ClientTreeViewItem(Client client)
             : this()
@@ -71,6 +84,11 @@ namespace vApus.DistributedTesting
             chk.CheckedChanged -= chk_CheckedChanged;
             chk.Checked = _client.Use;
             chk.CheckedChanged += chk_CheckedChanged;
+
+            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
+
+            txtClient.Text = (_client.HostName == string.Empty) ? _client.IP : _client.HostName;
+
 
             //To check if the use has changed of the child controls.
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
@@ -113,17 +131,12 @@ namespace vApus.DistributedTesting
         public void Unfocus()
         {
             this.BackColor = Color.Transparent;
+            SetVisibleControls();
         }
         private void txtClient_Leave(object sender, EventArgs e)
         {
-            txtClient.Text = lblTile.Text = txtClient.Text.Trim();
-#warning fix this
-            //if (_client.Label != txtClient.Text)
-            //{
-            //    _client.Label = txtClient.Text;
-            //    _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            //}
-            lblTile.Text = _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
+            SetHostNameAndIP();
+            SetVisibleControls();
         }
         private void _MouseEnter(object sender, EventArgs e)
         {
@@ -136,6 +149,7 @@ namespace vApus.DistributedTesting
         public void SetVisibleControls(bool visible)
         {
             txtClient.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+            lblClient.Text = visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
         }
         public void SetVisibleControls()
         {
@@ -147,18 +161,7 @@ namespace vApus.DistributedTesting
 
         public void RefreshGui()
         {
-            string label = string.Empty;
-#warning fix this
-            //if (_client.Label == string.Empty)
-            //    label = _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
-            //else
-            //    label = _client.Label + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
-
-            //if (lblTile.Text != label)
-            //{
-            //    lblTile.Text = label;
-            //    txtClient.Text = (_client.Label == string.Empty) ? _client.ToString() : _client.Label;
-            //}
+            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
 
             _client.Use = UsedSlaveCount != 0;
             if (_client.Use != chk.Checked)
@@ -170,20 +173,8 @@ namespace vApus.DistributedTesting
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {
-#warning fix this
-            //if (sender == txtClient)
-            //    if (e.KeyCode == Keys.Enter && _client.Label != txtClient.Text)
-            //    {
-            //        txtClient.Text = txtClient.Text.Trim();
-            //        if (_client.Label != txtClient.Text)
-            //        {
-            //            _client.Label = txtClient.Text;
-            //            lblTile.Text = (_client.Label == string.Empty ? _client.ToString() : _client.Label) + " (#" + _client.Count + ")";
-
-            //            _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            //        }
-            //    }
-
+            if (sender == txtClient && e.KeyCode == Keys.Enter)
+                SetHostNameAndIP();
 
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
@@ -194,7 +185,114 @@ namespace vApus.DistributedTesting
                     DuplicateClicked(this, null);
                 else if (e.KeyCode == Keys.U)
                     chk.Checked = !chk.Checked;
+            if (e.KeyCode == Keys.F5)
+                SetHostNameAndIP();
         }
+        /// <summary>
+        /// IP or Host Name can be filled in in txtclient.
+        /// </summary>
+        /// <returns>False if it was already busy doing it.</returns>
+        public bool SetHostNameAndIP()
+        {
+            //Make sure this can not happen multiple times at the same time.
+            if (!this.Enabled)
+                return false;
+
+            this.Enabled = false;
+
+            tmrRotateOnlineOffline.Start();
+
+            picOnlineOffline.Image = imageList.Images[2];
+
+            txtClient.Text = txtClient.Text.Trim().ToLower();
+
+            string ip = string.Empty;
+            string hostname = string.Empty;
+            bool online = false;
+
+            _activeObject.Send(_SetHostNameAndIPDel, ip, hostname, online);
+
+            return true;
+        }
+        private void SetHostNameAndIP_Callback(out string ip, out string hostname, out  bool online)
+        {
+            online = false;
+            ip = string.Empty;
+            hostname = string.Empty;
+            IPAddress address;
+            if (IPAddress.TryParse(txtClient.Text, out address))
+            {
+                ip = address.ToString();
+                try
+                {
+                    hostname = Dns.GetHostByAddress(address).HostName;
+                    if (hostname == null) hostname = string.Empty;
+                    online = true;
+                }
+                catch { }
+
+            }
+            else
+            {
+                hostname = txtClient.Text;
+                IPAddress[] addresses = { };
+                try
+                {
+                    if (hostname.Length != 0)
+                        addresses = Dns.GetHostByName(hostname).AddressList;
+                }
+                catch { }
+
+                if (addresses != null && addresses.Length != 0)
+                {
+                    ip = addresses[0].ToString();
+                    online = true;
+                }
+            }
+        }
+        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
+        {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            {
+                string ip = e.Arguments[0] as string;
+                string hostname = e.Arguments[1] as string;
+                bool online = (bool)e.Arguments[2];
+                bool changed = false;
+
+                if (_client.IP != ip || _client.HostName != hostname)
+                    changed = true;
+
+                _client.IP = ip;
+                _client.HostName = hostname;
+
+                tmrRotateOnlineOffline.Stop();
+                if (online)
+                {
+                    picOnlineOffline.Image = imageList.Images[1];
+                    toolTip.SetToolTip(picOnlineOffline, "Online <f5>");
+                }
+                else
+                {
+                    picOnlineOffline.Image = imageList.Images[0];
+                    toolTip.SetToolTip(picOnlineOffline, "Offline <f5>");
+                }
+
+                if (changed)
+                    _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+
+                if (HostNameAndIPSet != null)
+                    HostNameAndIPSet(this, null);
+
+                this.Enabled = true;
+            }, null);
+        }
+        private void tmrRotateOnlineOffline_Tick(object sender, EventArgs e)
+        {
+            //Rotate it to visualize it is refreshing
+            _chosenImageIndex = _chosenImageIndex == 2 ? 3 : 2;
+            picOnlineOffline.Image = imageList.Images[_chosenImageIndex];
+        }
+
         private void _KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.ControlKey)
@@ -209,6 +307,10 @@ namespace vApus.DistributedTesting
         {
             if (DeleteClicked != null)
                 DeleteClicked(this, null);
+        }
+        private void picOnlineOffline_Click(object sender, EventArgs e)
+        {
+            SetHostNameAndIP();
         }
         private void chk_CheckedChanged(object sender, EventArgs e)
         {

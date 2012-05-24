@@ -27,7 +27,9 @@ namespace vApus.Stresstest
         private void Parameters_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
             //Added while loading, so check if it has a parent
-            if (Solution.ActiveSolution != null && Parent != null)
+            if (Solution.ActiveSolution != null && Parent != null && 
+                (sender is BaseParameter || sender is CustomListParameters || 
+                sender is CustomRandomParameters || sender is NumericParameters || sender is TextParameters))
             {
                 var parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 if (parameters != null && parameters.Contains(sender as BaseItem))

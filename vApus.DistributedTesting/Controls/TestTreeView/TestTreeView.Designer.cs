@@ -28,9 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.largeList = new vApus.Util.LargeList();
-            this.timer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // largeList
@@ -41,11 +39,6 @@
             this.largeList.Size = new System.Drawing.Size(336, 423);
             this.largeList.SizeMode = vApus.Util.SizeMode.StretchHorizontal;
             this.largeList.TabIndex = 0;
-            // 
-            // timer
-            // 
-            this.timer.Enabled = true;
-            this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
             // TestTreeView
             // 
@@ -61,6 +54,5 @@
         #endregion
 
         private Util.LargeList largeList;
-        private System.Windows.Forms.Timer timer;
     }
 }

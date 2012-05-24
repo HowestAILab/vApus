@@ -48,12 +48,10 @@ namespace vApus.DistributedTesting
         #region Functions
         public override string ToString()
         {
-            if (_hostName.Length == 0)
-                return _ip;
-            if (_ip.Length == 0)
-                return _hostName;
-            
-            return _hostName + " / " + _ip;
+            string hostname = (_hostName.Length == 0) ? string.Empty : _hostName;
+            string ip = (_ip.Length == 0) ? string.Empty : _ip;
+
+            return "Host Name: " + hostname + "  -  IP: " + ip + "  - ";
         }
         #endregion
     }

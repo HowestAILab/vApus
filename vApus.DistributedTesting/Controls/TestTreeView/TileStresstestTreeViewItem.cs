@@ -90,6 +90,7 @@ namespace vApus.DistributedTesting
         public void Unfocus()
         {
             this.BackColor = Color.Transparent;
+            SetVisibleControls();
         }
         private void txtTileStresstest_Leave(object sender, EventArgs e)
         {

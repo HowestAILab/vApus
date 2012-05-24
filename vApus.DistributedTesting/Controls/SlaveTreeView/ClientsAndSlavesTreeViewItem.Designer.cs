@@ -1,6 +1,6 @@
 ﻿namespace vApus.DistributedTesting
 {
-    partial class SlaveCollectionTreeViewItem
+    partial class ClientsAndSlavesTreeViewItem
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,13 +29,15 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SlaveCollectionTreeViewItem));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClientsAndSlavesTreeViewItem));
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picAddClient = new System.Windows.Forms.PictureBox();
+            this.picRefresh = new System.Windows.Forms.PictureBox();
             this.lblRunSync = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRefresh)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -50,14 +52,28 @@
             this.picAddClient.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picAddClient.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picAddClient.Image = ((System.Drawing.Image)(resources.GetObject("picAddClient.Image")));
-            this.picAddClient.Location = new System.Drawing.Point(509, 6);
+            this.picAddClient.Location = new System.Drawing.Point(480, 6);
             this.picAddClient.Name = "picAddClient";
             this.picAddClient.Size = new System.Drawing.Size(23, 23);
             this.picAddClient.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picAddClient.TabIndex = 20;
             this.picAddClient.TabStop = false;
             this.toolTip.SetToolTip(this.picAddClient, "Add Client <ctrl+i>");
-            this.picAddClient.Click += new System.EventHandler(this.picAddTile_Click);
+            this.picAddClient.Click += new System.EventHandler(this.picAddClient_Click);
+            // 
+            // picRefresh
+            // 
+            this.picRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picRefresh.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picRefresh.Image = ((System.Drawing.Image)(resources.GetObject("picRefresh.Image")));
+            this.picRefresh.Location = new System.Drawing.Point(509, 6);
+            this.picRefresh.Name = "picRefresh";
+            this.picRefresh.Size = new System.Drawing.Size(23, 23);
+            this.picRefresh.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picRefresh.TabIndex = 24;
+            this.picRefresh.TabStop = false;
+            this.toolTip.SetToolTip(this.picRefresh, "Refresh<f5>");
+            this.picRefresh.Click += new System.EventHandler(this.picRefresh_Click);
             // 
             // lblRunSync
             // 
@@ -93,6 +109,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.picRefresh);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.picAddClient);
@@ -104,6 +121,7 @@
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRefresh)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -116,6 +134,7 @@
         private System.Windows.Forms.Label lblRunSync;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.PictureBox picRefresh;
 
     }
 }

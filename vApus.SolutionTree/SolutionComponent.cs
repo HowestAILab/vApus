@@ -161,10 +161,10 @@ namespace vApus.SolutionTree
             if (item.ShowInGui)
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
         }
-        public void AddWithoutInvokingEvent(BaseItem item)
+        public void AddWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true)
         {
             _items.Add(item);
-            item.Parent = this;
+            item.SetParent(this, invokeParentChanged);
             item.ForceSettingChildsParent();
         }
         /// <summary>
@@ -237,10 +237,10 @@ namespace vApus.SolutionTree
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
-        public void InsertWithoutInvokingEvent(int index, BaseItem item)
+        public void InsertWithoutInvokingEvent(int index, BaseItem item, bool invokeParentChanged = true)
         {
             _items.Insert(index, item);
-            item.Parent = this;
+            item.SetParent(this, invokeParentChanged);
             item.ForceSettingChildsParent();
         }
         /// <summary>
@@ -248,13 +248,13 @@ namespace vApus.SolutionTree
         /// </summary>
         /// <param name="index"></param>
         /// <param name="collection"></param>
-        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection)
+        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection, bool invokeParentChanged = true)
         {
             _items.InsertRange(index, collection);
 
             foreach (BaseItem item in collection)
             {
-                item.Parent = this;
+                item.SetParent(this, invokeParentChanged);
                 item.ForceSettingChildsParent();
             }
         }

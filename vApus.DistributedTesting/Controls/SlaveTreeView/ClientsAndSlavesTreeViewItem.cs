@@ -7,13 +7,13 @@
  */
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace vApus.DistributedTesting
 {
     [ToolboxItem(false)]
-    public partial class SlaveCollectionTreeViewItem : UserControl, ITreeViewItem
+    public partial class ClientsAndSlavesTreeViewItem : UserControl, ITreeViewItem
     {
         #region Events
         /// <summary>
@@ -28,12 +28,33 @@ namespace vApus.DistributedTesting
         /// Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
+        private ClientsAndSlaves _clientsAndSlaves = new ClientsAndSlaves();
+        private List<ClientTreeViewItem> _childControls = new List<ClientTreeViewItem>();
+
+        //To know when this can be enabled again.
+        private int _refreshingClientCount = 0;
+        #endregion
+
+        #region Properties
+        public ClientsAndSlaves ClientsAndSlaves
+        {
+            get { return _clientsAndSlaves; }
+        }
+        public List<ClientTreeViewItem> ChildControls
+        {
+            get { return _childControls; }
+        }
         #endregion
 
         #region Constructor
-        public SlaveCollectionTreeViewItem()
+        public ClientsAndSlavesTreeViewItem()
         {
             InitializeComponent();
+        }
+        public ClientsAndSlavesTreeViewItem(ClientsAndSlaves clientsAndSlaves)
+            :this()
+        {
+            _clientsAndSlaves = clientsAndSlaves;
         }
         #endregion
 
@@ -56,11 +77,15 @@ namespace vApus.DistributedTesting
         {
         }
 
-        private void picAddTile_Click(object sender, EventArgs e)
+        private void picAddClient_Click(object sender, EventArgs e)
         {
             this.Focus();
             if (AddClientClicked != null)
                 AddClientClicked(this, null);
+        }
+        private void picRefresh_Click(object sender, EventArgs e)
+        {
+            SetHostNameAndIP();
         }
         private void _KeyDown(object sender, KeyEventArgs e)
         {
@@ -69,9 +94,34 @@ namespace vApus.DistributedTesting
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {
-            if (_ctrl && e.KeyCode == Keys.I && AddClientClicked != null)
-                AddClientClicked(this, null);
+            if (_ctrl && e.KeyCode == Keys.I)
+                if (AddClientClicked != null)
+                    AddClientClicked(this, null);
+            else if (e.KeyCode == Keys.F5)
+                SetHostNameAndIP();
+        }
+        private void SetHostNameAndIP()
+        {
+            this.Enabled = false;
+            _refreshingClientCount = _childControls.Count;
+            foreach (var ctvi in _childControls)
+            {
+                ctvi.HostNameAndIPSet += new EventHandler(ctvi_HostNameAndIPSet);
+                if (!ctvi.SetHostNameAndIP())
+                    --_refreshingClientCount;
+            }
 
+            if (_refreshingClientCount <= 0)
+                this.Enabled = true;
+        }
+
+        private void ctvi_HostNameAndIPSet(object sender, EventArgs e)
+        {
+            var ctvi = sender as ClientTreeViewItem;
+            ctvi.HostNameAndIPSet -= ctvi_HostNameAndIPSet;
+
+            if (--_refreshingClientCount <= 0)
+                this.Enabled = true;
         }
         #endregion
 

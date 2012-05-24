@@ -291,11 +291,7 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            SetGui();
-        }
-        private void SetGui()
+        public void SetGui()
         {
             foreach (ITreeViewItem ctrl in largeList.AllControls)
             {
