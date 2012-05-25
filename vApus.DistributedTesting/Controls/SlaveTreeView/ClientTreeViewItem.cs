@@ -9,7 +9,6 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -19,9 +18,6 @@ namespace vApus.DistributedTesting
     [ToolboxItem(false)]
     public partial class ClientTreeViewItem : UserControl, ITreeViewItem
     {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         #region Events
         /// <summary>
         /// Call unfocus for the other items in the panel.
@@ -87,7 +83,7 @@ namespace vApus.DistributedTesting
 
             lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
 
-            txtClient.Text = (_client.HostName == string.Empty) ? _client.IP : _client.HostName;
+            txtClient.Text = (_client.IP == string.Empty) ? _client.HostName : _client.IP;
 
 
             //To check if the use has changed of the child controls.
@@ -195,11 +191,13 @@ namespace vApus.DistributedTesting
         public bool SetHostNameAndIP()
         {
             //Make sure this can not happen multiple times at the same time.
-            if (!this.Enabled)
+            if (!this.Controls[0].Enabled)
                 return false;
 
-            this.Enabled = false;
+            EnableControls(false);
 
+            //Reset this.
+            _chosenImageIndex = 2;
             tmrRotateOnlineOffline.Start();
 
             picOnlineOffline.Image = imageList.Images[2];
@@ -219,71 +217,82 @@ namespace vApus.DistributedTesting
             online = false;
             ip = string.Empty;
             hostname = string.Empty;
-            IPAddress address;
-            if (IPAddress.TryParse(txtClient.Text, out address))
-            {
-                ip = address.ToString();
+
+            if (!this.IsDisposed)
                 try
                 {
-                    hostname = Dns.GetHostByAddress(address).HostName;
-                    if (hostname == null) hostname = string.Empty;
-                    online = true;
+                    IPAddress address;
+                    if (IPAddress.TryParse(txtClient.Text, out address))
+                    {
+                        ip = address.ToString();
+                        try
+                        {
+                            hostname = Dns.GetHostByAddress(address).HostName.ToLower();
+                            if (hostname == null) hostname = string.Empty;
+                            online = true;
+                        }
+                        catch { }
+
+                    }
+                    else
+                    {
+                        hostname = txtClient.Text;
+                        IPAddress[] addresses = { };
+                        try
+                        {
+                            if (hostname.Length != 0)
+                                addresses = Dns.GetHostByName(hostname).AddressList;
+                        }
+                        catch { }
+
+                        if (addresses != null && addresses.Length != 0)
+                        {
+                            ip = addresses[0].ToString();
+                            online = true;
+                        }
+                    }
                 }
                 catch { }
-
-            }
-            else
-            {
-                hostname = txtClient.Text;
-                IPAddress[] addresses = { };
-                try
-                {
-                    if (hostname.Length != 0)
-                        addresses = Dns.GetHostByName(hostname).AddressList;
-                }
-                catch { }
-
-                if (addresses != null && addresses.Length != 0)
-                {
-                    ip = addresses[0].ToString();
-                    online = true;
-                }
-            }
         }
         private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
-                string ip = e.Arguments[0] as string;
-                string hostname = e.Arguments[1] as string;
-                bool online = (bool)e.Arguments[2];
-                bool changed = false;
+                if (!this.IsDisposed)
+                    try
+                    {
+                        string ip = e.Arguments[0] as string;
+                        string hostname = e.Arguments[1] as string;
+                        bool online = (bool)e.Arguments[2];
+                        bool changed = false;
 
-                if (_client.IP != ip || _client.HostName != hostname)
-                    changed = true;
+                        if (_client.IP != ip || _client.HostName != hostname)
+                            changed = true;
 
-                _client.IP = ip;
-                _client.HostName = hostname;
+                        _client.IP = ip;
+                        _client.HostName = hostname;
 
-                tmrRotateOnlineOffline.Stop();
-                if (online)
-                {
-                    picOnlineOffline.Image = imageList.Images[1];
-                    toolTip.SetToolTip(picOnlineOffline, "Online <f5>");
-                }
-                else
-                {
-                    picOnlineOffline.Image = imageList.Images[0];
-                    toolTip.SetToolTip(picOnlineOffline, "Offline <f5>");
-                }
+                        tmrRotateOnlineOffline.Stop();
+                        if (online)
+                        {
+                            picOnlineOffline.Image = imageList.Images[1];
+                            toolTip.SetToolTip(picOnlineOffline, "Online <f5>");
+                        }
+                        else
+                        {
+                            picOnlineOffline.Image = imageList.Images[0];
+                            toolTip.SetToolTip(picOnlineOffline, "Offline <f5>");
+                        }
 
-                if (changed)
-                    _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                        if (changed && !this.IsDisposed)
+                            _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 
-                if (HostNameAndIPSet != null)
-                    HostNameAndIPSet(this, null);
+                        if (HostNameAndIPSet != null)
+                            HostNameAndIPSet(this, null);
 
-                this.Enabled = true;
+                        EnableControls(true);
+                    }
+                    catch { }
             }, null);
         }
         private void tmrRotateOnlineOffline_Tick(object sender, EventArgs e)
@@ -291,6 +300,16 @@ namespace vApus.DistributedTesting
             //Rotate it to visualize it is refreshing
             _chosenImageIndex = _chosenImageIndex == 2 ? 3 : 2;
             picOnlineOffline.Image = imageList.Images[_chosenImageIndex];
+        }
+        /// <summary>
+        /// Enabling or disabling the controls on this.
+        /// This way the next item in the panel does not auto get the focus.
+        /// </summary>
+        /// <param name="enabled"></param>
+        private void EnableControls(bool enabled)
+        {
+            foreach (Control ctrl in this.Controls)
+                ctrl.Enabled = enabled;
         }
 
         private void _KeyDown(object sender, KeyEventArgs e)

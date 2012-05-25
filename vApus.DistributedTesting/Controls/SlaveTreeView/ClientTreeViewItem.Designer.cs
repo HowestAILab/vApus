@@ -135,6 +135,7 @@
             this.lblClient.Size = new System.Drawing.Size(88, 13);
             this.lblClient.TabIndex = 19;
             this.lblClient.Text = "Host Name or IP:";
+            this.lblClient.Click += new System.EventHandler(this._Enter);
             // 
             // imageList
             // 

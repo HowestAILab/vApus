@@ -189,6 +189,8 @@ namespace vApus.Util
         private void Set__ValueAt(int index, object value)
         {
             BaseValueControl valueControl = this.Controls[index] as BaseValueControl;
+            valueControl.Toggle(BaseValueControl.ToggleState.Collapse);
+
             //First check is a null check :).
             if (valueControl.__Value.__Value != null &&
                 value != null &&

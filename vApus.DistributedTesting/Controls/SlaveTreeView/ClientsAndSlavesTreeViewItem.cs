@@ -100,9 +100,15 @@ namespace vApus.DistributedTesting
             else if (e.KeyCode == Keys.F5)
                 SetHostNameAndIP();
         }
-        private void SetHostNameAndIP()
+        /// <summary>
+        /// Set the host name and the ip in the gui, check if the computer is online.
+        /// </summary>
+        public void SetHostNameAndIP()
         {
-            this.Enabled = false;
+            this.Select();
+
+            EnableControls(false);
+
             _refreshingClientCount = _childControls.Count;
             foreach (var ctvi in _childControls)
             {
@@ -112,7 +118,7 @@ namespace vApus.DistributedTesting
             }
 
             if (_refreshingClientCount <= 0)
-                this.Enabled = true;
+                EnableControls(true);
         }
 
         private void ctvi_HostNameAndIPSet(object sender, EventArgs e)
@@ -121,7 +127,20 @@ namespace vApus.DistributedTesting
             ctvi.HostNameAndIPSet -= ctvi_HostNameAndIPSet;
 
             if (--_refreshingClientCount <= 0)
-                this.Enabled = true;
+            {
+                EnableControls(true);
+                this.Select();
+            }
+        }
+        /// <summary>
+        /// Enabling or disabling the controls on this.
+        /// This way the next item in the panel does not auto get the focus.
+        /// </summary>
+        /// <param name="enabled"></param>
+        private void EnableControls(bool enabled)
+        {
+            foreach (Control ctrl in this.Controls)
+                ctrl.Enabled = enabled;
         }
         #endregion
 

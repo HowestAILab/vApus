@@ -55,9 +55,12 @@ namespace vApus.DistributedTesting
             foreach (Client client in distributedTest.ClientsAndSlaves)
                 CreateAndAddClientTreeViewItem(client);
 
-            //SetGui();
+            SetGui();
 
             castvi.Select();
+
+            castvi.SetHostNameAndIP();
+
             LockWindowUpdate(0);
         }
 

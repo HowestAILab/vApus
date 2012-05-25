@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting
@@ -92,6 +92,18 @@ namespace vApus.DistributedTesting
                 configureTileStresstest.ClearTileStresstest();
             }
         }
+        private void slaveTreeView_AfterSelect(object sender, EventArgs e)
+        {
+            if (sender is ClientTreeViewItem)
+            {
+                ClientTreeViewItem ctvi = sender as ClientTreeViewItem;
+                configureSlaves.SetClient(ctvi.Client);
+            }
+            else 
+            {
+                configureSlaves.ClearClient();
+            }
+        }
 
         private void tmrSetGui_Tick(object sender, EventArgs e)
         {
@@ -111,6 +123,18 @@ namespace vApus.DistributedTesting
             slaveTreeView.SetGui();
         }
 
-
+        private void tpTree_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tpTree.SelectedIndex == 0)
+            {
+                configureTileStresstest.Visible = true;
+                configureSlaves.Visible = false;
+            }
+            else
+            {
+                configureTileStresstest.Visible = false;
+                configureSlaves.Visible = true;
+            }
+        }
     }
 }

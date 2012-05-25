@@ -179,10 +179,22 @@
     <Compile Include="Communication\EnumsAndStructs.cs" />
     <Compile Include="Communication\Master\TorrentClient.cs" />
     <Compile Include="Communication\Slave\TorrentServer.cs" />
-    <Compile Include="Controls\ConfigureTileStresstest.cs">
+    <Compile Include="Controls\SlaveTreeView\ConfigureSlaves.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\ConfigureTileStresstest.Designer.cs">
+    <Compile Include="Controls\SlaveTreeView\ConfigureSlaves.Designer.cs">
+      <DependentUpon>ConfigureSlaves.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveTile.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveTile.Designer.cs">
+      <DependentUpon>SlaveTile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\ConfigureTileStresstest.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\ConfigureTileStresstest.Designer.cs">
       <DependentUpon>ConfigureTileStresstest.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\DistributedStresstestControl.cs">
@@ -334,7 +346,13 @@
     <EmbeddedResource Include="Communication\SocketListenerManagerPanel.resx">
       <DependentUpon>SocketListenerManagerPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ConfigureTileStresstest.resx">
+    <EmbeddedResource Include="Controls\SlaveTreeView\ConfigureSlaves.resx">
+      <DependentUpon>ConfigureSlaves.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveTile.resx">
+      <DependentUpon>SlaveTile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\ConfigureTileStresstest.resx">
       <DependentUpon>ConfigureTileStresstest.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\DistributedStresstestControl.resx">
