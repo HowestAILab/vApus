@@ -98,13 +98,22 @@ namespace vApus.DistributedTesting
             {
                 ClientTreeViewItem ctvi = sender as ClientTreeViewItem;
                 configureSlaves.SetClient(ctvi.Client);
+                configureSlaves.SetClientStatus(ctvi.Online);
             }
-            else 
+            else
             {
                 configureSlaves.ClearClient();
             }
         }
-
+        private void slaveTreeView_ClientHostNameAndIPSet(object sender, EventArgs e)
+        {
+            if (sender is ClientTreeViewItem)
+            {
+                ClientTreeViewItem ctvi = sender as ClientTreeViewItem;
+                if (configureSlaves.Client == ctvi.Client)
+                    configureSlaves.SetClientStatus(ctvi.Online);
+            }
+        }
         private void tmrSetGui_Tick(object sender, EventArgs e)
         {
             SetGui();

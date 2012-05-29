@@ -34,14 +34,16 @@
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.chk = new System.Windows.Forms.CheckBox();
-            this.picOnlineOffline = new System.Windows.Forms.PictureBox();
+            this.picStatus = new System.Windows.Forms.PictureBox();
+            this.picAddSlave = new System.Windows.Forms.PictureBox();
             this.txtClient = new System.Windows.Forms.TextBox();
             this.lblClient = new System.Windows.Forms.Label();
-            this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.tmrRotateOnlineOffline = new System.Windows.Forms.Timer(this.components);
+            this.imageListStatus = new System.Windows.Forms.ImageList(this.components);
+            this.tmrRotateStatus = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picOnlineOffline)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStatus)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picAddSlave)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -56,7 +58,7 @@
             this.picDuplicate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDuplicate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDuplicate.Image = ((System.Drawing.Image)(resources.GetObject("picDuplicate.Image")));
-            this.picDuplicate.Location = new System.Drawing.Point(535, 6);
+            this.picDuplicate.Location = new System.Drawing.Point(528, 6);
             this.picDuplicate.Name = "picDuplicate";
             this.picDuplicate.Size = new System.Drawing.Size(16, 16);
             this.picDuplicate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -71,7 +73,7 @@
             this.picDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDelete.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDelete.Image = ((System.Drawing.Image)(resources.GetObject("picDelete.Image")));
-            this.picDelete.Location = new System.Drawing.Point(557, 6);
+            this.picDelete.Location = new System.Drawing.Point(550, 6);
             this.picDelete.Name = "picDelete";
             this.picDelete.Size = new System.Drawing.Size(16, 16);
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -98,19 +100,34 @@
             this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.chk.MouseEnter += new System.EventHandler(this._MouseEnter);
             // 
-            // picOnlineOffline
+            // picStatus
             // 
-            this.picOnlineOffline.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picOnlineOffline.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picOnlineOffline.Image = ((System.Drawing.Image)(resources.GetObject("picOnlineOffline.Image")));
-            this.picOnlineOffline.Location = new System.Drawing.Point(579, 6);
-            this.picOnlineOffline.Name = "picOnlineOffline";
-            this.picOnlineOffline.Size = new System.Drawing.Size(16, 16);
-            this.picOnlineOffline.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.picOnlineOffline.TabIndex = 20;
-            this.picOnlineOffline.TabStop = false;
-            this.toolTip.SetToolTip(this.picOnlineOffline, "Offline <f5>");
-            this.picOnlineOffline.Click += new System.EventHandler(this.picOnlineOffline_Click);
+            this.picStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picStatus.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picStatus.Image = ((System.Drawing.Image)(resources.GetObject("picStatus.Image")));
+            this.picStatus.Location = new System.Drawing.Point(578, 6);
+            this.picStatus.Name = "picStatus";
+            this.picStatus.Size = new System.Drawing.Size(16, 16);
+            this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.picStatus.TabIndex = 20;
+            this.picStatus.TabStop = false;
+            this.toolTip.SetToolTip(this.picStatus, "Offline <f5>");
+            this.picStatus.Click += new System.EventHandler(this.picStatus_Click);
+            // 
+            // picAddSlave
+            // 
+            this.picAddSlave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picAddSlave.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picAddSlave.Image = ((System.Drawing.Image)(resources.GetObject("picAddSlave.Image")));
+            this.picAddSlave.Location = new System.Drawing.Point(506, 6);
+            this.picAddSlave.Name = "picAddSlave";
+            this.picAddSlave.Size = new System.Drawing.Size(16, 16);
+            this.picAddSlave.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picAddSlave.TabIndex = 21;
+            this.picAddSlave.TabStop = false;
+            this.toolTip.SetToolTip(this.picAddSlave, "Add Slave<ctrl+i>");
+            this.picAddSlave.Visible = false;
+            this.picAddSlave.Click += new System.EventHandler(this.picAddSlave_Click);
             // 
             // txtClient
             // 
@@ -119,7 +136,7 @@
             this.txtClient.Location = new System.Drawing.Point(117, 3);
             this.txtClient.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.txtClient.Name = "txtClient";
-            this.txtClient.Size = new System.Drawing.Size(412, 20);
+            this.txtClient.Size = new System.Drawing.Size(383, 20);
             this.txtClient.TabIndex = 0;
             this.txtClient.Visible = false;
             this.txtClient.Enter += new System.EventHandler(this._Enter);
@@ -137,25 +154,30 @@
             this.lblClient.Text = "Host Name or IP:";
             this.lblClient.Click += new System.EventHandler(this._Enter);
             // 
-            // imageList
+            // imageListStatus
             // 
-            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
-            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList.Images.SetKeyName(0, "Warning.png");
-            this.imageList.Images.SetKeyName(1, "ok.png");
-            this.imageList.Images.SetKeyName(2, "wait.png");
-            this.imageList.Images.SetKeyName(3, "wait_2.png");
+            this.imageListStatus.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListStatus.ImageStream")));
+            this.imageListStatus.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageListStatus.Images.SetKeyName(0, "Warning.png");
+            this.imageListStatus.Images.SetKeyName(1, "ok.png");
+            this.imageListStatus.Images.SetKeyName(2, "wait.png");
+            this.imageListStatus.Images.SetKeyName(3, "wait_2.png");
+            this.imageListStatus.Images.SetKeyName(4, "Busy.png");
+            this.imageListStatus.Images.SetKeyName(5, "Busy2.png");
+            this.imageListStatus.Images.SetKeyName(6, "Cancelled.png");
+            this.imageListStatus.Images.SetKeyName(7, "Error.png");
             // 
-            // tmrRotateOnlineOffline
+            // tmrRotateStatus
             // 
-            this.tmrRotateOnlineOffline.Interval = 500;
-            this.tmrRotateOnlineOffline.Tick += new System.EventHandler(this.tmrRotateOnlineOffline_Tick);
+            this.tmrRotateStatus.Interval = 500;
+            this.tmrRotateStatus.Tick += new System.EventHandler(this.tmrRotateOnlineOffline_Tick);
             // 
             // ClientTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.picOnlineOffline);
+            this.Controls.Add(this.picAddSlave);
+            this.Controls.Add(this.picStatus);
             this.Controls.Add(this.txtClient);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.chk);
@@ -169,7 +191,8 @@
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picOnlineOffline)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStatus)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picAddSlave)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -183,8 +206,9 @@
         private System.Windows.Forms.TextBox txtClient;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblClient;
-        private System.Windows.Forms.PictureBox picOnlineOffline;
-        private System.Windows.Forms.ImageList imageList;
-        private System.Windows.Forms.Timer tmrRotateOnlineOffline;
+        private System.Windows.Forms.PictureBox picStatus;
+        private System.Windows.Forms.ImageList imageListStatus;
+        private System.Windows.Forms.Timer tmrRotateStatus;
+        private System.Windows.Forms.PictureBox picAddSlave;
     }
 }

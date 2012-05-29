@@ -22,6 +22,7 @@ namespace vApus.DistributedTesting
         /// The selected item is the sender
         /// </summary>
         public event EventHandler AfterSelect;
+        public event EventHandler ClientHostNameAndIPSet;
 
         #region Fields
         private DistributedTestMode _distributedTestMode;
@@ -76,24 +77,92 @@ namespace vApus.DistributedTesting
 
             castvi.ClientsAndSlaves.Add(client);
             castvi.ClientsAndSlaves.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
-        
+
             LockWindowUpdate(0);
         }
 
-        private ClientTreeViewItem CreateAndAddClientTreeViewItem(Client client)
+        private void CreateAndAddClientTreeViewItem(Client client)
         {
             var cvi = new ClientTreeViewItem(client);
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += new EventHandler(_AfterSelect);
-            //cvi.DuplicateClicked += new EventHandler(cvi_DuplicateClicked);
+            cvi.AddSlaveClicked += new EventHandler(cvi_AddSlaveClicked);
+            cvi.DuplicateClicked += new EventHandler(cvi_DuplicateClicked);
             cvi.DeleteClicked += new EventHandler(cvi_DeleteClicked);
+            cvi.HostNameAndIPSet += new EventHandler(cvi_HostNameAndIPSet);
 
             (largeList[0][0] as ClientsAndSlavesTreeViewItem).ChildControls.Add(cvi);
 
             largeList.Add(cvi);
+        }
 
-            return cvi;
+        private void CreateAndInsertClientTreeViewItem(Client client, KeyValuePair<int, int> index)
+        {
+            var cvi = new ClientTreeViewItem(client);
+            //Used for handling collapsing and expanding.
+            cvi.SetParent(largeList);
+            cvi.AfterSelect += new EventHandler(_AfterSelect);
+            cvi.AddSlaveClicked += new EventHandler(cvi_AddSlaveClicked);
+            cvi.DuplicateClicked += new EventHandler(cvi_DuplicateClicked);
+            cvi.DeleteClicked += new EventHandler(cvi_DeleteClicked);
+            cvi.HostNameAndIPSet += new EventHandler(cvi_HostNameAndIPSet);
+
+            (largeList[0][0] as ClientsAndSlavesTreeViewItem).ChildControls.Add(cvi);
+
+            largeList.Insert(cvi, index);
+
+            cvi.Select();
+
+            cvi.SetHostNameAndIP();
+        }
+        private void cvi_AddSlaveClicked(object sender, EventArgs e)
+        {
+            LockWindowUpdate(this.Handle.ToInt32());
+
+            ClientTreeViewItem cvi = sender as ClientTreeViewItem;
+
+            Slave slave = new Slave();
+            //Choose another port so every new slave has a unique port.
+            for (int port = slave.Port; port != int.MaxValue; port++)
+            {
+                bool portPresent = false;
+                foreach (Slave sl in cvi.Client)
+                    if (sl.Port == port)
+                    {
+                        portPresent = true;
+                        break;
+                    }
+
+                if (!portPresent)
+                {
+                    slave.Port = port;
+                    break;
+                }
+            }
+            cvi.Client.Add(slave);
+            cvi.Client.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
+
+            LockWindowUpdate(0);
+        }
+        private void cvi_DuplicateClicked(object sender, EventArgs e)
+        {
+            LockWindowUpdate(this.Handle.ToInt32());
+
+            ClientTreeViewItem cvi = sender as ClientTreeViewItem;
+            if (cvi.Client.Parent != null)
+            {
+                var clone = cvi.Client.Clone();
+
+                var parent = cvi.Client.Parent as ClientsAndSlaves;
+                parent.InsertWithoutInvokingEvent(parent.IndexOf(cvi.Client), clone);
+
+                CreateAndInsertClientTreeViewItem(clone, largeList.IndexOf(cvi));
+
+                parent.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
+            }
+
+            LockWindowUpdate(0);
         }
         private void cvi_DeleteClicked(object sender, EventArgs e)
         {
@@ -144,7 +213,11 @@ namespace vApus.DistributedTesting
 
             LockWindowUpdate(0);
         }
-
+        private void cvi_HostNameAndIPSet(object sender, EventArgs e)
+        {
+            if (ClientHostNameAndIPSet != null)
+                ClientHostNameAndIPSet(sender, e);
+        }
         public void SetGui()
         {
             foreach (ITreeViewItem ctrl in largeList.AllControls)

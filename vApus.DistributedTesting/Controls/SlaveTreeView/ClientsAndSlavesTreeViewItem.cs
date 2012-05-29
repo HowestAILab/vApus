@@ -59,6 +59,11 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Functions
+        private void ClientsAndSlavesTreeViewItem_Click(object sender, EventArgs e)
+        {
+            this.Select();
+            _Enter(sender, e);
+        }
         private void _Enter(object sender, EventArgs e)
         {
             if (AfterSelect != null)
@@ -124,7 +129,7 @@ namespace vApus.DistributedTesting
         private void ctvi_HostNameAndIPSet(object sender, EventArgs e)
         {
             var ctvi = sender as ClientTreeViewItem;
-            ctvi.HostNameAndIPSet -= ctvi_HostNameAndIPSet;
+            ctvi.HostNameAndIPSet -= ctvi_HostNameAndIPSet;          
 
             if (--_refreshingClientCount <= 0)
             {
@@ -153,5 +158,6 @@ namespace vApus.DistributedTesting
         {
             get { throw new NotImplementedException(); }
         }
+
     }
 }

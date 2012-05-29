@@ -117,6 +117,9 @@ namespace vApus.DistributedTesting
 
         public void SetVisibleControls()
         {
+            if (this.IsDisposed)
+                return;
+
             if (this.BackColor == SystemColors.Control)
                 SetVisibleControls(true);
             else

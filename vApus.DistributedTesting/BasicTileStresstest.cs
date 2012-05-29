@@ -224,7 +224,7 @@ namespace vApus.DistributedTesting
             else //Cleanup slaves
             {
                 ClientsAndSlaves slavesParent = SlavesParent;
-                if (sender == slavesParent || sender is Slave)
+                if (slavesParent != null && (sender == slavesParent || sender is Slave))
                 {
                     List<Slave> l = new List<Slave>(slavesParent.Count);
                     foreach (Slave slave in _slaves)

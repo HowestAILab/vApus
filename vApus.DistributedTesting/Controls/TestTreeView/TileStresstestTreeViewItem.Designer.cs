@@ -130,7 +130,7 @@
             this.eventProgressBar.Margin = new System.Windows.Forms.Padding(0);
             this.eventProgressBar.Name = "eventProgressBar";
             this.eventProgressBar.ProgressBarColor = System.Drawing.Color.SteelBlue;
-            this.eventProgressBar.Size = new System.Drawing.Size(551, 6);
+            this.eventProgressBar.Size = new System.Drawing.Size(576, 6);
             this.eventProgressBar.TabIndex = 21;
             this.eventProgressBar.Visible = false;
             // 

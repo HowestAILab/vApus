@@ -23,6 +23,7 @@ namespace vApus.DistributedTesting
         /// Call unfocus for the other items in the panel.
         /// </summary>
         public event EventHandler AfterSelect;
+        public event EventHandler AddSlaveClicked;
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
         public event EventHandler HostNameAndIPSet;
@@ -43,12 +44,18 @@ namespace vApus.DistributedTesting
         private SetHostNameAndIPDel _SetHostNameAndIPDel;
 
         private int _chosenImageIndex = 2;
+
+        private bool _online = false;
         #endregion
 
         #region Properties
         public Client Client
         {
             get { return _client; }
+        }
+        public bool Online
+        {
+            get { return _online; }
         }
         private int UsedSlaveCount
         {
@@ -84,7 +91,6 @@ namespace vApus.DistributedTesting
             lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
 
             txtClient.Text = (_client.IP == string.Empty) ? _client.HostName : _client.IP;
-
 
             //To check if the use has changed of the child controls.
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
@@ -132,6 +138,7 @@ namespace vApus.DistributedTesting
         private void txtClient_Leave(object sender, EventArgs e)
         {
             SetHostNameAndIP();
+            txtClient.Text = (_client.IP == string.Empty) ? _client.HostName : _client.IP;
             SetVisibleControls();
         }
         private void _MouseEnter(object sender, EventArgs e)
@@ -144,11 +151,14 @@ namespace vApus.DistributedTesting
         }
         public void SetVisibleControls(bool visible)
         {
-            txtClient.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+            txtClient.Visible = picAddSlave.Visible = picDuplicate.Visible = picDelete.Visible = visible;
             lblClient.Text = visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
         }
         public void SetVisibleControls()
         {
+            if (this.IsDisposed)
+                return;
+
             if (this.BackColor == SystemColors.Control)
                 SetVisibleControls(true);
             else
@@ -175,12 +185,14 @@ namespace vApus.DistributedTesting
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
             else if (_ctrl)
-                if (e.KeyCode == Keys.R && DeleteClicked != null)
-                    DeleteClicked(this, null);
-                else if (e.KeyCode == Keys.D && DuplicateClicked != null)
-                    DuplicateClicked(this, null);
-                else if (e.KeyCode == Keys.U)
-                    chk.Checked = !chk.Checked;
+                if (e.KeyCode == Keys.I && AddSlaveClicked != null)
+                    AddSlaveClicked(this, null);
+            if (e.KeyCode == Keys.R && DeleteClicked != null)
+                DeleteClicked(this, null);
+            else if (e.KeyCode == Keys.D && DuplicateClicked != null)
+                DuplicateClicked(this, null);
+            else if (e.KeyCode == Keys.U)
+                chk.Checked = !chk.Checked;
             if (e.KeyCode == Keys.F5)
                 SetHostNameAndIP();
         }
@@ -198,9 +210,9 @@ namespace vApus.DistributedTesting
 
             //Reset this.
             _chosenImageIndex = 2;
-            tmrRotateOnlineOffline.Start();
+            tmrRotateStatus.Start();
 
-            picOnlineOffline.Image = imageList.Images[2];
+            picStatus.Image = imageListStatus.Images[_chosenImageIndex];
 
             txtClient.Text = txtClient.Text.Trim().ToLower();
 
@@ -272,16 +284,18 @@ namespace vApus.DistributedTesting
                         _client.IP = ip;
                         _client.HostName = hostname;
 
-                        tmrRotateOnlineOffline.Stop();
+                        tmrRotateStatus.Stop();
                         if (online)
                         {
-                            picOnlineOffline.Image = imageList.Images[1];
-                            toolTip.SetToolTip(picOnlineOffline, "Online <f5>");
+                            _online = true;
+                            picStatus.Image = imageListStatus.Images[1];
+                            toolTip.SetToolTip(picStatus, "Online <f5>");
                         }
                         else
                         {
-                            picOnlineOffline.Image = imageList.Images[0];
-                            toolTip.SetToolTip(picOnlineOffline, "Offline <f5>");
+                            _online = false;
+                            picStatus.Image = imageListStatus.Images[0];
+                            toolTip.SetToolTip(picStatus, "Offline <f5>");
                         }
 
                         if (changed && !this.IsDisposed)
@@ -299,7 +313,7 @@ namespace vApus.DistributedTesting
         {
             //Rotate it to visualize it is refreshing
             _chosenImageIndex = _chosenImageIndex == 2 ? 3 : 2;
-            picOnlineOffline.Image = imageList.Images[_chosenImageIndex];
+            picStatus.Image = imageListStatus.Images[_chosenImageIndex];
         }
         /// <summary>
         /// Enabling or disabling the controls on this.
@@ -317,6 +331,12 @@ namespace vApus.DistributedTesting
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
         }
+        private void picAddSlave_Click(object sender, EventArgs e)
+        {
+            this.Focus();
+            if (AddSlaveClicked != null)
+                AddSlaveClicked(this, null);
+        }
         private void picDuplicate_Click(object sender, EventArgs e)
         {
             if (DuplicateClicked != null)
@@ -327,7 +347,7 @@ namespace vApus.DistributedTesting
             if (DeleteClicked != null)
                 DeleteClicked(this, null);
         }
-        private void picOnlineOffline_Click(object sender, EventArgs e)
+        private void picStatus_Click(object sender, EventArgs e)
         {
             SetHostNameAndIP();
         }

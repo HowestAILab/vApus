@@ -105,7 +105,7 @@
             this.label1.Text = "Clients and Slaves";
             this.label1.Click += new System.EventHandler(this._Enter);
             // 
-            // SlaveCollectionTreeViewItem
+            // ClientsAndSlavesTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -115,8 +115,9 @@
             this.Controls.Add(this.picAddClient);
             this.Controls.Add(this.lblRunSync);
             this.Margin = new System.Windows.Forms.Padding(0);
-            this.Name = "SlaveCollectionTreeViewItem";
+            this.Name = "ClientsAndSlavesTreeViewItem";
             this.Size = new System.Drawing.Size(532, 35);
+            this.Click += new System.EventHandler(this.ClientsAndSlavesTreeViewItem_Click);
             this.Enter += new System.EventHandler(this._Enter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
