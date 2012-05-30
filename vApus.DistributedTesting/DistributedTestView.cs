@@ -145,5 +145,11 @@ namespace vApus.DistributedTesting
                 configureSlaves.Visible = true;
             }
         }
+
+        public override void Refresh()
+        {
+            base.Refresh();
+            configureTileStresstest.Refresh();
+        }
     }
 }

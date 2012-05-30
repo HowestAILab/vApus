@@ -670,7 +670,7 @@ namespace vApus.Stresstest
         private void ApplyChanges()
         {
             this.Cursor = Cursors.WaitCursor;
-            _log.ClearWithoutInvokingEvent();
+            _log.ClearWithoutInvokingEvent(false);
             for (int i = 0; i < largelist.ViewCount; i++)
                 for (int j = 0; j < largelist[i].Count; j++)
                 {
@@ -679,10 +679,10 @@ namespace vApus.Stresstest
 
                     if (control.IndentationLevel == 0)
                     {
-                        _log.AddWithoutInvokingEvent(control.LogChild);
+                        _log.AddWithoutInvokingEvent(control.LogChild, false);
                         if (control is UserActionControl)
                             foreach (LogEntryControl logEntryControl in (control as UserActionControl).LogEntryControls)
-                                control.LogChild.AddWithoutInvokingEvent(logEntryControl.LogChild);
+                                control.LogChild.AddWithoutInvokingEvent(logEntryControl.LogChild, false);
                     }
                 }
             ApplyLogRuleSet(_log);

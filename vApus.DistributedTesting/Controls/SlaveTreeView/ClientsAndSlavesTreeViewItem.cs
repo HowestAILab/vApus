@@ -134,6 +134,12 @@ namespace vApus.DistributedTesting
             if (--_refreshingClientCount <= 0)
             {
                 EnableControls(true);
+
+                //Only select this if non is focused.
+                foreach (var control in _childControls)
+                    if (control.Focused)
+                        return;
+
                 this.Select();
             }
         }

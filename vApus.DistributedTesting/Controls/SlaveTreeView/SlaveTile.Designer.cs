@@ -111,7 +111,7 @@
             // llblPA
             // 
             this.llblPA.AutoSize = true;
-            this.llblPA.Location = new System.Drawing.Point(96, 35);
+            this.llblPA.Location = new System.Drawing.Point(95, 36);
             this.llblPA.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.llblPA.Name = "llblPA";
             this.llblPA.Size = new System.Drawing.Size(16, 13);
@@ -123,7 +123,7 @@
             // llblTest
             // 
             this.llblTest.AutoSize = true;
-            this.llblTest.Location = new System.Drawing.Point(96, 62);
+            this.llblTest.Location = new System.Drawing.Point(95, 62);
             this.llblTest.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.llblTest.Name = "llblTest";
             this.llblTest.Size = new System.Drawing.Size(16, 13);
@@ -135,7 +135,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 35);
+            this.label2.Location = new System.Drawing.Point(3, 36);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(91, 13);
@@ -164,7 +164,7 @@
             this.picDuplicate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDuplicate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDuplicate.Image = ((System.Drawing.Image)(resources.GetObject("picDuplicate.Image")));
-            this.picDuplicate.Location = new System.Drawing.Point(285, 7);
+            this.picDuplicate.Location = new System.Drawing.Point(283, 7);
             this.picDuplicate.Name = "picDuplicate";
             this.picDuplicate.Size = new System.Drawing.Size(16, 16);
             this.picDuplicate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -178,7 +178,7 @@
             this.picDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDelete.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDelete.Image = ((System.Drawing.Image)(resources.GetObject("picDelete.Image")));
-            this.picDelete.Location = new System.Drawing.Point(307, 7);
+            this.picDelete.Location = new System.Drawing.Point(305, 7);
             this.picDelete.Name = "picDelete";
             this.picDelete.Size = new System.Drawing.Size(16, 16);
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -191,14 +191,11 @@
             // 
             this.imageListStatus.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListStatus.ImageStream")));
             this.imageListStatus.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageListStatus.Images.SetKeyName(0, "Warning.png");
+            this.imageListStatus.Images.SetKeyName(0, "Cancelled.png");
             this.imageListStatus.Images.SetKeyName(1, "ok.png");
-            this.imageListStatus.Images.SetKeyName(2, "wait.png");
-            this.imageListStatus.Images.SetKeyName(3, "wait_2.png");
-            this.imageListStatus.Images.SetKeyName(4, "Busy.png");
-            this.imageListStatus.Images.SetKeyName(5, "Busy2.png");
-            this.imageListStatus.Images.SetKeyName(6, "Cancelled.png");
-            this.imageListStatus.Images.SetKeyName(7, "Error.png");
+            this.imageListStatus.Images.SetKeyName(2, "Busy.png");
+            this.imageListStatus.Images.SetKeyName(3, "Busy2.png");
+            this.imageListStatus.Images.SetKeyName(4, "Error.png");
             // 
             // tmrRotateStatus
             // 

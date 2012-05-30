@@ -283,9 +283,9 @@ namespace vApus.Stresstest
 
             foreach (BaseItem item in this)
                 if (item is UserAction)
-                    log.AddWithoutInvokingEvent((item as UserAction).Clone());
+                    log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
                 else
-                    log.AddWithoutInvokingEvent((item as LogEntry).Clone());
+                    log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
 
             return log;
 

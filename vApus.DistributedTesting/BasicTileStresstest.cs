@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -11,11 +18,14 @@ namespace vApus.DistributedTesting
     public class BasicTileStresstest : BaseItem
     {
         #region Fields
+        private Stresstest.Stresstest _defaultSettingsTo;
+
         private Connection _connection;
         private Monitor.MonitorProject _monitorProject;
         private int[] _monitorIndices = { };
         private Monitor.Monitor[] _monitors = { };
 
+        private List<Slave> _slavesParent = new List<Slave>();
         private int[] _slaveIndices = { };
         private Slave[] _slaves = { };
         private int[] _WorkDistribution = { };
@@ -61,7 +71,14 @@ namespace vApus.DistributedTesting
                     throw new ArgumentNullException("Can be empty but not null.");
 
                 _monitorIndices = value;
-                if (_monitorProject != null)
+            }
+        }
+        [PropertyControl(1)]
+        public Monitor.Monitor[] Monitors
+        {
+            get
+            {
+                if (_monitors.Length != _monitorIndices.Length && _monitorProject != null)
                 {
                     List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorIndices.Length);
                     foreach (int index in _monitorIndices)
@@ -73,14 +90,11 @@ namespace vApus.DistributedTesting
                         }
 
                     _monitors = l.ToArray();
-                    _monitors.SetParent(_monitorProject);
                 }
+                _monitors.SetParent(_monitorProject);
+
+                return _monitors;
             }
-        }
-        [PropertyControl(1)]
-        public Monitor.Monitor[] Monitors
-        {
-            get { return _monitors; }
             set
             {
                 if (value == null)
@@ -112,22 +126,6 @@ namespace vApus.DistributedTesting
                     throw new ArgumentNullException("Can be empty but not null.");
 
                 _slaveIndices = value;
-
-                ClientsAndSlaves slavesParent = SlavesParent;
-                if (slavesParent != null)
-                {
-                    List<Slave> l = new List<Slave>(_slaveIndices.Length);
-                    foreach (int index in _slaveIndices)
-                        if (index < slavesParent.Count)
-                        {
-                            var slave = SlavesParent[index] as Slave;
-                            if (!l.Contains(slave))
-                                l.Add(slave);
-                        }
-
-                    _slaves = l.ToArray();
-                    _slaves.SetParent(slavesParent);
-                }
             }
         }
         [PropertyControl(2)]
@@ -136,7 +134,21 @@ namespace vApus.DistributedTesting
             get
             {
 
-                _slaves.SetParent(SlavesParent);
+                var slavesParent = SlavesParent;
+                if (_slaves.Length != _slaveIndices.Length && slavesParent != null)
+                {
+                    List<Slave> l = new List<Slave>(_slaveIndices.Length);
+                    foreach (int index in _slaveIndices)
+                        if (index < slavesParent.Count)
+                        {
+                            var slave = slavesParent[index] as Slave;
+                            if (!l.Contains(slave))
+                                l.Add(slave);
+                        }
+
+                    Slaves = l.ToArray();
+                }
+                _slaves.SetParent(slavesParent);
                 return _slaves;
             }
             set
@@ -146,7 +158,7 @@ namespace vApus.DistributedTesting
 
                 _slaves = value;
 
-                ClientsAndSlaves slavesParent = SlavesParent;
+                var slavesParent = SlavesParent;
                 if (slavesParent != null)
                 {
                     _slaves.SetParent(slavesParent);
@@ -160,7 +172,7 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        private ClientsAndSlaves SlavesParent
+        private List<Slave> SlavesParent
         {
             get
             {
@@ -170,7 +182,16 @@ namespace vApus.DistributedTesting
                         this.Parent.GetParent() != null &&
                         this.Parent.GetParent().GetParent() != null &&
                         this.Parent.GetParent().GetParent().GetParent() != null)
-                        return (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).ClientsAndSlaves;
+                    {
+                        _slavesParent.Clear();
+                        ClientsAndSlaves clientsAndSlaves = (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).ClientsAndSlaves;
+
+                        foreach (Client client in clientsAndSlaves)
+                            foreach (Slave slave in client)
+                                _slavesParent.Add(slave);
+
+                        return _slavesParent;
+                    }
                 }
                 catch { }
                 return null;
@@ -200,8 +221,8 @@ namespace vApus.DistributedTesting
             Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
             _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
 
-            Monitors = new Monitor.Monitor[0];
-            Slaves = new Slave[0];
+            _monitors = new Monitor.Monitor[0];
+            _slaves = new Slave[0];
 
             SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponentChanged_SolutionComponentChanged);
         }
@@ -220,11 +241,16 @@ namespace vApus.DistributedTesting
                         l.Add(monitor);
 
                 Monitors = l.ToArray();
+                this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }
+            else if (sender != null && sender == this.Parent)
+            {
+                DefaultTo((sender as TileStresstest).DefaultSettingsTo);
             }
             else //Cleanup slaves
             {
-                ClientsAndSlaves slavesParent = SlavesParent;
-                if (slavesParent != null && (sender == slavesParent || sender is Slave))
+                var slavesParent = SlavesParent;
+                if (slavesParent != null && (sender == slavesParent || sender is Client || sender is Slave))
                 {
                     List<Slave> l = new List<Slave>(slavesParent.Count);
                     foreach (Slave slave in _slaves)
@@ -232,8 +258,19 @@ namespace vApus.DistributedTesting
                             l.Add(slave);
 
                     Slaves = l.ToArray();
+                    this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
             }
+        }
+        private void DefaultTo(Stresstest.Stresstest stresstest)
+        {
+            _defaultSettingsTo = stresstest;
+            if (_defaultSettingsTo.Connection != null)
+                Connection = _defaultSettingsTo.Connection;
+            Monitors = _defaultSettingsTo.Monitors;
+
+            if (Solution.ActiveSolution != null)
+                this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
         /// <summary>

@@ -67,7 +67,8 @@
             this.picSort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picSort.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picSort.Image = ((System.Drawing.Image)(resources.GetObject("picSort.Image")));
-            this.picSort.Location = new System.Drawing.Point(673, 3);
+            this.picSort.Location = new System.Drawing.Point(676, 3);
+            this.picSort.Margin = new System.Windows.Forms.Padding(0);
             this.picSort.Name = "picSort";
             this.picSort.Size = new System.Drawing.Size(16, 16);
             this.picSort.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;

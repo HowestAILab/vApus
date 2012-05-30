@@ -84,7 +84,7 @@ namespace vApus.DistributedTesting
                     nudPort.ValueChanged -= nudPort_ValueChanged;
                     nudPort.Value = _slave.Port;
                     nudPort.ValueChanged += nudPort_ValueChanged;
-                  
+
                     return;
                 }
 
@@ -100,26 +100,28 @@ namespace vApus.DistributedTesting
         {
             FromTextDialog ftd = new FromTextDialog();
             ftd.Text = "The one-based indices of the CPU cores, each on a new line.";
+            ftd.SetText(_slave.ProcessorAffinity.Combine("\n"));
 
             if (ftd.ShowDialog() == DialogResult.OK)
             {
                 string paToString = ftd.Entries.Combine(", ");
                 if (llblPA.Text != paToString)
-                { 
+                {
                     int[] pa = new int[ftd.Entries.Length];
-                    for (int i = 0; i != pa.Length; i++)
-                    {
-                        int index;
-                        if (!int.TryParse(ftd.Entries[i], out index))
-                            return;
+                    if (paToString.Length != 0)
+                        for (int i = 0; i != pa.Length; i++)
+                        {
+                            int index;
+                            if (!int.TryParse(ftd.Entries[i], out index))
+                                return;
 
-                        if (index == 0)
-                            return;
+                            if (index == 0)
+                                return;
 
-                        pa[i] = index;
-                    }
+                            pa[i] = index;
+                        }
 
-                    llblPA.Text = paToString;
+                    llblPA.Text = paToString.Length == 0 ? "..." : paToString;
 
                     _slave.ProcessorAffinity = pa;
                     _slave.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);

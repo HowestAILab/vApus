@@ -699,10 +699,10 @@
     <None Include="Resources\Error.png" />
     <None Include="Resources\CustomRandomParameter.png" />
     <None Include="Resources\CustomRandomParameters.png" />
-    <None Include="Resources\NotParallel.png" />
-    <None Include="Resources\Parallel.png" />
     <None Include="Resources\RedetermineTokens.png" />
     <None Include="Resources\RedetermineTokens1.png" />
+    <None Include="Resources\notparallel.png" />
+    <None Include="Resources\Parallel.png" />
     <Content Include="Resources\UserAction.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

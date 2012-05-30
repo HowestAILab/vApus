@@ -80,5 +80,13 @@ namespace vApus.DistributedTesting
         {
             solutionComponentPropertyPanelAdvanced.Visible = !solutionComponentPropertyPanelAdvanced.Visible;
         }
+
+        public override void Refresh()
+        {
+            base.Refresh();
+            solutionComponentPropertyPanelDefaultTo.Refresh();
+            solutionComponentPropertyPanelBasic.Refresh();
+            solutionComponentPropertyPanelAdvanced.Refresh();
+        }
     }
 }

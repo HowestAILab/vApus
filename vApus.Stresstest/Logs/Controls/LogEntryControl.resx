@@ -118,21 +118,21 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>25, 19</value>
+    <value>32, 19</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="picParallel.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAACwwAAAsMAT9AIsgAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfbBhwNEw02JPW3
-        AAAAHWlUWHRDb21tZW50AAAAAABDcmVhdGVkIHdpdGggR0lNUGQuZQcAAAGQSURBVDhPnVMxS0JRFL5l
-        IAT9AKdcGh5NKTQFtfjCH+FokxDhUGFDQUPPFkskqMUksmjR51pEQwgtCQ1tgVkEGS21ZZ78zuPc3jOT
-        aDi8d+893/ed79xzVeY1o9xh3VsqthsjI2KQUor8I37+xx7OuvM9G0gCqF8gx02iCcykqYHprTCdVU26
-        rEU5TquztLYzo8+RKyRMIMpjoQC9HSmisjfaJWd9vq4oND7MRFKJgi8pOX+boJY9yMmfHZAA5dttjbGi
-        Hi/GqVhf0AQAFRpLKJVyTUuXD2I75fSJsdJtq2H1IFhkAlH+sH3U7lQHm9hjLK4JCyS6K4CN/GNKg/cf
-        ltkSKsCZXHFfAlG+vppiZWluqzTwTfCbBQFDVQIE+D+pOfPC2F5N1J7LPoJvJ4bo7sKgvadVQsN1E7uv
-        UcBQO6wnKdtMU/Zlk3uEQLMlh7GeQQoH+FC8FhrOLbjBwcmgd5BkJN2jXFlR9H6MOXAIoCplQ+DHKAtJ
-        Yjv6/8cEktzzhjq4maP5TIQmpkf/9Jy/AG0zCAURcHGxAAAAAElFTkSuQmCC
+        YQUAAAAJcEhZcwAACxAAAAsQAa0jvXUAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfcBR4OEQsfmw66
+        AAAAHWlUWHRDb21tZW50AAAAAABDcmVhdGVkIHdpdGggR0lNUGQuZQcAAAGQSURBVDhPnVO/S0JhFL1l
+        IAT9AU5J0CBNKTQFtWj4RzjaJEQ4VNhQ0NCzxZIIajGJLFr0tRbREEJLQkNbYK8IMlpqy/zy3Mf9fO9l
+        BgkXvx/3nHPP/e6j3FuOnGE8GJTYTVAoGqL2T/mH/AprnOHOm+86QBJAvQI5ThK9iaVjGpzdjNB5NUZX
+        tTjHWXWGVnem9T1yhYQXojwaDqj3I1Kq4o5W2d5frJEKjw1yhVIJ+5KSC3cpapr9nPzVBglQ/r3WGCvq
+        yVKSSvV5TQBQ0VrkCrcbHREQmxm7T4yVbhuW0YVggQlE+dP0qVa7OtjEGWPxTNgg0VkBbBSeMhq8/7hE
+        qAoV4E6euCeBKN9cTxKUpbnNcl+H4DcLAoaqBAiwPqnZ88LYbk3Unis+Bd92DKj7y5Dae14ZQcN1E73P
+        KGCoHdbTlG9kKf+6oQcHzZYcxroGKRJgb+K1aNmvIAFwcCLoHiS5dI7y6TKpj2PMgU0AoJQNgR+jLCSp
+        rfj/PyaeuJd1OridpblclManhpnsr8/5G8sMvWPhikOCAAAAAElFTkSuQmCC
 </value>
   </data>
   <data name="picParallel.ToolTip" xml:space="preserve">

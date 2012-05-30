@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
 using vApus.Stresstest;
@@ -9,6 +16,8 @@ namespace vApus.DistributedTesting
     public class AdvancedTileStresstest : BaseItem
     {
         #region Fields
+        private Stresstest.Stresstest _defaultSettingsTo;
+
         private int _precision = 1, _dynamicRunMultiplier = 1, _minimumDelay = 900, _maximumDelay = 1100;
         private int[] _concurrentUsers = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
@@ -31,7 +40,7 @@ namespace vApus.DistributedTesting
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("Use the .Empty function, not null.");
+                    return;
                 value.ParentIsNull -= _log_ParentIsNull;
                 _log = value;
                 _log.ParentIsNull += _log_ParentIsNull;
@@ -188,10 +197,37 @@ namespace vApus.DistributedTesting
         private void Init()
         {
             Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+
+            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
             Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+        }
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
+        {
+            if (sender != null && sender == this.Parent)
+            {
+                TileStresstest parent = sender as TileStresstest;
+                if (parent.AutomaticDefaultAdvancedSettings)
+                    DefaultTo(parent.DefaultSettingsTo);
+            }
+        }
+        private void DefaultTo(Stresstest.Stresstest stresstest)
+        {
+            _defaultSettingsTo = stresstest;
+            Log = _defaultSettingsTo.Log;
+            _concurrentUsers = new int[_defaultSettingsTo.ConcurrentUsers.Length];
+            _defaultSettingsTo.ConcurrentUsers.CopyTo(_concurrentUsers, 0);
+            _precision = _defaultSettingsTo.Precision;
+            _dynamicRunMultiplier = _defaultSettingsTo.DynamicRunMultiplier;
+            _minimumDelay = _defaultSettingsTo.MinimumDelay;
+            _maximumDelay = _defaultSettingsTo.MaximumDelay;
+            _shuffle = _defaultSettingsTo.Shuffle;
+            _distribute = _defaultSettingsTo.Distribute;
+
+            if (Solution.ActiveSolution != null)
+                this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         /// <summary>
         /// Create a clone of this.

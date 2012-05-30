@@ -88,7 +88,7 @@ namespace vApus.DistributedTesting
             chk.Checked = _client.Use;
             chk.CheckedChanged += chk_CheckedChanged;
 
-            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
+            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (#" + UsedSlaveCount + "/" + _client.Count + ")";
 
             txtClient.Text = (_client.IP == string.Empty) ? _client.HostName : _client.IP;
 
@@ -152,7 +152,7 @@ namespace vApus.DistributedTesting
         public void SetVisibleControls(bool visible)
         {
             txtClient.Visible = picAddSlave.Visible = picDuplicate.Visible = picDelete.Visible = visible;
-            lblClient.Text = visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
+            lblClient.Text = visible ? "Host Name or IP:" : _client.ToString() + "  -  (#" + UsedSlaveCount + "/" + _client.Count + ")";
         }
         public void SetVisibleControls()
         {
@@ -167,7 +167,7 @@ namespace vApus.DistributedTesting
 
         public void RefreshGui()
         {
-            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + " (#" + UsedSlaveCount + "/" + _client.Count + ")";
+            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (#" + UsedSlaveCount + "/" + _client.Count + ")";
 
             _client.Use = UsedSlaveCount != 0;
             if (_client.Use != chk.Checked)
