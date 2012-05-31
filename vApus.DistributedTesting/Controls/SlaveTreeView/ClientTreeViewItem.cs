@@ -185,14 +185,16 @@ namespace vApus.DistributedTesting
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
             else if (_ctrl)
+            {
                 if (e.KeyCode == Keys.I && AddSlaveClicked != null)
                     AddSlaveClicked(this, null);
-            if (e.KeyCode == Keys.R && DeleteClicked != null)
-                DeleteClicked(this, null);
-            else if (e.KeyCode == Keys.D && DuplicateClicked != null)
-                DuplicateClicked(this, null);
-            else if (e.KeyCode == Keys.U)
-                chk.Checked = !chk.Checked;
+                if (e.KeyCode == Keys.R && DeleteClicked != null)
+                    DeleteClicked(this, null);
+                else if (e.KeyCode == Keys.D && DuplicateClicked != null)
+                    DuplicateClicked(this, null);
+                else if (e.KeyCode == Keys.U)
+                    chk.Checked = !chk.Checked;
+            }
             if (e.KeyCode == Keys.F5)
                 SetHostNameAndIP();
         }
@@ -203,7 +205,7 @@ namespace vApus.DistributedTesting
         public bool SetHostNameAndIP()
         {
             //Make sure this can not happen multiple times at the same time.
-            if (!this.Controls[0].Enabled)
+            if (!this.Controls[0].Enabled || !IsHandleCreated)
                 return false;
 
             EnableControls(false);

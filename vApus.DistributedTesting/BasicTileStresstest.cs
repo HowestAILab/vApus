@@ -172,7 +172,7 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        private List<Slave> SlavesParent
+        internal List<Slave> SlavesParent
         {
             get
             {
@@ -196,6 +196,12 @@ namespace vApus.DistributedTesting
                 catch { }
                 return null;
             }
+        }
+        [SavableCloneable]
+        public int[] WorkDistribution
+        {
+            get { return _WorkDistribution; }
+            set { _WorkDistribution = value; }
         }
         #endregion
 
@@ -245,7 +251,7 @@ namespace vApus.DistributedTesting
             }
             else if (sender != null && sender == this.Parent)
             {
-                DefaultTo((sender as TileStresstest).DefaultSettingsTo);
+                DefaultTo((this.Parent as TileStresstest).DefaultSettingsTo);
             }
             else //Cleanup slaves
             {

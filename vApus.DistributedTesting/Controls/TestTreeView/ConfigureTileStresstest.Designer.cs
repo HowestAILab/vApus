@@ -28,12 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigureTileStresstest));
             this.solutionComponentPropertyPanelBasic = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.solutionComponentPropertyPanelAdvanced = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.solutionComponentPropertyPanelDefaultTo = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.chkAutomatic = new System.Windows.Forms.CheckBox();
             this.llblAdvancedSettings = new System.Windows.Forms.LinkLabel();
             this.lblUsage = new System.Windows.Forms.Label();
+            this.lblRunSync = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // solutionComponentPropertyPanelBasic
@@ -122,10 +124,24 @@
     "+ button\'.\r\nSelect a Tile Stresstest to configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
+            // lblRunSync
+            // 
+            this.lblRunSync.AutoSize = true;
+            this.lblRunSync.BackColor = System.Drawing.SystemColors.Control;
+            this.lblRunSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblRunSync.ForeColor = System.Drawing.Color.DimGray;
+            this.lblRunSync.Location = new System.Drawing.Point(0, 11);
+            this.lblRunSync.Name = "lblRunSync";
+            this.lblRunSync.Size = new System.Drawing.Size(504, 78);
+            this.lblRunSync.TabIndex = 4;
+            this.lblRunSync.Text = resources.GetString("lblRunSync.Text");
+            this.lblRunSync.Visible = false;
+            // 
             // ConfigureTileStresstest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lblRunSync);
             this.Controls.Add(this.lblUsage);
             this.Controls.Add(this.solutionComponentPropertyPanelAdvanced);
             this.Controls.Add(this.solutionComponentPropertyPanelBasic);
@@ -147,5 +163,6 @@
         private System.Windows.Forms.CheckBox chkAutomatic;
         private System.Windows.Forms.LinkLabel llblAdvancedSettings;
         private System.Windows.Forms.Label lblUsage;
+        private System.Windows.Forms.Label lblRunSync;
     }
 }

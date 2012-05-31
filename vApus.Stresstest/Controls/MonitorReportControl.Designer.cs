@@ -69,7 +69,6 @@
             // pnlFastResultListing
             // 
             this.pnlFastResultListing.BackColor = System.Drawing.Color.White;
-            this.pnlFastResultListing.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlFastResultListing.Controls.Add(this.flpFastMetrics);
             this.pnlFastResultListing.Controls.Add(this.label4);
             this.pnlFastResultListing.Controls.Add(this.lvwAveragesListing);
@@ -92,7 +91,7 @@
             this.flpFastMetrics.Controls.Add(this.lblWarningInvalidAverages);
             this.flpFastMetrics.Location = new System.Drawing.Point(-1, 37);
             this.flpFastMetrics.Name = "flpFastMetrics";
-            this.flpFastMetrics.Size = new System.Drawing.Size(655, 50);
+            this.flpFastMetrics.Size = new System.Drawing.Size(657, 50);
             this.flpFastMetrics.TabIndex = 0;
             // 
             // label1
@@ -214,7 +213,7 @@
             this.lvwAveragesListing.Location = new System.Drawing.Point(-1, 93);
             this.lvwAveragesListing.MultiSelect = false;
             this.lvwAveragesListing.Name = "lvwAveragesListing";
-            this.lvwAveragesListing.Size = new System.Drawing.Size(655, 157);
+            this.lvwAveragesListing.Size = new System.Drawing.Size(657, 159);
             this.lvwAveragesListing.TabIndex = 2;
             this.lvwAveragesListing.UseCompatibleStateImageBehavior = false;
             this.lvwAveragesListing.View = System.Windows.Forms.View.Details;
@@ -253,7 +252,6 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.flowLayoutPanel1);
             this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.label8);
@@ -275,7 +273,7 @@
             this.flowLayoutPanel1.Controls.Add(this.btnWarningDetailed);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(-1, 37);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(655, 50);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(657, 50);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // label2
@@ -383,7 +381,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpDetailedResults.Location = new System.Drawing.Point(0, 93);
             this.flpDetailedResults.Name = "flpDetailedResults";
-            this.flpDetailedResults.Size = new System.Drawing.Size(653, 150);
+            this.flpDetailedResults.Size = new System.Drawing.Size(655, 152);
             this.flpDetailedResults.TabIndex = 3;
             // 
             // splitContainer
@@ -410,6 +408,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.splitContainer);
             this.Name = "MonitorReportControl";
             this.Size = new System.Drawing.Size(655, 500);

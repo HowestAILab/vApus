@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
+using System.IO;
 
 namespace vApus.DistributedTesting
 {
@@ -25,7 +26,7 @@ namespace vApus.DistributedTesting
 
         #region Fields
         private RunSynchronization _runSynchronization;
-        private string _resultPath = SpecialFolder.GetPath(SpecialFolder.Folder.Desktop);
+        private string _resultPath;
         #endregion
 
         #region Properties
@@ -43,10 +44,16 @@ namespace vApus.DistributedTesting
         [SavableCloneable]
         public string ResultPath
         {
-            get { return _resultPath; }
+            get {
+                if (_resultPath != DefaultResultPath || !Directory.Exists(_resultPath))
+                    _resultPath = DefaultResultPath;
+                return _resultPath; }
             set { _resultPath = value; }
         }
-
+        private string DefaultResultPath
+        {
+            get { return Path.Combine(Application.StartupPath, "DistributedTestResults"); }
+        }
         public Tiles Tiles
         {
             get { return this[0] as Tiles; }
@@ -60,6 +67,7 @@ namespace vApus.DistributedTesting
         #region Constructor
         public DistributedTest()
         {
+            _resultPath = DefaultResultPath;
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
             AddAsDefaultItem(new Tiles());
             AddAsDefaultItem(new ClientsAndSlaves());

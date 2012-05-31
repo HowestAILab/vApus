@@ -29,8 +29,6 @@ namespace vApus.DistributedTesting
         /// </summary>
         private void InitializeComponent()
         {
-            this.tc = new vApus.Util.TabControlWithAdjustableBorders();
-            this.tpMaster = new System.Windows.Forms.TabPage();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.clmA = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -54,14 +52,10 @@ namespace vApus.DistributedTesting
             this.lblStarted = new System.Windows.Forms.Label();
             this.lblMeasuredRuntime = new System.Windows.Forms.Label();
             this.lblStopped = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
             this.flpMetricsMaster = new System.Windows.Forms.FlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
-            this.kvmRunningTests = new vApus.Util.KeyValuePairControl();
-            this.kvmOK = new vApus.Util.KeyValuePairControl();
-            this.kvmCancelled = new vApus.Util.KeyValuePairControl();
-            this.kvmFailed = new vApus.Util.KeyValuePairControl();
             this.kvmMasterCPUUsage = new vApus.Util.KeyValuePairControl();
             this.kvmMasterContextSwitchesPerSecond = new vApus.Util.KeyValuePairControl();
             this.kvmMasterMemoryUsage = new vApus.Util.KeyValuePairControl();
@@ -69,10 +63,10 @@ namespace vApus.DistributedTesting
             this.kvmMasterNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnMasterExportMessages = new System.Windows.Forms.Button();
             this.epnlMasterMessages = new vApus.Util.EventPanel();
-            this.tpSelectedTest = new System.Windows.Forms.TabPage();
-            this.stresstestControl = new vApus.Stresstest.StresstestControl();
-            this.tc.SuspendLayout();
-            this.tpMaster.SuspendLayout();
+            this.kvmFailed = new vApus.Util.KeyValuePairControl();
+            this.kvmCancelled = new vApus.Util.KeyValuePairControl();
+            this.kvmOK = new vApus.Util.KeyValuePairControl();
+            this.kvmRunningTests = new vApus.Util.KeyValuePairControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -82,41 +76,13 @@ namespace vApus.DistributedTesting
             this.flpFastMetrics.SuspendLayout();
             this.pnlBorder.SuspendLayout();
             this.flpMetricsMaster.SuspendLayout();
-            this.tpSelectedTest.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // tc
-            // 
-            this.tc.BottomVisible = false;
-            this.tc.Controls.Add(this.tpMaster);
-            this.tc.Controls.Add(this.tpSelectedTest);
-            this.tc.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tc.LeftVisible = false;
-            this.tc.Location = new System.Drawing.Point(0, 0);
-            this.tc.Margin = new System.Windows.Forms.Padding(0);
-            this.tc.Name = "tc";
-            this.tc.RightVisible = false;
-            this.tc.SelectedIndex = 0;
-            this.tc.Size = new System.Drawing.Size(937, 700);
-            this.tc.TabIndex = 5;
-            this.tc.TopVisible = false;
-            // 
-            // tpMaster
-            // 
-            this.tpMaster.Controls.Add(this.splitContainer);
-            this.tpMaster.Location = new System.Drawing.Point(0, 19);
-            this.tpMaster.Name = "tpMaster";
-            this.tpMaster.Padding = new System.Windows.Forms.Padding(3);
-            this.tpMaster.Size = new System.Drawing.Size(936, 680);
-            this.tpMaster.TabIndex = 0;
-            this.tpMaster.Text = "Overall";
-            this.tpMaster.UseVisualStyleBackColor = true;
             // 
             // splitContainer
             // 
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splitContainer.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer.Location = new System.Drawing.Point(0, 0);
             this.splitContainer.Name = "splitContainer";
             this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -130,8 +96,8 @@ namespace vApus.DistributedTesting
             this.splitContainer.Panel2.Controls.Add(this.flpMetricsMaster);
             this.splitContainer.Panel2.Controls.Add(this.epnlMasterMessages);
             this.splitContainer.Panel2MinSize = 350;
-            this.splitContainer.Size = new System.Drawing.Size(930, 674);
-            this.splitContainer.SplitterDistance = 350;
+            this.splitContainer.Size = new System.Drawing.Size(937, 700);
+            this.splitContainer.SplitterDistance = 346;
             this.splitContainer.TabIndex = 0;
             // 
             // dgvFastResults
@@ -163,7 +129,7 @@ namespace vApus.DistributedTesting
             this.dgvFastResults.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.dgvFastResults.Name = "dgvFastResults";
             this.dgvFastResults.ReadOnly = true;
-            this.dgvFastResults.Size = new System.Drawing.Size(930, 250);
+            this.dgvFastResults.Size = new System.Drawing.Size(937, 246);
             this.dgvFastResults.TabIndex = 1;
             // 
             // clmA
@@ -267,7 +233,7 @@ namespace vApus.DistributedTesting
             this.pnlFastResultListing.Location = new System.Drawing.Point(0, 0);
             this.pnlFastResultListing.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.pnlFastResultListing.Name = "pnlFastResultListing";
-            this.pnlFastResultListing.Size = new System.Drawing.Size(930, 100);
+            this.pnlFastResultListing.Size = new System.Drawing.Size(937, 100);
             this.pnlFastResultListing.TabIndex = 0;
             this.pnlFastResultListing.Text = "Fast Results";
             // 
@@ -283,7 +249,7 @@ namespace vApus.DistributedTesting
             this.flpFastMetrics.Controls.Add(this.btnSaveDisplayedResults);
             this.flpFastMetrics.Location = new System.Drawing.Point(-1, 37);
             this.flpFastMetrics.Name = "flpFastMetrics";
-            this.flpFastMetrics.Size = new System.Drawing.Size(930, 50);
+            this.flpFastMetrics.Size = new System.Drawing.Size(937, 50);
             this.flpFastMetrics.TabIndex = 0;
             // 
             // label1
@@ -355,18 +321,6 @@ namespace vApus.DistributedTesting
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
             this.lblStopped.TabIndex = 0;
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.Color.Black;
-            this.label4.Location = new System.Drawing.Point(2, 7);
-            this.label4.Margin = new System.Windows.Forms.Padding(3);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(149, 20);
-            this.label4.TabIndex = 17;
-            this.label4.Text = "Fast Results Listing";
-            // 
             // btnSaveDisplayedResults
             // 
             this.btnSaveDisplayedResults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -384,6 +338,18 @@ namespace vApus.DistributedTesting
             this.btnSaveDisplayedResults.Text = "Save All Displayed Results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.Black;
+            this.label4.Location = new System.Drawing.Point(2, 7);
+            this.label4.Margin = new System.Windows.Forms.Padding(3);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(149, 20);
+            this.label4.TabIndex = 17;
+            this.label4.Text = "Fast Results Listing";
             // 
             // flpMetricsMaster
             // 
@@ -405,7 +371,7 @@ namespace vApus.DistributedTesting
             this.flpMetricsMaster.Margin = new System.Windows.Forms.Padding(0);
             this.flpMetricsMaster.Name = "flpMetricsMaster";
             this.flpMetricsMaster.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.flpMetricsMaster.Size = new System.Drawing.Size(930, 80);
+            this.flpMetricsMaster.Size = new System.Drawing.Size(937, 80);
             this.flpMetricsMaster.TabIndex = 1;
             // 
             // label5
@@ -419,61 +385,6 @@ namespace vApus.DistributedTesting
             this.label5.Size = new System.Drawing.Size(188, 20);
             this.label5.TabIndex = 19;
             this.label5.Text = "Distributed Test Progress";
-            // 
-            // kvmRunningTests
-            // 
-            this.kvmRunningTests.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.kvmRunningTests.Key = "Running Tests";
-            this.kvmRunningTests.Location = new System.Drawing.Point(200, 9);
-            this.kvmRunningTests.Margin = new System.Windows.Forms.Padding(3, 6, 0, 6);
-            this.kvmRunningTests.Name = "kvmRunningTests";
-            this.kvmRunningTests.Size = new System.Drawing.Size(108, 23);
-            this.kvmRunningTests.TabIndex = 8;
-            this.kvmRunningTests.TabStop = false;
-            this.kvmRunningTests.Tooltip = "The number of Running Tests.";
-            this.kvmRunningTests.Value = "0";
-            // 
-            // kvmOK
-            // 
-            this.kvmOK.BackColor = System.Drawing.Color.LightGreen;
-            this.kvmOK.Key = "OK";
-            this.kvmOK.Location = new System.Drawing.Point(317, 9);
-            this.kvmOK.Margin = new System.Windows.Forms.Padding(9, 6, 6, 0);
-            this.kvmOK.Name = "kvmOK";
-            this.kvmOK.Size = new System.Drawing.Size(43, 23);
-            this.kvmOK.TabIndex = 15;
-            this.kvmOK.TabStop = false;
-            this.kvmOK.Tooltip = "The number of Succesfully Finished Tests.";
-            this.kvmOK.Value = "0";
-            this.kvmOK.Visible = false;
-            // 
-            // kvmCancelled
-            // 
-            this.kvmCancelled.BackColor = System.Drawing.Color.Orange;
-            this.kvmCancelled.Key = "Cancelled";
-            this.kvmCancelled.Location = new System.Drawing.Point(369, 9);
-            this.kvmCancelled.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
-            this.kvmCancelled.Name = "kvmCancelled";
-            this.kvmCancelled.Size = new System.Drawing.Size(82, 23);
-            this.kvmCancelled.TabIndex = 16;
-            this.kvmCancelled.TabStop = false;
-            this.kvmCancelled.Tooltip = "The number of Cancelled Tests.";
-            this.kvmCancelled.Value = "0";
-            this.kvmCancelled.Visible = false;
-            // 
-            // kvmFailed
-            // 
-            this.kvmFailed.BackColor = System.Drawing.Color.OrangeRed;
-            this.kvmFailed.Key = "Failed";
-            this.kvmFailed.Location = new System.Drawing.Point(460, 9);
-            this.kvmFailed.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
-            this.kvmFailed.Name = "kvmFailed";
-            this.kvmFailed.Size = new System.Drawing.Size(60, 23);
-            this.kvmFailed.TabIndex = 17;
-            this.kvmFailed.TabStop = false;
-            this.kvmFailed.Tooltip = "The number of Failed Tests.";
-            this.kvmFailed.Value = "0";
-            this.kvmFailed.Visible = false;
             // 
             // kvmMasterCPUUsage
             // 
@@ -574,39 +485,71 @@ namespace vApus.DistributedTesting
             this.epnlMasterMessages.Margin = new System.Windows.Forms.Padding(0, 0, 0, 3);
             this.epnlMasterMessages.Name = "epnlMasterMessages";
             this.epnlMasterMessages.ProgressBarColor = System.Drawing.Color.SteelBlue;
-            this.epnlMasterMessages.Size = new System.Drawing.Size(930, 241);
+            this.epnlMasterMessages.Size = new System.Drawing.Size(937, 271);
             this.epnlMasterMessages.TabIndex = 4;
             // 
-            // tpSelectedTest
+            // kvmFailed
             // 
-            this.tpSelectedTest.Controls.Add(this.stresstestControl);
-            this.tpSelectedTest.Location = new System.Drawing.Point(0, 19);
-            this.tpSelectedTest.Name = "tpSelectedTest";
-            this.tpSelectedTest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSelectedTest.Size = new System.Drawing.Size(936, 680);
-            this.tpSelectedTest.TabIndex = 1;
-            this.tpSelectedTest.Text = "Selected Test";
-            this.tpSelectedTest.UseVisualStyleBackColor = true;
+            this.kvmFailed.BackColor = System.Drawing.Color.OrangeRed;
+            this.kvmFailed.Key = "Failed";
+            this.kvmFailed.Location = new System.Drawing.Point(460, 9);
+            this.kvmFailed.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
+            this.kvmFailed.Name = "kvmFailed";
+            this.kvmFailed.Size = new System.Drawing.Size(60, 23);
+            this.kvmFailed.TabIndex = 17;
+            this.kvmFailed.TabStop = false;
+            this.kvmFailed.Tooltip = "The number of Failed Tests.";
+            this.kvmFailed.Value = "0";
+            this.kvmFailed.Visible = false;
             // 
-            // stresstestControl
+            // kvmCancelled
             // 
-            this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestControl.MonitorConfigurationControlVisible = false;
-            this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(930, 674);
-            this.stresstestControl.TabIndex = 0;
-            this.stresstestControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
+            this.kvmCancelled.BackColor = System.Drawing.Color.Orange;
+            this.kvmCancelled.Key = "Cancelled";
+            this.kvmCancelled.Location = new System.Drawing.Point(369, 9);
+            this.kvmCancelled.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
+            this.kvmCancelled.Name = "kvmCancelled";
+            this.kvmCancelled.Size = new System.Drawing.Size(82, 23);
+            this.kvmCancelled.TabIndex = 16;
+            this.kvmCancelled.TabStop = false;
+            this.kvmCancelled.Tooltip = "The number of Cancelled Tests.";
+            this.kvmCancelled.Value = "0";
+            this.kvmCancelled.Visible = false;
+            // 
+            // kvmOK
+            // 
+            this.kvmOK.BackColor = System.Drawing.Color.LightGreen;
+            this.kvmOK.Key = "OK";
+            this.kvmOK.Location = new System.Drawing.Point(317, 9);
+            this.kvmOK.Margin = new System.Windows.Forms.Padding(9, 6, 6, 0);
+            this.kvmOK.Name = "kvmOK";
+            this.kvmOK.Size = new System.Drawing.Size(43, 23);
+            this.kvmOK.TabIndex = 15;
+            this.kvmOK.TabStop = false;
+            this.kvmOK.Tooltip = "The number of Succesfully Finished Tests.";
+            this.kvmOK.Value = "0";
+            this.kvmOK.Visible = false;
+            // 
+            // kvmRunningTests
+            // 
+            this.kvmRunningTests.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.kvmRunningTests.Key = "Running Tests";
+            this.kvmRunningTests.Location = new System.Drawing.Point(200, 9);
+            this.kvmRunningTests.Margin = new System.Windows.Forms.Padding(3, 6, 0, 6);
+            this.kvmRunningTests.Name = "kvmRunningTests";
+            this.kvmRunningTests.Size = new System.Drawing.Size(108, 23);
+            this.kvmRunningTests.TabIndex = 8;
+            this.kvmRunningTests.TabStop = false;
+            this.kvmRunningTests.Tooltip = "The number of Running Tests.";
+            this.kvmRunningTests.Value = "0";
             // 
             // DistributedStresstestControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.tc);
+            this.Controls.Add(this.splitContainer);
             this.Name = "DistributedStresstestControl";
             this.Size = new System.Drawing.Size(937, 700);
-            this.tc.ResumeLayout(false);
-            this.tpMaster.ResumeLayout(false);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
@@ -619,7 +562,6 @@ namespace vApus.DistributedTesting
             this.pnlBorder.ResumeLayout(false);
             this.flpMetricsMaster.ResumeLayout(false);
             this.flpMetricsMaster.PerformLayout();
-            this.tpSelectedTest.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -627,21 +569,13 @@ namespace vApus.DistributedTesting
         #endregion
 
         private Util.EventPanel epnlMasterMessages;
-        private vApus.Util.TabControlWithAdjustableBorders tc;
-        private System.Windows.Forms.TabPage tpMaster;
-        private System.Windows.Forms.TabPage tpSelectedTest;
         private System.Windows.Forms.FlowLayoutPanel flpMetricsMaster;
-        private vApus.Util.KeyValuePairControl kvmRunningTests;
         private vApus.Util.KeyValuePairControl kvmMasterCPUUsage;
         private vApus.Util.KeyValuePairControl kvmMasterContextSwitchesPerSecond;
         private vApus.Util.KeyValuePairControl kvmMasterMemoryUsage;
         private vApus.Util.KeyValuePairControl kvmMasterNicsSent;
         private vApus.Util.KeyValuePairControl kvmMasterNicsReceived;
         private System.Windows.Forms.Button btnMasterExportMessages;
-        private vApus.Util.KeyValuePairControl kvmOK;
-        private vApus.Util.KeyValuePairControl kvmCancelled;
-        private vApus.Util.KeyValuePairControl kvmFailed;
-        private StresstestControl stresstestControl;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Panel pnlFastResultListing;
         private System.Windows.Forms.FlowLayoutPanel flpFastMetrics;
@@ -668,5 +602,9 @@ namespace vApus.DistributedTesting
         private System.Windows.Forms.DataGridViewTextBoxColumn clmL;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmM;
         private System.Windows.Forms.Panel pnlBorder;
+        private Util.KeyValuePairControl kvmRunningTests;
+        private Util.KeyValuePairControl kvmOK;
+        private Util.KeyValuePairControl kvmCancelled;
+        private Util.KeyValuePairControl kvmFailed;
     }
 }

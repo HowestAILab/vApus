@@ -100,7 +100,6 @@ namespace vApus.Stresstest
         }
         private bool DeepContains(BaseItem parent, BaseItem possibleChild)
         {
-            // if (possibleChild is LogSyntaxItem || possibleChild is Rule)
             if (possibleChild is SyntaxItem || possibleChild is Rule)
                 if (parent.Contains(possibleChild))
                     return true;

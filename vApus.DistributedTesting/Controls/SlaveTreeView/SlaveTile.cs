@@ -148,7 +148,16 @@ namespace vApus.DistributedTesting
         public void SetClientStatus(bool online)
         {
             _clientOnline = online;
-            picStatus.Image = imageListStatus.Images[_clientOnline ? 1 : 0];
+            if (_clientOnline)
+            {
+                toolTip.SetToolTip(picStatus, "Client Online");
+                picStatus.Image = imageListStatus.Images[1];
+            }
+            else
+            {
+                toolTip.SetToolTip(picStatus, "Client Offline");
+                picStatus.Image = imageListStatus.Images[0];
+            }
         }
         #endregion
     }

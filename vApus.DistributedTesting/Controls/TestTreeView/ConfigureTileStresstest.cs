@@ -7,6 +7,8 @@
  */
 using System;
 using System.Windows.Forms;
+using vApus.SolutionTree;
+using vApus.Stresstest;
 
 namespace vApus.DistributedTesting
 {
@@ -22,10 +24,14 @@ namespace vApus.DistributedTesting
         public ConfigureTileStresstest()
         {
             InitializeComponent();
+
+            //For refreshing the property panels.
+            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
 
         public void SetTileStresstest(TileStresstest tileStresstest)
         {
+            lblRunSync.Visible = false;
             lblUsage.Visible = false;
 
             solutionComponentPropertyPanelDefaultTo.Visible =
@@ -46,13 +52,18 @@ namespace vApus.DistributedTesting
                 Handle_chkAutomatic_CheckedChanged();
             }
         }
-        public void ClearTileStresstest()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="showRunSyncDescription">Should only be shown if the run sync cbo is focused</param>
+        public void ClearTileStresstest(bool showRunSyncDescription)
         {
             solutionComponentPropertyPanelDefaultTo.Visible =
             solutionComponentPropertyPanelBasic.Visible =
             llblAdvancedSettings.Visible =
             chkAutomatic.Visible = false;
 
+            lblRunSync.Visible = showRunSyncDescription;
             lblUsage.Visible = true;
 
         }
@@ -81,12 +92,25 @@ namespace vApus.DistributedTesting
             solutionComponentPropertyPanelAdvanced.Visible = !solutionComponentPropertyPanelAdvanced.Visible;
         }
 
-        public override void Refresh()
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            base.Refresh();
-            solutionComponentPropertyPanelDefaultTo.Refresh();
-            solutionComponentPropertyPanelBasic.Refresh();
-            solutionComponentPropertyPanelAdvanced.Refresh();
+            TileStresstest ts = solutionComponentPropertyPanelDefaultTo.SolutionComponent as TileStresstest;
+            if (ts != null)
+            {
+                if (sender is StresstestProject || sender == ts.DefaultSettingsTo)
+                {
+                    solutionComponentPropertyPanelDefaultTo.Refresh();
+                }
+                if (sender is StresstestProject || sender == ts || sender == ts.DefaultSettingsTo)
+                {
+                    solutionComponentPropertyPanelBasic.Refresh();
+                    solutionComponentPropertyPanelAdvanced.Refresh();
+                }
+            }
+            if (sender is ClientsAndSlaves || sender is Client || sender is Slave)
+            {
+                solutionComponentPropertyPanelBasic.Refresh();
+            }
         }
     }
 }

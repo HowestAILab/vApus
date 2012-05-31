@@ -9,6 +9,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Drawing;
+using System.IO;
 
 namespace vApus.DistributedTesting
 {
@@ -48,8 +49,8 @@ namespace vApus.DistributedTesting
         {
             _distributedTest = distributedTest;
             cboRunSync.SelectedIndex = (int)distributedTest.RunSynchronization;
-
             cboRunSync.SelectedIndexChanged += new EventHandler(cboRunSync_SelectedIndexChanged);
+            toolTip.SetToolTip(picResultPath, "Result Path: " + _distributedTest.ResultPath);
         }
 
         #endregion
@@ -94,6 +95,24 @@ namespace vApus.DistributedTesting
             if (_ctrl && e.KeyCode == Keys.I && AddTileClicked != null)
                 AddTileClicked(this, null);
 
+        }
+
+        private void picResultPath_Click(object sender, EventArgs e)
+        {
+            if (Directory.Exists(_distributedTest.ResultPath))
+                folderBrowserDialog.SelectedPath = _distributedTest.ResultPath;
+            else
+                folderBrowserDialog.SelectedPath = Application.StartupPath;
+
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK &&
+                _distributedTest.ResultPath != folderBrowserDialog.SelectedPath)
+            {
+                _distributedTest.ResultPath = folderBrowserDialog.SelectedPath;
+                toolTip.SetToolTip(picResultPath, "Result Path: " + _distributedTest.ResultPath);
+
+
+                _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }
         }
         #endregion
 

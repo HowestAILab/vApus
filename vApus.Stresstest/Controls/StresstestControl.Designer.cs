@@ -108,19 +108,19 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.epnlMessages);
             this.splitContainer.Panel2.Controls.Add(this.flpMetrics);
-            this.splitContainer.Size = new System.Drawing.Size(897, 505);
-            this.splitContainer.SplitterDistance = 250;
+            this.splitContainer.Size = new System.Drawing.Size(897, 639);
+            this.splitContainer.SplitterDistance = 384;
             this.splitContainer.TabIndex = 2;
             // 
             // pnl
             // 
-            this.pnl.Controls.Add(this.flpConfiguration);
             this.pnl.Controls.Add(this.pnlFastResultListing);
+            this.pnl.Controls.Add(this.flpConfiguration);
             this.pnl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnl.Location = new System.Drawing.Point(0, 0);
             this.pnl.Name = "pnl";
             this.pnl.Padding = new System.Windows.Forms.Padding(3);
-            this.pnl.Size = new System.Drawing.Size(897, 250);
+            this.pnl.Size = new System.Drawing.Size(897, 384);
             this.pnl.TabIndex = 1;
             this.pnl.Text = "[Put title here]";
             // 
@@ -130,7 +130,6 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpConfiguration.AutoScroll = true;
             this.flpConfiguration.BackColor = System.Drawing.Color.White;
-            this.flpConfiguration.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flpConfiguration.Controls.Add(this.label3);
             this.flpConfiguration.Controls.Add(this.kvmStresstest);
             this.flpConfiguration.Controls.Add(this.kvmConnection);
@@ -146,7 +145,7 @@
             this.flpConfiguration.Controls.Add(this.kvmDistribute);
             this.flpConfiguration.Location = new System.Drawing.Point(0, 0);
             this.flpConfiguration.Name = "flpConfiguration";
-            this.flpConfiguration.Size = new System.Drawing.Size(897, 100);
+            this.flpConfiguration.Size = new System.Drawing.Size(897, 105);
             this.flpConfiguration.TabIndex = 0;
             // 
             // label3
@@ -334,14 +333,13 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlFastResultListing.BackColor = System.Drawing.Color.White;
-            this.pnlFastResultListing.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlFastResultListing.Controls.Add(this.flpFastMetrics);
             this.pnlFastResultListing.Controls.Add(this.label4);
             this.pnlFastResultListing.Controls.Add(this.lvwFastResultsListing);
             this.pnlFastResultListing.Controls.Add(this.lblUpdatesIn);
             this.pnlFastResultListing.Location = new System.Drawing.Point(0, 104);
             this.pnlFastResultListing.Name = "pnlFastResultListing";
-            this.pnlFastResultListing.Size = new System.Drawing.Size(897, 146);
+            this.pnlFastResultListing.Size = new System.Drawing.Size(897, 280);
             this.pnlFastResultListing.TabIndex = 1;
             this.pnlFastResultListing.Text = "Fast Results";
             // 
@@ -358,7 +356,7 @@
             this.flpFastMetrics.Controls.Add(this.btnSaveDisplayedResults);
             this.flpFastMetrics.Location = new System.Drawing.Point(-1, 37);
             this.flpFastMetrics.Name = "flpFastMetrics";
-            this.flpFastMetrics.Size = new System.Drawing.Size(897, 50);
+            this.flpFastMetrics.Size = new System.Drawing.Size(899, 50);
             this.flpFastMetrics.TabIndex = 0;
             // 
             // label1
@@ -502,7 +500,7 @@
             this.lvwFastResultsListing.Location = new System.Drawing.Point(-1, 93);
             this.lvwFastResultsListing.MultiSelect = false;
             this.lvwFastResultsListing.Name = "lvwFastResultsListing";
-            this.lvwFastResultsListing.Size = new System.Drawing.Size(897, 52);
+            this.lvwFastResultsListing.Size = new System.Drawing.Size(899, 188);
             this.lvwFastResultsListing.TabIndex = 2;
             this.lvwFastResultsListing.UseCompatibleStateImageBehavior = false;
             this.lvwFastResultsListing.View = System.Windows.Forms.View.Details;
@@ -601,7 +599,6 @@
             this.flpMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpMetrics.BackColor = System.Drawing.Color.White;
-            this.flpMetrics.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flpMetrics.Controls.Add(this.label2);
             this.flpMetrics.Controls.Add(this.kvmThreadsInUse);
             this.flpMetrics.Controls.Add(this.kvmCPUUsage);
@@ -731,9 +728,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.splitContainer);
             this.Name = "StresstestControl";
-            this.Size = new System.Drawing.Size(897, 505);
+            this.Size = new System.Drawing.Size(897, 639);
             this.SizeChanged += new System.EventHandler(this.StresstestControl_SizeChanged);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);

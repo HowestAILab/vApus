@@ -36,12 +36,12 @@
             this.llblEdit = new System.Windows.Forms.LinkLabel();
             this.nudOccurance = new System.Windows.Forms.NumericUpDown();
             this.nudParallelOffsetInMs = new System.Windows.Forms.NumericUpDown();
-            this.chkIndex = new System.Windows.Forms.CheckBox();
-            this.txtScrollingLogEntry = new System.Windows.Forms.TextBox();
             this.picParallel = new System.Windows.Forms.PictureBox();
             this.picPin = new System.Windows.Forms.PictureBox();
             this.picIgnoreDelay = new System.Windows.Forms.PictureBox();
+            this.chkIndex = new System.Windows.Forms.CheckBox();
             this.picValidation = new System.Windows.Forms.PictureBox();
+            this.lblLogEntry = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudParallelOffsetInMs)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picParallel)).BeginInit();
@@ -83,7 +83,7 @@
             this.llblEdit.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.llblEdit.Name = "llblEdit";
             this.llblEdit.Size = new System.Drawing.Size(16, 21);
-            this.llblEdit.TabIndex = 2;
+            this.llblEdit.TabIndex = 3;
             this.llblEdit.TabStop = true;
             this.llblEdit.Text = "...";
             this.toolTip.SetToolTip(this.llblEdit, "Edit this log entry.");
@@ -101,7 +101,7 @@
             0});
             this.nudOccurance.Name = "nudOccurance";
             this.nudOccurance.Size = new System.Drawing.Size(50, 16);
-            this.nudOccurance.TabIndex = 3;
+            this.nudOccurance.TabIndex = 1;
             this.toolTip.SetToolTip(this.nudOccurance, "Set how many times this log entry occures in the user action or log.\r\nAction and " +
         "Log Entry Distribution in the stresstest determines how this value will be used." +
         "\r\n");
@@ -125,35 +125,10 @@
             0});
             this.nudParallelOffsetInMs.Name = "nudParallelOffsetInMs";
             this.nudParallelOffsetInMs.Size = new System.Drawing.Size(38, 16);
-            this.nudParallelOffsetInMs.TabIndex = 1;
+            this.nudParallelOffsetInMs.TabIndex = 2;
             this.toolTip.SetToolTip(this.nudParallelOffsetInMs, "The offset in ms before this \'parallel log entry\' is executed (this simulates wha" +
         "t browsers do).");
             this.nudParallelOffsetInMs.Visible = false;
-            // 
-            // chkIndex
-            // 
-            this.chkIndex.AutoSize = true;
-            this.chkIndex.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkIndex.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkIndex.Location = new System.Drawing.Point(9, 3);
-            this.chkIndex.Name = "chkIndex";
-            this.chkIndex.Size = new System.Drawing.Size(31, 19);
-            this.chkIndex.TabIndex = 0;
-            this.chkIndex.Text = "1";
-            this.chkIndex.UseVisualStyleBackColor = true;
-            this.chkIndex.CheckedChanged += new System.EventHandler(this.chkIndex_CheckedChanged);
-            // 
-            // txtScrollingLogEntry
-            // 
-            this.txtScrollingLogEntry.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtScrollingLogEntry.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtScrollingLogEntry.Location = new System.Drawing.Point(79, 7);
-            this.txtScrollingLogEntry.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.txtScrollingLogEntry.Name = "txtScrollingLogEntry";
-            this.txtScrollingLogEntry.ReadOnly = true;
-            this.txtScrollingLogEntry.Size = new System.Drawing.Size(378, 13);
-            this.txtScrollingLogEntry.TabIndex = 1;
             // 
             // picParallel
             // 
@@ -199,6 +174,19 @@
             this.toolTip.SetToolTip(this.picIgnoreDelay, resources.GetString("picIgnoreDelay.ToolTip"));
             this.picIgnoreDelay.Click += new System.EventHandler(this.picIgnoreDelay_Click);
             // 
+            // chkIndex
+            // 
+            this.chkIndex.AutoSize = true;
+            this.chkIndex.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chkIndex.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkIndex.Location = new System.Drawing.Point(9, 3);
+            this.chkIndex.Name = "chkIndex";
+            this.chkIndex.Size = new System.Drawing.Size(31, 19);
+            this.chkIndex.TabIndex = 0;
+            this.chkIndex.Text = "1";
+            this.chkIndex.UseVisualStyleBackColor = true;
+            this.chkIndex.CheckedChanged += new System.EventHandler(this.chkIndex_CheckedChanged);
+            // 
             // picValidation
             // 
             this.picValidation.Image = global::vApus.Stresstest.Properties.Resources.LogEntryOK;
@@ -209,17 +197,26 @@
             this.picValidation.TabIndex = 1;
             this.picValidation.TabStop = false;
             // 
+            // lblLogEntry
+            // 
+            this.lblLogEntry.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblLogEntry.Location = new System.Drawing.Point(76, 7);
+            this.lblLogEntry.Name = "lblLogEntry";
+            this.lblLogEntry.Size = new System.Drawing.Size(378, 13);
+            this.lblLogEntry.TabIndex = 7;
+            // 
             // LogEntryControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
+            this.Controls.Add(this.lblLogEntry);
             this.Controls.Add(this.picParallel);
             this.Controls.Add(this.chkIndex);
             this.Controls.Add(this.picPin);
             this.Controls.Add(this.llblEdit);
             this.Controls.Add(this.picIgnoreDelay);
-            this.Controls.Add(this.txtScrollingLogEntry);
             this.Controls.Add(this.picValidation);
             this.Controls.Add(this.nudOccurance);
             this.Controls.Add(this.nudParallelOffsetInMs);
@@ -244,12 +241,12 @@
         private System.Windows.Forms.PictureBox picIgnoreDelay;
         private System.Windows.Forms.PictureBox picValidation;
         private System.Windows.Forms.NumericUpDown nudOccurance;
-        private System.Windows.Forms.TextBox txtScrollingLogEntry;
         private System.Windows.Forms.CheckBox chkIndex;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.LinkLabel llblEdit;
         private System.Windows.Forms.PictureBox picParallel;
         private System.Windows.Forms.NumericUpDown nudParallelOffsetInMs;
+        private System.Windows.Forms.Label lblLogEntry;
 
     }
 }

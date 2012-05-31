@@ -36,7 +36,7 @@ namespace vApus.DistributedTesting
         }
         public int FastResultsCount
         {
-            get { return stresstestControl.FastResultsCount; }
+            get { return 0; }// stresstestControl.FastResultsCount; }
         }
         #endregion
 
@@ -69,7 +69,7 @@ namespace vApus.DistributedTesting
         /// <param name="countDown">smaller than 0 for paused or unknown</param>
         public void SetCountDownProgressDelay(int countDown)
         {
-            stresstestControl.SetCountDownProgressDelay(countDown);
+            //stresstestControl.SetCountDownProgressDelay(countDown);
         }
         public void Clear()
         {
@@ -81,7 +81,7 @@ namespace vApus.DistributedTesting
         /// </summary>
         public void SetSlaveInitialized()
         {
-            stresstestControl.SetStresstestInitialized();
+            //stresstestControl.SetStresstestInitialized();
         }
         /// <summary>
         /// Switch between the master and slave tab
@@ -89,7 +89,7 @@ namespace vApus.DistributedTesting
         /// <param name="index"></param>
         public void SetSelectedTabIndex(int index)
         {
-            tc.SelectedIndex = index;
+            //tc.SelectedIndex = index;
         }
         /// <summary>
         /// Set the configuration for the chosen tile stresstest.
@@ -97,7 +97,7 @@ namespace vApus.DistributedTesting
         /// <param name="tileStresstest"></param>
         public void SetSlaveConfigurationControls(OldTileStresstest tileStresstest, List<MonitorView> monitorViews)
         {
-            stresstestControl.SetConfigurationControls(tileStresstest.GetNewStresstest());
+            //stresstestControl.SetConfigurationControls(tileStresstest.GetNewStresstest());
             _monitorViews = monitorViews;
         }
         private void stresstestControl_MonitorClicked(object sender, EventArgs e)
@@ -126,8 +126,8 @@ namespace vApus.DistributedTesting
             float nicsSent = -1,
             float nicsReceived = -1)
         {
-            stresstestControl.SetClientMonitoring(threadsInUse, cpuUsage, contextSwitchesPerSecond, memoryUsage,
-                totalVisibleMemory, nicsSent, nicsReceived);
+            //stresstestControl.SetClientMonitoring(threadsInUse, cpuUsage, contextSwitchesPerSecond, memoryUsage,
+            //    totalVisibleMemory, nicsSent, nicsReceived);
         }
 
         /// <summary>
@@ -259,39 +259,39 @@ namespace vApus.DistributedTesting
             epnlMasterMessages.SetProgressBarToNow();
 
             //Build and add fast results.
-            stresstestControl.ClearFastResults();
+            //stresstestControl.ClearFastResults();
             if (pushMessage.TileStresstestProgressResults != null)
             {
                 foreach (TileConcurrentUsersProgressResult tcr in pushMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
                 {
                     ConcurrentUsersResult cr = new ConcurrentUsersResult(tcr.ConcurrentUsers, tcr.Metrics.TotalLogEntries, tcr.Metrics.StartMeasuringRuntime);
                     cr.Metrics = tcr.Metrics;
-                    stresstestControl.AddFastResult(cr);
+                    //stresstestControl.AddFastResult(cr);
 
                     foreach (TilePrecisionProgressResult tpr in tcr.TilePrecisionProgressResults)
                     {
                         PrecisionResult pr = new PrecisionResult(tpr.Precision, tpr.Metrics.TotalLogEntries, tpr.Metrics.StartMeasuringRuntime);
                         pr.Metrics = tpr.Metrics;
-                        stresstestControl.AddFastResult(pr);
+                        //stresstestControl.AddFastResult(pr);
 
                         foreach (TileRunProgressResult trr in tpr.TileRunProgressResults)
                         {
                             RunResult rr = new RunResult(trr.Run, 1, trr.Metrics.TotalLogEntries, 1, trr.Metrics.StartMeasuringRuntime, trr.RunStartedAndStopped, trr.RunDoneOnce);
                             rr.Metrics = trr.Metrics;
-                            stresstestControl.AddFastResult(rr);
+                            //stresstestControl.AddFastResult(rr);
                         }
                     }
                 }
-                stresstestControl.SetStresstestStarted(pushMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);
-                stresstestControl.SetMeasuredRunTime(pushMessage.TileStresstestProgressResults.Metrics.MeasuredRunTime, pushMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
+                //stresstestControl.SetStresstestStarted(pushMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);
+                //stresstestControl.SetMeasuredRunTime(pushMessage.TileStresstestProgressResults.Metrics.MeasuredRunTime, pushMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
             }
 
-            if (pushMessage.Events == null)
-                stresstestControl.ClearEvents();
-            else
-                stresstestControl.SetEvents(pushMessage.Events);
+            //if (pushMessage.Events == null)
+            //    stresstestControl.ClearEvents();
+            //else
+            //    stresstestControl.SetEvents(pushMessage.Events);
 
-            stresstestControl.SetStresstestStopped(pushMessage.StresstestResult);
+            //stresstestControl.SetStresstestStopped(pushMessage.StresstestResult);
 
             LockWindowUpdate(0);
         }
@@ -432,7 +432,7 @@ namespace vApus.DistributedTesting
         /// </summary>
         public void SetStresstestStopped()
         {
-            stresstestControl.SetStresstestStopped();
+            //stresstestControl.SetStresstestStopped();
         }
         private void btnExport_Click(object sender, EventArgs e)
         {

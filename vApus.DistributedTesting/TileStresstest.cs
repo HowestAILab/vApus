@@ -8,6 +8,7 @@
 using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.DistributedTesting
 {
@@ -77,6 +78,10 @@ namespace vApus.DistributedTesting
         private void _defaultTo_ParentIsNull(object sender, EventArgs e)
         {
             DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            {
+                this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }, null);
         }
 
         /// <summary>

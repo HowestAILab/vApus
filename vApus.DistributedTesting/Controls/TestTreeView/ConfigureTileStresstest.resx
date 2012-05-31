@@ -117,4 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="lblRunSync.Text" xml:space="preserve">
+    <value>Run Synchronization exists to keep all the tests equal in duration.
+That way the tested applications are never idle and results can be matched/compared.
+
+Break on First: If a run from a test is finished the other runs will break.
+Break on Last: Runs will re-run untill the longest one is finished for the first time.
+                      Note that the vApus think time is included in the test duration of a run.  </value>
+  </data>
 </root>

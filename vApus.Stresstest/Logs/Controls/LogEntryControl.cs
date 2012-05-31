@@ -72,7 +72,7 @@ namespace vApus.Stresstest
             _logEntry.LexicalResultChanged += new EventHandler(_logEntry_LexicalResultChanged);
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
-            txtScrollingLogEntry.Text = _logEntry.LogEntryString;
+            lblLogEntry.Text = _logEntry.LogEntryString;
 
             //Backwards compatible.
             if (_logEntry.Parent is UserAction)
@@ -98,7 +98,7 @@ namespace vApus.Stresstest
             || (_logEntry.Parent is UserAction && sender == (_logEntry.Parent as UserAction).Parent))))
             {
                 SetImages();
-                txtScrollingLogEntry.Text = _logEntry.LogEntryString;
+                lblLogEntry.Text = _logEntry.LogEntryString;
             }
         }
         private void _logEntry_LexicalResultChanged(object sender, EventArgs e)
@@ -265,15 +265,13 @@ namespace vApus.Stresstest
                 picIgnoreDelay.Visible = true;
                 nudParallelOffsetInMs.Visible = false;
                 picParallel.Image = global::vApus.Stresstest.Properties.Resources.NotParallel;
-                BackColor = txtScrollingLogEntry.BackColor = (index == 1 && _logEntry.Parent is UserAction && _logEntry.Parent.Count != 0) ? Color.LightGray : SystemColors.Control;
+                BackColor = (index == 1 && _logEntry.Parent is UserAction && _logEntry.Parent.Count != 0) ? Color.LightGray : SystemColors.Control;
             }
 #endif
         }
         protected override void Select(bool directed, bool forward)
         {
             base.Select(directed, forward);
-            txtScrollingLogEntry.Focus();
-            txtScrollingLogEntry.Select();
         }
         #endregion
     }
