@@ -20,7 +20,7 @@ namespace vApus.DistributedTesting
         #region Fields
         private Stresstest.Stresstest _defaultSettingsTo;
 
-        private Connection _connection;
+        protected internal Connection _connection;
         private Monitor.MonitorProject _monitorProject;
         private int[] _monitorIndices = { };
         private Monitor.Monitor[] _monitors = { };

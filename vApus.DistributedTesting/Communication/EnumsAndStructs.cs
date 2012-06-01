@@ -38,36 +38,43 @@ namespace vApus.DistributedTesting
         /// This will return a torrent file in bytes that the torrent client will use on the master-side.
         /// </summary>
         Results,
+#warning implement this
         StopSeedingResults
     }
     [Serializable]
     public struct PollMessage
     {
         public int ProcessID;
-        public PollMessage(int processID)
-        {
-            ProcessID = processID;
-        }
     }
     [Serializable]
     public struct InitializeTestMessage
     {
+        /// <summary>
+        /// To push data back to the master.
+        /// </summary>
         public string PushIP;
+        /// <summary>
+        /// To push data back to the master.
+        /// </summary>
         public int PushPort;
         public string Exception;
-        public OldTileStresstest TileStresstest;
-        public InitializeTestMessage(string pushIP, int pushPort, string exception, OldTileStresstest tileStresstest)
-        {
-            PushIP = pushIP;
-            PushPort = pushPort;
-            Exception = exception;
-            TileStresstest = tileStresstest;
-        }
+        public StresstestWrapper StresstestWrapper;
+    }
+    [Serializable]
+    public struct StresstestWrapper
+    {
+        /// <summary>
+        /// To be able to link the stresstest to the right tile stresstest.
+        /// #.# (TileIndex.TileStresstestIndex eg 0.0); 
+        /// </summary>
+        public string TileStresstestIndex;
+        public RunSynchronization RunSynchronization;
+        public Stresstest.Stresstest Stresstest;
     }
     [Serializable]
     public struct PushMessage
     {
-        public int TileStresstestOriginalHashCode;
+        public string TileStresstestIndex;
         public StresstestResult StresstestResult;
         public TileStresstestProgressResults TileStresstestProgressResults;
         public List<EventPanelEvent> Events;
@@ -88,54 +95,29 @@ namespace vApus.DistributedTesting
     {
         public int BufferSize;
         public string Exception;
-        public SynchronizeBuffersMessage(int bufferSize, string exception)
-        {
-            BufferSize = bufferSize;
-            Exception = exception;
-        }
     }
     [Serializable]
     public struct StartAndStopMessage
     {
-        public List<int> TileStresstestHashCodes;
+        public string TileStresstestIndex;
         public string Exception;
-        public StartAndStopMessage(List<int> tileStresstestHashCodes, string exception)
-        {
-            TileStresstestHashCodes = tileStresstestHashCodes;
-            Exception = exception;
-        }
     }
     [Serializable]
     public struct ContinueMessage
     {
         public int ContinueCounter;
-        public ContinueMessage(int continueCounter)
-        {
-            ContinueCounter = continueCounter;
-        }
     }
     [Serializable]
     public struct ResultsMessage
     {
-        public List<int> TileStresstestHashCodes;
-        public List<byte[]> TorrentInfo;
+        public string TileStresstestIndex;
+        public byte[] TorrentInfo;
         public string Exception;
-        public ResultsMessage(List<int> tileStresstestHashCodes, List<byte[]> torrentInfo, string exception)
-        {
-            TileStresstestHashCodes = tileStresstestHashCodes;
-            TorrentInfo = torrentInfo;
-            Exception = exception;
-        }
     }
     [Serializable]
     public struct StopSeedingResultsMessage
     {
         public string TorrentName;
         public string Exception;
-        public StopSeedingResultsMessage(string torrentName, string exception)
-        {
-            TorrentName = torrentName;
-            Exception = exception;
-        }
     }
 }

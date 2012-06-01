@@ -34,6 +34,20 @@ namespace vApus.DistributedTesting
             get { return _port; }
             set { _port = value; }
         }
+
+        /// <summary>
+        /// Get the ip from the client.
+        /// </summary>
+        public string IP
+        {
+            get
+            {
+
+                if (Parent == null)
+                    return null;
+                return (Parent as Client).IP;
+            }
+        }
         // [SavableCloneable]
         public TileStresstest TileStresstest
         {

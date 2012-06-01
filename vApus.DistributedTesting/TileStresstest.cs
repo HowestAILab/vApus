@@ -9,6 +9,7 @@ using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
 using vApus.Util;
+using vApus.Stresstest;
 
 namespace vApus.DistributedTesting
 {
@@ -43,6 +44,20 @@ namespace vApus.DistributedTesting
         {
             get { return _use; }
             set { _use = value; }
+        }
+        /// <summary>
+        /// To be able to link the stresstest to the right tile stresstest.
+        /// #.# (TileIndex.TileStresstestIndex eg 0.0); 
+        /// </summary>
+        public string TileStresstestIndex
+        {
+            get
+            {
+                object parent = Parent; 
+                if (parent == null)
+                    return null;
+                return (parent as Tile).Index + "." + this.Index;
+            }
         }
 
         public BasicTileStresstest BasicTileStresstest
@@ -100,6 +115,51 @@ namespace vApus.DistributedTesting
             clone.AddWithoutInvokingEvent(BasicTileStresstest.Clone());
             clone.AddWithoutInvokingEvent(AdvancedTileStresstest.Clone());
             return clone;
+        }
+        //This is sent to a slave.
+        public StresstestWrapper GetStresstestWrapper(RunSynchronization runSynchronization)
+        {
+            string tileStresstestIndex = TileStresstestIndex;
+            Stresstest.Stresstest stresstest = new Stresstest.Stresstest();
+            stresstest.ShowInGui = false;
+            stresstest.Distribute = AdvancedTileStresstest.Distribute;
+            stresstest.ConcurrentUsers = AdvancedTileStresstest.ConcurrentUsers;
+
+            Connections connections = new Connections();
+            Connection connection = new Connection();// BasicTileStresstest._connection;
+            ObjectExtension.RemoveDescriptionFromCache(connection);
+            connections.AddWithoutInvokingEvent(connection, false);
+            connection.ForceSettingChildsParent();
+
+            stresstest.Connection = connection;
+            stresstest.DynamicRunMultiplier = AdvancedTileStresstest.DynamicRunMultiplier;
+
+#warning Label
+            stresstest.Label = Label + "[" + tileStresstestIndex + "]";
+
+            Logs logs = new Logs();
+            Log log = AdvancedTileStresstest._log;
+            ObjectExtension.RemoveDescriptionFromCache(log);
+            logs.AddWithoutInvokingEvent(log);
+            log.ForceSettingChildsParent();
+
+            stresstest.Log = log;
+
+            //Nothing happens with this on the other side
+            //var monitors = Monitors;
+            //stresstest.Monitors = new Monitor.Monitor[monitors.Length];
+            //for (int i = 0; i != monitors.Length; i++)
+            //    stresstest.Monitors[i] = monitors[i];
+
+            stresstest.MinimumDelayOverride = AdvancedTileStresstest.MinimumDelay;
+            stresstest.MaximumDelayOverride = AdvancedTileStresstest.MaximumDelay;
+            stresstest.Precision = AdvancedTileStresstest.Precision;
+            stresstest.Shuffle = AdvancedTileStresstest.Shuffle;
+            stresstest.UseParallelExecutionOfLogEntries = false;// AdvancedTileStresstest.useParallelExecutionOfLogEntries;
+
+            stresstest.ForceSettingChildsParent();
+
+            return new StresstestWrapper { Stresstest = stresstest, TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization };
         }
         #endregion
     }

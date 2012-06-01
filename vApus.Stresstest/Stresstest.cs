@@ -58,7 +58,7 @@ namespace vApus.Stresstest
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("Use the .Empty function, not null.");
+                    return;
                 value.ParentIsNull -= _connection_ParentIsNull;
                 _connection = value;
                 _connection.ParentIsNull += _connection_ParentIsNull;
@@ -90,7 +90,7 @@ namespace vApus.Stresstest
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("Use the .Empty function, not null.");
+                    return;
                 value.ParentIsNull -= _log_ParentIsNull;
                 _log = value;
                 _log.ParentIsNull += _log_ParentIsNull;

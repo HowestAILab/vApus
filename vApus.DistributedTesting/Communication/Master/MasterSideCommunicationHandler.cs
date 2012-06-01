@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using vApus.Util;
+using vApus.Stresstest;
 
 namespace vApus.DistributedTesting
 {
@@ -196,39 +197,6 @@ namespace vApus.DistributedTesting
             if (socketWrapper == null || !socketWrapper.Connected)
                 exception = new Exception(string.Format("Not connected to {0}:{1}.", ip, port));
             return socketWrapper;
-        }
-        private Dictionary<SocketWrapper, List<int>> CombineSocketWrappersAndOriginalHashCodes(IEnumerable<OldTileStresstest> tileStresstests, out Exception exception)
-        {
-            Dictionary<SocketWrapper, List<int>> dict;
-            exception = null;
-            try
-            {
-                dict = new Dictionary<SocketWrapper, List<int>>();
-
-                foreach (OldTileStresstest tileStresstest in tileStresstests)
-                {
-                    Exception e;
-                    SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out e);
-
-                    if (e == null && socketWrapper != null)
-                        if (dict.ContainsKey(socketWrapper))
-                        {
-                            dict[socketWrapper].Add(tileStresstest.OriginalHashCode);
-                        }
-                        else
-                        {
-                            var originaleHashCodes = new List<int>();
-                            originaleHashCodes.Add(tileStresstest.OriginalHashCode);
-                            dict.Add(socketWrapper, originaleHashCodes);
-                        }
-                }
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-                dict = null;
-            }
-            return dict;
         }
         /// <summary>
         /// </summary>
@@ -644,16 +612,24 @@ namespace vApus.DistributedTesting
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public void InitializeTest(OldTileStresstest tileStresstest, out Exception exception)
+        public void InitializeTest(TileStresstest tileStresstest, RunSynchronization runSynchronization, out Exception exception)
         {
-            SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out exception);
+#warning Allow multople slaves for work distribution
+            Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
+            SocketWrapper socketWrapper = Get(slave.IP, slave.Port, out exception);
             if (exception == null)
                 try
                 {
-                    tileStresstest.OriginalHashCode = tileStresstest.GetHashCode();
+                    StresstestWrapper stresstestWrapper = tileStresstest.GetStresstestWrapper(runSynchronization);
 
                     InitializeTestMessage initializeTestMessage = new InitializeTestMessage();
-                    initializeTestMessage.TileStresstest = tileStresstest;
+                    initializeTestMessage.StresstestWrapper = new StresstestWrapper();// stresstestWrapper;
+                    initializeTestMessage.StresstestWrapper.TileStresstestIndex = tileStresstest.TileStresstestIndex;
+                    Stresstest.Stresstest stresstest = new Stresstest.Stresstest();
+                    //stresstest.ShowInGui = false;
+                    //stresstest.Distribute = tileStresstest.AdvancedTileStresstest.Distribute;
+                    //stresstest.ConcurrentUsers = tileStresstest.AdvancedTileStresstest.ConcurrentUsers;
+                    initializeTestMessage.StresstestWrapper.Stresstest = stresstest;
 
                     SocketWrapper masterSocketWrapper;
                     lock (_lock)
@@ -685,38 +661,30 @@ namespace vApus.DistributedTesting
         /// The retry count is 3 with a send and a receive timeout of 30 seconds.
         /// </summary>
         /// <param name="exception"></param>
-        public void StartTest(IEnumerable<OldTileStresstest> tileStresstests, out Exception exception)
+        public void StartTest(out Exception exception)
         {
-            var toStart = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
-
-            if (exception == null)
+            Exception e = null;
+            Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper)
             {
-                Exception e = null;
-                Parallel.ForEach(toStart.Keys, delegate(SocketWrapper socketWrapper)
-                {
-                    for (int i = 1; i != 4; i++)
-                        try
-                        {
-                            StartAndStopMessage startMessage = new StartAndStopMessage();
-                            lock (_lock)
-                                startMessage.TileStresstestHashCodes = toStart[socketWrapper];
+                for (int i = 1; i != 4; i++)
+                    try
+                    {
+                        Message<Key> message = SendAndReceive(socketWrapper, Key.StartTest, 30000);
 
-                            Message<Key> message = SendAndReceive(socketWrapper, Key.StartTest, startMessage, 30000);
+                        StartAndStopMessage startMessage = (StartAndStopMessage)message.Content;
+                        if (startMessage.Exception != null)
+                            throw new Exception(startMessage.Exception);
+                        e = null;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        e = new Exception("Failed to start the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
+                        Thread.Sleep(i * 500);
+                    }
+            });
 
-                            startMessage = (StartAndStopMessage)message.Content;
-                            if (startMessage.Exception != null)
-                                throw new Exception(startMessage.Exception);
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            e = new Exception("Failed to start one or more tests on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
-                            Thread.Sleep(i * 500);
-                        }
-                });
-
-                exception = e;
-            }
+            exception = e;
         }
         public void SendBreak()
         {
@@ -736,32 +704,32 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public void StopTest(IEnumerable<OldTileStresstest> tileStresstests)
+        public void StopTest(out Exception exception)
         {
-            Exception exception;
-            var toStop = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
-
-            if (exception == null)
+            Exception e = null;
+            Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper)
             {
-                Parallel.ForEach(toStop.Keys, delegate(SocketWrapper socketWrapper)
-                {
-                    if (socketWrapper != null)
-                        for (int i = 1; i != 4; i++)
-                            try
-                            {
-                                StartAndStopMessage stopMessage = new StartAndStopMessage();
-                                stopMessage.TileStresstestHashCodes = toStop[socketWrapper];
+                if (socketWrapper != null)
+                    for (int i = 1; i != 4; i++)
+                        try
+                        {
+                            Message<Key> message = SendAndReceive(socketWrapper, Key.StopTest, 30000);
+                            
+                            StartAndStopMessage stopMessage = (StartAndStopMessage)message.Content;
+                            if (stopMessage.Exception != null)
+                                throw new Exception(stopMessage.Exception);
 
-                                Message<Key> message = SendAndReceive(socketWrapper, Key.StopTest, stopMessage, 30000);
-                                break;
-                            }
-                            catch (Exception ex)
-                            {
-                                exception = ex;
-                                Thread.Sleep(i * 500);
-                            }
-                });
-            }
+                            e = null;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            e = new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
+                            Thread.Sleep(i * 500);
+                        }
+            });
+
+            exception = e;
         }
         /// <summary>
         /// Only use after the test is stopped.
@@ -773,35 +741,34 @@ namespace vApus.DistributedTesting
         /// <param name="port"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public List<ResultsMessage> GetResults(IEnumerable<OldTileStresstest> tileStresstests)
+        public List<ResultsMessage> GetResults(out Exception exception)
         {
-            Exception exception;
-            var toGet = CombineSocketWrappersAndOriginalHashCodes(tileStresstests, out exception);
-            List<ResultsMessage> l = new List<ResultsMessage>(toGet.Count);
+            Exception e = null;
+            List<ResultsMessage> l = new List<ResultsMessage>(_connectedSlaves.Count);
 
-            Parallel.ForEach(toGet.Keys, delegate(SocketWrapper socketWrapper)
+            Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper)
             {
                 if (socketWrapper != null && socketWrapper.Connected)
                 {
                     ResultsMessage resultsMessage = new ResultsMessage();
-                    lock (_lock)
-                        resultsMessage.TileStresstestHashCodes = toGet[socketWrapper];
-                    resultsMessage.TorrentInfo = new List<byte[]>(resultsMessage.TileStresstestHashCodes.Count);
-
                     for (int i = 1; i != 4; i++)
                         try
                         {
-                            object data = SendAndReceive(socketWrapper, Key.Results, resultsMessage, 30000).Content;
+                            object data = SendAndReceive(socketWrapper, Key.Results, 30000).Content;
                             while (data is SynchronizeBuffersMessage)
                             {
                                 socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)data).BufferSize;
                                 data = Receive(socketWrapper, 30000).Content;
                             }
                             resultsMessage = (ResultsMessage)data;
+                            if (resultsMessage.Exception != null)
+                                throw new Exception(resultsMessage.Exception);
+
                             break;
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            e = new Exception("Failed to get the test results from " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
                             Thread.Sleep(i * 500);
                         }
 
@@ -809,6 +776,8 @@ namespace vApus.DistributedTesting
                         l.Add(resultsMessage);
                 }
             });
+
+            exception = e;
             return l;
         }
         /// <summary>
@@ -817,25 +786,25 @@ namespace vApus.DistributedTesting
         /// <param name="tileStresstest"></param>
         /// <param name="torrentName"></param>
         /// <param name="exception"></param>
-        public void StopSeedingResults(OldTileStresstest tileStresstest, string torrentName, out Exception exception)
-        {
-            SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out exception);
-            if (exception == null)
-                for (int i = 1; i != 4; i++)
-                    try
-                    {
-                        StopSeedingResultsMessage stopSeedingResultsMessage = new StopSeedingResultsMessage();
-                        stopSeedingResultsMessage.TorrentName = torrentName;
+        //public void StopSeedingResults(TileStresstest tileStresstest, string torrentName, out Exception exception)
+        //{
+            //SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out exception);
+            //if (exception == null)
+            //    for (int i = 1; i != 4; i++)
+            //        try
+            //        {
+            //            StopSeedingResultsMessage stopSeedingResultsMessage = new StopSeedingResultsMessage();
+            //            stopSeedingResultsMessage.TorrentName = torrentName;
 
-                        Send(socketWrapper, Key.StopSeedingResults, stopSeedingResultsMessage, 30000);
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        exception = ex;
-                        Thread.Sleep(i * 500);
-                    }
-        }
+            //            Send(socketWrapper, Key.StopSeedingResults, stopSeedingResultsMessage, 30000);
+            //            break;
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            exception = ex;
+            //            Thread.Sleep(i * 500);
+            //        }
+        //}
         public void Dispose()
         {
             if (!_isDisposed)

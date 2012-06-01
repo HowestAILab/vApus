@@ -22,7 +22,7 @@ namespace vApus.DistributedTesting
         private int[] _concurrentUsers = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
         private ActionAndLogEntryDistribution _distribute;
-        private Log _log;
+        protected internal Log _log;
         #endregion
 
         #region Properties

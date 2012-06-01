@@ -25,35 +25,26 @@ namespace vApus.DistributedTesting
 
         private DistributedTest _distributedTest;
         private MasterSideCommunicationHandler _masterCommunication = new MasterSideCommunicationHandler();
-        private List<Tile> _usedTiles = new List<Tile>();
-        private List<OldTileStresstest> _usedTileStresstests = new List<OldTileStresstest>();
+        private List<TileStresstest> _usedTileStresstests = new List<TileStresstest>();
         private bool _isDisposed;
 
-        private volatile int[] _ok = new int[] { };
-        private volatile int[] _cancelled = new int[] { };
-        private volatile int[] _failed = new int[] { };
+        private volatile string[] _ok = new string[] { };
+        private volatile string[] _cancelled = new string[] { };
+        private volatile string[] _failed = new string[] { };
 
-        private volatile int[] _runInitialized = new int[] { };
-        private volatile int[] _runDoneOnce = new int[] { };
+        private volatile string[] _runInitialized = new string[] { };
+        private volatile string[] _runDoneOnce = new string[] { };
 
         //Invoke only once
         private bool _finishedInvoked = false;
         #endregion
 
         #region Properties
-        public IEnumerable<Tile> UsedTiles
+        public IEnumerable<TileStresstest> UsedTileStresstests
         {
             get
             {
-                foreach (Tile tile in _usedTiles)
-                    yield return tile;
-            }
-        }
-        public IEnumerable<OldTileStresstest> UsedTileStresstests
-        {
-            get
-            {
-                foreach (OldTileStresstest tileStresstest in _usedTileStresstests)
+                foreach (TileStresstest tileStresstest in _usedTileStresstests)
                     yield return tileStresstest;
             }
         }
@@ -127,7 +118,6 @@ namespace vApus.DistributedTesting
         {
             InvokeMessage("Connecting slaves...");
             _sw.Start();
-            _usedTiles.Clear();
             _usedTileStresstests.Clear();
             foreach (BaseItem item in _distributedTest.Tiles)
             {
@@ -135,16 +125,15 @@ namespace vApus.DistributedTesting
                 if (tile.Use)
                     foreach (BaseItem childItem in tile)
                     {
-                        OldTileStresstest tileStresstest = childItem as OldTileStresstest;
+                        TileStresstest tileStresstest = childItem as TileStresstest;
                         if (tileStresstest.Use)
                         {
                             Exception exception;
+#warning Allow multiple slaves to be able to distribute work.
                             int processID;
-                            _masterCommunication.ConnectSlave(tileStresstest.SlaveIP, tileStresstest.SlavePort, out processID, out exception);
+                            _masterCommunication.ConnectSlave(tileStresstest.BasicTileStresstest.Slaves[0].IP, tileStresstest.BasicTileStresstest.Slaves[0].Port, out processID, out exception);
                             if (exception == null)
                             {
-                                if (!_usedTiles.Contains(tile))
-                                    _usedTiles.Add(tile);
                                 _usedTileStresstests.Add(tileStresstest);
                                 InvokeMessage(string.Format("|->Connected {0} - {1}", tileStresstest.Parent, tileStresstest));
                             }
@@ -172,11 +161,10 @@ namespace vApus.DistributedTesting
         {
             InvokeMessage("Initializing test on slaves...");
             _sw.Start();
-            Parallel.ForEach(_usedTileStresstests, delegate(OldTileStresstest tileStresstest)
+            Parallel.ForEach(_usedTileStresstests, delegate(TileStresstest tileStresstest)
             {
                 Exception exception;
-                tileStresstest.RunSynchronization = _distributedTest.RunSynchronization;
-                _masterCommunication.InitializeTest(tileStresstest, out exception);
+                _masterCommunication.InitializeTest(tileStresstest, _distributedTest.RunSynchronization, out exception);
                 if (exception == null)
                 {
                     InvokeMessage(string.Format("|->Initialized {0} - {1}", tileStresstest.Parent, tileStresstest));
@@ -197,7 +185,7 @@ namespace vApus.DistributedTesting
         {
             InvokeMessage("Starting the test...");
             Exception exception;
-            _masterCommunication.StartTest(_usedTileStresstests, out exception);
+            _masterCommunication.StartTest(out exception);
 
             if (exception == null)
             {
@@ -227,20 +215,21 @@ namespace vApus.DistributedTesting
                 {
                     try
                     {
-                        foreach (OldTileStresstest tileStresstest in _usedTileStresstests)
-                            if (tileStresstest.SlaveIP == e.SlaveIP && tileStresstest.SlavePort == e.SlavePort)
-                                _failed = AddUniqueToIntArray(_failed, tileStresstest.OriginalHashCode);
+#warning allow multiple slaves yadda yadda
+                        foreach (TileStresstest tileStresstest in _usedTileStresstests)
+                            if (tileStresstest.BasicTileStresstest.Slaves[0].IP == e.SlaveIP && tileStresstest.BasicTileStresstest.Slaves[0].Port == e.SlavePort)
+                                _failed = AddUniqueToStringArray(_failed, tileStresstest.TileStresstestIndex);
 
                         InvokeOnListeningError(e);
 
                         if (RunInitializedCount == Running)
                         {
-                            _runInitialized = new int[] { };
+                            _runInitialized = new string[] { };
                             _masterCommunication.SendContinue();
                         }
                         else if (RunDoneOnceCount == Running)
                         {
-                            _runDoneOnce = new int[] { };
+                            _runDoneOnce = new string[] { };
                             _masterCommunication.SendContinue();
                         }
                         else if (_distributedTest.RunSynchronization ==
@@ -257,13 +246,13 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        private int[] AddUniqueToIntArray(int[] arr, int item)
+        private string[] AddUniqueToStringArray(string[] arr, string item)
         {
-            foreach (int i in arr)
-                if (i == item)
+            foreach (string s in arr)
+                if (s == item)
                     return arr;
 
-            int[] newArr = new int[arr.Length + 1];
+            string[] newArr = new string[arr.Length + 1];
             for (int index = 0; index != arr.Length; index++)
                 newArr[index] = arr[index];
             newArr[arr.Length] = item;
@@ -285,13 +274,13 @@ namespace vApus.DistributedTesting
                             okCancelError = false;
                             break;
                         case StresstestResult.Ok:
-                            _ok = AddUniqueToIntArray(_ok, pushMessage.TileStresstestOriginalHashCode);
+                            _ok = AddUniqueToStringArray(_ok, pushMessage.TileStresstestIndex);
                             break;
                         case StresstestResult.Cancelled:
-                            _cancelled = AddUniqueToIntArray(_cancelled, pushMessage.TileStresstestOriginalHashCode);
+                            _cancelled = AddUniqueToStringArray(_cancelled, pushMessage.TileStresstestIndex);
                             break;
                         case StresstestResult.Error:
-                            _failed = AddUniqueToIntArray(_failed, pushMessage.TileStresstestOriginalHashCode);
+                            _failed = AddUniqueToStringArray(_failed, pushMessage.TileStresstestIndex);
                             break;
                     }
 
@@ -301,7 +290,7 @@ namespace vApus.DistributedTesting
                     {
                         //Thread this as stopped.
                         if (okCancelError)
-                            _runDoneOnce = AddUniqueToIntArray(_runDoneOnce, pushMessage.TileStresstestOriginalHashCode);
+                            _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, pushMessage.TileStresstestIndex);
 
                         switch (_distributedTest.RunSynchronization)
                         {
@@ -312,19 +301,19 @@ namespace vApus.DistributedTesting
                             case RunSynchronization.BreakOnFirstFinished:
                                 if (pushMessage.RunStateChange == RunStateChange.ToRunInitializedFirstTime)
                                 {
-                                    _runInitialized = AddUniqueToIntArray(_runInitialized, pushMessage.TileStresstestOriginalHashCode);
+                                    _runInitialized = AddUniqueToStringArray(_runInitialized, pushMessage.TileStresstestIndex);
                                     if (RunInitializedCount == Running)
                                     {
-                                        _runInitialized = new int[] { };
+                                        _runInitialized = new string[] { };
                                         _masterCommunication.SendContinue();
                                     }
                                 }
                                 else if (pushMessage.RunStateChange == RunStateChange.ToRunDoneOnce)
                                 {
-                                    _runDoneOnce = AddUniqueToIntArray(_runDoneOnce, pushMessage.TileStresstestOriginalHashCode);
+                                    _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, pushMessage.TileStresstestIndex);
                                     if (RunDoneOnceCount == _usedTileStresstests.Count)
                                     {
-                                        _runDoneOnce = new int[] { };
+                                        _runDoneOnce = new string[] { };
                                         //Increment the index here to be able to continue to the next run.
                                         _masterCommunication.SendContinue();
                                     }
@@ -340,19 +329,19 @@ namespace vApus.DistributedTesting
                             case RunSynchronization.BreakOnLastFinished:
                                 if (pushMessage.RunStateChange == RunStateChange.ToRunInitializedFirstTime)
                                 {
-                                    _runInitialized = AddUniqueToIntArray(_runInitialized, pushMessage.TileStresstestOriginalHashCode);
+                                    _runInitialized = AddUniqueToStringArray(_runInitialized, pushMessage.TileStresstestIndex);
                                     if (RunInitializedCount == Running)
                                     {
-                                        _runInitialized = new int[] { };
+                                        _runInitialized = new string[] { };
                                         _masterCommunication.SendContinue();
                                     }
                                 }
                                 else if (pushMessage.RunStateChange == RunStateChange.ToRunDoneOnce)
                                 {
-                                    _runDoneOnce = AddUniqueToIntArray(_runDoneOnce, pushMessage.TileStresstestOriginalHashCode);
+                                    _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, pushMessage.TileStresstestIndex);
                                     if (RunDoneOnceCount == Running)
                                     {
-                                        _runDoneOnce = new int[] { };
+                                        _runDoneOnce = new string[] { };
                                         _masterCommunication.SendBreak();
                                     }
                                 }
@@ -373,7 +362,9 @@ namespace vApus.DistributedTesting
         public void Stop()
         {
             InvokeMessage("Stopping the test...");
-            _masterCommunication.StopTest(_usedTileStresstests);
+#warning Handle exception
+            Exception ex;
+            _masterCommunication.StopTest(out ex);
 
             InvokeMessage("Test Cancelled!", LogLevel.Warning);
         }
@@ -384,20 +375,24 @@ namespace vApus.DistributedTesting
         public List<ResultsMessage> GetResults()
         {
             InvokeMessage("Getting results (it can take a minute or two until transmission begins)...");
-
-            return _masterCommunication.GetResults(_usedTileStresstests);
+#warning Handle Exception
+            Exception ex;
+            return _masterCommunication.GetResults(out ex);
         }
+
+
         /// <summary>
         /// Stops the seeding at the torrent server.
         /// </summary>
-        public void StopSeedingResults(OldTileStresstest tileStresstest, string torrentName)
+        public void StopSeedingResults(TileStresstest tileStresstest, string torrentName)
         {
-            lock (this)
-            {
-                Exception ex;
-                _masterCommunication.StopSeedingResults(tileStresstest, torrentName, out ex);
-                _masterCommunication.DisconnectSlave(tileStresstest.SlaveIP, tileStresstest.SlavePort);
-            }
+#warning implement this.
+            //lock (this)
+            //{
+            //    Exception ex;
+            //    _masterCommunication.StopSeedingResults(tileStresstest, torrentName, out ex);
+            //    _masterCommunication.DisconnectSlave(tileStresstest.SlaveIP, tileStresstest.SlavePort);
+            //}
         }
         public void Dispose()
         {
@@ -408,7 +403,6 @@ namespace vApus.DistributedTesting
                     _isDisposed = true;
                     _masterCommunication.Dispose();
                     _masterCommunication = null;
-                    _usedTiles = null;
                     _usedTileStresstests = null;
                     _sw = null;
                 }

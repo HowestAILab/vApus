@@ -32,6 +32,8 @@ namespace vApus.Stresstest
             get { return _connectionProxy; }
             set
             {
+                if (value == null)
+                    return;
                 value.ParentIsNull -= _connectionProxy_ParentIsNull;
                 _connectionProxy = value;
                 _connectionProxy.ParentIsNull += _connectionProxy_ParentIsNull;

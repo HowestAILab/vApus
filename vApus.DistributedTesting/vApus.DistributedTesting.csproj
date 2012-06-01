@@ -269,19 +269,7 @@
     <Compile Include="Communication\SocketListenerManagerPanel.designer.cs">
       <DependentUpon>SocketListenerManagerPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TileStresstestSelectorControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\TileStresstestSelectorControl.Designer.cs">
-      <DependentUpon>TileStresstestSelectorControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="DistributedTestCore.cs" />
-    <Compile Include="JumpStart\LinkageOverview.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="JumpStart\LinkageOverview.Designer.cs">
-      <DependentUpon>LinkageOverview.cs</DependentUpon>
-    </Compile>
     <Compile Include="Slave.cs" />
     <Compile Include="TileStresstest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -291,12 +279,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="DistributedTest.cs" />
-    <Compile Include="OldDistributedTestView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OldDistributedTestView.Designer.cs">
-      <DependentUpon>OldDistributedTestView.cs</DependentUpon>
-    </Compile>
     <Compile Include="DistributedTestingProject.cs" />
     <Compile Include="Communication\Slave\SocketListener.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -314,7 +296,6 @@
       <DependentUpon>TileStresstestView.cs</DependentUpon>
     </Compile>
     <Compile Include="Tile.cs" />
-    <Compile Include="OldTileStresstest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.JumpStartStructures\vApus.JumpStartStructures.csproj">
@@ -386,20 +367,10 @@
     <EmbeddedResource Include="JumpStart\LinkageControl.resx">
       <DependentUpon>LinkageControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TileStresstestSelectorControl.resx">
-      <DependentUpon>TileStresstestSelectorControl.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="JumpStart\LinkageOverview.resx">
-      <DependentUpon>LinkageOverview.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OldDistributedTestView.resx">
-      <DependentUpon>OldDistributedTestView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TileStresstestView.resx">
       <DependentUpon>TileStresstestView.cs</DependentUpon>

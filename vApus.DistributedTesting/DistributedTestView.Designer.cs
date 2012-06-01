@@ -1,6 +1,6 @@
 ﻿namespace vApus.DistributedTesting
 {
-    partial class NewDistributedTestView
+    partial class DistributedTestView
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewDistributedTestView));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DistributedTestView));
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
@@ -42,16 +42,16 @@
             this.tcTest = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpConfigureTest = new System.Windows.Forms.TabPage();
             this.tpStresstest = new System.Windows.Forms.TabPage();
+            this.stresstestControl = new vApus.Stresstest.StresstestControl();
             this.tpReport = new System.Windows.Forms.TabPage();
             this.tcReport = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpStresstestReport = new System.Windows.Forms.TabPage();
+            this.stresstestReportControl = new vApus.Stresstest.StresstestReportControl();
             this.testTreeView = new vApus.DistributedTesting.TestTreeView();
             this.slaveTreeView = new vApus.DistributedTesting.SlaveTreeView();
             this.configureTileStresstest = new vApus.DistributedTesting.ConfigureTileStresstest();
             this.configureSlaves = new vApus.DistributedTesting.ConfigureSlaves();
-            this.stresstestControl = new vApus.Stresstest.StresstestControl();
             this.distributedStresstestControl = new vApus.DistributedTesting.DistributedStresstestControl();
-            this.stresstestReportControl = new vApus.Stresstest.StresstestReportControl();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
@@ -163,6 +163,7 @@
             // 
             // tpTests
             // 
+            this.tpTests.BackColor = System.Drawing.Color.White;
             this.tpTests.Controls.Add(this.testTreeView);
             this.tpTests.Location = new System.Drawing.Point(0, 22);
             this.tpTests.Name = "tpTests";
@@ -170,10 +171,10 @@
             this.tpTests.Size = new System.Drawing.Size(300, 625);
             this.tpTests.TabIndex = 0;
             this.tpTests.Text = "Tests (#0/0)";
-            this.tpTests.UseVisualStyleBackColor = true;
             // 
             // tpSlaves
             // 
+            this.tpSlaves.BackColor = System.Drawing.Color.White;
             this.tpSlaves.Controls.Add(this.slaveTreeView);
             this.tpSlaves.Location = new System.Drawing.Point(0, 22);
             this.tpSlaves.Name = "tpSlaves";
@@ -181,7 +182,6 @@
             this.tpSlaves.Size = new System.Drawing.Size(300, 625);
             this.tpSlaves.TabIndex = 1;
             this.tpSlaves.Text = "Slaves (#0/0)";
-            this.tpSlaves.UseVisualStyleBackColor = true;
             // 
             // tcTest
             // 
@@ -201,6 +201,7 @@
             // 
             // tpConfigureTest
             // 
+            this.tpConfigureTest.BackColor = System.Drawing.Color.White;
             this.tpConfigureTest.Controls.Add(this.configureTileStresstest);
             this.tpConfigureTest.Controls.Add(this.configureSlaves);
             this.tpConfigureTest.Location = new System.Drawing.Point(4, 22);
@@ -209,10 +210,10 @@
             this.tpConfigureTest.Size = new System.Drawing.Size(604, 625);
             this.tpConfigureTest.TabIndex = 0;
             this.tpConfigureTest.Text = "Configure";
-            this.tpConfigureTest.UseVisualStyleBackColor = true;
             // 
             // tpStresstest
             // 
+            this.tpStresstest.BackColor = System.Drawing.Color.White;
             this.tpStresstest.Controls.Add(this.stresstestControl);
             this.tpStresstest.Controls.Add(this.distributedStresstestControl);
             this.tpStresstest.Location = new System.Drawing.Point(4, 22);
@@ -221,10 +222,20 @@
             this.tpStresstest.Size = new System.Drawing.Size(604, 625);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
-            this.tpStresstest.UseVisualStyleBackColor = true;
+            // 
+            // stresstestControl
+            // 
+            this.stresstestControl.BackColor = System.Drawing.SystemColors.Control;
+            this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stresstestControl.Location = new System.Drawing.Point(3, 3);
+            this.stresstestControl.MonitorConfigurationControlVisible = false;
+            this.stresstestControl.Name = "stresstestControl";
+            this.stresstestControl.Size = new System.Drawing.Size(598, 619);
+            this.stresstestControl.TabIndex = 0;
             // 
             // tpReport
             // 
+            this.tpReport.BackColor = System.Drawing.Color.White;
             this.tpReport.Controls.Add(this.tcReport);
             this.tpReport.Location = new System.Drawing.Point(4, 22);
             this.tpReport.Name = "tpReport";
@@ -232,7 +243,6 @@
             this.tpReport.Size = new System.Drawing.Size(604, 625);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
-            this.tpReport.UseVisualStyleBackColor = true;
             // 
             // tcReport
             // 
@@ -250,6 +260,7 @@
             // 
             // tpStresstestReport
             // 
+            this.tpStresstestReport.BackColor = System.Drawing.Color.White;
             this.tpStresstestReport.Controls.Add(this.stresstestReportControl);
             this.tpStresstestReport.Location = new System.Drawing.Point(0, 19);
             this.tpStresstestReport.Name = "tpStresstestReport";
@@ -257,7 +268,16 @@
             this.tpStresstestReport.Size = new System.Drawing.Size(597, 599);
             this.tpStresstestReport.TabIndex = 0;
             this.tpStresstestReport.Text = "Stresstest Report";
-            this.tpStresstestReport.UseVisualStyleBackColor = true;
+            // 
+            // stresstestReportControl
+            // 
+            this.stresstestReportControl.BackColor = System.Drawing.SystemColors.Control;
+            this.stresstestReportControl.CanSaveRFile = true;
+            this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
+            this.stresstestReportControl.Name = "stresstestReportControl";
+            this.stresstestReportControl.Size = new System.Drawing.Size(591, 593);
+            this.stresstestReportControl.TabIndex = 0;
             // 
             // testTreeView
             // 
@@ -280,6 +300,7 @@
             // 
             // configureTileStresstest
             // 
+            this.configureTileStresstest.BackColor = System.Drawing.Color.White;
             this.configureTileStresstest.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configureTileStresstest.Location = new System.Drawing.Point(3, 3);
             this.configureTileStresstest.Name = "configureTileStresstest";
@@ -296,16 +317,6 @@
             this.configureSlaves.TabIndex = 1;
             this.configureSlaves.Visible = false;
             // 
-            // stresstestControl
-            // 
-            this.stresstestControl.BackColor = System.Drawing.SystemColors.Control;
-            this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestControl.MonitorConfigurationControlVisible = false;
-            this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(598, 619);
-            this.stresstestControl.TabIndex = 0;
-            // 
             // distributedStresstestControl
             // 
             this.distributedStresstestControl.DistributedTest = null;
@@ -314,16 +325,6 @@
             this.distributedStresstestControl.Name = "distributedStresstestControl";
             this.distributedStresstestControl.Size = new System.Drawing.Size(598, 619);
             this.distributedStresstestControl.TabIndex = 1;
-            // 
-            // stresstestReportControl
-            // 
-            this.stresstestReportControl.BackColor = System.Drawing.SystemColors.Control;
-            this.stresstestReportControl.CanSaveRFile = true;
-            this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(591, 593);
-            this.stresstestReportControl.TabIndex = 0;
             // 
             // NewDistributedTestView
             // 

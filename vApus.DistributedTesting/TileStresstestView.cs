@@ -28,11 +28,8 @@ namespace vApus.DistributedTesting
 
         // private System.Timers.Timer _messageTimer = new System.Timers.Timer();
 
-        /// <summary>
-        /// Communication to the master --> wrong place for this!
-        /// </summary>
-        private SocketWrapper _masterSocketWrapper;
-        private OldTileStresstest _tileStresstest;
+        private string _tileStresstestIndex;
+        private RunSynchronization _runSynchronization;
 
         //To report progress to the master.
         private TileStresstestProgressResults _tileStresstestProgressResults;
@@ -56,17 +53,15 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// Store to identify the right stresstest.
         /// </summary>
-        public OldTileStresstest TileStresstest
+        public string TileStresstestIndex
         {
-            get { return _tileStresstest; }
+            get { return _tileStresstestIndex; }
+            set { _tileStresstestIndex = value; }
         }
-        /// <summary>
-        /// Used for pushing data to the right master.
-        /// </summary>
-        public SocketWrapper MasterSocketWrapper
+        public RunSynchronization RunSynchronization
         {
-            get { return _masterSocketWrapper; }
-            set { _masterSocketWrapper = value; }
+            get { return _runSynchronization; }
+            set { _runSynchronization = value; }
         }
         public Stresstest.StresstestResults StresstestResults
         {
@@ -85,9 +80,8 @@ namespace vApus.DistributedTesting
         public TileStresstestView(SolutionComponent solutionComponent, params object[] args)
             : base(solutionComponent, args)
         {
-            _tileStresstest = SolutionComponent as OldTileStresstest;
-            _stresstest = _tileStresstest.GetNewStresstest();
-           
+            _stresstest = SolutionComponent as Stresstest.Stresstest;
+
             InitializeComponent();
             if (this.IsHandleCreated)
                 SetGui();
@@ -137,7 +131,7 @@ namespace vApus.DistributedTesting
                 try
                 {
                     _stresstestCore = new Stresstest.StresstestCore(_stresstest, false);
-                    _stresstestCore.RunSynchronization = _tileStresstest.RunSynchronization;
+                    _stresstestCore.RunSynchronization = this.RunSynchronization;
                     _stresstestCore.StresstestStarted += new EventHandler<Stresstest.StresstestStartedEventArgs>(_stresstestCore_StresstestStarted);
                     _stresstestCore.ConcurrentUsersStarted += new EventHandler<Stresstest.ConcurrentUsersStartedEventArgs>(_stresstestCore_ConcurrentUsersStarted);
                     _stresstestCore.PrecisionStarted += new EventHandler<Stresstest.PrecisionStartedEventArgs>(_stresstestCore_PrecisionStarted);
@@ -321,14 +315,12 @@ namespace vApus.DistributedTesting
         /// <param name="concurrentUsersStateChange"></param>
         private void SendPushMessage(RunStateChange concurrentUsersStateChange)
         {
-            if (_masterSocketWrapper != null)
-                SlaveSideCommunicationHandler.SendPushMessage(_masterSocketWrapper,
-                    _tileStresstest,
-                    _tileStresstestProgressResults,
-                    _stresstestResult,
-                    _stresstestCore,
-                    stresstestControl.GetEvents(),
-                    concurrentUsersStateChange);
+            SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex,
+                _tileStresstestProgressResults,
+                _stresstestResult,
+                _stresstestCore,
+                stresstestControl.GetEvents(),
+                concurrentUsersStateChange);
         }
 
         /// <summary>

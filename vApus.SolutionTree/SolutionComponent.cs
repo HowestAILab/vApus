@@ -484,13 +484,17 @@ namespace vApus.SolutionTree
         /// <param name="parent"></param>
         public static BaseItem GetNextOrEmptyChild(Type childType, SolutionComponent parent)
         {
-            int count = parent.CountOf(childType);
-            if (count != 0)
-                foreach (object item in parent)
-                    if (item.GetType() == childType && item.GetParent() == parent) //GetParent is the parent from the global cache, default items in a collection don't know their parents.
-                        return item as BaseItem;
+            if (parent != null)
+            {
+                int count = parent.CountOf(childType);
+                if (count != 0)
+                    foreach (object item in parent)
+                        if (item.GetType() == childType && item.GetParent() == parent) //GetParent is the parent from the global cache, default items in a collection don't know their parents.
+                            return item as BaseItem;
 
-            return BaseItem.Empty(childType, parent);
+                return BaseItem.Empty(childType, parent);
+            }
+            return null;
         }
         /// <summary>
         /// Virtual method for activation, example: SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)) --> default.

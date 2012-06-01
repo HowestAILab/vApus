@@ -52,7 +52,7 @@ namespace vApus.DistributedTesting
         }
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender is OldTileStresstest || sender is DistributedTest)
+            if (sender is TileStresstest || sender is DistributedTest)
             {
                 if (this.IsDisposed)
                     SolutionComponent.SolutionComponentChanged -= new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
@@ -78,7 +78,7 @@ namespace vApus.DistributedTesting
                 Tile tile = item as Tile;
                 foreach (BaseItem child in tile)
                 {
-                    OldTileStresstest tileStresstest = child as OldTileStresstest;
+                    TileStresstest tileStresstest = child as TileStresstest;
                     string key = tileStresstest.SlaveIP + ':' + tileStresstest.SlavePort;
 
                     LinkageControl lc = null;
@@ -229,7 +229,7 @@ namespace vApus.DistributedTesting
                 Tile tile = item as Tile;
                 foreach (BaseItem child in tile)
                 {
-                    OldTileStresstest tileStresstest = child as OldTileStresstest;
+                    TileStresstest tileStresstest = child as TileStresstest;
                     string key = tileStresstest.SlaveIP + ':' + tileStresstest.SlavePort;
 
                     LinkageControl lc = null;
@@ -242,8 +242,8 @@ namespace vApus.DistributedTesting
                             tileStresstest.Name + ' ' + tileStresstest.Index :
                             tileStresstest.Name + ' ' + tileStresstest.Index + ": " + tileStresstest.Label)
                             +
-                            (btnConnectionStrings.Text == "Show Connection Strings" || tileStresstest.Connection.IsEmpty || tileStresstest.Connection.ConnectionString == string.Empty ?
-                            string.Empty : " [" + tileStresstest.Connection.ConnectionString + "]" + Environment.NewLine);
+                            (btnConnectionStrings.Text == "Show Connection Strings" || tileStresstest.BasicTileStresstest.Connection.IsEmpty || tileStresstest.BasicTileStresstest.Connection.ConnectionString == string.Empty ?
+                            string.Empty : " [" + tileStresstest.BasicTileStresstest.Connection.ConnectionString + "]" + Environment.NewLine);
                     }
                 }
             }

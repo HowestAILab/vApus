@@ -358,8 +358,8 @@ namespace vApus.DistributedTesting
             if (_client.Use != chk.Checked)
             {
                 _client.Use = chk.Checked;
-                foreach (TileStresstest ts in _client)
-                    ts.Use = _client.Use;
+                foreach (Slave slave in _client)
+                    slave.Use = _client.Use;
 
                 _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }

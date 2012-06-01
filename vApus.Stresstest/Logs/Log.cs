@@ -42,6 +42,8 @@ namespace vApus.Stresstest
             get { return _logRuleSet; }
             set
             {
+                if (value == null)
+                    return;
                 value.ParentIsNull -= _logRuleSet_ParentIsNull;
                 _logRuleSet = value;
                 _logRuleSet.ParentIsNull += _logRuleSet_ParentIsNull;
