@@ -5,13 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
-using System.IO;
 
 namespace vApus.DistributedTesting
 {

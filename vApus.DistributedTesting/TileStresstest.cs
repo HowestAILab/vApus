@@ -126,7 +126,8 @@ namespace vApus.DistributedTesting
             stresstest.ConcurrentUsers = AdvancedTileStresstest.ConcurrentUsers;
 
             Connections connections = new Connections();
-            Connection connection = new Connection();// BasicTileStresstest._connection;
+            Connection connection = BasicTileStresstest._connection;
+            connection.ShowInGui = false;
             ObjectExtension.RemoveDescriptionFromCache(connection);
             connections.AddWithoutInvokingEvent(connection, false);
             connection.ForceSettingChildsParent();
@@ -134,8 +135,7 @@ namespace vApus.DistributedTesting
             stresstest.Connection = connection;
             stresstest.DynamicRunMultiplier = AdvancedTileStresstest.DynamicRunMultiplier;
 
-#warning Label
-            stresstest.Label = Label + "[" + tileStresstestIndex + "]";
+            stresstest.Label = Label + " [TS " + tileStresstestIndex + "]";
 
             Logs logs = new Logs();
             Log log = AdvancedTileStresstest._log;

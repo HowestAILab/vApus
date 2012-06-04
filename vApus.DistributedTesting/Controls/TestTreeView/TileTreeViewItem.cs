@@ -40,6 +40,8 @@ namespace vApus.DistributedTesting
         /// Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
+
+        private DistributedTestMode _distributedTestMode;
         #endregion
 
         #region Properties
@@ -216,6 +218,11 @@ namespace vApus.DistributedTesting
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+            {
+                _ctrl = false;
+                return;
+            }
             if (sender == txtTile)
                 if (e.KeyCode == Keys.Enter && _tile.Label != txtTile.Text)
                 {
@@ -244,6 +251,9 @@ namespace vApus.DistributedTesting
         }
         private void _KeyDown(object sender, KeyEventArgs e)
         {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+                return;
+            
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
         }
@@ -279,16 +289,34 @@ namespace vApus.DistributedTesting
                 _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
-        #endregion
-
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
-        }
+            _distributedTestMode = distributedTestMode;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+            {
+                chk.Visible =
+                txtTile.Visible =
+                picDelete.Visible =
+                picDuplicate.Visible = true;
 
-        public DistributedTestMode DistributedTestMode
-        {
-            get { throw new NotImplementedException(); }
+                this.Visible = true;
+            }
+            else
+            {
+                if (_tile.Use)
+                {
+                    chk.Visible =
+                    txtTile.Visible =
+                    picDelete.Visible =
+                    picDuplicate.Visible = false;
+                }
+                else
+                {
+                    this.Visible = false;
+                }
+            }
         }
+        #endregion
     }
 }

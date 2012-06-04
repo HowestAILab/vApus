@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -17,7 +18,7 @@ namespace vApus.Stresstest
     [Serializable]
     [ContextMenu(new string[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new string[] { "Edit/Import", "Remove", "Export Data Structure", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new string[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new Keys[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
-    public class Log : LabeledBaseItem
+    public class Log : LabeledBaseItem, ISerializable
     {
         #region Fields
         private static object _lock = new object();
@@ -55,7 +56,6 @@ namespace vApus.Stresstest
         /// Set: if it is outside boundaries this will be corrected by going to the last or first possible index.
         /// </summary>
         [SavableCloneable]
-
         public int PreferredTokenDelimiterIndex
         {
             get { return _preferredTokenDelimiterIndex; }
@@ -69,7 +69,6 @@ namespace vApus.Stresstest
                 _preferredTokenDelimiterIndex = value;
             }
         }
-
 
         public LexicalResult LexicalResult
         {
@@ -98,7 +97,28 @@ namespace vApus.Stresstest
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
+        public Log(SerializationInfo info, StreamingContext ctxt)
+        {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info))
+            {
+                Label = sr.ReadString();
+                _logRuleSet = sr.ReadObject() as LogRuleSet;
+                _preferredTokenDelimiterIndex = sr.ReadInt32();
+                _parameters = sr.ReadObject() as Parameters;
 
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+
+            }
+            sr = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
+        }
         #endregion
 
         #region Functions
@@ -291,6 +311,29 @@ namespace vApus.Stresstest
 
             return log;
 
+        }
+
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter())
+            {
+                sw.Write(Label);
+                sw.WriteObject(_logRuleSet);
+                sw.Write(_preferredTokenDelimiterIndex);
+                sw.WriteObject(_parameters);
+
+                sw.Write(this);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
         }
         #endregion
     }

@@ -9,12 +9,6 @@ namespace vApus.DistributedTesting
 {
     public interface ITreeViewItem
     {
-        DistributedTestMode DistributedTestMode { get; }
-
-        /// <summary>
-        /// Use point to client from the cursor position here or check if the control is selected.
-        /// 
-        /// Then call SetVisibleControls(bool visible)
         /// </summary>
         void SetVisibleControls();
         /// <summary>

@@ -12,8 +12,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using vApus.Util;
 using vApus.Stresstest;
+using vApus.Util;
 
 namespace vApus.DistributedTesting
 {
@@ -623,21 +623,15 @@ namespace vApus.DistributedTesting
                     StresstestWrapper stresstestWrapper = tileStresstest.GetStresstestWrapper(runSynchronization);
 
                     InitializeTestMessage initializeTestMessage = new InitializeTestMessage();
-                    initializeTestMessage.StresstestWrapper = new StresstestWrapper();// stresstestWrapper;
-                    initializeTestMessage.StresstestWrapper.TileStresstestIndex = tileStresstest.TileStresstestIndex;
-                    Stresstest.Stresstest stresstest = new Stresstest.Stresstest();
-                    //stresstest.ShowInGui = false;
-                    //stresstest.Distribute = tileStresstest.AdvancedTileStresstest.Distribute;
-                    //stresstest.ConcurrentUsers = tileStresstest.AdvancedTileStresstest.ConcurrentUsers;
-                    initializeTestMessage.StresstestWrapper.Stresstest = stresstest;
+                    initializeTestMessage.StresstestWrapper = stresstestWrapper;
 
-                    SocketWrapper masterSocketWrapper;
-                    lock (_lock)
-                        masterSocketWrapper = _connectedSlaves[socketWrapper];
+                    SocketWrapper masterSocketWrapper = _connectedSlaves[socketWrapper];
                     initializeTestMessage.PushIP = masterSocketWrapper.IP.ToString();
                     initializeTestMessage.PushPort = masterSocketWrapper.Port;
 
                     Message<Key> message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
+
+                    //socketWrapper.ObjectToByteArray(new Log());
                     //Increases the buffer size, never decreases it.
                     SynchronizeBuffers(socketWrapper, message);
 
@@ -645,7 +639,7 @@ namespace vApus.DistributedTesting
 
                     initializeTestMessage = (InitializeTestMessage)message.Content;
 
-                    // Reset the buffers to keep the messages as small as possible.
+                    //Reset the buffers to keep the messages as small as possible.
                     ResetBuffers(socketWrapper);
                     if (initializeTestMessage.Exception != null)
                         throw new Exception(initializeTestMessage.Exception);

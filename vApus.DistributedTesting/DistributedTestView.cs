@@ -109,6 +109,9 @@ namespace vApus.DistributedTesting
             {
                 TileStresstestTreeViewItem tstvi = sender as TileStresstestTreeViewItem;
                 configureTileStresstest.SetTileStresstest(tstvi.TileStresstest);
+
+                stresstestControl.Visible = true;
+                distributedStresstestControl.Visible = false;
             }
             else
             {
@@ -125,6 +128,8 @@ namespace vApus.DistributedTesting
                 }
                 configureTileStresstest.ClearTileStresstest(showRunSyncDescription);
 
+                stresstestControl.Visible = false;
+                distributedStresstestControl.Visible = true;
             }
         }
         private void slaveTreeView_AfterSelect(object sender, EventArgs e)
@@ -213,8 +218,9 @@ namespace vApus.DistributedTesting
                 btnSchedule.Enabled = false;
                 btnSchedule.Text = "Schedule...";
 
-#warning Set the mode of the tree views and config panels to testing
-
+                testTreeView.SetMode(DistributedTestMode.TestAndReport);
+                slaveTreeView.SetMode(DistributedTestMode.TestAndReport);
+                
                 _distributedTestCore = new DistributedTestCore(_distributedTest);
                 _distributedTestCore.Message += new EventHandler<MessageEventArgs>(_distributedTestCore_Message);
                 _distributedTestCore.OnPushMessageReceived += new EventHandler<PushMessageReceivedEventArgs>(_distributedTestCore_PushMessageReceived);
@@ -616,7 +622,10 @@ namespace vApus.DistributedTesting
             Stop();
         }
         private void Stop()
-        { }
+        {
+            testTreeView.SetMode(DistributedTestMode.Edit);
+            slaveTreeView.SetMode(DistributedTestMode.Edit);
+        }
         #endregion
     }
 }

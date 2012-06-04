@@ -41,6 +41,8 @@ namespace vApus.DistributedTesting
             if (_distributedTestMode != distributedTestMode)
             {
                 _distributedTestMode = distributedTestMode;
+                foreach (ITreeViewItem item in largeList.AllControls)
+                    item.SetDistributedTestMode(_distributedTestMode);
             }
         }
 
@@ -58,7 +60,18 @@ namespace vApus.DistributedTesting
 
             SetGui();
 
-            castvi.Select();
+            //select the first client tvi if any
+            bool selected = false;
+            foreach (Control control in largeList.AllControls)
+                if (control is ClientTreeViewItem)
+                {
+                    control.Select();
+                    selected = true;
+                    break;
+                }
+
+            if (!selected)
+                castvi.Select();
 
             castvi.SetHostNameAndIP();
 

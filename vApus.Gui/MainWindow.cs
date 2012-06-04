@@ -530,7 +530,12 @@ namespace vApus.Gui
         private void SetProcessorAffinityLabel()
         {
             int[] cpus = ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity);
-            lblProcessorAffinity.Text = cpus.Combine(", ");
+            //Make it one-based
+            int[] oneBasedCPUs = new int[cpus.Length];
+            for (int i = 0; i != cpus.Length; i++)
+                oneBasedCPUs[i] = cpus[i] + 1;
+
+            lblProcessorAffinity.Text = oneBasedCPUs.Combine(", ");
         }
         private void SetWindowsFirewallAutoUpdateLabel()
         {

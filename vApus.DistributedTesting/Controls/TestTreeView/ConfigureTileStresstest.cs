@@ -60,6 +60,7 @@ namespace vApus.DistributedTesting
         {
             solutionComponentPropertyPanelDefaultTo.Visible =
             solutionComponentPropertyPanelBasic.Visible =
+            solutionComponentPropertyPanelAdvanced.Visible =
             llblAdvancedSettings.Visible =
             chkAutomatic.Visible = false;
 

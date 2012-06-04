@@ -6,17 +6,19 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
+using System.Collections.Generic;
 
 namespace vApus.Stresstest
 {
     [ContextMenu(new string[] { "Activate_Click", "Add_Click", "Export_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }, new string[] { "Edit", "Add Syntax Item", "Export", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
     [Hotkeys(new string[] { "Activate_Click", "Add_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }, new Keys[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
     [DisplayName("Log Rule Set"), Serializable]
-    public class LogRuleSet : BaseRuleSet
+    public class LogRuleSet : BaseRuleSet, ISerializable
     {
         [field: NonSerialized]
         public event EventHandler LogRuleSetChanged;
@@ -90,6 +92,27 @@ namespace vApus.Stresstest
         {
             BaseItem.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(BaseItem_SolutionComponentChanged);
         }
+               /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
+        public LogRuleSet(SerializationInfo info, StreamingContext ctxt)
+        {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info))
+            {
+                Label = sr.ReadString();
+                _childDelimiter = sr.ReadString();
+                _beginTimestampIndex = sr.ReadUInt32();
+                _endTimestampIndex = sr.ReadUInt32();
+
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+            }
+            sr = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
+        }
         #endregion
 
         #region Functions
@@ -112,6 +135,30 @@ namespace vApus.Stresstest
         protected new void Add_Click(object sender, EventArgs e)
         {
             Add(new LogSyntaxItem());
+        }
+
+
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter())
+            {
+                sw.Write(Label);
+                sw.Write(_childDelimiter);
+                sw.Write(_beginTimestampIndex);
+                sw.Write(_endTimestampIndex);
+
+                sw.Write(this);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
         }
         #endregion
     }

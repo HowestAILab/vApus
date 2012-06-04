@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.SolutionTree;
@@ -185,12 +184,12 @@ namespace vApus.DistributedTesting
                 }
                 catch (Exception ex)
                 {
-                    resultsMessage.Exception = ex.ToString() ;
+                    resultsMessage.Exception = ex.ToString();
                 }
             }
 
             message.Content = resultsMessage;
-            SynchronizeBuffers( message);
+            SynchronizeBuffers(message);
 
             return message;
         }

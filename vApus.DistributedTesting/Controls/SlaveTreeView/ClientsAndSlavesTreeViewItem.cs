@@ -33,6 +33,8 @@ namespace vApus.DistributedTesting
 
         //To know when this can be enabled again.
         private int _refreshingClientCount = 0;
+
+        private DistributedTestMode _distributedTestMode;
         #endregion
 
         #region Properties
@@ -52,7 +54,7 @@ namespace vApus.DistributedTesting
             InitializeComponent();
         }
         public ClientsAndSlavesTreeViewItem(ClientsAndSlaves clientsAndSlaves)
-            :this()
+            : this()
         {
             _clientsAndSlaves = clientsAndSlaves;
         }
@@ -94,16 +96,25 @@ namespace vApus.DistributedTesting
         }
         private void _KeyDown(object sender, KeyEventArgs e)
         {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+                return;
+
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+            {
+                _ctrl = false;
+                return;
+            }
+
             if (_ctrl && e.KeyCode == Keys.I)
                 if (AddClientClicked != null)
                     AddClientClicked(this, null);
-            else if (e.KeyCode == Keys.F5)
-                SetHostNameAndIP();
+                else if (e.KeyCode == Keys.F5)
+                    SetHostNameAndIP();
         }
         /// <summary>
         /// Set the host name and the ip in the gui, check if the computer is online.
@@ -129,7 +140,7 @@ namespace vApus.DistributedTesting
         private void ctvi_HostNameAndIPSet(object sender, EventArgs e)
         {
             var ctvi = sender as ClientTreeViewItem;
-            ctvi.HostNameAndIPSet -= ctvi_HostNameAndIPSet;          
+            ctvi.HostNameAndIPSet -= ctvi_HostNameAndIPSet;
 
             if (--_refreshingClientCount <= 0)
             {
@@ -153,17 +164,21 @@ namespace vApus.DistributedTesting
             foreach (Control ctrl in this.Controls)
                 ctrl.Enabled = enabled;
         }
-        #endregion
-
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
+            _distributedTestMode = distributedTestMode;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+            {
+                picAddClient.Visible =
+                picRefresh.Visible = true;
+            }
+            else
+            {
+                picAddClient.Visible =
+                picRefresh.Visible = false;
+            }
         }
-
-        public DistributedTestMode DistributedTestMode
-        {
-            get { throw new NotImplementedException(); }
-        }
-
+        #endregion
     }
 }

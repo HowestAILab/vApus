@@ -46,6 +46,8 @@ namespace vApus.DistributedTesting
         private int _chosenImageIndex = 2;
 
         private bool _online = false;
+
+        private DistributedTestMode _distributedTestMode;
         #endregion
 
         #region Properties
@@ -179,6 +181,12 @@ namespace vApus.DistributedTesting
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+            {
+                _ctrl = false;
+                return;
+            }
+
             if (sender == txtClient && e.KeyCode == Keys.Enter)
                 SetHostNameAndIP();
 
@@ -330,6 +338,9 @@ namespace vApus.DistributedTesting
 
         private void _KeyDown(object sender, KeyEventArgs e)
         {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+                return;
+
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
         }
@@ -364,16 +375,36 @@ namespace vApus.DistributedTesting
                 _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
-        #endregion
-
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
-        }
+            _distributedTestMode = distributedTestMode;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+            {
+                chk.Visible =
+                txtClient.Visible =
+                picAddSlave.Visible =
+                picDuplicate.Visible =
+                picDelete.Visible = true;
 
-        public DistributedTestMode DistributedTestMode
-        {
-            get { throw new NotImplementedException(); }
+                this.Visible = true;
+            }
+            else
+            {
+                if (_client.Use)
+                {
+                    chk.Visible =
+                    txtClient.Visible =
+                    picAddSlave.Visible =
+                    picDuplicate.Visible =
+                    picDelete.Visible = false;
+                }
+                else
+                {
+                    this.Visible = false;
+                }
+            }
         }
+        #endregion
     }
 }

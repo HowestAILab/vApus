@@ -8,16 +8,18 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
     [ContextMenu(new string[] { "Activate_Click" }, new string[] { "Edit" })]
     [Hotkeys(new string[] { "Activate_Click" }, new Keys[] { Keys.Enter })]
     [DisplayName("Connection Proxy Code"), Serializable]
-    public class ConnectionProxyCode : BaseItem
+    public class ConnectionProxyCode : BaseItem, ISerializable
     {
         #region Fields
         private int _threads = 1;
@@ -195,7 +197,6 @@ _isDisposed = true;
 
         #region Properties
         //Never use this in a distributed test.
-
         public ConnectionProxyRuleSet ConnectionProxyRuleSet
         {
             get { return Parent[0] as ConnectionProxyRuleSet; }
@@ -254,6 +255,22 @@ _isDisposed = true;
                 TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+        }
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
+        public ConnectionProxyCode(SerializationInfo info, StreamingContext ctxt)
+        {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info))
+            {
+                _code = sr.ReadString();
+            }
+            sr = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
         }
         #endregion
 
@@ -315,6 +332,24 @@ _isDisposed = true;
         public override void Activate()
         {
             SolutionComponentViewManager.Show(this);
+        }
+
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter())
+            {
+                sw.Write(_code);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
         }
         #endregion
     }

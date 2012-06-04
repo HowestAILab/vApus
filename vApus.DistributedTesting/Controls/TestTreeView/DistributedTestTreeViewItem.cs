@@ -30,6 +30,8 @@ namespace vApus.DistributedTesting
         /// Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
+
+        private DistributedTestMode _distributedTestMode;
         #endregion
 
         #region Properties
@@ -119,11 +121,19 @@ namespace vApus.DistributedTesting
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
-        }
-
-        public DistributedTestMode DistributedTestMode
-        {
-            get { throw new NotImplementedException(); }
+            _distributedTestMode = distributedTestMode;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+            {
+                pnlRunSync.Enabled =
+                picResultPath.Visible =
+                picAddTile.Visible = true;
+            }
+            else
+            {
+                pnlRunSync.Enabled =
+                picResultPath.Visible =
+                picAddTile.Visible = false;
+            }
         }
     }
 }

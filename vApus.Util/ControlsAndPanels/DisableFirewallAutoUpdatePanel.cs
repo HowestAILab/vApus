@@ -53,11 +53,12 @@ namespace vApus.Util
         {
             _status = Status.AllDisabled;
 
+            //Firewall
             EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
             EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
             EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
-
-            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 0), 0, Status.WindowsAutoUpdateEnabled);
+            //windows update
+            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 1), 1, Status.WindowsAutoUpdateEnabled);
             EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "IncludeRecommendedUpdates", 0), 0, Status.WindowsAutoUpdateEnabled);
             EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "ElevateNonAdmins", 1), 1, Status.WindowsAutoUpdateEnabled);
 
@@ -129,7 +130,7 @@ namespace vApus.Util
             try
             {
                 //Disabling Auto Update
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 0, RegistryValueKind.DWord);
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 1, RegistryValueKind.DWord);
                 Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "IncludeRecommendedUpdates", 0, RegistryValueKind.DWord);
                 Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "ElevateNonAdmins", 1, RegistryValueKind.DWord);
 
