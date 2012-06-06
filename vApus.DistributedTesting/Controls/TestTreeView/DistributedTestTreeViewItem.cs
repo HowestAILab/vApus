@@ -101,6 +101,9 @@ namespace vApus.DistributedTesting
 
         private void picResultPath_Click(object sender, EventArgs e)
         {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+                return;
+
             if (Directory.Exists(_distributedTest.ResultPath))
                 folderBrowserDialog.SelectedPath = _distributedTest.ResultPath;
             else
@@ -116,8 +119,6 @@ namespace vApus.DistributedTesting
                 _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
-        #endregion
-
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
@@ -125,15 +126,14 @@ namespace vApus.DistributedTesting
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
                 pnlRunSync.Enabled =
-                picResultPath.Visible =
                 picAddTile.Visible = true;
             }
             else
             {
                 pnlRunSync.Enabled =
-                picResultPath.Visible =
-                picAddTile.Visible = false;
+               picAddTile.Visible = false;
             }
         }
+        #endregion
     }
 }

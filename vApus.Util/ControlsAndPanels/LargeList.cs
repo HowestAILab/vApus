@@ -1497,15 +1497,6 @@ namespace vApus.Util
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
-        /// <summary>
-        /// For selections.
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnLeave(EventArgs e)
-        {
-            base.OnLeave(e);
-        }
-        #endregion
 
         #region scrollbar
         /// <summary>
@@ -1563,7 +1554,6 @@ namespace vApus.Util
                     AfterViewSwitch.Invoke(this, new AfterSwithViewsEventArgs(_currentView, flpnl.Controls.Count));
                 Thread.Sleep(0);
             }
-            scrollbar.Select();
         }
         #endregion
 
@@ -1639,6 +1629,8 @@ namespace vApus.Util
             txtView.Width = lblTotalViews.Width;
             scrollbar.Width = txtView.Location.X - 1;
         }
+        #endregion
+
         #endregion
 
         #endregion

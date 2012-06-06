@@ -36,16 +36,6 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Functions
-        public void SetMode(DistributedTestMode distributedTestMode)
-        {
-            if (_distributedTestMode != distributedTestMode)
-            {
-                _distributedTestMode = distributedTestMode;
-                foreach (ITreeViewItem item in largeList.AllControls)
-                    item.SetDistributedTestMode(_distributedTestMode);
-            }
-        }
-
         public void SetDistributedTest(DistributedTest distributedTest)
         {
             LockWindowUpdate(this.Handle.ToInt32());
@@ -238,6 +228,16 @@ namespace vApus.DistributedTesting
                 ctrl.SetVisibleControls();
                 //To determine what add tile stresstest control can be visible
                 ctrl.RefreshGui();
+            }
+        }
+
+        public void SetMode(DistributedTestMode distributedTestMode)
+        {
+            if (_distributedTestMode != distributedTestMode)
+            {
+                _distributedTestMode = distributedTestMode;
+                foreach (ITreeViewItem item in largeList.AllControls)
+                    item.SetDistributedTestMode(_distributedTestMode);
             }
         }
         #endregion

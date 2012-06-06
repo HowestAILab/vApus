@@ -21,7 +21,7 @@ namespace vApus.DistributedTesting
     {
         #region Events
         public event EventHandler<ListeningErrorEventArgs> ListeningError;
-        public event EventHandler<PushMessageReceivedEventArgs> OnPushMessageReceived;
+        public event EventHandler<TestProgressMessageReceivedEventArgs> OnTestProgressMessageReceived;
         #endregion
 
         #region Fields
@@ -495,8 +495,8 @@ namespace vApus.DistributedTesting
                 else if (message.Key == Key.Push)
                 {
                     BeginReceive(socketWrapper);
-                    if (OnPushMessageReceived != null)
-                        OnPushMessageReceived(this, new PushMessageReceivedEventArgs((PushMessage)message.Content));
+                    if (OnTestProgressMessageReceived != null)
+                        OnTestProgressMessageReceived(this, new TestProgressMessageReceivedEventArgs((TestProgressMessage)message.Content));
                 }
             }
             catch (SocketException soe)

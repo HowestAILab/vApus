@@ -53,9 +53,9 @@ namespace vApus.DistributedTesting
         {
             get
             {
-                object parent = Parent; 
+                object parent = Parent;
                 if (parent == null)
-                    return null;
+                    return "-1";
                 return (parent as Tile).Index + "." + this.Index;
             }
         }
@@ -99,6 +99,10 @@ namespace vApus.DistributedTesting
             }, null);
         }
 
+        public override string ToString()
+        {
+            return "[TS " + TileStresstestIndex + "] " + Label;
+        }
         /// <summary>
         /// Create a clone of this.
         /// </summary>
@@ -135,7 +139,7 @@ namespace vApus.DistributedTesting
             stresstest.Connection = connection;
             stresstest.DynamicRunMultiplier = AdvancedTileStresstest.DynamicRunMultiplier;
 
-            stresstest.Label = Label + " [TS " + tileStresstestIndex + "]";
+            stresstest.Label = this.ToString();
 
             Logs logs = new Logs();
             Log log = AdvancedTileStresstest._log;

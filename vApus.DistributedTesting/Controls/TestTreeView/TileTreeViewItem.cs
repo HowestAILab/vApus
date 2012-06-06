@@ -181,7 +181,8 @@ namespace vApus.DistributedTesting
         }
         public void SetVisibleControls(bool visible)
         {
-            txtTile.Visible = picAddTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+                txtTile.Visible = picAddTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
         }
         public void SetVisibleControls()
         {
@@ -253,7 +254,7 @@ namespace vApus.DistributedTesting
         {
             if (_distributedTestMode == DistributedTestMode.TestAndReport)
                 return;
-            
+
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
         }
@@ -294,16 +295,18 @@ namespace vApus.DistributedTesting
         {
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit)
-            {
-                chk.Visible =
-                txtTile.Visible =
-                picDelete.Visible =
-                picDuplicate.Visible = true;
-
-                this.Visible = true;
-            }
+                if (_tile.Use)
+                {
+                    chk.Visible =
+                    txtTile.Visible =
+                    picDelete.Visible =
+                    picDuplicate.Visible = true;
+                }
+                else
+                {
+                    this.Visible = true;
+                }
             else
-            {
                 if (_tile.Use)
                 {
                     chk.Visible =
@@ -315,7 +318,6 @@ namespace vApus.DistributedTesting
                 {
                     this.Visible = false;
                 }
-            }
         }
         #endregion
     }

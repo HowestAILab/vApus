@@ -22,6 +22,7 @@ namespace vApus.DistributedTesting
         #region Fields
         private Slave _slave;
         private bool _clientOnline = false;
+        private DistributedTestMode _distributedTestMode;
         #endregion
 
         #region Properties
@@ -158,6 +159,39 @@ namespace vApus.DistributedTesting
                 toolTip.SetToolTip(picStatus, "Client Offline");
                 picStatus.Image = imageListStatus.Images[0];
             }
+        }
+
+        public void SetMode(DistributedTestMode distributedTestMode)
+        {
+            _distributedTestMode = distributedTestMode;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+                if (_slave.Use)
+                {
+                    picDuplicate.Visible =
+                    picDelete.Visible =
+                    chkUse.Enabled =
+                    nudPort.Enabled =
+                    llblPA.Enabled =
+                    llblTest.Enabled = true;
+                }
+                else
+                {
+                    this.Visible = true;
+                }
+            else
+                if (_slave.Use)
+                {
+                    picDuplicate.Visible =
+                    picDelete.Visible =
+                    nudPort.Enabled =
+                    chkUse.Enabled =
+                    llblPA.Enabled =
+                    llblTest.Enabled = false;
+                }
+                else
+                {
+                    this.Visible = false;
+                }
         }
         #endregion
     }

@@ -14,13 +14,19 @@ namespace vApus.DistributedTesting
 {
     public partial class ConfigureTileStresstest : UserControl
     {
+        #region Fields
         private TileStresstest _tileStresstest;
+        private DistributedTestMode _distributedTestMode;
+        #endregion
 
+        #region Properties
         public TileStresstest TileStresstest
         {
             get { return _tileStresstest; }
         }
+        #endregion
 
+        #region Constructor
         public ConfigureTileStresstest()
         {
             InitializeComponent();
@@ -28,7 +34,9 @@ namespace vApus.DistributedTesting
             //For refreshing the property panels.
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
+        #endregion
 
+        #region Functions
         public void SetTileStresstest(TileStresstest tileStresstest)
         {
             lblRunSync.Visible = false;
@@ -113,5 +121,30 @@ namespace vApus.DistributedTesting
                 solutionComponentPropertyPanelBasic.Refresh();
             }
         }
+
+        public void SetMode(DistributedTestMode distributedTestMode)
+        {
+            if (_distributedTestMode != distributedTestMode)
+            {
+                _distributedTestMode = distributedTestMode;
+                if (_distributedTestMode == DistributedTestMode.Edit)
+                {
+                    solutionComponentPropertyPanelDefaultTo.Unlock();
+                    solutionComponentPropertyPanelBasic.Unlock();
+                    solutionComponentPropertyPanelAdvanced.Unlock();
+
+                    chkAutomatic.Enabled = true;
+                }
+                else
+                {
+                    solutionComponentPropertyPanelDefaultTo.Lock();
+                    solutionComponentPropertyPanelBasic.Lock();
+                    solutionComponentPropertyPanelAdvanced.Lock();
+
+                    chkAutomatic.Enabled = false;
+                }
+            }
+        }
+        #endregion
     }
 }

@@ -123,10 +123,10 @@
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
             this.tpReport.Controls.Add(this.tcReport);
-            this.tpReport.Location = new System.Drawing.Point(0, 22);
+            this.tpReport.Location = new System.Drawing.Point(0, 19);
             this.tpReport.Name = "tpReport";
             this.tpReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpReport.Size = new System.Drawing.Size(790, 494);
+            this.tpReport.Size = new System.Drawing.Size(790, 497);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
             // 
@@ -140,7 +140,7 @@
             this.tcReport.Name = "tcReport";
             this.tcReport.RightVisible = false;
             this.tcReport.SelectedIndex = 0;
-            this.tcReport.Size = new System.Drawing.Size(784, 488);
+            this.tcReport.Size = new System.Drawing.Size(784, 491);
             this.tcReport.TabIndex = 1;
             this.tcReport.TopVisible = false;
             // 
@@ -150,7 +150,7 @@
             this.tpStresstestReport.Location = new System.Drawing.Point(0, 19);
             this.tpStresstestReport.Name = "tpStresstestReport";
             this.tpStresstestReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstestReport.Size = new System.Drawing.Size(783, 468);
+            this.tpStresstestReport.Size = new System.Drawing.Size(783, 471);
             this.tpStresstestReport.TabIndex = 0;
             this.tpStresstestReport.Text = "Stresstest Report";
             this.tpStresstestReport.UseVisualStyleBackColor = true;
@@ -162,7 +162,7 @@
             this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(777, 462);
+            this.stresstestReportControl.Size = new System.Drawing.Size(777, 465);
             this.stresstestReportControl.TabIndex = 0;
             // 
             // toolStrip

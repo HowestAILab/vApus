@@ -17,19 +17,27 @@ namespace vApus.DistributedTesting
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
+        #region Fields
         private Client _client;
+        private DistributedTestMode _distributedTestMode;
+        #endregion
 
+        #region Properties
         public Client Client
         {
             get { return _client; }
         }
+        #endregion
 
+        #region Constructor
         public ConfigureSlaves()
         {
             InitializeComponent();
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
+        #endregion
 
+        #region Functions
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
             if (sender == _client)
@@ -61,14 +69,17 @@ namespace vApus.DistributedTesting
                     (flp.Controls[i] as SlaveTile).SetSlave(_client[i] as Slave);
 
                 SetClientStatus((flp.Controls[0] as SlaveTile).ClientOnline);
+
+                foreach (SlaveTile st in flp.Controls)
+                    st.SetMode(_distributedTestMode);
             }
 
             LockWindowUpdate(0);
         }
-      /// <summary>
-      /// Online or offline
-      /// </summary>
-      /// <param name="online"></param>
+        /// <summary>
+        /// Online or offline
+        /// </summary>
+        /// <param name="online"></param>
         public void SetClientStatus(bool online)
         {
             for (int i = 0; i != _client.Count; i++)
@@ -122,5 +133,16 @@ namespace vApus.DistributedTesting
         {
             _client.Sort();
         }
+
+        public void SetMode(DistributedTestMode distributedTestMode)
+        {
+            if (_distributedTestMode != distributedTestMode)
+            {
+                _distributedTestMode = distributedTestMode;
+                foreach (SlaveTile st in flp.Controls)
+                    st.SetMode(_distributedTestMode);
+            }
+        }
+        #endregion
     }
 }

@@ -19,6 +19,9 @@ namespace vApus.DistributedTesting
     public partial class DistributedTestView : BaseSolutionComponentView
     {
         #region Fields
+        private object _lock = new object();
+
+        private ITreeViewItem _selectedTestItem;
         private DistributedTest _distributedTest = new DistributedTest();
         private DistributedTestCore _distributedTestCore;
 
@@ -105,6 +108,7 @@ namespace vApus.DistributedTesting
 
         private void testTreeView_AfterSelect(object sender, EventArgs e)
         {
+            _selectedTestItem = sender as ITreeViewItem;
             if (sender is TileStresstestTreeViewItem)
             {
                 TileStresstestTreeViewItem tstvi = sender as TileStresstestTreeViewItem;
@@ -112,6 +116,9 @@ namespace vApus.DistributedTesting
 
                 stresstestControl.Visible = true;
                 distributedStresstestControl.Visible = false;
+
+                if (_distributedTestCore != null && _distributedTestCore.TestProgressMessages.ContainsKey(tstvi.TileStresstest.TileStresstestIndex))
+                    SetSlaveProgress(tstvi.TileStresstest, _distributedTestCore.TestProgressMessages[tstvi.TileStresstest.TileStresstestIndex]);
             }
             else
             {
@@ -186,6 +193,36 @@ namespace vApus.DistributedTesting
                 configureSlaves.Visible = true;
             }
         }
+
+        /// <summary>
+        /// Set the gui for the different modes
+        /// </summary>
+        /// <param name="distributedTestMode"></param>
+        /// <param name="scheduled">only for distributedTestMode.TestAndReport</param>
+        private void SetMode(DistributedTestMode distributedTestMode, bool scheduled = false)
+        {
+            if (this.IsDisposed)
+                return;
+
+            btnStop.Enabled = distributedTestMode == DistributedTestMode.TestAndReport;
+            btnStart.Enabled =
+            btnSchedule.Enabled = !btnStop.Enabled;
+
+            if (distributedTestMode == DistributedTestMode.TestAndReport)
+                if (scheduled)
+                    tmrSchedule.Start();
+                else
+                    btnSchedule.Text = "Schedule...";
+
+            if (distributedTestMode == DistributedTestMode.Edit)
+                tmrSchedule.Stop();
+
+            testTreeView.SetMode(distributedTestMode);
+            slaveTreeView.SetMode(distributedTestMode);
+            configureTileStresstest.SetMode(distributedTestMode);
+            configureSlaves.SetMode(distributedTestMode);
+
+        }
         #endregion
 
         #region Start
@@ -210,20 +247,14 @@ namespace vApus.DistributedTesting
 
         private void Start()
         {
-            try {
-
+            try
+            {
                 Cursor = Cursors.WaitCursor;
-                btnStop.Enabled = true;
-                btnStart.Enabled = false;
-                btnSchedule.Enabled = false;
-                btnSchedule.Text = "Schedule...";
+                SetMode(DistributedTestMode.TestAndReport);
 
-                testTreeView.SetMode(DistributedTestMode.TestAndReport);
-                slaveTreeView.SetMode(DistributedTestMode.TestAndReport);
-                
                 _distributedTestCore = new DistributedTestCore(_distributedTest);
                 _distributedTestCore.Message += new EventHandler<MessageEventArgs>(_distributedTestCore_Message);
-                _distributedTestCore.OnPushMessageReceived += new EventHandler<PushMessageReceivedEventArgs>(_distributedTestCore_PushMessageReceived);
+                _distributedTestCore.OnTestProgressMessageReceived += new EventHandler<TestProgressMessageReceivedEventArgs>(_distributedTestCore_PushMessageReceived);
                 _distributedTestCore.OnListeningError += new EventHandler<ListeningErrorEventArgs>(_distributedTestCore_OnListeningError);
                 _distributedTestCore.OnFinished += new EventHandler<FinishedEventArgs>(_distributedTestCore_OnFinished);
 
@@ -236,7 +267,7 @@ namespace vApus.DistributedTesting
                 t.IsBackground = true;
                 t.Start();
             }
-            catch 
+            catch
             {
                 //Only one test can run at the same time.
                 distributedStresstestControl.AppendMasterMessages("Cannot start this test because another one is still running.", LogLevel.Error);
@@ -245,6 +276,27 @@ namespace vApus.DistributedTesting
         }
         private void ScheduleTest()
         {
+            SetMode(DistributedTestMode.TestAndReport, true);
+        }
+        private void tmrSchedule_Tick(object sender, EventArgs e)
+        {
+            DateTime scheduledAt = (DateTime)btnSchedule.Tag;
+            if (scheduledAt <= DateTime.Now)
+            {
+                btnSchedule.Text = "Scheduled at " + scheduledAt;
+                tmrSchedule.Stop();
+                StartTest();
+            }
+            else
+            {
+                TimeSpan dt = scheduledAt - DateTime.Now;
+                if (dt.Milliseconds != 0)
+                {
+                    dt = new TimeSpan(dt.Ticks - (dt.Ticks % TimeSpan.TicksPerSecond));
+                    dt += new TimeSpan(0, 0, 1);
+                }
+                btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString();
+            }
         }
         /// <summary>
         /// Show the gui to be able to schedule the test.
@@ -320,22 +372,15 @@ namespace vApus.DistributedTesting
                     distributedStresstestControl.SetSlaveInitialized();
 
                     stresstestReportControl.ClearReport();
-                    //flpStresstestTileStresstests.Controls.Clear();
-                    //flpReportTileStresstests.Controls.Clear();
 
-                    //foreach (OldTileStresstest tileStresstest in _distributedTestCore.UsedTileStresstests)
-                    //{
-                    //    TileStresstestSelectorControl tileStresstestControl = new TileStresstestSelectorControl(tileStresstest);
-                    //    tileStresstestControl.Margin = new Padding(0, 6, 6, 3);
-                    //    tileStresstestControl.GotFocus += new EventHandler(tileStresstestSelectorControl_GotFocus);
-                    //    flpStresstestTileStresstests.Controls.Add(tileStresstestControl);
+                    foreach (TileStresstest tileStresstest in _distributedTestCore.UsedTileStresstests)
+                    {
+                        // tileStresstestControl.MonitorOnHandledException += new EventHandler<ErrorEventArgs>(tileStresstestControl_MonitorOnHandledException);
+                        // tileStresstestControl.MonitorOnUnhandledException += new EventHandler<ErrorEventArgs>(tileStresstestControl_MonitorOnUnhandledException);
 
-                    //    tileStresstestControl.MonitorOnHandledException += new EventHandler<ErrorEventArgs>(tileStresstestControl_MonitorOnHandledException);
-                    //    tileStresstestControl.MonitorOnUnhandledException += new EventHandler<ErrorEventArgs>(tileStresstestControl_MonitorOnUnhandledException);
-
-                    //    //Determine the number of monitors first.
-                    //    _pendingMonitorViewInitializations += tileStresstest.Monitors.Length;
-                    //}
+                        //Determine the number of monitors first.
+                        _pendingMonitorViewInitializations += tileStresstest.BasicTileStresstest.Monitors.Length;
+                    }
 
                     ////Afterwards initialize them.
                     //foreach (TileStresstestSelectorControl tileStresstestControl in flpStresstestTileStresstests.Controls)
@@ -344,8 +389,6 @@ namespace vApus.DistributedTesting
                     //        tileStresstestControl.MonitorInitialized += new EventHandler<MonitorView.MonitorInitializedEventArgs>(tileStresstestControl_MonitorInitialized);
                     //        tileStresstestControl.ShowMonitorView(tileStresstestControl.TileStresstest.Monitors[i]);
                     //    }
-
-                    //flpStresstestTileStresstests.Controls[0].Focus();
                 });
             }
             catch (Exception ex)
@@ -397,7 +440,6 @@ namespace vApus.DistributedTesting
                     _distributedTestCore.Dispose();
                     _distributedTestCore = null;
                 }
-                //tmrProgress.Stop();
                 //StopProgressDelayCountDown();
 
                 distributedStresstestControl.SetStresstestStopped();
@@ -405,18 +447,8 @@ namespace vApus.DistributedTesting
                 //foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
                 //    tileStresstestSelectorControl.StopMonitorIfAny();
 
-                btnStop.Enabled = false;
-                btnSchedule.Enabled = true;
-                //cboRunSynchronization.Enabled = true;
 
-                //tvwTiles.ForeColor = this.ForeColor;
-                //btnAddTile.Enabled = true;
-                //btnRemove.Enabled = true;
-                //propertiesSolutionComponentPropertyPanel.Unlock();
-                //btnResetToDefaults.Enabled = true;
-
-                //btnLinkageOverview.Enabled = true;
-                btnStart.Enabled = true;
+                Stop();
                 Cursor = Cursors.Default;
             });
         }
@@ -457,35 +489,147 @@ namespace vApus.DistributedTesting
                     }
             }
         }*/
-        private void _distributedTestCore_PushMessageReceived(object sender, PushMessageReceivedEventArgs e)
+        private void _distributedTestCore_PushMessageReceived(object sender, TestProgressMessageReceivedEventArgs e)
         {
 #warning Handle receiving push messages
-            /*
-            DateTime beginOfTimeFrame, endOfTimeFrame;
-            GetTimeFrame(out beginOfTimeFrame, out endOfTimeFrame);
-            foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
-                if (tileStresstestSelectorControl.TileStresstest.OriginalHashCode == e.PushMessage.TileStresstestOriginalHashCode)
-                {
-                    tileStresstestSelectorControl.MostRecentPushMessage = e.PushMessage;
-                    if (tileStresstestSelectorControl == _focussedTileStresstestSelectorControl)
-                    {
-                        distributedStresstestControl.SetSlaveMonitoring(e.PushMessage.ThreadsInUse, e.PushMessage.CPUUsage, e.PushMessage.ContextSwitchesPerSecond, (int)e.PushMessage.MemoryUsage, (int)e.PushMessage.TotalVisibleMemory, e.PushMessage.NicsSent, e.PushMessage.NicsReceived);
-                        distributedStresstestControl.SetSlaveProgress(tileStresstestSelectorControl.TileStresstest, tileStresstestSelectorControl.MostRecentPushMessage, beginOfTimeFrame, endOfTimeFrame);
 
-                        tmrProgressDelayCountDown.Stop();
-                        _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
-                        distributedStresstestControl.SetCountDownProgressDelay(_countDown);
-                        tmrProgressDelayCountDown.Start();
+            //DateTime beginOfTimeFrame, endOfTimeFrame;
+            //GetTimeFrame(out beginOfTimeFrame, out endOfTimeFrame);
+            //foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
+            //    if (tileStresstestSelectorControl.TileStresstest.OriginalHashCode == e.PushMessage.TileStresstestOriginalHashCode)
+            //    {
+            //        tileStresstestSelectorControl.MostRecentPushMessage = e.PushMessage;
+            //        if (tileStresstestSelectorControl == _focussedTileStresstestSelectorControl)
+            //        {
+            //            distributedStresstestControl.SetSlaveMonitoring(e.PushMessage.ThreadsInUse, e.PushMessage.CPUUsage, e.PushMessage.ContextSwitchesPerSecond, (int)e.PushMessage.MemoryUsage, (int)e.PushMessage.TotalVisibleMemory, e.PushMessage.NicsSent, e.PushMessage.NicsReceived);
+            //            distributedStresstestControl.SetSlaveProgress(tileStresstestSelectorControl.TileStresstest, tileStresstestSelectorControl.MostRecentPushMessage, beginOfTimeFrame, endOfTimeFrame);
+
+            //            tmrProgressDelayCountDown.Stop();
+            //            _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
+            //            distributedStresstestControl.SetCountDownProgressDelay(_countDown);
+            //            tmrProgressDelayCountDown.Start();
+            //        }
+            //        break;
+            //    }
+
+            //SetOverallProgress();
+
+            if (_selectedTestItem != null && _selectedTestItem is TileStresstestTreeViewItem &&
+                (_selectedTestItem as TileStresstestTreeViewItem).TileStresstest == e.TileStresstest)
+                SetSlaveProgress(e.TileStresstest, e.TestProgressMessage);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tileStresstest"></param>
+        /// <param name="testProgressMessage"></param>
+        /// <param name="overalEndOfTimeFrame">The end of time frame for the full test.</param>
+        public void SetSlaveProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
+        {
+            lock (_lock)
+            {
+                //LockWindowUpdate(this.Handle.ToInt32());
+
+                //Build and add fast results.
+                stresstestControl.ClearFastResults();
+                if (testProgressMessage.TileStresstestProgressResults != null)
+                {
+                    foreach (TileConcurrentUsersProgressResult tcr in testProgressMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
+                    {
+                        ConcurrentUsersResult cr = new ConcurrentUsersResult(tcr.ConcurrentUsers, tcr.Metrics.TotalLogEntries, tcr.Metrics.StartMeasuringRuntime);
+                        cr.Metrics = tcr.Metrics;
+                        stresstestControl.AddFastResult(cr);
+
+                        foreach (TilePrecisionProgressResult tpr in tcr.TilePrecisionProgressResults)
+                        {
+                            PrecisionResult pr = new PrecisionResult(tpr.Precision, tpr.Metrics.TotalLogEntries, tpr.Metrics.StartMeasuringRuntime);
+                            pr.Metrics = tpr.Metrics;
+                            stresstestControl.AddFastResult(pr);
+
+                            foreach (TileRunProgressResult trr in tpr.TileRunProgressResults)
+                            {
+                                RunResult rr = new RunResult(trr.Run, 1, trr.Metrics.TotalLogEntries, 1, trr.Metrics.StartMeasuringRuntime, trr.RunStartedAndStopped, trr.RunDoneOnce);
+                                rr.Metrics = trr.Metrics;
+                                stresstestControl.AddFastResult(rr);
+                            }
+                        }
                     }
-                    break;
+                    stresstestControl.SetStresstestStarted(testProgressMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);
+                    stresstestControl.SetMeasuredRunTime(testProgressMessage.TileStresstestProgressResults.Metrics.MeasuredRunTime, testProgressMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
                 }
 
-            SetOverallProgress();*/
+                TileStresstestTreeViewItem tileStresstestTreeViewItem = null;
+                foreach (ITreeViewItem item in testTreeView.Items)
+                    if (item is TileStresstestTreeViewItem)
+                    {
+                        var tstvi = item as TileStresstestTreeViewItem;
+                        if (tstvi.TileStresstest == tileStresstest)
+                        {
+                            tileStresstestTreeViewItem = tstvi;
+                            break;
+                        }
+                    }
+
+                if (testProgressMessage.Events == null)
+                {
+                    stresstestControl.ClearEvents();
+                    if (tileStresstestTreeViewItem != null)
+                        tileStresstestTreeViewItem.ClearEvents();
+                }
+                else
+                {
+                    stresstestControl.SetEvents(testProgressMessage.Events);
+                    if (tileStresstestTreeViewItem != null)
+                        tileStresstestTreeViewItem.SetEvents(testProgressMessage.Events);
+                }
+
+                stresstestControl.SetStresstestStopped(testProgressMessage.StresstestResult);
+
+                stresstestControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage, testProgressMessage.ContextSwitchesPerSecond, (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
+                stresstestControl.SetConfigurationControls(tileStresstest.ToString(), tileStresstest.BasicTileStresstest.Connection,
+                    tileStresstest.BasicTileStresstest.ConnectionProxy, tileStresstest.AdvancedTileStresstest.Log,
+                    tileStresstest.AdvancedTileStresstest.LogRuleSet, tileStresstest.BasicTileStresstest.Monitors, tileStresstest.AdvancedTileStresstest.ConcurrentUsers,
+                    tileStresstest.AdvancedTileStresstest.Precision, tileStresstest.AdvancedTileStresstest.DynamicRunMultiplier,
+                    tileStresstest.AdvancedTileStresstest.MinimumDelay, tileStresstest.AdvancedTileStresstest.MaximumDelay,
+                    tileStresstest.AdvancedTileStresstest.Shuffle, tileStresstest.AdvancedTileStresstest.Distribute);
+
+
+                //LockWindowUpdate(0);
+            }
         }
+
+        /// <summary>
+        /// Gets the end of time frame for the overal progress.
+        /// </summary>
+        /// <returns></returns>
+        //private void GetTimeFrame(out DateTime beginOfTimeFrame, out DateTime endOfTimeFrame)
+        //{
+        //    beginOfTimeFrame = DateTime.Now;
+        //    if (_distributedTest.RunSynchronization == RunSynchronization.BreakOnFirstFinished)
+        //    {
+        //        endOfTimeFrame = DateTime.MaxValue;
+        //        foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
+        //            if (endOfTimeFrame > tileStresstestSelectorControl.EndOfTimeFrame)
+        //            {
+        //                beginOfTimeFrame = tileStresstestSelectorControl.BeginOfTimeFrame;
+        //                endOfTimeFrame = tileStresstestSelectorControl.EndOfTimeFrame;
+        //            }
+        //    }
+        //    else
+        //    {
+        //        endOfTimeFrame = DateTime.MinValue;
+        //        foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
+        //            if (endOfTimeFrame < tileStresstestSelectorControl.EndOfTimeFrame)
+        //            {
+        //                beginOfTimeFrame = tileStresstestSelectorControl.BeginOfTimeFrame;
+        //                endOfTimeFrame = tileStresstestSelectorControl.EndOfTimeFrame;
+        //            }
+        //    }
+        //}
         private void SetOverallProgress()
         {
 #warning Depending on the selected tvw item, distributed test or tile
-            
+
             //var progress = new Dictionary<OldTileStresstest, TileStresstestProgressResults>(flpStresstestTileStresstests.Controls.Count);
             //foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
             //    progress.Add(tileStresstestSelectorControl.TileStresstest, tileStresstestSelectorControl.MostRecentPushMessage.TileStresstestProgressResults);
@@ -523,58 +667,58 @@ namespace vApus.DistributedTesting
             {
                 foreach (ResultsMessage resultsMessage in _distributedTestCore.GetResults())
                 { }
-                   /* SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                    {
-                        foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
-                        {
-                            try
-                            {
-                                int index = resultsMessage.TileStresstestHashCodes.IndexOf(tileStresstestSelectorControl.TileStresstest.OriginalHashCode);
-                                if (index != -1)
-                                {
-                                    if (resultsMessage.TorrentInfo.Count == 0)
-                                    {
-                                        distributedStresstestControl.AppendMasterMessages(string.Format("|-> Failed receiving results for {0} - {1}!\nPlease find the 'r' file slave-side in the vApus folder \\SlaveSideResults.", tileStresstestSelectorControl.TileStresstest.Parent, tileStresstestSelectorControl.TileStresstest));
-                                    }
-                                    else
-                                    {
-                                        TileStresstestSelectorControl reportTileStresstestSelectorControl = new TileStresstestSelectorControl(tileStresstestSelectorControl.TileStresstest);
-                                        tileStresstestSelectorControl.Tag = reportTileStresstestSelectorControl;
+                /* SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+                 {
+                     foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
+                     {
+                         try
+                         {
+                             int index = resultsMessage.TileStresstestHashCodes.IndexOf(tileStresstestSelectorControl.TileStresstest.OriginalHashCode);
+                             if (index != -1)
+                             {
+                                 if (resultsMessage.TorrentInfo.Count == 0)
+                                 {
+                                     distributedStresstestControl.AppendMasterMessages(string.Format("|-> Failed receiving results for {0} - {1}!\nPlease find the 'r' file slave-side in the vApus folder \\SlaveSideResults.", tileStresstestSelectorControl.TileStresstest.Parent, tileStresstestSelectorControl.TileStresstest));
+                                 }
+                                 else
+                                 {
+                                     TileStresstestSelectorControl reportTileStresstestSelectorControl = new TileStresstestSelectorControl(tileStresstestSelectorControl.TileStresstest);
+                                     tileStresstestSelectorControl.Tag = reportTileStresstestSelectorControl;
 
-                                        flpReportTileStresstests.Controls.Add(reportTileStresstestSelectorControl);
+                                     flpReportTileStresstests.Controls.Add(reportTileStresstestSelectorControl);
 
-                                        reportTileStresstestSelectorControl.Enabled = false;
-                                        reportTileStresstestSelectorControl.Margin = new Padding(0, 6, 6, 3);
-                                        reportTileStresstestSelectorControl.MostRecentPushMessage = tileStresstestSelectorControl.MostRecentPushMessage;
-                                        reportTileStresstestSelectorControl.MonitorViews = tileStresstestSelectorControl.MonitorViews;
+                                     reportTileStresstestSelectorControl.Enabled = false;
+                                     reportTileStresstestSelectorControl.Margin = new Padding(0, 6, 6, 3);
+                                     reportTileStresstestSelectorControl.MostRecentPushMessage = tileStresstestSelectorControl.MostRecentPushMessage;
+                                     reportTileStresstestSelectorControl.MonitorViews = tileStresstestSelectorControl.MonitorViews;
 
-                                        //Force update the progress bar.
-                                        reportTileStresstestSelectorControl.HandleCreated += new EventHandler(reportTileStresstestSelectorControl_HandleCreated);
-                                        reportTileStresstestSelectorControl.Click += new EventHandler(reportTileStresstestSelectorControl_Click);
-                                        reportTileStresstestSelectorControl.EnabledChanged += new EventHandler(reportTileStresstestSelectorControl_EnabledChanged);
+                                     //Force update the progress bar.
+                                     reportTileStresstestSelectorControl.HandleCreated += new EventHandler(reportTileStresstestSelectorControl_HandleCreated);
+                                     reportTileStresstestSelectorControl.Click += new EventHandler(reportTileStresstestSelectorControl_Click);
+                                     reportTileStresstestSelectorControl.EnabledChanged += new EventHandler(reportTileStresstestSelectorControl_EnabledChanged);
 
-                                        tileStresstestSelectorControl.DownloadTorrent(resultsMessage.TorrentInfo[index], _resultsPath, _distributedTestCore);
-                                        if (tileStresstestSelectorControl == _focussedTileStresstestSelectorControl)
-                                        {
-                                            DateTime beginOfTimeFrame, endOfTimeFrame;
-                                            GetTimeFrame(out beginOfTimeFrame, out endOfTimeFrame);
+                                     tileStresstestSelectorControl.DownloadTorrent(resultsMessage.TorrentInfo[index], _resultsPath, _distributedTestCore);
+                                     if (tileStresstestSelectorControl == _focussedTileStresstestSelectorControl)
+                                     {
+                                         DateTime beginOfTimeFrame, endOfTimeFrame;
+                                         GetTimeFrame(out beginOfTimeFrame, out endOfTimeFrame);
 
-                                            PushMessage pushMessage = tileStresstestSelectorControl.MostRecentPushMessage;
-                                            distributedStresstestControl.SetSlaveMonitoring(pushMessage.ThreadsInUse, pushMessage.CPUUsage, pushMessage.ContextSwitchesPerSecond, (int)pushMessage.MemoryUsage, (int)pushMessage.TotalVisibleMemory, pushMessage.NicsSent, pushMessage.NicsReceived);
-                                            distributedStresstestControl.SetSlaveProgress(tileStresstestSelectorControl.TileStresstest, tileStresstestSelectorControl.MostRecentPushMessage, beginOfTimeFrame, endOfTimeFrame);
-                                        }
+                                         PushMessage pushMessage = tileStresstestSelectorControl.MostRecentPushMessage;
+                                         distributedStresstestControl.SetSlaveMonitoring(pushMessage.ThreadsInUse, pushMessage.CPUUsage, pushMessage.ContextSwitchesPerSecond, (int)pushMessage.MemoryUsage, (int)pushMessage.TotalVisibleMemory, pushMessage.NicsSent, pushMessage.NicsReceived);
+                                         distributedStresstestControl.SetSlaveProgress(tileStresstestSelectorControl.TileStresstest, tileStresstestSelectorControl.MostRecentPushMessage, beginOfTimeFrame, endOfTimeFrame);
+                                     }
 
-                                        distributedStresstestControl.AppendMasterMessages(string.Format("|-> Results receiving for {0} - {1}", tileStresstestSelectorControl.TileStresstest.Parent, tileStresstestSelectorControl.TileStresstest));
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                distributedStresstestControl.AppendMasterMessages(string.Format("|-> Failed receiving results for {0} - {1}\n{2}", tileStresstestSelectorControl.TileStresstest.Parent, tileStresstestSelectorControl.TileStresstest, ex), LogLevel.Error);
-                            }
-                        }
+                                     distributedStresstestControl.AppendMasterMessages(string.Format("|-> Results receiving for {0} - {1}", tileStresstestSelectorControl.TileStresstest.Parent, tileStresstestSelectorControl.TileStresstest));
+                                 }
+                             }
+                         }
+                         catch (Exception ex)
+                         {
+                             distributedStresstestControl.AppendMasterMessages(string.Format("|-> Failed receiving results for {0} - {1}\n{2}", tileStresstestSelectorControl.TileStresstest.Parent, tileStresstestSelectorControl.TileStresstest, ex), LogLevel.Error);
+                         }
+                     }
 
-                    });*/
+                 });*/
             }
             catch
             {
@@ -585,10 +729,7 @@ namespace vApus.DistributedTesting
             }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
-                btnSchedule.Enabled = true;
-
-                btnStart.Enabled = true;
-
+                Stop();
 
                 FinishedEventArgs e = parameter as FinishedEventArgs;
 
@@ -623,8 +764,29 @@ namespace vApus.DistributedTesting
         }
         private void Stop()
         {
-            testTreeView.SetMode(DistributedTestMode.Edit);
-            slaveTreeView.SetMode(DistributedTestMode.Edit);
+            this.Cursor = Cursors.WaitCursor;
+
+            SetMode(DistributedTestMode.Edit);
+
+            if (btnSchedule.Tag != null && tmrSchedule.Tag is DateTime)
+            {
+                DateTime scheduledDateTime = (DateTime)btnSchedule.Tag;
+                btnSchedule.Text = (scheduledDateTime > DateTime.Now) ? "Scheduled at " + scheduledDateTime : "Schedule...";
+            }
+            if (_distributedTestCore != null)
+                try
+                {
+                    _distributedTestCore.Stop();
+                    distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                }
+                catch (Exception ex)
+                {
+                    string message = string.Format("The stresstest threw an exception:{0}{1}", Environment.NewLine, ex.Message);
+                    distributedStresstestControl.AppendMasterMessages(message, LogLevel.Error);
+                }
+            distributedStresstestControl.SetStresstestStopped();
+
+            this.Cursor = Cursors.Default;
         }
         #endregion
     }

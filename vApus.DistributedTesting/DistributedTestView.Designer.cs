@@ -52,6 +52,7 @@
             this.tcReport = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpStresstestReport = new System.Windows.Forms.TabPage();
             this.stresstestReportControl = new vApus.Stresstest.StresstestReportControl();
+            this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
@@ -254,10 +255,10 @@
             this.tpStresstest.BackColor = System.Drawing.Color.White;
             this.tpStresstest.Controls.Add(this.stresstestControl);
             this.tpStresstest.Controls.Add(this.distributedStresstestControl);
-            this.tpStresstest.Location = new System.Drawing.Point(4, 22);
+            this.tpStresstest.Location = new System.Drawing.Point(4, 19);
             this.tpStresstest.Name = "tpStresstest";
             this.tpStresstest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstest.Size = new System.Drawing.Size(604, 625);
+            this.tpStresstest.Size = new System.Drawing.Size(604, 628);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
             // 
@@ -268,7 +269,7 @@
             this.stresstestControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestControl.MonitorConfigurationControlVisible = false;
             this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(598, 619);
+            this.stresstestControl.Size = new System.Drawing.Size(598, 622);
             this.stresstestControl.TabIndex = 0;
             // 
             // distributedStresstestControl
@@ -277,17 +278,17 @@
             this.distributedStresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.distributedStresstestControl.Location = new System.Drawing.Point(3, 3);
             this.distributedStresstestControl.Name = "distributedStresstestControl";
-            this.distributedStresstestControl.Size = new System.Drawing.Size(598, 619);
+            this.distributedStresstestControl.Size = new System.Drawing.Size(598, 622);
             this.distributedStresstestControl.TabIndex = 1;
             // 
             // tpReport
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
             this.tpReport.Controls.Add(this.tcReport);
-            this.tpReport.Location = new System.Drawing.Point(4, 19);
+            this.tpReport.Location = new System.Drawing.Point(4, 22);
             this.tpReport.Name = "tpReport";
             this.tpReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpReport.Size = new System.Drawing.Size(604, 628);
+            this.tpReport.Size = new System.Drawing.Size(604, 625);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
             // 
@@ -301,7 +302,7 @@
             this.tcReport.Name = "tcReport";
             this.tcReport.RightVisible = false;
             this.tcReport.SelectedIndex = 0;
-            this.tcReport.Size = new System.Drawing.Size(598, 622);
+            this.tcReport.Size = new System.Drawing.Size(598, 619);
             this.tcReport.TabIndex = 2;
             this.tcReport.TopVisible = false;
             // 
@@ -312,7 +313,7 @@
             this.tpStresstestReport.Location = new System.Drawing.Point(0, 19);
             this.tpStresstestReport.Name = "tpStresstestReport";
             this.tpStresstestReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstestReport.Size = new System.Drawing.Size(597, 602);
+            this.tpStresstestReport.Size = new System.Drawing.Size(597, 599);
             this.tpStresstestReport.TabIndex = 0;
             this.tpStresstestReport.Text = "Stresstest Report";
             // 
@@ -323,8 +324,12 @@
             this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(591, 596);
+            this.stresstestReportControl.Size = new System.Drawing.Size(591, 593);
             this.stresstestReportControl.TabIndex = 0;
+            // 
+            // tmrSchedule
+            // 
+            this.tmrSchedule.Tick += new System.EventHandler(this.tmrSchedule_Tick);
             // 
             // DistributedTestView
             // 
@@ -381,5 +386,6 @@
         private Util.TabControlWithAdjustableBorders tcReport;
         private System.Windows.Forms.TabPage tpStresstestReport;
         private Stresstest.StresstestReportControl stresstestReportControl;
+        private System.Windows.Forms.Timer tmrSchedule;
     }
 }

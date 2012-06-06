@@ -105,31 +105,41 @@ namespace vApus.Stresstest
         }
         public void SetConfigurationControls(Stresstest stresstest)
         {
-            kvmStresstest.Key = stresstest.ToString();
-            kvmConnection.Key = stresstest.Connection.ToString();
-            kvmConnectionProxy.Key = stresstest.ConnectionProxy;
+            SetConfigurationControls(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy, stresstest.Log, stresstest.LogRuleSet,
+                stresstest.Monitors, stresstest.ConcurrentUsers, stresstest.Precision, stresstest.DynamicRunMultiplier, stresstest.MinimumDelay,
+                stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute);
+        }
+        public void SetConfigurationControls(string stresstest, Connection connection, string connectionProxy,
+                                              Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrentUsers,
+                                              int precision, int dynamicRunMultiplier, int minimumDelay, int maximumDelay, bool shuffle,
+                                              ActionAndLogEntryDistribution distribute)
+        {
+            kvmStresstest.Key = stresstest;
+            kvmConnection.Key = connection.ToString();
+            kvmConnectionProxy.Key = connectionProxy;
 
-            kvmLog.Key = stresstest.Log.ToString();
-            kvmLogRuleSet.Key = stresstest.LogRuleSet;
+            kvmLog.Key = log.ToString();
+            kvmLogRuleSet.Key = logRuleSet;
 
-            if (stresstest.Monitors == null || stresstest.Monitors.Length == 0)
+            if (monitors == null || monitors.Length == 0)
             {
                 btnMonitor.Text = "No Monitor";
                 btnMonitor.BackColor = Color.Orange;
             }
             else
             {
-                btnMonitor.Text = stresstest.Monitors.Combine(", ") + "...";
+                btnMonitor.Text = monitors.Combine(", ") + "...";
                 btnMonitor.BackColor = Color.LightBlue;
             }
 
-            kvmConcurrentUsers.Value = stresstest.ConcurrentUsers.Combine(", ");
+            kvmConcurrentUsers.Value = concurrentUsers.Combine(", ");
 
-            kvmPrecision.Value = stresstest.Precision.ToString();
-            kvmDynamicRunMultiplier.Value = stresstest.DynamicRunMultiplier.ToString();
-            kvmDelay.Value = (stresstest.MinimumDelay == stresstest.MaximumDelay ? stresstest.MinimumDelay.ToString() : stresstest.MinimumDelay + " - " + stresstest.MaximumDelay) + " ms";
-            kvmShuffle.Value = stresstest.Shuffle ? "Yes" : "No";
-            kvmDistribute.Value = stresstest.Distribute.ToString();
+            kvmPrecision.Value = precision.ToString();
+            kvmDynamicRunMultiplier.Value = dynamicRunMultiplier.ToString();
+            kvmDelay.Value = (minimumDelay == maximumDelay ? minimumDelay.ToString() : minimumDelay + " - " + maximumDelay) + " ms";
+            kvmShuffle.Value = shuffle ? "Yes" : "No";
+            kvmDistribute.Value = distribute.ToString();
+
         }
         private void btnMonitor_Click(object sender, EventArgs e)
         {

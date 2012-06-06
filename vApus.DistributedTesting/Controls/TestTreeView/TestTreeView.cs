@@ -32,6 +32,14 @@ namespace vApus.DistributedTesting
         {
             get { return _distributedTestMode; }
         }
+        public IEnumerable<ITreeViewItem> Items
+        {
+            get
+            {
+                foreach (ITreeViewItem control in largeList.AllControls)
+                    yield return control;
+            }
+        }
         #endregion
 
         #region Constructors

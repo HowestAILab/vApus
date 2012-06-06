@@ -72,7 +72,7 @@ namespace vApus.DistributedTesting
         public Stresstest.Stresstest Stresstest;
     }
     [Serializable]
-    public struct PushMessage
+    public struct TestProgressMessage
     {
         public string TileStresstestIndex;
         public StresstestResult StresstestResult;

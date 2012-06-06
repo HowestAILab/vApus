@@ -91,43 +91,12 @@ namespace vApus.DistributedTesting
         {
             //tc.SelectedIndex = index;
         }
-        /// <summary>
-        /// Set the configuration for the chosen tile stresstest.
-        /// </summary>
-        /// <param name="tileStresstest"></param>
-        public void SetSlaveConfigurationControls(TileStresstest tileStresstest, List<MonitorView> monitorViews)
-        {
-            //stresstestControl.SetConfigurationControls(tileStresstest.GetNewStresstest());
-            _monitorViews = monitorViews;
-        }
         private void stresstestControl_MonitorClicked(object sender, EventArgs e)
         {
             if (_monitorViews != null)
                 foreach (MonitorView view in _monitorViews)
                     if (!view.IsDisposed)
                         view.Show();
-        }
-
-        /// <summary>
-        /// Leave all empty for the default values.
-        /// </summary>
-        /// <param name="threadsInUse"></param>
-        /// <param name="cpuUsage"></param>
-        /// <param name="contextSwitchesPerSecond"></param>
-        /// <param name="threadQueueLengthPerSecond"></param>
-        /// <param name="threadContentionsPerSecond"></param>
-        /// <param name="memoryUsage"></param>
-        /// <param name="totalVisibleMemory"></param>
-        public void SetSlaveMonitoring(int threadsInUse = 0,
-            float cpuUsage = -1f,
-            float contextSwitchesPerSecond = -1f,
-            int memoryUsage = -1,
-            int totalVisibleMemory = -1,
-            float nicsSent = -1,
-            float nicsReceived = -1)
-        {
-            //stresstestControl.SetClientMonitoring(threadsInUse, cpuUsage, contextSwitchesPerSecond, memoryUsage,
-            //    totalVisibleMemory, nicsSent, nicsReceived);
         }
 
         /// <summary>
@@ -243,57 +212,6 @@ namespace vApus.DistributedTesting
                     AppendMasterMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
                 }
             }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tileStresstest"></param>
-        /// <param name="pushMessage"></param>
-        /// <param name="overalEndOfTimeFrame">The end of time frame for the full test.</param>
-        public void SetSlaveProgress(TileStresstest tileStresstest, PushMessage pushMessage, DateTime overalBeginOfTimeFrame, DateTime overalEndOfTimeFrame)
-        {
-            LockWindowUpdate(this.Handle.ToInt32());
-
-            epnlMasterMessages.BeginOfTimeFrame = overalBeginOfTimeFrame;
-            epnlMasterMessages.EndOfTimeFrame = overalEndOfTimeFrame;
-            epnlMasterMessages.SetProgressBarToNow();
-
-            //Build and add fast results.
-            //stresstestControl.ClearFastResults();
-            if (pushMessage.TileStresstestProgressResults != null)
-            {
-                foreach (TileConcurrentUsersProgressResult tcr in pushMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
-                {
-                    ConcurrentUsersResult cr = new ConcurrentUsersResult(tcr.ConcurrentUsers, tcr.Metrics.TotalLogEntries, tcr.Metrics.StartMeasuringRuntime);
-                    cr.Metrics = tcr.Metrics;
-                    //stresstestControl.AddFastResult(cr);
-
-                    foreach (TilePrecisionProgressResult tpr in tcr.TilePrecisionProgressResults)
-                    {
-                        PrecisionResult pr = new PrecisionResult(tpr.Precision, tpr.Metrics.TotalLogEntries, tpr.Metrics.StartMeasuringRuntime);
-                        pr.Metrics = tpr.Metrics;
-                        //stresstestControl.AddFastResult(pr);
-
-                        foreach (TileRunProgressResult trr in tpr.TileRunProgressResults)
-                        {
-                            RunResult rr = new RunResult(trr.Run, 1, trr.Metrics.TotalLogEntries, 1, trr.Metrics.StartMeasuringRuntime, trr.RunStartedAndStopped, trr.RunDoneOnce);
-                            rr.Metrics = trr.Metrics;
-                            //stresstestControl.AddFastResult(rr);
-                        }
-                    }
-                }
-                //stresstestControl.SetStresstestStarted(pushMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);
-                //stresstestControl.SetMeasuredRunTime(pushMessage.TileStresstestProgressResults.Metrics.MeasuredRunTime, pushMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
-            }
-
-            //if (pushMessage.Events == null)
-            //    stresstestControl.ClearEvents();
-            //else
-            //    stresstestControl.SetEvents(pushMessage.Events);
-
-            //stresstestControl.SetStresstestStopped(pushMessage.StresstestResult);
-
-            LockWindowUpdate(0);
         }
         public void SetOverallFastResults(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
         {

@@ -153,8 +153,11 @@ namespace vApus.DistributedTesting
         }
         public void SetVisibleControls(bool visible)
         {
-            txtClient.Visible = picAddSlave.Visible = picDuplicate.Visible = picDelete.Visible = visible;
-            lblClient.Text = visible ? "Host Name or IP:" : _client.ToString() + "  -  (#" + UsedSlaveCount + "/" + _client.Count + ")";
+            if (_distributedTestMode == DistributedTestMode.Edit)
+            {
+                txtClient.Visible = picAddSlave.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+                lblClient.Text = visible ? "Host Name or IP:" : _client.ToString() + "  -  (#" + UsedSlaveCount + "/" + _client.Count + ")";
+            }
         }
         public void SetVisibleControls()
         {
@@ -380,17 +383,19 @@ namespace vApus.DistributedTesting
         {
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit)
-            {
-                chk.Visible =
-                txtClient.Visible =
-                picAddSlave.Visible =
-                picDuplicate.Visible =
-                picDelete.Visible = true;
-
-                this.Visible = true;
-            }
+                if (_client.Use)
+                {
+                    chk.Visible =
+                    txtClient.Visible =
+                    picAddSlave.Visible =
+                    picDuplicate.Visible =
+                    picDelete.Visible = true;
+                }
+                else
+                {
+                    this.Visible = true;
+                }
             else
-            {
                 if (_client.Use)
                 {
                     chk.Visible =
@@ -403,7 +408,6 @@ namespace vApus.DistributedTesting
                 {
                     this.Visible = false;
                 }
-            }
         }
         #endregion
     }

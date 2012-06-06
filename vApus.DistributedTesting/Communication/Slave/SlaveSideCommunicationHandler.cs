@@ -268,23 +268,23 @@ namespace vApus.DistributedTesting
         {
             try
             {
-                PushMessage pushMessage = new PushMessage();
-                pushMessage.TileStresstestIndex = tileStresstestIndex;
+                TestProgressMessage tpm = new TestProgressMessage();
+                tpm.TileStresstestIndex = tileStresstestIndex;
 
-                pushMessage.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed ? stresstestCore.BusyThreadCount : 0;
-                pushMessage.CPUUsage = LocalMonitor.CPUUsage;
-                pushMessage.MemoryUsage = LocalMonitor.MemoryUsage;
-                pushMessage.TotalVisibleMemory = LocalMonitor.TotalVisibleMemory;
-                pushMessage.ContextSwitchesPerSecond = LocalMonitor.ContextSwitchesPerSecond;
-                pushMessage.NicsSent = LocalMonitor.NicsSent;
-                pushMessage.NicsReceived = LocalMonitor.NicsReceived;
+                tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed ? stresstestCore.BusyThreadCount : 0;
+                tpm.CPUUsage = LocalMonitor.CPUUsage;
+                tpm.MemoryUsage = LocalMonitor.MemoryUsage;
+                tpm.TotalVisibleMemory = LocalMonitor.TotalVisibleMemory;
+                tpm.ContextSwitchesPerSecond = LocalMonitor.ContextSwitchesPerSecond;
+                tpm.NicsSent = LocalMonitor.NicsSent;
+                tpm.NicsReceived = LocalMonitor.NicsReceived;
 
                 if (tileStresstestProgressResults != null)
                     tileStresstestProgressResults.Refresh();
-                pushMessage.TileStresstestProgressResults = tileStresstestProgressResults;
-                pushMessage.Events = events;
-                pushMessage.StresstestResult = stresstestResult;
-                pushMessage.RunStateChange = concurrentUsersStateChange;
+                tpm.TileStresstestProgressResults = tileStresstestProgressResults;
+                tpm.Events = events;
+                tpm.StresstestResult = stresstestResult;
+                tpm.RunStateChange = concurrentUsersStateChange;
 
                 if (!_masterSocketWrapper.Connected)
                 {
@@ -308,7 +308,7 @@ namespace vApus.DistributedTesting
 
                 if (_masterSocketWrapper.Connected)
                 {
-                    var message = new Message<Key>(Key.Push, pushMessage);
+                    var message = new Message<Key>(Key.Push, tpm);
                     try
                     {
                         SynchronizeBuffers(message);

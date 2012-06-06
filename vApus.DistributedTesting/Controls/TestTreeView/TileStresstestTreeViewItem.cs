@@ -10,6 +10,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
+using System.Collections.Generic;
 
 namespace vApus.DistributedTesting
 {
@@ -114,7 +116,8 @@ namespace vApus.DistributedTesting
         }
         public void SetVisibleControls(bool visible)
         {
-            txtTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+                txtTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
         }
 
         public void SetVisibleControls()
@@ -206,25 +209,29 @@ namespace vApus.DistributedTesting
         {
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit)
-            {
-                chk.Visible =
-                   txtTileStresstest.Visible =
-                   picDelete.Visible =
-                   picDuplicate.Visible = true;
+                if (_tileStresstest.Use)
+                {
+                    chk.Visible =
+                    txtTileStresstest.Visible =
+                    picDelete.Visible =
+                    picDuplicate.Visible = true;
 
-                picStresstestStatus.Visible =
-                eventProgressBar.Visible = false;
-
-                this.Visible = true;
-            }
+                    picStresstestStatus.Visible =
+                    eventProgressBar.Visible = false;
+                }
+                else
+                {
+                    this.Visible = true;
+                }
             else
-            {
                 if (_tileStresstest.Use)
                 {
                     chk.Visible =
                     txtTileStresstest.Visible =
                     picDelete.Visible =
                     picDuplicate.Visible = false;
+
+                    eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
 
                     picStresstestStatus.Visible =
                     eventProgressBar.Visible = true;
@@ -233,7 +240,6 @@ namespace vApus.DistributedTesting
                 {
                     this.Visible = false;
                 }
-            }
         }
         #endregion
 
@@ -242,5 +248,25 @@ namespace vApus.DistributedTesting
 
         }
 
+        private void eventProgressBar_EventClick(object sender, Util.EventProgressBar.ProgressEventEventArgs e)
+        {
+
+        }
+        public void AddEvent(Color eventPrograssBarEventColor, string message, DateTime at)
+        {
+        }
+
+
+        public void ClearEvents()
+        {
+            eventProgressBar.ClearEvents();
+        }
+
+        public void SetEvents(List<EventPanelEvent> events)
+        {
+            ClearEvents();
+            foreach (var epe in events)
+                eventProgressBar.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
+        }
     }
 }
