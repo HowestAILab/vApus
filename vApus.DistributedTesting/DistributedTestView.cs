@@ -529,7 +529,17 @@ namespace vApus.DistributedTesting
             lock (_lock)
             {
                 //LockWindowUpdate(this.Handle.ToInt32());
-
+                TileStresstestTreeViewItem tileStresstestTreeViewItem = null;
+                foreach (ITreeViewItem item in testTreeView.Items)
+                    if (item is TileStresstestTreeViewItem)
+                    {
+                        var tstvi = item as TileStresstestTreeViewItem;
+                        if (tstvi.TileStresstest == tileStresstest)
+                        {
+                            tileStresstestTreeViewItem = tstvi;
+                            break;
+                        }
+                    }
                 //Build and add fast results.
                 stresstestControl.ClearFastResults();
                 if (testProgressMessage.TileStresstestProgressResults != null)
@@ -558,17 +568,6 @@ namespace vApus.DistributedTesting
                     stresstestControl.SetMeasuredRunTime(testProgressMessage.TileStresstestProgressResults.Metrics.MeasuredRunTime, testProgressMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
                 }
 
-                TileStresstestTreeViewItem tileStresstestTreeViewItem = null;
-                foreach (ITreeViewItem item in testTreeView.Items)
-                    if (item is TileStresstestTreeViewItem)
-                    {
-                        var tstvi = item as TileStresstestTreeViewItem;
-                        if (tstvi.TileStresstest == tileStresstest)
-                        {
-                            tileStresstestTreeViewItem = tstvi;
-                            break;
-                        }
-                    }
 
                 if (testProgressMessage.Events == null)
                 {
