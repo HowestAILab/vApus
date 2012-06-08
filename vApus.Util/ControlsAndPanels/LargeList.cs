@@ -383,6 +383,7 @@ namespace vApus.Util
             }
 
             lblTotalViews.Text = _controls.Count.ToString();
+            pnl.Visible = lblTotalViews.Text != "1";
             _controls[_controls.Count - 1].Add(control);
             ++_controlCount;
 
@@ -491,6 +492,7 @@ namespace vApus.Util
             _currentView = 0;
             txtView.Text = "1";
             lblTotalViews.Text = "1";
+            pnl.Visible = false;
             lblTotalViews_TextChanged(null, null);
             if (ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
@@ -859,6 +861,7 @@ namespace vApus.Util
                 scrollbar_ValueChanged(null, null);
             }
             lblTotalViews.Text = _controls.Count == 0 ? "1" : _controls.Count.ToString();
+            pnl.Visible = lblTotalViews.Text != "1";
             OrderSelection();
             this.Cursor = Cursors.Default;
         }

@@ -71,7 +71,6 @@ namespace vApus.Stresstest
         #region Constructors
         public Connection()
         {
-
             if (Solution.ActiveSolution != null)
                 ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
             else

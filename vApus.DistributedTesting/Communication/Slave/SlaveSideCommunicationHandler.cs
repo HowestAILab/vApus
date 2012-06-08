@@ -67,6 +67,10 @@ namespace vApus.DistributedTesting
         }
         private static Message<Key> HandleInitializeTest(Message<Key> message)
         {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            {
+                Solution.HideStresstestingSolutionExplorer();
+            });
             //init the send queue for push messages.
             _sendQueue = new ActiveObject();
 
@@ -197,8 +201,8 @@ namespace vApus.DistributedTesting
         {
             if (_torrentServer != null)
             {
-                StopSeedingResultsMessage stopSeedingResultsMessage = (StopSeedingResultsMessage)message.Content;
-                _torrentServer.StopTorrent(stopSeedingResultsMessage.TorrentName);
+                _torrentServer.CloseAllTorrents();
+                _torrentServer = null;
             }
             message.Content = null;
             return message;

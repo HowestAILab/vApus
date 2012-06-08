@@ -131,7 +131,6 @@ namespace vApus.DistributedTesting
 
             Connections connections = new Connections();
             Connection connection = BasicTileStresstest._connection;
-            connection.ShowInGui = false;
             ObjectExtension.RemoveDescriptionFromCache(connection);
             connections.AddWithoutInvokingEvent(connection, false);
             connection.ForceSettingChildsParent();

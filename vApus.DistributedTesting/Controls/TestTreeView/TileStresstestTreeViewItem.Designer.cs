@@ -36,8 +36,8 @@
             this.chk = new System.Windows.Forms.CheckBox();
             this.txtTileStresstest = new System.Windows.Forms.TextBox();
             this.lblTileStresstest = new System.Windows.Forms.Label();
-            this.eventProgressBar = new vApus.Util.EventProgressBar();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
+            this.eventProgressBar = new vApus.Util.EventProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
@@ -118,6 +118,17 @@
             this.lblTileStresstest.Size = new System.Drawing.Size(0, 13);
             this.lblTileStresstest.TabIndex = 20;
             // 
+            // picStresstestStatus
+            // 
+            this.picStresstestStatus.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picStresstestStatus.Location = new System.Drawing.Point(578, 6);
+            this.picStresstestStatus.Name = "picStresstestStatus";
+            this.picStresstestStatus.Size = new System.Drawing.Size(16, 16);
+            this.picStresstestStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picStresstestStatus.TabIndex = 22;
+            this.picStresstestStatus.TabStop = false;
+            this.picStresstestStatus.Click += new System.EventHandler(this.picStresstestStatus_Click);
+            // 
             // eventProgressBar
             // 
             this.eventProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -126,27 +137,14 @@
             this.eventProgressBar.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.eventProgressBar.EndOfTimeFrame = new System.DateTime(9999, 12, 31, 23, 59, 59, 999);
             this.eventProgressBar.EventToolTip = true;
-            this.eventProgressBar.Location = new System.Drawing.Point(22, 23);
+            this.eventProgressBar.Location = new System.Drawing.Point(42, 25);
             this.eventProgressBar.Margin = new System.Windows.Forms.Padding(0);
             this.eventProgressBar.Name = "eventProgressBar";
             this.eventProgressBar.ProgressBarColor = System.Drawing.Color.SteelBlue;
-            this.eventProgressBar.Size = new System.Drawing.Size(576, 6);
+            this.eventProgressBar.Size = new System.Drawing.Size(552, 5);
             this.eventProgressBar.TabIndex = 21;
-            this.eventProgressBar.Visible = false;
             this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressBar.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
-            // 
-            // picStresstestStatus
-            // 
-            this.picStresstestStatus.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picStresstestStatus.Image = global::vApus.DistributedTesting.Properties.Resources.Busy;
-            this.picStresstestStatus.Location = new System.Drawing.Point(22, 6);
-            this.picStresstestStatus.Name = "picStresstestStatus";
-            this.picStresstestStatus.Size = new System.Drawing.Size(16, 16);
-            this.picStresstestStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picStresstestStatus.TabIndex = 22;
-            this.picStresstestStatus.TabStop = false;
-            this.picStresstestStatus.Visible = false;
-            this.picStresstestStatus.Click += new System.EventHandler(this.picStresstestStatus_Click);
+            this.eventProgressBar.Enter += new System.EventHandler(this._Enter);
             // 
             // TileStresstestTreeViewItem
             // 

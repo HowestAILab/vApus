@@ -32,7 +32,6 @@ namespace vApus.Util
         private List<int> _lineBreaks = new List<int>();
 
         private ToolTip _toolTip = new ToolTip();
-        private ContextMenuStrip _cmnu = new ContextMenuStrip();
         #endregion
 
         #region Properties
@@ -87,9 +86,6 @@ namespace vApus.Util
             this.Padding = new Padding(0, 1, 0, 1);
             this.TextAlign = ContentAlignment.MiddleLeft;
 
-            var copyItem = new ToolStripMenuItem("Copy");
-            copyItem.Click += new EventHandler(copyItem_Click);
-            _cmnu.Items.Add(copyItem);
             _parent = parent;
 
             EventType = eventType;
@@ -97,11 +93,6 @@ namespace vApus.Util
             _message = message;
             _at = at;
             SetText();
-        }
-
-        private void copyItem_Click(object sender, EventArgs e)
-        {
-            ClipboardWrapper.SetDataObject(this.Text);
         }
 
         #region Functions
@@ -169,9 +160,7 @@ namespace vApus.Util
         {
             base.OnMouseClick(e);
             if (e.Button == MouseButtons.Right)
-            {
-                _cmnu.Show(this, e.Location);
-            }
+                ClipboardWrapper.SetDataObject(this.Text);
         }
         #endregion
     }

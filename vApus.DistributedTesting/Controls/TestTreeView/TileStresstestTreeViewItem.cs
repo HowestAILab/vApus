@@ -25,6 +25,11 @@ namespace vApus.DistributedTesting
         public event EventHandler AfterSelect;
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
+
+        /// <summary>
+        /// Event of the test clicked.
+        /// </summary>
+        public event EventHandler<EventProgressBar.ProgressEventEventArgs> EventClicked;
         #endregion
 
         #region Fields
@@ -63,7 +68,8 @@ namespace vApus.DistributedTesting
             //Use if the parent is used explicitely.
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
-            eventProgressBar.SetProgressBarToNow();
+            eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
+            eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
         }
         #endregion
 
@@ -215,9 +221,6 @@ namespace vApus.DistributedTesting
                     txtTileStresstest.Visible =
                     picDelete.Visible =
                     picDuplicate.Visible = true;
-
-                    picStresstestStatus.Visible =
-                    eventProgressBar.Visible = false;
                 }
                 else
                 {
@@ -231,10 +234,8 @@ namespace vApus.DistributedTesting
                     picDelete.Visible =
                     picDuplicate.Visible = false;
 
+                    eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
                     eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
-
-                    picStresstestStatus.Visible =
-                    eventProgressBar.Visible = true;
                 }
                 else
                 {
@@ -248,14 +249,12 @@ namespace vApus.DistributedTesting
 
         }
 
-        private void eventProgressBar_EventClick(object sender, Util.EventProgressBar.ProgressEventEventArgs e)
+        private void eventProgressBar_EventClick(object sender, EventProgressBar.ProgressEventEventArgs e)
         {
-
+            this.Select();
+            if (EventClicked != null)
+                EventClicked(this, e);
         }
-        public void AddEvent(Color eventPrograssBarEventColor, string message, DateTime at)
-        {
-        }
-
 
         public void ClearEvents()
         {
@@ -267,6 +266,17 @@ namespace vApus.DistributedTesting
             ClearEvents();
             foreach (var epe in events)
                 eventProgressBar.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
+        }
+
+        internal void SetStresstestStarted(DateTime start)
+        {
+            eventProgressBar.BeginOfTimeFrame = start;
+        }
+
+        internal void SetMeasuredRunTime(TimeSpan estimatedRuntimeLeft)
+        {
+            eventProgressBar.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
+            eventProgressBar.SetProgressBarToNow();
         }
     }
 }

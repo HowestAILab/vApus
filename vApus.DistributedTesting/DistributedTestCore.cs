@@ -13,13 +13,14 @@ using System.Threading.Tasks;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
+using System.IO;
 
 namespace vApus.DistributedTesting
 {
     public class DistributedTestCore : IDisposable
     {
         #region Fields
-        private object _lock = new object();
+        private object _lock = new object(), _testProgressMessagesLock = new object();
 
         private Stopwatch _sw = new Stopwatch();
 
@@ -41,6 +42,8 @@ namespace vApus.DistributedTesting
 
         //Invoke only once
         private bool _finishedInvoked = false;
+
+        private bool _hasResults;
         #endregion
 
         #region Properties
@@ -59,7 +62,7 @@ namespace vApus.DistributedTesting
         {
             get
             {
-                lock (_lock)
+                lock (_testProgressMessagesLock)
                     return _testProgressMessages;
             }
         }
@@ -100,6 +103,14 @@ namespace vApus.DistributedTesting
         {
             get { return OK + Cancelled + Failed; }
         }
+
+        /// <summary>
+        /// To check wheter you can close the distributed test view without a warning or not.
+        /// </summary>
+        public bool HasResults
+        {
+            get { return _hasResults; }
+        }
         #endregion
 
         #region Con-/Destructor
@@ -134,7 +145,8 @@ namespace vApus.DistributedTesting
             InvokeMessage("Connecting slaves...");
             _sw.Start();
             _usedTileStresstests.Clear();
-            _testProgressMessages.Clear();
+            lock (_testProgressMessagesLock)
+                _testProgressMessages.Clear();
             foreach (BaseItem item in _distributedTest.Tiles)
             {
                 Tile tile = item as Tile;
@@ -151,7 +163,8 @@ namespace vApus.DistributedTesting
                             if (exception == null)
                             {
                                 _usedTileStresstests.Add(tileStresstest);
-                                _testProgressMessages.Add(tileStresstest.TileStresstestIndex, new TestProgressMessage());
+                                lock (_testProgressMessagesLock)
+                                    _testProgressMessages.Add(tileStresstest.TileStresstestIndex, new TestProgressMessage());
                                 InvokeMessage(string.Format("|->Connected {0} - {1}", tileStresstest.Parent, tileStresstest));
                             }
                             else
@@ -228,9 +241,9 @@ namespace vApus.DistributedTesting
         {
             lock (_lock)
             {
-                if (!_isDisposed && Finished < _usedTileStresstests.Count)
+                try
                 {
-                    try
+                    if (!_isDisposed && Finished < _usedTileStresstests.Count)
                     {
 #warning allow multiple slaves yadda yadda
                         foreach (TileStresstest tileStresstest in _usedTileStresstests)
@@ -257,10 +270,13 @@ namespace vApus.DistributedTesting
 
 
                         if (Finished == _usedTileStresstests.Count)
+                        {
                             InvokeOnFinished();
+                            HandleFinished();
+                        }
                     }
-                    catch { }
                 }
+                catch { }
             }
         }
         private string[] AddUniqueToStringArray(string[] arr, string item)
@@ -282,8 +298,11 @@ namespace vApus.DistributedTesting
             {
                 try
                 {
+                    _hasResults = true;
+
                     var tpm = e.TestProgressMessage;
-                    _testProgressMessages[e.TestProgressMessage.TileStresstestIndex] = tpm;
+                    lock (_testProgressMessagesLock)
+                        _testProgressMessages[e.TestProgressMessage.TileStresstestIndex] = tpm;
 
                     bool okCancelError = true;
                     switch (tpm.StresstestResult)
@@ -370,8 +389,8 @@ namespace vApus.DistributedTesting
 
                     if (Finished == _usedTileStresstests.Count)
                     {
-                        StaticObjectServiceWrapper.ObjectService.Unsuscribe(this);
                         InvokeOnFinished();
+                        HandleFinished();
                     }
                 }
                 catch { }
@@ -393,6 +412,44 @@ namespace vApus.DistributedTesting
 
             InvokeMessage("Test Cancelled!", LogLevel.Warning);
         }
+
+        private void HandleFinished()
+        {
+            StaticObjectServiceWrapper.ObjectService.Unsuscribe(this);
+
+            InvokeMessage("Getting results (it can take a minute or two until transmission begins)...");
+#warning Handle Exception
+            Exception ex;
+            foreach (ResultsMessage rm in _masterCommunication.GetResults(out ex))
+            {
+                TorrentClient torrentClient = new TorrentClient();
+                torrentClient.SetTag(rm.TileStresstestIndex);
+                torrentClient.ProgressUpdated += new ProgressUpdatedEventHandler(torrentClient_ProgressUpdated);
+                torrentClient.DownloadCompleted += new DownloadCompletedEventHandler(torrentClient_DownloadCompleted);
+
+                if (!Directory.Exists(_distributedTest.ResultPath))
+                    Directory.CreateDirectory(_distributedTest.ResultPath);
+
+                string subDir = (DateTime.Now.ToShortDateString() + "_" + DateTime.Now.ToShortTimeString()).ReplaceInvalidWindowsFilenameChars('_');
+                string resultPath = Path.Combine(_distributedTest.ResultPath, subDir);
+                if (!Directory.Exists(resultPath))
+                    Directory.CreateDirectory(resultPath);
+
+
+                torrentClient.DownloadTorrentFromBytes(rm.TorrentInfo, resultPath);
+            }
+        }
+
+        private void torrentClient_ProgressUpdated(TorrentClient source, TorrentEventArgs e)
+        {
+        }
+
+        private void torrentClient_DownloadCompleted(TorrentClient source, TorrentEventArgs e)
+        {
+            source.StopTorrent();
+            StopSeedingResults(GetTileStresstest(source.GetTag() as string));
+            source = null;
+        }
         /// <summary>
         /// This will reopen the connection if needed, get the results and close the connection again.
         /// </summary>
@@ -407,17 +464,19 @@ namespace vApus.DistributedTesting
 
 
         /// <summary>
-        /// Stops the seeding at the torrent server.
+        /// Stops the seeding at the torrent server. (slave side)
         /// </summary>
-        public void StopSeedingResults(TileStresstest tileStresstest, string torrentName)
+        private void StopSeedingResults(TileStresstest tileStresstest)
         {
-#warning implement this.
-            //lock (this)
-            //{
-            //    Exception ex;
-            //    _masterCommunication.StopSeedingResults(tileStresstest, torrentName, out ex);
-            //    _masterCommunication.DisconnectSlave(tileStresstest.SlaveIP, tileStresstest.SlavePort);
-            //}
+            lock (this)
+            {
+#warning Allow multiple slaves for work distribution
+                Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
+
+                Exception ex;
+                _masterCommunication.StopSeedingResults(tileStresstest, out ex);
+                _masterCommunication.DisconnectSlave(slave.IP, slave.Port);
+            }
         }
         public void Dispose()
         {
@@ -426,6 +485,7 @@ namespace vApus.DistributedTesting
                 try
                 {
                     _isDisposed = true;
+                    _hasResults = false;
                     _masterCommunication.Dispose();
                     _masterCommunication = null;
                     _usedTileStresstests = null;

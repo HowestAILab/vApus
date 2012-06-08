@@ -614,7 +614,7 @@ namespace vApus.DistributedTesting
         /// <param name="exception"></param>
         public void InitializeTest(TileStresstest tileStresstest, RunSynchronization runSynchronization, out Exception exception)
         {
-#warning Allow multople slaves for work distribution
+#warning Allow multiple slaves for work distribution
             Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
             SocketWrapper socketWrapper = Get(slave.IP, slave.Port, out exception);
             if (exception == null)
@@ -780,25 +780,24 @@ namespace vApus.DistributedTesting
         /// <param name="tileStresstest"></param>
         /// <param name="torrentName"></param>
         /// <param name="exception"></param>
-        //public void StopSeedingResults(TileStresstest tileStresstest, string torrentName, out Exception exception)
-        //{
-            //SocketWrapper socketWrapper = Get(tileStresstest.SlaveIP, tileStresstest.SlavePort, out exception);
-            //if (exception == null)
-            //    for (int i = 1; i != 4; i++)
-            //        try
-            //        {
-            //            StopSeedingResultsMessage stopSeedingResultsMessage = new StopSeedingResultsMessage();
-            //            stopSeedingResultsMessage.TorrentName = torrentName;
-
-            //            Send(socketWrapper, Key.StopSeedingResults, stopSeedingResultsMessage, 30000);
-            //            break;
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            exception = ex;
-            //            Thread.Sleep(i * 500);
-            //        }
-        //}
+        public void StopSeedingResults(TileStresstest tileStresstest, out Exception exception)
+        {
+#warning Allow multiple slaves for work distribution
+            Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
+            SocketWrapper socketWrapper = Get(slave.IP, slave.Port, out exception);
+            if (exception == null)
+                for (int i = 1; i != 4; i++)
+                    try
+                    {
+                        Send(socketWrapper, Key.StopSeedingResults, 30000);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                        Thread.Sleep(i * 500);
+                    }
+        }
         public void Dispose()
         {
             if (!_isDisposed)

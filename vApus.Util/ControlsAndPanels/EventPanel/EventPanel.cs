@@ -162,10 +162,17 @@ namespace vApus.Util
         }
         private void eventProgressBar_EventClick(object sender, EventProgressBar.ProgressEventEventArgs e)
         {
-            Collapsed = false;
-            eventView.PerformMouseEnter(e.ProgressEvent.At);
+            ShowEvent(e.ProgressEvent.At);
         }
-
+        /// <summary>
+        /// Show event message at the right date time, use this if you have an external event progress bar.
+        /// </summary>
+        /// <param name="at"></param>
+        public void ShowEvent(DateTime at)
+        {
+            Collapsed = false;
+            eventView.PerformMouseEnter(at);
+        }
         private void eventView_EventViewItemMouseEnter(object sender, EventView.EventViewItemEventArgs e)
         {
             eventProgressBar.PerformMouseEnter(e.EventViewItem.At, false);

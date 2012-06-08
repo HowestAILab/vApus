@@ -23,6 +23,11 @@ namespace vApus.DistributedTesting
         /// </summary>
         public event EventHandler AfterSelect;
 
+        /// <summary>
+        /// Event of the test clicked.
+        /// </summary>
+        public event EventHandler<EventProgressBar.ProgressEventEventArgs> EventClicked;
+
         #region Fields
         private DistributedTestMode _distributedTestMode;
         #endregion
@@ -32,6 +37,9 @@ namespace vApus.DistributedTesting
         {
             get { return _distributedTestMode; }
         }
+        /// <summary>
+        /// get all tree view items.
+        /// </summary>
         public IEnumerable<ITreeViewItem> Items
         {
             get
@@ -79,13 +87,16 @@ namespace vApus.DistributedTesting
             SetDistributedTest(test);
         }
 
-        public void SetMode(DistributedTestMode distributedTestMode)
+        public void SetMode(DistributedTestMode distributedTestMode, bool scheduled)
         {
             if (_distributedTestMode != distributedTestMode)
             {
                 _distributedTestMode = distributedTestMode;
                 foreach (ITreeViewItem item in largeList.AllControls)
                     item.SetDistributedTestMode(_distributedTestMode);
+
+                if (distributedTestMode == DistributedTestMode.TestAndReport && !scheduled)
+                    largeList[0][0].Select();
             }
         }
 
@@ -105,7 +116,7 @@ namespace vApus.DistributedTesting
 
             //select the first stresstest tvi if any
             bool selected = false;
-            foreach(Control control in largeList.AllControls)
+            foreach (Control control in largeList.AllControls)
                 if (control is TileStresstestTreeViewItem)
                 {
                     control.Select();
@@ -115,7 +126,7 @@ namespace vApus.DistributedTesting
 
             if (!selected)
                 dttvi.Select();
-            
+
             LockWindowUpdate(0);
         }
 
@@ -152,7 +163,7 @@ namespace vApus.DistributedTesting
                 largeList.Add(tsvi);
             }
         }
-        private void CreateAndInsertTileTreeViewItem(Tile tile, KeyValuePair<int,int> index)
+        private void CreateAndInsertTileTreeViewItem(Tile tile, KeyValuePair<int, int> index)
         {
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
@@ -162,7 +173,7 @@ namespace vApus.DistributedTesting
             tvi.DuplicateClicked += new EventHandler(tvi_DuplicateClicked);
             tvi.DeleteClicked += new EventHandler(tvi_DeleteClicked);
 
-            for(int i = tile.Count - 1; i != -1; i--)
+            for (int i = tile.Count - 1; i != -1; i--)
             {
                 var tsvi = CreateTileStresstestTreeViewItem(tvi, tile[i] as TileStresstest);
                 tvi.ChildControls.Add(tsvi);
@@ -193,7 +204,7 @@ namespace vApus.DistributedTesting
             tvi.RefreshGui();
 
             tvi.Tile.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
-           
+
             LockWindowUpdate(0);
         }
         private TileTreeViewItem GetClosestNextTileTreeViewItem(Control control)
@@ -242,9 +253,9 @@ namespace vApus.DistributedTesting
 
                 var parent = tvi.Tile.Parent as Tiles;
                 parent.InsertWithoutInvokingEvent(parent.IndexOf(tvi.Tile), clone);
-                
+
                 CreateAndInsertTileTreeViewItem(clone, largeList.IndexOf(tvi));
-                
+
                 parent.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
             }
 
@@ -259,6 +270,8 @@ namespace vApus.DistributedTesting
             tsvi.AfterSelect += new EventHandler(_AfterSelect);
             tsvi.DuplicateClicked += new EventHandler(tsvi_DuplicateClicked);
             tsvi.DeleteClicked += new EventHandler(tsvi_DeleteClicked);
+
+            tsvi.EventClicked += new EventHandler<EventProgressBar.ProgressEventEventArgs>(tsvi_EventClicked);
             return tsvi;
         }
         private void tsvi_DeleteClicked(object sender, EventArgs e)
@@ -297,6 +310,11 @@ namespace vApus.DistributedTesting
             }
 
             LockWindowUpdate(0);
+        }
+        private void tsvi_EventClicked(object sender, EventProgressBar.ProgressEventEventArgs e)
+        {
+            if (EventClicked != null)
+                EventClicked(sender, e);
         }
 
         private void _AfterSelect(object sender, EventArgs e)

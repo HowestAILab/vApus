@@ -98,6 +98,23 @@ namespace vApus.SolutionTree
         {
             _stresstestingSolutionExplorer.Show(_dockPanel, DockState.DockLeft);
         }
+        public static void HideStresstestingSolutionExplorer()
+        {
+            _stresstestingSolutionExplorer.Hide();
+        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ActiveContent">Ensures that the caller stays visible</param>
+        //public static void AutoHideStresstestingSolutionExplorer(IDockContent caller)
+        //{
+        //    if (!DockHelper.IsDockStateAutoHide(_stresstestingSolutionExplorer.DockState))
+        //    {
+        //        _stresstestingSolutionExplorer.DockState = DockHelper.ToggleAutoHideState(_stresstestingSolutionExplorer.DockState);
+        //        _stresstestingSolutionExplorer.DockPanel.ActiveAutoHideContent = null;
+        //        (caller.DockHandler.DockPanel.FocusManager as DockPanel.FocusManagerImpl).Activate(caller);
+        //    }
+        //}
         /// <summary>
         /// Tooltips will be provide for the items.
         /// </summary>

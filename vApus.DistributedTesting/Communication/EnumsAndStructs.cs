@@ -114,10 +114,4 @@ namespace vApus.DistributedTesting
         public byte[] TorrentInfo;
         public string Exception;
     }
-    [Serializable]
-    public struct StopSeedingResultsMessage
-    {
-        public string TorrentName;
-        public string Exception;
-    }
 }

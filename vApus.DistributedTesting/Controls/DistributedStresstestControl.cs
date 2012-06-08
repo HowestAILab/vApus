@@ -22,21 +22,17 @@ namespace vApus.DistributedTesting
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
-        public event EventHandler DrillDownChanged;
-
         private DistributedTest _distributedTest;
         //The monitor views for the selected stresstest.
         private List<MonitorView> _monitorViews;
 
+        //Caching the progress here.
+        private Dictionary<TileStresstest, TileStresstestProgressResults> _progress = new Dictionary<TileStresstest, TileStresstestProgressResults>();
         #region Properties
         public DistributedTest DistributedTest
         {
             get { return _distributedTest; }
             set { _distributedTest = value; }
-        }
-        public int FastResultsCount
-        {
-            get { return 0; }// stresstestControl.FastResultsCount; }
         }
         #endregion
 
@@ -64,32 +60,10 @@ namespace vApus.DistributedTesting
             this.epnlMasterMessages.CollapsedChanged += new System.EventHandler(this.epnlMasterMessages_CollapsedChanged);
             this.SizeChanged += new System.EventHandler(this.DistributedStresstestControl_SizeChanged);
         }
-        /// <summary>
-        /// </summary>
-        /// <param name="countDown">smaller than 0 for paused or unknown</param>
-        public void SetCountDownProgressDelay(int countDown)
-        {
-            //stresstestControl.SetCountDownProgressDelay(countDown);
-        }
         public void Clear()
         {
             dgvFastResults.Rows.Clear();
             epnlMasterMessages.ClearEvents();
-        }
-        /// <summary>
-        /// Resets everything to the initial state.
-        /// </summary>
-        public void SetSlaveInitialized()
-        {
-            //stresstestControl.SetStresstestInitialized();
-        }
-        /// <summary>
-        /// Switch between the master and slave tab
-        /// </summary>
-        /// <param name="index"></param>
-        public void SetSelectedTabIndex(int index)
-        {
-            //tc.SelectedIndex = index;
         }
         private void stresstestControl_MonitorClicked(object sender, EventArgs e)
         {
@@ -215,15 +189,21 @@ namespace vApus.DistributedTesting
         }
         public void SetOverallFastResults(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
         {
-            if (cboDrillDown.SelectedIndex == 0)
-                SetConcurrentUsersProgress(progress);
-            else if (cboDrillDown.SelectedIndex == 1)
-                SetPrecisionProgress(progress);
-            else
-                SetRunProgress(progress);
-
+            _progress = progress;
+            SetOverallFastResults();
         }
-        private void SetConcurrentUsersProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        private void SetOverallFastResults()
+        {
+            LockWindowUpdate(this.Handle.ToInt32());
+            if (cboDrillDown.SelectedIndex == 0)
+                SetConcurrentUsersProgress();
+            else if (cboDrillDown.SelectedIndex == 1)
+                SetPrecisionProgress();
+            else
+                SetRunProgress();
+            LockWindowUpdate(0);
+        }
+        private void SetConcurrentUsersProgress()
         {
             dgvFastResults.Rows.Clear();
 
@@ -232,9 +212,9 @@ namespace vApus.DistributedTesting
                 "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
 
             //Add the rows
-            foreach (TileStresstest key in progress.Keys)
-                if (progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult result in progress[key].TileConcurrentUsersProgressResults)
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult result in _progress[key].TileConcurrentUsersProgressResults)
                     {
                         var metrics = result.Metrics;
                         dgvFastResults.Rows.Add(key,
@@ -249,7 +229,7 @@ namespace vApus.DistributedTesting
                             metrics.AverageDelay.TotalMilliseconds, metrics.Errors);
                     }
         }
-        private void SetPrecisionProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        private void SetPrecisionProgress()
         {
             dgvFastResults.Rows.Clear();
 
@@ -258,9 +238,9 @@ namespace vApus.DistributedTesting
                 "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
 
             //Add the rows.
-            foreach (TileStresstest key in progress.Keys)
-                if (progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult cu in progress[key].TileConcurrentUsersProgressResults)
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
                         foreach (TilePrecisionProgressResult result in cu.TilePrecisionProgressResults)
                         {
                             var metrics = result.Metrics;
@@ -277,7 +257,7 @@ namespace vApus.DistributedTesting
                                 metrics.AverageDelay.TotalMilliseconds, metrics.Errors);
                         }
         }
-        private void SetRunProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        private void SetRunProgress()
         {
             dgvFastResults.Rows.Clear();
 
@@ -286,9 +266,9 @@ namespace vApus.DistributedTesting
                 "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
 
             //Add the rows.
-            foreach (TileStresstest key in progress.Keys)
-                if (progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult cu in progress[key].TileConcurrentUsersProgressResults)
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
                         foreach (TilePrecisionProgressResult p in cu.TilePrecisionProgressResults)
                             foreach (TileRunProgressResult result in p.TileRunProgressResults)
                             {
@@ -383,8 +363,7 @@ namespace vApus.DistributedTesting
         }
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (DrillDownChanged != null)
-                DrillDownChanged(this, null);
+            SetOverallFastResults();
         }
         #endregion
     }

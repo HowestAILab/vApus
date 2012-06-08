@@ -104,22 +104,22 @@ namespace vApus.SolutionTree
         {
             get { return false; }
         }
-        [SavableCloneable]
 
+        [SavableCloneable]
         public bool ShowInGui
         {
             get { return _showInGui; }
             set { _showInGui = value; }
         }
-        [SavableCloneable]
 
+        [SavableCloneable]
         public bool IsDefaultItem
         {
             get { return _isDefaultItem; }
             set { _isDefaultItem = value; }
         }
-        [SavableCloneable]
 
+        [SavableCloneable]
         public bool IsEmpty
         {
             get { return _isEmpty; }

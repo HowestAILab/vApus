@@ -635,6 +635,14 @@ namespace vApus.Stresstest
         {
             epnlMessages.ClearEvents();
         }
+        /// <summary>
+        /// Show event message at the right date time, use this if you have an external event progress bar.
+        /// </summary>
+        /// <param name="at"></param>
+        public void ShowEvent(DateTime at)
+        {
+            epnlMessages.ShowEvent(at);
+        }
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e)
         {
             lvwFastResultsListing.SuspendLayout();
