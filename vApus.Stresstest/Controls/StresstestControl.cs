@@ -625,6 +625,8 @@ namespace vApus.Stresstest
         /// </summary>
         public void SetEvents(List<EventPanelEvent> events)
         {
+            if (this.IsDisposed)
+                return;
             LockWindowUpdate(this.Handle.ToInt32());
             epnlMessages.ClearEvents();
             foreach (var epe in events)

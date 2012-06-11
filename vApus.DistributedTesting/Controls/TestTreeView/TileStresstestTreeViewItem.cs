@@ -242,41 +242,36 @@ namespace vApus.DistributedTesting
                     this.Visible = false;
                 }
         }
-        #endregion
 
         private void picStresstestStatus_Click(object sender, EventArgs e)
         {
 
         }
-
         private void eventProgressBar_EventClick(object sender, EventProgressBar.ProgressEventEventArgs e)
         {
             this.Select();
             if (EventClicked != null)
                 EventClicked(this, e);
         }
-
         public void ClearEvents()
         {
             eventProgressBar.ClearEvents();
         }
-
         public void SetEvents(List<EventPanelEvent> events)
         {
             ClearEvents();
             foreach (var epe in events)
                 eventProgressBar.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
         }
-
-        internal void SetStresstestStarted(DateTime start)
+        public void SetStresstestStarted(DateTime start)
         {
             eventProgressBar.BeginOfTimeFrame = start;
         }
-
-        internal void SetMeasuredRunTime(TimeSpan estimatedRuntimeLeft)
+        public void SetMeasuredRunTime(TimeSpan estimatedRuntimeLeft)
         {
             eventProgressBar.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
             eventProgressBar.SetProgressBarToNow();
         }
+        #endregion
     }
 }

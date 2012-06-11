@@ -49,7 +49,9 @@ namespace vApus.DistributedTesting
         {
             get { return _manager.State.ToString(); }
         }
-
+        /// <summary>
+        /// The name of the torrent if any.
+        /// </summary>
         public string Name
         {
             get

@@ -63,12 +63,22 @@ namespace vApus.DistributedTesting
             Error = error;
         }
     }
-    public class ResultsMessageReceivedEventArgs : EventArgs
+    public class ResultsDownloadProgressUpdatedEventArgs : EventArgs
     {
-        public readonly ResultsMessage ResultsMessage;
-        public ResultsMessageReceivedEventArgs(ResultsMessage resultsMessage)
+        public readonly TileStresstest TileStresstest;
+        public ResultsDownloadProgressUpdatedEventArgs(TileStresstest tileStresstest)
         {
-            ResultsMessage = resultsMessage;
+            TileStresstest = tileStresstest;
+        }
+    }
+    public class ResultsDownloadCompletedEventArgs : EventArgs
+    {
+        public readonly TileStresstest TileStresstest;
+        public readonly string ResultPath;
+        public ResultsDownloadCompletedEventArgs(TileStresstest tileStresstest,string resultPath)
+        {
+            TileStresstest = tileStresstest;
+            ResultPath = resultPath;
         }
     }
 }

@@ -8,8 +8,8 @@
 using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
-using vApus.Util;
 using vApus.Stresstest;
+using vApus.Util;
 
 namespace vApus.DistributedTesting
 {
@@ -125,6 +125,7 @@ namespace vApus.DistributedTesting
         {
             string tileStresstestIndex = TileStresstestIndex;
             Stresstest.Stresstest stresstest = new Stresstest.Stresstest();
+            stresstest.ForDistributedTest = true;
             stresstest.ShowInGui = false;
             stresstest.Distribute = AdvancedTileStresstest.Distribute;
             stresstest.ConcurrentUsers = AdvancedTileStresstest.ConcurrentUsers;

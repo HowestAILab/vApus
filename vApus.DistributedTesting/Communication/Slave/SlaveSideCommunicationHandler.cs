@@ -173,15 +173,15 @@ namespace vApus.DistributedTesting
                 try
                 {
                     string slaveSideResultsDir = Path.Combine(Application.StartupPath, "SlaveSideResults");
-                    string file = Path.Combine(slaveSideResultsDir, "PID_" + Process.GetCurrentProcess().Id.ToString() + "_" +
+                    string file = Path.Combine(slaveSideResultsDir, 
                         _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".r");
 
                     int j = 0;
-                    while (File.Exists(Path.Combine(slaveSideResultsDir, "PID_" + Process.GetCurrentProcess().Id.ToString() + "_" +
+                    while (File.Exists(Path.Combine(slaveSideResultsDir, 
                         _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', ++j) + ".r")))
                     {
-                        file = Path.Combine(slaveSideResultsDir, "PID_" + Process.GetCurrentProcess().Id.ToString() + "_" +
-                        _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', j) + ".r");
+                        file = Path.Combine(slaveSideResultsDir, 
+                            _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', j) + ".r");
                     }
 
                     resultsMessage.TorrentInfo = CreateTorrent(file, slaveSideResultsDir);

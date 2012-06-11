@@ -6,9 +6,10 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.ComponentModel;
-using System.Windows.Forms;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace vApus.DistributedTesting
 {
@@ -68,11 +69,13 @@ namespace vApus.DistributedTesting
         }
         private void _Enter(object sender, EventArgs e)
         {
+            this.BackColor = SystemColors.Control;
             if (AfterSelect != null)
                 AfterSelect(this, null);
         }
         public void Unfocus()
         {
+            this.BackColor = Color.Transparent;
         }
         public void SetVisibleControls()
         {

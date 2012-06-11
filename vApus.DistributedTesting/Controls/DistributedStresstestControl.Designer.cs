@@ -391,7 +391,7 @@ namespace vApus.DistributedTesting
             this.kvmRunningTests.Location = new System.Drawing.Point(200, 9);
             this.kvmRunningTests.Margin = new System.Windows.Forms.Padding(3, 6, 0, 6);
             this.kvmRunningTests.Name = "kvmRunningTests";
-            this.kvmRunningTests.Size = new System.Drawing.Size(108, 23);
+            this.kvmRunningTests.Size = new System.Drawing.Size(108, 16);
             this.kvmRunningTests.TabIndex = 8;
             this.kvmRunningTests.TabStop = false;
             this.kvmRunningTests.Tooltip = "The number of Running Tests.";
@@ -404,7 +404,7 @@ namespace vApus.DistributedTesting
             this.kvmOK.Location = new System.Drawing.Point(317, 9);
             this.kvmOK.Margin = new System.Windows.Forms.Padding(9, 6, 6, 0);
             this.kvmOK.Name = "kvmOK";
-            this.kvmOK.Size = new System.Drawing.Size(43, 23);
+            this.kvmOK.Size = new System.Drawing.Size(43, 16);
             this.kvmOK.TabIndex = 15;
             this.kvmOK.TabStop = false;
             this.kvmOK.Tooltip = "The number of Succesfully Finished Tests.";
@@ -418,7 +418,7 @@ namespace vApus.DistributedTesting
             this.kvmCancelled.Location = new System.Drawing.Point(369, 9);
             this.kvmCancelled.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
             this.kvmCancelled.Name = "kvmCancelled";
-            this.kvmCancelled.Size = new System.Drawing.Size(82, 23);
+            this.kvmCancelled.Size = new System.Drawing.Size(82, 16);
             this.kvmCancelled.TabIndex = 16;
             this.kvmCancelled.TabStop = false;
             this.kvmCancelled.Tooltip = "The number of Cancelled Tests.";
@@ -432,7 +432,7 @@ namespace vApus.DistributedTesting
             this.kvmFailed.Location = new System.Drawing.Point(460, 9);
             this.kvmFailed.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
             this.kvmFailed.Name = "kvmFailed";
-            this.kvmFailed.Size = new System.Drawing.Size(60, 23);
+            this.kvmFailed.Size = new System.Drawing.Size(60, 16);
             this.kvmFailed.TabIndex = 17;
             this.kvmFailed.TabStop = false;
             this.kvmFailed.Tooltip = "The number of Failed Tests.";
@@ -483,7 +483,7 @@ namespace vApus.DistributedTesting
             // 
             this.kvmMasterNicsSent.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterNicsSent.Key = "NIC Usage (Sent)";
-            this.kvmMasterNicsSent.Location = new System.Drawing.Point(3, 44);
+            this.kvmMasterNicsSent.Location = new System.Drawing.Point(3, 37);
             this.kvmMasterNicsSent.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNicsSent.Name = "kvmMasterNicsSent";
             this.kvmMasterNicsSent.Size = new System.Drawing.Size(139, 16);
@@ -496,7 +496,7 @@ namespace vApus.DistributedTesting
             // 
             this.kvmMasterNicsReceived.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterNicsReceived.Key = "NIC Usage (Received)";
-            this.kvmMasterNicsReceived.Location = new System.Drawing.Point(145, 44);
+            this.kvmMasterNicsReceived.Location = new System.Drawing.Point(145, 37);
             this.kvmMasterNicsReceived.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNicsReceived.Name = "kvmMasterNicsReceived";
             this.kvmMasterNicsReceived.Size = new System.Drawing.Size(167, 16);
@@ -513,7 +513,7 @@ namespace vApus.DistributedTesting
             this.btnMasterExportMessages.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnMasterExportMessages.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMasterExportMessages.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMasterExportMessages.Location = new System.Drawing.Point(324, 38);
+            this.btnMasterExportMessages.Location = new System.Drawing.Point(324, 31);
             this.btnMasterExportMessages.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
             this.btnMasterExportMessages.MaximumSize = new System.Drawing.Size(127, 24);
             this.btnMasterExportMessages.Name = "btnMasterExportMessages";

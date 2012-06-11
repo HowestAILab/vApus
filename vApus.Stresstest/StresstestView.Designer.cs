@@ -38,8 +38,6 @@
             this.tpStresstest = new System.Windows.Forms.TabPage();
             this.stresstestControl = new vApus.Stresstest.StresstestControl();
             this.tpReport = new System.Windows.Forms.TabPage();
-            this.tcReport = new vApus.Util.TabControlWithAdjustableBorders();
-            this.tpStresstestReport = new System.Windows.Forms.TabPage();
             this.stresstestReportControl = new vApus.Stresstest.StresstestReportControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
@@ -53,8 +51,6 @@
             this.tpConfigure.SuspendLayout();
             this.tpStresstest.SuspendLayout();
             this.tpReport.SuspendLayout();
-            this.tcReport.SuspendLayout();
-            this.tpStresstestReport.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -122,38 +118,13 @@
             // tpReport
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
-            this.tpReport.Controls.Add(this.tcReport);
-            this.tpReport.Location = new System.Drawing.Point(0, 19);
+            this.tpReport.Controls.Add(this.stresstestReportControl);
+            this.tpReport.Location = new System.Drawing.Point(0, 22);
             this.tpReport.Name = "tpReport";
             this.tpReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpReport.Size = new System.Drawing.Size(790, 497);
+            this.tpReport.Size = new System.Drawing.Size(790, 494);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
-            // 
-            // tcReport
-            // 
-            this.tcReport.BottomVisible = false;
-            this.tcReport.Controls.Add(this.tpStresstestReport);
-            this.tcReport.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tcReport.LeftVisible = false;
-            this.tcReport.Location = new System.Drawing.Point(3, 3);
-            this.tcReport.Name = "tcReport";
-            this.tcReport.RightVisible = false;
-            this.tcReport.SelectedIndex = 0;
-            this.tcReport.Size = new System.Drawing.Size(784, 491);
-            this.tcReport.TabIndex = 1;
-            this.tcReport.TopVisible = false;
-            // 
-            // tpStresstestReport
-            // 
-            this.tpStresstestReport.Controls.Add(this.stresstestReportControl);
-            this.tpStresstestReport.Location = new System.Drawing.Point(0, 19);
-            this.tpStresstestReport.Name = "tpStresstestReport";
-            this.tpStresstestReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstestReport.Size = new System.Drawing.Size(783, 471);
-            this.tpStresstestReport.TabIndex = 0;
-            this.tpStresstestReport.Text = "Stresstest Report";
-            this.tpStresstestReport.UseVisualStyleBackColor = true;
             // 
             // stresstestReportControl
             // 
@@ -162,7 +133,7 @@
             this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(777, 465);
+            this.stresstestReportControl.Size = new System.Drawing.Size(784, 488);
             this.stresstestReportControl.TabIndex = 0;
             // 
             // toolStrip
@@ -243,8 +214,6 @@
             this.tpConfigure.ResumeLayout(false);
             this.tpStresstest.ResumeLayout(false);
             this.tpReport.ResumeLayout(false);
-            this.tcReport.ResumeLayout(false);
-            this.tpStresstestReport.ResumeLayout(false);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             this.ResumeLayout(false);
@@ -269,8 +238,6 @@
         private System.Windows.Forms.SaveFileDialog sfd;
         private StresstestReportControl stresstestReportControl;
         private StresstestControl stresstestControl;
-        private Util.TabControlWithAdjustableBorders tcReport;
-        private System.Windows.Forms.TabPage tpStresstestReport;
 
     }
 }

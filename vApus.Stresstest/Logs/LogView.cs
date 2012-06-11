@@ -268,7 +268,7 @@ namespace vApus.Stresstest
                     if (_log.LogRuleSet.ActionizeOnFile)
                     {
                         userAction = new UserAction(fileName);
-                        _log.Add(userAction);
+                        _log.AddWithoutInvokingEvent(userAction, false);
                     }
                     logFile = logFile.Replace(Environment.NewLine, "\n").Replace('\r', '\n');
                     foreach (string line in logFile.Split('\n'))
@@ -282,18 +282,18 @@ namespace vApus.Stresstest
                             if (_log.LogRuleSet.ActionizeOnComment)
                             {
                                 userAction = new UserAction(output);
-                                _log.Add(userAction);
+                                _log.AddWithoutInvokingEvent(userAction, false);
                             }
                         }
                         else if (userAction == null)
                         {
                             LogEntry logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
-                            _log.Add(logEntry);
+                            _log.AddWithoutInvokingEvent(logEntry, false);
                         }
                         else
                         {
                             LogEntry logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
-                            userAction.Add(logEntry);
+                            userAction.AddWithoutInvokingEvent(logEntry, false);
                         }
                     }
                 }
@@ -314,6 +314,8 @@ namespace vApus.Stresstest
                 string message = this.Text + ": Could not determine the begin- and end timestamps for one or more log entries in the different user actions, are they correctly formatted?";
                 LogWrapper.LogByLevel(message, LogLevel.Error);
             }
+
+            _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         /// <summary>
         /// 

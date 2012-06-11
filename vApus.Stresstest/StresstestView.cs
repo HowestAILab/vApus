@@ -323,28 +323,25 @@ namespace vApus.Stresstest
             _monitorViews.Clear();
 
             //Also remove the tab pages.
-            while (tcReport.TabCount != 1)
-                tcReport.TabPages.RemoveAt(1);
+            int i = 3;
+            while (tc.TabCount != 3)
+                tc.TabPages.RemoveAt(3);
 
             foreach (var monitor in _stresstest.Monitors)
             {
                 var monitorView = SolutionComponentViewManager.Show(monitor) as Monitor.MonitorView;
-                monitorView.Text += " for " + this.Text;
                 this.Show();
 
                 stresstestControl.AppendMessages("Initializing " + monitorView.Text + "...");
                 _monitorViews.Add(monitorView);
 
                 //Add a new tab page.
-                var monitorTabPage = new TabPage("Monitor Report: " + monitor);
-                monitorTabPage.Padding = new Padding(3);
-                monitorTabPage.BackColor = Color.White;
-
+                var monitorTabPage = new TabPage("Report " + monitorView.Text);
                 var monitorReportControl = new MonitorReportControl();
                 monitorReportControl.Dock = DockStyle.Fill;
 
                 monitorTabPage.Controls.Add(monitorReportControl);
-                tcReport.TabPages.Add(monitorTabPage);
+                tc.TabPages.Add(monitorTabPage);
 
                 //For easy reporting
                 monitorView.Tag = monitorReportControl;

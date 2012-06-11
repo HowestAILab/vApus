@@ -40,6 +40,11 @@ namespace vApus.Stresstest
         [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
         private bool _useParallelExecutionOfLogEntries;
+
+        /// <summary>
+        /// Let for instance the gui behave differently if this is true.
+        /// </summary>
+        private bool _forDistributedTest;
         #endregion
 
         #region Properties
@@ -295,6 +300,14 @@ namespace vApus.Stresstest
             set { _useParallelExecutionOfLogEntries = false; }
         }
 #endif
+        /// <summary>
+        /// Let for instance the gui behave differently if this is true.
+        /// </summary>
+        public bool ForDistributedTest
+        {
+            get { return _forDistributedTest; }
+            set { _forDistributedTest = value; }
+        }
         #endregion
 
         #region Constructors
@@ -353,6 +366,13 @@ namespace vApus.Stresstest
         public override void Activate()
         {
             SolutionComponentViewManager.Show(this);
+        }
+
+        public override string ToString()
+        {
+            if (_forDistributedTest)
+                return Label;
+            return base.ToString();
         }
         #endregion
     }
