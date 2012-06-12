@@ -148,8 +148,7 @@ namespace vApus.DistributedTesting
             _masterCommunication.OnTestProgressMessageReceived += new EventHandler<TestProgressMessageReceivedEventArgs>(_masterCommunication_OnTestProgressMessageReceived);
 
             //The path where results are stored.
-            DateTime now = DateTime.Now;
-            string subResultDir = (now.ToShortDateString() + "_" + now.ToShortTimeString() + "_" + now.Second).ReplaceInvalidWindowsFilenameChars('_');
+            string subResultDir = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
             _resultPath = Path.Combine(_distributedTest.ResultPath, subResultDir);
         }
         ~DistributedTestCore()
@@ -495,7 +494,7 @@ namespace vApus.DistributedTesting
         private void torrentClient_ProgressUpdated(TorrentClient source, TorrentEventArgs e)
         {
             string tileStresstestIndex = source.GetTag() as string;
-            InvokeResultsDownloadProgressUpdated(tileStresstestIndex);
+            InvokeResultsDownloadProgressUpdated(tileStresstestIndex, e.PercentCompleted);
         }
 
         private void torrentClient_DownloadCompleted(TorrentClient source, TorrentEventArgs e)
@@ -507,7 +506,7 @@ namespace vApus.DistributedTesting
 
             source = null;
 
-            if(++_resultsReceived == Finished)
+            if (++_resultsReceived == Finished)
                 InvokeOnFinished();
         }
 
@@ -572,7 +571,7 @@ namespace vApus.DistributedTesting
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnListeningError(this, listeningErrorEventArgs); });
         }
 
-        private void InvokeResultsDownloadProgressUpdated(string tileStresstestIndex)
+        private void InvokeResultsDownloadProgressUpdated(string tileStresstestIndex, double percentCompleted)
         {
             lock (this)
             {
@@ -580,7 +579,7 @@ namespace vApus.DistributedTesting
 
                 if (ResultsDownloadProgressUpdated != null)
                     foreach (EventHandler<ResultsDownloadProgressUpdatedEventArgs> del in ResultsDownloadProgressUpdated.GetInvocationList())
-                        del.BeginInvoke(this, new ResultsDownloadProgressUpdatedEventArgs(ts), null, null);
+                        del.BeginInvoke(this, new ResultsDownloadProgressUpdatedEventArgs(ts, (int)percentCompleted), null, null);
             }
         }
         private void InvokeResultsDownloadCompleted(string tileStresstestIndex, string subResultDir)

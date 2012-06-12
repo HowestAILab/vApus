@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Net;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting
@@ -42,8 +43,6 @@ namespace vApus.DistributedTesting
         private ActiveObject _activeObject = new ActiveObject();
         private delegate void SetHostNameAndIPDel(out string ip, out string hostname, out  bool online);
         private SetHostNameAndIPDel _SetHostNameAndIPDel;
-
-        private int _chosenImageIndex = 2;
 
         private bool _online = false;
 
@@ -221,11 +220,8 @@ namespace vApus.DistributedTesting
 
             EnableControls(false);
 
-            //Reset this.
-            _chosenImageIndex = 2;
-            tmrRotateStatus.Start();
 
-            picStatus.Image = imageListStatus.Images[_chosenImageIndex];
+            picStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
 
             txtClient.Text = txtClient.Text.Trim().ToLower();
 
@@ -297,7 +293,6 @@ namespace vApus.DistributedTesting
                         _client.IP = ip;
                         _client.HostName = hostname;
 
-                        tmrRotateStatus.Stop();
                         if (online)
                         {
                             _online = true;
@@ -321,12 +316,6 @@ namespace vApus.DistributedTesting
                     }
                     catch { }
             }, null);
-        }
-        private void tmrRotateOnlineOffline_Tick(object sender, EventArgs e)
-        {
-            //Rotate it to visualize it is refreshing
-            _chosenImageIndex = _chosenImageIndex == 2 ? 3 : 2;
-            picStatus.Image = imageListStatus.Images[_chosenImageIndex];
         }
         /// <summary>
         /// Enabling or disabling the controls on this.

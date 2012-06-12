@@ -6,12 +6,13 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Stresstest;
 using vApus.Util;
-using System.Collections.Generic;
 
 namespace vApus.DistributedTesting
 {
@@ -40,12 +41,18 @@ namespace vApus.DistributedTesting
         private bool _ctrl;
 
         private DistributedTestMode _distributedTestMode;
+
+        private StresstestResult _stresstestResult;
         #endregion
 
         #region Properties
         public TileStresstest TileStresstest
         {
             get { return _tileStresstest; }
+        }
+        public StresstestResult StresstestResult
+        {
+            get { return _stresstestResult; }
         }
         #endregion
 
@@ -232,10 +239,16 @@ namespace vApus.DistributedTesting
                     chk.Visible =
                     txtTileStresstest.Visible =
                     picDelete.Visible =
-                    picDuplicate.Visible = false;
+                    picDuplicate.Visible =
+                    lblDownloadProgress.Visible = false;
+
+                    picStresstestStatus.Visible = true;
 
                     eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
                     eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
+
+                    picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Wait;
+                    toolTip.SetToolTip(picStresstestStatus, "Click the 'Distributed Test'-node to see the initialisation of the tests.");
                 }
                 else
                 {
@@ -271,6 +284,43 @@ namespace vApus.DistributedTesting
         {
             eventProgressBar.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
             eventProgressBar.SetProgressBarToNow();
+        }
+
+        public void SetStresstestResult(StresstestResult stresstestResult, int downloadResultsProgress)
+        {
+            _stresstestResult = stresstestResult;
+            if (downloadResultsProgress == 0 || downloadResultsProgress == 100)
+            {
+                lblDownloadProgress.Visible = false;
+                picStresstestStatus.Visible = true;
+
+                switch (stresstestResult)
+                {
+                    case StresstestResult.Busy:
+                        picStresstestStatus.Image = imageListStatus.Images[0];
+                        toolTip.SetToolTip(picStresstestStatus, "Busy");
+                        break;
+                    case StresstestResult.Ok:
+                        picStresstestStatus.Image = imageListStatus.Images[1];
+                        toolTip.SetToolTip(picStresstestStatus, "Finished");
+                        break;
+                    case StresstestResult.Cancelled:
+                        picStresstestStatus.Image = imageListStatus.Images[2];
+                        toolTip.SetToolTip(picStresstestStatus, "Canceled");
+                        break;
+                    case StresstestResult.Error:
+                        picStresstestStatus.Image = imageListStatus.Images[3];
+                        toolTip.SetToolTip(picStresstestStatus, "Failed");
+                        break;
+                }
+            }
+            else
+            {
+
+                lblDownloadProgress.Visible = true;
+                lblDownloadProgress.Text = downloadResultsProgress.ToString();
+
+            }
         }
         #endregion
     }

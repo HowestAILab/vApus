@@ -94,9 +94,6 @@ namespace vApus.DistributedTesting
                 _distributedTestMode = distributedTestMode;
                 foreach (ITreeViewItem item in largeList.AllControls)
                     item.SetDistributedTestMode(_distributedTestMode);
-
-                if (distributedTestMode == DistributedTestMode.TestAndReport && !scheduled)
-                    largeList[0][0].Select();
             }
         }
 

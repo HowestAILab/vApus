@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using vApus.Stresstest;
 namespace vApus.DistributedTesting
 {
     public interface ITreeViewItem

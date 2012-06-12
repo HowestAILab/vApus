@@ -66,9 +66,11 @@ namespace vApus.DistributedTesting
     public class ResultsDownloadProgressUpdatedEventArgs : EventArgs
     {
         public readonly TileStresstest TileStresstest;
-        public ResultsDownloadProgressUpdatedEventArgs(TileStresstest tileStresstest)
+        public readonly int PercentCompleted;
+        public ResultsDownloadProgressUpdatedEventArgs(TileStresstest tileStresstest, int percentCompleted)
         {
             TileStresstest = tileStresstest;
+            PercentCompleted = percentCompleted;
         }
     }
     public class ResultsDownloadCompletedEventArgs : EventArgs

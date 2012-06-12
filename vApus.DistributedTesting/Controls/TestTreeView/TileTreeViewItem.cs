@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting
