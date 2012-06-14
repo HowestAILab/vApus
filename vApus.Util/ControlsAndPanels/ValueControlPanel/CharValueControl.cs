@@ -37,7 +37,6 @@ namespace vApus.Util
                 txt.MaxLength = 1;
                 txt.Dock = DockStyle.Fill;
 
-                txt.TextChanged += new EventHandler(txt_TextChanged);
                 txt.Leave += new EventHandler(txt_Leave);
                 txt.KeyUp += new KeyEventHandler(txt_KeyUp);
             }
@@ -46,19 +45,11 @@ namespace vApus.Util
                 txt = base.ValueControl as TextBox;
             }
 
-            txt.TextChanged -= txt_TextChanged;
             txt.Text = value.__Value.ToString();
-            txt.TextChanged += txt_TextChanged;
 
             base.ValueControl = txt;
         }
 
-        private void txt_TextChanged(object sender, EventArgs e)
-        {
-            TextBox txt = sender as TextBox;
-            if (txt.Text.Length != 0)
-                base.HandleValueChanged(txt.Text[0]);
-        }
         private void txt_KeyUp(object sender, KeyEventArgs e)
         {
             TextBox txt = sender as TextBox;

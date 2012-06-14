@@ -14,6 +14,7 @@ using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
+using System.Diagnostics;
 
 namespace vApus.DistributedTesting
 {
@@ -281,6 +282,12 @@ namespace vApus.DistributedTesting
             {
                 Cursor = Cursors.WaitCursor;
                 SetMode(DistributedTestMode.TestAndReport);
+
+                if (_distributedTestCore != null && !_distributedTestCore.IsDisposed)
+                {
+                    _distributedTestCore.Dispose();
+                    _distributedTestCore = null;
+                }
 
                 _distributedTestCore = new DistributedTestCore(_distributedTest);
                 _distributedTestCore.Message += new EventHandler<MessageEventArgs>(_distributedTestCore_Message);
@@ -669,23 +676,23 @@ namespace vApus.DistributedTesting
         {
             lock (_lock)
             {
-                TileStresstestTreeViewItem tileStresstestTreeViewItem = null;
-                foreach (ITreeViewItem item in testTreeView.Items)
-                    if (item is TileStresstestTreeViewItem)
-                    {
-                        var tstvi = item as TileStresstestTreeViewItem;
-                        if (tstvi.TileStresstest == e.TileStresstest)
-                        {
-                            tileStresstestTreeViewItem = tstvi;
-                            break;
-                        }
-                    }
+                try
+                {
+                    Debug.WriteLine(e.PercentCompleted);
 
-                if (tileStresstestTreeViewItem != null)
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                    {
-                        tileStresstestTreeViewItem.SetStresstestResult(tileStresstestTreeViewItem.StresstestResult, e.PercentCompleted);
-                    });
+                    foreach (ITreeViewItem item in testTreeView.Items)
+                        if (item is TileStresstestTreeViewItem)
+                        {
+                            var tstvi = item as TileStresstestTreeViewItem;
+                            if (tstvi.TileStresstest == e.TileStresstest)
+                                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+                                {
+                                    tstvi.SetStresstestResult(tstvi.StresstestResult, e.PercentCompleted);
+                                });
+                        }
+
+                }
+                catch { }
             }
         }
         private void _distributedTestCore_ResultsDownloadCompleted(object sender, ResultsDownloadCompletedEventArgs e)
@@ -695,7 +702,12 @@ namespace vApus.DistributedTesting
                 {
                     TileStresstestTreeViewItem tstvi = _selectedTestItem as TileStresstestTreeViewItem;
                     if (tstvi.TileStresstest == e.TileStresstest)
+                    {
+                        stresstestReportControl.Tag = null;
                         SetSlaveReport(e.TileStresstest, e.ResultPath);
+
+                        tstvi.SetStresstestResult(tstvi.StresstestResult, 100);
+                    }
                 }, null);
         }
         private void SetSlaveReport(TileStresstest tileStresstest, string resultPath)

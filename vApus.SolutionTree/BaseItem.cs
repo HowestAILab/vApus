@@ -46,7 +46,7 @@ namespace vApus.SolutionTree
             set
             {
                 if (value == null)
-                    (this as object).RemoveParentFromCache();
+                    (this as object).RemoveParent();
                 else
                     (this as object).SetParent(value);
             }

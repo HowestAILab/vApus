@@ -34,12 +34,10 @@
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.chk = new System.Windows.Forms.CheckBox();
-            this.lblDownloadProgress = new System.Windows.Forms.Label();
             this.txtTileStresstest = new System.Windows.Forms.TextBox();
             this.lblTileStresstest = new System.Windows.Forms.Label();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
             this.eventProgressBar = new vApus.Util.EventProgressBar();
-            this.imageListStatus = new System.Windows.Forms.ImageList(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
@@ -98,19 +96,6 @@
             this.chk.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             // 
-            // lblDownloadProgress
-            // 
-            this.lblDownloadProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblDownloadProgress.AutoSize = true;
-            this.lblDownloadProgress.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDownloadProgress.Location = new System.Drawing.Point(570, 6);
-            this.lblDownloadProgress.Name = "lblDownloadProgress";
-            this.lblDownloadProgress.Size = new System.Drawing.Size(28, 14);
-            this.lblDownloadProgress.TabIndex = 23;
-            this.lblDownloadProgress.Text = "100";
-            this.toolTip.SetToolTip(this.lblDownloadProgress, "Downloading the results from the slave...");
-            this.lblDownloadProgress.Visible = false;
-            // 
             // txtTileStresstest
             // 
             this.txtTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -162,21 +147,11 @@
             this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressBar.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
             this.eventProgressBar.Enter += new System.EventHandler(this._Enter);
             // 
-            // imageListStatus
-            // 
-            this.imageListStatus.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListStatus.ImageStream")));
-            this.imageListStatus.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageListStatus.Images.SetKeyName(0, "Busy.png");
-            this.imageListStatus.Images.SetKeyName(1, "OK.png");
-            this.imageListStatus.Images.SetKeyName(2, "Cancelled.png");
-            this.imageListStatus.Images.SetKeyName(3, "Error.png");
-            // 
             // TileStresstestTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.picDelete);
-            this.Controls.Add(this.lblDownloadProgress);
             this.Controls.Add(this.eventProgressBar);
             this.Controls.Add(this.txtTileStresstest);
             this.Controls.Add(this.lblTileStresstest);
@@ -207,7 +182,5 @@
         private System.Windows.Forms.Label lblTileStresstest;
         private Util.EventProgressBar eventProgressBar;
         private System.Windows.Forms.PictureBox picStresstestStatus;
-        private System.Windows.Forms.ImageList imageListStatus;
-        private System.Windows.Forms.Label lblDownloadProgress;
     }
 }

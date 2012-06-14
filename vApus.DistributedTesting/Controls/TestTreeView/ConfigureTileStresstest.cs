@@ -115,6 +115,10 @@ namespace vApus.DistributedTesting
                     solutionComponentPropertyPanelBasic.Refresh();
                     solutionComponentPropertyPanelAdvanced.Refresh();
                 }
+                else if (sender is AdvancedTileStresstest)
+                {
+                    solutionComponentPropertyPanelAdvanced.Refresh();
+                }
             }
             if (sender is ClientsAndSlaves || sender is Client || sender is Slave)
             {

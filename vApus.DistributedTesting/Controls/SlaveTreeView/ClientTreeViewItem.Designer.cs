@@ -32,13 +32,12 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClientTreeViewItem));
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.chk = new System.Windows.Forms.CheckBox();
-            this.txtClient = new System.Windows.Forms.TextBox();
-            this.lblClient = new System.Windows.Forms.Label();
-            this.imageListStatus = new System.Windows.Forms.ImageList(this.components);
             this.picAddSlave = new System.Windows.Forms.PictureBox();
             this.picStatus = new System.Windows.Forms.PictureBox();
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
+            this.txtClient = new System.Windows.Forms.TextBox();
+            this.lblClient = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picAddSlave)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStatus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
@@ -68,42 +67,6 @@
             this.chk.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.chk.MouseEnter += new System.EventHandler(this._MouseEnter);
-            // 
-            // txtClient
-            // 
-            this.txtClient.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtClient.Location = new System.Drawing.Point(117, 3);
-            this.txtClient.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.txtClient.Name = "txtClient";
-            this.txtClient.Size = new System.Drawing.Size(383, 20);
-            this.txtClient.TabIndex = 0;
-            this.txtClient.Visible = false;
-            this.txtClient.Enter += new System.EventHandler(this._Enter);
-            this.txtClient.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            this.txtClient.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.txtClient.Leave += new System.EventHandler(this.txtClient_Leave);
-            // 
-            // lblClient
-            // 
-            this.lblClient.AutoSize = true;
-            this.lblClient.Location = new System.Drawing.Point(26, 6);
-            this.lblClient.Name = "lblClient";
-            this.lblClient.Size = new System.Drawing.Size(88, 13);
-            this.lblClient.TabIndex = 19;
-            this.lblClient.Text = "Host Name or IP:";
-            this.lblClient.Click += new System.EventHandler(this._Enter);
-            // 
-            // imageListStatus
-            // 
-            this.imageListStatus.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListStatus.ImageStream")));
-            this.imageListStatus.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageListStatus.Images.SetKeyName(0, "Cancelled.png");
-            this.imageListStatus.Images.SetKeyName(1, "OK.png");
-            this.imageListStatus.Images.SetKeyName(2, "Wait.png");
-            this.imageListStatus.Images.SetKeyName(3, "Wait_2.png");
-            this.imageListStatus.Images.SetKeyName(4, "Busy.png");
-            this.imageListStatus.Images.SetKeyName(5, "Error.png");
             // 
             // picAddSlave
             // 
@@ -164,6 +127,31 @@
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
+            // txtClient
+            // 
+            this.txtClient.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtClient.Location = new System.Drawing.Point(117, 3);
+            this.txtClient.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.txtClient.Name = "txtClient";
+            this.txtClient.Size = new System.Drawing.Size(383, 20);
+            this.txtClient.TabIndex = 0;
+            this.txtClient.Visible = false;
+            this.txtClient.Enter += new System.EventHandler(this._Enter);
+            this.txtClient.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
+            this.txtClient.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
+            this.txtClient.Leave += new System.EventHandler(this.txtClient_Leave);
+            // 
+            // lblClient
+            // 
+            this.lblClient.AutoSize = true;
+            this.lblClient.Location = new System.Drawing.Point(26, 6);
+            this.lblClient.Name = "lblClient";
+            this.lblClient.Size = new System.Drawing.Size(88, 13);
+            this.lblClient.TabIndex = 19;
+            this.lblClient.Text = "Host Name or IP:";
+            this.lblClient.Click += new System.EventHandler(this._Enter);
+            // 
             // ClientTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -199,7 +187,6 @@
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblClient;
         private System.Windows.Forms.PictureBox picStatus;
-        private System.Windows.Forms.ImageList imageListStatus;
         private System.Windows.Forms.PictureBox picAddSlave;
     }
 }

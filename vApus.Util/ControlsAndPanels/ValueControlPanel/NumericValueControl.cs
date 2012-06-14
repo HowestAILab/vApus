@@ -72,7 +72,6 @@ namespace vApus.Util
                 nud.Dock = DockStyle.Fill;
 
                 //Use text changed rather then value changed, value changed is not invoked when the text is changed.
-                nud.TextChanged += new EventHandler(nud_TextChanged);
                 nud.Leave += new EventHandler(nud_Leave);
                 nud.KeyUp += new KeyEventHandler(nud_KeyUp);
             }
@@ -81,18 +80,11 @@ namespace vApus.Util
                 nud = base.ValueControl as FixedNumericUpDown;
             }
 
-            nud.TextChanged -= nud_TextChanged;
             nud.Value = Convert.ToDecimal(value.__Value);
-            nud.TextChanged += nud_TextChanged;
 
             base.ValueControl = nud;
         }
 
-        private void nud_TextChanged(object sender, EventArgs e)
-        {
-            FixedNumericUpDown nud = sender as FixedNumericUpDown;
-            base.HandleValueChanged(ConvertToNumericType(nud.Value));
-        }
         private void nud_KeyUp(object sender, KeyEventArgs e)
         {
             FixedNumericUpDown nud = sender as FixedNumericUpDown;

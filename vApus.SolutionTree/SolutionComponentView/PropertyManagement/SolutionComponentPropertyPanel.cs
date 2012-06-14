@@ -56,7 +56,7 @@ namespace vApus.SolutionTree
 
                     _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
-                    SetGui();
+                    SetGui(true);
                     _solutionComponentTypeChanged = false;
 
                     this.ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
@@ -76,7 +76,7 @@ namespace vApus.SolutionTree
         {
             InitializeComponent();
             if (this.IsHandleCreated)
-                SetGui();
+                SetGui(true);
             else
                 this.HandleCreated += new EventHandler(SolutionComponentPropertyPanel_HandleCreated);
 
@@ -118,9 +118,13 @@ namespace vApus.SolutionTree
         }
         private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e)
         {
-            SetGui();
+            SetGui(true);
         }
-        private void SetGui()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="collapse">not on refresh</param>
+        private void SetGui(bool collapse)
         {
             if (_solutionComponent != null && IsHandleCreated)
             {
@@ -176,7 +180,7 @@ namespace vApus.SolutionTree
                         base.SetDescriptionAt(i, values[i].GetDescription());
                     }
 
-                    base.Set__Values(values);
+                    base.Set__Values(collapse, values);
                 }
             }
         }
@@ -186,7 +190,7 @@ namespace vApus.SolutionTree
         public override void Refresh()
         {
             base.Refresh();
-            SetGui();
+            SetGui(false);
         }
         #endregion
     }

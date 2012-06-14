@@ -152,12 +152,12 @@ namespace vApus.DistributedTesting
             if (_clientOnline)
             {
                 toolTip.SetToolTip(picStatus, "Client Online");
-                picStatus.Image = imageListStatus.Images[1];
+                picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
             }
             else
             {
                 toolTip.SetToolTip(picStatus, "Client Offline");
-                picStatus.Image = imageListStatus.Images[0];
+                picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
             }
         }
 

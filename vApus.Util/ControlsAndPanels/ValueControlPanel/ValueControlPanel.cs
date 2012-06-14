@@ -174,11 +174,11 @@ namespace vApus.Util
         /// This allows recycling of the controls.
         /// </summary>
         /// <param name="values"></param>
-        public void Set__Values(params object[] values)
+        public void Set__Values(bool collapse, params object[] values)
         {
             LockWindowUpdate(this.Handle.ToInt32());
             for (int i = 0; i != this.Controls.Count; i++)
-                Set__ValueAt(i, values[i]);
+                Set__ValueAt(i, values[i], collapse);
             LockWindowUpdate(0);
         }
         /// <summary>
@@ -186,10 +186,11 @@ namespace vApus.Util
         /// </summary>
         /// <param name="index"></param>
         /// <param name="value">Must be of the correct data type for the present value control</param>
-        private void Set__ValueAt(int index, object value)
+        private void Set__ValueAt(int index, object value, bool collapse)
         {
             BaseValueControl valueControl = this.Controls[index] as BaseValueControl;
-            valueControl.Toggle(BaseValueControl.ToggleState.Collapse);
+            if (collapse)
+                valueControl.Toggle(BaseValueControl.ToggleState.Collapse);
 
             //First check is a null check :).
             if (valueControl.__Value.__Value != null &&

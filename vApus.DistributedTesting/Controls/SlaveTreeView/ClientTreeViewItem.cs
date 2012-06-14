@@ -296,13 +296,13 @@ namespace vApus.DistributedTesting
                         if (online)
                         {
                             _online = true;
-                            picStatus.Image = imageListStatus.Images[1];
+                            picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
                             toolTip.SetToolTip(picStatus, "Online <f5>");
                         }
                         else
                         {
                             _online = false;
-                            picStatus.Image = imageListStatus.Images[0];
+                            picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
                             toolTip.SetToolTip(picStatus, "Offline <f5>");
                         }
 
@@ -325,7 +325,8 @@ namespace vApus.DistributedTesting
         private void EnableControls(bool enabled)
         {
             foreach (Control ctrl in this.Controls)
-                ctrl.Enabled = enabled;
+                if (ctrl != picStatus)
+                    ctrl.Enabled = enabled;
         }
 
         private void _KeyDown(object sender, KeyEventArgs e)

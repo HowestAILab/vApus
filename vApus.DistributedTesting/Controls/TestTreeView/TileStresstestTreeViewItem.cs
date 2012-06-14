@@ -239,10 +239,7 @@ namespace vApus.DistributedTesting
                     chk.Visible =
                     txtTileStresstest.Visible =
                     picDelete.Visible =
-                    picDuplicate.Visible =
-                    lblDownloadProgress.Visible = false;
-
-                    picStresstestStatus.Visible = true;
+                    picDuplicate.Visible = false;
 
                     eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
                     eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
@@ -291,25 +288,22 @@ namespace vApus.DistributedTesting
             _stresstestResult = stresstestResult;
             if (downloadResultsProgress == 0 || downloadResultsProgress == 100)
             {
-                lblDownloadProgress.Visible = false;
-                picStresstestStatus.Visible = true;
-
                 switch (stresstestResult)
                 {
                     case StresstestResult.Busy:
-                        picStresstestStatus.Image = imageListStatus.Images[0];
-                        toolTip.SetToolTip(picStresstestStatus, "Busy");
+                        picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
+                        toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting");
                         break;
                     case StresstestResult.Ok:
-                        picStresstestStatus.Image = imageListStatus.Images[1];
+                        picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
                         toolTip.SetToolTip(picStresstestStatus, "Finished");
                         break;
                     case StresstestResult.Cancelled:
-                        picStresstestStatus.Image = imageListStatus.Images[2];
+                        picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
                         toolTip.SetToolTip(picStresstestStatus, "Canceled");
                         break;
                     case StresstestResult.Error:
-                        picStresstestStatus.Image = imageListStatus.Images[3];
+                        picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Error;
                         toolTip.SetToolTip(picStresstestStatus, "Failed");
                         break;
                 }
@@ -317,8 +311,8 @@ namespace vApus.DistributedTesting
             else
             {
 
-                lblDownloadProgress.Visible = true;
-                lblDownloadProgress.Text = downloadResultsProgress.ToString();
+                picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
+                toolTip.SetToolTip(picStresstestStatus, "Downloading Results " + downloadResultsProgress + "%");
 
             }
         }

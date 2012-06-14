@@ -462,7 +462,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o">Child</param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveParentFromCache(this object o, bool invokeParentChanged = true)
+        public static bool RemoveParent(this object o, bool invokeParentChanged = true)
         {
             lock (_lock)
             {
@@ -486,7 +486,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o"></param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveTagFromCache(this object o)
+        public static bool RemoveTag(this object o)
         {
             lock (_lock)
             {
@@ -506,7 +506,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o"></param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveDescriptionFromCache(this object o)
+        public static bool RemoveDescription(this object o)
         {
             lock (_lock)
             {

@@ -79,14 +79,17 @@ namespace vApus.DistributedTesting
 
             try
             {
-                if (_tileStresstestView != null)
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
-                    try { _tileStresstestView.Close(); }
-                    catch { }
+                    SolutionComponentViewManager.DisposeViews();
+
+                    if (_tileStresstestView != null)
+                        try { _tileStresstestView.Close(); }
+                        catch { }
                     try { _tileStresstestView.Dispose(); }
                     catch { }
                     _tileStresstestView = null;
-                }
+                }, null);
 
                 if (_masterSocketWrapper == null)
                 {
@@ -173,14 +176,14 @@ namespace vApus.DistributedTesting
                 try
                 {
                     string slaveSideResultsDir = Path.Combine(Application.StartupPath, "SlaveSideResults");
-                    string file = Path.Combine(slaveSideResultsDir, 
+                    string file = Path.Combine(slaveSideResultsDir,
                         _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".r");
 
                     int j = 0;
-                    while (File.Exists(Path.Combine(slaveSideResultsDir, 
+                    while (File.Exists(Path.Combine(slaveSideResultsDir,
                         _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', ++j) + ".r")))
                     {
-                        file = Path.Combine(slaveSideResultsDir, 
+                        file = Path.Combine(slaveSideResultsDir,
                             _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', j) + ".r");
                     }
 

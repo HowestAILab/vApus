@@ -187,7 +187,7 @@ namespace vApus.SolutionTree
             {
                 BaseItem oldItem = _items[index];
                 _items.Insert(index, item);
-                oldItem.RemoveParentFromCache(false);
+                oldItem.RemoveParent(false);
                 _items.Remove(oldItem);
             }
             item.SetParent(this, false);
@@ -272,8 +272,8 @@ namespace vApus.SolutionTree
         {
             foreach (BaseItem item in _items)
             {
-                item.RemoveParentFromCache(invokeParentChanged);
-                item.RemoveTagFromCache();
+                item.RemoveParent(invokeParentChanged);
+                item.RemoveTag();
             }
             _items.Clear();
         }
@@ -306,7 +306,7 @@ namespace vApus.SolutionTree
             if (_items.Remove(item))
             {
                 item.Parent = null;
-                item.RemoveTagFromCache();
+                item.RemoveTag();
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Removed, item);
 
                 item = null;
@@ -322,7 +322,7 @@ namespace vApus.SolutionTree
             if (_items.Remove(item))
             {
                 item.Parent = null;
-                item.RemoveTagFromCache();
+                item.RemoveTag();
                 item = null;
 
                 return true;

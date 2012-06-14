@@ -41,7 +41,6 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
-            this.imageListStatus = new System.Windows.Forms.ImageList(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStatus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
@@ -186,15 +185,6 @@
             this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>");
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
-            // imageListStatus
-            // 
-            this.imageListStatus.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListStatus.ImageStream")));
-            this.imageListStatus.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageListStatus.Images.SetKeyName(0, "Cancelled.png");
-            this.imageListStatus.Images.SetKeyName(1, "OK.png");
-            this.imageListStatus.Images.SetKeyName(2, "Busy.png");
-            this.imageListStatus.Images.SetKeyName(3, "Error.png");
-            // 
             // SlaveTile
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -232,7 +222,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.ImageList imageListStatus;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.PictureBox picDelete;
     }

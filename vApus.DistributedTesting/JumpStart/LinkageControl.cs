@@ -218,23 +218,22 @@ namespace vApus.DistributedTesting
             {
                 if (!this.IsDisposed)
                 {
-                    Exception exception;
-                    int id;
+                    //Exception exception;
+                    //int id;
 
-                    MasterSideCommunicationHandler masterCommunication = new MasterSideCommunicationHandler();
-                    masterCommunication.ConnectSlave(_slaveIP, _slavePort, out id, out exception);
-                    SlaveProcessID = id;
+                    //MasterSideCommunicationHandler masterCommunication = new MasterSideCommunicationHandler();
+                    //masterCommunication.ConnectSlave(_slaveIP, _slavePort, out id, out exception);
+                    //SlaveProcessID = id;
 
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                    {
-                        if (exception == null)
-                            SetState(LinkageControl.State.OnlineSlave);
-                        else
-                            SetState(LinkageControl.State.OnlineComputer);
+                    //SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+                    //{
+                    //    if (exception == null)
+                    //        SetState(LinkageControl.State.OnlineSlave);
+                    //    else
+                    //        SetState(LinkageControl.State.OnlineComputer);
 
-                        lblProgress.Visible = false;
-                    });
-                    masterCommunication.Dispose();
+                    //    lblProgress.Visible = false;
+                    //});
                 }
             });
         }

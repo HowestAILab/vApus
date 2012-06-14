@@ -132,7 +132,7 @@ namespace vApus.DistributedTesting
 
             Connections connections = new Connections();
             Connection connection = BasicTileStresstest._connection;
-            ObjectExtension.RemoveDescriptionFromCache(connection);
+            ObjectExtension.RemoveDescription(connection);
             connections.AddWithoutInvokingEvent(connection, false);
             connection.ForceSettingChildsParent();
 
@@ -143,7 +143,7 @@ namespace vApus.DistributedTesting
 
             Logs logs = new Logs();
             Log log = AdvancedTileStresstest._log;
-            ObjectExtension.RemoveDescriptionFromCache(log);
+            ObjectExtension.RemoveDescription(log);
             logs.AddWithoutInvokingEvent(log);
             log.ForceSettingChildsParent();
 

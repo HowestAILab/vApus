@@ -47,6 +47,11 @@ namespace vApus.DistributedTesting
         /// Countdown for the update.
         /// </summary>
         private int _countDown;
+
+        /// <summary>
+        /// Don't resend if it is finished (stop on form closing);
+        /// </summary>
+        private bool _finishedSent;
         #endregion
 
         #region Properties
@@ -315,12 +320,18 @@ namespace vApus.DistributedTesting
         /// <param name="concurrentUsersStateChange"></param>
         private void SendPushMessage(RunStateChange concurrentUsersStateChange)
         {
-            SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex,
-                _tileStresstestProgressResults,
-                _stresstestResult,
-                _stresstestCore,
-                stresstestControl.GetEvents(),
-                concurrentUsersStateChange);
+            if (!_finishedSent)
+            {
+                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex,
+                    _tileStresstestProgressResults,
+                    _stresstestResult,
+                    _stresstestCore,
+                    stresstestControl.GetEvents(),
+                    concurrentUsersStateChange);
+
+                if (_stresstestResult != StresstestResult.Busy)
+                    _finishedSent = true;
+            }
         }
 
         /// <summary>
