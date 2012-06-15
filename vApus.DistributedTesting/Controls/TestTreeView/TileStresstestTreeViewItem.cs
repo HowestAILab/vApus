@@ -43,6 +43,7 @@ namespace vApus.DistributedTesting
         private DistributedTestMode _distributedTestMode;
 
         private StresstestResult _stresstestResult;
+        private bool _downloadResultsFinished;
         #endregion
 
         #region Properties
@@ -244,8 +245,10 @@ namespace vApus.DistributedTesting
                     eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
                     eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
 
-                    picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Wait;
-                    toolTip.SetToolTip(picStresstestStatus, "Click the 'Distributed Test'-node to see the initialisation of the tests.");
+                    picStresstestStatus.Image = null;
+                    toolTip.SetToolTip(picStresstestStatus, string.Empty);
+
+                    _downloadResultsFinished = false;
                 }
                 else
                 {
@@ -286,6 +289,9 @@ namespace vApus.DistributedTesting
         public void SetStresstestResult(StresstestResult stresstestResult, int downloadResultsProgress)
         {
             _stresstestResult = stresstestResult;
+            if (downloadResultsProgress == 100)
+                _downloadResultsFinished = true;
+
             if (downloadResultsProgress == 0 || downloadResultsProgress == 100)
             {
                 switch (stresstestResult)
@@ -300,7 +306,7 @@ namespace vApus.DistributedTesting
                         break;
                     case StresstestResult.Cancelled:
                         picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
-                        toolTip.SetToolTip(picStresstestStatus, "Canceled");
+                        toolTip.SetToolTip(picStresstestStatus, "Cancelled");
                         break;
                     case StresstestResult.Error:
                         picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Error;
@@ -308,12 +314,10 @@ namespace vApus.DistributedTesting
                         break;
                 }
             }
-            else
+            else if (!_downloadResultsFinished)
             {
-
                 picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
                 toolTip.SetToolTip(picStresstestStatus, "Downloading Results " + downloadResultsProgress + "%");
-
             }
         }
         #endregion

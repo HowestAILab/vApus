@@ -39,9 +39,11 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.picResultPath = new System.Windows.Forms.PictureBox();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.picStresstestStatus = new System.Windows.Forms.PictureBox();
             this.pnlRunSync.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picResultPath)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlRunSync
@@ -141,6 +143,18 @@
             this.picResultPath.TabStop = false;
             this.picResultPath.Click += new System.EventHandler(this.picResultPath_Click);
             // 
+            // picStresstestStatus
+            // 
+            this.picStresstestStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picStresstestStatus.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picStresstestStatus.Location = new System.Drawing.Point(512, 10);
+            this.picStresstestStatus.Name = "picStresstestStatus";
+            this.picStresstestStatus.Size = new System.Drawing.Size(16, 16);
+            this.picStresstestStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picStresstestStatus.TabIndex = 25;
+            this.picStresstestStatus.TabStop = false;
+            this.picStresstestStatus.Visible = false;
+            // 
             // DistributedTestTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -151,6 +165,7 @@
             this.Controls.Add(this.picAddTile);
             this.Controls.Add(this.pnlRunSync);
             this.Controls.Add(this.label2);
+            this.Controls.Add(this.picStresstestStatus);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "DistributedTestTreeViewItem";
             this.Size = new System.Drawing.Size(532, 35);
@@ -160,6 +175,7 @@
             this.pnlRunSync.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picResultPath)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -176,6 +192,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox picResultPath;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+        private System.Windows.Forms.PictureBox picStresstestStatus;
 
     }
 }

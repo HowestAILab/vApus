@@ -33,6 +33,9 @@ namespace vApus.DistributedTesting
         private bool _ctrl;
 
         private DistributedTestMode _distributedTestMode;
+
+        private bool _testStarted;
+
         #endregion
 
         #region Properties
@@ -123,6 +126,18 @@ namespace vApus.DistributedTesting
             }
         }
 
+        public void SetStresstestStarted()
+        {
+            //Keep the running if this code at a minimum
+            if (!_testStarted)
+            {
+                _testStarted = true;
+
+                picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
+                toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting");
+            }
+        }
+
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
             _distributedTestMode = distributedTestMode;
@@ -130,11 +145,20 @@ namespace vApus.DistributedTesting
             {
                 pnlRunSync.Enabled =
                 picAddTile.Visible = true;
+
+                picStresstestStatus.Visible = false;
             }
             else
             {
                 pnlRunSync.Enabled =
-               picAddTile.Visible = false;
+                picAddTile.Visible = false;
+
+                _testStarted = false;
+
+                picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Wait;
+                toolTip.SetToolTip(picStresstestStatus, string.Empty);
+
+                picStresstestStatus.Visible = true;
             }
         }
         #endregion

@@ -498,25 +498,23 @@ namespace vApus.DistributedTesting
 
         private void torrentClient_ProgressUpdated(TorrentClient source, TorrentEventArgs e)
         {
-            if (_resultsReceived != Finished)
+            if (_resultsReceived != Finished && e.PercentCompleted != 100)
             {
                 string tileStresstestIndex = source.GetTag() as string;
-                if (e.PercentCompleted == 100)
-                    InvokeResultsDownloadCompleted(tileStresstestIndex, source.Name);
-                else
-                    InvokeResultsDownloadProgressUpdated(tileStresstestIndex, e.PercentCompleted);
+                InvokeResultsDownloadProgressUpdated(tileStresstestIndex, e.PercentCompleted);
             }
         }
 
         private void torrentClient_DownloadCompleted(TorrentClient source, TorrentEventArgs e)
         {
             source.ProgressUpdated -= torrentClient_ProgressUpdated;
+            source.DownloadCompleted -= torrentClient_DownloadCompleted;
             source.StopTorrent();
             string tileStresstestIndex = source.GetTag() as string;
+            source.RemoveTag();
 
             InvokeResultsDownloadCompleted(tileStresstestIndex, source.Name);
 
-            source.RemoveTag();
             source = null;
 
             if (++_resultsReceived == Finished)

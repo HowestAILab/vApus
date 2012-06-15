@@ -55,6 +55,13 @@ namespace vApus.Monitor
         private bool _forStresstest = false;
         #endregion
 
+        #region Properties
+        public Monitor Monitor
+        {
+            get { return _monitor; }
+        }
+        #endregion
+
         #region Constructors
         /// <summary>
         /// Designer time only
