@@ -253,13 +253,7 @@
     <Compile Include="DistributedTestView.Designer.cs">
       <DependentUpon>DistributedTestView.cs</DependentUpon>
     </Compile>
-    <Compile Include="JumpStart\JumpStart.cs" />
-    <Compile Include="JumpStart\LinkageControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="JumpStart\LinkageControl.Designer.cs">
-      <DependentUpon>LinkageControl.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Communication\JumpStart.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Communication\Master\MasterSideCommunicationHandler.cs" />
     <Compile Include="Communication\Slave\SlaveSideCommunicationHandler.cs" />
@@ -363,9 +357,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DistributedTestView.resx">
       <DependentUpon>DistributedTestView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="JumpStart\LinkageControl.resx">
-      <DependentUpon>LinkageControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

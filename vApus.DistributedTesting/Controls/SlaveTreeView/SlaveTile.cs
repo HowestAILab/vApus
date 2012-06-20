@@ -66,12 +66,11 @@ namespace vApus.DistributedTesting
             nudPort.Value = _slave.Port;
             nudPort.ValueChanged += nudPort_ValueChanged;
 
-            chkUse.CheckedChanged -= chkUse_CheckedChanged;
-            chkUse.Checked = _slave.Use;
-            chkUse.CheckedChanged += chkUse_CheckedChanged;
-
             string pa = _slave.ProcessorAffinity.Combine(", ");
             llblPA.Text = pa.Length == 0 ? "..." : pa;
+
+            TileStresstest ts = Slave.TileStresstest;
+            llblTest.Text = ts == null ? "..." : ts.ToString();
         }
 
         private void nudPort_ValueChanged(object sender, EventArgs e)
@@ -90,11 +89,6 @@ namespace vApus.DistributedTesting
                 }
 
             _slave.Port = port;
-            _slave.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-        private void chkUse_CheckedChanged(object sender, EventArgs e)
-        {
-            _slave.Use = chkUse.Checked;
             _slave.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         private void llblPA_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -164,33 +158,32 @@ namespace vApus.DistributedTesting
         public void SetMode(DistributedTestMode distributedTestMode)
         {
             _distributedTestMode = distributedTestMode;
+#warning Flag it or check if it is used in the tests.
             if (_distributedTestMode == DistributedTestMode.Edit)
-                if (_slave.Use)
+                if (_slave.TileStresstest == null)
+                {
+                    this.Visible = true;
+                }
+                else
                 {
                     picDuplicate.Visible =
                     picDelete.Visible =
-                    chkUse.Enabled =
                     nudPort.Enabled =
                     llblPA.Enabled =
                     llblTest.Enabled = true;
                 }
-                else
-                {
-                    this.Visible = true;
-                }
             else
-                if (_slave.Use)
+                if (_slave.TileStresstest == null)
+                {
+                    this.Visible = false;
+                }
+                else
                 {
                     picDuplicate.Visible =
                     picDelete.Visible =
                     nudPort.Enabled =
-                    chkUse.Enabled =
                     llblPA.Enabled =
                     llblTest.Enabled = false;
-                }
-                else
-                {
-                    this.Visible = false;
                 }
         }
         #endregion

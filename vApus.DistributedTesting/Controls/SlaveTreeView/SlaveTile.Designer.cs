@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SlaveTile));
-            this.chkUse = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.nudPort = new vApus.Util.FixedNumericUpDown();
             this.picStatus = new System.Windows.Forms.PictureBox();
@@ -47,22 +46,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
             this.SuspendLayout();
             // 
-            // chkUse
-            // 
-            this.chkUse.AutoSize = true;
-            this.chkUse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkUse.Location = new System.Drawing.Point(3, 8);
-            this.chkUse.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.chkUse.Name = "chkUse";
-            this.chkUse.Size = new System.Drawing.Size(12, 11);
-            this.chkUse.TabIndex = 0;
-            this.chkUse.UseVisualStyleBackColor = true;
-            this.chkUse.CheckedChanged += new System.EventHandler(this.chkUse_CheckedChanged);
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(18, 7);
+            this.label1.Location = new System.Drawing.Point(3, 7);
             this.label1.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(77, 13);
@@ -71,7 +58,7 @@
             // 
             // nudPort
             // 
-            this.nudPort.Location = new System.Drawing.Point(95, 5);
+            this.nudPort.Location = new System.Drawing.Point(98, 5);
             this.nudPort.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.nudPort.Maximum = new decimal(new int[] {
             2147483647,
@@ -199,7 +186,6 @@
             this.Controls.Add(this.picStatus);
             this.Controls.Add(this.nudPort);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.chkUse);
             this.Name = "SlaveTile";
             this.Size = new System.Drawing.Size(350, 84);
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
@@ -213,7 +199,6 @@
 
         #endregion
 
-        private System.Windows.Forms.CheckBox chkUse;
         private System.Windows.Forms.Label label1;
         private Util.FixedNumericUpDown nudPort;
         private System.Windows.Forms.PictureBox picStatus;

@@ -582,19 +582,19 @@ namespace vApus.DistributedTesting
                     string[] split = message.Split(new char[] { '\n', '\r' }, StringSplitOptions.None);
                     message = split[0] + "\n See " + Logger.DEFAULT_LOCATION + " for the stack trace.";
                 }
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
             }
         }
         private void InvokeOnTestProgressMessageReceived(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
         {
             if (OnTestProgressMessageReceived != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnTestProgressMessageReceived(this, new TestProgressMessageReceivedEventArgs(tileStresstest, testProgressMessage)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnTestProgressMessageReceived(this, new TestProgressMessageReceivedEventArgs(tileStresstest, testProgressMessage)); }, null);
         }
         private void InvokeOnListeningError(ListeningErrorEventArgs listeningErrorEventArgs)
         {
             LogWrapper.LogByLevel(listeningErrorEventArgs, LogLevel.Error);
             if (OnListeningError != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnListeningError(this, listeningErrorEventArgs); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnListeningError(this, listeningErrorEventArgs); }, null);
         }
 
         private void InvokeResultsDownloadProgressUpdated(string tileStresstestIndex, double percentCompleted)
@@ -645,7 +645,7 @@ namespace vApus.DistributedTesting
         {
             InvokeMessage("Test finished!");
             if (OnFinished != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnFinished(this, new FinishedEventArgs(OK, Cancelled, Failed)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnFinished(this, new FinishedEventArgs(OK, Cancelled, Failed)); }, null);
         }
         #endregion
     }

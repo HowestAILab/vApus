@@ -31,7 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClientTreeViewItem));
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chk = new System.Windows.Forms.CheckBox();
             this.picAddSlave = new System.Windows.Forms.PictureBox();
             this.picStatus = new System.Windows.Forms.PictureBox();
             this.picDuplicate = new System.Windows.Forms.PictureBox();
@@ -50,23 +49,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // chk
-            // 
-            this.chk.AutoSize = true;
-            this.chk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chk.Location = new System.Drawing.Point(8, 7);
-            this.chk.Name = "chk";
-            this.chk.Size = new System.Drawing.Size(12, 11);
-            this.chk.TabIndex = 11;
-            this.chk.TabStop = false;
-            this.toolTip.SetToolTip(this.chk, "Use <ctrl+u>");
-            this.chk.UseVisualStyleBackColor = true;
-            this.chk.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
-            this.chk.Enter += new System.EventHandler(this._Enter);
-            this.chk.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.chk.MouseEnter += new System.EventHandler(this._MouseEnter);
             // 
             // picAddSlave
             // 
@@ -131,10 +113,10 @@
             // 
             this.txtClient.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtClient.Location = new System.Drawing.Point(117, 3);
+            this.txtClient.Location = new System.Drawing.Point(94, 3);
             this.txtClient.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.txtClient.Name = "txtClient";
-            this.txtClient.Size = new System.Drawing.Size(383, 20);
+            this.txtClient.Size = new System.Drawing.Size(406, 20);
             this.txtClient.TabIndex = 0;
             this.txtClient.Visible = false;
             this.txtClient.Enter += new System.EventHandler(this._Enter);
@@ -145,7 +127,7 @@
             // lblClient
             // 
             this.lblClient.AutoSize = true;
-            this.lblClient.Location = new System.Drawing.Point(26, 6);
+            this.lblClient.Location = new System.Drawing.Point(3, 6);
             this.lblClient.Name = "lblClient";
             this.lblClient.Size = new System.Drawing.Size(88, 13);
             this.lblClient.TabIndex = 19;
@@ -160,7 +142,6 @@
             this.Controls.Add(this.picStatus);
             this.Controls.Add(this.txtClient);
             this.Controls.Add(this.picDuplicate);
-            this.Controls.Add(this.chk);
             this.Controls.Add(this.picDelete);
             this.Controls.Add(this.lblClient);
             this.Margin = new System.Windows.Forms.Padding(0);
@@ -182,7 +163,6 @@
 
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picDelete;
-        private System.Windows.Forms.CheckBox chk;
         private System.Windows.Forms.TextBox txtClient;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblClient;

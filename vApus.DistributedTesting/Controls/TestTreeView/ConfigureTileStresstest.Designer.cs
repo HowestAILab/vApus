@@ -116,12 +116,12 @@
             this.lblUsage.AutoSize = true;
             this.lblUsage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUsage.ForeColor = System.Drawing.Color.DimGray;
-            this.lblUsage.Location = new System.Drawing.Point(50, 237);
+            this.lblUsage.Location = new System.Drawing.Point(55, 237);
             this.lblUsage.Name = "lblUsage";
-            this.lblUsage.Size = new System.Drawing.Size(499, 26);
+            this.lblUsage.Size = new System.Drawing.Size(489, 26);
             this.lblUsage.TabIndex = 3;
-            this.lblUsage.Text = "Add a Tile to the Distributed Test and a Tile Stresstest to a Tile clicking the \'" +
-    "+ button\'.\r\nSelect a Tile Stresstest to configure it.";
+            this.lblUsage.Text = "Add Tiles to the Distributed Test and Tile Stresstests to a Tile clicking the \'+ " +
+    "button\'.\r\nSelect a Tile Stresstest to configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lblRunSync

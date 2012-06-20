@@ -54,12 +54,12 @@
             this.lblUsage.AutoSize = true;
             this.lblUsage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUsage.ForeColor = System.Drawing.Color.DimGray;
-            this.lblUsage.Location = new System.Drawing.Point(182, 258);
+            this.lblUsage.Location = new System.Drawing.Point(179, 258);
             this.lblUsage.Name = "lblUsage";
-            this.lblUsage.Size = new System.Drawing.Size(327, 26);
+            this.lblUsage.Size = new System.Drawing.Size(333, 26);
             this.lblUsage.TabIndex = 4;
-            this.lblUsage.Text = "Add Client to the Distributed Test clicking the \'+ button\'.\r\nSelect a Client to c" +
-    "onfigure it.";
+            this.lblUsage.Text = "Add Clients to the Distributed Test clicking the \'+ button\'.\r\nSelect a Client to " +
+    "configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // picSort

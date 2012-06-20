@@ -153,7 +153,7 @@ namespace vApus.DistributedTesting
                     Stop(ex);
                 }
                 Cursor = Cursors.Default;
-            });
+            }, null);
         }
         /// <summary>
         /// Thread safe
@@ -174,7 +174,7 @@ namespace vApus.DistributedTesting
                 stresstestThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
                 stresstestThread.IsBackground = true;
                 stresstestThread.Start();
-            });
+            }, null);
         }
         private void StartStresstestInBackground()
         {
@@ -211,7 +211,7 @@ namespace vApus.DistributedTesting
                                 break;
                         }
                         Stop(ex);
-                    });
+                    }, null);
                 }
             }
         }
@@ -308,7 +308,7 @@ namespace vApus.DistributedTesting
             {
                 stresstestControl.SetClientMonitoring(_stresstestCore == null ? 0 : _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                 stresstestControl.UpdateFastResults();
-            });
+            }, null);
 
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
 

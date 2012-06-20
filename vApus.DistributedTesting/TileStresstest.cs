@@ -18,6 +18,11 @@ namespace vApus.DistributedTesting
         #region Fields
         private Stresstest.Stresstest _defaultSettingsTo;
         private bool _use = true, _automaticDefaultAdvancedSettings = true;
+
+        /// <summary>
+        /// Only when the solution is fully loaded.
+        /// </summary>
+        private bool _canDefaultTo;
         #endregion
 
         #region Properties
@@ -29,7 +34,14 @@ namespace vApus.DistributedTesting
             set
             {
                 value.ParentIsNull -= _defaultTo_ParentIsNull;
-                _defaultSettingsTo = value;
+
+                if (_defaultSettingsTo != value)
+                {
+                    _defaultSettingsTo = value;
+
+                    if (_canDefaultTo)
+                        BasicTileStresstest.DefaultTo(_defaultSettingsTo);
+                }
                 _defaultSettingsTo.ParentIsNull += new EventHandler(_defaultTo_ParentIsNull);
             }
         }
@@ -78,9 +90,14 @@ namespace vApus.DistributedTesting
             AddAsDefaultItem(new AdvancedTileStresstest());
 
             if (Solution.ActiveSolution != null)
+            {
                 DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
+                _canDefaultTo = true;
+            }
             else
+            {
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+            }
         }
         #endregion
 
@@ -88,7 +105,9 @@ namespace vApus.DistributedTesting
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            _canDefaultTo = false;
             DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
+            _canDefaultTo = true;
         }
         private void _defaultTo_ParentIsNull(object sender, EventArgs e)
         {

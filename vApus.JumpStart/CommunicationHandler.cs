@@ -94,18 +94,16 @@ namespace vApus.JumpStart
         private static Message<Key> HandleKill(Message<Key> message)
         {
             KillMessage killMessage = (KillMessage)message.Content;
-            if (killMessage.ProcessID == "-1")
-                KillAll();
-            else
-                Kill(killMessage.ProcessID);
+            Kill(killMessage.ExcludeProcessID);
             return message;
         }
-        private static void KillAll()
+        private static void Kill(int excludeProcessID)
         {
             Process[] processes = Process.GetProcessesByName("vApus");
             Parallel.ForEach(processes, delegate(Process p)
             {
-                KillProcess(p);
+                if (excludeProcessID == -1 || p.Id != excludeProcessID)
+                    KillProcess(p);
             });
         }
         private static void KillProcess(Process p)
@@ -117,20 +115,6 @@ namespace vApus.JumpStart
                     p.Kill();
                     p.WaitForExit(10000);
                 }
-            }
-            catch { }
-        }
-        private static void Kill(string processID)
-        {
-            try
-            {
-                string[] processIDs = processID.Split(',');
-                Parallel.For(0, processIDs.Length, delegate(int i)
-                {
-                    int id = int.Parse(processIDs[i]);
-                    Process p = Process.GetProcessById(id);
-                    KillProcess(p);
-                });
             }
             catch { }
         }

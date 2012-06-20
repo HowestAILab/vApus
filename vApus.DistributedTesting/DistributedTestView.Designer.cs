@@ -18,6 +18,9 @@
                 components.Dispose();
             }
             base.Dispose(disposing);
+
+            JumpStart.Done -= JumpStart_Done;
+            Stop();
         }
 
         #region Windows Form Designer generated code
@@ -169,7 +172,7 @@
             this.tpTests.Padding = new System.Windows.Forms.Padding(3);
             this.tpTests.Size = new System.Drawing.Size(300, 625);
             this.tpTests.TabIndex = 0;
-            this.tpTests.Text = "Tests (#0/0)";
+            this.tpTests.Text = "Tests (0/0)";
             // 
             // testTreeView
             // 
@@ -190,7 +193,7 @@
             this.tpSlaves.Padding = new System.Windows.Forms.Padding(3);
             this.tpSlaves.Size = new System.Drawing.Size(300, 625);
             this.tpSlaves.TabIndex = 1;
-            this.tpSlaves.Text = "Slaves (#0/0)";
+            this.tpSlaves.Text = "Slaves (0/0)";
             // 
             // slaveTreeView
             // 

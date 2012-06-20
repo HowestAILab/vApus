@@ -490,7 +490,7 @@ namespace vApus.UpdateTool
                             AppendLogLine("Completed!", Color.Green);
 
                             OverwriteFiles();
-                        });
+                        }, null);
                     }
                     catch (Exception ex)
                     {
@@ -499,7 +499,7 @@ namespace vApus.UpdateTool
                             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                             {
                                 AppendLogLine("Failed to update or reinstall: " + ex.Message, Color.Red);
-                            });
+                            }, null);
                         }
                         catch { }
                     }
@@ -704,7 +704,7 @@ namespace vApus.UpdateTool
                     pbTotal.Value = pbTotal.Maximum;
                 else
                     pbTotal.Value = (int)total;
-            });
+            }, null);
         }
 
         private void _sftp_OnTransferProgress(string src, string dst, int transferredBytes, int totalBytes, string message)
@@ -721,7 +721,7 @@ namespace vApus.UpdateTool
                         pb.Value = transferredBytes;
                         break;
                     }
-            });
+            }, null);
         }
         #endregion
 

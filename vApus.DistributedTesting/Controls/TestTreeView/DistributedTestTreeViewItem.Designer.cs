@@ -154,6 +154,7 @@
             this.picStresstestStatus.TabIndex = 25;
             this.picStresstestStatus.TabStop = false;
             this.picStresstestStatus.Visible = false;
+            this.picStresstestStatus.Click += new System.EventHandler(this._Enter);
             // 
             // DistributedTestTreeViewItem
             // 

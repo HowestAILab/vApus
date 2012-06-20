@@ -58,13 +58,14 @@ namespace vApus.DistributedTesting
         {
             get { return _online; }
         }
+
         private int UsedSlaveCount
         {
             get
             {
                 int count = 0;
-                foreach (Slave slave in _client)
-                    if (slave.Use)
+                foreach (Slave s in _client)
+                    if (s.TileStresstest != null)
                         ++count;
                 return count;
             }
@@ -85,44 +86,13 @@ namespace vApus.DistributedTesting
             _client = client;
             RefreshGui();
 
-            chk.CheckedChanged -= chk_CheckedChanged;
-            chk.Checked = _client.Use;
-            chk.CheckedChanged += chk_CheckedChanged;
-
-            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (#" + UsedSlaveCount + "/" + _client.Count + ")";
+            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
 
             txtClient.Text = (_client.IP == string.Empty) ? _client.HostName : _client.IP;
-
-            //To check if the use has changed of the child controls.
-            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
         #endregion
 
         #region Functions
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            //To set if the client is used or not.
-            if (sender is Slave)
-            {
-                Slave slave = sender as Slave;
-                if (_client.Contains(slave))
-                {
-                    _client.Use = false;
-                    foreach (Slave sl in _client)
-                        if (sl.Use)
-                        {
-                            _client.Use = true;
-                            break;
-                        }
-                    if (chk.Checked != _client.Use)
-                    {
-                        chk.CheckedChanged -= chk_CheckedChanged;
-                        chk.Checked = _client.Use;
-                        chk.CheckedChanged += chk_CheckedChanged;
-                    }
-                }
-            }
-        }
         private void _Enter(object sender, EventArgs e)
         {
             this.BackColor = SystemColors.Control;
@@ -155,7 +125,7 @@ namespace vApus.DistributedTesting
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
                 txtClient.Visible = picAddSlave.Visible = picDuplicate.Visible = picDelete.Visible = visible;
-                lblClient.Text = visible ? "Host Name or IP:" : _client.ToString() + "  -  (#" + UsedSlaveCount + "/" + _client.Count + ")";
+                lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
             }
         }
         public void SetVisibleControls()
@@ -171,15 +141,7 @@ namespace vApus.DistributedTesting
 
         public void RefreshGui()
         {
-            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (#" + UsedSlaveCount + "/" + _client.Count + ")";
-
-            _client.Use = UsedSlaveCount != 0;
-            if (_client.Use != chk.Checked)
-            {
-                chk.CheckedChanged -= chk_CheckedChanged;
-                chk.Checked = _client.Use;
-                chk.CheckedChanged += chk_CheckedChanged;
-            }
+            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {
@@ -202,8 +164,6 @@ namespace vApus.DistributedTesting
                     DeleteClicked(this, null);
                 else if (e.KeyCode == Keys.D && DuplicateClicked != null)
                     DuplicateClicked(this, null);
-                else if (e.KeyCode == Keys.U)
-                    chk.Checked = !chk.Checked;
             }
             if (e.KeyCode == Keys.F5)
                 SetHostNameAndIP();
@@ -357,47 +317,35 @@ namespace vApus.DistributedTesting
         {
             SetHostNameAndIP();
         }
-        private void chk_CheckedChanged(object sender, EventArgs e)
-        {
-            if (_client.Use != chk.Checked)
-            {
-                _client.Use = chk.Checked;
-                foreach (Slave slave in _client)
-                    slave.Use = _client.Use;
-
-                _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
-        }
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
             _distributedTestMode = distributedTestMode;
+#warning Flag it or check if it is used in the tests.
             if (_distributedTestMode == DistributedTestMode.Edit)
-                if (_client.Use)
-                {
-                    chk.Visible =
-                    txtClient.Visible =
-                    picAddSlave.Visible =
-                    picDuplicate.Visible =
-                    picDelete.Visible = true;
-                }
-                else
-                {
-                    this.Visible = true;
-                }
+                //if (_client.Use)
+                //{
+                txtClient.Visible =
+                picAddSlave.Visible =
+                picDuplicate.Visible =
+                picDelete.Visible = true;
+            //}
+            //else
+            //{
+            //    this.Visible = true;
+            //}
             else
-                if (_client.Use)
-                {
-                    chk.Visible =
-                    txtClient.Visible =
-                    picAddSlave.Visible =
-                    picDuplicate.Visible =
-                    picDelete.Visible = false;
-                }
-                else
-                {
-                    this.Visible = false;
-                }
+                //if (_client.Use)
+                //{
+                txtClient.Visible =
+                picAddSlave.Visible =
+                picDuplicate.Visible =
+                picDelete.Visible = false;
+            //}
+            //else
+            //{
+            //    this.Visible = false;
+            //}
         }
         #endregion
     }

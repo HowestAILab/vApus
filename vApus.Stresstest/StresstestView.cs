@@ -269,7 +269,7 @@ namespace vApus.Stresstest
                                stresstestControl.SetStresstestStopped(stresstestResult, message);
                                break;
                        }
-                   });
+                   }, null);
                 }
             }
         }
@@ -374,14 +374,14 @@ namespace vApus.Stresstest
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 stresstestControl.AppendMessages((sender as MonitorView).Text + ": A counter became unavailable while monitoring:\n" + e.GetException(), LogLevel.Warning);
-            });
+            }, null);
         }
         private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 stresstestControl.AppendMessages((sender as MonitorView).Text + ": An error has occured while monitoring, monitor stopped!\n" + e.GetException(), LogLevel.Error);
-            });
+            }, null);
         }
         /// <summary>
         /// Used in stresstest started eventhandling.

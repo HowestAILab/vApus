@@ -13,17 +13,10 @@ namespace vApus.DistributedTesting
     public class Client : BaseItem
     {
         #region Fields
-        private bool _use = false;
         private string _ip = string.Empty, _hostName = string.Empty;
         #endregion
 
         #region Properties
-        [SavableCloneable]
-        public bool Use
-        {
-            get { return _use; }
-            set { _use = value; }
-        }
         [SavableCloneable]
         public string HostName
         {
@@ -73,7 +66,6 @@ namespace vApus.DistributedTesting
             Client clone = new Client();
             clone.ClearWithoutInvokingEvent();
 
-            clone.Use = _use;
             clone.HostName = _hostName;
             clone.IP = _ip;
 

@@ -9,25 +9,17 @@ using System;
 using vApus.SolutionTree;
 using vApus.Util;
 using System.Collections.Generic;
+using System.Linq;
 namespace vApus.DistributedTesting
 {
     public class Slave : BaseItem
     {
         #region Fields
-        private bool _use = true;
         private int _port = 1337;
-
-        private TileStresstest _tileStresstest;
         private int[] _processorAffinity = { };
         #endregion
 
         #region Properties
-        [SavableCloneable]
-        public bool Use
-        {
-            get { return _use; }
-            set { _use = value; }
-        }
         [SavableCloneable]
         public int Port
         {
@@ -48,45 +40,40 @@ namespace vApus.DistributedTesting
                 return (Parent as Client).IP;
             }
         }
-        // [SavableCloneable]
+        /// <summary>
+        /// Search the slaves for this.
+        /// </summary>
         public TileStresstest TileStresstest
-        {
-            get { return _tileStresstest; }
-            set
-            {
-                _tileStresstest.ParentIsNull -= _tileStresstest_ParentIsNull;
-                _tileStresstest = value;
-                _tileStresstest.ParentIsNull += _tileStresstest_ParentIsNull;
-            }
-        }
-        private Tile TileStesstestParent
         {
             get
             {
                 try
                 {
-                    if (this.Parent != null &&
-                        this.Parent.GetParent() != null &&
-                        this.Parent.GetParent().GetParent() != null &&
-                        this.Parent.GetParent().GetParent().GetParent() != null)
-                    {
-                        var dt = this.Parent.GetParent().GetParent().GetParent() as DistributedTest;
-                        if (dt.Tiles.Count != 0)
-                            return dt.Tiles[0] as Tile;
-                    }
+                    foreach (TileStresstest ts in TileStesstests)
+                        if (ts.BasicTileStresstest.Slaves.Contains(this))
+                            return ts;
                 }
                 catch { }
                 return null;
             }
         }
 
-
-        private void _tileStresstest_ParentIsNull(object sender, System.EventArgs e)
+        private IEnumerable<TileStresstest> TileStesstests
         {
-            Tile t = TileStesstestParent;
-            if (t != null)
-                TileStresstest = BaseItem.GetNextOrEmptyChild(typeof(TileStresstest), t) as TileStresstest;
+            get
+            {
+                if (this.Parent != null &&
+                    this.Parent.GetParent() != null &&
+                    this.Parent.GetParent().GetParent() != null)
+                {
+                    var dt = this.Parent.GetParent().GetParent() as DistributedTest;
+                    foreach (Tile t in dt.Tiles)
+                        foreach (TileStresstest ts in t)
+                            yield return ts;
+                }
+            }
         }
+
         [SavableCloneable]
         public int[] ProcessorAffinity
         {
@@ -120,7 +107,6 @@ namespace vApus.DistributedTesting
         public Slave Clone()
         {
             Slave clone = new Slave();
-            clone.Use = _use;
             clone.Port = _port;
 
             clone.ProcessorAffinity = new int[_processorAffinity.Length];

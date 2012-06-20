@@ -249,10 +249,6 @@ namespace vApus.DistributedTesting
                 Monitors = l.ToArray();
                 this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
-            else if (sender != null && sender == this.Parent)
-            {
-                DefaultTo((this.Parent as TileStresstest).DefaultSettingsTo);
-            }
             else //Cleanup slaves
             {
                 var slavesParent = SlavesParent;
@@ -268,7 +264,11 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        private void DefaultTo(Stresstest.Stresstest stresstest)
+        /// <summary>
+        /// Defaukt the settings to this automatically.
+        /// </summary>
+        /// <param name="stresstest"></param>
+        public void DefaultTo(Stresstest.Stresstest stresstest)
         {
             _defaultSettingsTo = stresstest;
             if (_defaultSettingsTo.Connection != null)

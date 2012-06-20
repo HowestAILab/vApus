@@ -149,7 +149,7 @@ namespace vApus.Util
             {
                 btnDisableThem.Text = "Disable Them";
                 CheckStatus();
-            });
+            }, null);
         }
         private void StartProcess(string process, string arguments)
         {

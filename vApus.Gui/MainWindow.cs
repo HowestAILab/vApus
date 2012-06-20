@@ -460,7 +460,7 @@ namespace vApus.Gui
                             _msgHandler.PostMessage();
                         }
                         catch { }
-                    });
+                    }, null);
             }
             catch { }
         }

@@ -15,11 +15,15 @@ using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace vApus.DistributedTesting
 {
     public partial class DistributedTestView : BaseSolutionComponentView
     {
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
         #region Fields
         private object _lock = new object();
 
@@ -41,6 +45,10 @@ namespace vApus.DistributedTesting
         /// The monitors for the tests if any.
         /// </summary>
         private Dictionary<TileStresstest, List<MonitorView>> _monitorViews = new Dictionary<TileStresstest, List<MonitorView>>();
+
+        //A callback back to the main thread, otherwise the gui freezes, stupid winforms
+        private delegate void ShowMonitorReportViews_Del(TileStresstest tileStresstest);
+
         #endregion
 
         #region Properties
@@ -83,7 +91,7 @@ namespace vApus.DistributedTesting
                 int count = 0;
                 foreach (Client c in _distributedTest.ClientsAndSlaves)
                     foreach (Slave s in c)
-                        if (s.Use)
+                        if (s.TileStresstest != null)
                             ++count;
                 return count;
             }
@@ -108,6 +116,9 @@ namespace vApus.DistributedTesting
             slaveTreeView.SetDistributedTest(_distributedTest);
 
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+
+            //Jumpstart the slaves when starting the test
+            JumpStart.Done += new EventHandler(JumpStart_Done);
         }
         #endregion
 
@@ -190,11 +201,11 @@ namespace vApus.DistributedTesting
         }
         private void SetGui()
         {
-            string tests = "Tests (#" + UsedTileStresstestCount + "/" + TileStresstestCount + ")";
+            string tests = "Tests (" + UsedTileStresstestCount + "/" + TileStresstestCount + ")";
             if (tpTests.Text != tests)
                 tpTests.Text = tests;
 
-            string slaves = "Slaves (#" + UsedSlaveCount + "/" + SlaveCount + ")";
+            string slaves = "Slaves (" + UsedSlaveCount + "/" + SlaveCount + ")";
             if (tpSlaves.Text != slaves)
                 tpSlaves.Text = slaves;
 
@@ -283,35 +294,55 @@ namespace vApus.DistributedTesting
                 Cursor = Cursors.WaitCursor;
                 SetMode(DistributedTestMode.TestAndReport);
 
-                if (_distributedTestCore != null && !_distributedTestCore.IsDisposed)
-                {
-                    _distributedTestCore.Dispose();
-                    _distributedTestCore = null;
-                }
-
-                _distributedTestCore = new DistributedTestCore(_distributedTest);
-                _distributedTestCore.Message += new EventHandler<MessageEventArgs>(_distributedTestCore_Message);
-                _distributedTestCore.OnTestProgressMessageReceived += new EventHandler<TestProgressMessageReceivedEventArgs>(_distributedTestCore_TestProgressMessageReceivedEventArgs);
-                _distributedTestCore.OnListeningError += new EventHandler<ListeningErrorEventArgs>(_distributedTestCore_OnListeningError);
-                _distributedTestCore.ResultsDownloadProgressUpdated += new EventHandler<ResultsDownloadProgressUpdatedEventArgs>(_distributedTestCore_ResultsDownloadProgressUpdated);
-                _distributedTestCore.ResultsDownloadCompleted += new EventHandler<ResultsDownloadCompletedEventArgs>(_distributedTestCore_ResultsDownloadCompleted);
-                _distributedTestCore.OnFinished += new EventHandler<FinishedEventArgs>(_distributedTestCore_OnFinished);
-
                 tcTest.SelectedIndex = 1;
 
                 distributedStresstestControl.Clear();
 
-                Thread t = new Thread(InitializeAndStartTest);
-                t.CurrentCulture = Thread.CurrentThread.CurrentCulture;
-                t.IsBackground = true;
-                t.Start();
+                distributedStresstestControl.AppendMasterMessages("Jump Starting the slaves...");
+                //Jumpstart the slaves first.
+                JumpStart.Do(_distributedTest);
             }
             catch
             {
                 //Only one test can run at the same time.
-                distributedStresstestControl.AppendMasterMessages("Cannot start this test because another one is still running.", LogLevel.Error);
+                distributedStresstestControl.AppendMasterMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
                 Stop();
             }
+        }
+        private void JumpStart_Done(object sender, EventArgs e)
+        {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            {
+                try
+                {
+
+                    if (_distributedTestCore != null && !_distributedTestCore.IsDisposed)
+                    {
+                        _distributedTestCore.Dispose();
+                        _distributedTestCore = null;
+                    }
+
+                    _distributedTestCore = new DistributedTestCore(_distributedTest);
+                    _distributedTestCore.Message += new EventHandler<MessageEventArgs>(_distributedTestCore_Message);
+                    _distributedTestCore.OnTestProgressMessageReceived += new EventHandler<TestProgressMessageReceivedEventArgs>(_distributedTestCore_TestProgressMessageReceivedEventArgs);
+                    _distributedTestCore.OnListeningError += new EventHandler<ListeningErrorEventArgs>(_distributedTestCore_OnListeningError);
+                    _distributedTestCore.ResultsDownloadProgressUpdated += new EventHandler<ResultsDownloadProgressUpdatedEventArgs>(_distributedTestCore_ResultsDownloadProgressUpdated);
+                    _distributedTestCore.ResultsDownloadCompleted += new EventHandler<ResultsDownloadCompletedEventArgs>(_distributedTestCore_ResultsDownloadCompleted);
+                    _distributedTestCore.OnFinished += new EventHandler<FinishedEventArgs>(_distributedTestCore_OnFinished);
+
+
+                    Thread t = new Thread(InitializeAndStartTest);
+                    t.CurrentCulture = Thread.CurrentThread.CurrentCulture;
+                    t.IsBackground = true;
+                    t.Start();
+                }
+                catch
+                {
+                    //Only one test can run at the same time.
+                    distributedStresstestControl.AppendMasterMessages("Cannot start this test because another one is still running.", LogLevel.Error);
+                    Stop();
+                }
+            }, null);
         }
 
         private void ScheduleTest()
@@ -423,7 +454,7 @@ namespace vApus.DistributedTesting
                         TileStresstestTreeViewItem tstvi = _selectedTestItem as TileStresstestTreeViewItem;
                         ShowMonitorReportViews(tstvi.TileStresstest);
                     }
-                });
+                }, null);
 
                 if (_pendingMonitorViewInitializations != 0)
                     _monitorViewsInitializedWaitHandle.WaitOne();
@@ -455,7 +486,7 @@ namespace vApus.DistributedTesting
                     StartMonitorsIfAny();
 
                     Cursor = Cursors.Default;
-                });
+                }, null);
                 _distributedTestCore.Start();
             }
             catch (Exception ex)
@@ -479,7 +510,7 @@ namespace vApus.DistributedTesting
 
                 Stop();
                 Cursor = Cursors.Default;
-            });
+            }, null);
         }
 
         #endregion
@@ -692,7 +723,7 @@ namespace vApus.DistributedTesting
                                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                                 {
                                     tstvi.SetStresstestResult(tstvi.StresstestResult, e.PercentCompleted);
-                                });
+                                }, null);
                         }
 
                 }
@@ -720,7 +751,7 @@ namespace vApus.DistributedTesting
                         SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                         {
                             tstvi.SetStresstestResult(tstvi.StresstestResult, 100);
-                        });
+                        }, null);
                 }
         }
         private void SetSlaveReport(TileStresstest tileStresstest, string resultPath)
@@ -834,7 +865,10 @@ namespace vApus.DistributedTesting
 
                 distributedStresstestControl.AppendMasterMessages("Initializing " + monitorView.Text + "...");
 
-                monitorView.Tag = new MonitorReportControl();
+                var mrc = new MonitorReportControl();
+                mrc.Text = "Report " + monitorView.Text;
+                mrc.Dock = DockStyle.Fill;
+                monitorView.Tag = mrc;
                 //For each view initialized, the distributed test view takes care of starting the test.
                 monitorView.MonitorInitialized += new EventHandler<MonitorView.MonitorInitializedEventArgs>(monitorView_MonitorInitialized);
                 monitorView.OnHandledException += new EventHandler<ErrorEventArgs>(monitorView_OnHandledException);
@@ -918,41 +952,70 @@ namespace vApus.DistributedTesting
         }
         private void ShowMonitorReportViews(TileStresstest tileStresstest)
         {
-            int selectedIndex = tcTest.SelectedIndex;
-            if (selectedIndex > 2)
-            {
-                tcTest.SelectedIndexChanged += new EventHandler(tcTest_SelectedIndexChanged);
-                tcTest.SelectedIndex = 2;
-            }
-
-            int i = 3;
-            while (i != tcTest.TabCount)
-                tcTest.TabPages.RemoveAt(i);
-
-            if (_monitorViews != null)
-                foreach (TileStresstest ts in _monitorViews.Keys)
-                    if (ts == tileStresstest)
-                    {
-                        foreach (var view in _monitorViews[ts])
-                            if (view != null && view.Tag != null)
-                            {
-                                var monitorReportControl = view.Tag as MonitorReportControl;
-                                monitorReportControl.Dock = DockStyle.Fill;
-
-                                TabPage tp = new TabPage("Report " + view.Text);
-                                tp.Controls.Add(monitorReportControl);
-
-                                tcTest.TabPages.Add(tp);
-                            }
-                        break;
-                    }
-            tcTest.SelectedIndex = selectedIndex < tcTest.TabCount ? selectedIndex : (tcTest.TabCount - 1);
+            //Stupid winforms
+            StaticActiveObjectWrapper.ActiveObject.Send(new ShowMonitorReportViews_Del(ShowMonitorReportViews_CallBack), tileStresstest);
         }
-
-        void tcTest_SelectedIndexChanged(object sender, EventArgs e)
+        private void ShowMonitorReportViews_CallBack(TileStresstest tileStresstest)
         {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            {
+                if (this.IsDisposed)
+                    return;
 
+                LockWindowUpdate(this.Handle.ToInt32());
+
+                int selectedIndex = tcTest.SelectedIndex;
+                if (selectedIndex > 2)
+                    tcTest.SelectedIndex = 2;
+
+
+                List<MonitorReportControl> oldMonitorReportControls = new List<MonitorReportControl>(), newMonitorReportControls = new List<MonitorReportControl>();
+                for (int index = 3; index < tcTest.TabCount; index++)
+                    oldMonitorReportControls.Add(tcTest.TabPages[index].Controls[0] as MonitorReportControl);
+
+
+                if (_monitorViews != null)
+                    foreach (TileStresstest ts in _monitorViews.Keys)
+                        if (ts == tileStresstest)
+                        {
+                            foreach (var view in _monitorViews[ts])
+                                if (view != null && view.Tag != null)
+                                {
+                                    //only add it if it is not there already, clean up the old ones
+                                    var mrc = view.Tag as MonitorReportControl;
+                                    if (oldMonitorReportControls.Contains(mrc))
+                                        oldMonitorReportControls.Remove(mrc);
+                                    else
+                                        newMonitorReportControls.Add(mrc);
+                                }
+                            break;
+                        }
+
+                //remove the old ones.
+                for (int index = 3; index < tcTest.TabCount; index++)
+                    foreach (var mrc in oldMonitorReportControls)
+                        if (tcTest.TabPages[index].Controls[0] == mrc)
+                        {
+                            tcTest.TabPages.RemoveAt(index);
+                            oldMonitorReportControls.Remove(mrc);
+                            break;
+                        }
+
+                //Add the new ones
+                foreach (var mrc in newMonitorReportControls)
+                {
+                    TabPage tp = new TabPage(mrc.Text);
+                    tp.Controls.Add(mrc);
+
+                    tcTest.TabPages.Add(tp);
+                }
+
+                tcTest.SelectedIndex = selectedIndex < tcTest.TabCount ? selectedIndex : (tcTest.TabCount - 1);
+
+                LockWindowUpdate(0);
+            }, null);
         }
+
         private void stresstestReportControl_ReportMade(object sender, EventArgs e)
         {
             if (_selectedTestItem != null && _selectedTestItem is TileStresstestTreeViewItem)

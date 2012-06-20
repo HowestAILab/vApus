@@ -35,14 +35,17 @@ namespace vApus.JumpStartStructures
     [Serializable]
     public struct KillMessage
     {
-        public string ProcessID;
+        //The master port for example
+        public int ExcludeProcessID;
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="processID">If -1 all instances of vApus will be killed.</param>
-        public KillMessage(string processID = "-1")
+        /// <param name="excludeIP"></param>
+        /// <param name="excludeProcessID"></param>
+        /// <param name="processID"></param>
+        public KillMessage(int excludeProcessID)
         {
-            ProcessID = processID;
+            ExcludeProcessID = excludeProcessID;
         }
     }
 }

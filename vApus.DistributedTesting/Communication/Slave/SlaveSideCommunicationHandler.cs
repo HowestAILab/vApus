@@ -70,7 +70,7 @@ namespace vApus.DistributedTesting
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 Solution.HideStresstestingSolutionExplorer();
-            });
+            }, null);
             //init the send queue for push messages.
             _sendQueue = new ActiveObject();
 
@@ -104,7 +104,7 @@ namespace vApus.DistributedTesting
                     _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
                     _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
                     _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
-                });
+                }, null);
 
 
                 //This is threadsafe

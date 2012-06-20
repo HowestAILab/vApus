@@ -98,7 +98,7 @@ namespace vApus.Monitor
                 if (_forStresstest && OnHandledException != null)
                     foreach (EventHandler<ErrorEventArgs> del in OnHandledException.GetInvocationList())
                         del.BeginInvoke(this, e, null, null);
-            });
+            }, null);
         }
         private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e)
         {
@@ -110,7 +110,7 @@ namespace vApus.Monitor
                 if (_forStresstest && OnUnhandledException != null)
                     foreach (EventHandler<ErrorEventArgs> del in OnUnhandledException.GetInvocationList())
                         del.BeginInvoke(this, e, null, null);
-            });
+            }, null);
         }
         private void _monitorProxy_OnMonitor(object sender, OnMonitorEventArgs e)
         {
@@ -142,7 +142,7 @@ namespace vApus.Monitor
                     }
                 }
                 catch { }
-            });
+            }, null);
         }
 
         #region Init
@@ -625,7 +625,7 @@ namespace vApus.Monitor
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 SetParameters(parameters);
-            });
+            }, null);
             if (exception == null)
                 _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
 
@@ -670,7 +670,7 @@ namespace vApus.Monitor
                 parameterPanel.Unlock();
 
                 this.Cursor = Cursors.Default;
-            });
+            }, null);
         }
 
         private void SetParameters(Parameter[] parameters)
@@ -1243,7 +1243,7 @@ namespace vApus.Monitor
                 if (MonitorInitialized != null)
                     MonitorInitialized(this, new MonitorView.MonitorInitializedEventArgs(errorMessage));
 
-            });
+            }, null);
         }
         public void Start()
         {

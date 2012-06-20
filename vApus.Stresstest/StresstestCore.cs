@@ -832,7 +832,7 @@ namespace vApus.Stresstest
             InvokeMessage("Starting the Stresstest...");
 
             if (!_cancel && StresstestStarted != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StresstestStarted(this, new StresstestStartedEventArgs(_stresstestResults)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StresstestStarted(this, new StresstestStartedEventArgs(_stresstestResults)); }, null);
         }
         private void SetConcurrentUsersStarted(int concurrentUsersIndex)
         {
@@ -849,7 +849,7 @@ namespace vApus.Stresstest
             InvokeMessage(string.Format("|-> {0} Concurrent Users...", concurrentUsers), Color.LightGreen);
 
             if (!_cancel && ConcurrentUsersStarted != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { ConcurrentUsersStarted(this, new ConcurrentUsersStartedEventArgs(_concurrentUsersResult)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { ConcurrentUsersStarted(this, new ConcurrentUsersStartedEventArgs(_concurrentUsersResult)); }, null);
         }
         private void SetPrecisionStarted(int concurrentUsersIndex, int precision)
         {
@@ -864,7 +864,7 @@ namespace vApus.Stresstest
             InvokeMessage(string.Format("|---> Precision {0}... (Initializing the First Run, be Patient)", precision + 1), Color.LightGreen);
 
             if (!_cancel && PrecisionStarted != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { PrecisionStarted(this, new PrecisionStartedEventArgs(_precisionResult)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { PrecisionStarted(this, new PrecisionStartedEventArgs(_precisionResult)); }, null);
         }
         /// <summary>
         /// For monitoring --> to know the time offset of the counters so a range can be linked to a run.
@@ -878,7 +878,7 @@ namespace vApus.Stresstest
             DateTime at = DateTime.Now;
             _runResult.SetRunStarted(at);
             if (_cancel && RunStarted != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunStarted(this, new RunStartedEventArgs(at, _runResult)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunStarted(this, new RunStartedEventArgs(at, _runResult)); }, null);
         }
         /// <summary>
         /// For monitoring --> to know the time offset of the counters so a range can be linked to a run.
@@ -891,7 +891,7 @@ namespace vApus.Stresstest
             DateTime at = DateTime.Now;
             _runResult.SetRunStopped(at);
             if (_cancel && RunStopped != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunStopped(this, new RunStoppedEventArgs(at)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunStopped(this, new RunStoppedEventArgs(at)); }, null);
         }
         /// <summary>
         /// For run sync
@@ -916,7 +916,7 @@ namespace vApus.Stresstest
             InvokeMessage(string.Format("|----> |Run {0}...", run + 1), Color.LightGreen);
 
             if (!_cancel && RunInitializedFirstTime != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunInitializedFirstTime(this, new RunInitializedFirstTimeEventArgs(_runResult)); });
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunInitializedFirstTime(this, new RunInitializedFirstTimeEventArgs(_runResult)); }, null);
         }
         /// <summary>
         /// For run sync (break on last finished)
@@ -927,7 +927,7 @@ namespace vApus.Stresstest
             {
                 _runDoneOnce = true;
                 if (!_cancel && RunDoneOnce != null)
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, null); });
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, null); }, null);
             }
         }
         private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e)
@@ -950,7 +950,7 @@ namespace vApus.Stresstest
             {
                 LogWrapper.LogByLevel(message, logLevel);
                 if (Message != null)
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); });
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
             }
             catch (Exception ex)
             {

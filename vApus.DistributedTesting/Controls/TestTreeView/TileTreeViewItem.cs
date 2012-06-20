@@ -170,7 +170,7 @@ namespace vApus.DistributedTesting
                 _tile.Label = txtTile.Text;
                 _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
-            lblTile.Text = _tile.Label + " (#" + UsedTileStresstestCount + "/" + _tile.Count + ")";
+            lblTile.Text = _tile.Label + " (" + UsedTileStresstestCount + "/" + _tile.Count + ")";
         }
         private void _MouseEnter(object sender, EventArgs e)
         {
@@ -200,9 +200,9 @@ namespace vApus.DistributedTesting
         {
             string label = string.Empty;
             if (_tile.Label == string.Empty)
-                label = _tile.ToString() + " (#" + UsedTileStresstestCount + "/" + _tile.Count + ")";
+                label = _tile.ToString() + " (" + UsedTileStresstestCount + "/" + _tile.Count + ")";
             else
-                label = _tile.Label + " (#" + UsedTileStresstestCount + "/" + _tile.Count + ")";
+                label = _tile.Label + " (" + UsedTileStresstestCount + "/" + _tile.Count + ")";
 
             if (lblTile.Text != label)
             {
@@ -232,7 +232,7 @@ namespace vApus.DistributedTesting
                     if (_tile.Label != txtTile.Text)
                     {
                         _tile.Label = txtTile.Text;
-                        lblTile.Text = (_tile.Label == string.Empty ? _tile.ToString() : _tile.Label) + " (#" + _tile.Count + ")";
+                        lblTile.Text = (_tile.Label == string.Empty ? _tile.ToString() : _tile.Label) + " (" + _tile.Count + ")";
 
                         _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                     }
