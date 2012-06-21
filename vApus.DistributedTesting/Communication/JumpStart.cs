@@ -44,25 +44,35 @@ namespace vApus.DistributedTesting
 
             Hashtable toJumpStart = new Hashtable(slaves.Count);
             foreach (Slave slave in slaves)
-                RegisterForJumpStart(toJumpStart, slave.IP, slave.Port);
+                RegisterForJumpStart(toJumpStart, slave.IP, slave.Port, slave.ProcessorAffinity);
 
             Do(toKill, toJumpStart);
         }
 
-        private static void RegisterForJumpStart(Hashtable toJumpStart, string ip, int port)
+        private static void RegisterForJumpStart(Hashtable toJumpStart, string ip, int port, int[] processorAffinity)
         {
             string s = port.ToString();
             if (toJumpStart.ContainsKey(ip))
             {
-                string value = toJumpStart[ip] as string;
-                if (!value.Contains(s))
-                    value += "," + s;
-                toJumpStart[ip] = value;
+                var kvp = (KeyValuePair<string, string>)toJumpStart[ip];
+                if (!kvp.Key.Contains(s))
+                    kvp = new KeyValuePair<string, string>(kvp.Key + "," + s, kvp.Value + "," + GetZeroBasedPA(processorAffinity));
+                toJumpStart[ip] = kvp;
             }
             else
             {
-                toJumpStart.Add(ip, s);
+                var kvp = new KeyValuePair<string, string>(port.ToString(), GetZeroBasedPA(processorAffinity));
+                toJumpStart.Add(ip, kvp);
             }
+        }
+        private static string GetZeroBasedPA(int[] processorAffinity)
+        {
+            int[] pa = new int[processorAffinity.Length];
+
+            for (int i = 0; i != pa.Length; i++)
+                pa[i] = processorAffinity[i] -1;
+
+            return pa.Combine(" ");
         }
         private static Hashtable RegisterForKill(List<Slave> slaves)
         {
@@ -126,13 +136,19 @@ namespace vApus.DistributedTesting
                 {
                     Thread t = new Thread(delegate(object state)
                     {
-                        var kvp = (DictionaryEntry)state;
+                        var dictionaryEntry = (DictionaryEntry)state;
                         _workItem = new WorkItem();
 
                         if (jumpStart)
-                            _workItem.DoJumpStart(kvp.Key as string, kvp.Value as string);
+                        {
+                            string ip = dictionaryEntry.Key as string;
+                            var kvp = (KeyValuePair<string, string>)ht[ip];
+                            _workItem.DoJumpStart(ip, kvp.Key, kvp.Value);
+                        }
                         else
-                            _workItem.DoKill(kvp.Key as string, (int)kvp.Value);
+                        {
+                            _workItem.DoKill(dictionaryEntry.Key as string, (int)dictionaryEntry.Value);
+                        }
 
                         if (Interlocked.Increment(ref i) == count)
                             waithandle.Set();
@@ -153,7 +169,7 @@ namespace vApus.DistributedTesting
             /// </summary>
             /// <param name="ip"></param>
             /// <param name="port"></param>
-            public void DoJumpStart(string ip, string port)
+            public void DoJumpStart(string ip, string port, string processorAffinity)
             {
                 SocketWrapper socketWrapper = null;
                 try
@@ -162,7 +178,7 @@ namespace vApus.DistributedTesting
                     if (socketWrapper == null)
                         throw new Exception("Could not connect to the vApus Jump Start Service!");
 
-                    var jumpStartMessage = new vApus.JumpStartStructures.JumpStartMessage(ip, port);
+                    var jumpStartMessage = new vApus.JumpStartStructures.JumpStartMessage(ip, port, processorAffinity);
                     var message = new Message<vApus.JumpStartStructures.Key>(vApus.JumpStartStructures.Key.JumpStart, jumpStartMessage);
 
                     socketWrapper.Send(message, SendType.Binary);

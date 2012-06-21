@@ -785,6 +785,7 @@ namespace vApus.Stresstest
                     splitContainer.SplitterDistance += distance;
 
                 splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
+                this.BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;
             }
             catch { }
 

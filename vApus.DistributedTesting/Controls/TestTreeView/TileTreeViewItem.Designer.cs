@@ -134,6 +134,7 @@
             this.lblTile.Name = "lblTile";
             this.lblTile.Size = new System.Drawing.Size(0, 13);
             this.lblTile.TabIndex = 19;
+            this.lblTile.Click += new System.EventHandler(this._Enter);
             // 
             // picCollapseExpand
             // 

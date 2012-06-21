@@ -19,17 +19,26 @@ namespace vApus.JumpStartStructures
     public struct JumpStartMessage
     {
         public string IP;
+        /// <summary>
+        /// All ports comma separated.
+        /// </summary>
         public string Port;
+        /// <summary>
+        /// All cores space separated, comma separated per port.
+        /// </summary>
+        public string ProcessorAffinity;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port">can be multiple ports divided by a comma.</param>
         /// <param name="processID"></param>
-        public JumpStartMessage(string ip, string port)
+        public JumpStartMessage(string ip, string port, string processorAffinity)
         {
             IP = ip;
             Port = port;
+            ProcessorAffinity = processorAffinity;
         }
     }
     [Serializable]

@@ -8,14 +8,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace vApus.DistributedTesting
 {
@@ -548,16 +547,17 @@ namespace vApus.DistributedTesting
                     foreach (TileStresstest tileStresstest in _distributedTestCore.TestProgressMessages.Keys)
                         progress.Add(tileStresstest, _distributedTestCore.TestProgressMessages[tileStresstest].TileStresstestProgressResults);
 
-                    distributedStresstestControl.SetOverallFastResults(progress);
+                    distributedStresstestControl.SetOverallFastResults("Distributed Test", progress);
                 }
                 else if (_selectedTestItem is TileTreeViewItem)
                 {
                     TileTreeViewItem ttvi = _selectedTestItem as TileTreeViewItem;
                     var progress = new Dictionary<TileStresstest, TileStresstestProgressResults>();
                     foreach (TileStresstest tileStresstest in _distributedTestCore.TestProgressMessages.Keys)
-                        progress.Add(tileStresstest, _distributedTestCore.TestProgressMessages[tileStresstest].TileStresstestProgressResults);
+                        if (ttvi.Tile.Contains(tileStresstest))
+                            progress.Add(tileStresstest, _distributedTestCore.TestProgressMessages[tileStresstest].TileStresstestProgressResults);
 
-                    distributedStresstestControl.SetOverallFastResults(progress);
+                    distributedStresstestControl.SetOverallFastResults(ttvi.Tile.Name + " " + ttvi.Tile.Index, progress);
                 }
         }
         /// <summary>

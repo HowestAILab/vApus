@@ -58,13 +58,11 @@ namespace vApus.DistributedTesting
         private void SetGui()
         {
             cboDrillDown.SelectedIndex = 0;
-            this.epnlMasterMessages.CollapsedChanged += new System.EventHandler(this.epnlMasterMessages_CollapsedChanged);
-            this.SizeChanged += new System.EventHandler(this.DistributedStresstestControl_SizeChanged);
         }
         public void Clear()
         {
             lvwFastResultsListing.Items.Clear();
-            epnlMasterMessages.ClearEvents();
+            eventView.ClearEvents();
         }
         private void stresstestControl_MonitorClicked(object sender, EventArgs e)
         {
@@ -109,12 +107,6 @@ namespace vApus.DistributedTesting
 
             kvmFailed.Visible = failed != 0;
             kvmFailed.Value = failed.ToString();
-
-            if (runningTests == 0 && ok != 0 && cancelled == 0 && failed == 0)
-            {
-                epnlMasterMessages.EndOfTimeFrame = DateTime.Now;
-                epnlMasterMessages.SetProgressBarToNow();
-            }
 
             if (cpuUsage == -1)
             {
@@ -188,9 +180,15 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        public void SetOverallFastResults(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title">Distributed test or the tostring of the tile</param>
+        /// <param name="progress"></param>
+        public void SetOverallFastResults(string title, Dictionary<TileStresstest, TileStresstestProgressResults> progress)
         {
             _progress = progress;
+            lblFastResultListing.Text = "Fast Results Listing [" + title + "]";
             SetOverallFastResults();
         }
         private void SetOverallFastResults()
@@ -416,40 +414,11 @@ namespace vApus.DistributedTesting
         }
         public void AppendMasterMessages(string message, LogLevel logLevel = LogLevel.Info)
         {
-            Color[] c = new Color[] { Color.DarkGray, Color.Orange, Color.Red };
-            AppendMasterMessages(message, c[(int)logLevel], logLevel);
-        }
-        public void AppendMasterMessages(string message, Color eventColor, LogLevel logLevel = LogLevel.Info)
-        {
             try
             {
-                epnlMasterMessages.AddEvent((EventViewEventType)logLevel, eventColor, message);
+                eventView.AddEvent((EventViewEventType)logLevel, message);
             }
             catch { }
-        }
-        // Gui correction, the epnl wil not be sized correctly otherwise.
-        private void DistributedStresstestControl_SizeChanged(object sender, EventArgs e)
-        {
-            LockWindowUpdate(this.Handle.ToInt32());
-            epnlMasterMessages.Collapsed = !epnlMasterMessages.Collapsed;
-            epnlMasterMessages.Collapsed = !epnlMasterMessages.Collapsed;
-            LockWindowUpdate(0);
-        }
-        // Set the splitter distance of the splitcontainer if collapsed has changed.
-        private void epnlMasterMessages_CollapsedChanged(object sender, EventArgs e)
-        {
-            epnlMasterMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
-
-            splitContainer.IsSplitterFixed = epnlMasterMessages.Collapsed;
-
-            int distance = splitContainer.Panel2.Height - epnlMasterMessages.Bottom;
-            if (splitContainer.SplitterDistance + distance > 0)
-            {
-                splitContainer.Panel2MinSize = 25;
-                splitContainer.SplitterDistance += distance;
-            }
-
-            epnlMasterMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }
         /// <summary>
         /// label updates in visibility
@@ -460,7 +429,7 @@ namespace vApus.DistributedTesting
         }
         private void btnExport_Click(object sender, EventArgs e)
         {
-            epnlMasterMessages.Export();
+            eventView.Export();
         }
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e)
         {

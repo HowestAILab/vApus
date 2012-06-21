@@ -102,7 +102,7 @@ namespace vApus.DistributedTesting
                 string paToString = ftd.Entries.Combine(", ");
                 if (llblPA.Text != paToString)
                 {
-                    int[] pa = new int[ftd.Entries.Length];
+                    int[] pa = new int[paToString.Length == 0 ? 0 : ftd.Entries.Length];
                     if (paToString.Length != 0)
                         for (int i = 0; i != pa.Length; i++)
                         {

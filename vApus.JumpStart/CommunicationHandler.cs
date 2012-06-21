@@ -45,6 +45,7 @@ namespace vApus.JumpStart
         {
             JumpStartMessage jumpStartMessage = (JumpStartMessage)message.Content;
             string[] ports = jumpStartMessage.Port.Split(',');
+            string[] processorAffinity = jumpStartMessage.ProcessorAffinity.Split(',');
 
             AutoResetEvent waithandle = new AutoResetEvent(false);
             int j = 0;
@@ -53,7 +54,7 @@ namespace vApus.JumpStart
                 Thread t = new Thread(delegate(object state)
                 {
                     _handleJumpStartWorkItem = new HandleJumpStartWorkItem();
-                    _handleJumpStartWorkItem.HandleJumpStart(jumpStartMessage.IP, int.Parse(ports[(int)state]));
+                    _handleJumpStartWorkItem.HandleJumpStart(jumpStartMessage.IP, int.Parse(ports[(int)state]), processorAffinity[(int)state]);
                     if (Interlocked.Increment(ref j) == ports.Length)
                         waithandle.Set();
                 });
@@ -66,14 +67,14 @@ namespace vApus.JumpStart
             return message;
         }
 
-        private static Process Launch_vApus(string ip, int port)
+        private static Process Launch_vApus(string ip, int port, string processorAffinity)
         {
             Process process = new Process();
             try
             {
                 string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
 
-                process.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ':' + port);
+                process.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
                 process.Start();
                 if (!process.WaitForInputIdle(10000))
                     throw new TimeoutException("The process did not start.");
@@ -122,12 +123,12 @@ namespace vApus.JumpStart
 
         private class HandleJumpStartWorkItem
         {
-            public void HandleJumpStart(string ip, int port)
+            public void HandleJumpStart(string ip, int port, string processorAffinity)
             {
                 int processID = PollvApus(ip, port);
                 lock (_lock)
                     if (processID == -1)
-                        Launch_vApus(ip, port);
+                        Launch_vApus(ip, port, processorAffinity);
             }
             /// <summary>
             /// 

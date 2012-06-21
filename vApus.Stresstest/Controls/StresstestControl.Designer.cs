@@ -622,15 +622,15 @@
             this.label2.Location = new System.Drawing.Point(3, 6);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(149, 20);
+            this.label2.Size = new System.Drawing.Size(312, 20);
             this.label2.TabIndex = 9;
-            this.label2.Text = "Stresstest Progress";
+            this.label2.Text = "Client Monitoring and Stresstest Messages";
             // 
             // kvmThreadsInUse
             // 
             this.kvmThreadsInUse.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmThreadsInUse.Key = "Threads in Use";
-            this.kvmThreadsInUse.Location = new System.Drawing.Point(161, 9);
+            this.kvmThreadsInUse.Location = new System.Drawing.Point(324, 9);
             this.kvmThreadsInUse.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmThreadsInUse.Name = "kvmThreadsInUse";
             this.kvmThreadsInUse.Size = new System.Drawing.Size(112, 16);
@@ -644,7 +644,7 @@
             // 
             this.kvmCPUUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmCPUUsage.Key = "CPU Usage";
-            this.kvmCPUUsage.Location = new System.Drawing.Point(276, 9);
+            this.kvmCPUUsage.Location = new System.Drawing.Point(439, 9);
             this.kvmCPUUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmCPUUsage.Name = "kvmCPUUsage";
             this.kvmCPUUsage.Size = new System.Drawing.Size(105, 16);
@@ -657,7 +657,7 @@
             // 
             this.kvmContextSwitchesPerSecond.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmContextSwitchesPerSecond.Key = "Context Switches / s";
-            this.kvmContextSwitchesPerSecond.Location = new System.Drawing.Point(384, 9);
+            this.kvmContextSwitchesPerSecond.Location = new System.Drawing.Point(547, 9);
             this.kvmContextSwitchesPerSecond.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmContextSwitchesPerSecond.Name = "kvmContextSwitchesPerSecond";
             this.kvmContextSwitchesPerSecond.Size = new System.Drawing.Size(158, 16);
@@ -670,7 +670,7 @@
             // 
             this.kvmMemoryUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMemoryUsage.Key = "Memory Usage";
-            this.kvmMemoryUsage.Location = new System.Drawing.Point(545, 9);
+            this.kvmMemoryUsage.Location = new System.Drawing.Point(708, 9);
             this.kvmMemoryUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMemoryUsage.Name = "kvmMemoryUsage";
             this.kvmMemoryUsage.Size = new System.Drawing.Size(123, 16);
@@ -684,7 +684,7 @@
             // 
             this.kvmNicsSent.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmNicsSent.Key = "NIC Usage (Sent)";
-            this.kvmNicsSent.Location = new System.Drawing.Point(671, 9);
+            this.kvmNicsSent.Location = new System.Drawing.Point(3, 35);
             this.kvmNicsSent.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNicsSent.Name = "kvmNicsSent";
             this.kvmNicsSent.Size = new System.Drawing.Size(139, 16);
@@ -697,7 +697,7 @@
             // 
             this.kvmNicsReceived.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmNicsReceived.Key = "NIC Usage (Received)";
-            this.kvmNicsReceived.Location = new System.Drawing.Point(3, 35);
+            this.kvmNicsReceived.Location = new System.Drawing.Point(145, 35);
             this.kvmNicsReceived.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNicsReceived.Name = "kvmNicsReceived";
             this.kvmNicsReceived.Size = new System.Drawing.Size(167, 16);
@@ -714,7 +714,7 @@
             this.btnExport.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExport.Location = new System.Drawing.Point(182, 29);
+            this.btnExport.Location = new System.Drawing.Point(324, 29);
             this.btnExport.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
             this.btnExport.MaximumSize = new System.Drawing.Size(127, 24);
             this.btnExport.Name = "btnExport";
