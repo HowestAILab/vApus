@@ -425,7 +425,6 @@
             this.btnConfiguration.AutoSize = true;
             this.btnConfiguration.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnConfiguration.BackColor = System.Drawing.SystemColors.Control;
-            this.btnConfiguration.Enabled = false;
             this.btnConfiguration.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnConfiguration.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnConfiguration.Location = new System.Drawing.Point(6, 8);
@@ -436,6 +435,7 @@
             this.btnConfiguration.TabIndex = 4;
             this.btnConfiguration.Text = "Show and Save Configuration...";
             this.btnConfiguration.UseVisualStyleBackColor = false;
+            this.btnConfiguration.Click += new System.EventHandler(this.btnConfiguration_Click);
             // 
             // MonitorReportControl
             // 

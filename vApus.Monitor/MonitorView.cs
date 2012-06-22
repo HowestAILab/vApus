@@ -53,12 +53,18 @@ namespace vApus.Monitor
         private int _refreshTimeInMS;
 
         private bool _forStresstest = false;
+
+        private string _configuration;
         #endregion
 
         #region Properties
         public Monitor Monitor
         {
             get { return _monitor; }
+        }
+        public string Configuration
+        {
+            get { return _configuration; }
         }
         #endregion
 
@@ -643,7 +649,7 @@ namespace vApus.Monitor
                 if (exception == null)
                 {
                     btnConfiguration.Enabled = (configuration != null);
-                    btnConfiguration.Tag = configuration;
+                    _configuration = configuration;
                     try
                     {
                         FillEntities(wdyh);
@@ -1023,8 +1029,8 @@ namespace vApus.Monitor
 
         private void btnConfiguration_Click(object sender, EventArgs e)
         {
-            if (btnConfiguration.Tag != null)
-                (new ConfigurationDialog(btnConfiguration.Tag as string)).ShowDialog();
+            if (_configuration != null)
+                (new ConfigurationDialog(_configuration)).ShowDialog();
         }
 
         private void btnStart_Click(object sender, EventArgs e)

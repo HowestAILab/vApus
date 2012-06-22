@@ -246,7 +246,7 @@ namespace vApus.Stresstest
                                    try
                                    {
                                        var monitorReportControl = view.Tag as MonitorReportControl;
-                                       monitorReportControl.SetHeaders_MonitorValuesAndStresstestResults(view.GetHeaders(), view.GetMonitorValues(), _stresstestResults);
+                                       monitorReportControl.SetConfig_Headers_MonitorValuesAndStresstestResults(view.Configuration, view.GetHeaders(), view.GetMonitorValues(), _stresstestResults);
                                    }
                                    catch (Exception e)
                                    {
