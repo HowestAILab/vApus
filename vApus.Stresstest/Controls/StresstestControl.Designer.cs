@@ -218,9 +218,10 @@
             // 
             this.btnRerunning.AutoSize = true;
             this.btnRerunning.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnRerunning.BackColor = System.Drawing.SystemColors.Control;
+            this.btnRerunning.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.btnRerunning.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRerunning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.btnRerunning.ForeColor = System.Drawing.Color.White;
             this.btnRerunning.Location = new System.Drawing.Point(219, 3);
             this.btnRerunning.MaximumSize = new System.Drawing.Size(89, 24);
             this.btnRerunning.MinimumSize = new System.Drawing.Size(89, 24);

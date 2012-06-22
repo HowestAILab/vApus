@@ -262,7 +262,7 @@ namespace vApus.DistributedTesting
         }
         private void eventProgressBar_EventClick(object sender, EventProgressBar.ProgressEventEventArgs e)
         {
-            this.Select();
+            _Enter(this, e);
             if (EventClicked != null)
                 EventClicked(this, e);
         }

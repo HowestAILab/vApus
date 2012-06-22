@@ -279,14 +279,20 @@ namespace vApus.Stresstest
                         SetConnectionProxyPool(concurrentUsers);
                         if (_cancel) break;
 
-                        if (!_runDoneOnce)
+                        if (_runDoneOnce)
+                        {
+                            InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.White);
+                        }
+                        else
                         {
                             ++_continueCounter;
+
+                            InvokeMessage(string.Format("|----> |Run {0}...", run + 1), Color.LightGreen);
                             SetRunInitializedFirstTime(concurrentUsersIndex, run);
                             //Wait here untill the master sends continue when using run sync.
                             if (_runSynchronization != RunSynchronization.None)
                             {
-                                InvokeMessage("Waiting...");
+                                InvokeMessage("Waiting for Continue Message from Master...");
                                 _runSynchronizationContinueWaitHandle.WaitOne();
                                 InvokeMessage("Continuing...");
                             }
@@ -322,7 +328,7 @@ namespace vApus.Stresstest
                             ++_continueCounter;
                             SetRunDoneOnce();
 
-                            InvokeMessage("Waiting...");
+                            InvokeMessage("Waiting for Continue Message from Master...");
                             _runSynchronizationContinueWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
                         }
@@ -331,7 +337,7 @@ namespace vApus.Stresstest
                         {
                             SetRunDoneOnce();
 
-                            InvokeMessage("Rerun...");
+                            InvokeMessage("Initializing Rerun... (No further results will be added, only rerunning to keep load on the server and application)");
                             //No results can be added.
                             _stresstestResults.SetCurrentRunDoneOnce();
                             goto Rerun;
@@ -913,7 +919,6 @@ namespace vApus.Stresstest
 
             _runResult = new RunResult(run, concurrentUsers, totalLogEntries, singleUserLogEntryCount, DateTime.Now);
             _precisionResult.RunResults.Add(_runResult);
-            InvokeMessage(string.Format("|----> |Run {0}...", run + 1), Color.LightGreen);
 
             if (!_cancel && RunInitializedFirstTime != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunInitializedFirstTime(this, new RunInitializedFirstTimeEventArgs(_runResult)); }, null);

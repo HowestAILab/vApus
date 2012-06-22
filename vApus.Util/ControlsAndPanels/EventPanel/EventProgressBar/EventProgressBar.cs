@@ -120,10 +120,56 @@ namespace vApus.Util
             pe.Click += new EventHandler(pe_Click);
             _progressEvents.Add(pe);
 
+            if (_progressEvents.Count > 1)
+                _progressEvents = Sort(_progressEvents);
+
             this.Invalidate();
 
             return pe;
         }
+        /// <summary>
+        /// Sort on color, the smallest counts first
+        /// </summary>
+        /// <param name="progressEvents"></param>
+        /// <returns></returns>
+        private List<ProgressEvent> Sort(List<ProgressEvent> progressEvents)
+        {
+            var pes = new List<ProgressEvent>(progressEvents.Count);
+            var sorter = new Dictionary<Color, List<ProgressEvent>>();
+
+            foreach (var pe in progressEvents)
+                if (sorter.ContainsKey(pe.Color))
+                {
+                    sorter[pe.Color].Add(pe);
+                }
+                else
+                {
+                    var value = new List<ProgressEvent>();
+                    value.Add(pe);
+                    sorter.Add(pe.Color, value);
+                }
+
+            var sorted = new Dictionary<Color, List<ProgressEvent>>(sorter.Count);
+
+            while (sorter.Count != 0)
+            {
+                Color smallestCount = Color.Empty;
+                foreach (var key in sorter.Keys)
+                    if (smallestCount == Color.Empty)
+                        smallestCount = key;
+                    else if (sorter[key].Count < sorter[smallestCount].Count)
+                        smallestCount = key;
+
+                sorted.Add(smallestCount, sorter[smallestCount]);
+                sorter.Remove(smallestCount);
+            }
+
+            foreach (var key in sorted.Keys)
+                pes.AddRange(sorted[key]);
+
+            return pes;
+        }
+
         public List<ProgressEvent> GetEvents()
         {
             return _progressEvents;
@@ -160,11 +206,16 @@ namespace vApus.Util
 
                 DrawProgressBar(g);
                 ProgressEvent entered = null;
-                foreach (var pe in _progressEvents)
+
+                //Do this in reversed order --> the most important are drawn first.
+                for (int i = _progressEvents.Count - 1; i != -1; i--)
+                {
+                    var pe = _progressEvents[i];
                     if (pe.Entered)
                         entered = pe;
                     else
                         pe.Draw(g);
+                }
                 if (entered != null)
                     entered.Draw(g);
             }

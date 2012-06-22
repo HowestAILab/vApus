@@ -529,7 +529,7 @@ namespace vApus.Stresstest
         }
         private void btnRerunning_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("The current run is rerunning until the slowest current run on another slave is finished (aka Break on Last Run Sync).", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("The current run is rerunning until the slowest current run on another slave is finished (aka Break on Last Run Sync).\nNo further results will be added, only rerunning to keep load on the server and application.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         /// <summary>
         /// label updates in visibility
