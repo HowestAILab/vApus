@@ -866,7 +866,6 @@ namespace vApus.DistributedTesting
                 distributedStresstestControl.AppendMasterMessages("Initializing " + monitorView.Text + "...");
 
                 var mrc = new MonitorReportControl();
-                mrc.Text = "Report " + monitorView.Text;
                 mrc.Dock = DockStyle.Fill;
                 monitorView.Tag = mrc;
                 //For each view initialized, the distributed test view takes care of starting the test.
@@ -987,6 +986,8 @@ namespace vApus.DistributedTesting
                                         oldMonitorReportControls.Remove(mrc);
                                     else
                                         newMonitorReportControls.Add(mrc);
+
+                                    mrc.Text = "Report " + view.Text + " " + tileStresstest;
                                 }
                             break;
                         }

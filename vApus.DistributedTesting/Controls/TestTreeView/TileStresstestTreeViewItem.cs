@@ -256,10 +256,6 @@ namespace vApus.DistributedTesting
                 }
         }
 
-        private void picStresstestStatus_Click(object sender, EventArgs e)
-        {
-
-        }
         private void eventProgressBar_EventClick(object sender, EventProgressBar.ProgressEventEventArgs e)
         {
             _Enter(this, e);

@@ -56,6 +56,7 @@
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnConfiguration = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
             this.pnlFastResultListing.SuspendLayout();
             this.flpFastMetrics.SuspendLayout();
             this.pnlBorderDrillDownAverages.SuspendLayout();
@@ -412,6 +413,7 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.White;
+            this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.btnConfiguration);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 0);
@@ -427,15 +429,27 @@
             this.btnConfiguration.BackColor = System.Drawing.SystemColors.Control;
             this.btnConfiguration.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnConfiguration.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnConfiguration.Location = new System.Drawing.Point(6, 8);
+            this.btnConfiguration.Location = new System.Drawing.Point(218, 8);
             this.btnConfiguration.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.btnConfiguration.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnConfiguration.Name = "btnConfiguration";
-            this.btnConfiguration.Size = new System.Drawing.Size(199, 24);
+            this.btnConfiguration.Size = new System.Drawing.Size(137, 24);
             this.btnConfiguration.TabIndex = 4;
-            this.btnConfiguration.Text = "Show and Save Configuration...";
+            this.btnConfiguration.Text = "Show and/or Save...";
             this.btnConfiguration.UseVisualStyleBackColor = false;
             this.btnConfiguration.Click += new System.EventHandler(this.btnConfiguration_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.Color.Black;
+            this.label3.Location = new System.Drawing.Point(2, 10);
+            this.label3.Margin = new System.Windows.Forms.Padding(3);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(104, 20);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "Configuration";
             // 
             // MonitorReportControl
             // 
@@ -496,5 +510,6 @@
         private System.Windows.Forms.Label lblWarningInvalidAverages;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button btnConfiguration;
+        private System.Windows.Forms.Label label3;
     }
 }

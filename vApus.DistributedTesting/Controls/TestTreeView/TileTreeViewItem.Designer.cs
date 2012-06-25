@@ -164,6 +164,7 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TileTreeViewItem";
             this.Size = new System.Drawing.Size(598, 32);
+            this.Click += new System.EventHandler(this._Enter);
             this.Enter += new System.EventHandler(this._Enter);
             this.MouseEnter += new System.EventHandler(this._MouseEnter);
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
