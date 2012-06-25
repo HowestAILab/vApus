@@ -53,6 +53,7 @@ namespace vApus.DistributedTesting
             this.lblStopped = new System.Windows.Forms.Label();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
             this.lblFastResultListing = new System.Windows.Forms.Label();
+            this.eventView = new vApus.Util.EventView();
             this.flpMetricsMaster = new System.Windows.Forms.FlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
             this.kvmRunningTests = new vApus.Util.KeyValuePairControl();
@@ -65,7 +66,7 @@ namespace vApus.DistributedTesting
             this.kvmMasterNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmMasterNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnMasterExportMessages = new System.Windows.Forms.Button();
-            this.eventView = new vApus.Util.EventView();
+            this.clmTS = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -104,6 +105,7 @@ namespace vApus.DistributedTesting
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lvwFastResultsListing.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lvwFastResultsListing.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.clmTS,
             this.clmFRLStartedAt,
             this.clmFRLRuntimeLeft,
             this.clmFRLMeasuredRuntime,
@@ -312,6 +314,15 @@ namespace vApus.DistributedTesting
             this.lblFastResultListing.TabIndex = 17;
             this.lblFastResultListing.Text = "Fast Results Listing";
             // 
+            // eventView
+            // 
+            this.eventView.BackColor = System.Drawing.Color.White;
+            this.eventView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.eventView.Location = new System.Drawing.Point(0, 61);
+            this.eventView.Name = "eventView";
+            this.eventView.Size = new System.Drawing.Size(937, 289);
+            this.eventView.TabIndex = 2;
+            // 
             // flpMetricsMaster
             // 
             this.flpMetricsMaster.BackColor = System.Drawing.Color.White;
@@ -485,14 +496,10 @@ namespace vApus.DistributedTesting
             this.btnMasterExportMessages.UseVisualStyleBackColor = false;
             this.btnMasterExportMessages.Click += new System.EventHandler(this.btnExport_Click);
             // 
-            // eventView
+            // clmTS
             // 
-            this.eventView.BackColor = System.Drawing.Color.White;
-            this.eventView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.eventView.Location = new System.Drawing.Point(0, 61);
-            this.eventView.Name = "eventView";
-            this.eventView.Size = new System.Drawing.Size(937, 289);
-            this.eventView.TabIndex = 2;
+            this.clmTS.Text = "";
+            this.clmTS.Width = 100;
             // 
             // DistributedStresstestControl
             // 
@@ -556,5 +563,6 @@ namespace vApus.DistributedTesting
         private System.Windows.Forms.ColumnHeader clmFRLDelay;
         private System.Windows.Forms.ColumnHeader clmFRLErrors;
         private Util.EventView eventView;
+        private System.Windows.Forms.ColumnHeader clmTS;
     }
 }

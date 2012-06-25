@@ -940,14 +940,18 @@ namespace vApus.DistributedTesting
         /// </summary>
         private void StopMonitorsIfAny()
         {
+            //Same view for multiple tilestresstests.
+            List<MonitorView> stoppedMonitorViews = new List<MonitorView>();
             if (_monitorViews != null)
                 foreach (TileStresstest ts in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[ts])
-                        if (view != null && !view.IsDisposed)
+                        if (view != null && !view.IsDisposed && !stoppedMonitorViews.Contains(view))
                         {
+                            stoppedMonitorViews.Add(view);
                             view.Stop();
                             distributedStresstestControl.AppendMasterMessages(view.Text + " is stopped.");
                         }
+            stoppedMonitorViews = null;
         }
         private void ShowMonitorReportViews(TileStresstest tileStresstest)
         {
@@ -988,6 +992,8 @@ namespace vApus.DistributedTesting
                                         newMonitorReportControls.Add(mrc);
 
                                     mrc.Text = "Report " + view.Text + " " + tileStresstest;
+                                    if (mrc.Parent != null && !mrc.Parent.IsDisposed)
+                                        mrc.Parent.Text = mrc.Text;
                                 }
                             break;
                         }

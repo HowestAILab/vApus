@@ -1526,7 +1526,7 @@ namespace vApus.Util
                         break;
                     }
                 }
-                if (above - key < below - key && above - key > 0)
+                if (Math.Abs(above - key) < Math.Abs(below - key))
                     key = above;
                 else
                     key = below;

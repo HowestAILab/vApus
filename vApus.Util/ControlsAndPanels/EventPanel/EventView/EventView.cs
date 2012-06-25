@@ -56,9 +56,8 @@ namespace vApus.Util
             var item = new EventViewItem(largeList, eventType, message, at);
             item.Visible = visible;
 
-
             //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
-            bool autoScroll = _userEntered == null && largeList.CurrentView == largeList.ViewCount - 1;
+            bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
 
             largeList.Add(item);
 
