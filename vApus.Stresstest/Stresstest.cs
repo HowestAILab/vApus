@@ -33,10 +33,18 @@ namespace vApus.Stresstest
         private Connection _connection;
         private Log _log;
         //This will be saved, I don't want to extend the save logic so I hack around it.
+        [NonSerialized]
         private Monitor.MonitorProject _monitorProject;
+        [NonSerialized]
         private int[] _monitorIndices = { };
+        [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
         private bool _useParallelExecutionOfLogEntries;
+
+        /// <summary>
+        /// Let for instance the gui behave differently if this is true.
+        /// </summary>
+        private bool _forDistributedTest;
         #endregion
 
         #region Properties
@@ -55,7 +63,7 @@ namespace vApus.Stresstest
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("Use the .Empty function, not null.");
+                    return;
                 value.ParentIsNull -= _connection_ParentIsNull;
                 _connection = value;
                 _connection.ParentIsNull += _connection_ParentIsNull;
@@ -87,7 +95,7 @@ namespace vApus.Stresstest
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("Use the .Empty function, not null.");
+                    return;
                 value.ParentIsNull -= _log_ParentIsNull;
                 _log = value;
                 _log.ParentIsNull += _log_ParentIsNull;
@@ -214,10 +222,10 @@ namespace vApus.Stresstest
                 _minimumDelay = value;
             }
         }
+
         /// <summary>
         /// Only for saving and loading, should not be used.
         /// </summary>
-
         [SavableCloneable]
         public int MinimumDelayOverride
         {
@@ -239,10 +247,10 @@ namespace vApus.Stresstest
                 _maximumDelay = value;
             }
         }
+
         /// <summary>
         /// Only for saving and loading, should not be used.
         /// </summary>
-
         [SavableCloneable]
         public int MaximumDelayOverride
         {
@@ -292,6 +300,14 @@ namespace vApus.Stresstest
             set { _useParallelExecutionOfLogEntries = false; }
         }
 #endif
+        /// <summary>
+        /// Let for instance the gui behave differently if this is true.
+        /// </summary>
+        public bool ForDistributedTest
+        {
+            get { return _forDistributedTest; }
+            set { _forDistributedTest = value; }
+        }
         #endregion
 
         #region Constructors
@@ -305,19 +321,6 @@ namespace vApus.Stresstest
         #endregion
 
         #region Functions
-        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            //Cleanup _monitors if _monitorProject Changed
-            if (sender == _monitorProject || sender is Monitor.Monitor)
-            {
-                List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorProject.Count);
-                foreach (Monitor.Monitor monitor in _monitors)
-                    if (!l.Contains(monitor) && _monitorProject.Contains(monitor))
-                        l.Add(monitor);
-
-                Monitors = l.ToArray();
-            }
-        }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
@@ -347,9 +350,29 @@ namespace vApus.Stresstest
         {
             Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
+        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
+        {
+            //Cleanup _monitors if _monitorProject Changed
+            if (sender == _monitorProject || sender is Monitor.Monitor)
+            {
+                List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorProject.Count);
+                foreach (Monitor.Monitor monitor in _monitors)
+                    if (!l.Contains(monitor) && _monitorProject.Contains(monitor))
+                        l.Add(monitor);
+
+                Monitors = l.ToArray();
+            }
+        }
         public override void Activate()
         {
             SolutionComponentViewManager.Show(this);
+        }
+
+        public override string ToString()
+        {
+            if (_forDistributedTest)
+                return Label;
+            return base.ToString();
         }
         #endregion
     }

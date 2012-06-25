@@ -29,23 +29,20 @@ namespace vApus.DistributedTesting
         /// </summary>
         private void InitializeComponent()
         {
-            this.tc = new vApus.Util.TabControlWithAdjustableBorders();
-            this.tpMaster = new System.Windows.Forms.TabPage();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.dgvFastResults = new System.Windows.Forms.DataGridView();
-            this.clmA = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmB = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmC = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmD = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmE = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmF = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmG = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmH = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmI = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmJ = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmK = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmL = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmM = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lvwFastResultsListing = new System.Windows.Forms.ListView();
+            this.clmFRLStartedAt = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLRuntimeLeft = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLMeasuredRuntime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLConcurrentUsers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLPrecision = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLRun = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLLogEntriesProcessed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLThroughput = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLResponseTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLMaxResponseTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLDelay = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLErrors = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pnlFastResultListing = new System.Windows.Forms.Panel();
             this.flpFastMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
@@ -54,8 +51,8 @@ namespace vApus.DistributedTesting
             this.lblStarted = new System.Windows.Forms.Label();
             this.lblMeasuredRuntime = new System.Windows.Forms.Label();
             this.lblStopped = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
+            this.lblFastResultListing = new System.Windows.Forms.Label();
             this.flpMetricsMaster = new System.Windows.Forms.FlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
             this.kvmRunningTests = new vApus.Util.KeyValuePairControl();
@@ -68,206 +65,136 @@ namespace vApus.DistributedTesting
             this.kvmMasterNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmMasterNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnMasterExportMessages = new System.Windows.Forms.Button();
-            this.epnlMasterMessages = new vApus.Util.EventPanel();
-            this.tpSelectedTest = new System.Windows.Forms.TabPage();
-            this.stresstestControl = new vApus.Stresstest.StresstestControl();
-            this.tc.SuspendLayout();
-            this.tpMaster.SuspendLayout();
+            this.eventView = new vApus.Util.EventView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvFastResults)).BeginInit();
             this.pnlFastResultListing.SuspendLayout();
             this.flpFastMetrics.SuspendLayout();
             this.pnlBorder.SuspendLayout();
             this.flpMetricsMaster.SuspendLayout();
-            this.tpSelectedTest.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // tc
-            // 
-            this.tc.BottomVisible = false;
-            this.tc.Controls.Add(this.tpMaster);
-            this.tc.Controls.Add(this.tpSelectedTest);
-            this.tc.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tc.LeftVisible = false;
-            this.tc.Location = new System.Drawing.Point(0, 0);
-            this.tc.Margin = new System.Windows.Forms.Padding(0);
-            this.tc.Name = "tc";
-            this.tc.RightVisible = false;
-            this.tc.SelectedIndex = 0;
-            this.tc.Size = new System.Drawing.Size(937, 700);
-            this.tc.TabIndex = 5;
-            this.tc.TopVisible = false;
-            // 
-            // tpMaster
-            // 
-            this.tpMaster.Controls.Add(this.splitContainer);
-            this.tpMaster.Location = new System.Drawing.Point(0, 19);
-            this.tpMaster.Name = "tpMaster";
-            this.tpMaster.Padding = new System.Windows.Forms.Padding(3);
-            this.tpMaster.Size = new System.Drawing.Size(936, 680);
-            this.tpMaster.TabIndex = 0;
-            this.tpMaster.Text = "Overall";
-            this.tpMaster.UseVisualStyleBackColor = true;
             // 
             // splitContainer
             // 
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splitContainer.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer.Location = new System.Drawing.Point(0, 0);
             this.splitContainer.Name = "splitContainer";
             this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
             // splitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(this.dgvFastResults);
+            this.splitContainer.Panel1.Controls.Add(this.lvwFastResultsListing);
             this.splitContainer.Panel1.Controls.Add(this.pnlFastResultListing);
             // 
             // splitContainer.Panel2
             // 
+            this.splitContainer.Panel2.Controls.Add(this.eventView);
             this.splitContainer.Panel2.Controls.Add(this.flpMetricsMaster);
-            this.splitContainer.Panel2.Controls.Add(this.epnlMasterMessages);
-            this.splitContainer.Panel2MinSize = 350;
-            this.splitContainer.Size = new System.Drawing.Size(930, 674);
-            this.splitContainer.SplitterDistance = 350;
+            this.splitContainer.Size = new System.Drawing.Size(937, 700);
+            this.splitContainer.SplitterDistance = 346;
             this.splitContainer.TabIndex = 0;
             // 
-            // dgvFastResults
+            // lvwFastResultsListing
             // 
-            this.dgvFastResults.AllowUserToAddRows = false;
-            this.dgvFastResults.AllowUserToDeleteRows = false;
-            this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.lvwFastResultsListing.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvFastResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvFastResults.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
-            this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.dgvFastResults.ColumnHeadersVisible = false;
-            this.dgvFastResults.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.clmA,
-            this.clmB,
-            this.clmC,
-            this.clmD,
-            this.clmE,
-            this.clmF,
-            this.clmG,
-            this.clmH,
-            this.clmI,
-            this.clmJ,
-            this.clmK,
-            this.clmL,
-            this.clmM});
-            this.dgvFastResults.Location = new System.Drawing.Point(0, 100);
-            this.dgvFastResults.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.dgvFastResults.Name = "dgvFastResults";
-            this.dgvFastResults.ReadOnly = true;
-            this.dgvFastResults.Size = new System.Drawing.Size(930, 250);
-            this.dgvFastResults.TabIndex = 1;
+            this.lvwFastResultsListing.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lvwFastResultsListing.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.clmFRLStartedAt,
+            this.clmFRLRuntimeLeft,
+            this.clmFRLMeasuredRuntime,
+            this.clmFRLConcurrentUsers,
+            this.clmFRLPrecision,
+            this.clmFRLRun,
+            this.clmFRLLogEntriesProcessed,
+            this.clmFRLThroughput,
+            this.clmFRLResponseTime,
+            this.clmFRLMaxResponseTime,
+            this.clmFRLDelay,
+            this.clmFRLErrors});
+            this.lvwFastResultsListing.FullRowSelect = true;
+            this.lvwFastResultsListing.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.lvwFastResultsListing.Location = new System.Drawing.Point(0, 102);
+            this.lvwFastResultsListing.MultiSelect = false;
+            this.lvwFastResultsListing.Name = "lvwFastResultsListing";
+            this.lvwFastResultsListing.Size = new System.Drawing.Size(935, 244);
+            this.lvwFastResultsListing.TabIndex = 3;
+            this.lvwFastResultsListing.UseCompatibleStateImageBehavior = false;
+            this.lvwFastResultsListing.View = System.Windows.Forms.View.Details;
             // 
-            // clmA
+            // clmFRLStartedAt
             // 
-            this.clmA.HeaderText = "A";
-            this.clmA.Name = "clmA";
-            this.clmA.ReadOnly = true;
-            this.clmA.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLStartedAt.Text = "Started At";
+            this.clmFRLStartedAt.Width = 165;
             // 
-            // clmB
+            // clmFRLRuntimeLeft
             // 
-            this.clmB.HeaderText = "B";
-            this.clmB.Name = "clmB";
-            this.clmB.ReadOnly = true;
-            this.clmB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLRuntimeLeft.Text = "Time Left";
+            this.clmFRLRuntimeLeft.Width = 140;
             // 
-            // clmC
+            // clmFRLMeasuredRuntime
             // 
-            this.clmC.HeaderText = "C";
-            this.clmC.Name = "clmC";
-            this.clmC.ReadOnly = true;
-            this.clmC.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLMeasuredRuntime.Text = "Measured Time";
+            this.clmFRLMeasuredRuntime.Width = 140;
             // 
-            // clmD
+            // clmFRLConcurrentUsers
             // 
-            this.clmD.HeaderText = "D";
-            this.clmD.Name = "clmD";
-            this.clmD.ReadOnly = true;
-            this.clmD.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLConcurrentUsers.Text = "Concurrent Users";
+            this.clmFRLConcurrentUsers.Width = 94;
             // 
-            // clmE
+            // clmFRLPrecision
             // 
-            this.clmE.HeaderText = "E";
-            this.clmE.Name = "clmE";
-            this.clmE.ReadOnly = true;
-            this.clmE.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLPrecision.Text = "Precision";
+            this.clmFRLPrecision.Width = 55;
             // 
-            // clmF
+            // clmFRLRun
             // 
-            this.clmF.HeaderText = "F";
-            this.clmF.Name = "clmF";
-            this.clmF.ReadOnly = true;
-            this.clmF.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLRun.Text = "Run";
+            this.clmFRLRun.Width = 32;
             // 
-            // clmG
+            // clmFRLLogEntriesProcessed
             // 
-            this.clmG.HeaderText = "G";
-            this.clmG.Name = "clmG";
-            this.clmG.ReadOnly = true;
-            this.clmG.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLLogEntriesProcessed.Text = "Log Entries Processed";
+            this.clmFRLLogEntriesProcessed.Width = 130;
             // 
-            // clmH
+            // clmFRLThroughput
             // 
-            this.clmH.HeaderText = "H";
-            this.clmH.Name = "clmH";
-            this.clmH.ReadOnly = true;
-            this.clmH.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLThroughput.Text = "Throughput / s";
+            this.clmFRLThroughput.Width = 91;
             // 
-            // clmI
+            // clmFRLResponseTime
             // 
-            this.clmI.HeaderText = "I";
-            this.clmI.Name = "clmI";
-            this.clmI.ReadOnly = true;
-            this.clmI.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLResponseTime.Text = "Response Time in ms";
+            this.clmFRLResponseTime.Width = 113;
             // 
-            // clmJ
+            // clmFRLMaxResponseTime
             // 
-            this.clmJ.HeaderText = "J";
-            this.clmJ.Name = "clmJ";
-            this.clmJ.ReadOnly = true;
-            this.clmJ.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLMaxResponseTime.Text = "Max. Response Time";
+            this.clmFRLMaxResponseTime.Width = 112;
             // 
-            // clmK
+            // clmFRLDelay
             // 
-            this.clmK.HeaderText = "K";
-            this.clmK.Name = "clmK";
-            this.clmK.ReadOnly = true;
-            this.clmK.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLDelay.Text = "Delay in ms";
+            this.clmFRLDelay.Width = 80;
             // 
-            // clmL
+            // clmFRLErrors
             // 
-            this.clmL.HeaderText = "L";
-            this.clmL.Name = "clmL";
-            this.clmL.ReadOnly = true;
-            this.clmL.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // clmM
-            // 
-            this.clmM.HeaderText = "M";
-            this.clmM.Name = "clmM";
-            this.clmM.ReadOnly = true;
-            this.clmM.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmFRLErrors.Text = "Errors";
             // 
             // pnlFastResultListing
             // 
             this.pnlFastResultListing.BackColor = System.Drawing.Color.White;
-            this.pnlFastResultListing.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlFastResultListing.Controls.Add(this.flpFastMetrics);
-            this.pnlFastResultListing.Controls.Add(this.label4);
+            this.pnlFastResultListing.Controls.Add(this.lblFastResultListing);
             this.pnlFastResultListing.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlFastResultListing.Location = new System.Drawing.Point(0, 0);
             this.pnlFastResultListing.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.pnlFastResultListing.Name = "pnlFastResultListing";
-            this.pnlFastResultListing.Size = new System.Drawing.Size(930, 100);
+            this.pnlFastResultListing.Size = new System.Drawing.Size(937, 100);
             this.pnlFastResultListing.TabIndex = 0;
             this.pnlFastResultListing.Text = "Fast Results";
             // 
@@ -283,7 +210,7 @@ namespace vApus.DistributedTesting
             this.flpFastMetrics.Controls.Add(this.btnSaveDisplayedResults);
             this.flpFastMetrics.Location = new System.Drawing.Point(-1, 37);
             this.flpFastMetrics.Name = "flpFastMetrics";
-            this.flpFastMetrics.Size = new System.Drawing.Size(930, 50);
+            this.flpFastMetrics.Size = new System.Drawing.Size(939, 63);
             this.flpFastMetrics.TabIndex = 0;
             // 
             // label1
@@ -355,18 +282,6 @@ namespace vApus.DistributedTesting
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
             this.lblStopped.TabIndex = 0;
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.Color.Black;
-            this.label4.Location = new System.Drawing.Point(2, 7);
-            this.label4.Margin = new System.Windows.Forms.Padding(3);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(149, 20);
-            this.label4.TabIndex = 17;
-            this.label4.Text = "Fast Results Listing";
-            // 
             // btnSaveDisplayedResults
             // 
             this.btnSaveDisplayedResults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -385,10 +300,21 @@ namespace vApus.DistributedTesting
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
             // 
+            // lblFastResultListing
+            // 
+            this.lblFastResultListing.AutoSize = true;
+            this.lblFastResultListing.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblFastResultListing.ForeColor = System.Drawing.Color.Black;
+            this.lblFastResultListing.Location = new System.Drawing.Point(2, 7);
+            this.lblFastResultListing.Margin = new System.Windows.Forms.Padding(3);
+            this.lblFastResultListing.Name = "lblFastResultListing";
+            this.lblFastResultListing.Size = new System.Drawing.Size(149, 20);
+            this.lblFastResultListing.TabIndex = 17;
+            this.lblFastResultListing.Text = "Fast Results Listing";
+            // 
             // flpMetricsMaster
             // 
             this.flpMetricsMaster.BackColor = System.Drawing.Color.White;
-            this.flpMetricsMaster.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flpMetricsMaster.Controls.Add(this.label5);
             this.flpMetricsMaster.Controls.Add(this.kvmRunningTests);
             this.flpMetricsMaster.Controls.Add(this.kvmOK);
@@ -405,7 +331,7 @@ namespace vApus.DistributedTesting
             this.flpMetricsMaster.Margin = new System.Windows.Forms.Padding(0);
             this.flpMetricsMaster.Name = "flpMetricsMaster";
             this.flpMetricsMaster.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.flpMetricsMaster.Size = new System.Drawing.Size(930, 80);
+            this.flpMetricsMaster.Size = new System.Drawing.Size(937, 61);
             this.flpMetricsMaster.TabIndex = 1;
             // 
             // label5
@@ -416,18 +342,18 @@ namespace vApus.DistributedTesting
             this.label5.Location = new System.Drawing.Point(3, 6);
             this.label5.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(188, 20);
+            this.label5.Size = new System.Drawing.Size(312, 20);
             this.label5.TabIndex = 19;
-            this.label5.Text = "Distributed Test Progress";
+            this.label5.Text = "Client Monitoring and Stresstest Messages";
             // 
             // kvmRunningTests
             // 
             this.kvmRunningTests.BackColor = System.Drawing.Color.LightSteelBlue;
             this.kvmRunningTests.Key = "Running Tests";
-            this.kvmRunningTests.Location = new System.Drawing.Point(200, 9);
+            this.kvmRunningTests.Location = new System.Drawing.Point(324, 9);
             this.kvmRunningTests.Margin = new System.Windows.Forms.Padding(3, 6, 0, 6);
             this.kvmRunningTests.Name = "kvmRunningTests";
-            this.kvmRunningTests.Size = new System.Drawing.Size(108, 23);
+            this.kvmRunningTests.Size = new System.Drawing.Size(108, 16);
             this.kvmRunningTests.TabIndex = 8;
             this.kvmRunningTests.TabStop = false;
             this.kvmRunningTests.Tooltip = "The number of Running Tests.";
@@ -437,10 +363,10 @@ namespace vApus.DistributedTesting
             // 
             this.kvmOK.BackColor = System.Drawing.Color.LightGreen;
             this.kvmOK.Key = "OK";
-            this.kvmOK.Location = new System.Drawing.Point(317, 9);
+            this.kvmOK.Location = new System.Drawing.Point(441, 9);
             this.kvmOK.Margin = new System.Windows.Forms.Padding(9, 6, 6, 0);
             this.kvmOK.Name = "kvmOK";
-            this.kvmOK.Size = new System.Drawing.Size(43, 23);
+            this.kvmOK.Size = new System.Drawing.Size(43, 16);
             this.kvmOK.TabIndex = 15;
             this.kvmOK.TabStop = false;
             this.kvmOK.Tooltip = "The number of Succesfully Finished Tests.";
@@ -451,10 +377,10 @@ namespace vApus.DistributedTesting
             // 
             this.kvmCancelled.BackColor = System.Drawing.Color.Orange;
             this.kvmCancelled.Key = "Cancelled";
-            this.kvmCancelled.Location = new System.Drawing.Point(369, 9);
+            this.kvmCancelled.Location = new System.Drawing.Point(493, 9);
             this.kvmCancelled.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
             this.kvmCancelled.Name = "kvmCancelled";
-            this.kvmCancelled.Size = new System.Drawing.Size(82, 23);
+            this.kvmCancelled.Size = new System.Drawing.Size(82, 16);
             this.kvmCancelled.TabIndex = 16;
             this.kvmCancelled.TabStop = false;
             this.kvmCancelled.Tooltip = "The number of Cancelled Tests.";
@@ -465,10 +391,10 @@ namespace vApus.DistributedTesting
             // 
             this.kvmFailed.BackColor = System.Drawing.Color.OrangeRed;
             this.kvmFailed.Key = "Failed";
-            this.kvmFailed.Location = new System.Drawing.Point(460, 9);
+            this.kvmFailed.Location = new System.Drawing.Point(584, 9);
             this.kvmFailed.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
             this.kvmFailed.Name = "kvmFailed";
-            this.kvmFailed.Size = new System.Drawing.Size(60, 23);
+            this.kvmFailed.Size = new System.Drawing.Size(60, 16);
             this.kvmFailed.TabIndex = 17;
             this.kvmFailed.TabStop = false;
             this.kvmFailed.Tooltip = "The number of Failed Tests.";
@@ -479,7 +405,7 @@ namespace vApus.DistributedTesting
             // 
             this.kvmMasterCPUUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterCPUUsage.Key = "CPU Usage";
-            this.kvmMasterCPUUsage.Location = new System.Drawing.Point(529, 9);
+            this.kvmMasterCPUUsage.Location = new System.Drawing.Point(653, 9);
             this.kvmMasterCPUUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterCPUUsage.Name = "kvmMasterCPUUsage";
             this.kvmMasterCPUUsage.Size = new System.Drawing.Size(105, 16);
@@ -492,7 +418,7 @@ namespace vApus.DistributedTesting
             // 
             this.kvmMasterContextSwitchesPerSecond.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterContextSwitchesPerSecond.Key = "Context Switches / s";
-            this.kvmMasterContextSwitchesPerSecond.Location = new System.Drawing.Point(637, 9);
+            this.kvmMasterContextSwitchesPerSecond.Location = new System.Drawing.Point(761, 9);
             this.kvmMasterContextSwitchesPerSecond.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterContextSwitchesPerSecond.Name = "kvmMasterContextSwitchesPerSecond";
             this.kvmMasterContextSwitchesPerSecond.Size = new System.Drawing.Size(158, 16);
@@ -505,7 +431,7 @@ namespace vApus.DistributedTesting
             // 
             this.kvmMasterMemoryUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterMemoryUsage.Key = "Memory Usage";
-            this.kvmMasterMemoryUsage.Location = new System.Drawing.Point(798, 9);
+            this.kvmMasterMemoryUsage.Location = new System.Drawing.Point(3, 37);
             this.kvmMasterMemoryUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterMemoryUsage.Name = "kvmMasterMemoryUsage";
             this.kvmMasterMemoryUsage.Size = new System.Drawing.Size(123, 16);
@@ -519,7 +445,7 @@ namespace vApus.DistributedTesting
             // 
             this.kvmMasterNicsSent.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterNicsSent.Key = "NIC Usage (Sent)";
-            this.kvmMasterNicsSent.Location = new System.Drawing.Point(3, 44);
+            this.kvmMasterNicsSent.Location = new System.Drawing.Point(129, 37);
             this.kvmMasterNicsSent.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNicsSent.Name = "kvmMasterNicsSent";
             this.kvmMasterNicsSent.Size = new System.Drawing.Size(139, 16);
@@ -532,7 +458,7 @@ namespace vApus.DistributedTesting
             // 
             this.kvmMasterNicsReceived.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterNicsReceived.Key = "NIC Usage (Received)";
-            this.kvmMasterNicsReceived.Location = new System.Drawing.Point(145, 44);
+            this.kvmMasterNicsReceived.Location = new System.Drawing.Point(271, 37);
             this.kvmMasterNicsReceived.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNicsReceived.Name = "kvmMasterNicsReceived";
             this.kvmMasterNicsReceived.Size = new System.Drawing.Size(167, 16);
@@ -549,7 +475,7 @@ namespace vApus.DistributedTesting
             this.btnMasterExportMessages.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnMasterExportMessages.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMasterExportMessages.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMasterExportMessages.Location = new System.Drawing.Point(324, 38);
+            this.btnMasterExportMessages.Location = new System.Drawing.Point(450, 31);
             this.btnMasterExportMessages.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
             this.btnMasterExportMessages.MaximumSize = new System.Drawing.Size(127, 24);
             this.btnMasterExportMessages.Name = "btnMasterExportMessages";
@@ -559,59 +485,27 @@ namespace vApus.DistributedTesting
             this.btnMasterExportMessages.UseVisualStyleBackColor = false;
             this.btnMasterExportMessages.Click += new System.EventHandler(this.btnExport_Click);
             // 
-            // epnlMasterMessages
+            // eventView
             // 
-            this.epnlMasterMessages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.epnlMasterMessages.BackColor = System.Drawing.SystemColors.Control;
-            this.epnlMasterMessages.BeginOfTimeFrame = new System.DateTime(((long)(0)));
-            this.epnlMasterMessages.Collapsed = false;
-            this.epnlMasterMessages.Cursor = System.Windows.Forms.Cursors.Default;
-            this.epnlMasterMessages.EndOfTimeFrame = new System.DateTime(9999, 12, 31, 23, 59, 59, 999);
-            this.epnlMasterMessages.ExpandOnErrorEvent = false;
-            this.epnlMasterMessages.Location = new System.Drawing.Point(0, 80);
-            this.epnlMasterMessages.Margin = new System.Windows.Forms.Padding(0, 0, 0, 3);
-            this.epnlMasterMessages.Name = "epnlMasterMessages";
-            this.epnlMasterMessages.ProgressBarColor = System.Drawing.Color.SteelBlue;
-            this.epnlMasterMessages.Size = new System.Drawing.Size(930, 241);
-            this.epnlMasterMessages.TabIndex = 4;
-            // 
-            // tpSelectedTest
-            // 
-            this.tpSelectedTest.Controls.Add(this.stresstestControl);
-            this.tpSelectedTest.Location = new System.Drawing.Point(0, 19);
-            this.tpSelectedTest.Name = "tpSelectedTest";
-            this.tpSelectedTest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSelectedTest.Size = new System.Drawing.Size(936, 680);
-            this.tpSelectedTest.TabIndex = 1;
-            this.tpSelectedTest.Text = "Selected Test";
-            this.tpSelectedTest.UseVisualStyleBackColor = true;
-            // 
-            // stresstestControl
-            // 
-            this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestControl.MonitorConfigurationControlVisible = false;
-            this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(930, 674);
-            this.stresstestControl.TabIndex = 0;
-            this.stresstestControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
+            this.eventView.BackColor = System.Drawing.Color.White;
+            this.eventView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.eventView.Location = new System.Drawing.Point(0, 61);
+            this.eventView.Name = "eventView";
+            this.eventView.Size = new System.Drawing.Size(937, 289);
+            this.eventView.TabIndex = 2;
             // 
             // DistributedStresstestControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.tc);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.Controls.Add(this.splitContainer);
             this.Name = "DistributedStresstestControl";
             this.Size = new System.Drawing.Size(937, 700);
-            this.tc.ResumeLayout(false);
-            this.tpMaster.ResumeLayout(false);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvFastResults)).EndInit();
             this.pnlFastResultListing.ResumeLayout(false);
             this.pnlFastResultListing.PerformLayout();
             this.flpFastMetrics.ResumeLayout(false);
@@ -619,29 +513,19 @@ namespace vApus.DistributedTesting
             this.pnlBorder.ResumeLayout(false);
             this.flpMetricsMaster.ResumeLayout(false);
             this.flpMetricsMaster.PerformLayout();
-            this.tpSelectedTest.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private Util.EventPanel epnlMasterMessages;
-        private vApus.Util.TabControlWithAdjustableBorders tc;
-        private System.Windows.Forms.TabPage tpMaster;
-        private System.Windows.Forms.TabPage tpSelectedTest;
         private System.Windows.Forms.FlowLayoutPanel flpMetricsMaster;
-        private vApus.Util.KeyValuePairControl kvmRunningTests;
         private vApus.Util.KeyValuePairControl kvmMasterCPUUsage;
         private vApus.Util.KeyValuePairControl kvmMasterContextSwitchesPerSecond;
         private vApus.Util.KeyValuePairControl kvmMasterMemoryUsage;
         private vApus.Util.KeyValuePairControl kvmMasterNicsSent;
         private vApus.Util.KeyValuePairControl kvmMasterNicsReceived;
         private System.Windows.Forms.Button btnMasterExportMessages;
-        private vApus.Util.KeyValuePairControl kvmOK;
-        private vApus.Util.KeyValuePairControl kvmCancelled;
-        private vApus.Util.KeyValuePairControl kvmFailed;
-        private StresstestControl stresstestControl;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Panel pnlFastResultListing;
         private System.Windows.Forms.FlowLayoutPanel flpFastMetrics;
@@ -650,23 +534,27 @@ namespace vApus.DistributedTesting
         private System.Windows.Forms.Label lblStarted;
         private System.Windows.Forms.Label lblMeasuredRuntime;
         private System.Windows.Forms.Label lblStopped;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lblFastResultListing;
         private System.Windows.Forms.Button btnSaveDisplayedResults;
         private System.Windows.Forms.SplitContainer splitContainer;
-        private System.Windows.Forms.DataGridView dgvFastResults;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmA;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmB;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmC;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmD;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmE;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmF;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmG;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmH;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmI;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmJ;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmK;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmL;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmM;
         private System.Windows.Forms.Panel pnlBorder;
+        private Util.KeyValuePairControl kvmRunningTests;
+        private Util.KeyValuePairControl kvmOK;
+        private Util.KeyValuePairControl kvmCancelled;
+        private Util.KeyValuePairControl kvmFailed;
+        private System.Windows.Forms.ListView lvwFastResultsListing;
+        private System.Windows.Forms.ColumnHeader clmFRLStartedAt;
+        private System.Windows.Forms.ColumnHeader clmFRLRuntimeLeft;
+        private System.Windows.Forms.ColumnHeader clmFRLMeasuredRuntime;
+        private System.Windows.Forms.ColumnHeader clmFRLConcurrentUsers;
+        private System.Windows.Forms.ColumnHeader clmFRLPrecision;
+        private System.Windows.Forms.ColumnHeader clmFRLRun;
+        private System.Windows.Forms.ColumnHeader clmFRLLogEntriesProcessed;
+        private System.Windows.Forms.ColumnHeader clmFRLThroughput;
+        private System.Windows.Forms.ColumnHeader clmFRLResponseTime;
+        private System.Windows.Forms.ColumnHeader clmFRLMaxResponseTime;
+        private System.Windows.Forms.ColumnHeader clmFRLDelay;
+        private System.Windows.Forms.ColumnHeader clmFRLErrors;
+        private Util.EventView eventView;
     }
 }

@@ -42,7 +42,7 @@ namespace vApus.Util
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 SetGui();
-            });
+            }, null);
 
             if (e.LogLevel >= LogLevel.Error)
             {
@@ -62,7 +62,7 @@ namespace vApus.Util
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     LogErrorCountChanged(this, new LogErrorCountChangedEventArgs(count));
-                });
+                }, null);
         }
         private void LogPanel_HandleCreated(object sender, EventArgs e)
         {

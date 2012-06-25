@@ -104,22 +104,22 @@ namespace vApus.SolutionTree
         {
             get { return false; }
         }
-        [SavableCloneable]
 
+        [SavableCloneable]
         public bool ShowInGui
         {
             get { return _showInGui; }
             set { _showInGui = value; }
         }
-        [SavableCloneable]
 
+        [SavableCloneable]
         public bool IsDefaultItem
         {
             get { return _isDefaultItem; }
             set { _isDefaultItem = value; }
         }
-        [SavableCloneable]
 
+        [SavableCloneable]
         public bool IsEmpty
         {
             get { return _isEmpty; }
@@ -151,6 +151,7 @@ namespace vApus.SolutionTree
                             del.BeginInvoke(this, null, null, null);
         }
         /// <summary>
+        /// Will only invoke SolutionComponentChanged if the ShowOnGui property of the item equals true.
         /// </summary>
         /// <param name="item"></param>
         public void Add(BaseItem item)
@@ -160,10 +161,10 @@ namespace vApus.SolutionTree
             if (item.ShowInGui)
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
         }
-        public void AddWithoutInvokingEvent(BaseItem item)
+        public void AddWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true)
         {
             _items.Add(item);
-            item.Parent = this;
+            item.SetParent(this, invokeParentChanged);
             item.ForceSettingChildsParent();
         }
         /// <summary>
@@ -186,10 +187,10 @@ namespace vApus.SolutionTree
             {
                 BaseItem oldItem = _items[index];
                 _items.Insert(index, item);
-                oldItem.Parent = null;
+                oldItem.RemoveParent(false);
                 _items.Remove(oldItem);
             }
-            item.Parent = this;
+            item.SetParent(this, false);
             item.ForceSettingChildsParent();
         }
         /// <summary>
@@ -204,7 +205,7 @@ namespace vApus.SolutionTree
             _items.Add(item);
 
             item.IsDefaultItem = true;
-            item.Parent = this;
+            item.SetParent(this, false);
             item.ForceSettingChildsParent();
             return index;
         }
@@ -222,12 +223,12 @@ namespace vApus.SolutionTree
         /// Pastes, if any, a item from the given child type in the items collection.
         /// </summary>
         /// <param name="childType"></param>
-        public void AddRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection)
+        public void AddRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection, bool invokeParentChanged = true)
         {
             _items.AddRange(collection);
             foreach (BaseItem item in collection)
             {
-                item.Parent = this;
+                item.SetParent(this, invokeParentChanged);
                 item.ForceSettingChildsParent();
             }
         }
@@ -236,10 +237,10 @@ namespace vApus.SolutionTree
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
-        public void InsertWithoutInvokingEvent(int index, BaseItem item)
+        public void InsertWithoutInvokingEvent(int index, BaseItem item, bool invokeParentChanged = true)
         {
             _items.Insert(index, item);
-            item.Parent = this;
+            item.SetParent(this, invokeParentChanged);
             item.ForceSettingChildsParent();
         }
         /// <summary>
@@ -247,13 +248,13 @@ namespace vApus.SolutionTree
         /// </summary>
         /// <param name="index"></param>
         /// <param name="collection"></param>
-        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection)
+        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection, bool invokeParentChanged = true)
         {
             _items.InsertRange(index, collection);
 
             foreach (BaseItem item in collection)
             {
-                item.Parent = this;
+                item.SetParent(this, invokeParentChanged);
                 item.ForceSettingChildsParent();
             }
         }
@@ -267,10 +268,13 @@ namespace vApus.SolutionTree
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Cleared);
             }
         }
-        public virtual void ClearWithoutInvokingEvent()
+        public virtual void ClearWithoutInvokingEvent(bool invokeParentChanged = true)
         {
             foreach (BaseItem item in _items)
-                item.Parent = null;
+            {
+                item.RemoveParent(invokeParentChanged);
+                item.RemoveTag();
+            }
             _items.Clear();
         }
         public bool Contains(BaseItem item)
@@ -302,7 +306,11 @@ namespace vApus.SolutionTree
             if (_items.Remove(item))
             {
                 item.Parent = null;
+                item.RemoveTag();
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Removed, item);
+
+                item = null;
+
                 return true;
             }
             return false;
@@ -314,6 +322,9 @@ namespace vApus.SolutionTree
             if (_items.Remove(item))
             {
                 item.Parent = null;
+                item.RemoveTag();
+                item = null;
+
                 return true;
             }
             return false;
@@ -453,12 +464,14 @@ namespace vApus.SolutionTree
 
         /// <summary>
         /// Set the parent again, this information is lost after sending over a socket for example.
+        /// 
+        /// The parent changed event will not be invoked.
         /// </summary>
         public void ForceSettingChildsParent()
         {
             foreach (BaseItem item in this)
             {
-                item.Parent = this;
+                item.SetParent(this, false);
                 item.ForceSettingChildsParent();
             }
         }
@@ -471,13 +484,17 @@ namespace vApus.SolutionTree
         /// <param name="parent"></param>
         public static BaseItem GetNextOrEmptyChild(Type childType, SolutionComponent parent)
         {
-            int count = parent.CountOf(childType);
-            if (count != 0)
-                foreach (object item in parent)
-                    if (item.GetType() == childType && item.GetParent() == parent) //GetParent is the parent from the global cache, default items in a collection don't know their parents.
-                        return item as BaseItem;
+            if (parent != null)
+            {
+                int count = parent.CountOf(childType);
+                if (count != 0)
+                    foreach (object item in parent)
+                        if (item.GetType() == childType && item.GetParent() == parent) //GetParent is the parent from the global cache, default items in a collection don't know their parents.
+                            return item as BaseItem;
 
-            return BaseItem.Empty(childType, parent);
+                return BaseItem.Empty(childType, parent);
+            }
+            return null;
         }
         /// <summary>
         /// Virtual method for activation, example: SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)) --> default.

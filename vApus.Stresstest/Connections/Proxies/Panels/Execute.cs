@@ -136,7 +136,7 @@ namespace vApus.Stresstest
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 MessageBox.Show("Could not test the code:\n" + e.Exception.ToString(), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            });
+            }, null);
             SetFinished();
         }
         private void connectionProxyPool_TestWorkFinished(object sender, EventArgs e)
@@ -157,7 +157,7 @@ namespace vApus.Stresstest
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     SetGui(false);
-                });
+                }, null);
             }
         }
         private void connectionProxyPool_LogEntryTested(object sender, ConnectionProxyPool.LogEntryTestedEventArgs e)
@@ -195,7 +195,7 @@ namespace vApus.Stresstest
                     if (cboThread.SelectedIndex == -1)
                         cboThread.SelectedIndex = 0;
                     ++_processed;
-                });
+                }, null);
             }
             catch { }
         }

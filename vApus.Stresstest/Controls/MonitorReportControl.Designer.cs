@@ -54,6 +54,9 @@
             this.label8 = new System.Windows.Forms.Label();
             this.flpDetailedResults = new System.Windows.Forms.FlowLayoutPanel();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.btnConfiguration = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
             this.pnlFastResultListing.SuspendLayout();
             this.flpFastMetrics.SuspendLayout();
             this.pnlBorderDrillDownAverages.SuspendLayout();
@@ -64,12 +67,12 @@
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlFastResultListing
             // 
             this.pnlFastResultListing.BackColor = System.Drawing.Color.White;
-            this.pnlFastResultListing.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlFastResultListing.Controls.Add(this.flpFastMetrics);
             this.pnlFastResultListing.Controls.Add(this.label4);
             this.pnlFastResultListing.Controls.Add(this.lvwAveragesListing);
@@ -77,7 +80,7 @@
             this.pnlFastResultListing.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlFastResultListing.Location = new System.Drawing.Point(0, 0);
             this.pnlFastResultListing.Name = "pnlFastResultListing";
-            this.pnlFastResultListing.Size = new System.Drawing.Size(655, 251);
+            this.pnlFastResultListing.Size = new System.Drawing.Size(655, 211);
             this.pnlFastResultListing.TabIndex = 2;
             this.pnlFastResultListing.Text = "Fast Results";
             // 
@@ -92,7 +95,7 @@
             this.flpFastMetrics.Controls.Add(this.lblWarningInvalidAverages);
             this.flpFastMetrics.Location = new System.Drawing.Point(-1, 37);
             this.flpFastMetrics.Name = "flpFastMetrics";
-            this.flpFastMetrics.Size = new System.Drawing.Size(655, 50);
+            this.flpFastMetrics.Size = new System.Drawing.Size(657, 50);
             this.flpFastMetrics.TabIndex = 0;
             // 
             // label1
@@ -214,7 +217,7 @@
             this.lvwAveragesListing.Location = new System.Drawing.Point(-1, 93);
             this.lvwAveragesListing.MultiSelect = false;
             this.lvwAveragesListing.Name = "lvwAveragesListing";
-            this.lvwAveragesListing.Size = new System.Drawing.Size(655, 157);
+            this.lvwAveragesListing.Size = new System.Drawing.Size(657, 119);
             this.lvwAveragesListing.TabIndex = 2;
             this.lvwAveragesListing.UseCompatibleStateImageBehavior = false;
             this.lvwAveragesListing.View = System.Windows.Forms.View.Details;
@@ -253,7 +256,6 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.flowLayoutPanel1);
             this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.label8);
@@ -275,7 +277,7 @@
             this.flowLayoutPanel1.Controls.Add(this.btnWarningDetailed);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(-1, 37);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(655, 50);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(657, 50);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // label2
@@ -383,14 +385,16 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpDetailedResults.Location = new System.Drawing.Point(0, 93);
             this.flpDetailedResults.Name = "flpDetailedResults";
-            this.flpDetailedResults.Size = new System.Drawing.Size(653, 150);
+            this.flpDetailedResults.Size = new System.Drawing.Size(655, 152);
             this.flpDetailedResults.TabIndex = 3;
             // 
             // splitContainer
             // 
-            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splitContainer.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer.Location = new System.Drawing.Point(0, 40);
             this.splitContainer.Name = "splitContainer";
             this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -402,14 +406,57 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.panel1);
             this.splitContainer.Panel2MinSize = 200;
-            this.splitContainer.Size = new System.Drawing.Size(655, 500);
-            this.splitContainer.SplitterDistance = 251;
-            this.splitContainer.TabIndex = 4;
+            this.splitContainer.Size = new System.Drawing.Size(655, 460);
+            this.splitContainer.SplitterDistance = 211;
+            this.splitContainer.TabIndex = 1;
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.White;
+            this.panel2.Controls.Add(this.label3);
+            this.panel2.Controls.Add(this.btnConfiguration);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 0);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(655, 40);
+            this.panel2.TabIndex = 0;
+            // 
+            // btnConfiguration
+            // 
+            this.btnConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnConfiguration.AutoSize = true;
+            this.btnConfiguration.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnConfiguration.BackColor = System.Drawing.SystemColors.Control;
+            this.btnConfiguration.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnConfiguration.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnConfiguration.Location = new System.Drawing.Point(218, 8);
+            this.btnConfiguration.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.btnConfiguration.MaximumSize = new System.Drawing.Size(1000, 24);
+            this.btnConfiguration.Name = "btnConfiguration";
+            this.btnConfiguration.Size = new System.Drawing.Size(137, 24);
+            this.btnConfiguration.TabIndex = 4;
+            this.btnConfiguration.Text = "Show and/or Save...";
+            this.btnConfiguration.UseVisualStyleBackColor = false;
+            this.btnConfiguration.Click += new System.EventHandler(this.btnConfiguration_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.Color.Black;
+            this.label3.Location = new System.Drawing.Point(2, 10);
+            this.label3.Margin = new System.Windows.Forms.Padding(3);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(104, 20);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "Configuration";
             // 
             // MonitorReportControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.splitContainer);
             this.Name = "MonitorReportControl";
             this.Size = new System.Drawing.Size(655, 500);
@@ -427,6 +474,8 @@
             this.splitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -459,5 +508,8 @@
         private System.Windows.Forms.Panel pnlBorderDrillDownAverages;
         private System.Windows.Forms.Panel pnlBorderDrillDownDetailed;
         private System.Windows.Forms.Label lblWarningInvalidAverages;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button btnConfiguration;
+        private System.Windows.Forms.Label label3;
     }
 }

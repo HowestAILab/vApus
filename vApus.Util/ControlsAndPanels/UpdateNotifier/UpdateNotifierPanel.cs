@@ -112,7 +112,7 @@ namespace vApus.Util
             {
                 SetUpdatePanel();
                 this.Cursor = Cursors.Default;
-            });
+            }, null);
         }
 
         private void SetUpdatePanel(bool enforceUpdate = true)
@@ -170,7 +170,7 @@ namespace vApus.Util
                 UpdateNotifier.Refresh();
 
                 SetUpdatePanel(false);
-            });
+            }, null);
         }
         private void btnUpdateManually_Click(object sender, EventArgs e)
         {

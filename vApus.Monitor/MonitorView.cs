@@ -53,6 +53,19 @@ namespace vApus.Monitor
         private int _refreshTimeInMS;
 
         private bool _forStresstest = false;
+
+        private string _configuration;
+        #endregion
+
+        #region Properties
+        public Monitor Monitor
+        {
+            get { return _monitor; }
+        }
+        public string Configuration
+        {
+            get { return _configuration; }
+        }
         #endregion
 
         #region Constructors
@@ -91,7 +104,7 @@ namespace vApus.Monitor
                 if (_forStresstest && OnHandledException != null)
                     foreach (EventHandler<ErrorEventArgs> del in OnHandledException.GetInvocationList())
                         del.BeginInvoke(this, e, null, null);
-            });
+            }, null);
         }
         private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e)
         {
@@ -103,7 +116,7 @@ namespace vApus.Monitor
                 if (_forStresstest && OnUnhandledException != null)
                     foreach (EventHandler<ErrorEventArgs> del in OnUnhandledException.GetInvocationList())
                         del.BeginInvoke(this, e, null, null);
-            });
+            }, null);
         }
         private void _monitorProxy_OnMonitor(object sender, OnMonitorEventArgs e)
         {
@@ -135,7 +148,7 @@ namespace vApus.Monitor
                     }
                 }
                 catch { }
-            });
+            }, null);
         }
 
         #region Init
@@ -618,7 +631,7 @@ namespace vApus.Monitor
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 SetParameters(parameters);
-            });
+            }, null);
             if (exception == null)
                 _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
 
@@ -636,7 +649,7 @@ namespace vApus.Monitor
                 if (exception == null)
                 {
                     btnConfiguration.Enabled = (configuration != null);
-                    btnConfiguration.Tag = configuration;
+                    _configuration = configuration;
                     try
                     {
                         FillEntities(wdyh);
@@ -663,7 +676,7 @@ namespace vApus.Monitor
                 parameterPanel.Unlock();
 
                 this.Cursor = Cursors.Default;
-            });
+            }, null);
         }
 
         private void SetParameters(Parameter[] parameters)
@@ -1016,8 +1029,8 @@ namespace vApus.Monitor
 
         private void btnConfiguration_Click(object sender, EventArgs e)
         {
-            if (btnConfiguration.Tag != null)
-                (new ConfigurationDialog(btnConfiguration.Tag as string)).ShowDialog();
+            if (_configuration != null)
+                (new ConfigurationDialog(_configuration)).ShowDialog();
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -1236,7 +1249,7 @@ namespace vApus.Monitor
                 if (MonitorInitialized != null)
                     MonitorInitialized(this, new MonitorView.MonitorInitializedEventArgs(errorMessage));
 
-            });
+            }, null);
         }
         public void Start()
         {

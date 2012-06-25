@@ -94,7 +94,7 @@ namespace vApus.Stresstest
                     MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 
                     LogWrapper.LogByLevel("[" + _connection + "] " + error, LogLevel.Warning);
-                });
+                }, null);
                 return;
             }
 
@@ -122,7 +122,7 @@ namespace vApus.Stresstest
                     MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 
                     LogWrapper.LogByLevel("[" + _connection + "] " + sb.ToString(), LogLevel.Warning);
-                });
+                }, null);
             }
             else
             {
@@ -147,7 +147,7 @@ namespace vApus.Stresstest
 
                         LogWrapper.LogByLevel("[" + _connection + "] " + error + "\n" + errorMessage, LogLevel.Warning);
                     }
-                });
+                }, null);
             }
             connectionProxyPool.Dispose();
             connectionProxyPool = null;

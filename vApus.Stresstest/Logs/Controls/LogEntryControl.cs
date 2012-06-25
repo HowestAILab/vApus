@@ -48,25 +48,6 @@ namespace vApus.Stresstest
         {
             get { return _logEntry.LexicalResult; }
         }
-        public bool Collapsed
-        {
-            get { return splitContainer.Panel2Collapsed; }
-            set
-            {
-                splitContainer.Panel2Collapsed = value;
-                if (splitContainer.Panel2Collapsed)
-                {
-                    btnCollapseExpand.Text = "+";
-                    this.Height = 30;
-                }
-                else
-                {
-                    btnCollapseExpand.Text = "-";
-                    this.Height = 200;
-                }
-            }
-        }
-
         public UserActionControl UserActionControl
         {
             get { return _userActionControl; }
@@ -91,8 +72,7 @@ namespace vApus.Stresstest
             _logEntry.LexicalResultChanged += new EventHandler(_logEntry_LexicalResultChanged);
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
-            txtScrollingLogEntry.Text = _logEntry.LogEntryString;
-            rtxtLogEntry.Text = _logEntry.LogEntryString;
+            lblLogEntry.Text = _logEntry.LogEntryString;
 
             //Backwards compatible.
             if (_logEntry.Parent is UserAction)
@@ -101,28 +81,16 @@ namespace vApus.Stresstest
             nudOccurance.Value = _logEntry.Occurance;
             nudParallelOffsetInMs.Value = _logEntry.ParallelOffsetInMs;
             SetImages();
-            Collapsed = true;
 
             if (LexicalResultChanged != null)
                 LexicalResultChanged(this, null);
 
-            this.SizeChanged += new EventHandler(LogEntryControl_SizeChanged);
             nudOccurance.ValueChanged += new EventHandler(nudOccurance_ValueChanged);
             nudParallelOffsetInMs.ValueChanged += new EventHandler(nudParallelOffsetInMs_ValueChanged);
         }
         #endregion
 
         #region Functions
-        private void LogEntryControl_SizeChanged(object sender, EventArgs e)
-        {
-            if (Visible && splitContainer.Panel2Collapsed)
-            {
-                this.SizeChanged -= LogEntryControl_SizeChanged;
-                splitContainer.Panel2Collapsed = false;
-                splitContainer.Panel2Collapsed = true;
-                this.SizeChanged += LogEntryControl_SizeChanged;
-            }
-        }
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
             if (sender == _logEntry
@@ -130,8 +98,7 @@ namespace vApus.Stresstest
             || (_logEntry.Parent is UserAction && sender == (_logEntry.Parent as UserAction).Parent))))
             {
                 SetImages();
-                txtScrollingLogEntry.Text = _logEntry.LogEntryString;
-                rtxtLogEntry.Text = _logEntry.LogEntryString;
+                lblLogEntry.Text = _logEntry.LogEntryString;
             }
         }
         private void _logEntry_LexicalResultChanged(object sender, EventArgs e)
@@ -160,10 +127,6 @@ namespace vApus.Stresstest
         private void chkIndex_CheckedChanged(object sender, EventArgs e)
         {
             InvokeCheckedChanged();
-        }
-        private void btnCollapseExpand_Click(object sender, EventArgs e)
-        {
-            Collapsed = btnCollapseExpand.Text == "-";
         }
         private void picPin_Click(object sender, EventArgs e)
         {
@@ -202,7 +165,7 @@ namespace vApus.Stresstest
                 _logEntry.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
-        private void btnEdit_Click(object sender, EventArgs e)
+        private void llblEdit_Click(object sender, EventArgs e)
         {
             Edit();
         }
@@ -296,7 +259,6 @@ namespace vApus.Stresstest
                 picIgnoreDelay.Visible = false;
                 nudParallelOffsetInMs.Visible = true;
                 picParallel.Image = global::vApus.Stresstest.Properties.Resources.Parallel;
-                BackColor = Color.FromArgb(144, 238, 144);
             }
             else
             {
@@ -310,8 +272,6 @@ namespace vApus.Stresstest
         protected override void Select(bool directed, bool forward)
         {
             base.Select(directed, forward);
-            txtScrollingLogEntry.Focus();
-            txtScrollingLogEntry.Select();
         }
         #endregion
     }

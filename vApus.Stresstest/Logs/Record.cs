@@ -168,7 +168,7 @@ namespace vApus.Stresstest
                     lblTestProxy.Text = "Testing the Proxy..  ";
                     lblTestProxy.Image = vApus.Stresstest.Properties.Resources.Wait;
                     lblTestProxy.Visible = true;
-                });
+                }, null);
 
                 IPAddress[] ipAddresses = null;
                 try { ipAddresses = Dns.GetHostAddresses("www.google.com"); }
@@ -194,7 +194,7 @@ namespace vApus.Stresstest
                                     lblTestProxy.Text = "OK";
                                 }
                                 catch { }
-                            });
+                            }, null);
                             //For the 'OK'
                             Thread.Sleep(500);
                             break;
@@ -222,7 +222,7 @@ namespace vApus.Stresstest
                             MessageBox.Show(this, message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                         catch { }
-                    });
+                    }, null);
             }
         }
         private void TestRequestThroughProxy(string ip)
@@ -295,7 +295,7 @@ namespace vApus.Stresstest
                             pnlButtons.Enabled = true;
                         }
                         catch { }
-                    });
+                    }, null);
                     _proxy.paused = false;
                 }
                 catch { }
@@ -519,7 +519,7 @@ namespace vApus.Stresstest
                         kvpDiscarded.Value = _ignored.ToString();
                     }
                 }
-            });
+            }, null);
         }
 
         public void SetConfig(string[] ips, int[] ports)

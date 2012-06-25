@@ -160,7 +160,7 @@ namespace vApus.SolutionTree
                 try
                 {
                     BaseItem item = Activator.CreateInstance(this.GetType().Assembly.GetTypeByName(childNode.Name)) as BaseItem;
-                    item.Parent = this;
+                    item.SetParent(this, false);
                     string childErrorMessage;
                     item.LoadFromXml(childNode, out childErrorMessage);
                     sb.Append(childErrorMessage);

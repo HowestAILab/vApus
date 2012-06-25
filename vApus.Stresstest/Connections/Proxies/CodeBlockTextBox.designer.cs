@@ -34,7 +34,7 @@ namespace vApus.Stresstest
             // 
             // fastColoredTextBox
             // 
-            this.fastColoredTextBox.AutoScrollMinSize = new System.Drawing.Size(25, 15);
+            this.fastColoredTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 15);
             this.fastColoredTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fastColoredTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fastColoredTextBox.Location = new System.Drawing.Point(0, 0);
@@ -42,6 +42,8 @@ namespace vApus.Stresstest
             this.fastColoredTextBox.PreferredLineWidth = 65536;
             this.fastColoredTextBox.Size = new System.Drawing.Size(867, 150);
             this.fastColoredTextBox.TabIndex = 0;
+            this.fastColoredTextBox.WordWrap = true;
+            this.fastColoredTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
             this.fastColoredTextBox.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fastColoredTextBox_TextChanged);
             this.fastColoredTextBox.SelectionChanged += new System.EventHandler(this.fastColoredTextBox_SelectionChanged);
             this.fastColoredTextBox.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fastColoredTextBox_TextChangedDelayed);

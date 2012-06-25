@@ -117,32 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing">
-    <value>17, 17</value>
-  </data>
-  <data name="btnJumpStart.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAYAAAAmlE46AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfbAgkMKxmo5PZr
-        AAABWElEQVQ4T42SP0vEMBjGkzZtL/bKnZ6tCCL45xbBG8XJwclRHETcxMnNQ3B1dfEDiJNfwMXVTyAO
-        ws1uDm436aK+r09iUw7M9QyE5k3zy/PkSYT4R2Mh9ilJDknKLqVpwdPtqbEYlX8oik4AfqMzS8kcRa+k
-        9ZYXpCK384CPoMIWQkc9pDjedptW8OgELJ0ZBcz9gko9UFHM2Q219jslpU4BfFlIyiFU99xKjuO/kFGk
-        MDzAwk+oEGqyFoPgDQ6uUTf8ZzNgs7lEWXYM4N0oWtUwvEe9aiB8/Y1bLQ2Fu0pNqT4tr0RlWGPOJkQA
-        q5foRumFs3TDAg2/w9FUr6oUg+AWFs9Rdye+ESxKkFq/vDPG+KIW4tnqwnvlCxlgk01n0xuIu3ReW5/H
-        +APB3NDC4kxtGM4GAA1bj5znuw6gp+f6owEySe6Yl2+hTmdiFnaB8Q+4/p48W/0ALnOXk1Cy6jsAAAAA
-        SUVORK5CYII=
-</value>
-  </data>
-  <data name="btnKill.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAYAAAAmlE46AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfbBhcPICK9G/6x
-        AAABAUlEQVQ4T2NgIA6EAZVFAbEqEIsBMRdObf8QMplA5l8g/g/FT4C0HVaN/8REYeKJSBpAGt8DsROS
-        oRB1aALFaJr2APniYHWcnDhdWgCU+QPVCLIlCKbyPxsbpiaojRFAmd9QB4CEQE58AcQzgZgDu98goopA
-        nAzEX5GcuhnIVgFJgkzBBUAeWAe1EaSuEIhZQYoxAgXJBCYguwNq8F0gbQbWwIHdhcg29yI5byGQXQbE
-        oEgnCNihToNFdj1eHf9F4BGuB7XxMpC2gDkTa4AgeVgSqPAbEM8GYiFCgQFzCSgkTwFxAEzDvzMXCPoL
-        FJIesED4JyxMUANYAdT9BOMJ3TQAqgJFW6iC2F4AAAAASUVORK5CYII=
-</value>
-  </data>
 </root>

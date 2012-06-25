@@ -460,7 +460,7 @@ namespace vApus.Gui
                             _msgHandler.PostMessage();
                         }
                         catch { }
-                    });
+                    }, null);
             }
             catch { }
         }
@@ -530,12 +530,12 @@ namespace vApus.Gui
         private void SetProcessorAffinityLabel()
         {
             int[] cpus = ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity);
+            //Make it one-based
+            int[] oneBasedCPUs = new int[cpus.Length];
+            for (int i = 0; i != cpus.Length; i++)
+                oneBasedCPUs[i] = cpus[i] + 1;
 
-            string s = string.Empty;
-            for (int i = 0; i != cpus.Length - 1; i++)
-                s += (i + 1) + "; ";
-            s += (cpus[cpus.Length - 1] + 1);
-            lblProcessorAffinity.Text = s.Trim();
+            lblProcessorAffinity.Text = oneBasedCPUs.Combine(", ");
         }
         private void SetWindowsFirewallAutoUpdateLabel()
         {

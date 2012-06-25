@@ -21,7 +21,6 @@ namespace vApus.JumpStart
     public class SocketListener
     {
         #region Events
-        public event EventHandler<IPChangedEventArgs> IPChanged;
         public event EventHandler<ListeningErrorEventArgs> ListeningError;
         #endregion
 
@@ -31,9 +30,6 @@ namespace vApus.JumpStart
         public const int MINPORT = 1314, MAXPORT = 1316;
 
         private Socket _serverSocket;
-
-        private List<string> _availableIps = new List<string>();
-        private string _ip;
         private int _port;
 
         private int _maximumStartTries = 3;
@@ -46,35 +42,6 @@ namespace vApus.JumpStart
         #endregion
 
         #region Properties
-        /// <summary>
-        /// The currenctly used IP.
-        /// Setting an invalid IP will throw an exception.
-        /// </summary>
-        public string IP
-        {
-            get { return _ip; }
-        }
-        /// <summary>
-        /// All possible IPs.
-        /// </summary>
-        public string[] AvailableIPs
-        {
-            get { return _availableIps.ToArray(); }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Network
-        {
-            get
-            {
-                string network = string.Empty;
-                string[] parts = _ip.Split(new char[] { '.' });
-                for (int i = 0; i < 3; i++)
-                    network = network + parts[i] + '.';
-                return network;
-            }
-        }
         /// <summary>
         /// Setting an invalid port will throw an exception.
         /// </summary>
@@ -119,31 +86,30 @@ namespace vApus.JumpStart
             {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
-                    string ip = _availableIps[FillPossibleIPs()];
                     if (_port < MINPORT)
                         _port = MINPORT;
 
-                    if (!_availableIps.Contains(_ip))
-                        SetIPAndPort(ip, _port);
+                        SetIPAndPort(_port);
 
-                });
+                }, null);
             }
             catch { }
         }
-        public void SetIPAndPort(string ip, int port)
+        /// <summary>
+        /// Ip = IpAddress.Any
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        private void SetIPAndPort(int port)
         {
             Stop();
             try
             {
                 _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(ip), port));
+                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
                 _serverSocket.Listen(100);
                 _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
-                _ip = ip;
                 _port = port;
-
-                if (IPChanged != null)
-                    IPChanged.Invoke(null, new IPChangedEventArgs(_ip));
             }
             catch
             {
@@ -158,12 +124,11 @@ namespace vApus.JumpStart
         {
             try
             {
-                _ip = _availableIps[FillPossibleIPs()];
                 _port = MINPORT;
                 try
                 {
                     _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), _port));
+                    _serverSocket.Bind(new IPEndPoint(IPAddress.Any, _port));
                 }
                 catch
                 {
@@ -171,7 +136,7 @@ namespace vApus.JumpStart
                         try
                         {
                             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                            _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), port));
+                            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
                             _port = port;
                             break;
                         }
@@ -191,35 +156,6 @@ namespace vApus.JumpStart
                 else
                     throw;
             }
-        }
-        /// <summary>
-        /// Fills the collection of possible valid ips and returns an entryindex suggesting the ip to bind to.
-        /// </summary>
-        /// <returns></returns>
-        private int FillPossibleIPs()
-        {
-            IPHostEntry entry = Dns.GetHostByName(Dns.GetHostName());
-            _availableIps.Clear();
-            int entryindex = 0;
-            Ping p = new Ping();
-
-            //Ping to make sure it is a connected device you can use.
-            for (int i = 0; i < entry.AddressList.Length; i++)
-            {
-                if ((p.Send(entry.AddressList[i])).Status == IPStatus.Success)
-                {
-                    string ip = entry.AddressList[i].ToString();
-                    if (!_availableIps.Contains(ip))
-                        _availableIps.Add(ip);
-                }
-            }
-
-            if (_availableIps.Count != 0)
-                entryindex = 0;
-            else
-                _availableIps.Add("127.0.0.1");
-
-            return entryindex;
         }
         /// <summary>
         /// 
@@ -298,7 +234,7 @@ namespace vApus.JumpStart
             try
             {
                 Socket socket = _serverSocket.EndAccept(ar);
-                SocketWrapper socketWrapper = new SocketWrapper(_ip, 1234, socket, SocketFlags.None, SocketFlags.None);
+                SocketWrapper socketWrapper = new SocketWrapper(IPAddress.Any, 1234, socket, SocketFlags.None, SocketFlags.None);
                 _connectedMasters.Add(socketWrapper);
                 BeginReceive(socketWrapper);
                 _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);

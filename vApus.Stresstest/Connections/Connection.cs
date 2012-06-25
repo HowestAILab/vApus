@@ -7,15 +7,17 @@
  */
 using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
     [Serializable]
     [ContextMenu(new string[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new string[] { "Edit", "Remove", "Export", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new string[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new Keys[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
-    public class Connection : LabeledBaseItem
+    public class Connection : LabeledBaseItem, ISerializable
     {
         #region Fields
         private ConnectionProxy _connectionProxy;
@@ -32,6 +34,8 @@ namespace vApus.Stresstest
             get { return _connectionProxy; }
             set
             {
+                if (value == null)
+                    return;
                 value.ParentIsNull -= _connectionProxy_ParentIsNull;
                 _connectionProxy = value;
                 _connectionProxy.ParentIsNull += _connectionProxy_ParentIsNull;
@@ -67,7 +71,6 @@ namespace vApus.Stresstest
         #region Constructors
         public Connection()
         {
-
             if (Solution.ActiveSolution != null)
                 ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
             else
@@ -84,6 +87,25 @@ namespace vApus.Stresstest
         {
             SolutionComponentViewManager.Show(this);
         }
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
+        public Connection(SerializationInfo info, StreamingContext ctxt)
+        {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info))
+            {
+                Label = sr.ReadString();
+                _connectionProxy = sr.ReadObject() as ConnectionProxy;
+                _connectionString = sr.ReadString();
+                _parameters = sr.ReadObject() as Parameters;
+            }
+            sr = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
+        }
         #endregion
 
         #region Functions
@@ -94,6 +116,27 @@ namespace vApus.Stresstest
         public string BuildConnectionProxyClass()
         {
             return _connectionProxy.BuildConnectionProxyClass(_connectionString);
+        }
+       
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter())
+            {
+                sw.Write(Label);
+                sw.WriteObject(_connectionProxy);
+                sw.Write(_connectionString);
+                sw.WriteObject(_parameters);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
         }
         #endregion
     }

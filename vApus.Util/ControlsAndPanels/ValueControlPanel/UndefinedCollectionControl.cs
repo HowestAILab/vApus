@@ -8,12 +8,13 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace vApus.Util
 {
+    [ToolboxItem(false)]
     public partial class UndefinedCollectionControl : UserControl
     {
         public event EventHandler ValueChanged;

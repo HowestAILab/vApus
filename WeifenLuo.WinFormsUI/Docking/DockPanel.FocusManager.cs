@@ -18,7 +18,7 @@ namespace WeifenLuo.WinFormsUI.Docking
 
     partial class DockPanel
     {
-        private interface IFocusManager
+        public interface IFocusManager
         {
             void SuspendFocusTracking();
             void ResumeFocusTracking();
@@ -29,7 +29,7 @@ namespace WeifenLuo.WinFormsUI.Docking
             DockPane ActiveDocumentPane { get; }
         }
 
-        private class FocusManagerImpl : Component, IContentFocusManager, IFocusManager
+        public class FocusManagerImpl : Component, IContentFocusManager, IFocusManager
         {
             private class HookEventArgs : EventArgs
             {
@@ -481,7 +481,7 @@ namespace WeifenLuo.WinFormsUI.Docking
             }
         }
 
-        private IFocusManager FocusManager
+        public IFocusManager FocusManager
         {
             get { return m_focusManager; }
         }

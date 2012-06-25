@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -15,6 +16,7 @@ namespace vApus.Util
     /// <summary>
     /// Only for Arrays or ILists (BaseTypes are fine) ; or objects (no primitives!) that have an array or IList as parent 
     /// </summary>
+    [ToolboxItem(false)]
     public partial class CollectionValueControl : BaseValueControl, IValueControl
     {
         /// <summary>

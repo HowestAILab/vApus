@@ -7,11 +7,13 @@
  */
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace vApus.Util
 {
+    [ToolboxItem(false)]
     public partial class CollectionItemValueControl : BaseValueControl, IValueControl
     {
         public CollectionItemValueControl()

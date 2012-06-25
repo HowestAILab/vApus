@@ -220,12 +220,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="TestValueControlPanel.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TestValueControlPanel.Designer.cs">
-      <DependentUpon>TestValueControlPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="Welcome.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -259,9 +253,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="TestValueControlPanel.resx">
-      <DependentUpon>TestValueControlPanel.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Welcome.resx">
       <DependentUpon>Welcome.cs</DependentUpon>
     </EmbeddedResource>
@@ -291,6 +282,7 @@
     <None Include="Resources\RecycleBin.png" />
     <None Include="Resources\delete16x16.png" />
     <None Include="Resources\Liz_van_Dijk.png" />
+    <None Include="Resources\Philip_Dubois.jpg" />
     <Content Include="Welcome\images\Link1.PNG">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

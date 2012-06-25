@@ -383,6 +383,7 @@ namespace vApus.Util
             }
 
             lblTotalViews.Text = _controls.Count.ToString();
+            pnl.Visible = lblTotalViews.Text != "1";
             _controls[_controls.Count - 1].Add(control);
             ++_controlCount;
 
@@ -491,6 +492,7 @@ namespace vApus.Util
             _currentView = 0;
             txtView.Text = "1";
             lblTotalViews.Text = "1";
+            pnl.Visible = false;
             lblTotalViews_TextChanged(null, null);
             if (ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
@@ -549,7 +551,7 @@ namespace vApus.Util
         /// <param name="control"></param>
         /// <param name="index"></param>
         /// <param name="refresh"></param>
-        private void Insert(Control control, KeyValuePair<int, int> index, bool refresh)
+        public void Insert(Control control, KeyValuePair<int, int> index, bool refresh)
         {
             _controls[index.Key].Insert(index.Value, control);
             switch (refresh)
@@ -859,6 +861,7 @@ namespace vApus.Util
                 scrollbar_ValueChanged(null, null);
             }
             lblTotalViews.Text = _controls.Count == 0 ? "1" : _controls.Count.ToString();
+            pnl.Visible = lblTotalViews.Text != "1";
             OrderSelection();
             this.Cursor = Cursors.Default;
         }
@@ -875,7 +878,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="control"></param>
         /// <param name="refresh"></param>
-        private void Remove(Control control, bool refresh)
+        public void Remove(Control control, bool refresh)
         {
             int key = -1;
             for (int i = 0; i < _controls.Count; i++)
@@ -1497,15 +1500,6 @@ namespace vApus.Util
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
-        /// <summary>
-        /// For selections.
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnLeave(EventArgs e)
-        {
-            base.OnLeave(e);
-        }
-        #endregion
 
         #region scrollbar
         /// <summary>
@@ -1563,7 +1557,6 @@ namespace vApus.Util
                     AfterViewSwitch.Invoke(this, new AfterSwithViewsEventArgs(_currentView, flpnl.Controls.Count));
                 Thread.Sleep(0);
             }
-            scrollbar.Select();
         }
         #endregion
 
@@ -1639,6 +1632,8 @@ namespace vApus.Util
             txtView.Width = lblTotalViews.Width;
             scrollbar.Width = txtView.Location.X - 1;
         }
+        #endregion
+
         #endregion
 
         #endregion

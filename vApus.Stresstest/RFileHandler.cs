@@ -6,7 +6,6 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
@@ -50,13 +49,13 @@ namespace vApus.Stresstest
             _stresstestResults = stresstestResults;
             if (fileName == null)
             {
-                _fileName = Path.Combine(_SlaveSideResultsDir, "PID_" + Process.GetCurrentProcess().Id.ToString() + "_" + _stresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".r");
+                _fileName = Path.Combine(_SlaveSideResultsDir, _stresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".r");
                 if (!Directory.Exists(_SlaveSideResultsDir))
                     return;
 
                 int i = 0;
                 while (File.Exists(_fileName))
-                    _fileName = Path.Combine(_SlaveSideResultsDir, "PID_" + Process.GetCurrentProcess().Id.ToString() + "_" + _stresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', ++i) + ".r");
+                    _fileName = Path.Combine(_SlaveSideResultsDir,  _stresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', ++i) + ".r");
             }
             else
             {

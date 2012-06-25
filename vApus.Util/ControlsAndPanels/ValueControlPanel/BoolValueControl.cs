@@ -6,10 +6,12 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace vApus.Util
 {
+    [ToolboxItem(false)]
     public partial class BoolValueControl : BaseValueControl, IValueControl
     {
         public BoolValueControl()

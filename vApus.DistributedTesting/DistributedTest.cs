@@ -5,8 +5,8 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Stresstest;
@@ -19,16 +19,12 @@ namespace vApus.DistributedTesting
     [DisplayName("Distributed Test")]
     public class DistributedTest : LabeledBaseItem
     {
-        #region Events
-        public event EventHandler TilesSynchronized;
-        #endregion
-
         #region Fields
         private RunSynchronization _runSynchronization;
-        private string _resultPath = SpecialFolder.GetPath(SpecialFolder.Folder.Desktop);
+        private string _resultPath;
         #endregion
 
-        #region Properties                
+        #region Properties
         [SavableCloneable]
         [DisplayName("Run Synchronization")]
         public RunSynchronization RunSynchronization
@@ -43,39 +39,40 @@ namespace vApus.DistributedTesting
         [SavableCloneable]
         public string ResultPath
         {
-            get { return _resultPath; }
+            get {
+                if (_resultPath != DefaultResultPath || !Directory.Exists(_resultPath))
+                    _resultPath = DefaultResultPath;
+                return _resultPath; }
             set { _resultPath = value; }
+        }
+        private string DefaultResultPath
+        {
+            get { return Path.Combine(Application.StartupPath, "DistributedTestResults"); }
+        }
+        public Tiles Tiles
+        {
+            get { return this[0] as Tiles; }
+        }
+        public ClientsAndSlaves ClientsAndSlaves
+        {
+            get { return this[1] as ClientsAndSlaves; }
         }
         #endregion
 
         #region Constructor
         public DistributedTest()
         {
-            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
-            AddAsDefaultItem(new Tile());
+            _resultPath = DefaultResultPath;
+
+            AddAsDefaultItem(new Tiles());
+            AddAsDefaultItem(new ClientsAndSlaves());
         }
         #endregion
 
         #region Functions
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            if (sender is Stresstest.Stresstest || sender is Stresstest.StresstestProject)
-            {
-                bool didSynchronize = true;
-                //Only needs to be checked once.
-                foreach (BaseItem item in this)
-                    if (!(item as Tile).SynchronizeTileStresstests())
-                    {
-                        didSynchronize = false;
-                        break;
-                    }
-                if (didSynchronize && TilesSynchronized != null)
-                    TilesSynchronized(this, null);
-            }
-        }
         public override void Activate()
         {
-            SolutionComponentViewManager.Show(this);
+            SolutionComponentViewManager.Show(this, typeof(DistributedTestView));
         }
         #endregion
     }

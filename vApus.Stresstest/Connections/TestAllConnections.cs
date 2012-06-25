@@ -107,7 +107,7 @@ namespace vApus.Stresstest
                     {
                         item.BackColor = Color.White;
                         item.SubItems[1].Text = "Testing...";
-                    });
+                    }, null);
                     //Use the state object, otherwise there will be a reference mismatch.
                     Thread t = new Thread(delegate(object state)
                     {
@@ -132,7 +132,7 @@ namespace vApus.Stresstest
                     btnTest.Enabled = true;
                     this.Cursor = Cursors.Default;
                     this.Invalidate(true);
-                });
+                }, null);
             }
             catch { }
         }
@@ -143,7 +143,7 @@ namespace vApus.Stresstest
             {
                 e.Item.BackColor = e.Succes ? Color.LawnGreen : Color.Red;
                 e.Item.SubItems[1].Text = e.Message;
-            });
+            }, null);
         }
 
         private void lvw_SelectedIndexChanged(object sender, EventArgs e)
@@ -201,7 +201,7 @@ namespace vApus.Stresstest
                             if (Message != null)
                                 Message(this, new MessageEventArgs(item, false, "Failed to connect with the given credentials: " + error));
                         }
-                    });
+                    }, null);
                 }
                 connectionProxyPool.Dispose();
                 connectionProxyPool = null;

@@ -7,13 +7,15 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using vApus.Util;
 
 namespace vApus.DistributedTesting
 {
-    public static class JumpStartOrKill
+    public static class JumpStart
     {
         public static event EventHandler Done;
 
@@ -21,49 +23,84 @@ namespace vApus.DistributedTesting
         [ThreadStatic]
         private static WorkItem _workItem;
 
-        private static Hashtable _toJumpStart = new Hashtable(),
-            _toKill = new Hashtable();
-
-        public static void RegisterForJumpStart(string ip, int port)
+        /// <summary>
+        /// Jump start the used slaves in the test. Kill all slaves on the used clients first.
+        /// </summary>
+        /// <param name="distributedTest"></param>
+        public static void Do(DistributedTest distributedTest)
         {
-            AddToHashtable(_toJumpStart, ip, port);
+            List<Slave> slaves = new List<Slave>();
+            foreach (Tile t in distributedTest.Tiles)
+                if (t.Use)
+                    foreach (TileStresstest ts in t)
+                        if (ts.Use)
+                            slaves.AddRange(ts.BasicTileStresstest.Slaves);
+
+            Do(slaves);
+        }
+        private static void Do(List<Slave> slaves)
+        {
+            Hashtable toKill = RegisterForKill(slaves);
+
+            Hashtable toJumpStart = new Hashtable(slaves.Count);
+            foreach (Slave slave in slaves)
+                RegisterForJumpStart(toJumpStart, slave.IP, slave.Port, slave.ProcessorAffinity);
+
+            Do(toKill, toJumpStart);
+        }
+
+        private static void RegisterForJumpStart(Hashtable toJumpStart, string ip, int port, int[] processorAffinity)
+        {
+            string s = port.ToString();
+            if (toJumpStart.ContainsKey(ip))
+            {
+                var kvp = (KeyValuePair<string, string>)toJumpStart[ip];
+                if (!kvp.Key.Contains(s))
+                    kvp = new KeyValuePair<string, string>(kvp.Key + "," + s, kvp.Value + "," + GetZeroBasedPA(processorAffinity));
+                toJumpStart[ip] = kvp;
+            }
+            else
+            {
+                var kvp = new KeyValuePair<string, string>(port.ToString(), GetZeroBasedPA(processorAffinity));
+                toJumpStart.Add(ip, kvp);
+            }
+        }
+        private static string GetZeroBasedPA(int[] processorAffinity)
+        {
+            int[] pa = new int[processorAffinity.Length];
+
+            for (int i = 0; i != pa.Length; i++)
+                pa[i] = processorAffinity[i] -1;
+
+            return pa.Combine(" ");
+        }
+        private static Hashtable RegisterForKill(List<Slave> slaves)
+        {
+            Hashtable toKill = new Hashtable(slaves.Count);
+            foreach (Slave slave in slaves)
+                RegisterForKill(toKill, slave.IP);
+            return toKill;
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="processID">-1 tot kill all on the client</param>
-        public static void RegisterForKill(string ip, int processID)
+        private static void RegisterForKill(Hashtable toKill, string ip)
         {
-            AddToHashtable(_toKill, ip, processID);
-        }
-        private static void AddToHashtable(Hashtable ht, string ip, int portOrProcessID)
-        {
-            lock (ht.SyncRoot)
-            {
-                string s = portOrProcessID.ToString();
-                if (ht.ContainsKey(ip))
-                {
-                    string value = ht[ip] as string;
-                    if (!value.Contains(s))
-                        value += "," + s;
-                    ht[ip] = value;
-                }
-                else
-                {
-                    ht.Add(ip, s);
-                }
-            }
+            if (!toKill.ContainsKey(ip))
+                toKill.Add(ip, SocketListener.GetInstance().IP == ip ? Process.GetCurrentProcess().Id : -1);
         }
         /// <summary>
+        /// Use only this Do.
         /// Use the Done event and mind when calling this (on another thread).
         /// </summary>
-        public static void Do()
+        private static void Do(Hashtable toKill, Hashtable toJumpStart)
         {
             Thread worker = new Thread(delegate()
             {
-                DoJumpStart();
-                DoKill();
+                DoKill(toKill);
+                DoJumpStart(toJumpStart);
 
                 if (Done != null)
                     Done(null, null);
@@ -71,19 +108,20 @@ namespace vApus.DistributedTesting
             worker.IsBackground = true;
             worker.Start();
         }
-        private static void DoJumpStart()
+        private static void DoKill(Hashtable toKill)
         {
-            Do(_toJumpStart);
+            Do(toKill, false);
         }
-        private static void DoKill()
+        private static void DoJumpStart(Hashtable toJumpStart)
         {
-            Do(_toKill);
+            Do(toJumpStart, true);
         }
         /// <summary>
         /// Error handling happens afterwards.
         /// </summary>
         /// <param name="ht"></param>
-        private static void Do(Hashtable ht)
+        /// <param name="jumpStart">true for jumpstart false for kill</param>
+        private static void Do(Hashtable ht, bool jumpStart)
         {
             lock (_lock)
             {
@@ -98,13 +136,19 @@ namespace vApus.DistributedTesting
                 {
                     Thread t = new Thread(delegate(object state)
                     {
-                        var kvp = (DictionaryEntry)state;
+                        var dictionaryEntry = (DictionaryEntry)state;
                         _workItem = new WorkItem();
 
-                        if (ht == _toJumpStart)
-                            _workItem.DoJumpStart(kvp.Key as string, kvp.Value as string);
+                        if (jumpStart)
+                        {
+                            string ip = dictionaryEntry.Key as string;
+                            var kvp = (KeyValuePair<string, string>)ht[ip];
+                            _workItem.DoJumpStart(ip, kvp.Key, kvp.Value);
+                        }
                         else
-                            _workItem.DoKill(kvp.Key as string, kvp.Value as string);
+                        {
+                            _workItem.DoKill(dictionaryEntry.Key as string, (int)dictionaryEntry.Value);
+                        }
 
                         if (Interlocked.Increment(ref i) == count)
                             waithandle.Set();
@@ -125,7 +169,7 @@ namespace vApus.DistributedTesting
             /// </summary>
             /// <param name="ip"></param>
             /// <param name="port"></param>
-            public void DoJumpStart(string ip, string port)
+            public void DoJumpStart(string ip, string port, string processorAffinity)
             {
                 SocketWrapper socketWrapper = null;
                 try
@@ -134,7 +178,7 @@ namespace vApus.DistributedTesting
                     if (socketWrapper == null)
                         throw new Exception("Could not connect to the vApus Jump Start Service!");
 
-                    var jumpStartMessage = new vApus.JumpStartStructures.JumpStartMessage(ip, port);
+                    var jumpStartMessage = new vApus.JumpStartStructures.JumpStartMessage(ip, port, processorAffinity);
                     var message = new Message<vApus.JumpStartStructures.Key>(vApus.JumpStartStructures.Key.JumpStart, jumpStartMessage);
 
                     socketWrapper.Send(message, SendType.Binary);
@@ -163,7 +207,7 @@ namespace vApus.DistributedTesting
             /// Error handling happens afterwards.
             /// </summary>
             /// <param name="slaveProcessID">if -1 all will be killed</param>
-            public void DoKill(string ip, string slaveProcessID)
+            public void DoKill(string ip, int excludeProcessID)
             {
                 SocketWrapper socketWrapper = null;
                 try
@@ -172,7 +216,7 @@ namespace vApus.DistributedTesting
                     if (socketWrapper == null)
                         throw new Exception("Could not connect to the vApus Jump Start Service!");
 
-                    var killMessage = new vApus.JumpStartStructures.KillMessage(slaveProcessID);
+                    var killMessage = new vApus.JumpStartStructures.KillMessage(excludeProcessID);
                     var message = new Message<vApus.JumpStartStructures.Key>(vApus.JumpStartStructures.Key.Kill, killMessage);
 
                     socketWrapper.Send(message, SendType.Binary);

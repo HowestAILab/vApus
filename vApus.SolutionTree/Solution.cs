@@ -96,8 +96,29 @@ namespace vApus.SolutionTree
         /// </summary>
         public static void ShowStresstestingSolutionExplorer()
         {
-            _stresstestingSolutionExplorer.Show(_dockPanel, DockState.DockLeft);
+            int dockState = global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState;
+            if (dockState == -1)
+                dockState = 8; //DockLeft
+
+            _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
         }
+        public static void HideStresstestingSolutionExplorer()
+        {
+            _stresstestingSolutionExplorer.Hide();
+        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ActiveContent">Ensures that the caller stays visible</param>
+        //public static void AutoHideStresstestingSolutionExplorer(IDockContent caller)
+        //{
+        //    if (!DockHelper.IsDockStateAutoHide(_stresstestingSolutionExplorer.DockState))
+        //    {
+        //        _stresstestingSolutionExplorer.DockState = DockHelper.ToggleAutoHideState(_stresstestingSolutionExplorer.DockState);
+        //        _stresstestingSolutionExplorer.DockPanel.ActiveAutoHideContent = null;
+        //        (caller.DockHandler.DockPanel.FocusManager as DockPanel.FocusManagerImpl).Activate(caller);
+        //    }
+        //}
         /// <summary>
         /// Tooltips will be provide for the items.
         /// </summary>
@@ -343,6 +364,22 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             _sfd.Filter = _ofd.Filter;
 
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+
+
+            _stresstestingSolutionExplorer.DockStateChanged += new EventHandler(_stresstestingSolutionExplorer_DockStateChanged);
+        }
+        static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e)
+        {
+            if (_stresstestingSolutionExplorer.DockState == DockState.Hidden)
+            {
+                global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
+                global::vApus.SolutionTree.Properties.Settings.Default.Save();
+            }
+            else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown)
+            {
+                global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
+                global::vApus.SolutionTree.Properties.Settings.Default.Save();
+            }
         }
         private Solution()
         {

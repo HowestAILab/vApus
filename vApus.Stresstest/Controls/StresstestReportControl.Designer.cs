@@ -120,7 +120,6 @@
             // 
             this.flpSaveConfiguration.AutoScroll = true;
             this.flpSaveConfiguration.BackColor = System.Drawing.Color.White;
-            this.flpSaveConfiguration.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flpSaveConfiguration.Controls.Add(this.label3);
             this.flpSaveConfiguration.Controls.Add(this.kvpSolution);
             this.flpSaveConfiguration.Controls.Add(this.kvpStresstest);
@@ -332,7 +331,6 @@
             // panel
             // 
             this.panel.BackColor = System.Drawing.Color.White;
-            this.panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel.Controls.Add(this.btnSaveTheRFile);
             this.panel.Controls.Add(this.btnSaveTheConfigurationAndTheChosenResultSet);
             this.panel.Controls.Add(this.flpDetailedResultsListing);
@@ -403,7 +401,7 @@
             this.flpDetailedResultsListing.Controls.Add(this.btnRefresh);
             this.flpDetailedResultsListing.Location = new System.Drawing.Point(0, 0);
             this.flpDetailedResultsListing.Name = "flpDetailedResultsListing";
-            this.flpDetailedResultsListing.Size = new System.Drawing.Size(799, 87);
+            this.flpDetailedResultsListing.Size = new System.Drawing.Size(801, 87);
             this.flpDetailedResultsListing.TabIndex = 0;
             // 
             // label10
@@ -696,7 +694,7 @@
             this.dgvDetailedResultsListing.ReadOnly = true;
             this.dgvDetailedResultsListing.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvDetailedResultsListing.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.dgvDetailedResultsListing.Size = new System.Drawing.Size(799, 136);
+            this.dgvDetailedResultsListing.Size = new System.Drawing.Size(801, 138);
             this.dgvDetailedResultsListing.TabIndex = 3;
             this.dgvDetailedResultsListing.VirtualMode = true;
             this.dgvDetailedResultsListing.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvDetailedResultsListing_CellValueNeeded);
@@ -852,6 +850,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.split2);
             this.Name = "StresstestReportControl";
             this.Size = new System.Drawing.Size(800, 423);

@@ -12,6 +12,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using vApus.Util;
+using vApus.Monitor;
 
 namespace vApus.Stresstest
 {
@@ -22,6 +23,7 @@ namespace vApus.Stresstest
         private string[] _headers;
         private Dictionary<DateTime, float[]> _monitorValues;
         private StresstestResults _stresstestResults;
+        private string _configuration;
         #endregion
 
         public MonitorReportControl()
@@ -38,8 +40,9 @@ namespace vApus.Stresstest
         /// <param name="headers"></param>
         /// <param name="monitorValues"></param>
         /// <param name="stresstestResults">Match timestamps using this</param>
-        public void SetHeaders_MonitorValuesAndStresstestResults(string[] headers, Dictionary<DateTime, float[]> monitorValues, StresstestResults stresstestResults)
+        public void SetConfig_Headers_MonitorValuesAndStresstestResults(string configuration, string[] headers, Dictionary<DateTime, float[]> monitorValues, StresstestResults stresstestResults)
         {
+            _configuration = configuration;
             _stresstestResults = stresstestResults;
             SetHeaders(headers);
             SetMonitorValues(monitorValues);
@@ -133,6 +136,12 @@ namespace vApus.Stresstest
             }
 
             flpDetailedResults.ResumeLayout();
+        }
+
+        private void btnConfiguration_Click(object sender, EventArgs e)
+        {
+            if (_configuration != null)
+                (new ConfigurationDialog(_configuration)).ShowDialog();
         }
 
         #region Averages
@@ -608,5 +617,6 @@ namespace vApus.Stresstest
             MessageBox.Show("No stresstest initialization times are taken into account aka monitoring results match only to the real stresstesting times.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         #endregion
+
     }
 }

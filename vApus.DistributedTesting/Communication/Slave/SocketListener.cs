@@ -135,7 +135,7 @@ namespace vApus.DistributedTesting
                         SetIPAndPort(ip, _port, false);
                     }
 
-                });
+                }, null);
             }
             catch { }
         }
