@@ -29,6 +29,8 @@ namespace vApus.JumpStartService
 
         public const int MINPORT = 1314, MAXPORT = 1316;
 
+        private object _lock = new object();
+
         private Socket _serverSocket;
         private int _port;
 
@@ -271,24 +273,27 @@ namespace vApus.JumpStartService
         }
         private void OnReceive(IAsyncResult result)
         {
-            SocketWrapper socketWrapper = (SocketWrapper)result.AsyncState;
-            Message<Key> message = new Message<Key>();
-            try
+            lock (_lock)
             {
-                socketWrapper.Socket.EndReceive(result);
-                message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
+                SocketWrapper socketWrapper = (SocketWrapper)result.AsyncState;
+                Message<Key> message = new Message<Key>();
+                try
+                {
+                    socketWrapper.Socket.EndReceive(result);
+                    message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
 
 
-                BeginReceive(socketWrapper);
-                message = CommunicationHandler.HandleMessage(socketWrapper, message);
+                    BeginReceive(socketWrapper);
+                    message = CommunicationHandler.HandleMessage(socketWrapper, message);
 
-                socketWrapper.Send(message, SendType.Binary);
-            }
-            catch (Exception exception)
-            {
-                DisconnectMaster(socketWrapper);
-                if (ListeningError != null)
-                    ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
+                    socketWrapper.Send(message, SendType.Binary);
+                }
+                catch (Exception exception)
+                {
+                    DisconnectMaster(socketWrapper);
+                    if (ListeningError != null)
+                        ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
+                }
             }
         }
         #endregion

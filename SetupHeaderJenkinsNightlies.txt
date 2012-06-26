@@ -30,3 +30,4 @@ Name: {group}\vApus; Filename: {app}\vApus.exe
 Name: {group}\Report; Filename: {app}\vApus.Report.exe
 Name: {group}\Uninstall; Filename: {app}\unins000.exe
 Name: {group}\Log Fixer; Filename: {app}\vApus.LogFixer.exe
+Name: {commonstartup}\vApus JumpStart; Filename: {app}\vApus.JumpStart.exe

@@ -27,10 +27,8 @@ namespace vApus.JumpStart
         #region Fields
         private static SocketListener _socketListener;
 
-        public const int MINPORT = 1314, MAXPORT = 1316;
-
         private Socket _serverSocket;
-        private int _port;
+        public const int PORT = 1314;
 
         private int _maximumStartTries = 3;
         private int _startTries = 0;
@@ -42,13 +40,6 @@ namespace vApus.JumpStart
         #endregion
 
         #region Properties
-        /// <summary>
-        /// Setting an invalid port will throw an exception.
-        /// </summary>
-        public int Port
-        {
-            get { return _port; }
-        }
         /// <summary>
         /// </summary>
         public int ConnectedMastersCount
@@ -86,63 +77,20 @@ namespace vApus.JumpStart
             {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
-                    if (_port < MINPORT)
-                        _port = MINPORT;
-
-                        SetIPAndPort(_port);
-
+                    Start();
                 }, null);
             }
             catch { }
         }
         /// <summary>
-        /// Ip = IpAddress.Any
         /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        private void SetIPAndPort(int port)
+        public void Start()
         {
             Stop();
             try
             {
                 _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
-                _serverSocket.Listen(100);
-                _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
-                _port = port;
-            }
-            catch
-            {
-                Stop();
-                throw;
-            }
-        }
-        /// <summary>
-        /// Will determine it's port from the MINPORT (1314) to MAXPORT (1316 inclusive).
-        /// </summary>
-        public void Start()
-        {
-            try
-            {
-                _port = MINPORT;
-                try
-                {
-                    _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    _serverSocket.Bind(new IPEndPoint(IPAddress.Any, _port));
-                }
-                catch
-                {
-                    for (int port = MINPORT; port <= MAXPORT; port++)
-                        try
-                        {
-                            _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
-                            _port = port;
-                            break;
-                        }
-                        catch
-                        { }
-                }
+                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, PORT));
 
                 _serverSocket.Listen(100);
                 _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
@@ -152,9 +100,14 @@ namespace vApus.JumpStart
             {
                 _startTries++;
                 if (_startTries <= _maximumStartTries)
+                {
                     Start();
+                }
                 else
+                {
+                    Stop();
                     throw;
+                }
             }
         }
         /// <summary>

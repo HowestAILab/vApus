@@ -8,19 +8,16 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.JumpStartStructures;
 using vApus.Util;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace vApus.JumpStart
 {
     public static class CommunicationHandler
     {
-        private static object _lock = new object();
         [ThreadStatic]
         private static HandleJumpStartWorkItem _handleJumpStartWorkItem;
 
@@ -67,30 +64,6 @@ namespace vApus.JumpStart
             return message;
         }
 
-        private static Process Launch_vApus(string ip, int port, string processorAffinity)
-        {
-            Process process = new Process();
-            try
-            {
-                string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
-
-                process.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
-                process.Start();
-                if (!process.WaitForInputIdle(10000))
-                    throw new TimeoutException("The process did not start.");
-            }
-            catch
-            {
-                try
-                {
-                    if (!process.HasExited)
-                        process.Kill();
-                }
-                catch { }
-                process = null;
-            }
-            return process;
-        }
 
         private static Message<Key> HandleKill(Message<Key> message)
         {
@@ -125,58 +98,32 @@ namespace vApus.JumpStart
         {
             public void HandleJumpStart(string ip, int port, string processorAffinity)
             {
-                int processID = PollvApus(ip, port);
-                lock (_lock)
-                    if (processID == -1)
-                        Launch_vApus(ip, port, processorAffinity);
-            }
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="ip"></param>
-            /// <param name="port"></param>
-            /// <returns>process id</returns>
-            private int PollvApus(string ip, int port)
-            {
-                int processID = -1;
-                SocketWrapper socketWrapper = null;
+                Process process = new Process();
                 try
                 {
-                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    socketWrapper = new SocketWrapper(ip, port, socket);
-                    socketWrapper.Connect(2000, 3);
-                    if (socketWrapper.Connected)
-                    {
-                        Message<vApus.DistributedTesting.Key> message = new Message<vApus.DistributedTesting.Key>(vApus.DistributedTesting.Key.Poll, null);
-                        socketWrapper.SendTimeout = 3000;
-                        socketWrapper.ReceiveTimeout = 3000;
+                    string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
 
-                        socketWrapper.Send(message, SendType.Binary);
-                        message = (Message<vApus.DistributedTesting.Key>)socketWrapper.Receive(SendType.Binary);
+                    if (processorAffinity.Length == 0)
+                        process.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port);
+                    else
+                        process.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
 
-                        if (message.Content != null)
-                        {
-                            vApus.DistributedTesting.PollMessage pollMessage = (vApus.DistributedTesting.PollMessage)message.Content;
-                            processID = pollMessage.ProcessID;
-                        }
-                    }
+                    process.Start();
+                    if (!process.WaitForInputIdle(10000))
+                        throw new TimeoutException("The process did not start.");
                 }
                 catch
-                { }
-
-                if (socketWrapper != null)
                 {
                     try
                     {
-                        if (socketWrapper.Connected)
-                            socketWrapper.Close();
+                        if (!process.HasExited)
+                            process.Kill();
                     }
                     catch { }
-                    socketWrapper = null;
+                    process = null;
                 }
-
-                return processID;
             }
+
         }
     }
 }

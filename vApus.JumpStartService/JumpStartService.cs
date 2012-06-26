@@ -20,16 +20,12 @@ namespace vApus.JumpStartService
 
         protected override void OnStart(string[] args)
         {
-            System.Threading.Thread.Sleep(30000);
             try
             {
                 _socketListener = SocketListener.GetInstance();
                 _socketListener.Start();
             }
             catch { }
-            finally
-            {
-            }
         }
 
         protected override void OnStop()

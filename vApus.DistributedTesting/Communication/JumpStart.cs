@@ -70,7 +70,7 @@ namespace vApus.DistributedTesting
             int[] pa = new int[processorAffinity.Length];
 
             for (int i = 0; i != pa.Length; i++)
-                pa[i] = processorAffinity[i] -1;
+                pa[i] = processorAffinity[i] - 1;
 
             return pa.Combine(" ");
         }
@@ -239,22 +239,22 @@ namespace vApus.DistributedTesting
             private SocketWrapper Connect(string ip)
             {
                 Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                //Check on these ports
-                for (int port = 1314; port <= 1316; port++)
+
+                int port = 1314;
+
+                var socketWrapper = new SocketWrapper(ip, port, socket);
+                socketWrapper.SendTimeout = 3000;
+                socketWrapper.ReceiveTimeout = 20000;
+
+                try
                 {
-                    var socketWrapper = new SocketWrapper(ip, port, socket);
-                    socketWrapper.SendTimeout = 3000;
-                    socketWrapper.ReceiveTimeout = 20000;
-
-                    try
-                    {
-                        socketWrapper.Connect(3000, 3);
-                    }
-                    catch { }
-
-                    if (socketWrapper.Connected)
-                        return socketWrapper;
+                    socketWrapper.Connect(3000, 2);
                 }
+                catch { }
+
+                if (socketWrapper.Connected)
+                    return socketWrapper;
+
                 return null;
             }
         }

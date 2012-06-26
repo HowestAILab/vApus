@@ -300,6 +300,8 @@ namespace vApus.DistributedTesting
                 distributedStresstestControl.AppendMasterMessages("Jump Starting the slaves...");
                 //Jumpstart the slaves first.
                 JumpStart.Do(_distributedTest);
+
+                //JumpStart_Done(this, null);
             }
             catch
             {
