@@ -27,7 +27,7 @@ namespace vApus.JumpStartService
                 switch (parameter)
                 {
                     case "--install":
-                        MessageBox.Show("The vApus JumpStart Service must be installed to allow distributed stresstesting.\nFill in your Full Qualified ADMINISTRATOR Username ({domain or Local computer name}\\{user name}) and password in the next dialog.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("The vApus JumpStart Service must be installed to allow distributed stresstesting.\nFill in your Full Qualified ADMINISTRATOR Username ({domain or Local computer name}\\{user name}) and password on the next dialog.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Retry:
                         try
                         {
