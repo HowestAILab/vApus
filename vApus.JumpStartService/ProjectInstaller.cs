@@ -1,9 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * Technical University Kortrijk, Department GKG
+ *  
+ * Author(s):
+ *    Vandroemme Dieter
+ */
 using System.ComponentModel;
-using System.Configuration.Install;
-using System.Linq;
 
 
 namespace vApus.JumpStartService

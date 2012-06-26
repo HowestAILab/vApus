@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * Technical University Kortrijk, Department GKG
+ *  
+ * Author(s):
+ *    Vandroemme Dieter
+ */
+using System;
 using System.Configuration.Install;
 using System.Reflection;
+using System.ServiceProcess;
 using System.Windows.Forms;
 
 namespace vApus.JumpStartService
@@ -23,11 +27,22 @@ namespace vApus.JumpStartService
                 switch (parameter)
                 {
                     case "--install":
-                        MessageBox.Show("The vApus JumpStart Service must be installed to allow distributedsStresstesting.\nFill in your Full Qualified ADMINISTRATOR Username ({domain or Local computer name}\\{user name}) and password in the next dialog.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("The vApus JumpStart Service must be installed to allow distributed stresstesting.\nFill in your Full Qualified ADMINISTRATOR Username ({domain or Local computer name}\\{user name}) and password in the next dialog.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Retry:
                         try
                         {
                             ManagedInstallerClass.InstallHelper(new string[] { Assembly.GetExecutingAssembly().Location });
+
+                            try
+                            {
+                                foreach (ServiceController sc in ServiceController.GetServices())
+                                    if (sc.ServiceName == "vApus.JumpStartService")
+                                    {
+                                        sc.Start();
+                                        break;
+                                    }
+                            }
+                            catch { }
                         }
                         catch (Exception ex)
                         {

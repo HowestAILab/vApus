@@ -9,12 +9,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.JumpStartStructures;
 using vApus.Util;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace vApus.JumpStartService
 {
