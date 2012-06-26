@@ -1,4 +1,4 @@
 [Run]
-Filename: {app}\vApus.JumpStart.exe
+Filename: {app}\vApus.JumpStart.exe; Flags: nowait
 [UninstallRun]
 Filename: {app}\vApus.KillJumpStart.exe
