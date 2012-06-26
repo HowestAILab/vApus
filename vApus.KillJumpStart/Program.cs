@@ -19,7 +19,7 @@ namespace vApus.KillJumpStart
         [STAThread]
         static void Main()
         {
-            foreach(Process p in Process.GetProcessesByName("vApus.JumpStart.exe"))
+            foreach(Process p in Process.GetProcessesByName("vApus.JumpStart"))
                 if (p != null)
                 {
                     p.Kill();
