@@ -1,4 +1,4 @@
 [Run]
-Filename: {app}\vApus.JumpStart.exe; Parameters: --install
+Filename: {app}\vApus.JumpStartService.exe; Parameters: --install
 [UninstallRun]
-Filename: {app}\vApus.JumpStart.exe; Parameters: --uninstall
+Filename: {app}\vApus.JumpStartService.exe; Parameters: --uninstall
