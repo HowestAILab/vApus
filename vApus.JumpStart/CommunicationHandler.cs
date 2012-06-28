@@ -88,6 +88,8 @@ namespace vApus.JumpStart
                 {
                     p.Kill();
                     p.WaitForExit(10000);
+
+                    Thread.Sleep(10000);
                 }
             }
             catch { }
@@ -98,18 +100,18 @@ namespace vApus.JumpStart
         {
             public void HandleJumpStart(string ip, int port, string processorAffinity)
             {
-                Process process = new Process();
+                Process p = new Process();
                 try
                 {
                     string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
 
                     if (processorAffinity.Length == 0)
-                        process.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port);
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port);
                     else
-                        process.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
 
-                    process.Start();
-                    if (!process.WaitForInputIdle(10000))
+                    p.Start();
+                    if (!p.WaitForInputIdle(10000))
                         throw new TimeoutException("The process did not start.");
 
                     //Wait until the vApus is ready to accept communication from the master.
@@ -119,11 +121,14 @@ namespace vApus.JumpStart
                 {
                     try
                     {
-                        if (!process.HasExited)
-                            process.Kill();
+                        if (!p.HasExited)
+                        {
+                            p.Kill();
+                            p.WaitForExit(10000);
+                        }
                     }
                     catch { }
-                    process = null;
+                    p = null;
                 }
             }
 
