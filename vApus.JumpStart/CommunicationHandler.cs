@@ -61,6 +61,9 @@ namespace vApus.JumpStart
 
             waithandle.WaitOne();
 
+            //Wait until the vApusses are ready to accept communication from the master.
+            Thread.Sleep(20000);
+
             return message;
         }
 

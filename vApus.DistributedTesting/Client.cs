@@ -35,7 +35,6 @@ namespace vApus.DistributedTesting
         public Client()
         {
             ShowInGui = false;
-            AddAsDefaultItem(new Slave());
         }
         #endregion
 

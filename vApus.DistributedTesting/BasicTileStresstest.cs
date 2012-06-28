@@ -209,10 +209,10 @@ namespace vApus.DistributedTesting
         public BasicTileStresstest()
         {
             ShowInGui = false;
-            if (Solution.ActiveSolution != null)
-                Init();
-            else
-                Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+                if (Solution.ActiveSolution != null)
+                    Init();
+                else
+                    Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
         #endregion
 

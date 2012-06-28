@@ -244,7 +244,7 @@ namespace vApus.DistributedTesting
 
                 var socketWrapper = new SocketWrapper(ip, port, socket);
                 socketWrapper.SendTimeout = 3000;
-                socketWrapper.ReceiveTimeout = 20000;
+                socketWrapper.ReceiveTimeout = 60000;
 
                 try
                 {

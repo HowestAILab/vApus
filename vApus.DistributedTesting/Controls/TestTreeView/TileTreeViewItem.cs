@@ -162,16 +162,6 @@ namespace vApus.DistributedTesting
         {
             this.BackColor = Color.Transparent;
         }
-        private void txtTile_Leave(object sender, EventArgs e)
-        {
-            txtTile.Text = lblTile.Text = txtTile.Text.Trim();
-            if (_tile.Label != txtTile.Text)
-            {
-                _tile.Label = txtTile.Text;
-                _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
-            lblTile.Text = _tile.Label + " (" + UsedTileStresstestCount + "/" + _tile.Count + ")";
-        }
         private void _MouseEnter(object sender, EventArgs e)
         {
             SetVisibleControls();
@@ -183,7 +173,7 @@ namespace vApus.DistributedTesting
         public void SetVisibleControls(bool visible)
         {
             if (_distributedTestMode == DistributedTestMode.Edit)
-                txtTile.Visible = picAddTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+                picAddTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
         }
         public void SetVisibleControls()
         {
@@ -198,17 +188,10 @@ namespace vApus.DistributedTesting
 
         public void RefreshGui()
         {
-            string label = string.Empty;
-            if (_tile.Label == string.Empty)
-                label = _tile.ToString() + " (" + UsedTileStresstestCount + "/" + _tile.Count + ")";
-            else
-                label = _tile.Label + " (" + UsedTileStresstestCount + "/" + _tile.Count + ")";
+            string label = _tile.ToString() + " (" + UsedTileStresstestCount + "/" + _tile.Count + ")";
 
             if (lblTile.Text != label)
-            {
                 lblTile.Text = label;
-                txtTile.Text = (_tile.Label == string.Empty) ? _tile.ToString() : _tile.Label;
-            }
 
             _tile.Use = UsedTileStresstestCount != 0;
             if (_tile.Use != chk.Checked)
@@ -225,19 +208,6 @@ namespace vApus.DistributedTesting
                 _ctrl = false;
                 return;
             }
-            if (sender == txtTile)
-                if (e.KeyCode == Keys.Enter && _tile.Label != txtTile.Text)
-                {
-                    txtTile.Text = txtTile.Text.Trim();
-                    if (_tile.Label != txtTile.Text)
-                    {
-                        _tile.Label = txtTile.Text;
-                        lblTile.Text = (_tile.Label == string.Empty ? _tile.ToString() : _tile.Label) + " (" + _tile.Count + ")";
-
-                        _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                    }
-                }
-
 
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
@@ -299,7 +269,6 @@ namespace vApus.DistributedTesting
                 if (_tile.Use)
                 {
                     chk.Visible =
-                    txtTile.Visible =
                     picDelete.Visible =
                     picDuplicate.Visible = true;
                 }
@@ -311,7 +280,6 @@ namespace vApus.DistributedTesting
                 if (_tile.Use)
                 {
                     chk.Visible =
-                    txtTile.Visible =
                     picDelete.Visible =
                     picDuplicate.Visible = false;
                 }

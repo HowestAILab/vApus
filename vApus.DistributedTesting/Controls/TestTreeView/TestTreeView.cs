@@ -59,34 +59,6 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Functions
-        public void TestGui()
-        {
-
-            DistributedTest test = new DistributedTest();
-            test.ClearWithoutInvokingEvent();
-
-            Tile tile = new Tile();
-            tile.ClearWithoutInvokingEvent();
-            test.AddWithoutInvokingEvent(tile);
-
-            TileStresstest ts = new TileStresstest();
-            ts.Label = "Benchdb";
-            tile.AddWithoutInvokingEvent(ts);
-            tile.AddWithoutInvokingEvent(new TileStresstest());
-            tile.AddWithoutInvokingEvent(new TileStresstest());
-
-            tile = new Tile();
-            tile.ClearWithoutInvokingEvent();
-            test.AddWithoutInvokingEvent(tile);
-
-            ts = new TileStresstest();
-            ts.Label = "Benchdb";
-            tile.AddWithoutInvokingEvent(ts);
-            tile.AddWithoutInvokingEvent(new TileStresstest());
-
-            SetDistributedTest(test);
-        }
-
         public void SetMode(DistributedTestMode distributedTestMode, bool scheduled)
         {
             if (_distributedTestMode != distributedTestMode)
@@ -134,6 +106,7 @@ namespace vApus.DistributedTesting
             DistributedTestTreeViewItem dttvi = sender as DistributedTestTreeViewItem;
 
             Tile tile = new Tile();
+            tile.AddWithoutInvokingEvent(new TileStresstest(), false);
             CreateAndAddTileTreeViewItem(tile);
 
             dttvi.DistributedTest.Tiles.Add(tile);

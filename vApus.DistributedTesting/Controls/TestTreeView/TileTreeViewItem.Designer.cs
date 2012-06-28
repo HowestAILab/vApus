@@ -35,7 +35,6 @@
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.chk = new System.Windows.Forms.CheckBox();
             this.picAddTileStresstest = new System.Windows.Forms.PictureBox();
-            this.txtTile = new System.Windows.Forms.TextBox();
             this.lblTile = new System.Windows.Forms.Label();
             this.picCollapseExpand = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
@@ -113,20 +112,6 @@
             this.picAddTileStresstest.Visible = false;
             this.picAddTileStresstest.Click += new System.EventHandler(this.picAddTileStresstest_Click);
             // 
-            // txtTile
-            // 
-            this.txtTile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTile.Location = new System.Drawing.Point(26, 3);
-            this.txtTile.Name = "txtTile";
-            this.txtTile.Size = new System.Drawing.Size(481, 20);
-            this.txtTile.TabIndex = 0;
-            this.txtTile.Visible = false;
-            this.txtTile.Enter += new System.EventHandler(this._Enter);
-            this.txtTile.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            this.txtTile.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.txtTile.Leave += new System.EventHandler(this.txtTile_Leave);
-            // 
             // lblTile
             // 
             this.lblTile.AutoSize = true;
@@ -154,7 +139,6 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.txtTile);
             this.Controls.Add(this.picCollapseExpand);
             this.Controls.Add(this.picAddTileStresstest);
             this.Controls.Add(this.picDuplicate);
@@ -182,7 +166,6 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picDelete;
         private System.Windows.Forms.CheckBox chk;
-        private System.Windows.Forms.TextBox txtTile;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.PictureBox picCollapseExpand;
         private System.Windows.Forms.Label lblTile;

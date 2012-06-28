@@ -34,7 +34,6 @@
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.chk = new System.Windows.Forms.CheckBox();
-            this.txtTileStresstest = new System.Windows.Forms.TextBox();
             this.lblTileStresstest = new System.Windows.Forms.Label();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
             this.eventProgressBar = new vApus.Util.EventProgressBar();
@@ -96,20 +95,6 @@
             this.chk.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             // 
-            // txtTileStresstest
-            // 
-            this.txtTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTileStresstest.Location = new System.Drawing.Point(40, 3);
-            this.txtTileStresstest.Name = "txtTileStresstest";
-            this.txtTileStresstest.Size = new System.Drawing.Size(489, 20);
-            this.txtTileStresstest.TabIndex = 0;
-            this.txtTileStresstest.Visible = false;
-            this.txtTileStresstest.Enter += new System.EventHandler(this._Enter);
-            this.txtTileStresstest.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            this.txtTileStresstest.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.txtTileStresstest.Leave += new System.EventHandler(this.txtTileStresstest_Leave);
-            // 
             // lblTileStresstest
             // 
             this.lblTileStresstest.AutoSize = true;
@@ -154,7 +139,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.picDelete);
             this.Controls.Add(this.eventProgressBar);
-            this.Controls.Add(this.txtTileStresstest);
             this.Controls.Add(this.lblTileStresstest);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.chk);
@@ -179,7 +163,6 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picDelete;
         private System.Windows.Forms.CheckBox chk;
-        private System.Windows.Forms.TextBox txtTileStresstest;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblTileStresstest;
         private Util.EventProgressBar eventProgressBar;

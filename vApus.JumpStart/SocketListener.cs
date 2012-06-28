@@ -20,10 +20,6 @@ namespace vApus.JumpStart
     /// </summary>
     public class SocketListener
     {
-        #region Events
-        public event EventHandler<ListeningErrorEventArgs> ListeningError;
-        #endregion
-
         #region Fields
         private static SocketListener _socketListener;
 
@@ -37,6 +33,8 @@ namespace vApus.JumpStart
         private HashSet<SocketWrapper> _connectedMasters = new HashSet<SocketWrapper>();
         public AsyncCallback _onReceiveCallBack;
 
+        //To queue the communication
+        private object _lock = new object();
         #endregion
 
         #region Properties
@@ -124,16 +122,6 @@ namespace vApus.JumpStart
             }
             catch { }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="minimumPort"></param>
-        /// <param name="maximumPort"></param>
-        public void Restart()
-        {
-            Stop();
-            Start();
-        }
         #endregion
 
         #region Communication
@@ -192,9 +180,7 @@ namespace vApus.JumpStart
                 BeginReceive(socketWrapper);
                 _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
             }
-            catch
-            {
-            }
+            catch { }
         }
         private void BeginReceive(SocketWrapper socketWrapper)
         {
@@ -211,37 +197,32 @@ namespace vApus.JumpStart
                 //Reconnect on network hiccup.
                 ConnectMaster(socketWrapper.IP.ToString(), socketWrapper.Port, 1000, out exception);
                 if (exception == null)
-                {
                     BeginReceive(socketWrapper);
-                }
                 else
-                {
                     DisconnectMaster(socketWrapper);
-                    if (ListeningError != null)
-                        ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
-                }
             }
         }
         private void OnReceive(IAsyncResult result)
         {
-            SocketWrapper socketWrapper = (SocketWrapper)result.AsyncState;
-            Message<Key> message = new Message<Key>();
-            try
+            lock (_lock)
             {
-                socketWrapper.Socket.EndReceive(result);
-                message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
+                SocketWrapper socketWrapper = (SocketWrapper)result.AsyncState;
+                Message<Key> message = new Message<Key>();
+                try
+                {
+                    socketWrapper.Socket.EndReceive(result);
+                    message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
 
 
-                BeginReceive(socketWrapper);
-                message = CommunicationHandler.HandleMessage(socketWrapper, message);
+                    BeginReceive(socketWrapper);
+                    message = CommunicationHandler.HandleMessage(socketWrapper, message);
 
-                socketWrapper.Send(message, SendType.Binary);
-            }
-            catch (Exception exception)
-            {
-                DisconnectMaster(socketWrapper);
-                if (ListeningError != null)
-                    ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
+                    socketWrapper.Send(message, SendType.Binary);
+                }
+                catch
+                {
+                    DisconnectMaster(socketWrapper);
+                }
             }
         }
         #endregion

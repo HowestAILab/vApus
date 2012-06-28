@@ -110,16 +110,7 @@ namespace vApus.DistributedTesting
             this.BackColor = Color.Transparent;
             SetVisibleControls();
         }
-        private void txtTileStresstest_Leave(object sender, EventArgs e)
-        {
-            txtTileStresstest.Text = lblTileStresstest.Text = txtTileStresstest.Text.Trim();
-            if (_tileStresstest.Label != txtTileStresstest.Text)
-            {
-                _tileStresstest.Label = txtTileStresstest.Text;
-                _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
-            lblTileStresstest.Text = _tileStresstest.Label;
-        }
+
         private void _MouseEnter(object sender, EventArgs e)
         {
             SetVisibleControls();
@@ -131,7 +122,7 @@ namespace vApus.DistributedTesting
         public void SetVisibleControls(bool visible)
         {
             if (_distributedTestMode == DistributedTestMode.Edit)
-                txtTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+                picDuplicate.Visible = picDelete.Visible = visible;
         }
 
         public void SetVisibleControls()
@@ -147,19 +138,11 @@ namespace vApus.DistributedTesting
 
         public void RefreshGui()
         {
-            string label = string.Empty;
-            if (_tileStresstest.Label == string.Empty)
-                label = (_tileStresstest.BasicTileStresstest.Connection == null || _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
-                    string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString();
-            else
-                label = _tileStresstest.Label;
+            string label = (_tileStresstest.BasicTileStresstest.Connection == null || _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
+                    _tileStresstest.ToString() : _tileStresstest.BasicTileStresstest.Connection.ToString();
 
             if (lblTileStresstest.Text != label)
-            {
                 lblTileStresstest.Text = label;
-                if (!txtTileStresstest.Focused)
-                    txtTileStresstest.Text = label;
-            }
         }
 
         private void _KeyUp(object sender, KeyEventArgs e)
@@ -169,21 +152,6 @@ namespace vApus.DistributedTesting
                 _ctrl = false;
                 return;
             }
-            if (sender == txtTileStresstest)
-                if (e.KeyCode == Keys.Enter && _tileStresstest.Label != txtTileStresstest.Text)
-                {
-                    txtTileStresstest.Text = txtTileStresstest.Text.Trim();
-                    if (_tileStresstest.Label != txtTileStresstest.Text)
-                    {
-                        _tileStresstest.Label = txtTileStresstest.Text;
-                        if (_tileStresstest.Label == string.Empty)
-                            lblTileStresstest.Text = (_tileStresstest.BasicTileStresstest.Connection == null || _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ? string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString();
-                        else
-                            lblTileStresstest.Text = _tileStresstest.Label;
-
-                        _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                    }
-                }
 
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
@@ -226,7 +194,6 @@ namespace vApus.DistributedTesting
                 if (_tileStresstest.Use)
                 {
                     chk.Visible =
-                    txtTileStresstest.Visible =
                     picDelete.Visible =
                     picDuplicate.Visible = true;
                 }
@@ -238,7 +205,6 @@ namespace vApus.DistributedTesting
                 if (_tileStresstest.Use)
                 {
                     chk.Visible =
-                    txtTileStresstest.Visible =
                     picDelete.Visible =
                     picDuplicate.Visible = false;
 

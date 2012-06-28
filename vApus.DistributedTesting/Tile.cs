@@ -34,7 +34,6 @@ namespace vApus.DistributedTesting
         public Tile()
         {
             ShowInGui = false;
-            this.AddAsDefaultItem(new TileStresstest());
         }
         #endregion
 
@@ -46,7 +45,6 @@ namespace vApus.DistributedTesting
         public Tile Clone()
         {
             var clone = new Tile();
-            clone.Label = Label;
             clone.Use = _use;
             foreach (TileStresstest ts in this)
                 clone.AddWithoutInvokingEvent(ts.Clone());

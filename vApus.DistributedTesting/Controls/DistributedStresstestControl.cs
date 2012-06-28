@@ -192,6 +192,7 @@ namespace vApus.DistributedTesting
         }
         private void SetOverallFastResults()
         {
+            LockWindowUpdate(this.Handle.ToInt32());
             try
             {
                 if (!this.IsDisposed && _progress != null)
@@ -209,6 +210,7 @@ namespace vApus.DistributedTesting
                 }
             }
             catch { }
+            LockWindowUpdate(0);
         }
 
         private void SetConcurrentUsersProgress()

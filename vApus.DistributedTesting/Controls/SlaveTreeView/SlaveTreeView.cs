@@ -75,6 +75,7 @@ namespace vApus.DistributedTesting
             var castvi = sender as ClientsAndSlavesTreeViewItem;
 
             Client client = new Client();
+            client.AddWithoutInvokingEvent(new Slave(), false);
             CreateAndAddClientTreeViewItem(client);
 
 

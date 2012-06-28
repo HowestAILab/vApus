@@ -22,7 +22,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// Only when the solution is fully loaded.
         /// </summary>
-        private bool _canDefaultTo;
+        private bool _canDefaultTo = false;
         #endregion
 
         #region Properties
@@ -34,14 +34,7 @@ namespace vApus.DistributedTesting
             set
             {
                 value.ParentIsNull -= _defaultTo_ParentIsNull;
-
-                if (_defaultSettingsTo != value)
-                {
-                    _defaultSettingsTo = value;
-
-                    if (_canDefaultTo)
-                        BasicTileStresstest.DefaultTo(_defaultSettingsTo);
-                }
+                _defaultSettingsTo = value;
                 _defaultSettingsTo.ParentIsNull += new EventHandler(_defaultTo_ParentIsNull);
             }
         }
@@ -93,6 +86,8 @@ namespace vApus.DistributedTesting
             {
                 DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
                 _canDefaultTo = true;
+
+                SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
             }
             else
             {
@@ -108,6 +103,14 @@ namespace vApus.DistributedTesting
             _canDefaultTo = false;
             DefaultSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
             _canDefaultTo = true;
+
+            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+        }
+
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
+        {
+            if (sender == this && _canDefaultTo)
+                BasicTileStresstest.DefaultTo(_defaultSettingsTo);
         }
         private void _defaultTo_ParentIsNull(object sender, EventArgs e)
         {
@@ -120,7 +123,7 @@ namespace vApus.DistributedTesting
 
         public override string ToString()
         {
-            return "[TS " + TileStresstestIndex + "] " + Label;
+            return "[TS " + TileStresstestIndex + "] ";
         }
         /// <summary>
         /// Create a clone of this.
@@ -129,7 +132,6 @@ namespace vApus.DistributedTesting
         public TileStresstest Clone()
         {
             var clone = new TileStresstest();
-            clone.Label = Label;
             clone.Use = _use;
             clone.DefaultSettingsTo = _defaultSettingsTo;
             clone.AutomaticDefaultAdvancedSettings = _automaticDefaultAdvancedSettings;
