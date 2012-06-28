@@ -61,9 +61,6 @@ namespace vApus.JumpStart
 
             waithandle.WaitOne();
 
-            //Wait until the vApusses are ready to accept communication from the master.
-            Thread.Sleep(20000);
-
             return message;
         }
 
@@ -114,6 +111,9 @@ namespace vApus.JumpStart
                     process.Start();
                     if (!process.WaitForInputIdle(10000))
                         throw new TimeoutException("The process did not start.");
+
+                    //Wait until the vApus is ready to accept communication from the master.
+                    Thread.Sleep(10000);
                 }
                 catch
                 {
