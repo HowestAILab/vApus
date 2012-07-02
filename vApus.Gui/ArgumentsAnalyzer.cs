@@ -244,7 +244,7 @@ namespace vApus.Gui
             }
             catch (Exception ex)
             {
-                return "Could not set the log level!\n" + ex;
+                return "ERROR\nCould not set the log level!\n" + ex;
             }
             return ((int)LogWrapper.LogLevel) + " (= " + LogWrapper.LogLevel + ")";
         }
@@ -262,7 +262,7 @@ namespace vApus.Gui
             }
             catch (Exception ex)
             {
-                return "Could not set the processor affinity!\n" + ex;
+                return "ERROR\nCould not set the processor affinity!\n" + ex;
             }
             string s = string.Empty;
             foreach (int i in ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity))
@@ -285,7 +285,7 @@ namespace vApus.Gui
                 catch (Exception ex)
                 {
                     Thread.Sleep(i * 500);
-                    return "Could not set the socket listener IP and port!\n" + ex;
+                    return "ERROR\nCould not set the socket listener IP and port!\n" + ex;
                 }
 
             try
@@ -294,14 +294,14 @@ namespace vApus.Gui
             }
             catch (Exception ex)
             {
-                return "Could not return the socket listener IP and port!\n" + ex;
+                return "ERROR\nCould not return the socket listener IP and port!\n" + ex;
             }
         }
         private static string LoadNewActiveSolution(string fileName)
         {
             if (Solution.LoadNewActiveSolution(fileName))
                 return fileName;
-            return "'" + fileName + "' could not be loaded!";
+            return "ERROR\n'" + fileName + "' could not be loaded!";
         }
         #endregion
 

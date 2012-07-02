@@ -73,7 +73,9 @@ namespace vApus.Gui
             _welcome.Show(dockPanel);
             OnActiveSolutionChanged(null);
 
-            ArgumentsAnalyzer.AnalyzeAndExecute(_args);
+            string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
+            if (error.Length != 0)
+                LogWrapper.LogByLevel("Argument Analyzer " + error, LogLevel.Error);
 
             _updateNotifierPanel = new UpdateNotifierPanel();
             _logPanel = new LogPanel();
