@@ -20,7 +20,7 @@ namespace vApus.DistributedTesting
     public class DistributedTest : LabeledBaseItem
     {
         #region Fields
-        private RunSynchronization _runSynchronization;
+        private RunSynchronization _runSynchronization = RunSynchronization.BreakOnFirstFinished;
         private string _resultPath;
         #endregion
 
@@ -35,14 +35,16 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// The path where to the results are saved.
         /// </summary>
-        
+
         [SavableCloneable]
         public string ResultPath
         {
-            get {
+            get
+            {
                 if (_resultPath != DefaultResultPath || !Directory.Exists(_resultPath))
                     _resultPath = DefaultResultPath;
-                return _resultPath; }
+                return _resultPath;
+            }
             set { _resultPath = value; }
         }
         private string DefaultResultPath

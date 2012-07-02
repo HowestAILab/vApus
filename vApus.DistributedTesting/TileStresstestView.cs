@@ -125,7 +125,8 @@ namespace vApus.DistributedTesting
             {
                 Cursor = Cursors.WaitCursor;
                 btnStop.Enabled = true;
-                LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000);
+                try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); }
+                catch { stresstestControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
                 tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
                 // _messageTimer.Start();
 
@@ -145,7 +146,11 @@ namespace vApus.DistributedTesting
                     _stresstestCore.Message += new EventHandler<Stresstest.MessageEventArgs>(_stresstestCore_Message);
                     _stresstestCore.InitializeTest();
 
-                    stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                    try
+                    {
+                        stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                    }
+                    catch { } //Exception on false WMI. 
                     stresstestControl.UpdateFastResults();
                 }
                 catch (Exception ex)
@@ -260,7 +265,11 @@ namespace vApus.DistributedTesting
             tmrProgressDelayCountDown.Stop();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+            try
+            {
+                stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+            }
+            catch { } //Exception on false WMI. 
 
             _lastAddedTileConcurrentUsersProgressResult = new TileConcurrentUsersProgressResult(e.Result);
             _tileStresstestProgressResults.TileConcurrentUsersProgressResults.Add(_lastAddedTileConcurrentUsersProgressResult);
@@ -271,7 +280,11 @@ namespace vApus.DistributedTesting
             tmrProgressDelayCountDown.Stop();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+            try
+            {
+                stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+            }
+            catch { } //Exception on false WMI. 
 
             _lastTilePrecisionProgressResult = new TilePrecisionProgressResult(e.Result);
             _lastAddedTileConcurrentUsersProgressResult.TilePrecisionProgressResults.Add(_lastTilePrecisionProgressResult);
@@ -282,7 +295,11 @@ namespace vApus.DistributedTesting
             tmrProgressDelayCountDown.Stop();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+            try
+            {
+                stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+            }
+            catch { } //Exception on false WMI. 
 
             _lastTilePrecisionProgressResult.TileRunProgressResults.Add(new TileRunProgressResult(e.Result));
 
@@ -306,7 +323,11 @@ namespace vApus.DistributedTesting
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
-                stresstestControl.SetClientMonitoring(_stresstestCore == null ? 0 : _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                try
+                {
+                    stresstestControl.SetClientMonitoring(_stresstestCore == null ? 0 : _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                }
+                catch { } //Exception on false WMI. 
                 stresstestControl.UpdateFastResults();
             }, null);
 
@@ -408,7 +429,11 @@ namespace vApus.DistributedTesting
         {
             if (_stresstestCore != null)
             {
-                stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                try
+                {
+                    stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                }
+                catch { } //Exception on false WMI. 
                 stresstestControl.UpdateFastResults();
                 stresstestControl.SlaveSideSaveResults();
 

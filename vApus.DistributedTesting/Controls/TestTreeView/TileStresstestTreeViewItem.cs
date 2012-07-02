@@ -138,8 +138,9 @@ namespace vApus.DistributedTesting
 
         public void RefreshGui()
         {
-            string label = (_tileStresstest.BasicTileStresstest.Connection == null || _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
-                    _tileStresstest.ToString() : _tileStresstest.BasicTileStresstest.Connection.ToString();
+            string label = _tileStresstest.Index + ") " +
+                ((_tileStresstest.BasicTileStresstest.Connection == null || _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
+                    string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString());
 
             if (lblTileStresstest.Text != label)
                 lblTileStresstest.Text = label;

@@ -50,20 +50,8 @@ namespace vApus.DistributedTesting
 
             SetGui();
 
-            //select the first client tvi if any
-            bool selected = false;
-            foreach (Control control in largeList.AllControls)
-                if (control is ClientTreeViewItem)
-                {
-                    control.Select();
-                    selected = true;
-                    break;
-                }
-
-            if (!selected)
-                castvi.Select();
-
             castvi.SetHostNameAndIP();
+            castvi.Select();
 
             LockWindowUpdate(0);
         }
@@ -77,10 +65,8 @@ namespace vApus.DistributedTesting
             Client client = new Client();
             client.AddWithoutInvokingEvent(new Slave(), false);
             CreateAndAddClientTreeViewItem(client);
-
-
+            
             castvi.ClientsAndSlaves.Add(client);
-            castvi.ClientsAndSlaves.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
 
             LockWindowUpdate(0);
         }
@@ -116,8 +102,6 @@ namespace vApus.DistributedTesting
 
             largeList.Insert(cvi, index);
 
-            cvi.Select();
-
             cvi.SetHostNameAndIP();
         }
         private void cvi_AddSlaveClicked(object sender, EventArgs e)
@@ -144,7 +128,7 @@ namespace vApus.DistributedTesting
                     break;
                 }
             }
-            cvi.Client.Add(slave);
+            cvi.Client.AddWithoutInvokingEvent(slave, false);
             cvi.Client.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
 
             LockWindowUpdate(0);
@@ -157,11 +141,20 @@ namespace vApus.DistributedTesting
             if (cvi.Client.Parent != null)
             {
                 var clone = cvi.Client.Clone();
-
                 var parent = cvi.Client.Parent as ClientsAndSlaves;
-                parent.InsertWithoutInvokingEvent(parent.IndexOf(cvi.Client), clone);
+                int cloneIndex = parent.IndexOf(cvi.Client) + 1;
 
-                CreateAndInsertClientTreeViewItem(clone, largeList.IndexOf(cvi));
+                if (parent.Count == cloneIndex)
+                    parent.AddWithoutInvokingEvent(clone, false);
+                else
+                    parent.InsertWithoutInvokingEvent(cloneIndex, clone, false);
+
+
+                var cloneIndexForLargeList = largeList.ParseFlatIndex(largeList.ParseIndex(largeList.IndexOf(cvi)) + 1);
+                if (cloneIndexForLargeList.Key == -1)
+                    CreateAndAddClientTreeViewItem(clone);
+                else
+                    CreateAndInsertClientTreeViewItem(clone, cloneIndexForLargeList);
 
                 parent.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
             }
@@ -184,25 +177,6 @@ namespace vApus.DistributedTesting
 
             LockWindowUpdate(0);
         }
-        //private void cvi_DuplicateClicked(object sender, EventArgs e)
-        //{
-        //    LockWindowUpdate(this.Handle.ToInt32());
-
-        //    TileTreeViewItem tvi = sender as TileTreeViewItem;
-        //    if (tvi.Tile.Parent != null)
-        //    {
-        //        var clone = tvi.Tile.Clone();
-
-        //        var parent = tvi.Tile.Parent as Tiles;
-        //        parent.InsertWithoutInvokingEvent(parent.IndexOf(tvi.Tile), clone);
-
-        //        CreateAndInsertTileTreeViewItem(clone, largeList.IndexOf(tvi));
-
-        //        parent.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
-        //    }
-
-        //    LockWindowUpdate(0);
-        //}
 
         private void _AfterSelect(object sender, EventArgs e)
         {
@@ -236,9 +210,11 @@ namespace vApus.DistributedTesting
         {
             if (_distributedTestMode != distributedTestMode)
             {
+                LockWindowUpdate(this.Handle.ToInt32());
                 _distributedTestMode = distributedTestMode;
                 foreach (ITreeViewItem item in largeList.AllControls)
                     item.SetDistributedTestMode(_distributedTestMode);
+                LockWindowUpdate(0);
             }
         }
         #endregion

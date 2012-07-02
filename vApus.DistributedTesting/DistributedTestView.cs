@@ -476,7 +476,8 @@ namespace vApus.DistributedTesting
             {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
-                    LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000);
+                    try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); }
+                    catch { stresstestControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
                     tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
                     tmrProgress.Start();
 
@@ -542,7 +543,7 @@ namespace vApus.DistributedTesting
         }
         private void SetOverallProgress()
         {
-            if (_selectedTestItem != null && _distributedTestCore != null)
+            if (_selectedTestItem != null && _distributedTestCore != null && !_distributedTestCore.IsDisposed)
                 if (_selectedTestItem is DistributedTestTreeViewItem)
                 {
                     var progress = new Dictionary<TileStresstest, TileStresstestProgressResults>(_distributedTestCore.TestProgressMessages.Count);
@@ -778,7 +779,7 @@ namespace vApus.DistributedTesting
             {
                 distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
             }
-            catch { }
+            catch { } //Exception on false WMI. 
         }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e)
@@ -788,7 +789,11 @@ namespace vApus.DistributedTesting
         }
         private void tmrProgress_Tick(object sender, EventArgs e)
         {
-            distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+            try
+            {
+                distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+            }
+            catch { } //Exception on false WMI. 
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
         }
         private void StopProgressDelayCountDown()
@@ -838,7 +843,11 @@ namespace vApus.DistributedTesting
                 try
                 {
                     _distributedTestCore.Stop();
-                    distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                    try
+                    {
+                        distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                    }
+                    catch { } //Exception on false WMI. 
                 }
                 catch (Exception ex)
                 {

@@ -57,21 +57,35 @@ namespace vApus.DistributedTesting
 
             _client = client;
 
-            while (flp.Controls.Count < _client.Count)
-                flp.Controls.Add(CreateSlaveTile());
-            while (flp.Controls.Count > _client.Count)
-                flp.Controls.RemoveAt(0);
+            if (flp.Controls.Count < _client.Count)
+            {
+                var slaveTiles = new Control[_client.Count - flp.Controls.Count];
+                for (int i = 0; i != slaveTiles.Length; i++)
+                    slaveTiles[i] = CreateSlaveTile();
+                flp.Controls.AddRange(slaveTiles);
+            }
+            else
+            {
+                var slaveTiles = new Control[flp.Controls.Count - _client.Count];
+                for (int i = _client.Count; i != flp.Controls.Count; i++)
+                    slaveTiles[i - _client.Count] = flp.Controls[i];
+
+                //No layouting must happen this way.
+                for(int i = slaveTiles.Length - 1; i != -1; i--)
+                    flp.Controls.RemoveAt(i);
+            }
 
 
             if (flp.Controls.Count != 0)
             {
                 for (int i = 0; i != _client.Count; i++)
-                    (flp.Controls[i] as SlaveTile).SetSlave(_client[i] as Slave);
+                {
+                    SlaveTile st = flp.Controls[i] as SlaveTile;
+                    st.SetSlave(_client[i] as Slave);
+                    st.SetMode(_distributedTestMode);
+                }
 
                 SetClientStatus((flp.Controls[0] as SlaveTile).ClientOnline);
-
-                foreach (SlaveTile st in flp.Controls)
-                    st.SetMode(_distributedTestMode);
             }
 
             LockWindowUpdate(0);
@@ -138,9 +152,11 @@ namespace vApus.DistributedTesting
         {
             if (_distributedTestMode != distributedTestMode)
             {
+                LockWindowUpdate(this.Handle.ToInt32());
                 _distributedTestMode = distributedTestMode;
                 foreach (SlaveTile st in flp.Controls)
                     st.SetMode(_distributedTestMode);
+                LockWindowUpdate(0);
             }
         }
         #endregion

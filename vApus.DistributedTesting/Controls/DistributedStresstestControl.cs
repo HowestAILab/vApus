@@ -192,21 +192,17 @@ namespace vApus.DistributedTesting
         }
         private void SetOverallFastResults()
         {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(lvwFastResultsListing.Handle.ToInt32());
             try
             {
                 if (!this.IsDisposed && _progress != null)
                 {
-                    lvwFastResultsListing.SuspendLayout();
-
                     if (cboDrillDown.SelectedIndex == 0)
                         SetConcurrentUsersProgress();
                     else if (cboDrillDown.SelectedIndex == 1)
                         SetPrecisionProgress();
                     else
                         SetRunProgress();
-
-                    lvwFastResultsListing.ResumeLayout();
                 }
             }
             catch { }
@@ -262,8 +258,8 @@ namespace vApus.DistributedTesting
             string tilestresstest = ts.ToString();
 
             //Only update the ones needed to be updated
-            if (lvwi.Text != tilestresstest || 
-                lvwi.SubItems[5].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries || 
+            if (lvwi.Text != tilestresstest ||
+                lvwi.SubItems[5].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
                 metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
             {
                 lvwi.SubItems[0].Text = tilestresstest;
@@ -284,9 +280,9 @@ namespace vApus.DistributedTesting
             var metrics = result.Metrics;
 
             string tilestresstest = ts.ToString();
-            
+
             ListViewItem lvwi = new ListViewItem(tilestresstest);
-                        lvwi.UseItemStyleForSubItems = false;
+            lvwi.UseItemStyleForSubItems = false;
 
             Font font = new Font("Consolas", 10.25f);
 
@@ -388,7 +384,7 @@ namespace vApus.DistributedTesting
             string tilestresstest = ts.ToString();
 
             var metrics = result.Metrics;
-            ListViewItem lvwi = new ListViewItem(tilestresstest); 
+            ListViewItem lvwi = new ListViewItem(tilestresstest);
             lvwi.UseItemStyleForSubItems = false;
 
             Font font = new Font("Consolas", 10.25f);

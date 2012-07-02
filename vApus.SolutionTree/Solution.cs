@@ -170,7 +170,7 @@ namespace vApus.SolutionTree
         {
             if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
             {
-                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before creating a new one?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before creating a new solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
                     ActiveSolution = new Solution();
                 else if (result == DialogResult.No)
@@ -225,7 +225,7 @@ namespace vApus.SolutionTree
         {
             if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
             {
-                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before opening another one?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
                     return LoadSolution(fileName);
                 else if (result == DialogResult.No)

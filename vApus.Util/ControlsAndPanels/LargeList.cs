@@ -333,7 +333,11 @@ namespace vApus.Util
                 this.HandleCreated += new EventHandler(LargeList_HandleCreated);
             }
         }
-        private void Add(Control control, bool refresh)
+        /// <summary>
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="refresh"></param>
+        public void Add(Control control, bool refresh)
         {
             if (_controlCount == MAXCAPACITY)
                 throw new OverflowException("The maximum capacity is 134 217 728.");
@@ -510,6 +514,55 @@ namespace vApus.Util
                 if (controls.Contains(control))
                     return true;
             return false;
+        }
+
+        /// <summary>
+        /// Go from a flat index to a usable index for the largelist (handy for inserting / removing controls and all that)
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>kvp(-1,-1) if not found.</returns>
+        public KeyValuePair<int, int> ParseFlatIndex(long index)
+        {
+            for (int view = 0; view != this.ViewCount; view++)
+            {
+                int countOfView = this[view].Count;
+                if (countOfView > index)
+                    return new KeyValuePair<int, int>(view, (int)index);
+
+                index -= countOfView;
+            }
+            return new KeyValuePair<int, int>(-1, -1);
+        }
+        /// <summary>
+        /// Go from a usable index to a flat one, you can increment this for instance and parse it to a usable one again.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public long ParseIndex(KeyValuePair<int, int> index)
+        {
+
+            long flatIndex = 0;
+            if (index.Key <= this.ViewCount)
+            {
+                for (int view = 0; view != this.ViewCount; view++)
+                    if (view == index.Key)
+                    {
+                        if (this[view].Count > index.Value)
+                            flatIndex += index.Value;
+                        else
+                            return -1;
+                    }
+                    else
+                    {
+                        flatIndex += this[view].Count;
+                    }
+            }
+            else
+            {
+                return -1;
+            }
+
+            return flatIndex;
         }
         /// <summary>
         /// Gets the view(index) and the index(value) in view of the given control. -1 for both if not found.

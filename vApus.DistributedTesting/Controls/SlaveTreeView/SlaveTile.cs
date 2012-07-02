@@ -47,11 +47,8 @@ namespace vApus.DistributedTesting
         public void SetSlave(Slave slave)
         {
             if (_slave != slave)
-            {
                 _slave = slave;
-                //SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
-            }
             SetGui();
         }
 
@@ -62,15 +59,20 @@ namespace vApus.DistributedTesting
         }
         private void SetGui()
         {
-            nudPort.ValueChanged -= nudPort_ValueChanged;
-            nudPort.Value = _slave.Port;
-            nudPort.ValueChanged += nudPort_ValueChanged;
+            if (nudPort.Value != _slave.Port)
+            {
+                nudPort.ValueChanged -= nudPort_ValueChanged;
+                nudPort.Value = _slave.Port;
+                nudPort.ValueChanged += nudPort_ValueChanged;
+            }
 
             string pa = _slave.ProcessorAffinity.Combine(", ");
-            llblPA.Text = pa.Length == 0 ? "..." : pa;
+            if (llblPA.Text != pa)
+                llblPA.Text = pa.Length == 0 ? "..." : pa;
 
-            TileStresstest ts = Slave.TileStresstest;
-            llblTest.Text = ts == null ? "..." : ts.ToString();
+            string ts = Slave.TileStresstest == null ? "..." :  Slave.TileStresstest.ToString();
+            if (llblTest.Text != ts)
+                llblTest.Text = ts;
         }
 
         private void nudPort_ValueChanged(object sender, EventArgs e)
@@ -142,49 +144,54 @@ namespace vApus.DistributedTesting
         }
         public void SetClientStatus(bool online)
         {
-            _clientOnline = online;
-            if (_clientOnline)
+            if (_clientOnline != online)
             {
-                toolTip.SetToolTip(picStatus, "Client Online");
-                picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
-            }
-            else
-            {
-                toolTip.SetToolTip(picStatus, "Client Offline");
-                picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
+                _clientOnline = online;
+                if (_clientOnline)
+                {
+                    toolTip.SetToolTip(picStatus, "Client Online");
+                    picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
+                }
+                else
+                {
+                    toolTip.SetToolTip(picStatus, "Client Offline");
+                    picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
+                }
             }
         }
 
         public void SetMode(DistributedTestMode distributedTestMode)
         {
-            _distributedTestMode = distributedTestMode;
-#warning Flag it or check if it is used in the tests.
-            if (_distributedTestMode == DistributedTestMode.Edit)
-                if (_slave.TileStresstest == null)
-                {
-                    this.Visible = true;
-                }
+            if (_distributedTestMode != distributedTestMode)
+            {
+                _distributedTestMode = distributedTestMode;
+                if (_distributedTestMode == DistributedTestMode.Edit)
+                    if (_slave.TileStresstest == null)
+                    {
+                        this.Visible = true;
+                    }
+                    else
+                    {
+                        picDuplicate.Visible =
+                        picDelete.Visible =
+                        nudPort.Enabled =
+                        llblPA.Enabled =
+                        llblTest.Enabled = true;
+                    }
                 else
-                {
-                    picDuplicate.Visible =
-                    picDelete.Visible =
-                    nudPort.Enabled =
-                    llblPA.Enabled =
-                    llblTest.Enabled = true;
-                }
-            else
-                if (_slave.TileStresstest == null)
-                {
-                    this.Visible = false;
-                }
-                else
-                {
-                    picDuplicate.Visible =
-                    picDelete.Visible =
-                    nudPort.Enabled =
-                    llblPA.Enabled =
-                    llblTest.Enabled = false;
-                }
+                    if (_slave.TileStresstest == null)
+                    {
+                        this.Visible = false;
+                    }
+                    else
+                    {
+                        picDuplicate.Visible =
+                        picDelete.Visible =
+                        nudPort.Enabled =
+                        llblPA.Enabled =
+                        llblTest.Enabled = false;
+                    }
+            }
         }
         #endregion
     }

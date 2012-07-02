@@ -279,12 +279,16 @@ namespace vApus.DistributedTesting
                 tpm.TileStresstestIndex = tileStresstestIndex;
 
                 tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed ? stresstestCore.BusyThreadCount : 0;
-                tpm.CPUUsage = LocalMonitor.CPUUsage;
-                tpm.MemoryUsage = LocalMonitor.MemoryUsage;
-                tpm.TotalVisibleMemory = LocalMonitor.TotalVisibleMemory;
-                tpm.ContextSwitchesPerSecond = LocalMonitor.ContextSwitchesPerSecond;
-                tpm.NicsSent = LocalMonitor.NicsSent;
-                tpm.NicsReceived = LocalMonitor.NicsReceived;
+                try
+                {
+                    tpm.CPUUsage = LocalMonitor.CPUUsage;
+                    tpm.MemoryUsage = LocalMonitor.MemoryUsage;
+                    tpm.TotalVisibleMemory = LocalMonitor.TotalVisibleMemory;
+                    tpm.ContextSwitchesPerSecond = LocalMonitor.ContextSwitchesPerSecond;
+                    tpm.NicsSent = LocalMonitor.NicsSent;
+                    tpm.NicsReceived = LocalMonitor.NicsReceived;
+                }
+                catch { } //Exception on false WMI. 
 
                 if (tileStresstestProgressResults != null)
                     tileStresstestProgressResults.Refresh();

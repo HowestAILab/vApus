@@ -184,7 +184,7 @@ namespace vApus.Monitor
                 string message = "Could not connect to the monitor client.";
                 if (!_forStresstest)
                     MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                LogWrapper.LogByLevel(message, LogLevel.Error);
+                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
             }
 
             //Use this for filtering the counters.
@@ -666,8 +666,11 @@ namespace vApus.Monitor
                 {
                     btnStart.Enabled = false;
                     btnSchedule.Enabled = false;
+
+                    string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
                     if (!forStresstest)
-                        MessageBox.Show("Entities and counters could not be retrieved!\nHave you filled in the right credentials?", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
                 }
                 split.Panel2.Enabled = true;
                 btnGetCounters.Enabled = true;
@@ -1344,7 +1347,7 @@ namespace vApus.Monitor
             else
             {
                 Stop();
-                string message = "Could not connect to the monitor!\n" + exception.ToString();
+                string message = "Could not connect to the monitor!";
                 if (_forStresstest)
                     if (OnUnhandledException != null)
                     {
@@ -1356,6 +1359,7 @@ namespace vApus.Monitor
                     {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
             }
             this.Cursor = Cursors.Default;
         }
