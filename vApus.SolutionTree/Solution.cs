@@ -94,7 +94,8 @@ namespace vApus.SolutionTree
         /// If the explorer is not visible it will be shown, docking left.
         /// Note: call 'RegisterDockPanel(DockPanel dockPanel)' prior to this.
         /// </summary>
-        public static void ShowStresstestingSolutionExplorer()
+        /// <returns>True on success</returns>
+        public static bool ShowStresstestingSolutionExplorer()
         {
             try
             {
@@ -107,7 +108,9 @@ namespace vApus.SolutionTree
             catch 
             {
                 //Could fail for slaves
+                return false;
             }
+            return true;
         }
         public static void HideStresstestingSolutionExplorer()
         {

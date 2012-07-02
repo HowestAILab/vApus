@@ -266,17 +266,12 @@ namespace vApus.DistributedTesting
         {
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit)
-                if (_tile.Use)
-                {
-                    chk.Visible =
-                    picDelete.Visible =
-                    picDuplicate.Visible = true;
-                }
-                else
-                {
+            {
+                if (!_tile.Use)
                     this.Visible = true;
-                }
+            }
             else
+            {
                 if (_tile.Use)
                 {
                     chk.Visible =
@@ -287,6 +282,7 @@ namespace vApus.DistributedTesting
                 {
                     this.Visible = false;
                 }
+            }
         }
         #endregion
     }

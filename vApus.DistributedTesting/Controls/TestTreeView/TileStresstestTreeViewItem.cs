@@ -192,17 +192,12 @@ namespace vApus.DistributedTesting
         {
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit)
-                if (_tileStresstest.Use)
-                {
-                    chk.Visible =
-                    picDelete.Visible =
-                    picDuplicate.Visible = true;
-                }
-                else
-                {
+            {
+                if (!_tileStresstest.Use)
                     this.Visible = true;
-                }
+            }
             else
+            {
                 if (_tileStresstest.Use)
                 {
                     chk.Visible =
@@ -221,6 +216,7 @@ namespace vApus.DistributedTesting
                 {
                     this.Visible = false;
                 }
+            }
         }
 
         private void eventProgressBar_EventClick(object sender, EventProgressBar.ProgressEventEventArgs e)

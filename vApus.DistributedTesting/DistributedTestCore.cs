@@ -226,7 +226,7 @@ namespace vApus.DistributedTesting
         }
         private void SendAndReceiveInitializeTest()
         {
-            InvokeMessage("Initializing test on slaves...");
+            InvokeMessage("Initializing tests on slaves...");
             _sw.Start();
             Parallel.ForEach(_usedTileStresstests, delegate(TileStresstest tileStresstest)
             {

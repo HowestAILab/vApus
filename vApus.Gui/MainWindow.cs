@@ -71,8 +71,8 @@ namespace vApus.Gui
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
-                Solution.ShowStresstestingSolutionExplorer();
-                _welcome.Show(dockPanel);
+                if (Solution.ShowStresstestingSolutionExplorer())
+                    _welcome.Show(dockPanel);
                 OnActiveSolutionChanged(null);
 
                 string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
@@ -102,7 +102,7 @@ namespace vApus.Gui
                     if (Update(host, port, username, password, channel))
                         this.Close();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
             }

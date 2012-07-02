@@ -322,30 +322,11 @@ namespace vApus.DistributedTesting
         {
             _distributedTestMode = distributedTestMode;
 #warning Flag it or check if it is used in the tests.
-            if (_distributedTestMode == DistributedTestMode.Edit)
-                //if (_client.Use)
-                //{
-                txtClient.Visible =
-                picAddSlave.Visible =
-                picDuplicate.Visible =
-                picDelete.Visible = true;
-            //}
-            //else
-            //{
-            //    this.Visible = true;
-            //}
-            else
-                //if (_client.Use)
-                //{
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
                 txtClient.Visible =
                 picAddSlave.Visible =
                 picDuplicate.Visible =
                 picDelete.Visible = false;
-            //}
-            //else
-            //{
-            //    this.Visible = false;
-            //}
         }
         #endregion
     }
