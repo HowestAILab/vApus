@@ -144,12 +144,12 @@ namespace vApus.DistributedTesting
             Stop();
             try
             {
-                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(ip), port));
-                _serverSocket.Listen(100);
-                _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
                 _ip = ip;
                 _port = port;
+                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), _port));
+                _serverSocket.Listen(100);
+                _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
                 if (preferred)
                 {
                     global::vApus.DistributedTesting.Properties.Settings.Default.PreferredIP = _ip;

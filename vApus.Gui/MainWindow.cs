@@ -66,39 +66,46 @@ namespace vApus.Gui
         }
         private void SetGui()
         {
-            SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
-            Solution.RegisterDockPanel(dockPanel);
-            Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
-            Solution.ShowStresstestingSolutionExplorer();
-            _welcome.Show(dockPanel);
-            OnActiveSolutionChanged(null);
+            try
+            {
+                SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
+                Solution.RegisterDockPanel(dockPanel);
+                Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+                Solution.ShowStresstestingSolutionExplorer();
+                _welcome.Show(dockPanel);
+                OnActiveSolutionChanged(null);
 
-            string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
-            if (error.Length != 0)
-                LogWrapper.LogByLevel("Argument Analyzer " + error, LogLevel.Error);
+                string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
+                if (error.Length != 0)
+                    LogWrapper.LogByLevel("Argument Analyzer " + error, LogLevel.Error);
 
-            _updateNotifierPanel = new UpdateNotifierPanel();
-            _logPanel = new LogPanel();
-            _logPanel.LogErrorCountChanged += new EventHandler<LogPanel.LogErrorCountChangedEventArgs>(_logPanel_LogErrorCountChanged);
-            _logErrorToolTip = new LogErrorToolTip();
-            _logErrorToolTip.AutoPopDelay = 10000;
+                _updateNotifierPanel = new UpdateNotifierPanel();
+                _logPanel = new LogPanel();
+                _logPanel.LogErrorCountChanged += new EventHandler<LogPanel.LogErrorCountChangedEventArgs>(_logPanel_LogErrorCountChanged);
+                _logErrorToolTip = new LogErrorToolTip();
+                _logErrorToolTip.AutoPopDelay = 10000;
 
-            _localizationPanel = new LocalizationPanel();
-            _processorAffinityPanel = new ProcessorAffinityPanel();
-            _cleanTempDataPanel = new CleanTempDataPanel();
-            _disableFirewallAutoUpdatePanel = new DisableFirewallAutoUpdatePanel();
+                _localizationPanel = new LocalizationPanel();
+                _processorAffinityPanel = new ProcessorAffinityPanel();
+                _cleanTempDataPanel = new CleanTempDataPanel();
+                _disableFirewallAutoUpdatePanel = new DisableFirewallAutoUpdatePanel();
 
-            string host, username, password;
-            int port, channel;
-            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
+                string host, username, password;
+                int port, channel;
+                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
 
-            UpdateNotifier.Refresh();
+                UpdateNotifier.Refresh();
 
-            if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
-                UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
-                //Doing stuff automatically
-                if (Update(host, port, username, password, channel))
-                    this.Close();
+                if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
+                    UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
+                    //Doing stuff automatically
+                    if (Update(host, port, username, password, channel))
+                        this.Close();
+            }
+            catch (Exception ex) 
+            {
+                LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
+            }
         }
         #endregion
 

@@ -153,7 +153,7 @@ namespace vApus.Gui
                 }
                 //Execute the right function for the right argument.
                 string message = "";
-                //for(int 
+
                 foreach (List<string> argWithParams in argsWithParams)
                 {
                     string ss = argWithParams[0];
