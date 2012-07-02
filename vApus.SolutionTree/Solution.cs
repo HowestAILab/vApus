@@ -96,11 +96,18 @@ namespace vApus.SolutionTree
         /// </summary>
         public static void ShowStresstestingSolutionExplorer()
         {
-            int dockState = global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState;
-            if (dockState == -1)
-                dockState = 8; //DockLeft
-
-            _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
+            try
+            {
+                int dockState = global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState;
+                if (dockState == -1)
+                    dockState = 8; //DockLeft
+            
+                _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
+            }
+            catch 
+            {
+                //Could fail for slaves
+            }
         }
         public static void HideStresstestingSolutionExplorer()
         {
