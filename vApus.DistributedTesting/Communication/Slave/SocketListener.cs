@@ -21,6 +21,11 @@ namespace vApus.DistributedTesting
     public class SocketListener
     {
         #region Events
+        /// <summary>
+        /// Use this for instance to show the test name in the title bar of the main window.
+        /// </summary>
+        public event EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> NewTest;
+
         public event EventHandler<IPChangedEventArgs> IPChanged;
         public event EventHandler<ListeningErrorEventArgs> ListeningError;
         #endregion
@@ -108,6 +113,7 @@ namespace vApus.DistributedTesting
         private SocketListener()
         {
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(NetworkChange_NetworkAddressChanged);
+            SlaveSideCommunicationHandler.NewTest += new EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs>(SlaveSideCommunicationHandler_NewTest);
         }
         #endregion
 
@@ -118,6 +124,11 @@ namespace vApus.DistributedTesting
             if (_socketListener == null)
                 _socketListener = new SocketListener();
             return _socketListener;
+        }
+        private void SlaveSideCommunicationHandler_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e)
+        {
+            foreach (EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> del in NewTest.GetInvocationList())
+                del.BeginInvoke(this, e, null, null);
         }
 
         #region Start & Stop

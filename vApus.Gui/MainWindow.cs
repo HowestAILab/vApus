@@ -90,6 +90,9 @@ namespace vApus.Gui
                 _cleanTempDataPanel = new CleanTempDataPanel();
                 _disableFirewallAutoUpdatePanel = new DisableFirewallAutoUpdatePanel();
 
+                //When this vApus is used for a slave, the title bar will change.
+                SocketListenerLinker.NewTest += new EventHandler(SocketListenerLinker_NewTest);
+
                 string host, username, password;
                 int port, channel;
                 UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
@@ -109,6 +112,10 @@ namespace vApus.Gui
         }
         #endregion
 
+        private void SocketListenerLinker_NewTest(object sender, EventArgs e)
+        {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { this.Text = sender.ToString(); }, null);
+        }
         private void MainWindow_LocationChanged(object sender, EventArgs e)
         {
             RelocateLogErrorToolTip();

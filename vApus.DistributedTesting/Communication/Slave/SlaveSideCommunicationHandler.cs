@@ -21,6 +21,11 @@ namespace vApus.DistributedTesting
 {
     public static class SlaveSideCommunicationHandler
     {
+        /// <summary>
+        /// Use this for instance to show the test name in the title bar of the main window.
+        /// </summary>
+        public static event EventHandler<NewTestEventArgs> NewTest;
+
         private static object _lock = new object();
 
         #region Message Handling
@@ -98,6 +103,9 @@ namespace vApus.DistributedTesting
                     _masterSocketWrapper = new SocketWrapper(initializeTestMessage.PushIP, initializeTestMessage.PushPort, socket);
                     _masterSocketWrapper.Connect(1000, 3);
                 }
+
+                foreach(EventHandler<NewTestEventArgs> del in NewTest.GetInvocationList())
+                    del.BeginInvoke(null, new NewTestEventArgs(stresstestWrapper.Stresstest.ToString()), null, null);
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
@@ -384,5 +392,14 @@ namespace vApus.DistributedTesting
             _torrentSeededWaitHandle.Set();
         }
         #endregion
+
+        public class NewTestEventArgs : EventArgs
+        {
+            public readonly string Test;
+            public NewTestEventArgs(string test)
+            {
+                Test = test;
+            }
+        }
     }
 }
