@@ -58,7 +58,6 @@ namespace vApus.DistributedTesting
                     slaveSocketWrapper.Connect(30000, 2);
                     if (slaveSocketWrapper.Connected)
                     {
-                        Thread.Sleep(3000);
                         var masterSocketWrapper = GetMasterSocketWrapper(slaveSocketWrapper);
 
                         Message<Key> message = SendAndReceive(slaveSocketWrapper, Key.Poll, null, 30000);

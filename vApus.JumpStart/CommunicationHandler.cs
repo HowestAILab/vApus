@@ -88,8 +88,6 @@ namespace vApus.JumpStart
                 {
                     p.Kill();
                     p.WaitForExit(10000);
-
-                    Thread.Sleep(10000);
                 }
             }
             catch { }
@@ -113,9 +111,6 @@ namespace vApus.JumpStart
                     p.Start();
                     if (!p.WaitForInputIdle(10000))
                         throw new TimeoutException("The process did not start.");
-
-                    //Wait until the vApus is ready to accept communication from the master.
-                    Thread.Sleep(10000);
                 }
                 catch
                 {

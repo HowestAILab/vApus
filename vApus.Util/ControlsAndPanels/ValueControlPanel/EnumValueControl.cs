@@ -79,8 +79,12 @@ namespace vApus.Util
         }
         private void cbo_Leave(object sender, EventArgs e)
         {
-            ComboBox cbo = base.ValueControl as ComboBox;
-            base.HandleValueChanged(ExtractValue(cbo));
+            try
+            {
+                ComboBox cbo = base.ValueControl as ComboBox;
+                base.HandleValueChanged(ExtractValue(cbo));
+            }
+            catch { }
         }
 
         private object ExtractValue(ComboBox cbo)

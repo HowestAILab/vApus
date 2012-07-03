@@ -58,11 +58,15 @@ namespace vApus.Util
         }
         private void txt_Leave(object sender, EventArgs e)
         {
-            TextBox txt = sender as TextBox;
-            if (txt.Text.Length == 0)
-                txt.Text = base.__Value.__Value.ToString();
-            else
-                base.HandleValueChanged(txt.Text[0]);
+            try
+            {
+                TextBox txt = sender as TextBox;
+                if (txt.Text.Length == 0)
+                    txt.Text = base.__Value.__Value.ToString();
+                else
+                    base.HandleValueChanged(txt.Text[0]);
+            }
+            catch { }
         }
     }
 }

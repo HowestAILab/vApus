@@ -118,6 +118,8 @@ namespace vApus.Util
         public void SetValues(params BaseValueControl.Value[] values)
         {
             LockWindowUpdate(this.Handle.ToInt32());
+            this.Controls.Clear();
+
             _values = values;
             //Keep the values here before adding them.
             var range = new List<BaseValueControl>(_values.Length);
@@ -136,18 +138,22 @@ namespace vApus.Util
                 }
 
                 //Find a control with the right type if any.
-                foreach (BaseValueControl ctrl in this.Controls)
-                    if (controlType == ctrl.GetType() && !range.Contains(ctrl))
-                    {
-                        control = ctrl;
-                        break;
-                    }
+                //foreach (BaseValueControl ctrl in this.Controls)
+                //    if (controlType == ctrl.GetType() && !range.Contains(ctrl))
+                //    {
+                //        control = ctrl;
+                //        break;
+                //    }
                 //Otherwise make a new one.
-                if (control == null)
-                {
-                    control = Activator.CreateInstance(controlType) as BaseValueControl;
-                    control.ValueChanged += new EventHandler<BaseValueControl.ValueChangedEventArgs>(ValueControlPanel_ValueChanged);
-                }
+                //if (control == null)
+                //{
+                control = Activator.CreateInstance(controlType) as BaseValueControl;
+                control.ValueChanged += new EventHandler<BaseValueControl.ValueChangedEventArgs>(ValueControlPanel_ValueChanged);
+                //}
+                //else
+                //{
+                //    control.Toggle(BaseValueControl.ToggleState.Collapse);
+                //}
                 (control as IValueControl).Init(value);
 
                 range.Add(control);

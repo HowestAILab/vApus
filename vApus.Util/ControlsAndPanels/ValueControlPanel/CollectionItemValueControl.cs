@@ -89,9 +89,13 @@ namespace vApus.Util
         }
         private void cbo_Leave(object sender, EventArgs e)
         {
-            ComboBox cbo = ValueControl as ComboBox;
-            if (cbo.SelectedIndex != -1)
-                base.HandleValueChanged(cbo.SelectedItem);
+            try
+            {
+                ComboBox cbo = ValueControl as ComboBox;
+                if (cbo.SelectedIndex != -1)
+                    base.HandleValueChanged(cbo.SelectedItem);
+            }
+            catch { }
         }
     }
 }

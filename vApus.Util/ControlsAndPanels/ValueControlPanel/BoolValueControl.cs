@@ -29,7 +29,7 @@ namespace vApus.Util
             //Only take the value into account, the other properties are taken care off.
             //Keep control recycling in mind.
             CheckBox chk = null;
-            if (base.ValueControl == null )
+            if (base.ValueControl == null)
             {
                 chk = new CheckBox();
                 chk.Dock = DockStyle.Top;
@@ -63,9 +63,13 @@ namespace vApus.Util
         }
         private void chk_Leave(object sender, EventArgs e)
         {
-            CheckBox chk = ValueControl as CheckBox;
-            SetChkText(chk);
-            base.HandleValueChanged(chk.Checked);
+            try
+            {
+                CheckBox chk = ValueControl as CheckBox;
+                SetChkText(chk);
+                base.HandleValueChanged(chk.Checked);
+            }
+            catch { }
         }
         private void SetChkText(CheckBox chk)
         {

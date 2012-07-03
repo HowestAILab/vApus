@@ -92,8 +92,12 @@ namespace vApus.Util
         }
         private void nud_Leave(object sender, EventArgs e)
         {
-            FixedNumericUpDown nud = sender as FixedNumericUpDown;
-            base.HandleValueChanged(ConvertToNumericType(nud.Value));
+            try
+            {
+                FixedNumericUpDown nud = sender as FixedNumericUpDown;
+                base.HandleValueChanged(ConvertToNumericType(nud.Value));
+            }
+            catch { }
         }
         private object ConvertToNumericType(decimal value)
         {

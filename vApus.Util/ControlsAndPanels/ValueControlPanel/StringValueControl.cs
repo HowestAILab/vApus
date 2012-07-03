@@ -55,8 +55,12 @@ namespace vApus.Util
         }
         private void txt_Leave(object sender, EventArgs e)
         {
-            TextBox txt = sender as TextBox;
-            base.HandleValueChanged(txt.Text);
+            try
+            {
+                TextBox txt = sender as TextBox;
+                base.HandleValueChanged(txt.Text);
+            }
+            catch { }
         }
     }
 }

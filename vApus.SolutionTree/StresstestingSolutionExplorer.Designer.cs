@@ -38,6 +38,7 @@
             // 
             this.tvw.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tvw.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvw.HideSelection = false;
             this.tvw.ImageIndex = 0;
             this.tvw.ImageList = this.imageList;
             this.tvw.LabelEdit = true;

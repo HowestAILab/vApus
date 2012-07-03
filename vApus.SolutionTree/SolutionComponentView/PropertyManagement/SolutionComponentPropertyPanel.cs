@@ -128,8 +128,8 @@ namespace vApus.SolutionTree
         {
             if (_solutionComponent != null && IsHandleCreated)
             {
-                if (_solutionComponentTypeChanged || _properties == null)
-                {
+                //if (_solutionComponentTypeChanged || _properties == null)
+                //{
                     _properties = new List<PropertyInfo>();
                     foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties())
                     {
@@ -170,18 +170,18 @@ namespace vApus.SolutionTree
                     }
 
                     base.SetValues(values);
-                }
-                else //Recycle controls
-                {
-                    object[] values = new object[_properties.Count];
-                    for (int i = 0; i != values.Length; i++)
-                    {
-                        values[i] = _properties[i].GetValue(_solutionComponent, null);
-                        base.SetDescriptionAt(i, values[i].GetDescription());
-                    }
+                //}
+                //else //Recycle controls
+                //{
+                //    object[] values = new object[_properties.Count];
+                //    for (int i = 0; i != values.Length; i++)
+                //    {
+                //        values[i] = _properties[i].GetValue(_solutionComponent, null);
+                //        base.SetDescriptionAt(i, values[i].GetDescription());
+                //    }
 
-                    base.Set__Values(collapse, values);
-                }
+                //   base.Set__Values(collapse, values);
+                //}
             }
         }
         /// <summary>
