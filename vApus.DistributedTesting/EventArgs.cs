@@ -40,6 +40,16 @@ namespace vApus.DistributedTesting
             return "Listening error occured for slave " + SlaveIP + ":" + SlavePort + " threw following exception: " + Exception;
         }
     }
+    public class TestInitializedEventArgs : EventArgs
+    {
+        public readonly Exception Exception;
+        public readonly TileStresstest TileStresstest;
+        public TestInitializedEventArgs(TileStresstest tileStresstest, Exception exception)
+        {
+            TileStresstest = tileStresstest;
+            Exception = exception;
+        }
+    }
     public class TestProgressMessageReceivedEventArgs : EventArgs
     {
         public readonly TileStresstest TileStresstest;

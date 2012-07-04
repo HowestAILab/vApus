@@ -20,6 +20,7 @@ namespace vApus.DistributedTesting
     public class DistributedTestCore : IDisposable
     {
         #region Fields
+        private object _lock = new object();
         private object _communicationLock = new object(),
             _testProgressMessagesLock = new object(),
             _usedTileStresstestsLock = new object(),
@@ -144,12 +145,14 @@ namespace vApus.DistributedTesting
 
             _distributedTest = distributedTest;
             MasterSideCommunicationHandler.ListeningError += new EventHandler<ListeningErrorEventArgs>(_masterCommunication_ListeningError);
+            MasterSideCommunicationHandler.TestInitialized += new EventHandler<TestInitializedEventArgs>(MasterSideCommunicationHandler_TestInitialized);
             MasterSideCommunicationHandler.OnTestProgressMessageReceived += new EventHandler<TestProgressMessageReceivedEventArgs>(_masterCommunication_OnTestProgressMessageReceived);
 
             //The path where results are stored.
             string subResultDir = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
             _resultPath = Path.Combine(_distributedTest.ResultPath, subResultDir);
         }
+
         ~DistributedTestCore()
         {
             Dispose();
@@ -226,28 +229,34 @@ namespace vApus.DistributedTesting
         }
         private void SendAndReceiveInitializeTest()
         {
-            InvokeMessage("Initializing tests on slaves...");
+            InvokeMessage("Initializing tests on slaves [Please, be patient]...");
             _sw.Start();
-            Parallel.ForEach(_usedTileStresstests, delegate(TileStresstest tileStresstest)
+            Exception[] exceptions = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests.ToArray(), _distributedTest.RunSynchronization);
+            if (exceptions.Length != 0)
             {
-                Exception exception;
-                MasterSideCommunicationHandler.InitializeTest(tileStresstest, _distributedTest.RunSynchronization, out exception);
-                if (exception == null)
-                {
-                    InvokeMessage(string.Format("|->Initialized {0} - {1}", tileStresstest.Parent, tileStresstest));
-                }
-                else
-                {
-                    Dispose();
-                    Exception ex = new Exception(string.Format("Could not initialize {0} - {1}.{2}{3}", tileStresstest.Parent, tileStresstest, Environment.NewLine, exception.ToString()));
-                    InvokeMessage(ex.ToString(), LogLevel.Error);
-                    throw ex;
-                }
-            });
+                Exception ex = new Exception("Could not initialize one or more tests!\n" + exceptions.Combine("\n"));
+                InvokeMessage(ex.ToString(), LogLevel.Error);
+                throw ex;
+            }
+
             _sw.Stop();
             InvokeMessage(string.Format(" ...Test initialized in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
         }
+        private void MasterSideCommunicationHandler_TestInitialized(object sender, TestInitializedEventArgs e)
+        {
+            lock (_lock)
+                if (e.Exception == null)
+                {
+                    InvokeMessage(string.Format("|->Initialized {0} - {1}", e.TileStresstest.Parent, e.TileStresstest));
+                }
+                else
+                {
+                    Exception ex = new Exception(string.Format("Could not initialize {0} - {1}.{2}{3}", e.TileStresstest.Parent, e.TileStresstest, Environment.NewLine, e.Exception.ToString()));
+                    InvokeMessage(ex.ToString(), LogLevel.Error);
+                }
+        }
+
         public void Start()
         {
             InvokeMessage("Starting the test...");
@@ -530,6 +539,7 @@ namespace vApus.DistributedTesting
                     _isDisposed = true;
 
                     MasterSideCommunicationHandler.ListeningError -= _masterCommunication_ListeningError;
+                    MasterSideCommunicationHandler.TestInitialized -= MasterSideCommunicationHandler_TestInitialized;
                     MasterSideCommunicationHandler.OnTestProgressMessageReceived -= _masterCommunication_OnTestProgressMessageReceived;
 
                     _communicationLock = null;

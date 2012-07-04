@@ -193,7 +193,9 @@ namespace vApus.DistributedTesting
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
-                if (!_tileStresstest.Use)
+                if (_tileStresstest.Use)
+                    chk.Visible = true;
+                else
                     this.Visible = true;
             }
             else

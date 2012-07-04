@@ -296,9 +296,6 @@ namespace vApus.Stresstest
             #endregion
 
             #region Functions
-            public static void Init()
-            {
-            }
             public void Execute()
             {
                 // Make sure that only a used thread can be executed.

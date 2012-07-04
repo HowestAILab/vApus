@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using vApus.Stresstest;
 using vApus.Util;
+using System.Collections.Concurrent;
 
 namespace vApus.DistributedTesting
 {
@@ -22,6 +23,8 @@ namespace vApus.DistributedTesting
         #region Events
         public static event EventHandler<ListeningErrorEventArgs> ListeningError;
         public static event EventHandler<TestProgressMessageReceivedEventArgs> OnTestProgressMessageReceived;
+
+        public static event EventHandler<TestInitializedEventArgs> TestInitialized;
         #endregion
 
         #region Fields
@@ -33,6 +36,9 @@ namespace vApus.DistributedTesting
 
         //When sending a continue --> continue to the right run.
         private static int _continueCounter = -1;
+
+        [ThreadStatic]
+        private static InitializeTestWorkItem _initializeTestWorkItem;
         #endregion
 
         #region Functions
@@ -388,41 +394,6 @@ namespace vApus.DistributedTesting
             }
             return dictionary;
         }
-        /// <summary>
-        /// Increases the buffer size if needed, never decreases it. Use ResetBuffers for that.
-        /// 
-        /// This has a timout of 30 seconds.
-        /// </summary>
-        /// <param name="socketWrapper"></param>
-        /// <param name="toSend"></param>
-        private static void SynchronizeBuffers(SocketWrapper socketWrapper, object toSend)
-        {
-            byte[] buffer = socketWrapper.ObjectToByteArray(toSend);
-            int bufferSize = buffer.Length;
-            if (bufferSize > socketWrapper.SendBufferSize)
-            {
-                socketWrapper.SendBufferSize = bufferSize;
-                socketWrapper.ReceiveBufferSize = socketWrapper.SendBufferSize;
-                SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
-                synchronizeBuffersMessage.BufferSize = socketWrapper.SendBufferSize;
-                SendAndReceive(socketWrapper, Key.SynchronizeBuffers, synchronizeBuffersMessage, 30000);
-            }
-        }
-        /// <summary>
-        /// Set the buffer size to the default buffer size (SocketWrapper.DEFAULTBUFFERSIZE).
-        /// This will set the buffer size of the socket on the other end too.
-        ///
-        /// This has a timout of 30 seconds.
-        /// </summary>
-        /// <param name="socketWrapper"></param>
-        private static void ResetBuffers(SocketWrapper socketWrapper)
-        {
-            socketWrapper.SendBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
-            socketWrapper.ReceiveBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
-            SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
-            synchronizeBuffersMessage.BufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
-            SendAndReceive(socketWrapper, Key.SynchronizeBuffers, synchronizeBuffersMessage, 30000);
-        }
 
         /// <summary>
         /// The maximum number of connections is 100.
@@ -529,6 +500,15 @@ namespace vApus.DistributedTesting
                 catch { }
             }
         }
+        private static void InvokeTestInitialized(TileStresstest tileStresstest, Exception ex)
+        {
+            lock (_lock)
+            {
+                if (TestInitialized != null)
+                    foreach (EventHandler<TestInitializedEventArgs> del in TestInitialized.GetInvocationList())
+                        del.BeginInvoke(null, new TestInitializedEventArgs(tileStresstest, ex), null, null);
+            }
+        }
         #endregion
 
         #region Public
@@ -619,44 +599,39 @@ namespace vApus.DistributedTesting
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public static void InitializeTest(TileStresstest tileStresstest, RunSynchronization runSynchronization, out Exception exception)
+        public static Exception[] InitializeTests(TileStresstest[] tileStresstests, RunSynchronization runSynchronization)
         {
-#warning Allow multiple slaves for work distribution
-            Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
-            SocketWrapper socketWrapper = Get(slave.IP, slave.Port, out exception);
-            if (exception == null)
-                try
+            ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
+            AutoResetEvent waitHandle = new AutoResetEvent(false);
+            int handled = 0;
+            for (int i = 0; i != tileStresstests.Length; i++)
+            {
+                Thread t = new Thread(delegate(object parameter)
                 {
-                    StresstestWrapper stresstestWrapper = tileStresstest.GetStresstestWrapper(runSynchronization);
+                    _initializeTestWorkItem = new InitializeTestWorkItem();
+                    exceptions.Add(
+                        _initializeTestWorkItem.InitializeTest(tileStresstests[(int)parameter], runSynchronization)
+                    );
+                    _initializeTestWorkItem = null;
 
-                    InitializeTestMessage initializeTestMessage = new InitializeTestMessage();
-                    initializeTestMessage.StresstestWrapper = stresstestWrapper;
+                    if (Interlocked.Increment(ref handled) == tileStresstests.Length)
+                        waitHandle.Set();
+                });
+                t.IsBackground = true;
+                t.Start(i);
+            }
 
-                    SocketWrapper masterSocketWrapper = _connectedSlaves[socketWrapper];
-                    initializeTestMessage.PushIP = masterSocketWrapper.IP.ToString();
-                    initializeTestMessage.PushPort = masterSocketWrapper.Port;
+            waitHandle.WaitOne();
+            waitHandle.Dispose();
+            waitHandle = null;
+            List<Exception> l = new List<Exception>();
+            foreach (Exception ex in exceptions)
+                if (ex != null)
+                    l.Add(ex);
 
-                    Message<Key> message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
-
-                    //socketWrapper.ObjectToByteArray(new Log());
-                    //Increases the buffer size, never decreases it.
-                    SynchronizeBuffers(socketWrapper, message);
-
-                    message = SendAndReceive(socketWrapper, message);
-
-                    initializeTestMessage = (InitializeTestMessage)message.Content;
-
-                    //Reset the buffers to keep the messages as small as possible.
-                    ResetBuffers(socketWrapper);
-                    if (initializeTestMessage.Exception != null)
-                        throw new Exception(initializeTestMessage.Exception);
-                }
-                catch (Exception ex)
-                {
-                    exception = ex;
-                }
+            return l.ToArray();
         }
-       
+
         /// <summary>
         /// Will start the test on all connected slaves.
         /// 
@@ -808,6 +783,108 @@ namespace vApus.DistributedTesting
         }
         #endregion
 
+        #endregion
+
+        #region Work items
+        public class InitializeTestWorkItem
+        {
+            private static object _lock = new object();
+
+            public Exception InitializeTest(TileStresstest tileStresstest, RunSynchronization runSynchronization)
+            {
+                Exception exception = null;
+
+#warning Allow multiple slaves for work distribution
+                Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
+                SocketWrapper socketWrapper = Get(slave.IP, slave.Port, out exception);
+                if (exception == null)
+                    try
+                    {
+                        StresstestWrapper stresstestWrapper = tileStresstest.GetStresstestWrapper(runSynchronization);
+
+                        InitializeTestMessage initializeTestMessage = new InitializeTestMessage();
+                        initializeTestMessage.StresstestWrapper = stresstestWrapper;
+
+                        SocketWrapper masterSocketWrapper = _connectedSlaves[socketWrapper];
+                        initializeTestMessage.PushIP = masterSocketWrapper.IP.ToString();
+                        initializeTestMessage.PushPort = masterSocketWrapper.Port;
+
+                        Message<Key> message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
+
+                        //Increases the buffer size, never decreases it.
+                        SynchronizeBuffers(socketWrapper, message);
+
+                        //message = SendAndReceive(socketWrapper, message);
+                        socketWrapper.Send(message, SendType.Binary);
+                        message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
+
+                        initializeTestMessage = (InitializeTestMessage)message.Content;
+
+                        //Reset the buffers to keep the messages as small as possible.
+                        ResetBuffers(socketWrapper);
+                        if (initializeTestMessage.Exception != null)
+                            throw new Exception(initializeTestMessage.Exception);
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                    }
+               // InvokeTestInitialized(tileStresstest, exception);
+
+                return exception;
+            }
+
+            /// <summary>
+            /// Increases the buffer size if needed, never decreases it. Use ResetBuffers for that.
+            /// 
+            /// This has a timout of 30 seconds.
+            /// </summary>
+            /// <param name="socketWrapper"></param>
+            /// <param name="toSend"></param>
+            private void SynchronizeBuffers(SocketWrapper socketWrapper, object toSend)
+            {
+                byte[] buffer = socketWrapper.ObjectToByteArray(toSend);
+                int bufferSize = buffer.Length;
+                if (bufferSize > socketWrapper.SendBufferSize)
+                {
+                    socketWrapper.SendBufferSize = bufferSize;
+                    socketWrapper.ReceiveBufferSize = socketWrapper.SendBufferSize;
+                    SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
+                    synchronizeBuffersMessage.BufferSize = socketWrapper.SendBufferSize;
+
+                    //Sync the buffers with a temp receive timeout.
+                    int receiveTimeout = socketWrapper.ReceiveTimeout;
+                    int tempReceiveTimeout = 30000;
+                    socketWrapper.ReceiveTimeout = tempReceiveTimeout;
+                    socketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage), SendType.Binary);
+                    socketWrapper.Receive(SendType.Binary);
+                    socketWrapper.ReceiveTimeout = receiveTimeout;
+                }
+            }
+            /// <summary>
+            /// Set the buffer size to the default buffer size (SocketWrapper.DEFAULTBUFFERSIZE).
+            /// This will set the buffer size of the socket on the other end too.
+            ///
+            /// This has a timout of 30 seconds.
+            /// </summary>
+            /// <param name="socketWrapper"></param>
+            private void ResetBuffers(SocketWrapper socketWrapper)
+            {
+                socketWrapper.SendBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
+                socketWrapper.ReceiveBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
+                SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
+                synchronizeBuffersMessage.BufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
+
+
+                //Sync the buffers with a temp receive timeout.
+                int receiveTimeout = socketWrapper.ReceiveTimeout;
+                int tempReceiveTimeout = 30000;
+                socketWrapper.ReceiveTimeout = tempReceiveTimeout;
+                socketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage), SendType.Binary);
+                socketWrapper.Receive(SendType.Binary);
+                socketWrapper.ReceiveTimeout = receiveTimeout;
+            }
+        }
         #endregion
     }
 }
