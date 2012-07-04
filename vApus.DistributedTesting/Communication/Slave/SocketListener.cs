@@ -127,8 +127,9 @@ namespace vApus.DistributedTesting
         }
         private void SlaveSideCommunicationHandler_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e)
         {
-            foreach (EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> del in NewTest.GetInvocationList())
-                del.BeginInvoke(this, e, null, null);
+            if (NewTest != null)
+                foreach (EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> del in NewTest.GetInvocationList())
+                    del.BeginInvoke(this, e, null, null);
         }
 
         #region Start & Stop

@@ -104,8 +104,9 @@ namespace vApus.DistributedTesting
                     _masterSocketWrapper.Connect(1000, 3);
                 }
 
-                foreach(EventHandler<NewTestEventArgs> del in NewTest.GetInvocationList())
-                    del.BeginInvoke(null, new NewTestEventArgs(stresstestWrapper.Stresstest.ToString()), null, null);
+                if (NewTest != null)
+                    foreach (EventHandler<NewTestEventArgs> del in NewTest.GetInvocationList())
+                        del.BeginInvoke(null, new NewTestEventArgs(stresstestWrapper.Stresstest.ToString()), null, null);
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {

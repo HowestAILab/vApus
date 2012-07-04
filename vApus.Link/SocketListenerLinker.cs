@@ -53,8 +53,9 @@ namespace vApus.Link
         #region Functions
         private static void _socketListener_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e)
         {
-            foreach (EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> del in NewTest.GetInvocationList())
-                del.BeginInvoke(e.Test, null, null, null);
+            if (NewTest != null)
+                foreach (EventHandler del in NewTest.GetInvocationList())
+                    del.BeginInvoke(e.Test, null, null, null);
         }
         public static void StartSocketListener()
         {
