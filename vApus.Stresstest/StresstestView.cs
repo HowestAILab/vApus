@@ -461,8 +461,7 @@ namespace vApus.Stresstest
         }
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e)
         {
-            stresstestControl.SetCountDownProgressDelay(_countDown);
-            --_countDown;
+            stresstestControl.SetCountDownProgressDelay(_countDown--);
         }
         private void tmrProgress_Tick(object sender, EventArgs e)
         {

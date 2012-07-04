@@ -784,8 +784,8 @@ namespace vApus.DistributedTesting
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e)
         {
-            stresstestControl.SetCountDownProgressDelay(_countDown);
-            --_countDown;
+            if (--_countDown > 0)
+                stresstestControl.SetCountDownProgressDelay(_countDown);
         }
         private void tmrProgress_Tick(object sender, EventArgs e)
         {

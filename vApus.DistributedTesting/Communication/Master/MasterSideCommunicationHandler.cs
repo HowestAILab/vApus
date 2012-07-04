@@ -39,6 +39,9 @@ namespace vApus.DistributedTesting
 
         [ThreadStatic]
         private static InitializeTestWorkItem _initializeTestWorkItem;
+        [ThreadStatic]
+        private static StopTestWorkItem _stopTestWorkItem;
+
         #endregion
 
         #region Functions
@@ -681,32 +684,40 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public static void StopTest(out Exception exception)
+        public static Exception[] StopTest()
         {
-            Exception e = null;
-            Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper)
+            ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
+            AutoResetEvent waitHandle = new AutoResetEvent(false);
+            int handled = 0;
+            int length = _connectedSlaves.Count;
+
+            foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
             {
-                if (socketWrapper != null)
-                    for (int i = 1; i != 4; i++)
-                        try
-                        {
-                            Message<Key> message = SendAndReceive(socketWrapper, Key.StopTest, 30000);
+                Thread t = new Thread(delegate(object parameter)
+                {
+                    _stopTestWorkItem = new StopTestWorkItem();
+                    exceptions.Add(
+                        _stopTestWorkItem.StopTest(parameter as SocketWrapper)
+                        );
+                    _stopTestWorkItem = null;
 
-                            StartAndStopMessage stopMessage = (StartAndStopMessage)message.Content;
-                            if (stopMessage.Exception != null)
-                                throw new Exception(stopMessage.Exception);
+                    if (Interlocked.Increment(ref handled) == length)
+                        waitHandle.Set();
+                });
+                t.IsBackground = true;
+                t.Start(socketWrapper);
+            }
 
-                            e = null;
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            e = new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
-                            Thread.Sleep(i * 500);
-                        }
-            });
 
-            exception = e;
+            waitHandle.WaitOne();
+            waitHandle.Dispose();
+            waitHandle = null;
+            List<Exception> l = new List<Exception>();
+            foreach (Exception ex in exceptions)
+                if (ex != null)
+                    l.Add(ex);
+
+            return l.ToArray();
         }
         /// <summary>
         /// Only use after the test is stopped.
@@ -786,10 +797,8 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Work items
-        public class InitializeTestWorkItem
+        private class InitializeTestWorkItem
         {
-            private static object _lock = new object();
-
             public Exception InitializeTest(TileStresstest tileStresstest, RunSynchronization runSynchronization)
             {
                 Exception exception = null;
@@ -829,7 +838,7 @@ namespace vApus.DistributedTesting
                     {
                         exception = ex;
                     }
-               // InvokeTestInitialized(tileStresstest, exception);
+                // InvokeTestInitialized(tileStresstest, exception);
 
                 return exception;
             }
@@ -883,6 +892,32 @@ namespace vApus.DistributedTesting
                 socketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage), SendType.Binary);
                 socketWrapper.Receive(SendType.Binary);
                 socketWrapper.ReceiveTimeout = receiveTimeout;
+            }
+        }
+        private class StopTestWorkItem
+        {
+            public Exception StopTest(SocketWrapper socketWrapper)
+            {
+                Exception exception = null;
+                if (socketWrapper != null)
+                    for (int i = 1; i != 4; i++)
+                        try
+                        {
+                            Message<Key> message = SendAndReceive(socketWrapper, Key.StopTest, 30000);
+
+                            StartAndStopMessage stopMessage = (StartAndStopMessage)message.Content;
+                            if (stopMessage.Exception != null)
+                                throw new Exception(stopMessage.Exception);
+
+                            exception = null;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            exception = new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
+                            Thread.Sleep(i * 500);
+                        }
+                return exception;
             }
         }
         #endregion

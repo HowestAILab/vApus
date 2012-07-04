@@ -456,8 +456,7 @@ namespace vApus.DistributedTesting
         public void Stop()
         {
 #warning Handle exception
-            Exception ex;
-            MasterSideCommunicationHandler.StopTest(out ex);
+            MasterSideCommunicationHandler.StopTest();
         }
 
         private void HandleFinished()

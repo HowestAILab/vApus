@@ -26,8 +26,6 @@ namespace vApus.DistributedTesting
         /// </summary>
         private object _lock = new object();
 
-        // private System.Timers.Timer _messageTimer = new System.Timers.Timer();
-
         private string _tileStresstestIndex;
         private RunSynchronization _runSynchronization;
 
@@ -105,8 +103,6 @@ namespace vApus.DistributedTesting
         private void SetGui()
         {
             Text = SolutionComponent.ToString();
-            //_messageTimer.Interval = tmrProgress.Interval;
-            //_messageTimer.Elapsed += new System.Timers.ElapsedEventHandler(_messageTimer_Elapsed);
         }
         public override void Refresh()
         {
@@ -128,7 +124,6 @@ namespace vApus.DistributedTesting
                 try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); }
                 catch { stresstestControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
                 tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
-                // _messageTimer.Start();
 
                 stresstestControl.SetStresstestInitialized();
                 stresstestControl.SetConfigurationControls(_stresstest);
@@ -173,7 +168,6 @@ namespace vApus.DistributedTesting
                 _stresstestResult = Stresstest.StresstestResult.Busy;
 
                 tmrProgress.Start();
-                tmrProgressDelayCountDown.Start();
 
                 Thread stresstestThread = new Thread(StartStresstestInBackground);
                 stresstestThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
@@ -262,7 +256,7 @@ namespace vApus.DistributedTesting
         private void _stresstestCore_ConcurrentUsersStarted(object sender, Stresstest.ConcurrentUsersStartedEventArgs e)
         {
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
-            tmrProgressDelayCountDown.Stop();
+            StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
             try
@@ -277,7 +271,7 @@ namespace vApus.DistributedTesting
         private void _stresstestCore_PrecisionStarted(object sender, Stresstest.PrecisionStartedEventArgs e)
         {
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
-            tmrProgressDelayCountDown.Stop();
+            StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
             try
@@ -292,7 +286,7 @@ namespace vApus.DistributedTesting
         private void _stresstestCore_RunInitializedFirstTime(object sender, Stresstest.RunInitializedFirstTimeEventArgs e)
         {
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
-            tmrProgressDelayCountDown.Stop();
+            StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
             try
@@ -316,8 +310,7 @@ namespace vApus.DistributedTesting
         }
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e)
         {
-            stresstestControl.SetCountDownProgressDelay(_countDown);
-            --_countDown;
+            stresstestControl.SetCountDownProgressDelay(_countDown--);
         }
         private void tmrProgress_Tick(object sender, System.Timers.ElapsedEventArgs e)
         {
