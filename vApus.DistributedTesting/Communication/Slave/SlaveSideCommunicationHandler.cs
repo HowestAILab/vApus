@@ -384,6 +384,8 @@ namespace vApus.DistributedTesting
             catch (Exception ex)
             {
                 Debug.WriteLine("Failed seeding torrent.\n" + ex.ToString());
+
+                MessageBox.Show(ex.ToString());
             }
             return null;
         }
