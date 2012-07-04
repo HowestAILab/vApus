@@ -342,15 +342,16 @@ namespace vApus.DistributedTesting
 
         #region Torrent (Result Sending)
         private static TorrentServer _torrentServer;
-        private static SocketListener _socketListener = SocketListener.GetInstance();
         private static AutoResetEvent _torrentSeededWaitHandle = new AutoResetEvent(false);
 
         private static byte[] CreateTorrent(string file, string parentFolder)
         {
             try
             {
+                SocketListener socketListener = SocketListener.GetInstance();
+
                 //Set up and seed the torrent
-                if (_torrentServer != null && _torrentServer.IP != _socketListener.IP && _torrentServer.Port != _socketListener.Port + 1000)
+                if (_torrentServer != null && _torrentServer.IP != socketListener.IP && _torrentServer.Port != socketListener.Port + 1000)
                 {
                     _torrentServer.CloseAllTorrents();
                     _torrentServer = null;
@@ -364,7 +365,7 @@ namespace vApus.DistributedTesting
                     while (_torrentServer == null)
                         try
                         {
-                            _torrentServer = new TorrentServer(_socketListener.IP, _socketListener.Port + (i++));
+                            _torrentServer = new TorrentServer(socketListener.IP, socketListener.Port + (i++));
                         }
                         catch
                         {
@@ -383,9 +384,7 @@ namespace vApus.DistributedTesting
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Failed seeding torrent.\n" + ex.ToString());
-
-                MessageBox.Show(ex.ToString());
+                LogWrapper.LogByLevel("Failed seeding torrent.\n" + ex.ToString(), LogLevel.Error);
             }
             return null;
         }
