@@ -605,28 +605,34 @@ namespace vApus.DistributedTesting
         public static Exception[] InitializeTests(TileStresstest[] tileStresstests, RunSynchronization runSynchronization)
         {
             ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
-            AutoResetEvent waitHandle = new AutoResetEvent(false);
-            int handled = 0;
-            for (int i = 0; i != tileStresstests.Length; i++)
-            {
-                Thread t = new Thread(delegate(object parameter)
-                {
-                    _initializeTestWorkItem = new InitializeTestWorkItem();
-                    exceptions.Add(
-                        _initializeTestWorkItem.InitializeTest(tileStresstests[(int)parameter], runSynchronization)
-                    );
-                    _initializeTestWorkItem = null;
+            int length = tileStresstests.Length;
 
-                    if (Interlocked.Increment(ref handled) == tileStresstests.Length)
-                        waitHandle.Set();
-                });
-                t.IsBackground = true;
-                t.Start(i);
+            if (length != 0)
+            {
+                AutoResetEvent waitHandle = new AutoResetEvent(false);
+                int handled = 0;
+                for (int i = 0; i != length; i++)
+                {
+                    Thread t = new Thread(delegate(object parameter)
+                    {
+                        _initializeTestWorkItem = new InitializeTestWorkItem();
+                        exceptions.Add(
+                            _initializeTestWorkItem.InitializeTest(tileStresstests[(int)parameter], runSynchronization)
+                        );
+                        _initializeTestWorkItem = null;
+
+                        if (Interlocked.Increment(ref handled) == tileStresstests.Length)
+                            waitHandle.Set();
+                    });
+                    t.IsBackground = true;
+                    t.Start(i);
+                }
+
+                waitHandle.WaitOne();
+                waitHandle.Dispose();
+                waitHandle = null;
             }
 
-            waitHandle.WaitOne();
-            waitHandle.Dispose();
-            waitHandle = null;
             List<Exception> l = new List<Exception>();
             foreach (Exception ex in exceptions)
                 if (ex != null)
@@ -687,31 +693,35 @@ namespace vApus.DistributedTesting
         public static Exception[] StopTest()
         {
             ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
-            AutoResetEvent waitHandle = new AutoResetEvent(false);
-            int handled = 0;
             int length = _connectedSlaves.Count;
 
-            foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
+            if (length != 0)
             {
-                Thread t = new Thread(delegate(object parameter)
-                {
-                    _stopTestWorkItem = new StopTestWorkItem();
-                    exceptions.Add(
-                        _stopTestWorkItem.StopTest(parameter as SocketWrapper)
-                        );
-                    _stopTestWorkItem = null;
+                AutoResetEvent waitHandle = new AutoResetEvent(false);
+                int handled = 0;
 
-                    if (Interlocked.Increment(ref handled) == length)
-                        waitHandle.Set();
-                });
-                t.IsBackground = true;
-                t.Start(socketWrapper);
+                foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
+                {
+                    Thread t = new Thread(delegate(object parameter)
+                    {
+                        _stopTestWorkItem = new StopTestWorkItem();
+                        exceptions.Add(
+                            _stopTestWorkItem.StopTest(parameter as SocketWrapper)
+                            );
+                        _stopTestWorkItem = null;
+
+                        if (Interlocked.Increment(ref handled) == length)
+                            waitHandle.Set();
+                    });
+                    t.IsBackground = true;
+                    t.Start(socketWrapper);
+                }
+
+                waitHandle.WaitOne();
+                waitHandle.Dispose();
+                waitHandle = null;
             }
 
-
-            waitHandle.WaitOne();
-            waitHandle.Dispose();
-            waitHandle = null;
             List<Exception> l = new List<Exception>();
             foreach (Exception ex in exceptions)
                 if (ex != null)
