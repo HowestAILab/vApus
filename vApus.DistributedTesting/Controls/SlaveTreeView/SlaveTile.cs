@@ -142,23 +142,6 @@ namespace vApus.DistributedTesting
             if (DeleteClicked != null)
                 DeleteClicked(this, null);
         }
-        public void SetClientStatus(bool online)
-        {
-            if (_clientOnline != online)
-            {
-                _clientOnline = online;
-                if (_clientOnline)
-                {
-                    toolTip.SetToolTip(picStatus, "Client Online");
-                    picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
-                }
-                else
-                {
-                    toolTip.SetToolTip(picStatus, "Client Offline");
-                    picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
-                }
-            }
-        }
 
         public void SetMode(DistributedTestMode distributedTestMode)
         {

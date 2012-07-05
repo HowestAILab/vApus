@@ -32,7 +32,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SlaveTile));
             this.label1 = new System.Windows.Forms.Label();
             this.nudPort = new vApus.Util.FixedNumericUpDown();
-            this.picStatus = new System.Windows.Forms.PictureBox();
             this.llblPA = new System.Windows.Forms.LinkLabel();
             this.llblTest = new System.Windows.Forms.LinkLabel();
             this.label2 = new System.Windows.Forms.Label();
@@ -41,7 +40,6 @@
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picStatus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
             this.SuspendLayout();
@@ -79,19 +77,6 @@
             0,
             0});
             this.nudPort.ValueChanged += new System.EventHandler(this.nudPort_ValueChanged);
-            // 
-            // picStatus
-            // 
-            this.picStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picStatus.Image = global::vApus.DistributedTesting.Properties.Resources.Cancelled;
-            this.picStatus.Location = new System.Drawing.Point(330, 7);
-            this.picStatus.Margin = new System.Windows.Forms.Padding(4);
-            this.picStatus.Name = "picStatus";
-            this.picStatus.Size = new System.Drawing.Size(16, 16);
-            this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.picStatus.TabIndex = 6;
-            this.picStatus.TabStop = false;
-            this.toolTip.SetToolTip(this.picStatus, "Client Offline");
             // 
             // llblPA
             // 
@@ -149,7 +134,7 @@
             this.picDuplicate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDuplicate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDuplicate.Image = ((System.Drawing.Image)(resources.GetObject("picDuplicate.Image")));
-            this.picDuplicate.Location = new System.Drawing.Point(283, 7);
+            this.picDuplicate.Location = new System.Drawing.Point(309, 7);
             this.picDuplicate.Name = "picDuplicate";
             this.picDuplicate.Size = new System.Drawing.Size(16, 16);
             this.picDuplicate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -163,7 +148,7 @@
             this.picDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDelete.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDelete.Image = ((System.Drawing.Image)(resources.GetObject("picDelete.Image")));
-            this.picDelete.Location = new System.Drawing.Point(305, 7);
+            this.picDelete.Location = new System.Drawing.Point(331, 7);
             this.picDelete.Name = "picDelete";
             this.picDelete.Size = new System.Drawing.Size(16, 16);
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -183,13 +168,11 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.llblTest);
             this.Controls.Add(this.llblPA);
-            this.Controls.Add(this.picStatus);
             this.Controls.Add(this.nudPort);
             this.Controls.Add(this.label1);
             this.Name = "SlaveTile";
             this.Size = new System.Drawing.Size(350, 84);
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picStatus)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
             this.ResumeLayout(false);
@@ -201,7 +184,6 @@
 
         private System.Windows.Forms.Label label1;
         private Util.FixedNumericUpDown nudPort;
-        private System.Windows.Forms.PictureBox picStatus;
         private System.Windows.Forms.LinkLabel llblPA;
         private System.Windows.Forms.LinkLabel llblTest;
         private System.Windows.Forms.Label label2;

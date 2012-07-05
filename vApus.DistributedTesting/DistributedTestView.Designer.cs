@@ -203,7 +203,6 @@
             this.slaveTreeView.Size = new System.Drawing.Size(294, 619);
             this.slaveTreeView.TabIndex = 0;
             this.slaveTreeView.AfterSelect += new System.EventHandler(this.slaveTreeView_AfterSelect);
-            this.slaveTreeView.ClientHostNameAndIPSet += new System.EventHandler(this.slaveTreeView_ClientHostNameAndIPSet);
             // 
             // tcTest
             // 

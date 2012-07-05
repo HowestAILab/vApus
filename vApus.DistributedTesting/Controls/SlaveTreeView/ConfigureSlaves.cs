@@ -84,20 +84,9 @@ namespace vApus.DistributedTesting
                     st.SetSlave(_client[i] as Slave);
                     st.SetMode(_distributedTestMode);
                 }
-
-                SetClientStatus((flp.Controls[0] as SlaveTile).ClientOnline);
             }
 
             LockWindowUpdate(0);
-        }
-        /// <summary>
-        /// Online or offline
-        /// </summary>
-        /// <param name="online"></param>
-        public void SetClientStatus(bool online)
-        {
-            for (int i = 0; i != _client.Count; i++)
-                (flp.Controls[i] as SlaveTile).SetClientStatus(online);
         }
         private SlaveTile CreateSlaveTile()
         {
