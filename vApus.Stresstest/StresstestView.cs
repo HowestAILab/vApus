@@ -174,7 +174,6 @@ namespace vApus.Stresstest
             try { LocalMonitor.StartMonitoring(Stresstest.ProgressUpdateDelay * 1000); }
             catch { stresstestControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
             tmrProgress.Interval = Stresstest.ProgressUpdateDelay * 1000;
-            tmrProgress.Start();
 
             try
             {
@@ -185,12 +184,6 @@ namespace vApus.Stresstest
                 _stresstestCore.RunInitializedFirstTime += new EventHandler<RunInitializedFirstTimeEventArgs>(_stresstestCore_RunInitializedFirstTime);
                 _stresstestCore.Message += new EventHandler<MessageEventArgs>(_stresstestCore_Message);
                 _stresstestCore.InitializeTest();
-
-                try
-                {
-                    stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
-                }
-                catch { } //Exception on false WMI. 
 
                 StartMonitors();
 
@@ -424,11 +417,6 @@ namespace vApus.Stresstest
             StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            try
-            {
-                stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
-            }
-            catch { } //Exception on false WMI. 
         }
         private void _stresstestCore_PrecisionStarted(object sender, PrecisionStartedEventArgs e)
         {
@@ -436,11 +424,6 @@ namespace vApus.Stresstest
             StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            try
-            {
-                stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
-            }
-            catch { } //Exception on false WMI. 
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunInitializedFirstTimeEventArgs e)
         {
@@ -448,11 +431,6 @@ namespace vApus.Stresstest
             StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            try
-            {
-                stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
-            }
-            catch { } //Exception on false WMI. 
 
             stresstestControl.SetCountDownProgressDelay(_countDown--);
             tmrProgressDelayCountDown.Start();

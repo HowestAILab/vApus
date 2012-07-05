@@ -120,8 +120,7 @@ namespace vApus.Util
             pe.Click += new EventHandler(pe_Click);
             _progressEvents.Add(pe);
 
-            if (_progressEvents.Count > 1)
-                _progressEvents = Sort(_progressEvents);
+            _progressEvents = Sort(_progressEvents);
 
             this.Invalidate();
 
