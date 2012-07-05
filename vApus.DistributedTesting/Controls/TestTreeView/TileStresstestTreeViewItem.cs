@@ -257,10 +257,6 @@ namespace vApus.DistributedTesting
             {
                 switch (stresstestResult)
                 {
-                    case StresstestResult.Busy:
-                        picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
-                        toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting");
-                        break;
                     case StresstestResult.Ok:
                         picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
                         toolTip.SetToolTip(picStresstestStatus, "Finished");

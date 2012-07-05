@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -17,7 +18,7 @@ namespace vApus.DistributedTesting
 {
     public static class JumpStart
     {
-        public static event EventHandler Done;
+        public static event EventHandler<DoneEventArgs> Done;
 
         private static object _lock = new object();
         [ThreadStatic]
@@ -100,10 +101,11 @@ namespace vApus.DistributedTesting
             Thread worker = new Thread(delegate()
             {
                 DoKill(toKill);
-                DoJumpStart(toJumpStart);
+                Exception[] exceptions = DoJumpStart(toJumpStart);
 
                 if (Done != null)
-                    Done(null, null);
+                    foreach (EventHandler<DoneEventArgs> del in Done.GetInvocationList())
+                        del.BeginInvoke(null, new DoneEventArgs(exceptions), null, null);
             });
             worker.IsBackground = true;
             worker.Start();
@@ -112,56 +114,68 @@ namespace vApus.DistributedTesting
         {
             Do(toKill, false);
         }
-        private static void DoJumpStart(Hashtable toJumpStart)
+        private static Exception[] DoJumpStart(Hashtable toJumpStart)
         {
-            Do(toJumpStart, true);
+            return Do(toJumpStart, true);
         }
         /// <summary>
         /// Error handling happens afterwards.
         /// </summary>
         /// <param name="ht"></param>
         /// <param name="jumpStart">true for jumpstart false for kill</param>
-        private static void Do(Hashtable ht, bool jumpStart)
+        private static Exception[] Do(Hashtable ht, bool jumpStart)
         {
             lock (_lock)
             {
+                ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
                 int count = ht.Count;
-                if (count == 0)
-                    return;
-
-                int i = 0;
-                AutoResetEvent waithandle = new AutoResetEvent(false);
-
-                foreach (var keyvalue in ht)
+                if (count != 0)
                 {
-                    Thread t = new Thread(delegate(object state)
+                    int i = 0;
+                    AutoResetEvent waithandle = new AutoResetEvent(false);
+
+                    foreach (var keyvalue in ht)
                     {
-                        var dictionaryEntry = (DictionaryEntry)state;
-                        _workItem = new WorkItem();
-
-                        if (jumpStart)
+                        Thread t = new Thread(delegate(object state)
                         {
-                            string ip = dictionaryEntry.Key as string;
-                            var kvp = (KeyValuePair<string, string>)ht[ip];
-                            _workItem.DoJumpStart(ip, kvp.Key, kvp.Value);
-                        }
-                        else
-                        {
-                            _workItem.DoKill(dictionaryEntry.Key as string, (int)dictionaryEntry.Value);
-                        }
+                            var dictionaryEntry = (DictionaryEntry)state;
+                            _workItem = new WorkItem();
 
-                        if (Interlocked.Increment(ref i) == count)
-                            waithandle.Set();
-                    });
-                    t.IsBackground = true;
-                    t.Start(keyvalue);
+                            if (jumpStart)
+                            {
+                                string ip = dictionaryEntry.Key as string;
+                                var kvp = (KeyValuePair<string, string>)ht[ip];
+
+                                exceptions.Add(
+                                    _workItem.DoJumpStart(ip, kvp.Key, kvp.Value)
+                                );
+                            }
+                            else
+                            {
+                                _workItem.DoKill(dictionaryEntry.Key as string, (int)dictionaryEntry.Value);
+                            }
+
+                            if (Interlocked.Increment(ref i) == count)
+                                waithandle.Set();
+                        });
+                        t.IsBackground = true;
+                        t.Start(keyvalue);
+                    }
+                    waithandle.WaitOne();
+                    waithandle.Dispose();
+                    waithandle = null;
+
+                    //Be sure they are jump started before trying to connect to them.
+                    Thread.Sleep(3000);
                 }
-                waithandle.WaitOne();
-
-                //Be sure they are jump started before trying to connect to them.
-                Thread.Sleep(3000);
-
                 ht.Clear();
+
+                List<Exception> l = new List<Exception>();
+                foreach (Exception ex in exceptions)
+                    if (ex != null)
+                        l.Add(ex);
+
+                return l.ToArray();
             }
         }
 
@@ -172,8 +186,9 @@ namespace vApus.DistributedTesting
             /// </summary>
             /// <param name="ip"></param>
             /// <param name="port"></param>
-            public void DoJumpStart(string ip, string port, string processorAffinity)
+            public Exception DoJumpStart(string ip, string port, string processorAffinity)
             {
+                Exception exception = null;
                 SocketWrapper socketWrapper = null;
                 try
                 {
@@ -192,8 +207,10 @@ namespace vApus.DistributedTesting
 
                     jumpStartMessage = (vApus.JumpStartStructures.JumpStartMessage)message.Content;
                 }
-                catch
-                { }
+                catch (Exception ex)
+                {
+                    exception = new Exception("JumpStart failed for " + ip + ":" + port + "\n" + ex.ToString());
+                }
 
                 if (socketWrapper != null)
                 {
@@ -205,6 +222,8 @@ namespace vApus.DistributedTesting
                     catch { }
                     socketWrapper = null;
                 }
+
+                return exception;
             }
             /// <summary>
             /// Error handling happens afterwards.
@@ -225,8 +244,7 @@ namespace vApus.DistributedTesting
                     socketWrapper.Send(message, SendType.Binary);
                     message = (Message<vApus.JumpStartStructures.Key>)socketWrapper.Receive(SendType.Binary);
                 }
-                catch
-                { }
+                catch { }
 
                 if (socketWrapper != null)
                 {
@@ -259,6 +277,17 @@ namespace vApus.DistributedTesting
                     return socketWrapper;
 
                 return null;
+            }
+        }
+        public class DoneEventArgs : EventArgs
+        {
+            /// <summary>
+            /// One exception per slave.
+            /// </summary>
+            public readonly Exception[] Exceptions;
+            public DoneEventArgs(Exception[] exceptions)
+            {
+                Exceptions = exceptions;
             }
         }
     }

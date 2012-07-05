@@ -117,7 +117,7 @@ namespace vApus.DistributedTesting
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
             //Jumpstart the slaves when starting the test
-            JumpStart.Done += new EventHandler(JumpStart_Done);
+            JumpStart.Done += new EventHandler<JumpStart.DoneEventArgs>(JumpStart_Done);
         }
         #endregion
 
@@ -231,14 +231,15 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="distributedTestMode"></param>
         /// <param name="scheduled">only for distributedTestMode.TestAndReport</param>
-        private void SetMode(DistributedTestMode distributedTestMode, bool scheduled = false)
+        private void SetMode(DistributedTestMode distributedTestMode, bool canEnableStop = false, bool scheduled = false)
         {
             if (this.IsDisposed)
                 return;
 
-            btnStop.Enabled = distributedTestMode == DistributedTestMode.TestAndReport;
             btnStart.Enabled =
-            btnSchedule.Enabled = !btnStop.Enabled;
+            btnSchedule.Enabled = distributedTestMode == DistributedTestMode.Edit;
+
+            btnStop.Enabled = canEnableStop && distributedTestMode == DistributedTestMode.TestAndReport;
 
             if (distributedTestMode == DistributedTestMode.TestAndReport)
             {
@@ -307,48 +308,63 @@ namespace vApus.DistributedTesting
             {
                 //Only one test can run at the same time.
                 distributedStresstestControl.AppendMasterMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
-                Stop();
+                Stop(true);
             }
         }
-        private void JumpStart_Done(object sender, EventArgs e)
+        private void JumpStart_Done(object sender, JumpStart.DoneEventArgs e)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 try
                 {
-
-                    if (_distributedTestCore != null && !_distributedTestCore.IsDisposed)
+                    if (e.Exceptions.Length == 0)
                     {
-                        _distributedTestCore.Dispose();
-                        _distributedTestCore = null;
+                        if (_distributedTestCore != null && !_distributedTestCore.IsDisposed)
+                        {
+                            _distributedTestCore.Dispose();
+                            _distributedTestCore = null;
+                        }
+
+                        _distributedTestCore = new DistributedTestCore(_distributedTest);
+                        _distributedTestCore.Message += new EventHandler<MessageEventArgs>(_distributedTestCore_Message);
+                        _distributedTestCore.OnTestProgressMessageReceived += new EventHandler<TestProgressMessageReceivedEventArgs>(_distributedTestCore_TestProgressMessageReceivedEventArgs);
+                        _distributedTestCore.OnListeningError += new EventHandler<ListeningErrorEventArgs>(_distributedTestCore_OnListeningError);
+                        _distributedTestCore.ResultsDownloadProgressUpdated += new EventHandler<ResultsDownloadProgressUpdatedEventArgs>(_distributedTestCore_ResultsDownloadProgressUpdated);
+                        _distributedTestCore.ResultsDownloadCompleted += new EventHandler<ResultsDownloadCompletedEventArgs>(_distributedTestCore_ResultsDownloadCompleted);
+                        _distributedTestCore.OnFinished += new EventHandler<FinishedEventArgs>(_distributedTestCore_OnFinished);
+
+
+                        Thread t = new Thread(InitializeAndStartTest);
+                        t.CurrentCulture = Thread.CurrentThread.CurrentCulture;
+                        t.IsBackground = true;
+                        t.Start();
                     }
-
-                    _distributedTestCore = new DistributedTestCore(_distributedTest);
-                    _distributedTestCore.Message += new EventHandler<MessageEventArgs>(_distributedTestCore_Message);
-                    _distributedTestCore.OnTestProgressMessageReceived += new EventHandler<TestProgressMessageReceivedEventArgs>(_distributedTestCore_TestProgressMessageReceivedEventArgs);
-                    _distributedTestCore.OnListeningError += new EventHandler<ListeningErrorEventArgs>(_distributedTestCore_OnListeningError);
-                    _distributedTestCore.ResultsDownloadProgressUpdated += new EventHandler<ResultsDownloadProgressUpdatedEventArgs>(_distributedTestCore_ResultsDownloadProgressUpdated);
-                    _distributedTestCore.ResultsDownloadCompleted += new EventHandler<ResultsDownloadCompletedEventArgs>(_distributedTestCore_ResultsDownloadCompleted);
-                    _distributedTestCore.OnFinished += new EventHandler<FinishedEventArgs>(_distributedTestCore_OnFinished);
-
-
-                    Thread t = new Thread(InitializeAndStartTest);
-                    t.CurrentCulture = Thread.CurrentThread.CurrentCulture;
-                    t.IsBackground = true;
-                    t.Start();
+                    else
+                    {
+                        //Failed jump starting slaves
+                        foreach (Exception ex in e.Exceptions)
+                        {
+                            string message = ex.ToString();
+                            distributedStresstestControl.AppendMasterMessages(message, LogLevel.Error);
+                            LogWrapper.LogByLevel(message, LogLevel.Error);
+                        }
+                        Stop(true);
+                    }
                 }
                 catch
                 {
                     //Only one test can run at the same time.
-                    distributedStresstestControl.AppendMasterMessages("Cannot start this test because another one is still running.", LogLevel.Error);
-                    Stop();
+                    string message = "Cannot start this test because another one is still running.";
+                    distributedStresstestControl.AppendMasterMessages(message, LogLevel.Error);
+                    LogWrapper.LogByLevel(message, LogLevel.Error);
+                    Stop(true);
                 }
             }, null);
         }
 
         private void ScheduleTest()
         {
-            SetMode(DistributedTestMode.TestAndReport, true);
+            SetMode(DistributedTestMode.TestAndReport, false, true);
         }
         private void tmrSchedule_Tick(object sender, EventArgs e)
         {
@@ -426,7 +442,11 @@ namespace vApus.DistributedTesting
 
         private void InitializeAndStartTest()
         {
-
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            {
+                btnStop.Enabled = true;
+            }, null); 
+            
             Exception ex = InitializeTest();
             if (ex == null && _pendingMonitorViewInitializations == 0)
                 StartTest();
@@ -510,7 +530,7 @@ namespace vApus.DistributedTesting
                     _distributedTestCore = null;
                 }
 
-                Stop();
+                Stop(true);
                 Cursor = Cursors.Default;
             }, null);
         }
@@ -772,7 +792,7 @@ namespace vApus.DistributedTesting
         {
             _distributedTestCore.OnFinished -= _distributedTestCore_OnFinished;
 
-            Stop();
+            Stop(true);
 
             distributedStresstestControl.SetStresstestStopped();
             try
@@ -814,7 +834,7 @@ namespace vApus.DistributedTesting
         {
             if (btnStart.Enabled || MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                Stop();
+                Stop(false);
             }
             else
             {
@@ -825,14 +845,14 @@ namespace vApus.DistributedTesting
         private void btnStop_Click(object sender, EventArgs e)
         {
             distributedStresstestControl.AppendMasterMessages("Stopping the test...");
-            Stop();
+            Stop(false);
             distributedStresstestControl.AppendMasterMessages("Test Cancelled!", LogLevel.Warning);
         }
-        private void Stop()
+        private void Stop(bool canEnableStop)
         {
             this.Cursor = Cursors.WaitCursor;
 
-            SetMode(DistributedTestMode.Edit);
+            SetMode(DistributedTestMode.Edit, canEnableStop);
 
             if (btnSchedule.Tag != null && tmrSchedule.Tag is DateTime)
             {
