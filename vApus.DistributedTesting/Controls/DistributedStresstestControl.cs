@@ -546,7 +546,8 @@ namespace vApus.DistributedTesting
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Title = "Where do you want to save the displayed results?";
-            sfd.FileName = _distributedTest.ToString().ReplaceInvalidWindowsFilenameChars('_');
+            if (_distributedTest != null)
+                sfd.FileName = _distributedTest.ToString().ReplaceInvalidWindowsFilenameChars('_');
             sfd.Filter = "TXT|*.txt";
             if (sfd.ShowDialog() == DialogResult.OK)
                 try
