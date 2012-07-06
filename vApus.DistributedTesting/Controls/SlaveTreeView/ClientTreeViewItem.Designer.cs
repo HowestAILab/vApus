@@ -35,7 +35,6 @@
             this.picStatus = new System.Windows.Forms.PictureBox();
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
-            this.txtClient = new System.Windows.Forms.TextBox();
             this.lblClient = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picAddSlave)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStatus)).BeginInit();
@@ -109,29 +108,13 @@
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
-            // txtClient
-            // 
-            this.txtClient.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtClient.Location = new System.Drawing.Point(94, 3);
-            this.txtClient.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.txtClient.Name = "txtClient";
-            this.txtClient.Size = new System.Drawing.Size(406, 20);
-            this.txtClient.TabIndex = 0;
-            this.txtClient.Visible = false;
-            this.txtClient.Enter += new System.EventHandler(this._Enter);
-            this.txtClient.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            this.txtClient.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.txtClient.Leave += new System.EventHandler(this.txtClient_Leave);
-            // 
             // lblClient
             // 
             this.lblClient.AutoSize = true;
             this.lblClient.Location = new System.Drawing.Point(3, 6);
             this.lblClient.Name = "lblClient";
-            this.lblClient.Size = new System.Drawing.Size(88, 13);
+            this.lblClient.Size = new System.Drawing.Size(0, 13);
             this.lblClient.TabIndex = 19;
-            this.lblClient.Text = "Host Name or IP:";
             this.lblClient.Click += new System.EventHandler(this._Enter);
             // 
             // ClientTreeViewItem
@@ -140,7 +123,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.picAddSlave);
             this.Controls.Add(this.picStatus);
-            this.Controls.Add(this.txtClient);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.picDelete);
             this.Controls.Add(this.lblClient);
@@ -163,7 +145,6 @@
 
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picDelete;
-        private System.Windows.Forms.TextBox txtClient;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblClient;
         private System.Windows.Forms.PictureBox picStatus;

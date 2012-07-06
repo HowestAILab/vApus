@@ -34,9 +34,11 @@
             this.lblUsage = new System.Windows.Forms.Label();
             this.picSort = new System.Windows.Forms.PictureBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.lblClient = new System.Windows.Forms.Label();
             this.picStatus = new System.Windows.Forms.PictureBox();
+            this.txtHostName = new System.Windows.Forms.TextBox();
+            this.lblHostName = new System.Windows.Forms.Label();
+            this.lblIP = new System.Windows.Forms.Label();
+            this.txtIP = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.picSort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStatus)).BeginInit();
             this.SuspendLayout();
@@ -73,7 +75,7 @@
             this.picSort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picSort.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picSort.Image = ((System.Drawing.Image)(resources.GetObject("picSort.Image")));
-            this.picSort.Location = new System.Drawing.Point(676, 3);
+            this.picSort.Location = new System.Drawing.Point(676, 7);
             this.picSort.Margin = new System.Windows.Forms.Padding(0);
             this.picSort.Name = "picSort";
             this.picSort.Size = new System.Drawing.Size(16, 16);
@@ -84,43 +86,68 @@
             this.picSort.Visible = false;
             this.picSort.Click += new System.EventHandler(this.picSort_Click);
             // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(97, 1);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 20);
-            this.textBox1.TabIndex = 23;
-            // 
-            // lblClient
-            // 
-            this.lblClient.AutoSize = true;
-            this.lblClient.Location = new System.Drawing.Point(3, 4);
-            this.lblClient.Name = "lblClient";
-            this.lblClient.Size = new System.Drawing.Size(88, 13);
-            this.lblClient.TabIndex = 24;
-            this.lblClient.Text = "Host Name or IP:";
-            // 
             // picStatus
             // 
-            this.picStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picStatus.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picStatus.Image = ((System.Drawing.Image)(resources.GetObject("picStatus.Image")));
-            this.picStatus.Location = new System.Drawing.Point(203, 3);
+            this.picStatus.Location = new System.Drawing.Point(311, 7);
             this.picStatus.Name = "picStatus";
             this.picStatus.Size = new System.Drawing.Size(16, 16);
             this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picStatus.TabIndex = 25;
             this.picStatus.TabStop = false;
             this.toolTip.SetToolTip(this.picStatus, "Offline <f5>");
+            this.picStatus.Visible = false;
+            this.picStatus.Click += new System.EventHandler(this.picStatus_Click);
+            // 
+            // txtHostName
+            // 
+            this.txtHostName.Location = new System.Drawing.Point(72, 6);
+            this.txtHostName.Name = "txtHostName";
+            this.txtHostName.Size = new System.Drawing.Size(100, 20);
+            this.txtHostName.TabIndex = 23;
+            this.txtHostName.Visible = false;
+            this.txtHostName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.HostNameOrIP_KeyUp);
+            // 
+            // lblHostName
+            // 
+            this.lblHostName.AutoSize = true;
+            this.lblHostName.Location = new System.Drawing.Point(3, 9);
+            this.lblHostName.Name = "lblHostName";
+            this.lblHostName.Size = new System.Drawing.Size(63, 13);
+            this.lblHostName.TabIndex = 24;
+            this.lblHostName.Text = "Host Name:";
+            this.lblHostName.Visible = false;
+            // 
+            // lblIP
+            // 
+            this.lblIP.AutoSize = true;
+            this.lblIP.Location = new System.Drawing.Point(179, 9);
+            this.lblIP.Name = "lblIP";
+            this.lblIP.Size = new System.Drawing.Size(20, 13);
+            this.lblIP.TabIndex = 27;
+            this.lblIP.Text = "IP:";
+            this.lblIP.Visible = false;
+            // 
+            // txtIP
+            // 
+            this.txtIP.Location = new System.Drawing.Point(205, 6);
+            this.txtIP.Name = "txtIP";
+            this.txtIP.Size = new System.Drawing.Size(100, 20);
+            this.txtIP.TabIndex = 26;
+            this.txtIP.Visible = false;
+            this.txtIP.KeyUp += new System.Windows.Forms.KeyEventHandler(this.HostNameOrIP_KeyUp);
             // 
             // ConfigureSlaves
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.lblIP);
+            this.Controls.Add(this.txtIP);
             this.Controls.Add(this.picStatus);
-            this.Controls.Add(this.lblClient);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.lblHostName);
+            this.Controls.Add(this.txtHostName);
             this.Controls.Add(this.picSort);
             this.Controls.Add(this.lblUsage);
             this.Controls.Add(this.flp);
@@ -139,8 +166,10 @@
         private System.Windows.Forms.Label lblUsage;
         private System.Windows.Forms.PictureBox picSort;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label lblClient;
+        private System.Windows.Forms.TextBox txtHostName;
+        private System.Windows.Forms.Label lblHostName;
         private System.Windows.Forms.PictureBox picStatus;
+        private System.Windows.Forms.Label lblIP;
+        private System.Windows.Forms.TextBox txtIP;
     }
 }

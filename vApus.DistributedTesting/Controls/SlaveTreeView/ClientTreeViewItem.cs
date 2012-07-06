@@ -86,9 +86,7 @@ namespace vApus.DistributedTesting
             _client = client;
             RefreshGui();
 
-            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
-
-            txtClient.Text = (_client.IP == string.Empty) ? _client.HostName : _client.IP;
+            lblClient.Text = _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
         }
         #endregion
 
@@ -106,12 +104,6 @@ namespace vApus.DistributedTesting
             this.BackColor = Color.Transparent;
             SetVisibleControls();
         }
-        private void txtClient_Leave(object sender, EventArgs e)
-        {
-            SetHostNameAndIP();
-            txtClient.Text = (_client.IP == string.Empty) ? _client.HostName : _client.IP;
-            SetVisibleControls();
-        }
         private void _MouseEnter(object sender, EventArgs e)
         {
             SetVisibleControls();
@@ -124,8 +116,8 @@ namespace vApus.DistributedTesting
         {
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
-                txtClient.Visible = picAddSlave.Visible = picDuplicate.Visible = picDelete.Visible = visible;
-                lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
+                picAddSlave.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+                lblClient.Text = _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
             }
         }
         public void SetVisibleControls()
@@ -141,7 +133,7 @@ namespace vApus.DistributedTesting
 
         public void RefreshGui()
         {
-            lblClient.Text = txtClient.Visible ? "Host Name or IP:" : _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
+            lblClient.Text = _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {
@@ -150,9 +142,6 @@ namespace vApus.DistributedTesting
                 _ctrl = false;
                 return;
             }
-
-            if (sender == txtClient && e.KeyCode == Keys.Enter)
-                SetHostNameAndIP();
 
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
@@ -183,8 +172,6 @@ namespace vApus.DistributedTesting
 
             picStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
 
-            txtClient.Text = txtClient.Text.Trim().ToLower();
-
             string ip = string.Empty;
             string hostname = string.Empty;
             bool online = false;
@@ -196,45 +183,19 @@ namespace vApus.DistributedTesting
         private void SetHostNameAndIP_Callback(out string ip, out string hostname, out  bool online)
         {
             online = false;
-            ip = string.Empty;
+            ip = _client.IP;
             hostname = string.Empty;
 
             if (!this.IsDisposed)
                 try
                 {
-                    IPAddress address;
-                    if (IPAddress.TryParse(txtClient.Text, out address))
-                    {
-                        ip = address.ToString();
-                        try
-                        {
-                            hostname = Dns.GetHostByAddress(address).HostName.ToLower();
-                            if (hostname == null) hostname = string.Empty;
-                            online = true;
-                        }
-                        catch { }
-
-                    }
-                    else
-                    {
-                        hostname = txtClient.Text;
-                        IPAddress[] addresses = { };
-                        try
-                        {
-                            if (hostname.Length != 0)
-                                addresses = Dns.GetHostByName(hostname).AddressList;
-                        }
-                        catch { }
-
-                        if (addresses != null && addresses.Length != 0)
-                        {
-                            ip = addresses[0].ToString();
-                            online = true;
-                        }
-                    }
+                    hostname = Dns.GetHostByAddress(ip).HostName.ToLower();
+                    if (hostname == null) hostname = string.Empty;
+                    online = true;
                 }
                 catch { }
         }
+
         private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
@@ -247,7 +208,9 @@ namespace vApus.DistributedTesting
                         bool online = (bool)e.Arguments[2];
                         bool changed = false;
 
-                        if (_client.IP != ip || _client.HostName != hostname)
+                        //                        if (_client.IP != ip || _client.HostName != hostname)
+
+                        if (_client.HostName != hostname)
                             changed = true;
 
                         _client.IP = ip;
@@ -323,7 +286,6 @@ namespace vApus.DistributedTesting
             _distributedTestMode = distributedTestMode;
 #warning Flag it or check if it is used in the tests.
             if (_distributedTestMode == DistributedTestMode.TestAndReport)
-                txtClient.Visible =
                 picAddSlave.Visible =
                 picDuplicate.Visible =
                 picDelete.Visible = false;

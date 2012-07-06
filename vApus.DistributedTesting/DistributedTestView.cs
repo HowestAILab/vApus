@@ -176,7 +176,7 @@ namespace vApus.DistributedTesting
             if (sender is ClientTreeViewItem)
             {
                 ClientTreeViewItem ctvi = sender as ClientTreeViewItem;
-                configureSlaves.SetClient(ctvi.Client);
+                configureSlaves.SetClient(ctvi.Client, ctvi.Online);
             }
             else
             {
