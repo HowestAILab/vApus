@@ -189,9 +189,12 @@ namespace vApus.DistributedTesting
                 _distributedTestMode = distributedTestMode;
 
                 txtHostName.ReadOnly =
-                txtIP.ReadOnly =
+                txtIP.ReadOnly = 
+                _distributedTestMode == DistributedTestMode.TestAndReport;
+
                 picStatus.Enabled =
                 btnAddSlave.Enabled =
+                picSort.Enabled =
                 _distributedTestMode == DistributedTestMode.Edit;
 
                 foreach (SlaveTile st in flp.Controls)

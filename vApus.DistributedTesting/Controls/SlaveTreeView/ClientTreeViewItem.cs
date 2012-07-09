@@ -282,10 +282,10 @@ namespace vApus.DistributedTesting
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
             _distributedTestMode = distributedTestMode;
-#warning Flag it or check if it is used in the tests.
-            if (_distributedTestMode == DistributedTestMode.TestAndReport)
-                picDuplicate.Visible =
-                picDelete.Visible = false;
+
+            picDuplicate.Visible =
+            picDelete.Visible =
+            picStatus.Enabled = _distributedTestMode == DistributedTestMode.Edit;
         }
         #endregion
     }
