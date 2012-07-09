@@ -99,9 +99,9 @@ namespace vApus.Stresstest
         /// <param name="stresstest"></param>
         /// <param name="totalLogEntries"></param>
         /// <param name="startOfStresstest"></param>
-        public StresstestResults(string solution, Stresstest stresstest, ulong totalLogEntries, DateTime startOfStresstest)
+        public StresstestResults(Stresstest stresstest, ulong totalLogEntries, DateTime startOfStresstest)
         {
-            Solution = solution;
+            Solution = stresstest.Solution;
             Stresstest = stresstest.ToString();
 
             Connection = stresstest.Connection.ToString();

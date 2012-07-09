@@ -834,7 +834,7 @@ namespace vApus.Stresstest
                         for (int r = 0; r != _runsConcurrentUsers[c]; r++)
                             totalLogEntries += (ulong)_testPatternsAndDelaysGenerator.PatternLength;
 
-            _stresstestResults = new StresstestResults(Solution.ActiveSolution == null ? null : Solution.ActiveSolution.FileName, _stresstest, totalLogEntries, DateTime.Now);
+            _stresstestResults = new StresstestResults(_stresstest, totalLogEntries, DateTime.Now);
             InvokeMessage("Starting the Stresstest...");
 
             if (!_cancel && StresstestStarted != null)

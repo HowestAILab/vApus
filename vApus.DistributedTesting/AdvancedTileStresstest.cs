@@ -206,12 +206,17 @@ namespace vApus.DistributedTesting
         }
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender != null && sender == this.Parent)
+            try
             {
-                TileStresstest parent = sender as TileStresstest;
-                if (parent.AutomaticDefaultAdvancedSettings)
-                    DefaultTo(parent.DefaultSettingsTo);
+                if (sender != null && this.Parent != null &&
+                    (sender == this.Parent || sender == (this.Parent as TileStresstest).DefaultSettingsTo))
+                {
+                    TileStresstest parent = this.Parent as TileStresstest;
+                    if (parent.AutomaticDefaultAdvancedSettings)
+                        DefaultTo(parent.DefaultSettingsTo);
+                }
             }
+            catch { }
         }
         private void DefaultTo(Stresstest.Stresstest stresstest)
         {

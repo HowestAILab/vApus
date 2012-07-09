@@ -146,6 +146,7 @@ namespace vApus.DistributedTesting
         {
             string tileStresstestIndex = TileStresstestIndex;
             Stresstest.Stresstest stresstest = new Stresstest.Stresstest();
+            stresstest.SetSolution();
             stresstest.ForDistributedTest = true;
             stresstest.ShowInGui = false;
             stresstest.Distribute = AdvancedTileStresstest.Distribute;

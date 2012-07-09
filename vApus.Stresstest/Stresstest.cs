@@ -26,6 +26,7 @@ namespace vApus.Stresstest
         /// In seconds how fast the stresstest progress will be updated.
         /// </summary>
         public const int ProgressUpdateDelay = 5;
+        private string _solution; //For the results.
         private int _precision = 1, _dynamicRunMultiplier = 1, _minimumDelay = 900, _maximumDelay = 1100;
         private int[] _concurrentUsers = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
@@ -48,6 +49,17 @@ namespace vApus.Stresstest
         #endregion
 
         #region Properties
+        /// <summary>
+        /// For the stresstest results.
+        /// </summary>
+        public string Solution
+        {
+            get
+            {
+                if (_solution == null && vApus.SolutionTree.Solution.ActiveSolution != null)
+                    _solution = vApus.SolutionTree.Solution.ActiveSolution.FileName;
+                return _solution; }
+        }
         [Description("The connection to the application to test.")]
         [SavableCloneable, PropertyControl(0)]
         public Connection Connection
@@ -313,24 +325,24 @@ namespace vApus.Stresstest
         #region Constructors
         public Stresstest()
         {
-            if (Solution.ActiveSolution != null)
+            if (vApus.SolutionTree.Solution.ActiveSolution != null)
                 Init();
             else
-                Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+                vApus.SolutionTree.Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
         #endregion
 
         #region Functions
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            vApus.SolutionTree.Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             Init();
         }
         private void Init()
         {
-            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
-            _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
+            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
+            _monitorProject = vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
 
             List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorIndices.Length);
             foreach (int index in _monitorIndices)
@@ -344,11 +356,11 @@ namespace vApus.Stresstest
         }
         private void _connection_ParentIsNull(object sender, EventArgs e)
         {
-            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
+            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
         }
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
-            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
@@ -367,7 +379,15 @@ namespace vApus.Stresstest
         {
             SolutionComponentViewManager.Show(this);
         }
-
+        /// <summary>
+        /// For the stresstest results.
+        /// Sets the solution field to the active one.
+        /// </summary>
+        public void SetSolution()
+        {
+            if (vApus.SolutionTree.Solution.ActiveSolution != null)
+                _solution = vApus.SolutionTree.Solution.ActiveSolution.FileName;
+        }
         public override string ToString()
         {
             if (_forDistributedTest)

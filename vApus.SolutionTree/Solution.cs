@@ -102,10 +102,10 @@ namespace vApus.SolutionTree
                 int dockState = global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState;
                 if (dockState == -1)
                     dockState = 8; //DockLeft
-            
+
                 _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
             }
-            catch 
+            catch
             {
                 //Could fail for slaves
                 return false;
@@ -116,19 +116,7 @@ namespace vApus.SolutionTree
         {
             _stresstestingSolutionExplorer.Hide();
         }
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ActiveContent">Ensures that the caller stays visible</param>
-        //public static void AutoHideStresstestingSolutionExplorer(IDockContent caller)
-        //{
-        //    if (!DockHelper.IsDockStateAutoHide(_stresstestingSolutionExplorer.DockState))
-        //    {
-        //        _stresstestingSolutionExplorer.DockState = DockHelper.ToggleAutoHideState(_stresstestingSolutionExplorer.DockState);
-        //        _stresstestingSolutionExplorer.DockPanel.ActiveAutoHideContent = null;
-        //        (caller.DockHandler.DockPanel.FocusManager as DockPanel.FocusManagerImpl).Activate(caller);
-        //    }
-        //}
+
         /// <summary>
         /// Tooltips will be provide for the items.
         /// </summary>
@@ -171,6 +159,7 @@ namespace vApus.SolutionTree
                 if (_recentSolutions.Count == 10)
                     _recentSolutions.RemoveAt(9);
                 _recentSolutions.Insert(0, _activeSolution.FileName);
+                global::vApus.SolutionTree.Properties.Settings.Default.RecentSolutions = _recentSolutions;
                 global::vApus.SolutionTree.Properties.Settings.Default.Save();
             }
         }
