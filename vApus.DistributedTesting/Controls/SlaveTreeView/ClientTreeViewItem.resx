@@ -121,16 +121,6 @@
     <value>17, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="picAddSlave.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADdAAAA3QARBsPQcAAAAGYktHRAAAAAAAAPlDu38AAAAHdElNRQfWAQsQABGURHih
-        AAAApElEQVQ4T2NgGLTAJHXJGSD+D8VnSHYoSOP2c8/AGMQeAgag+RnsbGQvIIUHSA4zTEAKDlx+8X/3
-        xef/9wAxTDOM3nb22f+tZ5793wbEWMMEJLjlzNP/U7ff/j9l2+3/k7bc+j9h863/bWtv/m9edeN//Yrr
-        /2uXXf8/f98DnAYgRxtYEUgzCKM5H7sX0KMJFgYwA8iORooNoCQhUZaUSfYzuRoAWBzXQ86yJwYAAAAA
-        SUVORK5CYII=
-</value>
-  </data>
   <data name="picStatus.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29m

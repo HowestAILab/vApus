@@ -247,7 +247,6 @@ namespace vApus.DistributedTesting
                         l.Add(monitor);
 
                 Monitors = l.ToArray();
-                this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
             else //Cleanup slaves
             {
@@ -260,12 +259,11 @@ namespace vApus.DistributedTesting
                             l.Add(slave);
 
                     Slaves = l.ToArray();
-                    this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
             }
         }
         /// <summary>
-        /// Defaukt the settings to this automatically.
+        /// Default the settings to this automatically.
         /// </summary>
         /// <param name="stresstest"></param>
         public void DefaultTo(Stresstest.Stresstest stresstest)

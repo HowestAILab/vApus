@@ -24,13 +24,13 @@ namespace vApus.DistributedTesting
         /// Call unfocus for the other items in the panel.
         /// </summary>
         public event EventHandler AfterSelect;
-        public event EventHandler AddSlaveClicked;
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
         public event EventHandler HostNameAndIPSet;
         #endregion
 
         #region Fields
+        private ConfigureSlaves _configureSlaves;
         private Client _client = new Client();
         /// <summary>
         /// Check if the ctrl key is pressed.
@@ -69,6 +69,12 @@ namespace vApus.DistributedTesting
                         ++count;
                 return count;
             }
+        }
+
+        public ConfigureSlaves ConfigureSlaves
+        {
+            get { return _configureSlaves; }
+            set { _configureSlaves = value; }
         }
         #endregion
 
@@ -116,7 +122,7 @@ namespace vApus.DistributedTesting
         {
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
-                picAddSlave.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+                picDuplicate.Visible = picDelete.Visible = visible;
                 lblClient.Text = _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
             }
         }
@@ -147,8 +153,6 @@ namespace vApus.DistributedTesting
                 _ctrl = false;
             else if (_ctrl)
             {
-                if (e.KeyCode == Keys.I && AddSlaveClicked != null)
-                    AddSlaveClicked(this, null);
                 if (e.KeyCode == Keys.R && DeleteClicked != null)
                     DeleteClicked(this, null);
                 else if (e.KeyCode == Keys.D && DuplicateClicked != null)
@@ -167,10 +171,9 @@ namespace vApus.DistributedTesting
             if (!this.Controls[0].Enabled || !IsHandleCreated)
                 return false;
 
-            EnableControls(false);
-
-
-            picStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
+            SettingHostNameAndIP(false);
+            if (_configureSlaves != null)
+                _configureSlaves.SettingHostNameAndIP(false);
 
             string ip = string.Empty;
             string hostname = string.Empty;
@@ -189,8 +192,8 @@ namespace vApus.DistributedTesting
             if (!this.IsDisposed)
                 try
                 {
-                    hostname = Dns.GetHostByAddress(ip).HostName.ToLower();
-                    if (hostname == null) hostname = string.Empty;
+                    hostname = Dns.GetHostByAddress(ip).HostName;
+                    hostname = (hostname == null) ? string.Empty : hostname.ToLower();
                     online = true;
                 }
                 catch { }
@@ -206,36 +209,17 @@ namespace vApus.DistributedTesting
                         string ip = e.Arguments[0] as string;
                         string hostname = e.Arguments[1] as string;
                         bool online = (bool)e.Arguments[2];
-                        bool changed = false;
-
-                        //                        if (_client.IP != ip || _client.HostName != hostname)
-
-                        if (_client.HostName != hostname)
-                            changed = true;
 
                         _client.IP = ip;
                         _client.HostName = hostname;
 
-                        if (online)
-                        {
-                            _online = true;
-                            picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
-                            toolTip.SetToolTip(picStatus, "Online <f5>");
-                        }
-                        else
-                        {
-                            _online = false;
-                            picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
-                            toolTip.SetToolTip(picStatus, "Offline <f5>");
-                        }
-
-                        if (changed && !this.IsDisposed)
-                            _client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 
                         if (HostNameAndIPSet != null)
                             HostNameAndIPSet(this, null);
 
-                        EnableControls(true);
+                        if (_configureSlaves != null)
+                            _configureSlaves.SettingHostNameAndIP(true, online);
+                        SettingHostNameAndIP(true, online);
                     }
                     catch { }
             }, null);
@@ -245,8 +229,28 @@ namespace vApus.DistributedTesting
         /// This way the next item in the panel does not auto get the focus.
         /// </summary>
         /// <param name="enabled"></param>
-        private void EnableControls(bool enabled)
+        public void SettingHostNameAndIP(bool enabled, bool online = false)
         {
+            if (enabled)
+            {
+                if (online)
+                {
+                    _online = true;
+                    picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
+                    toolTip.SetToolTip(picStatus, "Online <f5>");
+                }
+                else
+                {
+                    _online = false;
+                    picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
+                    toolTip.SetToolTip(picStatus, "Offline <f5>");
+                }
+            }
+            else
+            {
+                picStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
+            }
+
             foreach (Control ctrl in this.Controls)
                 if (ctrl != picStatus)
                     ctrl.Enabled = enabled;
@@ -259,12 +263,6 @@ namespace vApus.DistributedTesting
 
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
-        }
-        private void picAddSlave_Click(object sender, EventArgs e)
-        {
-            this.Focus();
-            if (AddSlaveClicked != null)
-                AddSlaveClicked(this, null);
         }
         private void picDuplicate_Click(object sender, EventArgs e)
         {
@@ -286,7 +284,6 @@ namespace vApus.DistributedTesting
             _distributedTestMode = distributedTestMode;
 #warning Flag it or check if it is used in the tests.
             if (_distributedTestMode == DistributedTestMode.TestAndReport)
-                picAddSlave.Visible =
                 picDuplicate.Visible =
                 picDelete.Visible = false;
         }

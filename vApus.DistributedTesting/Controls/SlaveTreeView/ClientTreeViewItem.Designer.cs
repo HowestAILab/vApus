@@ -31,12 +31,10 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClientTreeViewItem));
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.picAddSlave = new System.Windows.Forms.PictureBox();
             this.picStatus = new System.Windows.Forms.PictureBox();
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.lblClient = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.picAddSlave)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStatus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
@@ -48,21 +46,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // picAddSlave
-            // 
-            this.picAddSlave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picAddSlave.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picAddSlave.Image = ((System.Drawing.Image)(resources.GetObject("picAddSlave.Image")));
-            this.picAddSlave.Location = new System.Drawing.Point(506, 6);
-            this.picAddSlave.Name = "picAddSlave";
-            this.picAddSlave.Size = new System.Drawing.Size(16, 16);
-            this.picAddSlave.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picAddSlave.TabIndex = 21;
-            this.picAddSlave.TabStop = false;
-            this.toolTip.SetToolTip(this.picAddSlave, "Add Slave<ctrl+i>");
-            this.picAddSlave.Visible = false;
-            this.picAddSlave.Click += new System.EventHandler(this.picAddSlave_Click);
             // 
             // picStatus
             // 
@@ -121,7 +104,6 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.picAddSlave);
             this.Controls.Add(this.picStatus);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.picDelete);
@@ -132,7 +114,6 @@
             this.Enter += new System.EventHandler(this._Enter);
             this.MouseEnter += new System.EventHandler(this._MouseEnter);
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
-            ((System.ComponentModel.ISupportInitialize)(this.picAddSlave)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStatus)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
@@ -148,6 +129,5 @@
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblClient;
         private System.Windows.Forms.PictureBox picStatus;
-        private System.Windows.Forms.PictureBox picAddSlave;
     }
 }

@@ -77,7 +77,6 @@ namespace vApus.DistributedTesting
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += new EventHandler(_AfterSelect);
-            cvi.AddSlaveClicked += new EventHandler(cvi_AddSlaveClicked);
             cvi.DuplicateClicked += new EventHandler(cvi_DuplicateClicked);
             cvi.DeleteClicked += new EventHandler(cvi_DeleteClicked);
             cvi.HostNameAndIPSet += new EventHandler(cvi_HostNameAndIPSet);
@@ -93,7 +92,6 @@ namespace vApus.DistributedTesting
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += new EventHandler(_AfterSelect);
-            cvi.AddSlaveClicked += new EventHandler(cvi_AddSlaveClicked);
             cvi.DuplicateClicked += new EventHandler(cvi_DuplicateClicked);
             cvi.DeleteClicked += new EventHandler(cvi_DeleteClicked);
             cvi.HostNameAndIPSet += new EventHandler(cvi_HostNameAndIPSet);
@@ -103,35 +101,6 @@ namespace vApus.DistributedTesting
             largeList.Insert(cvi, index);
 
             cvi.SetHostNameAndIP();
-        }
-        private void cvi_AddSlaveClicked(object sender, EventArgs e)
-        {
-            LockWindowUpdate(this.Handle.ToInt32());
-
-            ClientTreeViewItem cvi = sender as ClientTreeViewItem;
-
-            Slave slave = new Slave();
-            //Choose another port so every new slave has a unique port.
-            for (int port = slave.Port; port != int.MaxValue; port++)
-            {
-                bool portPresent = false;
-                foreach (Slave sl in cvi.Client)
-                    if (sl.Port == port)
-                    {
-                        portPresent = true;
-                        break;
-                    }
-
-                if (!portPresent)
-                {
-                    slave.Port = port;
-                    break;
-                }
-            }
-            cvi.Client.AddWithoutInvokingEvent(slave, false);
-            cvi.Client.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, true);
-
-            LockWindowUpdate(0);
         }
         private void cvi_DuplicateClicked(object sender, EventArgs e)
         {
