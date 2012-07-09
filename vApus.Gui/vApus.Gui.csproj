@@ -151,6 +151,9 @@
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -287,6 +290,7 @@
   <ItemGroup>
     <Content Include="Icon.32x32.vApus.ico" />
     <Content Include="Resources\dataGridViewCellStyle11.NullValue.png" />
+    <None Include="app.manifest" />
     <None Include="Resources\FolderOpen_16x16_72.png" />
     <None Include="Resources\RecycleBin.png" />
     <None Include="Resources\delete16x16.png" />
