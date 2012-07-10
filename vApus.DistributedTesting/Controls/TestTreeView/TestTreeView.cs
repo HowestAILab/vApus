@@ -225,9 +225,10 @@ namespace vApus.DistributedTesting
             foreach (var child in tvi.ChildControls)
                 largeList.Remove(child, false);
 
+            var previousIndex = largeList.ParseFlatIndex(largeList.FlatIndexOf(tvi) - 1);
             largeList.Remove(tvi);
 
-            largeList.Select();
+            largeList[previousIndex.Key][previousIndex.Value].Select();
 
             LockWindowUpdate(0);
         }
@@ -279,9 +280,10 @@ namespace vApus.DistributedTesting
             if (tsvi.TileStresstest.Parent != null)
                 tsvi.TileStresstest.Parent.Remove(tsvi.TileStresstest);
 
+            var previousIndex = largeList.ParseFlatIndex( largeList.FlatIndexOf(tsvi) - 1);
             largeList.Remove(tsvi);
 
-            largeList.Select();
+            largeList[previousIndex.Key][previousIndex.Value].Select();
 
             LockWindowUpdate(0);
         }

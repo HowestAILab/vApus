@@ -166,7 +166,7 @@ namespace vApus.DistributedTesting
                     waithandle = null;
 
                     //Be sure they are jump started before trying to connect to them.
-                    Thread.Sleep(3000);
+                    Thread.Sleep(10000);
                 }
                 ht.Clear();
 

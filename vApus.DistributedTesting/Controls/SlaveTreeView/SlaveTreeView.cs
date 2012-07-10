@@ -140,9 +140,10 @@ namespace vApus.DistributedTesting
 
             (largeList[0][0] as ClientsAndSlavesTreeViewItem).ChildControls.Remove(cvi);
 
+            var previousIndex = largeList.ParseFlatIndex(largeList.FlatIndexOf(cvi) - 1);
             largeList.Remove(cvi);
 
-            largeList.Select();
+            largeList[previousIndex.Key][previousIndex.Value].Select();
 
             LockWindowUpdate(0);
         }

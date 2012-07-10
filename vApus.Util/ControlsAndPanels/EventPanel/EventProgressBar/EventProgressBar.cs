@@ -26,9 +26,11 @@ namespace vApus.Util
         public event EventHandler<ProgressEventEventArgs> EventMouseLeave;
         [Description("Occurs when a progress event is clicked.")]
         public event EventHandler<ProgressEventEventArgs> EventClick;
+
         #region Fields
 
         private List<ProgressEvent> _progressEvents = new List<ProgressEvent>();
+        private List<ProgressEvent> _sortedProgressEvents = new List<ProgressEvent>(); //Sorted on importance, to draw the lines.
         private ProgressEvent _previouslyHovered;
         private bool _toolTipThisShown = false;
         private bool _eventToolTip = true;
@@ -120,7 +122,7 @@ namespace vApus.Util
             pe.Click += new EventHandler(pe_Click);
             _progressEvents.Add(pe);
 
-            _progressEvents = Sort(_progressEvents);
+            _sortedProgressEvents = Sort(_progressEvents);
 
             this.Invalidate();
 
@@ -206,10 +208,10 @@ namespace vApus.Util
                 DrawProgressBar(g);
                 ProgressEvent entered = null;
 
-                //Do this in reversed order --> the most important are drawn first.
-                for (int i = _progressEvents.Count - 1; i != -1; i--)
+                //Do this in reversed order --> the most important are drawn last.
+                for (int i = _sortedProgressEvents.Count - 1; i != -1; i--)
                 {
-                    var pe = _progressEvents[i];
+                    var pe = _sortedProgressEvents[i];
                     if (pe.Entered)
                         entered = pe;
                     else
@@ -223,9 +225,9 @@ namespace vApus.Util
         private void DrawProgressBar(Graphics g)
         {
             ProgressEvent pe = null;
-            if (_progressEvents.Count != 0)
+            if (_sortedProgressEvents.Count != 0)
             {
-                pe = _progressEvents[_progressEvents.Count - 1];
+                pe = _sortedProgressEvents[_sortedProgressEvents.Count - 1];
                 if (_nowProgressEvent == null || _nowProgressEvent.At < pe.At)
                     _nowProgressEvent = pe;
             }
@@ -265,7 +267,7 @@ namespace vApus.Util
         }
         public void PerformMouseEnter(DateTime at, bool showToolTip)
         {
-            foreach (ProgressEvent pe in _progressEvents)
+            foreach (ProgressEvent pe in _sortedProgressEvents)
                 if (pe.At == at)
                 {
                     PerformMouseEnter(pe, showToolTip);
@@ -314,7 +316,7 @@ namespace vApus.Util
         private ProgressEvent GetHoveredProgressEvent()
         {
             Point p = PointToClient(Cursor.Position);
-            foreach (var pe in _progressEvents)
+            foreach (var pe in _sortedProgressEvents)
             {
                 Point location = pe.Location;
                 if (p.X >= location.X &&
