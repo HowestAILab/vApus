@@ -39,7 +39,7 @@
             this.btnStop = new System.Windows.Forms.ToolStripButton();
             this.tmrSetGui = new System.Windows.Forms.Timer(this.components);
             this.split = new System.Windows.Forms.SplitContainer();
-            this.tpTree = new vApus.Util.TabControlWithAdjustableBorders();
+            this.tcTree = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpTests = new System.Windows.Forms.TabPage();
             this.testTreeView = new vApus.DistributedTesting.TestTreeView();
             this.tpSlaves = new System.Windows.Forms.TabPage();
@@ -61,7 +61,7 @@
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
             this.split.SuspendLayout();
-            this.tpTree.SuspendLayout();
+            this.tcTree.SuspendLayout();
             this.tpTests.SuspendLayout();
             this.tpSlaves.SuspendLayout();
             this.tcTest.SuspendLayout();
@@ -85,6 +85,7 @@
             // 
             // btnStart
             // 
+            this.btnStart.Enabled = false;
             this.btnStart.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
             this.btnStart.Image = ((System.Drawing.Image)(resources.GetObject("btnStart.Image")));
             this.btnStart.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
@@ -123,6 +124,7 @@
             // tmrSetGui
             // 
             this.tmrSetGui.Enabled = true;
+            this.tmrSetGui.Interval = 1000;
             this.tmrSetGui.Tick += new System.EventHandler(this.tmrSetGui_Tick);
             // 
             // split
@@ -136,32 +138,31 @@
             // 
             // split.Panel1
             // 
-            this.split.Panel1.Controls.Add(this.tpTree);
+            this.split.Panel1.Controls.Add(this.tcTree);
             // 
             // split.Panel2
             // 
             this.split.Panel2.Controls.Add(this.tcTest);
             this.split.Size = new System.Drawing.Size(911, 648);
             this.split.SplitterDistance = 301;
-            this.split.SplitterWidth = 1;
             this.split.TabIndex = 1;
             // 
-            // tpTree
+            // tcTree
             // 
-            this.tpTree.BottomVisible = false;
-            this.tpTree.Controls.Add(this.tpTests);
-            this.tpTree.Controls.Add(this.tpSlaves);
-            this.tpTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tpTree.LeftVisible = false;
-            this.tpTree.Location = new System.Drawing.Point(0, 0);
-            this.tpTree.Margin = new System.Windows.Forms.Padding(0);
-            this.tpTree.Name = "tpTree";
-            this.tpTree.RightVisible = false;
-            this.tpTree.SelectedIndex = 0;
-            this.tpTree.Size = new System.Drawing.Size(301, 648);
-            this.tpTree.TabIndex = 0;
-            this.tpTree.TopVisible = true;
-            this.tpTree.SelectedIndexChanged += new System.EventHandler(this.tpTree_SelectedIndexChanged);
+            this.tcTree.BottomVisible = false;
+            this.tcTree.Controls.Add(this.tpTests);
+            this.tcTree.Controls.Add(this.tpSlaves);
+            this.tcTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tcTree.LeftVisible = false;
+            this.tcTree.Location = new System.Drawing.Point(0, 0);
+            this.tcTree.Margin = new System.Windows.Forms.Padding(0);
+            this.tcTree.Name = "tcTree";
+            this.tcTree.RightVisible = false;
+            this.tcTree.SelectedIndex = 0;
+            this.tcTree.Size = new System.Drawing.Size(301, 648);
+            this.tcTree.TabIndex = 0;
+            this.tcTree.TopVisible = true;
+            this.tcTree.SelectedIndexChanged += new System.EventHandler(this.tpTree_SelectedIndexChanged);
             // 
             // tpTests
             // 
@@ -216,7 +217,7 @@
             this.tcTest.Name = "tcTest";
             this.tcTest.RightVisible = false;
             this.tcTest.SelectedIndex = 0;
-            this.tcTest.Size = new System.Drawing.Size(609, 648);
+            this.tcTest.Size = new System.Drawing.Size(606, 648);
             this.tcTest.TabIndex = 0;
             this.tcTest.TopVisible = true;
             // 
@@ -228,7 +229,7 @@
             this.tpConfigureTest.Location = new System.Drawing.Point(4, 19);
             this.tpConfigureTest.Name = "tpConfigureTest";
             this.tpConfigureTest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpConfigureTest.Size = new System.Drawing.Size(604, 628);
+            this.tpConfigureTest.Size = new System.Drawing.Size(601, 628);
             this.tpConfigureTest.TabIndex = 0;
             this.tpConfigureTest.Text = "Configure";
             // 
@@ -238,7 +239,7 @@
             this.configureTileStresstest.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configureTileStresstest.Location = new System.Drawing.Point(3, 3);
             this.configureTileStresstest.Name = "configureTileStresstest";
-            this.configureTileStresstest.Size = new System.Drawing.Size(598, 622);
+            this.configureTileStresstest.Size = new System.Drawing.Size(595, 622);
             this.configureTileStresstest.TabIndex = 0;
             // 
             // configureSlaves
@@ -247,19 +248,20 @@
             this.configureSlaves.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configureSlaves.Location = new System.Drawing.Point(3, 3);
             this.configureSlaves.Name = "configureSlaves";
-            this.configureSlaves.Size = new System.Drawing.Size(598, 622);
+            this.configureSlaves.Size = new System.Drawing.Size(595, 622);
             this.configureSlaves.TabIndex = 1;
             this.configureSlaves.Visible = false;
+            this.configureSlaves.GoToAssignedTest += new System.EventHandler(this.configureSlaves_GoToAssignedTest);
             // 
             // tpStresstest
             // 
             this.tpStresstest.BackColor = System.Drawing.Color.White;
             this.tpStresstest.Controls.Add(this.stresstestControl);
             this.tpStresstest.Controls.Add(this.distributedStresstestControl);
-            this.tpStresstest.Location = new System.Drawing.Point(4, 22);
+            this.tpStresstest.Location = new System.Drawing.Point(4, 19);
             this.tpStresstest.Name = "tpStresstest";
             this.tpStresstest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstest.Size = new System.Drawing.Size(604, 625);
+            this.tpStresstest.Size = new System.Drawing.Size(601, 628);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
             // 
@@ -270,7 +272,7 @@
             this.stresstestControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestControl.MonitorConfigurationControlVisible = false;
             this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(598, 619);
+            this.stresstestControl.Size = new System.Drawing.Size(595, 622);
             this.stresstestControl.TabIndex = 0;
             // 
             // distributedStresstestControl
@@ -280,7 +282,7 @@
             this.distributedStresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.distributedStresstestControl.Location = new System.Drawing.Point(3, 3);
             this.distributedStresstestControl.Name = "distributedStresstestControl";
-            this.distributedStresstestControl.Size = new System.Drawing.Size(598, 619);
+            this.distributedStresstestControl.Size = new System.Drawing.Size(595, 622);
             this.distributedStresstestControl.TabIndex = 1;
             // 
             // tpReport
@@ -290,7 +292,7 @@
             this.tpReport.Location = new System.Drawing.Point(4, 19);
             this.tpReport.Name = "tpReport";
             this.tpReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpReport.Size = new System.Drawing.Size(604, 628);
+            this.tpReport.Size = new System.Drawing.Size(601, 628);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
             // 
@@ -301,7 +303,7 @@
             this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(598, 622);
+            this.stresstestReportControl.Size = new System.Drawing.Size(595, 622);
             this.stresstestReportControl.TabIndex = 0;
             this.stresstestReportControl.ReportMade += new System.EventHandler(this.stresstestReportControl_ReportMade);
             // 
@@ -335,7 +337,7 @@
             this.split.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.split)).EndInit();
             this.split.ResumeLayout(false);
-            this.tpTree.ResumeLayout(false);
+            this.tcTree.ResumeLayout(false);
             this.tpTests.ResumeLayout(false);
             this.tpSlaves.ResumeLayout(false);
             this.tcTest.ResumeLayout(false);
@@ -349,7 +351,7 @@
 
         #endregion
 
-        private Util.TabControlWithAdjustableBorders tpTree;
+        private Util.TabControlWithAdjustableBorders tcTree;
         private System.Windows.Forms.TabPage tpTests;
         private System.Windows.Forms.TabPage tpSlaves;
         private TestTreeView testTreeView;

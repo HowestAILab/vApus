@@ -103,6 +103,7 @@
             // 
             // btnAddSlave
             // 
+            this.btnAddSlave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAddSlave.BackColor = System.Drawing.Color.White;
             this.btnAddSlave.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnAddSlave.FlatAppearance.BorderColor = System.Drawing.Color.White;
@@ -113,7 +114,7 @@
             this.btnAddSlave.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnAddSlave.Image = ((System.Drawing.Image)(resources.GetObject("btnAddSlave.Image")));
             this.btnAddSlave.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.btnAddSlave.Location = new System.Drawing.Point(429, 3);
+            this.btnAddSlave.Location = new System.Drawing.Point(613, 3);
             this.btnAddSlave.Margin = new System.Windows.Forms.Padding(0);
             this.btnAddSlave.Name = "btnAddSlave";
             this.btnAddSlave.Size = new System.Drawing.Size(63, 24);

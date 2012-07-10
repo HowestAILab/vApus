@@ -179,6 +179,12 @@
     <Compile Include="Communication\EnumsAndStructs.cs" />
     <Compile Include="Communication\Master\TorrentClient.cs" />
     <Compile Include="Communication\Slave\TorrentServer.cs" />
+    <Compile Include="Controls\SlaveTreeView\AssignTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\AssignTest.Designer.cs">
+      <DependentUpon>AssignTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\SlaveTreeView\ConfigureSlaves.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -320,6 +326,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Communication\SocketListenerManagerPanel.resx">
       <DependentUpon>SocketListenerManagerPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\AssignTest.resx">
+      <DependentUpon>AssignTest.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\SlaveTreeView\ConfigureSlaves.resx">
       <DependentUpon>ConfigureSlaves.cs</DependentUpon>

@@ -32,7 +32,8 @@ namespace vApus.Util
         //Filled with default controls --> these are encapsulated in ValueControls
         //key = value type, value = BaseValueControl impl type
         private Dictionary<Type, Type> _controlTypes;
-        private bool _locked, _autoSelectControl = true;
+        protected bool _locked;
+        private bool _autoSelectControl = true;
         #endregion
 
         #region Properties

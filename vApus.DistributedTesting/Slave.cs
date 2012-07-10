@@ -42,6 +42,8 @@ namespace vApus.DistributedTesting
         }
         /// <summary>
         /// Search the slaves for this.
+        /// 
+        /// Use AssigneTileStresstest to set.
         /// </summary>
         public TileStresstest TileStresstest
         {
@@ -103,6 +105,34 @@ namespace vApus.DistributedTesting
         private void Init()
         {
 
+        }
+
+        /// <summary>
+        /// Clears the stresstest if it is null.
+        /// </summary>
+        /// <param name="tileStresstest"></param>
+        public void AssignTileStresstest(TileStresstest tileStresstest)
+        {
+            ClearTileStresstest();
+
+            if (tileStresstest != null)
+            {
+                var slaves = new List<Slave>(tileStresstest.BasicTileStresstest.Slaves);
+
+                slaves.Add(this);
+                tileStresstest.BasicTileStresstest.Slaves = slaves.ToArray();
+            }
+        }
+        private void ClearTileStresstest()
+        {
+            //Remove it from the tile stresstests (can be used only once atm).
+            foreach (TileStresstest ts in TileStesstests)
+                if (ts.BasicTileStresstest.Slaves.Contains(this))
+                {
+                    var sl = new List<Slave>(ts.BasicTileStresstest.Slaves);
+                    sl.Remove(this);
+                    ts.BasicTileStresstest.Slaves = sl.ToArray();
+                }
         }
         public Slave Clone()
         {

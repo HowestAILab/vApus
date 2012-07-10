@@ -26,6 +26,8 @@ namespace vApus.DistributedTesting
         #region Fields
         private object _lock = new object();
 
+        private DistributedTestMode _distributedTestMode;
+
         private ITreeViewItem _selectedTestItem;
         private DistributedTest _distributedTest = new DistributedTest();
         private DistributedTestCore _distributedTestCore;
@@ -113,6 +115,7 @@ namespace vApus.DistributedTesting
             _distributedTest = solutionComponent as DistributedTest;
             testTreeView.SetDistributedTest(_distributedTest);
             slaveTreeView.SetDistributedTest(_distributedTest);
+            configureSlaves.SetDistributedTest(_distributedTest);
 
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
@@ -200,11 +203,24 @@ namespace vApus.DistributedTesting
 
             testTreeView.SetGui();
             slaveTreeView.SetGui();
+
+            if (_distributedTestMode == DistributedTestMode.Edit)
+                btnStart.Enabled = !testTreeView.Exclemation;
+        }
+
+        private void configureSlaves_GoToAssignedTest(object sender, EventArgs e)
+        {
+            TileStresstest ts = (sender as SlaveTile).Slave.TileStresstest;
+            if (ts != null)
+            {
+                tcTree.SelectedIndex = 0;
+                testTreeView.SelectTileStresstest(ts);
+            }
         }
 
         private void tpTree_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (tpTree.SelectedIndex == 0)
+            if (tcTree.SelectedIndex == 0)
             {
                 configureTileStresstest.Visible = true;
                 configureSlaves.Visible = false;
@@ -226,33 +242,33 @@ namespace vApus.DistributedTesting
             if (this.IsDisposed)
                 return;
 
-            btnStart.Enabled =
+            _distributedTestMode = distributedTestMode;
+
             btnSchedule.Enabled = distributedTestMode == DistributedTestMode.Edit;
 
             btnStop.Enabled = canEnableStop && distributedTestMode == DistributedTestMode.TestAndReport;
 
-            if (distributedTestMode == DistributedTestMode.TestAndReport)
+            if (_distributedTestMode == DistributedTestMode.TestAndReport)
             {
                 if (scheduled)
                     tmrSchedule.Start();
                 else
                     btnSchedule.Text = "Schedule...";
-
-                //Solution.AutoHideStresstestingSolutionExplorer(this);
             }
-
-            if (distributedTestMode == DistributedTestMode.Edit)
+            else
             {
+                btnStart.Enabled = !testTreeView.Exclemation;
+
                 tmrSchedule.Stop();
 
                 tmrProgress.Stop();
                 StopProgressDelayCountDown();
             }
 
-            testTreeView.SetMode(distributedTestMode, scheduled);
-            slaveTreeView.SetMode(distributedTestMode);
-            configureTileStresstest.SetMode(distributedTestMode);
-            configureSlaves.SetMode(distributedTestMode);
+            testTreeView.SetMode(_distributedTestMode, scheduled);
+            slaveTreeView.SetMode(_distributedTestMode);
+            configureTileStresstest.SetMode(_distributedTestMode);
+            configureSlaves.SetMode(_distributedTestMode);
 
         }
         #endregion
@@ -435,8 +451,8 @@ namespace vApus.DistributedTesting
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 btnStop.Enabled = true;
-            }, null); 
-            
+            }, null);
+
             Exception ex = InitializeTest();
             if (ex == null && _pendingMonitorViewInitializations == 0)
                 StartTest();
@@ -822,7 +838,7 @@ namespace vApus.DistributedTesting
         #region Stop
         private void DistributedTestView_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (btnStart.Enabled || MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (_distributedTestMode == DistributedTestMode.Edit || MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 Stop(false);
             }

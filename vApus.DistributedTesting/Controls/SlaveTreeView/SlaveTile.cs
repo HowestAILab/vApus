@@ -17,11 +17,14 @@ namespace vApus.DistributedTesting
         #region Events
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
+
+        public event EventHandler GoToAssignedTest;
         #endregion
 
         #region Fields
         private Slave _slave;
         private bool _clientOnline = false;
+        private DistributedTest _distributedTest;
         private DistributedTestMode _distributedTestMode;
         #endregion
 
@@ -40,6 +43,11 @@ namespace vApus.DistributedTesting
         public SlaveTile()
         {
             InitializeComponent();
+        }
+        public SlaveTile(DistributedTest distributedTest)
+            : this()
+        {
+            _distributedTest = distributedTest;
         }
         #endregion
 
@@ -70,7 +78,7 @@ namespace vApus.DistributedTesting
             if (llblPA.Text != pa)
                 llblPA.Text = pa.Length == 0 ? "..." : pa;
 
-            string ts = Slave.TileStresstest == null ? "..." :  Slave.TileStresstest.ToString();
+            string ts = _slave.TileStresstest == null ? "..." : _slave.TileStresstest.ToString();
             if (llblTest.Text != ts)
                 llblTest.Text = ts;
         }
@@ -128,7 +136,27 @@ namespace vApus.DistributedTesting
 
         private void llblTest_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            AssignTest assignTest = new AssignTest(_distributedTest, _slave.TileStresstest);
+            if (assignTest.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    _slave.AssignTileStresstest(assignTest.AssignedTest);
 
+                    string ts = _slave.TileStresstest == null ? "..." : _slave.TileStresstest.ToString();
+                    if (llblTest.Text != ts)
+                        llblTest.Text = ts;
+
+                    _slave.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+
+                    if (assignTest.GoToAssignedTest && GoToAssignedTest != null)
+                        GoToAssignedTest(this, null);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString(), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
         }
 
         private void picDuplicate_Click(object sender, EventArgs e)

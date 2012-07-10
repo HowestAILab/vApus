@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
+using System.Text;
 
 namespace vApus.DistributedTesting
 {
@@ -44,6 +45,8 @@ namespace vApus.DistributedTesting
 
         private StresstestResult _stresstestResult;
         private bool _downloadResultsFinished;
+
+        private bool _exclemation;
         #endregion
 
         #region Properties
@@ -54,6 +57,13 @@ namespace vApus.DistributedTesting
         public StresstestResult StresstestResult
         {
             get { return _stresstestResult; }
+        }
+        /// <summary>
+        /// true if the test can't start.
+        /// </summary>
+        public bool Exclemation
+        {
+            get { return _exclemation; }
         }
         #endregion
 
@@ -78,6 +88,8 @@ namespace vApus.DistributedTesting
 
             eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
             eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
+
+            CheckIfTestCanStart();
         }
         #endregion
 
@@ -93,7 +105,13 @@ namespace vApus.DistributedTesting
                     chk.CheckedChanged -= chk_CheckedChanged;
                     chk.Checked = _tileStresstest.Use;
                     chk.CheckedChanged += chk_CheckedChanged;
+
+                    CheckIfTestCanStart();
                 }
+            }
+            else if (sender == _tileStresstest.BasicTileStresstest || sender == _tileStresstest.AdvancedTileStresstest)
+            {
+                CheckIfTestCanStart();
             }
         }
 
@@ -122,7 +140,10 @@ namespace vApus.DistributedTesting
         public void SetVisibleControls(bool visible)
         {
             if (_distributedTestMode == DistributedTestMode.Edit)
+            {
                 picDuplicate.Visible = picDelete.Visible = visible;
+                CheckIfTestCanStart();
+            }
         }
 
         public void SetVisibleControls()
@@ -185,6 +206,7 @@ namespace vApus.DistributedTesting
         private void chk_CheckedChanged(object sender, EventArgs e)
         {
             _tileStresstest.Use = chk.Checked;
+            CheckIfTestCanStart();
             _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
@@ -275,6 +297,33 @@ namespace vApus.DistributedTesting
             {
                 picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
                 toolTip.SetToolTip(picStresstestStatus, "Downloading Results " + downloadResultsProgress + "%");
+            }
+        }
+
+        private void CheckIfTestCanStart()
+        {
+            StringBuilder sb = new StringBuilder();
+            if (_tileStresstest.Use)
+            {
+                if (_tileStresstest.BasicTileStresstest.Connection.IsEmpty)
+                    sb.AppendLine("The connection is not filled in.");
+                if (_tileStresstest.BasicTileStresstest.Slaves.Length == 0)
+                    sb.AppendLine("No slaves have been assigned.");
+                if (_tileStresstest.AdvancedTileStresstest.Log.IsEmpty)
+                    sb.AppendLine("The log is not filled in. [Advanced Settings]");
+            }
+
+            string exclemation = sb.ToString();
+
+            if (exclemation.Length != 0)
+            {
+                if (toolTip.GetToolTip(lblExclemation) != exclemation)
+                    toolTip.SetToolTip(lblExclemation, exclemation);
+                _exclemation = lblExclemation.Visible = true;
+            }
+            else
+            {
+                _exclemation = lblExclemation.Visible = false;
             }
         }
         #endregion

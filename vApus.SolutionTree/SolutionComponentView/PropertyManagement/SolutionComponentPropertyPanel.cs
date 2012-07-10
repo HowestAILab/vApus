@@ -128,48 +128,52 @@ namespace vApus.SolutionTree
         {
             if (_solutionComponent != null && IsHandleCreated)
             {
+                bool locked = _locked;
                 //if (_solutionComponentTypeChanged || _properties == null)
                 //{
-                    _properties = new List<PropertyInfo>();
-                    foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties())
+                _properties = new List<PropertyInfo>();
+                foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties())
+                {
+                    object[] attributes = propertyInfo.GetCustomAttributes(typeof(PropertyControlAttribute), true);
+                    PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
+                    if (propertyControlAttribute != null)
+                        _properties.Add(propertyInfo);
+                }
+                _properties.Sort(PropertyInfoComparer.GetInstance());
+                _properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
+
+                BaseValueControl.Value[] values = new BaseValueControl.Value[_properties.Count];
+                for (int i = 0; i != values.Length; i++)
+                {
+                    PropertyInfo propertyInfo = _properties[i];
+
+                    object value = _properties[i].GetValue(_solutionComponent, null);
+
+                    object[] attributes = propertyInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+                    string label = (attributes.Length != 0) ? (attributes[0] as DisplayNameAttribute).DisplayName : propertyInfo.Name;
+
+                    //for dynamic descriptions you can choose to call SetDescription however usage of the description attribute is adviced.
+                    string description = value.GetDescription();
+                    if (description == null)
                     {
-                        object[] attributes = propertyInfo.GetCustomAttributes(typeof(PropertyControlAttribute), true);
-                        PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
-                        if (propertyControlAttribute != null)
-                            _properties.Add(propertyInfo);
-                    }
-                    _properties.Sort(PropertyInfoComparer.GetInstance());
-                    _properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
-
-                    BaseValueControl.Value[] values = new BaseValueControl.Value[_properties.Count];
-                    for (int i = 0; i != values.Length; i++)
-                    {
-                        PropertyInfo propertyInfo = _properties[i];
-
-                        object value = _properties[i].GetValue(_solutionComponent, null);
-
-                        object[] attributes = propertyInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true);
-                        string label = (attributes.Length != 0) ? (attributes[0] as DisplayNameAttribute).DisplayName : propertyInfo.Name;
-
-                        //for dynamic descriptions you can choose to call SetDescription however usage of the description attribute is adviced.
-                        string description = value.GetDescription();
-                        if (description == null)
-                        {
-                            attributes = propertyInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
-                            description = (attributes.Length != 0) ? (attributes[0] as DescriptionAttribute).Description : string.Empty;
-                        }
-
-                        attributes = propertyInfo.GetCustomAttributes(typeof(ReadOnlyAttribute), true);
-                        bool isReadOnly = !propertyInfo.CanWrite || (attributes.Length > 0 && (attributes[0] as ReadOnlyAttribute).IsReadOnly);
-
-                        attributes = propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
-                        bool isEncrypted = (attributes.Length != 0 && (attributes[0] as SavableCloneableAttribute).Encrypt);
-
-
-                        values[i] = new BaseValueControl.Value { __Value = value, Description = description, IsEncrypted = isEncrypted, IsReadOnly = isReadOnly, Label = label };
+                        attributes = propertyInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
+                        description = (attributes.Length != 0) ? (attributes[0] as DescriptionAttribute).Description : string.Empty;
                     }
 
-                    base.SetValues(values);
+                    attributes = propertyInfo.GetCustomAttributes(typeof(ReadOnlyAttribute), true);
+                    bool isReadOnly = !propertyInfo.CanWrite || (attributes.Length > 0 && (attributes[0] as ReadOnlyAttribute).IsReadOnly);
+
+                    attributes = propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
+                    bool isEncrypted = (attributes.Length != 0 && (attributes[0] as SavableCloneableAttribute).Encrypt);
+
+
+                    values[i] = new BaseValueControl.Value { __Value = value, Description = description, IsEncrypted = isEncrypted, IsReadOnly = isReadOnly, Label = label };
+                }
+
+                base.SetValues(values);
+
+                if (_locked)
+                    base.Lock();
                 //}
                 //else //Recycle controls
                 //{

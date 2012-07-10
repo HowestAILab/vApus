@@ -34,6 +34,9 @@ namespace vApus.SolutionTree
                     _label = value == null ? string.Empty : value;
             }
         }
+        /// <summary>
+        /// The one-based index of this item in the collection of its parent.
+        /// </summary>
         [Description("The one-based index of this item in the collection of its parent.")]
         public int Index
         {

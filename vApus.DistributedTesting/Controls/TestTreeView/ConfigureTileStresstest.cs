@@ -136,7 +136,8 @@ namespace vApus.DistributedTesting
                 {
                     solutionComponentPropertyPanelDefaultTo.Unlock();
                     solutionComponentPropertyPanelBasic.Unlock();
-                    solutionComponentPropertyPanelAdvanced.Unlock();
+                    if (!chkAutomatic.Checked)
+                        solutionComponentPropertyPanelAdvanced.Unlock();
 
                     chkAutomatic.Enabled = true;
                 }

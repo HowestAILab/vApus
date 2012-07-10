@@ -19,7 +19,10 @@ namespace vApus.DistributedTesting
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
+        public event EventHandler GoToAssignedTest;
+
         #region Fields
+        private DistributedTest _distributedTest;
         private ClientTreeViewItem _clientTreeViewItem;
         private DistributedTestMode _distributedTestMode;
 
@@ -52,6 +55,10 @@ namespace vApus.DistributedTesting
         {
             if (_clientTreeViewItem != null && sender == _clientTreeViewItem.Client)
                 SetClient();
+        }
+        public void SetDistributedTest(DistributedTest distributedTest)
+        {
+            _distributedTest = distributedTest;
         }
         /// <summary>
         /// Sets the client and refreshes the gui.
@@ -126,9 +133,10 @@ namespace vApus.DistributedTesting
         }
         private SlaveTile CreateSlaveTile()
         {
-            var st = new SlaveTile();
+            var st = new SlaveTile(_distributedTest);
             st.DuplicateClicked += new EventHandler(st_DuplicateClicked);
             st.DeleteClicked += new EventHandler(st_DeleteClicked);
+            st.GoToAssignedTest += new EventHandler(st_GoToAssignedTest);
             return st;
         }
         private void st_DuplicateClicked(object sender, EventArgs e)
@@ -161,6 +169,11 @@ namespace vApus.DistributedTesting
             var st = sender as SlaveTile;
             _clientTreeViewItem.Client.Remove(st.Slave);
         }
+        private void st_GoToAssignedTest(object sender, EventArgs e)
+        {
+            if (GoToAssignedTest != null)
+                GoToAssignedTest(sender, e);
+        }
 
         public void ClearClient()
         {
@@ -189,7 +202,7 @@ namespace vApus.DistributedTesting
                 _distributedTestMode = distributedTestMode;
 
                 txtHostName.ReadOnly =
-                txtIP.ReadOnly = 
+                txtIP.ReadOnly =
                 _distributedTestMode == DistributedTestMode.TestAndReport;
 
                 picStatus.Enabled =
@@ -202,7 +215,7 @@ namespace vApus.DistributedTesting
                 LockWindowUpdate(0);
             }
         }
-        #endregion
+
 
         private void txtHostName_KeyUp(object sender, KeyEventArgs e)
         {
@@ -374,5 +387,6 @@ namespace vApus.DistributedTesting
 
             LockWindowUpdate(0);
         }
+        #endregion
     }
 }

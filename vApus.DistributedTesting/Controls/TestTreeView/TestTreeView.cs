@@ -101,6 +101,21 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
+        /// <summary>
+        /// Select a tile stresstest tvi.
+        /// </summary>
+        /// <param name="tileStresstest"></param>
+        public void SelectTileStresstest(TileStresstest tileStresstest)
+        {
+            foreach (Control ctrl in largeList.AllControls)
+                if (ctrl is TileStresstestTreeViewItem)
+                    if ((ctrl as TileStresstestTreeViewItem).TileStresstest == tileStresstest)
+                    {
+                        ctrl.Select();
+                        break;
+                    }
+        }
+
         private void dttvi_AddTileClicked(object sender, EventArgs e)
         {
             LockWindowUpdate(this.Handle.ToInt32());
@@ -280,7 +295,7 @@ namespace vApus.DistributedTesting
             if (tsvi.TileStresstest.Parent != null)
                 tsvi.TileStresstest.Parent.Remove(tsvi.TileStresstest);
 
-            var previousIndex = largeList.ParseFlatIndex( largeList.FlatIndexOf(tsvi) - 1);
+            var previousIndex = largeList.ParseFlatIndex(largeList.FlatIndexOf(tsvi) - 1);
             largeList.Remove(tsvi);
 
             largeList[previousIndex.Key][previousIndex.Value].Select();
@@ -347,5 +362,27 @@ namespace vApus.DistributedTesting
             }
         }
         #endregion
+
+        /// <summary>
+        /// To check if the test can start (if false).
+        /// </summary>
+        public bool Exclemation
+        {
+            get
+            {
+                int usedCount = 0;
+                foreach (Control ctrl in largeList.AllControls)
+                    if (ctrl is TileStresstestTreeViewItem)
+                    {
+                        var tstvi = ctrl as TileStresstestTreeViewItem;
+                        if (tstvi.Exclemation)
+                            return true;
+
+                        if (tstvi.TileStresstest.Use)
+                            ++usedCount;
+                    }
+                return usedCount == 0;
+            }
+        }
     }
 }
