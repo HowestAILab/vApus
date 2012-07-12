@@ -46,7 +46,7 @@ namespace vApus.DistributedTesting
         private StresstestResult _stresstestResult;
         private bool _downloadResultsFinished;
 
-        private bool _exclemation;
+        private bool _exclamation;
         #endregion
 
         #region Properties
@@ -61,9 +61,9 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// true if the test can't start.
         /// </summary>
-        public bool Exclemation
+        public bool Exclamation
         {
-            get { return _exclemation; }
+            get { return _exclamation; }
         }
         #endregion
 
@@ -313,17 +313,17 @@ namespace vApus.DistributedTesting
                     sb.AppendLine("The log is not filled in. [Advanced Settings]");
             }
 
-            string exclemation = sb.ToString();
+            string exclamation = sb.ToString();
 
-            if (exclemation.Length != 0)
+            if (exclamation.Length != 0)
             {
-                if (toolTip.GetToolTip(lblExclemation) != exclemation)
-                    toolTip.SetToolTip(lblExclemation, exclemation);
-                _exclemation = lblExclemation.Visible = true;
+                if (toolTip.GetToolTip(lblExclamation) != exclamation)
+                    toolTip.SetToolTip(lblExclamation, exclamation);
+                _exclamation = lblExclamation.Visible = true;
             }
             else
             {
-                _exclemation = lblExclemation.Visible = false;
+                _exclamation = lblExclamation.Visible = false;
             }
         }
         #endregion

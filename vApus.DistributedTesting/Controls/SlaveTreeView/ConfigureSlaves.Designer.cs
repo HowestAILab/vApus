@@ -97,7 +97,7 @@
             this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picStatus.TabIndex = 25;
             this.picStatus.TabStop = false;
-            this.toolTip.SetToolTip(this.picStatus, "Offline <f5>");
+            this.toolTip.SetToolTip(this.picStatus, "Client Offline");
             this.picStatus.Visible = false;
             this.picStatus.Click += new System.EventHandler(this.picStatus_Click);
             // 

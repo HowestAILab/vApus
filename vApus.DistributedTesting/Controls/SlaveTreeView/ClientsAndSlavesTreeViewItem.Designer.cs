@@ -36,8 +36,10 @@
             this.lblRunSync = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.picWizard = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRefresh)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picWizard)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -52,7 +54,7 @@
             this.picAddClient.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picAddClient.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picAddClient.Image = ((System.Drawing.Image)(resources.GetObject("picAddClient.Image")));
-            this.picAddClient.Location = new System.Drawing.Point(480, 6);
+            this.picAddClient.Location = new System.Drawing.Point(451, 6);
             this.picAddClient.Name = "picAddClient";
             this.picAddClient.Size = new System.Drawing.Size(23, 23);
             this.picAddClient.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -96,19 +98,37 @@
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoEllipsis = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(3, 11);
+            this.label1.MinimumSize = new System.Drawing.Size(0, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(112, 13);
+            this.label1.Size = new System.Drawing.Size(442, 13);
             this.label1.TabIndex = 19;
             this.label1.Text = "Clients and Slaves";
             this.label1.Click += new System.EventHandler(this._Enter);
+            // 
+            // picWizard
+            // 
+            this.picWizard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picWizard.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picWizard.Image = ((System.Drawing.Image)(resources.GetObject("picWizard.Image")));
+            this.picWizard.Location = new System.Drawing.Point(480, 6);
+            this.picWizard.Name = "picWizard";
+            this.picWizard.Size = new System.Drawing.Size(23, 23);
+            this.picWizard.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picWizard.TabIndex = 25;
+            this.picWizard.TabStop = false;
+            this.toolTip.SetToolTip(this.picWizard, "Wizard...");
+            this.picWizard.Click += new System.EventHandler(this.picWizard_Click);
             // 
             // ClientsAndSlavesTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.picWizard);
             this.Controls.Add(this.picRefresh);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
@@ -123,6 +143,7 @@
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRefresh)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picWizard)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -136,6 +157,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox picRefresh;
+        private System.Windows.Forms.PictureBox picWizard;
 
     }
 }

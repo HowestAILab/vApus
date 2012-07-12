@@ -37,7 +37,7 @@
             this.lblTileStresstest = new System.Windows.Forms.Label();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
             this.eventProgressBar = new vApus.Util.EventProgressBar();
-            this.lblExclemation = new System.Windows.Forms.Label();
+            this.lblExclamation = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
@@ -98,10 +98,13 @@
             // 
             // lblTileStresstest
             // 
-            this.lblTileStresstest.AutoSize = true;
+            this.lblTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTileStresstest.AutoEllipsis = true;
             this.lblTileStresstest.Location = new System.Drawing.Point(40, 6);
+            this.lblTileStresstest.MinimumSize = new System.Drawing.Size(0, 13);
             this.lblTileStresstest.Name = "lblTileStresstest";
-            this.lblTileStresstest.Size = new System.Drawing.Size(0, 13);
+            this.lblTileStresstest.Size = new System.Drawing.Size(489, 13);
             this.lblTileStresstest.TabIndex = 20;
             this.lblTileStresstest.Click += new System.EventHandler(this._Enter);
             // 
@@ -134,25 +137,25 @@
             this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressBar.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
             this.eventProgressBar.Enter += new System.EventHandler(this._Enter);
             // 
-            // lblExclemation
+            // lblExclamation
             // 
-            this.lblExclemation.AutoSize = true;
-            this.lblExclemation.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.lblExclemation.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblExclemation.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblExclemation.Location = new System.Drawing.Point(8, 6);
-            this.lblExclemation.Margin = new System.Windows.Forms.Padding(0);
-            this.lblExclemation.Name = "lblExclemation";
-            this.lblExclemation.Size = new System.Drawing.Size(11, 13);
-            this.lblExclemation.TabIndex = 23;
-            this.lblExclemation.Text = "!";
-            this.lblExclemation.Visible = false;
+            this.lblExclamation.AutoSize = true;
+            this.lblExclamation.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.lblExclamation.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblExclamation.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblExclamation.Location = new System.Drawing.Point(8, 6);
+            this.lblExclamation.Margin = new System.Windows.Forms.Padding(0);
+            this.lblExclamation.Name = "lblExclamation";
+            this.lblExclamation.Size = new System.Drawing.Size(11, 13);
+            this.lblExclamation.TabIndex = 23;
+            this.lblExclamation.Text = "!";
+            this.lblExclamation.Visible = false;
             // 
             // TileStresstestTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.lblExclemation);
+            this.Controls.Add(this.lblExclamation);
             this.Controls.Add(this.picDelete);
             this.Controls.Add(this.eventProgressBar);
             this.Controls.Add(this.lblTileStresstest);
@@ -183,6 +186,6 @@
         private System.Windows.Forms.Label lblTileStresstest;
         private Util.EventProgressBar eventProgressBar;
         private System.Windows.Forms.PictureBox picStresstestStatus;
-        private System.Windows.Forms.Label lblExclemation;
+        private System.Windows.Forms.Label lblExclamation;
     }
 }

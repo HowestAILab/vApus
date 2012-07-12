@@ -94,6 +94,10 @@ namespace vApus.DistributedTesting
             if (AddClientClicked != null)
                 AddClientClicked(this, null);
         }
+        private void picWizard_Click(object sender, EventArgs e)
+        {
+
+        }
         private void picRefresh_Click(object sender, EventArgs e)
         {
             SetHostNameAndIP();

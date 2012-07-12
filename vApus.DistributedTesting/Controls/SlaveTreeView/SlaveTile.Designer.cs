@@ -80,11 +80,11 @@
             // 
             // llblPA
             // 
-            this.llblPA.AutoSize = true;
+            this.llblPA.AutoEllipsis = true;
             this.llblPA.Location = new System.Drawing.Point(95, 36);
             this.llblPA.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.llblPA.Name = "llblPA";
-            this.llblPA.Size = new System.Drawing.Size(16, 13);
+            this.llblPA.Size = new System.Drawing.Size(252, 13);
             this.llblPA.TabIndex = 8;
             this.llblPA.TabStop = true;
             this.llblPA.Text = "...";
@@ -92,11 +92,11 @@
             // 
             // llblTest
             // 
-            this.llblTest.AutoSize = true;
+            this.llblTest.AutoEllipsis = true;
             this.llblTest.Location = new System.Drawing.Point(95, 62);
             this.llblTest.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.llblTest.Name = "llblTest";
-            this.llblTest.Size = new System.Drawing.Size(16, 13);
+            this.llblTest.Size = new System.Drawing.Size(252, 13);
             this.llblTest.TabIndex = 9;
             this.llblTest.TabStop = true;
             this.llblTest.Text = "...";

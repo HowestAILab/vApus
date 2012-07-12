@@ -366,7 +366,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// To check if the test can start (if false).
         /// </summary>
-        public bool Exclemation
+        public bool Exclamation
         {
             get
             {
@@ -375,7 +375,7 @@ namespace vApus.DistributedTesting
                     if (ctrl is TileStresstestTreeViewItem)
                     {
                         var tstvi = ctrl as TileStresstestTreeViewItem;
-                        if (tstvi.Exclemation)
+                        if (tstvi.Exclamation)
                             return true;
 
                         if (tstvi.TileStresstest.Use)

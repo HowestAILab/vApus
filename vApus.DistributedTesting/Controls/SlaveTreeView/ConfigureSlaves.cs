@@ -70,12 +70,12 @@ namespace vApus.DistributedTesting
             if (_clientTreeViewItem.Online)
             {
                 picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
-                toolTip.SetToolTip(picStatus, "Online <f5>");
+                toolTip.SetToolTip(picStatus, "Client Online");
             }
             else
             {
                 picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
-                toolTip.SetToolTip(picStatus, "Offline <f5>");
+                toolTip.SetToolTip(picStatus, "Client Offline");
             }
 
             SetClient();
@@ -340,12 +340,12 @@ namespace vApus.DistributedTesting
                 if (online)
                 {
                     picStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
-                    toolTip.SetToolTip(picStatus, "Online <f5>");
+                    toolTip.SetToolTip(picStatus, "Client Online");
                 }
                 else
                 {
                     picStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
-                    toolTip.SetToolTip(picStatus, "Offline <f5>");
+                    toolTip.SetToolTip(picStatus, "Client Offline");
                 }
             }
             else

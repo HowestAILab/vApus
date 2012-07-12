@@ -58,7 +58,7 @@
             this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picStatus.TabIndex = 20;
             this.picStatus.TabStop = false;
-            this.toolTip.SetToolTip(this.picStatus, "Offline <f5>");
+            this.toolTip.SetToolTip(this.picStatus, "Client Offline <f5>");
             this.picStatus.Click += new System.EventHandler(this.picStatus_Click);
             // 
             // picDuplicate
@@ -93,10 +93,13 @@
             // 
             // lblClient
             // 
-            this.lblClient.AutoSize = true;
+            this.lblClient.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblClient.AutoEllipsis = true;
             this.lblClient.Location = new System.Drawing.Point(3, 6);
+            this.lblClient.MinimumSize = new System.Drawing.Size(0, 13);
             this.lblClient.Name = "lblClient";
-            this.lblClient.Size = new System.Drawing.Size(0, 13);
+            this.lblClient.Size = new System.Drawing.Size(519, 13);
             this.lblClient.TabIndex = 19;
             this.lblClient.Click += new System.EventHandler(this._Enter);
             // 

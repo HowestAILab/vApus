@@ -197,6 +197,30 @@
     <Compile Include="Controls\SlaveTreeView\SlaveTile.Designer.cs">
       <DependentUpon>SlaveTile.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AddClients.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AddClients.Designer.cs">
+      <DependentUpon>AddClients.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AddSlavesToClients.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AddSlavesToClients.Designer.cs">
+      <DependentUpon>AddSlavesToClients.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AssignTestsToSlaves.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AssignTestsToSlaves.Designer.cs">
+      <DependentUpon>AssignTestsToSlaves.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveWizard\SlaveWizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveWizard\SlaveWizard.Designer.cs">
+      <DependentUpon>SlaveWizard.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\TestTreeView\ConfigureTileStresstest.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -337,6 +361,18 @@
       <DependentUpon>SlaveTile.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveWizard\AddClients.resx">
+      <DependentUpon>AddClients.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveWizard\AddSlavesToClients.resx">
+      <DependentUpon>AddSlavesToClients.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveWizard\AssignTestsToSlaves.resx">
+      <DependentUpon>AssignTestsToSlaves.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveWizard\SlaveWizard.resx">
+      <DependentUpon>SlaveWizard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\TestTreeView\ConfigureTileStresstest.resx">
       <DependentUpon>ConfigureTileStresstest.cs</DependentUpon>
     </EmbeddedResource>
@@ -454,6 +490,7 @@
   <ItemGroup>
     <None Include="Resources\Busy.gif" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

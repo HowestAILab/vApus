@@ -114,10 +114,13 @@
             // 
             // lblTile
             // 
-            this.lblTile.AutoSize = true;
+            this.lblTile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTile.AutoEllipsis = true;
             this.lblTile.Location = new System.Drawing.Point(26, 6);
+            this.lblTile.MinimumSize = new System.Drawing.Size(0, 13);
             this.lblTile.Name = "lblTile";
-            this.lblTile.Size = new System.Drawing.Size(0, 13);
+            this.lblTile.Size = new System.Drawing.Size(481, 13);
             this.lblTile.TabIndex = 19;
             this.lblTile.Click += new System.EventHandler(this._Enter);
             // 

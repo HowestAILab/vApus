@@ -205,7 +205,7 @@ namespace vApus.DistributedTesting
             slaveTreeView.SetGui();
 
             if (_distributedTestMode == DistributedTestMode.Edit)
-                btnStart.Enabled = !testTreeView.Exclemation;
+                btnStart.Enabled = !testTreeView.Exclamation;
         }
 
         private void configureSlaves_GoToAssignedTest(object sender, EventArgs e)
@@ -257,7 +257,7 @@ namespace vApus.DistributedTesting
             }
             else
             {
-                btnStart.Enabled = !testTreeView.Exclemation;
+                btnStart.Enabled = !testTreeView.Exclamation;
 
                 tmrSchedule.Stop();
 
