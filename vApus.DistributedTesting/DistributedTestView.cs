@@ -80,7 +80,7 @@ namespace vApus.DistributedTesting
             get
             {
                 int count = 0;
-                foreach (Client c in _distributedTest.ClientsAndSlaves)
+                foreach (Client c in _distributedTest.Clients)
                     count += c.Count;
                 return count;
             }
@@ -90,7 +90,7 @@ namespace vApus.DistributedTesting
             get
             {
                 int count = 0;
-                foreach (Client c in _distributedTest.ClientsAndSlaves)
+                foreach (Client c in _distributedTest.Clients)
                     foreach (Slave s in c)
                         if (s.TileStresstest != null)
                             ++count;
@@ -118,6 +118,8 @@ namespace vApus.DistributedTesting
             configureSlaves.SetDistributedTest(_distributedTest);
 
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+
+            RemoteDesktopClient.RdpException += new EventHandler<RemoteDesktopClient.RdpExceptionEventArgs>(RemoteDesktopClient_RdpException);
 
             //Jumpstart the slaves when starting the test
             JumpStart.Done += new EventHandler<JumpStart.DoneEventArgs>(JumpStart_Done);
@@ -250,6 +252,8 @@ namespace vApus.DistributedTesting
 
             if (_distributedTestMode == DistributedTestMode.TestAndReport)
             {
+                btnStart.Enabled = false;
+
                 if (scheduled)
                     tmrSchedule.Start();
                 else
@@ -304,6 +308,8 @@ namespace vApus.DistributedTesting
 
                 distributedStresstestControl.Clear();
 
+                ShowRemoteDesktop();
+
                 distributedStresstestControl.AppendMasterMessages("Jump Starting the slaves...");
                 //Jumpstart the slaves first.
                 JumpStart.Do(_distributedTest);
@@ -316,6 +322,27 @@ namespace vApus.DistributedTesting
                 distributedStresstestControl.AppendMasterMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
                 Stop(true);
             }
+        }
+        /// <summary>
+        /// A remote desktop is needed in order for the distributed test to work.
+        /// </summary>
+        private void ShowRemoteDesktop()
+        {
+            distributedStresstestControl.AppendMasterMessages("Opening remote desktop connection(s) to the client(s)...");
+
+            RemoteDesktopClient rdc = RemoteDesktopClient.GetInstance(this);
+            rdc.WindowState = FormWindowState.Minimized;
+            rdc.ClearRemoteDesktops();
+            rdc.Show();
+            foreach (Client client in _distributedTest.Clients)
+                if (client.UsedSlaveCount != 0)
+                    rdc.ShowRemoteDesktop(client.HostName, client.IP, client.UserName, client.Password, client.Domain);
+        }
+        private void RemoteDesktopClient_RdpException(object sender, RemoteDesktopClient.RdpExceptionEventArgs e)
+        {
+            string message = "Cannot open a remote desktop connection to " + e.IP + ". (error code: " + e.ErrorCode + ") ";
+            distributedStresstestControl.AppendMasterMessages(message, LogLevel.Error);
+            LogWrapper.LogByLevel(message, LogLevel.Error);
         }
         private void JumpStart_Done(object sender, JumpStart.DoneEventArgs e)
         {

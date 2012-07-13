@@ -40,12 +40,12 @@ namespace vApus.DistributedTesting
         {
             LockWindowUpdate(this.Handle.ToInt32());
             largeList.Clear();
-            var castvi = new ClientsAndSlavesTreeViewItem(distributedTest.ClientsAndSlaves);
+            var castvi = new ClientsAndSlavesTreeViewItem(distributedTest.Clients);
             castvi.AfterSelect += new EventHandler(_AfterSelect);
             castvi.AddClientClicked += new EventHandler(castvi_AddClientClicked);
             largeList.Add(castvi);
 
-            foreach (Client client in distributedTest.ClientsAndSlaves)
+            foreach (Client client in distributedTest.Clients)
                 CreateAndAddClientTreeViewItem(client);
 
             SetGui();
@@ -110,7 +110,7 @@ namespace vApus.DistributedTesting
             if (cvi.Client.Parent != null)
             {
                 var clone = cvi.Client.Clone();
-                var parent = cvi.Client.Parent as ClientsAndSlaves;
+                var parent = cvi.Client.Parent as Clients;
                 int cloneIndex = parent.IndexOf(cvi.Client) + 1;
 
                 if (parent.Count == cloneIndex)

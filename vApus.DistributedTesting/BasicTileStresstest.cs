@@ -184,7 +184,7 @@ namespace vApus.DistributedTesting
                         this.Parent.GetParent().GetParent().GetParent() != null)
                     {
                         _slavesParent.Clear();
-                        ClientsAndSlaves clientsAndSlaves = (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).ClientsAndSlaves;
+                        Clients clientsAndSlaves = (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).Clients;
 
                         foreach (Client client in clientsAndSlaves)
                             foreach (Slave slave in client)

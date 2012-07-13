@@ -85,17 +85,15 @@ namespace vApus.DistributedTesting
         {
             lblUsage.Visible = false;
 
-            lblHostName.Visible =
-            txtHostName.Visible =
-            lblIP.Visible =
-            txtIP.Visible =
-            picStatus.Visible =
-            btnAddSlave.Visible =
-            picSort.Visible =
+            pnlSettings.Visible =
             flp.Visible = true;
 
             txtHostName.Text = _clientTreeViewItem.Client.HostName;
             txtIP.Text = _clientTreeViewItem.Client.IP;
+
+            txtUserName.Text = _clientTreeViewItem.Client.UserName;
+            txtPassword.Text = _clientTreeViewItem.Client.Password;
+            txtDomain.Text = _clientTreeViewItem.Client.Domain;
 
             if (IsHandleCreated)
                 LockWindowUpdate(this.Handle.ToInt32());
@@ -179,13 +177,7 @@ namespace vApus.DistributedTesting
         {
             lblUsage.Visible = true;
 
-            lblHostName.Visible =
-            txtHostName.Visible =
-            lblIP.Visible =
-            txtIP.Visible =
-            picStatus.Visible =
-            btnAddSlave.Visible =
-            picSort.Visible =
+            pnlSettings.Visible =
             flp.Visible = false;
         }
 
@@ -206,7 +198,7 @@ namespace vApus.DistributedTesting
                 _distributedTestMode == DistributedTestMode.TestAndReport;
 
                 picStatus.Enabled =
-                btnAddSlave.Enabled =
+                picAddSlave.Enabled =
                 picSort.Enabled =
                 _distributedTestMode == DistributedTestMode.Edit;
 
@@ -353,14 +345,11 @@ namespace vApus.DistributedTesting
                 picStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
             }
 
-            txtHostName.Enabled =
-            txtIP.Enabled =
-            btnAddSlave.Enabled =
-            picSort.Enabled =
+            pnlSettings.Enabled =
             flp.Enabled = enabled;
         }
 
-        private void btnAddSlave_Click(object sender, EventArgs e)
+        private void picAddSlave_Click(object sender, EventArgs e)
         {
             LockWindowUpdate(this.Handle.ToInt32());
 
@@ -387,6 +376,46 @@ namespace vApus.DistributedTesting
 
             LockWindowUpdate(0);
         }
+        private void picClearSlaves_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to clear the slaves?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                LockWindowUpdate(this.Handle.ToInt32());
+                flp.Controls.Clear();
+
+                _clientTreeViewItem.Client.ClearWithoutInvokingEvent(false);
+                _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Cleared);
+
+                LockWindowUpdate(0);
+            }
+        }
         #endregion
+
+        private void txtRDC_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                SetRDC();
+        }
+
+        private void txtRDC_Leave(object sender, EventArgs e)
+        {
+            SetRDC();
+        }
+        private void SetRDC()
+        {
+            _clientTreeViewItem.Client.UserName = txtUserName.Text;
+            _clientTreeViewItem.Client.Password = txtPassword.Text;
+            _clientTreeViewItem.Client.Domain = txtDomain.Text;
+
+            _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+
+        private void picShowRD_Click(object sender, EventArgs e)
+        {
+            RemoteDesktopClient rdc = RemoteDesktopClient.GetInstance(this.ParentForm);
+            rdc.Show();
+            rdc.ShowRemoteDesktop(_clientTreeViewItem.Client.HostName, _clientTreeViewItem.Client.IP,
+                _clientTreeViewItem.Client.UserName, _clientTreeViewItem.Client.Password, _clientTreeViewItem.Client.Domain);
+        }
     }
 }

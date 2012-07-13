@@ -30,7 +30,7 @@ namespace vApus.DistributedTesting
         /// Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
-        private ClientsAndSlaves _clientsAndSlaves = new ClientsAndSlaves();
+        private Clients _clientsAndSlaves = new Clients();
         private List<ClientTreeViewItem> _childControls = new List<ClientTreeViewItem>();
 
         //To know when this can be enabled again.
@@ -40,7 +40,7 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Properties
-        public ClientsAndSlaves ClientsAndSlaves
+        public Clients ClientsAndSlaves
         {
             get { return _clientsAndSlaves; }
         }
@@ -55,7 +55,7 @@ namespace vApus.DistributedTesting
         {
             InitializeComponent();
         }
-        public ClientsAndSlavesTreeViewItem(ClientsAndSlaves clientsAndSlaves)
+        public ClientsAndSlavesTreeViewItem(Clients clientsAndSlaves)
             : this()
         {
             _clientsAndSlaves = clientsAndSlaves;

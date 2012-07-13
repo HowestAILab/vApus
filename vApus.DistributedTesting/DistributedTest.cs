@@ -55,9 +55,9 @@ namespace vApus.DistributedTesting
         {
             get { return this[0] as Tiles; }
         }
-        public ClientsAndSlaves ClientsAndSlaves
+        public Clients Clients
         {
-            get { return this[1] as ClientsAndSlaves; }
+            get { return this[1] as Clients; }
         }
         #endregion
 
@@ -67,7 +67,7 @@ namespace vApus.DistributedTesting
             _resultPath = DefaultResultPath;
 
             AddAsDefaultItem(new Tiles());
-            AddAsDefaultItem(new ClientsAndSlaves());
+            AddAsDefaultItem(new Clients());
         }
         #endregion
 

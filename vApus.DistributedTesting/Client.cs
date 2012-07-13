@@ -14,6 +14,9 @@ namespace vApus.DistributedTesting
     {
         #region Fields
         private string _ip = string.Empty, _hostName = string.Empty;
+
+        //RDP credentials.
+        private string _userName = string.Empty, _password = string.Empty, _domain = string.Empty;
         #endregion
 
         #region Properties
@@ -28,6 +31,43 @@ namespace vApus.DistributedTesting
         {
             get { return _ip; }
             set { _ip = value; }
+        }
+        [SavableCloneable]
+        public string UserName
+        {
+            get { return _userName; }
+            set { _userName = value; }
+        }
+        [SavableCloneable(true)]
+        public string Password
+        {
+            get { return _password; }
+            set { _password = value; }
+        }
+        [SavableCloneable]
+        public string Domain
+        {
+            get { return _domain; }
+            set { _domain = value; }
+        }
+
+        /// <summary>
+        /// The count of the slaves that are used.
+        /// </summary>
+        public int UsedSlaveCount
+        {
+            get
+            {
+                int count = 0;
+                try
+                {
+                    foreach (Slave s in this)
+                        if (s.TileStresstest != null)
+                            ++count;
+                }
+                catch { }
+                return count;
+            }
         }
         #endregion
 

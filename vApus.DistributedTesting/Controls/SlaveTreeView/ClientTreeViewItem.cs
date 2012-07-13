@@ -59,18 +59,6 @@ namespace vApus.DistributedTesting
             get { return _online; }
         }
 
-        private int UsedSlaveCount
-        {
-            get
-            {
-                int count = 0;
-                foreach (Slave s in _client)
-                    if (s.TileStresstest != null)
-                        ++count;
-                return count;
-            }
-        }
-
         public ConfigureSlaves ConfigureSlaves
         {
             get { return _configureSlaves; }
@@ -92,7 +80,7 @@ namespace vApus.DistributedTesting
             _client = client;
             RefreshGui();
 
-            lblClient.Text = _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
+            lblClient.Text = _client.ToString() + "  -  (" + _client.UsedSlaveCount + "/" + _client.Count + ")";
         }
         #endregion
 
@@ -123,7 +111,7 @@ namespace vApus.DistributedTesting
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
                 picDuplicate.Visible = picDelete.Visible = visible;
-                lblClient.Text = _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
+                lblClient.Text = _client.ToString() + "  -  (" + _client.UsedSlaveCount + "/" + _client.Count + ")";
             }
         }
         public void SetVisibleControls()
@@ -139,7 +127,7 @@ namespace vApus.DistributedTesting
 
         public void RefreshGui()
         {
-            lblClient.Text = _client.ToString() + "  -  (" + UsedSlaveCount + "/" + _client.Count + ")";
+            lblClient.Text = _client.ToString() + "  -  (" + _client.UsedSlaveCount + "/" + _client.Count + ")";
         }
         private void _KeyUp(object sender, KeyEventArgs e)
         {

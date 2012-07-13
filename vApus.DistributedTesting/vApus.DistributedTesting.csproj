@@ -191,6 +191,12 @@
     <Compile Include="Controls\SlaveTreeView\ConfigureSlaves.Designer.cs">
       <DependentUpon>ConfigureSlaves.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\SlaveTreeView\RemoteDesktopClient.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\RemoteDesktopClient.Designer.cs">
+      <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\SlaveTreeView\SlaveTile.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -310,7 +316,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="ClientsAndSlaves.cs" />
+    <Compile Include="Clients.cs" />
     <Compile Include="Tiles.cs" />
     <Compile Include="TileStresstestProgressResults.cs" />
     <Compile Include="TileStresstestView.cs">
@@ -356,6 +362,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\SlaveTreeView\ConfigureSlaves.resx">
       <DependentUpon>ConfigureSlaves.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\RemoteDesktopClient.resx">
+      <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\SlaveTreeView\SlaveTile.resx">
       <DependentUpon>SlaveTile.cs</DependentUpon>
@@ -490,7 +499,25 @@
   <ItemGroup>
     <None Include="Resources\Busy.gif" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="AxMSTSCLib">
+      <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>aximp</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+    <COMReference Include="MSTSCLib">
+      <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

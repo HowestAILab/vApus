@@ -120,7 +120,7 @@ namespace vApus.DistributedTesting
                     solutionComponentPropertyPanelAdvanced.Refresh();
                 }
             }
-            if (sender is ClientsAndSlaves || sender is Client || sender is Slave ||
+            if (sender is Clients || sender is Client || sender is Slave ||
                 sender is Monitor.MonitorProject || sender is Monitor.Monitor)
             {
                 solutionComponentPropertyPanelBasic.Refresh();
