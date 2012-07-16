@@ -308,7 +308,7 @@ namespace vApus.DistributedTesting
 
                 distributedStresstestControl.Clear();
 
-                ShowRemoteDesktop();
+                // ShowRemoteDesktop();
 
                 distributedStresstestControl.AppendMasterMessages("Jump Starting the slaves...");
                 //Jumpstart the slaves first.

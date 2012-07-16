@@ -62,7 +62,7 @@ namespace vApus.DistributedTesting
             else
             {
                 e.Cancel = true;
-                this.Hide();
+                this.WindowState = FormWindowState.Minimized;
             }
         }
 

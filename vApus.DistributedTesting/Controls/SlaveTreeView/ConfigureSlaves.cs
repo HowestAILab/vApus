@@ -414,6 +414,7 @@ namespace vApus.DistributedTesting
         {
             RemoteDesktopClient rdc = RemoteDesktopClient.GetInstance(this.ParentForm);
             rdc.Show();
+            rdc.WindowState = FormWindowState.Normal;
             rdc.ShowRemoteDesktop(_clientTreeViewItem.Client.HostName, _clientTreeViewItem.Client.IP,
                 _clientTreeViewItem.Client.UserName, _clientTreeViewItem.Client.Password, _clientTreeViewItem.Client.Domain);
         }
