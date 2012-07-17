@@ -25,6 +25,7 @@ namespace vApus.DistributedTesting
         public event EventHandler ClientHostNameAndIPSet;
 
         #region Fields
+        private DistributedTest _distributedTest;
         private DistributedTestMode _distributedTestMode;
         #endregion
 
@@ -40,7 +41,8 @@ namespace vApus.DistributedTesting
         {
             LockWindowUpdate(this.Handle.ToInt32());
             largeList.Clear();
-            var castvi = new ClientsAndSlavesTreeViewItem(distributedTest.Clients);
+            _distributedTest = distributedTest;
+            var castvi = new ClientsAndSlavesTreeViewItem(distributedTest);
             castvi.AfterSelect += new EventHandler(_AfterSelect);
             castvi.AddClientClicked += new EventHandler(castvi_AddClientClicked);
             largeList.Add(castvi);
@@ -66,14 +68,14 @@ namespace vApus.DistributedTesting
             client.AddWithoutInvokingEvent(new Slave(), false);
             CreateAndAddClientTreeViewItem(client);
             
-            castvi.ClientsAndSlaves.Add(client);
+            castvi.Clients.Add(client);
 
             LockWindowUpdate(0);
         }
 
         private void CreateAndAddClientTreeViewItem(Client client)
         {
-            var cvi = new ClientTreeViewItem(client);
+            var cvi = new ClientTreeViewItem(_distributedTest, client);
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += new EventHandler(_AfterSelect);
@@ -88,7 +90,7 @@ namespace vApus.DistributedTesting
 
         private void CreateAndInsertClientTreeViewItem(Client client, KeyValuePair<int, int> index)
         {
-            var cvi = new ClientTreeViewItem(client);
+            var cvi = new ClientTreeViewItem(_distributedTest, client);
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += new EventHandler(_AfterSelect);

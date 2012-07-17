@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using vApus.Stresstest;
+using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting
 {
@@ -30,19 +30,19 @@ namespace vApus.DistributedTesting
         /// Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
-        private Clients _clientsAndSlaves = new Clients();
         private List<ClientTreeViewItem> _childControls = new List<ClientTreeViewItem>();
 
         //To know when this can be enabled again.
         private int _refreshingClientCount = 0;
 
+        private DistributedTest _distributedTest;
         private DistributedTestMode _distributedTestMode;
         #endregion
 
         #region Properties
-        public Clients ClientsAndSlaves
+        public Clients Clients
         {
-            get { return _clientsAndSlaves; }
+            get { return _distributedTest.Clients; }
         }
         public List<ClientTreeViewItem> ChildControls
         {
@@ -55,10 +55,10 @@ namespace vApus.DistributedTesting
         {
             InitializeComponent();
         }
-        public ClientsAndSlavesTreeViewItem(Clients clientsAndSlaves)
+        public ClientsAndSlavesTreeViewItem(DistributedTest distributedTest)
             : this()
         {
-            _clientsAndSlaves = clientsAndSlaves;
+            _distributedTest = distributedTest;
         }
         #endregion
 
@@ -101,6 +101,14 @@ namespace vApus.DistributedTesting
         private void picRefresh_Click(object sender, EventArgs e)
         {
             SetHostNameAndIP();
+        }
+        private void picRemoteDesktop_Click(object sender, EventArgs e)
+        {
+            RemoteDesktopClient rdc = SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
+            rdc.Text = "Remote Desktop Client";
+            foreach (Client client in _distributedTest.Clients)
+                rdc.ShowRemoteDesktop(client.HostName, client.IP, client.UserName, client.Password, client.Domain);
+
         }
         private void _KeyDown(object sender, KeyEventArgs e)
         {
@@ -179,12 +187,12 @@ namespace vApus.DistributedTesting
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
                 picAddClient.Visible =
-                picRefresh.Visible = true;
+                picWizard.Visible = true;
             }
             else
             {
                 picAddClient.Visible =
-                picRefresh.Visible = false;
+                picWizard.Visible = false;
             }
         }
         #endregion

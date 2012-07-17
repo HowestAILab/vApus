@@ -33,13 +33,15 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picAddClient = new System.Windows.Forms.PictureBox();
             this.picRefresh = new System.Windows.Forms.PictureBox();
+            this.picWizard = new System.Windows.Forms.PictureBox();
+            this.picRemoteDesktop = new System.Windows.Forms.PictureBox();
             this.lblRunSync = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.picWizard = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRefresh)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picWizard)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRemoteDesktop)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -54,9 +56,9 @@
             this.picAddClient.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picAddClient.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picAddClient.Image = ((System.Drawing.Image)(resources.GetObject("picAddClient.Image")));
-            this.picAddClient.Location = new System.Drawing.Point(451, 6);
+            this.picAddClient.Location = new System.Drawing.Point(447, 10);
             this.picAddClient.Name = "picAddClient";
-            this.picAddClient.Size = new System.Drawing.Size(23, 23);
+            this.picAddClient.Size = new System.Drawing.Size(16, 16);
             this.picAddClient.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picAddClient.TabIndex = 20;
             this.picAddClient.TabStop = false;
@@ -68,14 +70,42 @@
             this.picRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picRefresh.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picRefresh.Image = ((System.Drawing.Image)(resources.GetObject("picRefresh.Image")));
-            this.picRefresh.Location = new System.Drawing.Point(509, 6);
+            this.picRefresh.Location = new System.Drawing.Point(491, 10);
             this.picRefresh.Name = "picRefresh";
-            this.picRefresh.Size = new System.Drawing.Size(23, 23);
+            this.picRefresh.Size = new System.Drawing.Size(16, 16);
             this.picRefresh.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picRefresh.TabIndex = 24;
             this.picRefresh.TabStop = false;
-            this.toolTip.SetToolTip(this.picRefresh, "Refresh<f5>");
+            this.toolTip.SetToolTip(this.picRefresh, "Refresh <f5>");
             this.picRefresh.Click += new System.EventHandler(this.picRefresh_Click);
+            // 
+            // picWizard
+            // 
+            this.picWizard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picWizard.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picWizard.Image = ((System.Drawing.Image)(resources.GetObject("picWizard.Image")));
+            this.picWizard.Location = new System.Drawing.Point(469, 10);
+            this.picWizard.Name = "picWizard";
+            this.picWizard.Size = new System.Drawing.Size(16, 16);
+            this.picWizard.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picWizard.TabIndex = 25;
+            this.picWizard.TabStop = false;
+            this.toolTip.SetToolTip(this.picWizard, "Wizard...");
+            this.picWizard.Click += new System.EventHandler(this.picWizard_Click);
+            // 
+            // picRemoteDesktop
+            // 
+            this.picRemoteDesktop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picRemoteDesktop.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picRemoteDesktop.Image = ((System.Drawing.Image)(resources.GetObject("picRemoteDesktop.Image")));
+            this.picRemoteDesktop.Location = new System.Drawing.Point(513, 10);
+            this.picRemoteDesktop.Name = "picRemoteDesktop";
+            this.picRemoteDesktop.Size = new System.Drawing.Size(16, 16);
+            this.picRemoteDesktop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picRemoteDesktop.TabIndex = 26;
+            this.picRemoteDesktop.TabStop = false;
+            this.toolTip.SetToolTip(this.picRemoteDesktop, "Show Remote Desktop for all Clients...");
+            this.picRemoteDesktop.Click += new System.EventHandler(this.picRemoteDesktop_Click);
             // 
             // lblRunSync
             // 
@@ -105,29 +135,16 @@
             this.label1.Location = new System.Drawing.Point(3, 11);
             this.label1.MinimumSize = new System.Drawing.Size(0, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(442, 13);
+            this.label1.Size = new System.Drawing.Size(438, 13);
             this.label1.TabIndex = 19;
             this.label1.Text = "Clients and Slaves";
             this.label1.Click += new System.EventHandler(this._Enter);
-            // 
-            // picWizard
-            // 
-            this.picWizard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picWizard.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picWizard.Image = ((System.Drawing.Image)(resources.GetObject("picWizard.Image")));
-            this.picWizard.Location = new System.Drawing.Point(480, 6);
-            this.picWizard.Name = "picWizard";
-            this.picWizard.Size = new System.Drawing.Size(23, 23);
-            this.picWizard.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picWizard.TabIndex = 25;
-            this.picWizard.TabStop = false;
-            this.toolTip.SetToolTip(this.picWizard, "Wizard...");
-            this.picWizard.Click += new System.EventHandler(this.picWizard_Click);
             // 
             // ClientsAndSlavesTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.picRemoteDesktop);
             this.Controls.Add(this.picWizard);
             this.Controls.Add(this.picRefresh);
             this.Controls.Add(this.panel1);
@@ -144,6 +161,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRefresh)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picWizard)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRemoteDesktop)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -158,6 +176,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox picRefresh;
         private System.Windows.Forms.PictureBox picWizard;
+        private System.Windows.Forms.PictureBox picRemoteDesktop;
 
     }
 }

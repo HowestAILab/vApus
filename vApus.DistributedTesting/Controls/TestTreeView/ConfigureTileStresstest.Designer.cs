@@ -35,6 +35,7 @@
             this.chkAutomatic = new System.Windows.Forms.CheckBox();
             this.llblAdvancedSettings = new System.Windows.Forms.LinkLabel();
             this.lblUsage = new System.Windows.Forms.Label();
+            this.lblUseRDP = new System.Windows.Forms.Label();
             this.lblRunSync = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -124,16 +125,31 @@
     "button\'.\r\nSelect a Tile Stresstest to configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
+            // lblUseRDP
+            // 
+            this.lblUseRDP.AutoSize = true;
+            this.lblUseRDP.BackColor = System.Drawing.SystemColors.Control;
+            this.lblUseRDP.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUseRDP.ForeColor = System.Drawing.Color.DimGray;
+            this.lblUseRDP.Location = new System.Drawing.Point(0, 11);
+            this.lblUseRDP.Name = "lblUseRDP";
+            this.lblUseRDP.Size = new System.Drawing.Size(553, 26);
+            this.lblUseRDP.TabIndex = 4;
+            this.lblUseRDP.Text = "Check \'Use RDP\' if you want vApus to open remote desktop connections to the used " +
+    "clients.\r\nRegardless if you check it or not, you need to be logged into the clie" +
+    "nts to be able to stresstest.";
+            this.lblUseRDP.Visible = false;
+            // 
             // lblRunSync
             // 
             this.lblRunSync.AutoSize = true;
             this.lblRunSync.BackColor = System.Drawing.SystemColors.Control;
             this.lblRunSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblRunSync.ForeColor = System.Drawing.Color.DimGray;
-            this.lblRunSync.Location = new System.Drawing.Point(0, 11);
+            this.lblRunSync.Location = new System.Drawing.Point(0, 47);
             this.lblRunSync.Name = "lblRunSync";
             this.lblRunSync.Size = new System.Drawing.Size(504, 78);
-            this.lblRunSync.TabIndex = 4;
+            this.lblRunSync.TabIndex = 5;
             this.lblRunSync.Text = resources.GetString("lblRunSync.Text");
             this.lblRunSync.Visible = false;
             // 
@@ -142,8 +158,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.Controls.Add(this.lblRunSync);
+            this.Controls.Add(this.lblUseRDP);
             this.Controls.Add(this.lblUsage);
+            this.Controls.Add(this.lblRunSync);
             this.Controls.Add(this.solutionComponentPropertyPanelAdvanced);
             this.Controls.Add(this.solutionComponentPropertyPanelBasic);
             this.Controls.Add(this.chkAutomatic);
@@ -164,6 +181,7 @@
         private System.Windows.Forms.CheckBox chkAutomatic;
         private System.Windows.Forms.LinkLabel llblAdvancedSettings;
         private System.Windows.Forms.Label lblUsage;
+        private System.Windows.Forms.Label lblUseRDP;
         private System.Windows.Forms.Label lblRunSync;
     }
 }

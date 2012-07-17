@@ -10,7 +10,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using vApus.Stresstest;
 
 namespace vApus.DistributedTesting
 {
@@ -54,14 +53,22 @@ namespace vApus.DistributedTesting
             : this()
         {
             _distributedTest = distributedTest;
+
+            chkUseRDP.Checked = _distributedTest.UseRDP;
+            chkUseRDP.CheckedChanged += new EventHandler(chkUseRDP_CheckedChanged);
+
             cboRunSync.SelectedIndex = (int)distributedTest.RunSynchronization;
             cboRunSync.SelectedIndexChanged += new EventHandler(cboRunSync_SelectedIndexChanged);
             toolTip.SetToolTip(picResultPath, "Result Path: " + _distributedTest.ResultPath);
         }
-
         #endregion
 
         #region Functions
+        private void chkUseRDP_CheckedChanged(object sender, EventArgs e)
+        {
+            _distributedTest.UseRDP = chkUseRDP.Checked;
+            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
         private void cboRunSync_SelectedIndexChanged(object sender, EventArgs e)
         {
             _distributedTest.RunSynchronization = (Stresstest.RunSynchronization)cboRunSync.SelectedIndex;
@@ -143,6 +150,7 @@ namespace vApus.DistributedTesting
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
+                chkUseRDP.Enabled =
                 pnlRunSync.Enabled =
                 picAddTile.Visible = true;
 
@@ -150,6 +158,7 @@ namespace vApus.DistributedTesting
             }
             else
             {
+                chkUseRDP.Enabled =
                 pnlRunSync.Enabled =
                 picAddTile.Visible = false;
 

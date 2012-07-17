@@ -447,6 +447,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="ProxyHelper.cs" />
+    <Compile Include="ControlsAndPanels\RemoteDesktopClient.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\RemoteDesktopClient.Designer.cs">
+      <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
+    </Compile>
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />
@@ -562,6 +568,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\RemoteDesktopClient.resx">
+      <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Tracert\TracertControl.resx">
       <DependentUpon>TracertControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -598,7 +607,25 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="AxMSTSCLib">
+      <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>aximp</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+    <COMReference Include="MSTSCLib">
+      <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="ControlsAndPanels\Charts\ChartTypes\Direct2D\README.txt" />
     <Content Include="quicklz150_64_1.dll">

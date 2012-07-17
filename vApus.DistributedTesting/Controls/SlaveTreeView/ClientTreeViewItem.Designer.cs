@@ -34,10 +34,12 @@
             this.picStatus = new System.Windows.Forms.PictureBox();
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
+            this.picRemoteDesktop = new System.Windows.Forms.PictureBox();
             this.lblClient = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picStatus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRemoteDesktop)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -52,7 +54,7 @@
             this.picStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picStatus.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picStatus.Image = ((System.Drawing.Image)(resources.GetObject("picStatus.Image")));
-            this.picStatus.Location = new System.Drawing.Point(578, 6);
+            this.picStatus.Location = new System.Drawing.Point(557, 6);
             this.picStatus.Name = "picStatus";
             this.picStatus.Size = new System.Drawing.Size(16, 16);
             this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -66,7 +68,7 @@
             this.picDuplicate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDuplicate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDuplicate.Image = ((System.Drawing.Image)(resources.GetObject("picDuplicate.Image")));
-            this.picDuplicate.Location = new System.Drawing.Point(528, 6);
+            this.picDuplicate.Location = new System.Drawing.Point(513, 6);
             this.picDuplicate.Name = "picDuplicate";
             this.picDuplicate.Size = new System.Drawing.Size(16, 16);
             this.picDuplicate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -81,7 +83,7 @@
             this.picDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDelete.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDelete.Image = ((System.Drawing.Image)(resources.GetObject("picDelete.Image")));
-            this.picDelete.Location = new System.Drawing.Point(550, 6);
+            this.picDelete.Location = new System.Drawing.Point(535, 6);
             this.picDelete.Name = "picDelete";
             this.picDelete.Size = new System.Drawing.Size(16, 16);
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -91,6 +93,20 @@
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
+            // picRemoteDesktop
+            // 
+            this.picRemoteDesktop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picRemoteDesktop.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picRemoteDesktop.Image = ((System.Drawing.Image)(resources.GetObject("picRemoteDesktop.Image")));
+            this.picRemoteDesktop.Location = new System.Drawing.Point(579, 6);
+            this.picRemoteDesktop.Name = "picRemoteDesktop";
+            this.picRemoteDesktop.Size = new System.Drawing.Size(16, 16);
+            this.picRemoteDesktop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.picRemoteDesktop.TabIndex = 21;
+            this.picRemoteDesktop.TabStop = false;
+            this.toolTip.SetToolTip(this.picRemoteDesktop, "Show Remote Desktop...");
+            this.picRemoteDesktop.Click += new System.EventHandler(this.picRemoteDesktop_Click);
+            // 
             // lblClient
             // 
             this.lblClient.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -99,7 +115,7 @@
             this.lblClient.Location = new System.Drawing.Point(3, 6);
             this.lblClient.MinimumSize = new System.Drawing.Size(0, 13);
             this.lblClient.Name = "lblClient";
-            this.lblClient.Size = new System.Drawing.Size(519, 13);
+            this.lblClient.Size = new System.Drawing.Size(504, 13);
             this.lblClient.TabIndex = 19;
             this.lblClient.Click += new System.EventHandler(this._Enter);
             // 
@@ -107,6 +123,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.picRemoteDesktop);
             this.Controls.Add(this.picStatus);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.picDelete);
@@ -120,6 +137,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picStatus)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRemoteDesktop)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -132,5 +150,6 @@
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblClient;
         private System.Windows.Forms.PictureBox picStatus;
+        private System.Windows.Forms.PictureBox picRemoteDesktop;
     }
 }

@@ -105,7 +105,7 @@
             // 
             this.picStatus.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picStatus.Image = ((System.Drawing.Image)(resources.GetObject("picStatus.Image")));
-            this.picStatus.Location = new System.Drawing.Point(281, 37);
+            this.picStatus.Location = new System.Drawing.Point(181, 65);
             this.picStatus.Name = "picStatus";
             this.picStatus.Size = new System.Drawing.Size(16, 16);
             this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -139,7 +139,7 @@
             this.picShowRD.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picShowRD.TabIndex = 35;
             this.picShowRD.TabStop = false;
-            this.toolTip.SetToolTip(this.picShowRD, "Show...");
+            this.toolTip.SetToolTip(this.picShowRD, "Show Remote Desktop...");
             this.picShowRD.Click += new System.EventHandler(this.picShowRD_Click);
             // 
             // picAddSlave

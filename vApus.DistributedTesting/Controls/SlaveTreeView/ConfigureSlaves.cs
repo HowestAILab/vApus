@@ -172,7 +172,6 @@ namespace vApus.DistributedTesting
             if (GoToAssignedTest != null)
                 GoToAssignedTest(sender, e);
         }
-
         public void ClearClient()
         {
             lblUsage.Visible = true;
@@ -181,11 +180,10 @@ namespace vApus.DistributedTesting
             flp.Visible = false;
         }
 
-        private void picSort_Click(object sender, EventArgs e)
-        {
-            _clientTreeViewItem.Client.Sort();
-        }
-
+        /// <summary>
+        /// Set this if you start or stop the distributed test.
+        /// </summary>
+        /// <param name="distributedTestMode"></param>
         public void SetMode(DistributedTestMode distributedTestMode)
         {
             if (_distributedTestMode != distributedTestMode)
@@ -195,10 +193,14 @@ namespace vApus.DistributedTesting
 
                 txtHostName.ReadOnly =
                 txtIP.ReadOnly =
+                txtUserName.ReadOnly = 
+                txtPassword.ReadOnly = 
+                txtDomain.ReadOnly =
                 _distributedTestMode == DistributedTestMode.TestAndReport;
 
                 picStatus.Enabled =
                 picAddSlave.Enabled =
+                picClearSlaves.Enabled =
                 picSort.Enabled =
                 _distributedTestMode == DistributedTestMode.Edit;
 
@@ -207,7 +209,6 @@ namespace vApus.DistributedTesting
                 LockWindowUpdate(0);
             }
         }
-
 
         private void txtHostName_KeyUp(object sender, KeyEventArgs e)
         {
@@ -349,6 +350,34 @@ namespace vApus.DistributedTesting
             flp.Enabled = enabled;
         }
 
+        private void txtRDC_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                SetRDC();
+        }
+
+        private void txtRDC_Leave(object sender, EventArgs e)
+        {
+            SetRDC();
+        }
+        private void SetRDC()
+        {
+            _clientTreeViewItem.Client.UserName = txtUserName.Text;
+            _clientTreeViewItem.Client.Password = txtPassword.Text;
+            _clientTreeViewItem.Client.Domain = txtDomain.Text;
+
+            _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+
+        private void picShowRD_Click(object sender, EventArgs e)
+        {
+            RemoteDesktopClient rdc = SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
+            rdc.Text = "Remote Desktop Client";
+            rdc.ShowRemoteDesktop(_clientTreeViewItem.Client.HostName, _clientTreeViewItem.Client.IP,
+                _clientTreeViewItem.Client.UserName, _clientTreeViewItem.Client.Password, _clientTreeViewItem.Client.Domain);
+        }
+
+
         private void picAddSlave_Click(object sender, EventArgs e)
         {
             LockWindowUpdate(this.Handle.ToInt32());
@@ -389,34 +418,11 @@ namespace vApus.DistributedTesting
                 LockWindowUpdate(0);
             }
         }
+
+        private void picSort_Click(object sender, EventArgs e)
+        {
+            _clientTreeViewItem.Client.Sort();
+        }
         #endregion
-
-        private void txtRDC_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-                SetRDC();
-        }
-
-        private void txtRDC_Leave(object sender, EventArgs e)
-        {
-            SetRDC();
-        }
-        private void SetRDC()
-        {
-            _clientTreeViewItem.Client.UserName = txtUserName.Text;
-            _clientTreeViewItem.Client.Password = txtPassword.Text;
-            _clientTreeViewItem.Client.Domain = txtDomain.Text;
-
-            _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-
-        private void picShowRD_Click(object sender, EventArgs e)
-        {
-            RemoteDesktopClient rdc = RemoteDesktopClient.GetInstance(this.ParentForm);
-            rdc.Show();
-            rdc.WindowState = FormWindowState.Normal;
-            rdc.ShowRemoteDesktop(_clientTreeViewItem.Client.HostName, _clientTreeViewItem.Client.IP,
-                _clientTreeViewItem.Client.UserName, _clientTreeViewItem.Client.Password, _clientTreeViewItem.Client.Domain);
-        }
     }
 }

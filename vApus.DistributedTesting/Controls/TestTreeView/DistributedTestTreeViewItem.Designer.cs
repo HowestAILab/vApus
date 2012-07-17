@@ -40,6 +40,7 @@
             this.picResultPath = new System.Windows.Forms.PictureBox();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
+            this.chkUseRDP = new System.Windows.Forms.CheckBox();
             this.pnlRunSync.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picResultPath)).BeginInit();
@@ -51,11 +52,11 @@
             this.pnlRunSync.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlRunSync.BackColor = System.Drawing.Color.Silver;
             this.pnlRunSync.Controls.Add(this.cboRunSync);
-            this.pnlRunSync.Location = new System.Drawing.Point(347, 6);
+            this.pnlRunSync.Location = new System.Drawing.Point(358, 6);
             this.pnlRunSync.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.pnlRunSync.Name = "pnlRunSync";
             this.pnlRunSync.Size = new System.Drawing.Size(127, 23);
-            this.pnlRunSync.TabIndex = 18;
+            this.pnlRunSync.TabIndex = 1;
             // 
             // cboRunSync
             // 
@@ -87,7 +88,7 @@
             this.label1.Location = new System.Drawing.Point(3, 11);
             this.label1.MinimumSize = new System.Drawing.Size(0, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(282, 13);
+            this.label1.Size = new System.Drawing.Size(219, 13);
             this.label1.TabIndex = 19;
             this.label1.Text = "Distributed Test";
             this.label1.Click += new System.EventHandler(this._Enter);
@@ -104,9 +105,9 @@
             this.picAddTile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picAddTile.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picAddTile.Image = ((System.Drawing.Image)(resources.GetObject("picAddTile.Image")));
-            this.picAddTile.Location = new System.Drawing.Point(509, 6);
+            this.picAddTile.Location = new System.Drawing.Point(513, 10);
             this.picAddTile.Name = "picAddTile";
-            this.picAddTile.Size = new System.Drawing.Size(23, 23);
+            this.picAddTile.Size = new System.Drawing.Size(16, 16);
             this.picAddTile.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picAddTile.TabIndex = 20;
             this.picAddTile.TabStop = false;
@@ -117,7 +118,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(291, 11);
+            this.label2.Location = new System.Drawing.Point(299, 11);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(57, 13);
@@ -138,9 +139,9 @@
             this.picResultPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picResultPath.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picResultPath.Image = ((System.Drawing.Image)(resources.GetObject("picResultPath.Image")));
-            this.picResultPath.Location = new System.Drawing.Point(480, 6);
+            this.picResultPath.Location = new System.Drawing.Point(491, 10);
             this.picResultPath.Name = "picResultPath";
-            this.picResultPath.Size = new System.Drawing.Size(23, 23);
+            this.picResultPath.Size = new System.Drawing.Size(16, 16);
             this.picResultPath.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picResultPath.TabIndex = 24;
             this.picResultPath.TabStop = false;
@@ -150,7 +151,7 @@
             // 
             this.picStresstestStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picStresstestStatus.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picStresstestStatus.Location = new System.Drawing.Point(512, 10);
+            this.picStresstestStatus.Location = new System.Drawing.Point(513, 10);
             this.picStresstestStatus.Name = "picStresstestStatus";
             this.picStresstestStatus.Size = new System.Drawing.Size(16, 16);
             this.picStresstestStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -159,16 +160,30 @@
             this.picStresstestStatus.Visible = false;
             this.picStresstestStatus.Click += new System.EventHandler(this._Enter);
             // 
+            // chkUseRDP
+            // 
+            this.chkUseRDP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkUseRDP.AutoSize = true;
+            this.chkUseRDP.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chkUseRDP.Location = new System.Drawing.Point(228, 9);
+            this.chkUseRDP.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.chkUseRDP.Name = "chkUseRDP";
+            this.chkUseRDP.Size = new System.Drawing.Size(68, 17);
+            this.chkUseRDP.TabIndex = 0;
+            this.chkUseRDP.Text = "Use RDP";
+            this.chkUseRDP.UseVisualStyleBackColor = true;
+            // 
             // DistributedTestTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.chkUseRDP);
             this.Controls.Add(this.picResultPath);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.picAddTile);
             this.Controls.Add(this.pnlRunSync);
             this.Controls.Add(this.label2);
+            this.Controls.Add(this.picAddTile);
             this.Controls.Add(this.picStresstestStatus);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "DistributedTestTreeViewItem";
@@ -197,6 +212,7 @@
         private System.Windows.Forms.PictureBox picResultPath;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.PictureBox picStresstestStatus;
+        private System.Windows.Forms.CheckBox chkUseRDP;
 
     }
 }

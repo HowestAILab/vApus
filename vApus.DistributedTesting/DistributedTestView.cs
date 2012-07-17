@@ -119,7 +119,7 @@ namespace vApus.DistributedTesting
 
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
-            RemoteDesktopClient.RdpException += new EventHandler<RemoteDesktopClient.RdpExceptionEventArgs>(RemoteDesktopClient_RdpException);
+            RemoteDesktopClient.RdpException += new EventHandler<vApus.Util.RemoteDesktopClient.RdpExceptionEventArgs>(RemoteDesktopClient_RdpException);
 
             //Jumpstart the slaves when starting the test
             JumpStart.Done += new EventHandler<JumpStart.DoneEventArgs>(JumpStart_Done);
@@ -157,18 +157,19 @@ namespace vApus.DistributedTesting
             }
             else
             {
-                bool showRunSyncDescription = false;
+                bool showDescriptions = false;
                 if (sender is DistributedTestTreeViewItem)
                 {
                     var dttvi = sender as DistributedTestTreeViewItem;
                     foreach (Control ctrl in dttvi.Controls)
-                        if (ctrl is Panel && ctrl.Controls.Count != 0 && ctrl.Controls[0].Focused)
+                        if ((ctrl is CheckBox && ctrl.Focused) ||
+                            (ctrl is Panel && ctrl.Controls.Count != 0 && ctrl.Controls[0].Focused))
                         {
-                            showRunSyncDescription = true;
+                            showDescriptions = true;
                             break;
                         }
                 }
-                configureTileStresstest.ClearTileStresstest(showRunSyncDescription);
+                configureTileStresstest.ClearTileStresstest(showDescriptions);
 
                 stresstestControl.Visible = false;
                 distributedStresstestControl.Visible = true;
@@ -308,7 +309,8 @@ namespace vApus.DistributedTesting
 
                 distributedStresstestControl.Clear();
 
-                // ShowRemoteDesktop();
+                if (_distributedTest.UseRDP)
+                    ShowRemoteDesktop();
 
                 distributedStresstestControl.AppendMasterMessages("Jump Starting the slaves...");
                 //Jumpstart the slaves first.
@@ -330,15 +332,15 @@ namespace vApus.DistributedTesting
         {
             distributedStresstestControl.AppendMasterMessages("Opening remote desktop connection(s) to the client(s)...");
 
-            RemoteDesktopClient rdc = RemoteDesktopClient.GetInstance(this);
-            rdc.WindowState = FormWindowState.Minimized;
+            RemoteDesktopClient rdc = SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
+            rdc.Text = "Remote Desktop Client";
+            this.Show();
             rdc.ClearRemoteDesktops();
-            rdc.Show();
             foreach (Client client in _distributedTest.Clients)
                 if (client.UsedSlaveCount != 0)
                     rdc.ShowRemoteDesktop(client.HostName, client.IP, client.UserName, client.Password, client.Domain);
         }
-        private void RemoteDesktopClient_RdpException(object sender, RemoteDesktopClient.RdpExceptionEventArgs e)
+        private void RemoteDesktopClient_RdpException(object sender, vApus.Util.RemoteDesktopClient.RdpExceptionEventArgs e)
         {
             string message = "Cannot open a remote desktop connection to " + e.IP + ". (error code: " + e.ErrorCode + ") ";
             distributedStresstestControl.AppendMasterMessages(message, LogLevel.Error);

@@ -17,6 +17,10 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="visible"></param>
         void SetVisibleControls(bool visible);
+        /// <summary>
+        /// Set this if you start or stop the distributed test.
+        /// </summary>
+        /// <param name="distributedTestMode"></param>
         void SetDistributedTestMode(DistributedTestMode distributedTestMode);
         /// <summary>
         /// Refresh properties from the base items in the gui (Label, Use).

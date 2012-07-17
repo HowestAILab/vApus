@@ -294,7 +294,7 @@ namespace vApus.Util
             LogMessageDialog lmd = new LogMessageDialog();
 
             if (kvp.BackColor == Color.FromArgb(255, 128, 0) || kvp.BackColor == Color.Red)
-                lmd.Title = "You can report this bug, be sure it is not the cause of a configuration problem.";
+                lmd.Title = "You can report this bug, be sure it is not because of a configuration problem.";
             else
                 lmd.ReportThisBugVisible = false;
 

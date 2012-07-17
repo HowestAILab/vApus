@@ -11,7 +11,6 @@ using System.Drawing;
 using System.Net;
 using System.Windows.Forms;
 using vApus.SolutionTree;
-using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting
@@ -31,6 +30,7 @@ namespace vApus.DistributedTesting
 
         #region Fields
         private ConfigureSlaves _configureSlaves;
+        private DistributedTest _distributedTest;
         private Client _client = new Client();
         /// <summary>
         /// Check if the ctrl key is pressed.
@@ -74,9 +74,10 @@ namespace vApus.DistributedTesting
             _SetHostNameAndIPDel = SetHostNameAndIP_Callback;
             _activeObject.OnResult += new EventHandler<ActiveObject.OnResultEventArgs>(_activeObject_OnResult);
         }
-        public ClientTreeViewItem(Client client)
+        public ClientTreeViewItem(DistributedTest distributedTest, Client client)
             : this()
         {
+            _distributedTest = distributedTest;
             _client = client;
             RefreshGui();
 
@@ -266,14 +267,20 @@ namespace vApus.DistributedTesting
         {
             SetHostNameAndIP();
         }
+        private void picRemoteDesktop_Click(object sender, EventArgs e)
+        {
+            RemoteDesktopClient rdc = SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
+            rdc.Text = "Remote Desktop Client";
+            rdc.ShowRemoteDesktop(_client.HostName, _client.IP,
+                _client.UserName, _client.Password, _client.Domain);
+        }
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
         {
             _distributedTestMode = distributedTestMode;
 
             picDuplicate.Visible =
-            picDelete.Visible =
-            picStatus.Enabled = _distributedTestMode == DistributedTestMode.Edit;
+            picDelete.Visible = _distributedTestMode == DistributedTestMode.Edit;
         }
         #endregion
     }

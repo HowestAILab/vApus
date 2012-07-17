@@ -39,7 +39,8 @@ namespace vApus.DistributedTesting
         #region Functions
         public void SetTileStresstest(TileStresstest tileStresstest)
         {
-            lblRunSync.Visible = false;
+            lblRunSync.Visible =
+            lblUseRDP.Visible = 
             lblUsage.Visible = false;
 
             solutionComponentPropertyPanelDefaultTo.Visible =
@@ -63,8 +64,8 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="showRunSyncDescription">Should only be shown if the run sync cbo is focused</param>
-        public void ClearTileStresstest(bool showRunSyncDescription)
+        /// <param name="showDescriptions">Should only be shown if the run sync cbo is focused</param>
+        public void ClearTileStresstest(bool showDescriptions)
         {
             solutionComponentPropertyPanelDefaultTo.Visible =
             solutionComponentPropertyPanelBasic.Visible =
@@ -72,7 +73,7 @@ namespace vApus.DistributedTesting
             llblAdvancedSettings.Visible =
             chkAutomatic.Visible = false;
 
-            lblRunSync.Visible = showRunSyncDescription;
+            lblUseRDP.Visible = lblRunSync.Visible = showDescriptions;
             lblUsage.Visible = true;
 
         }
