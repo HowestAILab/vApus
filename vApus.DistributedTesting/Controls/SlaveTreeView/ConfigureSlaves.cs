@@ -198,7 +198,6 @@ namespace vApus.DistributedTesting
                 txtDomain.ReadOnly =
                 _distributedTestMode == DistributedTestMode.TestAndReport;
 
-                picStatus.Enabled =
                 picAddSlave.Enabled =
                 picClearSlaves.Enabled =
                 picSort.Enabled =
