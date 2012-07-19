@@ -33,6 +33,8 @@ namespace vApus.JumpStart
                         return HandleJumpStart(message);
                     case Key.Kill:
                         return HandleKill(message);
+                    case Key.CpuCoreCount:
+                        return HandleCpuCoreCount(message);
                 }
             }
             catch { }
@@ -63,8 +65,6 @@ namespace vApus.JumpStart
 
             return message;
         }
-
-
         private static Message<Key> HandleKill(Message<Key> message)
         {
             KillMessage killMessage = (KillMessage)message.Content;
@@ -91,6 +91,12 @@ namespace vApus.JumpStart
                 }
             }
             catch { }
+        }
+        private static Message<Key> HandleCpuCoreCount(Message<Key> message)
+        {
+            CpuCoreCountMessage cpuCoreCountMessage = new CpuCoreCountMessage(Environment.ProcessorCount);
+            message.Content = cpuCoreCountMessage;
+            return message;
         }
         #endregion
 

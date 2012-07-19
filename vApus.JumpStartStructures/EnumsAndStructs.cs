@@ -14,6 +14,7 @@ namespace vApus.JumpStartStructures
     {
         JumpStart,
         Kill,
+        CpuCoreCount
     }
     [Serializable]
     public struct JumpStartMessage
@@ -55,6 +56,15 @@ namespace vApus.JumpStartStructures
         public KillMessage(int excludeProcessID)
         {
             ExcludeProcessID = excludeProcessID;
+        }
+    }
+    [Serializable]
+    public struct CpuCoreCountMessage
+    {
+        public int CpuCoreCount;
+        public CpuCoreCountMessage(int cpuCoreCount)
+        {
+            CpuCoreCount = cpuCoreCount;
         }
     }
 }

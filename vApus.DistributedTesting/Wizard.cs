@@ -7,6 +7,9 @@ using System.Text;
 using System.Windows.Forms;
 using vApus.Stresstest;
 using System.IO;
+using vApus.Util;
+using System.Net.Sockets;
+using System.Net;
 
 namespace vApus.DistributedTesting
 {
@@ -100,7 +103,7 @@ namespace vApus.DistributedTesting
             int totalAssignedTestCount = totalSlaveCount <= totalUsedTestCount ? totalSlaveCount : totalUsedTestCount;
 
             clmSlaves.HeaderText = "Number of Slaves (" + totalSlaveCount + ")";
-            clmTests.HeaderText = "Number of Tests (" + totalAssignedTestCount + ")";
+            clmTests.HeaderText = "Number of Tests (" + totalAssignedTestCount + "/" + totalUsedTestCount + ")";
 
             int yetToAssingTestCount = totalAssignedTestCount;
             foreach (DataGridViewRow row in dgvClients.Rows)
@@ -126,7 +129,7 @@ namespace vApus.DistributedTesting
 
             lblNotAssignedTests.Text = (totalTestCount - totalAssignedTestCount) + " Tests are not Assigned to a Slave";
             if (totalUsedTestCount != 0)
-                lblNotAssignedTests.Text += "; " + (totalTestCount - totalUsedTestCount) + " are not Used (Checked)";
+                lblNotAssignedTests.Text += " whereof " + (totalTestCount - totalUsedTestCount) + " that are not Used (Checked)";
         }
         private void btnOK_Click(object sender, EventArgs e)
         {
@@ -189,6 +192,105 @@ namespace vApus.DistributedTesting
 
         private void dgvClients_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
+            SetCountsInGui();
+        }
+
+        private void rdbSlavesPerCores_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdbSlavesPerCores.Checked)
+                SetSaveCountsPerCores();
+            else
+                SetSlaveCountsPerClients();
+        }
+        private void nudSlavesPerCores_ValueChanged(object sender, EventArgs e)
+        {
+            if (rdbSlavesPerCores.Checked)
+                SetSaveCountsPerCores();
+        }
+        private void nudSlavesPerClient_ValueChanged(object sender, EventArgs e)
+        {
+            if (rdbSlavesPerClient.Checked)
+                SetSlaveCountsPerClients();
+        }
+        private void SetSaveCountsPerCores()
+        {
+            List<int> coreCounts = GetCoreCounts();
+            List<int> slaveCounts = new List<int>(dgvClients.RowCount - 1);
+            for (int i = 0; i != dgvClients.RowCount - 1; i++)
+            {
+                int slaveCount = (int)(coreCounts[i] / nudSlavesPerCores.Value);
+                slaveCounts.Add(slaveCount);
+            }
+            SetSlaveCountInDataGridView(slaveCounts);
+        }
+        private void SetSlaveCountsPerClients()
+        {
+            List<int> slaveCounts = new List<int>(dgvClients.RowCount - 1);
+            for (int i = 0; i != dgvClients.RowCount - 1; i++)
+                slaveCounts.Add((int)nudSlavesPerClient.Value);
+            SetSlaveCountInDataGridView(slaveCounts);
+        }
+        /// <summary>
+        /// Get the count of the cores for each client (-1 if unknown)
+        /// </summary>
+        /// <returns></returns>
+        private List<int> GetCoreCounts()
+        {
+            List<int> coreCounts = new List<int>(dgvClients.RowCount - 1);
+            foreach (DataGridViewRow row in dgvClients.Rows)
+            {
+                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
+                    break;
+
+                string ipOrHostName = row.Cells[0].Value.ToString();
+                IPAddress address = null;
+                if (!IPAddress.TryParse(ipOrHostName, out address))
+                {
+                    try
+                    {
+                        IPHostEntry hostEntry = Dns.GetHostEntry(ipOrHostName);
+                        address = hostEntry.AddressList[0];
+                    }
+                    catch { }
+                }
+
+                if (address == null)
+                {
+                    coreCounts.Add(0);
+                }
+                else
+                {
+                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    SocketWrapper sw = new SocketWrapper(address, 1314, socket);
+                    try
+                    {
+                        sw.Connect();
+                        sw.Send(new Message<vApus.JumpStartStructures.Key>(vApus.JumpStartStructures.Key.CpuCoreCount, null), SendType.Binary);
+                        Message<vApus.JumpStartStructures.Key> message = (Message<vApus.JumpStartStructures.Key>)sw.Receive(SendType.Binary);
+                        coreCounts.Add(((vApus.JumpStartStructures.CpuCoreCountMessage)message.Content).CpuCoreCount);
+                    }
+                    catch
+                    {
+                        coreCounts.Add(0);
+                        try { sw.Close(); }
+                        catch { }
+                        sw = null;
+                        socket = null;
+                    }
+                }
+            }
+            return coreCounts;
+        }
+        private void SetSlaveCountInDataGridView(List<int> slaveCounts)
+        {
+            int i = 0;
+            foreach (DataGridViewRow row in dgvClients.Rows)
+            {
+                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
+                    break;
+
+                row.Cells[4].Value = slaveCounts[i];
+            }
             SetCountsInGui();
         }
     }

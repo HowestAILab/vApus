@@ -38,7 +38,7 @@
             this.btnOK = new System.Windows.Forms.Button();
             this.lblNotAssignedTests = new System.Windows.Forms.Label();
             this.nudSlavesPerClient = new System.Windows.Forms.NumericUpDown();
-            this.rdbSlavesPerClients = new System.Windows.Forms.RadioButton();
+            this.rdbSlavesPerClient = new System.Windows.Forms.RadioButton();
             this.nudSlavesPerCores = new System.Windows.Forms.NumericUpDown();
             this.rdbSlavesPerCores = new System.Windows.Forms.RadioButton();
             this.nudTests = new System.Windows.Forms.NumericUpDown();
@@ -80,7 +80,7 @@
             this.panel1.Controls.Add(this.btnOK);
             this.panel1.Controls.Add(this.lblNotAssignedTests);
             this.panel1.Controls.Add(this.nudSlavesPerClient);
-            this.panel1.Controls.Add(this.rdbSlavesPerClients);
+            this.panel1.Controls.Add(this.rdbSlavesPerClient);
             this.panel1.Controls.Add(this.nudSlavesPerCores);
             this.panel1.Controls.Add(this.rdbSlavesPerCores);
             this.panel1.Controls.Add(this.nudTests);
@@ -178,16 +178,17 @@
             0,
             0,
             0});
+            this.nudSlavesPerClient.ValueChanged += new System.EventHandler(this.nudSlavesPerClient_ValueChanged);
             // 
-            // rdbSlavesPerClients
+            // rdbSlavesPerClient
             // 
-            this.rdbSlavesPerClients.AutoSize = true;
-            this.rdbSlavesPerClients.Location = new System.Drawing.Point(283, 416);
-            this.rdbSlavesPerClients.Name = "rdbSlavesPerClients";
-            this.rdbSlavesPerClients.Size = new System.Drawing.Size(161, 17);
-            this.rdbSlavesPerClients.TabIndex = 18;
-            this.rdbSlavesPerClients.Text = "                 Slave(s) per Client";
-            this.rdbSlavesPerClients.UseVisualStyleBackColor = true;
+            this.rdbSlavesPerClient.AutoSize = true;
+            this.rdbSlavesPerClient.Location = new System.Drawing.Point(283, 416);
+            this.rdbSlavesPerClient.Name = "rdbSlavesPerClient";
+            this.rdbSlavesPerClient.Size = new System.Drawing.Size(161, 17);
+            this.rdbSlavesPerClient.TabIndex = 18;
+            this.rdbSlavesPerClient.Text = "                 Slave(s) per Client";
+            this.rdbSlavesPerClient.UseVisualStyleBackColor = true;
             // 
             // nudSlavesPerCores
             // 
@@ -206,6 +207,7 @@
             0,
             0,
             0});
+            this.nudSlavesPerCores.ValueChanged += new System.EventHandler(this.nudSlavesPerCores_ValueChanged);
             // 
             // rdbSlavesPerCores
             // 
@@ -218,6 +220,7 @@
             this.rdbSlavesPerCores.TabStop = true;
             this.rdbSlavesPerCores.Text = "1 Slave per                    CPU Core(s) of a Client";
             this.rdbSlavesPerCores.UseVisualStyleBackColor = true;
+            this.rdbSlavesPerCores.CheckedChanged += new System.EventHandler(this.rdbSlavesPerCores_CheckedChanged);
             // 
             // nudTests
             // 
@@ -411,12 +414,13 @@
             this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
             this.clmSlaves.HeaderText = "Number of Slaves (0)";
             this.clmSlaves.Name = "clmSlaves";
+            this.clmSlaves.ReadOnly = true;
             // 
             // clmTests
             // 
             dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
-            this.clmTests.HeaderText = "Number of Tests (0)";
+            this.clmTests.HeaderText = "Number of Tests (0/?)";
             this.clmTests.Name = "clmTests";
             this.clmTests.ReadOnly = true;
             // 
@@ -465,7 +469,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown nudSlavesPerClient;
-        private System.Windows.Forms.RadioButton rdbSlavesPerClients;
+        private System.Windows.Forms.RadioButton rdbSlavesPerClient;
         private System.Windows.Forms.NumericUpDown nudSlavesPerCores;
         private System.Windows.Forms.RadioButton rdbSlavesPerCores;
         private System.Windows.Forms.Button btnCancel;
