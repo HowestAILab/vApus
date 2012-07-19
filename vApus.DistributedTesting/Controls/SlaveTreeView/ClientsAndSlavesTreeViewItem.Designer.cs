@@ -33,14 +33,12 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picAddClient = new System.Windows.Forms.PictureBox();
             this.picRefresh = new System.Windows.Forms.PictureBox();
-            this.picWizard = new System.Windows.Forms.PictureBox();
             this.picRemoteDesktop = new System.Windows.Forms.PictureBox();
             this.lblRunSync = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRefresh)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picWizard)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRemoteDesktop)).BeginInit();
             this.SuspendLayout();
             // 
@@ -56,7 +54,7 @@
             this.picAddClient.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picAddClient.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picAddClient.Image = ((System.Drawing.Image)(resources.GetObject("picAddClient.Image")));
-            this.picAddClient.Location = new System.Drawing.Point(447, 10);
+            this.picAddClient.Location = new System.Drawing.Point(469, 10);
             this.picAddClient.Name = "picAddClient";
             this.picAddClient.Size = new System.Drawing.Size(16, 16);
             this.picAddClient.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -78,20 +76,6 @@
             this.picRefresh.TabStop = false;
             this.toolTip.SetToolTip(this.picRefresh, "Refresh <f5>");
             this.picRefresh.Click += new System.EventHandler(this.picRefresh_Click);
-            // 
-            // picWizard
-            // 
-            this.picWizard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picWizard.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picWizard.Image = ((System.Drawing.Image)(resources.GetObject("picWizard.Image")));
-            this.picWizard.Location = new System.Drawing.Point(469, 10);
-            this.picWizard.Name = "picWizard";
-            this.picWizard.Size = new System.Drawing.Size(16, 16);
-            this.picWizard.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picWizard.TabIndex = 25;
-            this.picWizard.TabStop = false;
-            this.toolTip.SetToolTip(this.picWizard, "Wizard...");
-            this.picWizard.Click += new System.EventHandler(this.picWizard_Click);
             // 
             // picRemoteDesktop
             // 
@@ -145,7 +129,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.picRemoteDesktop);
-            this.Controls.Add(this.picWizard);
             this.Controls.Add(this.picRefresh);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
@@ -160,7 +143,6 @@
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.picAddClient)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRefresh)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picWizard)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRemoteDesktop)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -175,7 +157,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox picRefresh;
-        private System.Windows.Forms.PictureBox picWizard;
         private System.Windows.Forms.PictureBox picRemoteDesktop;
 
     }

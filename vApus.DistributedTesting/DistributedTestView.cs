@@ -1126,5 +1126,12 @@ namespace vApus.DistributedTesting
 
         }
         #endregion
+
+        private void btnWizard_Click(object sender, EventArgs e)
+        {
+            Wizard wizard = new Wizard();
+            wizard.SetDistributedTest(_distributedTest);
+            wizard.ShowDialog();
+        }
     }
 }

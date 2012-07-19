@@ -203,29 +203,17 @@
     <Compile Include="Controls\SlaveTreeView\SlaveTile.Designer.cs">
       <DependentUpon>SlaveTile.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AddClients.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AddClients.Designer.cs">
-      <DependentUpon>AddClients.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AddSlavesToClients.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AddSlavesToClients.Designer.cs">
-      <DependentUpon>AddSlavesToClients.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AssignTestsToSlaves.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveWizard\AssignTestsToSlaves.Designer.cs">
-      <DependentUpon>AssignTestsToSlaves.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveWizard\SlaveWizard.cs">
+    <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\SlaveTreeView\SlaveWizard\SlaveWizard.Designer.cs">
-      <DependentUpon>SlaveWizard.cs</DependentUpon>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Wizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Wizard.Designer.cs">
+      <DependentUpon>Wizard.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\TestTreeView\ConfigureTileStresstest.cs">
       <SubType>UserControl</SubType>
@@ -370,17 +358,11 @@
       <DependentUpon>SlaveTile.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveWizard\AddClients.resx">
-      <DependentUpon>AddClients.cs</DependentUpon>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveWizard\AddSlavesToClients.resx">
-      <DependentUpon>AddSlavesToClients.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveWizard\AssignTestsToSlaves.resx">
-      <DependentUpon>AssignTestsToSlaves.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveWizard\SlaveWizard.resx">
-      <DependentUpon>SlaveWizard.cs</DependentUpon>
+    <EmbeddedResource Include="Wizard.resx">
+      <DependentUpon>Wizard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TestTreeView\ConfigureTileStresstest.resx">
       <DependentUpon>ConfigureTileStresstest.cs</DependentUpon>

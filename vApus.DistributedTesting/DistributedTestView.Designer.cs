@@ -37,6 +37,7 @@
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
+            this.btnWizard = new System.Windows.Forms.ToolStripButton();
             this.tmrSetGui = new System.Windows.Forms.Timer(this.components);
             this.split = new System.Windows.Forms.SplitContainer();
             this.tcTree = new vApus.Util.TabControlWithAdjustableBorders();
@@ -76,7 +77,8 @@
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnStart,
             this.btnSchedule,
-            this.btnStop});
+            this.btnStop,
+            this.btnWizard});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.MinimumSize = new System.Drawing.Size(0, 40);
             this.toolStrip.Name = "toolStrip";
@@ -120,6 +122,18 @@
             this.btnStop.Size = new System.Drawing.Size(90, 37);
             this.btnStop.Text = "Stop";
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
+            // btnWizard
+            // 
+            this.btnWizard.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.btnWizard.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnWizard.Image = ((System.Drawing.Image)(resources.GetObject("btnWizard.Image")));
+            this.btnWizard.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnWizard.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnWizard.Name = "btnWizard";
+            this.btnWizard.Size = new System.Drawing.Size(83, 37);
+            this.btnWizard.Text = "Wizard...";
+            this.btnWizard.Click += new System.EventHandler(this.btnWizard_Click);
             // 
             // tmrSetGui
             // 
@@ -374,5 +388,6 @@
         private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
         private System.Windows.Forms.Timer tmrProgress;
+        private System.Windows.Forms.ToolStripButton btnWizard;
     }
 }

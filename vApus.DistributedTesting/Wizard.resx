@@ -117,4 +117,77 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="clmIPorHostName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="clmUserName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="clmDomain.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="clmPassword.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="clmSlaves.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="clmTests.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="llblResultPath.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7O
+        HOkAAAAEZ0FNQQAAsY8L/GEFAAAACXBIWXMAAA3QAAAN0AEQbD0HAAAAGXRFWHRTb2Z0d2FyZQB3d3cu
+        aW5rc2NhcGUub3Jnm+48GgAAAfJJREFUOE+lk11IFFEUxy+CsCAsCIYg+Op70ltEUE9hD/USBWlaa5EU
+        SVH0AUGkw+7O7mTkg2kUoSQGKdRLCAVBSG2kTm1+lZipZ0unHWauc6+7RKc5A06zS4SwF35w+X+ce14u
+        Q0RWCiWV6WFvQEKLPYnGO2WQeEKx1GRUVRRl2/829AbE1WhGCAc3NqSPbVuYSr3JabeSGfKLialKr7+B
+        1qVOSykwmzV8LMtEx+FIejGOs47U8QYsXK6F2at1+cWOevzasX1LLHbW4+y1uvzClVpg8xdrgD9rz8mX
+        N1C+iqEcu40i1YdyfABFegTFp6fo6I9RvO939XsoxrpRvk6iPXo9N3+pBtjn89VgDh4V6yOtyIf/4q5X
+        cIIeZanz5UI1sLlzVWD2H3LsoWNoDzX5/M4LDBL0KEudufYqYDNnKiH74AA3B4644mGfX+YSBgl6lKXO
+        zNlKYFOnw2D07uPG/YNojd7E3Ld3mF8e/yfkUYay1JlqCwNLn6yA1e49fO1uA672NODPRxEU+jDK6ecF
+        kEYeZbys20mfqgD24UQIMtpO/v3OXtzkR89+tF4kkL996EF30oIZ6nyMhIDpzeWwHN3BV5K7sABtN64N
+        tnmsuPdinzp6SzmwicYymGwJGXokzLdMa5hPHg8ZE01lUPJv/ANNEvGPadEv9gAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="cboRunSync.ToolTip" xml:space="preserve">
+    <value>Run Synchronization exists to keep all the tests equal in duration.
+That way the tested applications are never idle and results can be matched/compared.
+
+Break on First: If a run from a test is finished the other runs will break.
+Break on Last: Runs will re-run untill the longest one is finished for the first time.
+                      Note that the vApus think time is included in the test duration of a run.  
+</value>
+  </data>
+  <metadata name="folderBrowserDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>107, 17</value>
+  </metadata>
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAEBAAAAAAAABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAA
+        AAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAACMAAADoHh4ea///
+        /wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAMAAACZAAAA/wAA
+        AE////8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAEAAAArAgIC3QwM
+        DOsAAAAC////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAAAAAAAAAAUBgYGcQAA
+        AP4LCwuQ////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wAAAAAMCQkJOgQE
+        BLIICAj/HkaQcjFz65s3be0O////AP///wD///8A////AP///wD///8A////AP///wAAAAAIAAAAJQgI
+        CFsCAgLlNTU12TBy638xc+vR////AP///wD///8A////AP///wD///8A////AP///wAAAAAEAAAAGiAg
+        IEAQEBCCAAAA/yEhIXtAgP8E////AP///wD///8A////AP///wAAAAAAHoThXDGH7o4jl+9aC1ihRDIy
+        MjIaGhpQCAgIsisrK/wAAAAY////AP///wD///8A////AF21zA80xvLVJ8D++iqa9vkteu79GIbs+yGA
+        7f4adPP+FmDq+BNFkPxQa4zgAAAAAP///wD///8A////AP///wAppMXTJ8P+90a48Tf///8ASmWSHBkZ
+        GRsAAAAwIDlhYQgrY6YANXj/Annw/BOX/vkGnPmdAI/VBf///wD///8ADJG+vj/C/vP///8AaGhoD1GF
+        51xRc6tSLi4uMgAAAEoGCxS9Kisr9AAzVBAFlfiFEK396Am4/vQAu/JG////AAC0/wEPnuzKEZf2jy09
+        VR81dObKUIPkgoSEhFR7e3tVHx8f+ERERLH///8A////AP///wAexPmLGNT+9wDT7y////8A////AAOJ
+        +IYCbd+KC0qkZoSGiDSzs7NGd3d3udXV1f9eXl5q////AP///wD///8AAAAAACHd++kQ5fl+////AP//
+        /wAxdOtYAAAAAQBFslMAO6KGHk6Semxtb+jKysr8VVVVAwCO2hkAp+oyAJ/LUQDO9bYj6f/2F+XvMf//
+        /wD///8AK3HxEv///wD///8AFRUVEAgVKjIBBAbvDg4OjABsswc5xP7kHsn/8ArS/uUC3fyqJuTxN///
+        /wD///8A////AP///wD///8A////AP///wD///8AQ0NDOSoqKhX///8AiM3qFkPL6R4AAAAA////AP//
+        /wD///8A//cAAP/nAAD/5wAA/+cAAP/LAAD/ywAA/58AAPefAACAHwAAPwcAAD8jAACTOQAAzn0AAPp5
+        AAD+QwAA//8AAA==
+</value>
+  </data>
 </root>

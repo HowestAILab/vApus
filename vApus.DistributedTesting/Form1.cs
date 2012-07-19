@@ -9,9 +9,9 @@ using System.Windows.Forms;
 
 namespace vApus.DistributedTesting
 {
-    public partial class SlaveWizard : Form
+    public partial class Form1 : Form
     {
-        public SlaveWizard()
+        public Form1()
         {
             InitializeComponent();
         }

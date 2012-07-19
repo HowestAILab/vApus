@@ -205,9 +205,11 @@ namespace vApus.DistributedTesting
         }
         private void chk_CheckedChanged(object sender, EventArgs e)
         {
+            _tileStresstest._canDefaultTo = false;
             _tileStresstest.Use = chk.Checked;
             CheckIfTestCanStart();
             _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            _tileStresstest._canDefaultTo = false;
         }
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode)

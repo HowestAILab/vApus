@@ -70,7 +70,7 @@
             this.flp.Location = new System.Drawing.Point(0, 100);
             this.flp.Name = "flp";
             this.flp.Size = new System.Drawing.Size(1000, 500);
-            this.flp.TabIndex = 0;
+            this.flp.TabIndex = 1;
             this.flp.Visible = false;
             // 
             // lblUsage
@@ -215,7 +215,7 @@
             this.txtUserName.Location = new System.Drawing.Point(428, 36);
             this.txtUserName.Name = "txtUserName";
             this.txtUserName.Size = new System.Drawing.Size(100, 20);
-            this.txtUserName.TabIndex = 0;
+            this.txtUserName.TabIndex = 2;
             this.txtUserName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtRDC_KeyUp);
             this.txtUserName.Leave += new System.EventHandler(this.txtRDC_Leave);
             // 
@@ -233,7 +233,7 @@
             this.txtPassword.Location = new System.Drawing.Point(428, 62);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(100, 20);
-            this.txtPassword.TabIndex = 1;
+            this.txtPassword.TabIndex = 4;
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtRDC_KeyUp);
             this.txtPassword.Leave += new System.EventHandler(this.txtRDC_Leave);
@@ -261,7 +261,7 @@
             this.txtDomain.Location = new System.Drawing.Point(586, 36);
             this.txtDomain.Name = "txtDomain";
             this.txtDomain.Size = new System.Drawing.Size(100, 20);
-            this.txtDomain.TabIndex = 30;
+            this.txtDomain.TabIndex = 3;
             this.txtDomain.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtRDC_KeyUp);
             this.txtDomain.Leave += new System.EventHandler(this.txtRDC_Leave);
             // 
@@ -300,7 +300,7 @@
             this.pnlSettings.Location = new System.Drawing.Point(0, 0);
             this.pnlSettings.Name = "pnlSettings";
             this.pnlSettings.Size = new System.Drawing.Size(1000, 100);
-            this.pnlSettings.TabIndex = 37;
+            this.pnlSettings.TabIndex = 0;
             this.pnlSettings.Visible = false;
             // 
             // ConfigureSlaves

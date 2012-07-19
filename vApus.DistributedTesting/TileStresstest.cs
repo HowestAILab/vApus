@@ -21,8 +21,9 @@ namespace vApus.DistributedTesting
 
         /// <summary>
         /// Only when the solution is fully loaded.
+        /// Use in some cases (like changing the Use property).
         /// </summary>
-        private bool _canDefaultTo = false;
+        internal bool _canDefaultTo = false;
         #endregion
 
         #region Properties

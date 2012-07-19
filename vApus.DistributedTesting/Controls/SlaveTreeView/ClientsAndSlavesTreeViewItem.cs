@@ -186,13 +186,11 @@ namespace vApus.DistributedTesting
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
-                picAddClient.Visible =
-                picWizard.Visible = true;
+                picAddClient.Visible = true;
             }
             else
             {
-                picAddClient.Visible =
-                picWizard.Visible = false;
+                picAddClient.Visible = false;
             }
         }
         #endregion
