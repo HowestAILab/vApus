@@ -62,6 +62,7 @@
             this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSlavesPerClient)).BeginInit();
@@ -99,7 +100,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(704, 522);
+            this.panel1.Size = new System.Drawing.Size(764, 522);
             this.panel1.TabIndex = 1;
             // 
             // dgvClients
@@ -115,12 +116,13 @@
             this.clmDomain,
             this.clmPassword,
             this.clmSlaves,
-            this.clmTests});
+            this.clmTests,
+            this.clmCpuCores});
             this.dgvClients.EnableHeadersVisualStyles = false;
             this.dgvClients.Location = new System.Drawing.Point(20, 260);
             this.dgvClients.Name = "dgvClients";
             this.dgvClients.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.dgvClients.Size = new System.Drawing.Size(666, 150);
+            this.dgvClients.Size = new System.Drawing.Size(726, 150);
             this.dgvClients.TabIndex = 23;
             this.dgvClients.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvClients_CellFormatting);
             this.dgvClients.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dgvClients_EditingControlShowing);
@@ -131,7 +133,7 @@
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancel.Location = new System.Drawing.Point(611, 487);
+            this.btnCancel.Location = new System.Drawing.Point(671, 487);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 22;
@@ -143,7 +145,7 @@
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOK.Location = new System.Drawing.Point(530, 487);
+            this.btnOK.Location = new System.Drawing.Point(590, 487);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 21;
@@ -415,6 +417,7 @@
             this.clmSlaves.HeaderText = "Number of Slaves (0)";
             this.clmSlaves.Name = "clmSlaves";
             this.clmSlaves.ReadOnly = true;
+            this.clmSlaves.Width = 85;
             // 
             // clmTests
             // 
@@ -423,17 +426,25 @@
             this.clmTests.HeaderText = "Number of Tests (0/?)";
             this.clmTests.Name = "clmTests";
             this.clmTests.ReadOnly = true;
+            this.clmTests.Width = 85;
+            // 
+            // clmCpuCores
+            // 
+            this.clmCpuCores.HeaderText = "Number of CPU Cores";
+            this.clmCpuCores.Name = "clmCpuCores";
+            this.clmCpuCores.ReadOnly = true;
+            this.clmCpuCores.Width = 85;
             // 
             // Wizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(704, 522);
+            this.ClientSize = new System.Drawing.Size(764, 522);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(720, 560);
+            this.MaximumSize = new System.Drawing.Size(780, 560);
             this.MinimizeBox = false;
             this.Name = "Wizard";
             this.ShowInTaskbar = false;
@@ -483,6 +494,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn clmPassword;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmSlaves;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmTests;
+        private System.Windows.Forms.DataGridViewTextBoxColumn clmCpuCores;
 
     }
 }

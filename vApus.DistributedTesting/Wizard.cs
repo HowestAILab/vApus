@@ -222,6 +222,8 @@ namespace vApus.DistributedTesting
                 slaveCounts.Add(slaveCount);
             }
             SetSlaveCountInDataGridView(slaveCounts);
+            SetCoreCountInDataGridView(coreCounts);
+            SetCountsInGui();
         }
         private void SetSlaveCountsPerClients()
         {
@@ -229,6 +231,7 @@ namespace vApus.DistributedTesting
             for (int i = 0; i != dgvClients.RowCount - 1; i++)
                 slaveCounts.Add((int)nudSlavesPerClient.Value);
             SetSlaveCountInDataGridView(slaveCounts);
+            SetCountsInGui();
         }
         /// <summary>
         /// Get the count of the cores for each client (-1 if unknown)
@@ -291,7 +294,17 @@ namespace vApus.DistributedTesting
 
                 row.Cells[4].Value = slaveCounts[i];
             }
-            SetCountsInGui();
+        }
+        private void SetCoreCountInDataGridView(List<int> coreCounts)
+        {
+            int i = 0;
+            foreach (DataGridViewRow row in dgvClients.Rows)
+            {
+                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
+                    break;
+
+                row.Cells[6].Value = coreCounts[i];
+            }
         }
     }
 }
