@@ -29,11 +29,18 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Wizard));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Wizard));
             this.panel1 = new System.Windows.Forms.Panel();
             this.dgvClients = new System.Windows.Forms.DataGridView();
+            this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
             this.lblNotAssignedTests = new System.Windows.Forms.Label();
@@ -56,13 +63,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnRefresh = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSlavesPerClient)).BeginInit();
@@ -76,6 +77,7 @@
             // 
             this.panel1.AutoScroll = true;
             this.panel1.BackColor = System.Drawing.Color.White;
+            this.panel1.Controls.Add(this.btnRefresh);
             this.panel1.Controls.Add(this.dgvClients);
             this.panel1.Controls.Add(this.btnCancel);
             this.panel1.Controls.Add(this.btnOK);
@@ -126,6 +128,53 @@
             this.dgvClients.TabIndex = 23;
             this.dgvClients.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvClients_CellFormatting);
             this.dgvClients.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dgvClients_EditingControlShowing);
+            // 
+            // clmIPorHostName
+            // 
+            this.clmIPorHostName.HeaderText = "* IP or Host Name";
+            this.clmIPorHostName.Name = "clmIPorHostName";
+            // 
+            // clmUserName
+            // 
+            this.clmUserName.HeaderText = "User Name (RDP)";
+            this.clmUserName.Name = "clmUserName";
+            // 
+            // clmDomain
+            // 
+            this.clmDomain.HeaderText = "Domain";
+            this.clmDomain.Name = "clmDomain";
+            this.clmDomain.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.clmDomain.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // clmPassword
+            // 
+            this.clmPassword.HeaderText = "Password";
+            this.clmPassword.Name = "clmPassword";
+            // 
+            // clmSlaves
+            // 
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
+            this.clmSlaves.HeaderText = "Number of Slaves (0)";
+            this.clmSlaves.Name = "clmSlaves";
+            this.clmSlaves.ReadOnly = true;
+            this.clmSlaves.Width = 85;
+            // 
+            // clmTests
+            // 
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
+            this.clmTests.HeaderText = "Number of Tests (0/?)";
+            this.clmTests.Name = "clmTests";
+            this.clmTests.ReadOnly = true;
+            this.clmTests.Width = 85;
+            // 
+            // clmCpuCores
+            // 
+            this.clmCpuCores.HeaderText = "Number of CPU Cores";
+            this.clmCpuCores.Name = "clmCpuCores";
+            this.clmCpuCores.ReadOnly = true;
+            this.clmCpuCores.Width = 85;
             // 
             // btnCancel
             // 
@@ -365,9 +414,9 @@
             this.label2.Location = new System.Drawing.Point(12, 143);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 12, 3, 6);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(90, 13);
+            this.label2.Size = new System.Drawing.Size(141, 13);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Generate Tiles";
+            this.label2.Text = "Generate and Add Tiles";
             // 
             // label1
             // 
@@ -388,52 +437,21 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 20;
             // 
-            // clmIPorHostName
+            // btnRefresh
             // 
-            this.clmIPorHostName.HeaderText = "* IP or Host Name";
-            this.clmIPorHostName.Name = "clmIPorHostName";
-            // 
-            // clmUserName
-            // 
-            this.clmUserName.HeaderText = "User Name (RDP)";
-            this.clmUserName.Name = "clmUserName";
-            // 
-            // clmDomain
-            // 
-            this.clmDomain.HeaderText = "Domain";
-            this.clmDomain.Name = "clmDomain";
-            this.clmDomain.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.clmDomain.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // clmPassword
-            // 
-            this.clmPassword.HeaderText = "Password";
-            this.clmPassword.Name = "clmPassword";
-            // 
-            // clmSlaves
-            // 
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
-            this.clmSlaves.HeaderText = "Number of Slaves (0)";
-            this.clmSlaves.Name = "clmSlaves";
-            this.clmSlaves.ReadOnly = true;
-            this.clmSlaves.Width = 85;
-            // 
-            // clmTests
-            // 
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
-            this.clmTests.HeaderText = "Number of Tests (0/?)";
-            this.clmTests.Name = "clmTests";
-            this.clmTests.ReadOnly = true;
-            this.clmTests.Width = 85;
-            // 
-            // clmCpuCores
-            // 
-            this.clmCpuCores.HeaderText = "Number of CPU Cores";
-            this.clmCpuCores.Name = "clmCpuCores";
-            this.clmCpuCores.ReadOnly = true;
-            this.clmCpuCores.Width = 85;
+            this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRefresh.FlatAppearance.BorderSize = 0;
+            this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
+            this.btnRefresh.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnRefresh.Location = new System.Drawing.Point(676, 413);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(70, 23);
+            this.btnRefresh.TabIndex = 24;
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
             // Wizard
             // 
@@ -495,6 +513,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn clmSlaves;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmTests;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmCpuCores;
+        private System.Windows.Forms.Button btnRefresh;
 
     }
 }

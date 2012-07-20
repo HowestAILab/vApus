@@ -10,6 +10,8 @@ using System.IO;
 using vApus.Util;
 using System.Net.Sockets;
 using System.Net;
+using System.Threading;
+using System.Collections.Concurrent;
 
 namespace vApus.DistributedTesting
 {
@@ -18,6 +20,9 @@ namespace vApus.DistributedTesting
         #region Fields
         private DistributedTest _distributedTest;
         private Bitmap _transparentImage = new Bitmap(16, 16);
+
+        [ThreadStatic]
+        private static CoreCount _coreCountWorkItem;
         #endregion
 
         /// <summary>
@@ -70,7 +75,7 @@ namespace vApus.DistributedTesting
                 dgvClients.Rows.Add(client.HostName.Length == 0 ? client.IP : client.HostName,
                      client.UserName, client.Domain, client.Password, client.Count, 0);
 
-            SetCountsInGui();
+            RefreshDGV();
 
             nudTiles.ValueChanged += new EventHandler(this.nudTiles_ValueChanged);
             nudTests.ValueChanged += new EventHandler(this.nudTests_ValueChanged);
@@ -170,7 +175,7 @@ namespace vApus.DistributedTesting
 
         private void dgvClients_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            if (dgvClients.CurrentRow.Tag != null)
+            if (dgvClients.CurrentCell.ColumnIndex == 3 && dgvClients.CurrentRow.Tag != null)
                 e.Control.Text = dgvClients.CurrentRow.Tag.ToString();
         }
         #endregion
@@ -187,7 +192,18 @@ namespace vApus.DistributedTesting
 
         private void dgvClients_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            SetCountsInGui();
+            foreach (DataGridViewRow row in dgvClients.Rows)
+            {
+                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
+                    break;
+                if (row != dgvClients.CurrentRow && row.Cells[0].Value.ToString() == dgvClients.CurrentRow.Cells[0].Value.ToString())
+                {
+                    MessageBox.Show("This client was already added.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    dgvClients.Rows.Remove(dgvClients.CurrentRow);
+                    return;
+                }
+            }
+            RefreshDGV();
         }
 
         private void dgvClients_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
@@ -197,10 +213,7 @@ namespace vApus.DistributedTesting
 
         private void rdbSlavesPerCores_CheckedChanged(object sender, EventArgs e)
         {
-            if (rdbSlavesPerCores.Checked)
-                SetSaveCountsPerCores();
-            else
-                SetSlaveCountsPerClients();
+            RefreshDGV();
         }
         private void nudSlavesPerCores_ValueChanged(object sender, EventArgs e)
         {
@@ -210,6 +223,17 @@ namespace vApus.DistributedTesting
         private void nudSlavesPerClient_ValueChanged(object sender, EventArgs e)
         {
             if (rdbSlavesPerClient.Checked)
+                SetSlaveCountsPerClients();
+        }
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            RefreshDGV();
+        }
+        private void RefreshDGV()
+        {
+            if (rdbSlavesPerCores.Checked)
+                SetSaveCountsPerCores();
+            else
                 SetSlaveCountsPerClients();
         }
         private void SetSaveCountsPerCores()
@@ -239,13 +263,66 @@ namespace vApus.DistributedTesting
         /// <returns></returns>
         private List<int> GetCoreCounts()
         {
-            List<int> coreCounts = new List<int>(dgvClients.RowCount - 1);
+            this.Cursor = Cursors.WaitCursor;
+            //Put all in an arry for thread safety.
+            DataGridViewRow[] rows = new DataGridViewRow[dgvClients.RowCount - 1];
+
+            int i = 0;
+            foreach (DataGridViewRow row in dgvClients.Rows)
+            {
+                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
+                    break;
+                rows[i++] = row;
+            }
+
+            AutoResetEvent waitHandle = new AutoResetEvent(false);
+            int[] coreCounts = new int[rows.Length];
+            int processed = 0;
+            for (int j = 0; j != rows.Length; j++)
+            {
+                Thread t = new Thread(delegate(object arg)
+                {
+                    _coreCountWorkItem = new CoreCount();
+                    coreCounts[(int)arg] = _coreCountWorkItem.Get(rows[(int)arg].Cells[0].Value.ToString());
+                    if (Interlocked.Increment(ref processed) == rows.Length)
+                        waitHandle.Set();
+                });
+                t.IsBackground = true;
+                t.Start(j);
+            }
+            waitHandle.WaitOne();
+
+            this.Cursor = Cursors.Default;
+
+            return new List<int>(coreCounts);
+        }
+        private void SetSlaveCountInDataGridView(List<int> slaveCounts)
+        {
+            int i = 0;
             foreach (DataGridViewRow row in dgvClients.Rows)
             {
                 if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
                     break;
 
-                string ipOrHostName = row.Cells[0].Value.ToString();
+                row.Cells[4].Value = slaveCounts[i++];
+            }
+        }
+        private void SetCoreCountInDataGridView(List<int> coreCounts)
+        {
+            int i = 0;
+            foreach (DataGridViewRow row in dgvClients.Rows)
+            {
+                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
+                    break;
+
+                row.Cells[6].Value = coreCounts[i++];
+            }
+        }
+
+        private class CoreCount
+        {
+            public int Get(string ipOrHostName)
+            {
                 IPAddress address = null;
                 if (!IPAddress.TryParse(ipOrHostName, out address))
                 {
@@ -257,11 +334,7 @@ namespace vApus.DistributedTesting
                     catch { }
                 }
 
-                if (address == null)
-                {
-                    coreCounts.Add(0);
-                }
-                else
+                if (address != null)
                 {
                     Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     SocketWrapper sw = new SocketWrapper(address, 1314, socket);
@@ -270,41 +343,19 @@ namespace vApus.DistributedTesting
                         sw.Connect();
                         sw.Send(new Message<vApus.JumpStartStructures.Key>(vApus.JumpStartStructures.Key.CpuCoreCount, null), SendType.Binary);
                         Message<vApus.JumpStartStructures.Key> message = (Message<vApus.JumpStartStructures.Key>)sw.Receive(SendType.Binary);
-                        coreCounts.Add(((vApus.JumpStartStructures.CpuCoreCountMessage)message.Content).CpuCoreCount);
+                        return ((vApus.JumpStartStructures.CpuCoreCountMessage)message.Content).CpuCoreCount;
                     }
                     catch
                     {
-                        coreCounts.Add(0);
                         try { sw.Close(); }
                         catch { }
                         sw = null;
                         socket = null;
                     }
                 }
+                return 0;
             }
-            return coreCounts;
         }
-        private void SetSlaveCountInDataGridView(List<int> slaveCounts)
-        {
-            int i = 0;
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
-                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
-                    break;
 
-                row.Cells[4].Value = slaveCounts[i];
-            }
-        }
-        private void SetCoreCountInDataGridView(List<int> coreCounts)
-        {
-            int i = 0;
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
-                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
-                    break;
-
-                row.Cells[6].Value = coreCounts[i];
-            }
-        }
     }
 }
