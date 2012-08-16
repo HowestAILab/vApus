@@ -112,10 +112,7 @@ namespace vApus.DistributedTesting
         {
             InitializeComponent();
 
-            _distributedTest = solutionComponent as DistributedTest;
-            testTreeView.SetDistributedTest(_distributedTest);
-            slaveTreeView.SetDistributedTest(_distributedTest);
-            configureSlaves.SetDistributedTest(_distributedTest);
+            SetDistributedTest(solutionComponent as DistributedTest);
 
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
@@ -127,9 +124,18 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region General Functions
+        private void SetDistributedTest(DistributedTest distributedTest)
+        {
+            _distributedTest = distributedTest;
+            testTreeView.SetDistributedTest(_distributedTest);
+            slaveTreeView.SetDistributedTest(_distributedTest);
+            configureSlaves.SetDistributedTest(_distributedTest);
+        }
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender is Tile || sender is TileStresstest || sender is Client || sender is Slave)
+            if (sender is DistributedTest)
+                SetDistributedTest(sender as DistributedTest);
+            else if (sender is Tile || sender is TileStresstest || sender is Client || sender is Slave)
                 SetGui();
         }
 

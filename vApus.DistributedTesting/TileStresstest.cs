@@ -110,8 +110,12 @@ namespace vApus.DistributedTesting
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender == this && _canDefaultTo)
-                BasicTileStresstest.DefaultTo(_defaultSettingsTo);
+            try
+            {
+                if ((sender == this.Parent.GetParent().GetParent() || sender == this) && _canDefaultTo)
+                    BasicTileStresstest.DefaultTo(_defaultSettingsTo);
+            }
+            catch { }
         }
         private void _defaultTo_ParentIsNull(object sender, EventArgs e)
         {

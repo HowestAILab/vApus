@@ -1,17 +1,21 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using vApus.Stresstest;
 using System.IO;
-using vApus.Util;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
-using System.Collections.Concurrent;
+using System.Windows.Forms;
+using vApus.SolutionTree;
+using vApus.Stresstest;
+using vApus.Util;
 
 namespace vApus.DistributedTesting
 {
@@ -23,6 +27,8 @@ namespace vApus.DistributedTesting
 
         [ThreadStatic]
         private static CoreCount _coreCountWorkItem;
+
+        protected Dictionary<string, string> _ipsAndHostNames = new Dictionary<string, string>();
         #endregion
 
         /// <summary>
@@ -135,6 +141,8 @@ namespace vApus.DistributedTesting
             lblNotAssignedTests.Text = (totalTestCount - totalAssignedTestCount) + " Tests are not Assigned to a Slave";
             if (totalUsedTestCount != 0)
                 lblNotAssignedTests.Text += " whereof " + (totalTestCount - totalUsedTestCount) + " that are not Used (Checked)";
+
+            CleanDictionary();
         }
         private void btnOK_Click(object sender, EventArgs e)
         {
@@ -143,9 +151,86 @@ namespace vApus.DistributedTesting
         }
         private void SetGuiToDistributedTest()
         {
+            List<Slave> toAssingTestsTo = new List<Slave>(); //easier
+            //Add slaves to the distributed test.
+            foreach (DataGridViewRow row in dgvClients.Rows)
+            {
+                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
+                    break;
 
+                Client client = new Client();
+                _distributedTest.Clients.AddWithoutInvokingEvent(client, false);
+
+                string ipOrHostname = row.Cells[0].Value as string;
+                if (_ipsAndHostNames.ContainsKey(ipOrHostname))
+                {
+                    client.IP = ipOrHostname;
+                    client.HostName = _ipsAndHostNames[ipOrHostname];
+                }
+                else if (_ipsAndHostNames.ContainsValue(ipOrHostname.ToLower()))
+                {
+                    string ip;
+                    if (_ipsAndHostNames.TryGetKey(ipOrHostname, out ip))
+                    {
+                        client.IP = ip;
+                        client.HostName = ipOrHostname;
+                    }
+                }
+
+                client.UserName = row.Cells[1].Value as string;
+                client.Domain = row.Cells[2].Value as string;
+                if (row.Tag != null)
+                    client.Password = row.Tag as string;
+
+                for (int i = 0; i != ((int)row.Cells[4].Value); i++)
+                {
+                    Slave slave = new Slave();
+                    client.AddWithoutInvokingEvent(slave, false);
+                    toAssingTestsTo.Add(slave);
+                }
+            }
+
+            int k = 0;
+            //Add the tests to the distributed test.
+            for (int i = 0; i != (int)nudTiles.Value; i++)
+            {
+                Tile tile = new Tile();
+                _distributedTest.Tiles.AddWithoutInvokingEvent(tile, false);
+
+                Stresstest.Stresstest defaultToStresstest = null;
+                for (int j = 0; j != (int)nudTests.Value; j++)
+                {
+                    TileStresstest tileStresstest = new TileStresstest();
+                    defaultToStresstest = GetNextDefaultToStresstest(defaultToStresstest);
+                    tileStresstest.DefaultSettingsTo = defaultToStresstest;
+
+                    tile.AddWithoutInvokingEvent(tileStresstest, false);
+
+                    if (k < toAssingTestsTo.Count)
+                        tileStresstest.BasicTileStresstest.Slaves = new Slave[] { toAssingTestsTo[k] };
+
+                    ++k;
+                }
+            }
+            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, nudTiles.Value > 1);
         }
+        private Stresstest.Stresstest GetNextDefaultToStresstest(Stresstest.Stresstest previous)
+        {
+            SolutionComponent stresstestProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject));
+            if (previous != null)
+            {
+                bool previousFound = false;
+                foreach (BaseItem item in stresstestProject)
+                    if (item is Stresstest.Stresstest)
+                        if (item == previous)
+                            previousFound = true;
+                        else if (previousFound)
+                            return item as Stresstest.Stresstest;
+            }
 
+            //If next was not found (starts with the first item again if any to use for a previous default to).
+            return SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), stresstestProject) as Stresstest.Stresstest;
+        }
 
         private void chkUseRDP_CheckedChanged(object sender, EventArgs e)
         {
@@ -283,14 +368,20 @@ namespace vApus.DistributedTesting
                 Thread t = new Thread(delegate(object arg)
                 {
                     _coreCountWorkItem = new CoreCount();
-                    coreCounts[(int)arg] = _coreCountWorkItem.Get(rows[(int)arg].Cells[0].Value.ToString());
+                    string ip, hostName;
+                    coreCounts[(int)arg] = _coreCountWorkItem.Get(rows[(int)arg].Cells[0].Value.ToString(), out ip, out hostName);
+                    if (_ipsAndHostNames.ContainsKey(ip))
+                        _ipsAndHostNames[ip] = hostName;
+                    else
+                        _ipsAndHostNames.Add(ip, hostName);
                     if (Interlocked.Increment(ref processed) == rows.Length)
                         waitHandle.Set();
                 });
                 t.IsBackground = true;
                 t.Start(j);
             }
-            waitHandle.WaitOne();
+            if (rows.Length != 0)
+                waitHandle.WaitOne();
 
             this.Cursor = Cursors.Default;
 
@@ -319,17 +410,57 @@ namespace vApus.DistributedTesting
             }
         }
 
+        /// <summary>
+        /// Cleans the IPs and Hostnames Dictionary
+        /// </summary>
+        private void CleanDictionary()
+        {
+            Dictionary<string, string> clean = new Dictionary<string, string>();
+            foreach (string ip in _ipsAndHostNames.Keys)
+                if (DGVContainsIpOrHostName(ip, _ipsAndHostNames[ip]))
+                    clean.Add(ip, _ipsAndHostNames[ip]);
+            _ipsAndHostNames = clean;
+        }
+        private bool DGVContainsIpOrHostName(string ip, string hostName)
+        {
+            foreach (DataGridViewRow row in dgvClients.Rows)
+                if (row.Cells[0].Value as string == ip || row.Cells[0].Value as string == hostName)
+                    return true;
+            return false;
+        }
+
         private class CoreCount
         {
-            public int Get(string ipOrHostName)
+            /// <summary>
+            /// Outputs the ip and hostname (to lower).
+            /// </summary>
+            /// <param name="ipOrHostName"></param>
+            /// <param name="ip"></param>
+            /// <param name="hostName"></param>
+            /// <returns></returns>
+            public int Get(string ipOrHostName, out string ip, out string hostName)
             {
                 IPAddress address = null;
-                if (!IPAddress.TryParse(ipOrHostName, out address))
+                ip = hostName = null;
+                if (IPAddress.TryParse(ipOrHostName, out address))
+                {
+                    ip = ipOrHostName;
+                    hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
+                }
+                else
                 {
                     try
                     {
                         IPHostEntry hostEntry = Dns.GetHostEntry(ipOrHostName);
-                        address = hostEntry.AddressList[0];
+                        foreach (var a in hostEntry.AddressList)
+                            if (a.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                address = a;
+                                break;
+                            }
+
+                        ip = address.ToString();
+                        hostName = hostEntry.HostName.ToLower();
                     }
                     catch { }
                 }
