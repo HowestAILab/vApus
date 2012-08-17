@@ -76,6 +76,9 @@ namespace vApus.DistributedTesting
             }
         }
 
+        /// <summary>
+        /// One-based.
+        /// </summary>
         [SavableCloneable]
         public int[] ProcessorAffinity
         {

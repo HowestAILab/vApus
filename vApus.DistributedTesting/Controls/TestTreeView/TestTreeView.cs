@@ -73,6 +73,8 @@ namespace vApus.DistributedTesting
 
         public void SetDistributedTest(DistributedTest distributedTest)
         {
+            if (this.IsDisposed)
+                return;
             LockWindowUpdate(this.Handle.ToInt32());
             largeList.Clear();
             var dttvi = new DistributedTestTreeViewItem(distributedTest);

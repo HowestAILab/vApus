@@ -32,16 +32,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Wizard));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.dgvClients = new System.Windows.Forms.DataGridView();
-            this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
             this.lblNotAssignedTests = new System.Windows.Forms.Label();
@@ -64,6 +58,17 @@
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.pnlAddClientAndSlaves = new System.Windows.Forms.Panel();
+            this.pnlGenerateAndAddTiles = new System.Windows.Forms.Panel();
+            this.rdbAppendTiles = new System.Windows.Forms.RadioButton();
+            this.rdbStartFromScratch = new System.Windows.Forms.RadioButton();
+            this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSlavesPerClient)).BeginInit();
@@ -71,6 +76,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudTests)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTiles)).BeginInit();
             this.pnlRunSync.SuspendLayout();
+            this.pnlAddClientAndSlaves.SuspendLayout();
+            this.pnlGenerateAndAddTiles.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -82,10 +89,6 @@
             this.panel1.Controls.Add(this.btnCancel);
             this.panel1.Controls.Add(this.btnOK);
             this.panel1.Controls.Add(this.lblNotAssignedTests);
-            this.panel1.Controls.Add(this.nudSlavesPerClient);
-            this.panel1.Controls.Add(this.rdbSlavesPerClient);
-            this.panel1.Controls.Add(this.nudSlavesPerCores);
-            this.panel1.Controls.Add(this.rdbSlavesPerCores);
             this.panel1.Controls.Add(this.nudTests);
             this.panel1.Controls.Add(this.nudTiles);
             this.panel1.Controls.Add(this.label8);
@@ -98,6 +101,8 @@
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.pnlAddClientAndSlaves);
+            this.panel1.Controls.Add(this.pnlGenerateAndAddTiles);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
@@ -112,7 +117,7 @@
             this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
             this.btnRefresh.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnRefresh.Location = new System.Drawing.Point(676, 413);
+            this.btnRefresh.Location = new System.Drawing.Point(676, 428);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(70, 23);
             this.btnRefresh.TabIndex = 24;
@@ -137,60 +142,13 @@
             this.clmTests,
             this.clmCpuCores});
             this.dgvClients.EnableHeadersVisualStyles = false;
-            this.dgvClients.Location = new System.Drawing.Point(20, 260);
+            this.dgvClients.Location = new System.Drawing.Point(20, 275);
             this.dgvClients.Name = "dgvClients";
             this.dgvClients.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvClients.Size = new System.Drawing.Size(726, 150);
             this.dgvClients.TabIndex = 23;
             this.dgvClients.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvClients_CellFormatting);
             this.dgvClients.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dgvClients_EditingControlShowing);
-            // 
-            // clmIPorHostName
-            // 
-            this.clmIPorHostName.HeaderText = "* IP or Host Name";
-            this.clmIPorHostName.Name = "clmIPorHostName";
-            // 
-            // clmUserName
-            // 
-            this.clmUserName.HeaderText = "User Name (RDP)";
-            this.clmUserName.Name = "clmUserName";
-            // 
-            // clmDomain
-            // 
-            this.clmDomain.HeaderText = "Domain";
-            this.clmDomain.Name = "clmDomain";
-            this.clmDomain.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.clmDomain.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // clmPassword
-            // 
-            this.clmPassword.HeaderText = "Password";
-            this.clmPassword.Name = "clmPassword";
-            // 
-            // clmSlaves
-            // 
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
-            this.clmSlaves.HeaderText = "Number of Slaves (0)";
-            this.clmSlaves.Name = "clmSlaves";
-            this.clmSlaves.ReadOnly = true;
-            this.clmSlaves.Width = 85;
-            // 
-            // clmTests
-            // 
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
-            this.clmTests.HeaderText = "Number of Tests (0/?)";
-            this.clmTests.Name = "clmTests";
-            this.clmTests.ReadOnly = true;
-            this.clmTests.Width = 85;
-            // 
-            // clmCpuCores
-            // 
-            this.clmCpuCores.HeaderText = "Number of CPU Cores";
-            this.clmCpuCores.Name = "clmCpuCores";
-            this.clmCpuCores.ReadOnly = true;
-            this.clmCpuCores.Width = 85;
             // 
             // btnCancel
             // 
@@ -222,7 +180,7 @@
             // 
             this.lblNotAssignedTests.AutoSize = true;
             this.lblNotAssignedTests.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.lblNotAssignedTests.Location = new System.Drawing.Point(17, 444);
+            this.lblNotAssignedTests.Location = new System.Drawing.Point(17, 459);
             this.lblNotAssignedTests.Name = "lblNotAssignedTests";
             this.lblNotAssignedTests.Size = new System.Drawing.Size(175, 13);
             this.lblNotAssignedTests.TabIndex = 20;
@@ -230,7 +188,7 @@
             // 
             // nudSlavesPerClient
             // 
-            this.nudSlavesPerClient.Location = new System.Drawing.Point(300, 416);
+            this.nudSlavesPerClient.Location = new System.Drawing.Point(291, 3);
             this.nudSlavesPerClient.Minimum = new decimal(new int[] {
             1,
             0,
@@ -250,7 +208,7 @@
             // rdbSlavesPerClient
             // 
             this.rdbSlavesPerClient.AutoSize = true;
-            this.rdbSlavesPerClient.Location = new System.Drawing.Point(283, 416);
+            this.rdbSlavesPerClient.Location = new System.Drawing.Point(275, 3);
             this.rdbSlavesPerClient.Name = "rdbSlavesPerClient";
             this.rdbSlavesPerClient.Size = new System.Drawing.Size(161, 17);
             this.rdbSlavesPerClient.TabIndex = 18;
@@ -259,7 +217,7 @@
             // 
             // nudSlavesPerCores
             // 
-            this.nudSlavesPerCores.Location = new System.Drawing.Point(98, 416);
+            this.nudSlavesPerCores.Location = new System.Drawing.Point(86, 3);
             this.nudSlavesPerCores.Minimum = new decimal(new int[] {
             1,
             0,
@@ -280,7 +238,7 @@
             // 
             this.rdbSlavesPerCores.AutoSize = true;
             this.rdbSlavesPerCores.Checked = true;
-            this.rdbSlavesPerCores.Location = new System.Drawing.Point(20, 416);
+            this.rdbSlavesPerCores.Location = new System.Drawing.Point(8, 3);
             this.rdbSlavesPerCores.Name = "rdbSlavesPerCores";
             this.rdbSlavesPerCores.Size = new System.Drawing.Size(247, 17);
             this.rdbSlavesPerCores.TabIndex = 16;
@@ -416,7 +374,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(12, 238);
+            this.label3.Location = new System.Drawing.Point(12, 253);
             this.label3.Margin = new System.Windows.Forms.Padding(3, 12, 3, 6);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(138, 13);
@@ -453,6 +411,97 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 20;
             // 
+            // pnlAddClientAndSlaves
+            // 
+            this.pnlAddClientAndSlaves.Controls.Add(this.nudSlavesPerCores);
+            this.pnlAddClientAndSlaves.Controls.Add(this.rdbSlavesPerCores);
+            this.pnlAddClientAndSlaves.Controls.Add(this.nudSlavesPerClient);
+            this.pnlAddClientAndSlaves.Controls.Add(this.rdbSlavesPerClient);
+            this.pnlAddClientAndSlaves.Location = new System.Drawing.Point(12, 428);
+            this.pnlAddClientAndSlaves.Name = "pnlAddClientAndSlaves";
+            this.pnlAddClientAndSlaves.Size = new System.Drawing.Size(451, 28);
+            this.pnlAddClientAndSlaves.TabIndex = 25;
+            // 
+            // pnlGenerateAndAddTiles
+            // 
+            this.pnlGenerateAndAddTiles.Controls.Add(this.rdbStartFromScratch);
+            this.pnlGenerateAndAddTiles.Controls.Add(this.rdbAppendTiles);
+            this.pnlGenerateAndAddTiles.Location = new System.Drawing.Point(12, 216);
+            this.pnlGenerateAndAddTiles.Name = "pnlGenerateAndAddTiles";
+            this.pnlGenerateAndAddTiles.Size = new System.Drawing.Size(405, 27);
+            this.pnlGenerateAndAddTiles.TabIndex = 26;
+            // 
+            // rdbAppendTiles
+            // 
+            this.rdbAppendTiles.AutoSize = true;
+            this.rdbAppendTiles.Checked = true;
+            this.rdbAppendTiles.Location = new System.Drawing.Point(8, 3);
+            this.rdbAppendTiles.Name = "rdbAppendTiles";
+            this.rdbAppendTiles.Size = new System.Drawing.Size(87, 17);
+            this.rdbAppendTiles.TabIndex = 0;
+            this.rdbAppendTiles.TabStop = true;
+            this.rdbAppendTiles.Text = "Append Tiles";
+            this.rdbAppendTiles.UseVisualStyleBackColor = true;
+            // 
+            // rdbStartFromScratch
+            // 
+            this.rdbStartFromScratch.AutoSize = true;
+            this.rdbStartFromScratch.Location = new System.Drawing.Point(101, 3);
+            this.rdbStartFromScratch.Name = "rdbStartFromScratch";
+            this.rdbStartFromScratch.Size = new System.Drawing.Size(110, 17);
+            this.rdbStartFromScratch.TabIndex = 1;
+            this.rdbStartFromScratch.Text = "Start from Scratch";
+            this.rdbStartFromScratch.UseVisualStyleBackColor = true;
+            // 
+            // clmIPorHostName
+            // 
+            this.clmIPorHostName.HeaderText = "* IP or Host Name";
+            this.clmIPorHostName.Name = "clmIPorHostName";
+            // 
+            // clmUserName
+            // 
+            this.clmUserName.HeaderText = "User Name (RDP)";
+            this.clmUserName.Name = "clmUserName";
+            // 
+            // clmDomain
+            // 
+            this.clmDomain.HeaderText = "Domain";
+            this.clmDomain.Name = "clmDomain";
+            this.clmDomain.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.clmDomain.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // clmPassword
+            // 
+            this.clmPassword.HeaderText = "Password";
+            this.clmPassword.Name = "clmPassword";
+            // 
+            // clmSlaves
+            // 
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
+            this.clmSlaves.HeaderText = "Number of Slaves (0)";
+            this.clmSlaves.Name = "clmSlaves";
+            this.clmSlaves.ReadOnly = true;
+            this.clmSlaves.Width = 85;
+            // 
+            // clmTests
+            // 
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
+            this.clmTests.HeaderText = "Number of Tests (0/?)";
+            this.clmTests.Name = "clmTests";
+            this.clmTests.ReadOnly = true;
+            this.clmTests.Width = 85;
+            // 
+            // clmCpuCores
+            // 
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle3;
+            this.clmCpuCores.HeaderText = "Number of CPU Cores";
+            this.clmCpuCores.Name = "clmCpuCores";
+            this.clmCpuCores.ReadOnly = true;
+            this.clmCpuCores.Width = 85;
+            // 
             // Wizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -476,6 +525,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudTests)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTiles)).EndInit();
             this.pnlRunSync.ResumeLayout(false);
+            this.pnlAddClientAndSlaves.ResumeLayout(false);
+            this.pnlAddClientAndSlaves.PerformLayout();
+            this.pnlGenerateAndAddTiles.ResumeLayout(false);
+            this.pnlGenerateAndAddTiles.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -506,6 +559,11 @@
         private System.Windows.Forms.Label lblNotAssignedTests;
         private System.Windows.Forms.DataGridView dgvClients;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Panel pnlAddClientAndSlaves;
+        private System.Windows.Forms.Panel pnlGenerateAndAddTiles;
+        private System.Windows.Forms.RadioButton rdbStartFromScratch;
+        private System.Windows.Forms.RadioButton rdbAppendTiles;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmIPorHostName;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmUserName;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmDomain;
@@ -513,7 +571,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn clmSlaves;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmTests;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmCpuCores;
-        private System.Windows.Forms.Button btnRefresh;
 
     }
 }
