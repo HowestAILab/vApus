@@ -300,12 +300,12 @@ namespace vApus.Stresstest
 
             RemoveEmptyUserActions();
 
-#if EnableBetaFeature
-            bool successfullyParallized = SetParallelExecutions();
-#else
+//#if EnableBetaFeature
+//            bool successfullyParallized = SetParallelExecutions();
+//#else
 #warning Parallel executions temp not available
             bool successfullyParallized = true;
-#endif
+//#endif
             SetIgnoreDelays();
             FillLargeList();
 

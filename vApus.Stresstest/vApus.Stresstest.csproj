@@ -248,10 +248,10 @@
     <Compile Include="Logs\RedetermineTokens.Designer.cs">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\Custom List\CustomListGenerator.cs">
+    <Compile Include="Parameters\CustomList\CustomListGenerator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Parameters\Custom List\CustomListGenerator.Designer.cs">
+    <Compile Include="Parameters\CustomList\CustomListGenerator.Designer.cs">
       <DependentUpon>CustomListGenerator.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\CustomRandom\TestCustomRandom.cs">
@@ -375,8 +375,8 @@
     <Compile Include="Enums.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Metrics.cs" />
-    <Compile Include="Parameters\Custom List\CustomListParameters.cs" />
-    <Compile Include="Parameters\Custom List\CustomListParameter.cs" />
+    <Compile Include="Parameters\CustomList\CustomListParameters.cs" />
+    <Compile Include="Parameters\CustomList\CustomListParameter.cs" />
     <Compile Include="Parameters\Numeric\NumericParameters.cs" />
     <Compile Include="Parameters\Numeric\NumericParameter.cs" />
     <Compile Include="Parameters\Text\TextParameters.cs" />
@@ -533,7 +533,7 @@
     <EmbeddedResource Include="Logs\RedetermineTokens.resx">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\Custom List\CustomListGenerator.resx">
+    <EmbeddedResource Include="Parameters\CustomList\CustomListGenerator.resx">
       <DependentUpon>CustomListGenerator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\CustomRandom\TestCustomRandom.resx">

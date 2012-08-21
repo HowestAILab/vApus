@@ -164,7 +164,7 @@ namespace vApus.DistributedTesting
             rdbSlavesPerCores.CheckedChanged -= rdbSlavesPerCores_CheckedChanged;
             rdbSlavesPerCores.Checked = true;
             rdbSlavesPerCores.CheckedChanged += rdbSlavesPerCores_CheckedChanged;
-            
+
             RefreshDGV();
         }
         private void nudSlavesPerClient_ValueChanged(object sender, EventArgs e)
@@ -172,10 +172,9 @@ namespace vApus.DistributedTesting
             rdbSlavesPerCores.CheckedChanged -= rdbSlavesPerCores_CheckedChanged;
             rdbSlavesPerClient.Checked = true;
             rdbSlavesPerCores.CheckedChanged += rdbSlavesPerCores_CheckedChanged;
-            
+
             RefreshDGV();
         }
-
 
         private void RefreshDGV()
         {
