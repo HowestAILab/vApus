@@ -1138,6 +1138,8 @@ namespace vApus.DistributedTesting
             Wizard wizard = new Wizard();
             wizard.SetDistributedTest(_distributedTest);
             wizard.ShowDialog();
+            wizard.Dispose();
+            wizard = null;
         }
     }
 }

@@ -279,7 +279,7 @@ namespace vApus.DistributedTesting
                         try
                         {
                             if (hostname.Length != 0)
-                                addresses = Dns.GetHostByName(hostname).AddressList;
+                                addresses = Dns.GetHostByName(hostname.Split('.')[0]).AddressList;
                         }
                         catch { }
 
