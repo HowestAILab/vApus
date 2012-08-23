@@ -120,6 +120,8 @@ namespace vApus.DistributedTesting
 
             //Jumpstart the slaves when starting the test
             JumpStart.Done += new EventHandler<JumpStart.DoneEventArgs>(JumpStart_Done);
+
+            this.Shown += new EventHandler(DistributedTestView_Shown); //if the test is empty, show the wizard.
         }
         #endregion
 
@@ -139,6 +141,28 @@ namespace vApus.DistributedTesting
                 SetGui();
         }
 
+        private void btnWizard_Click(object sender, EventArgs e)
+        {
+            ShowWizard();
+        }
+        private void ShowWizard()
+        {
+            Wizard wizard = new Wizard();
+            wizard.SetDistributedTest(_distributedTest);
+            wizard.ShowDialog();
+            wizard.Dispose();
+            wizard = null;
+        }
+        private void DistributedTestView_Shown(object sender, EventArgs e)
+        {
+            this.Shown -= DistributedTestView_Shown;
+            ShowWizardIfNeeded();
+        }
+        private void ShowWizardIfNeeded()
+        {
+            if (_distributedTest.Tiles.Count == 0 && _distributedTest.Clients.Count == 0)
+                ShowWizard();
+        }
         private void testTreeView_AfterSelect(object sender, EventArgs e)
         {
             _selectedTestItem = sender as ITreeViewItem;
@@ -1132,14 +1156,5 @@ namespace vApus.DistributedTesting
 
         }
         #endregion
-
-        private void btnWizard_Click(object sender, EventArgs e)
-        {
-            Wizard wizard = new Wizard();
-            wizard.SetDistributedTest(_distributedTest);
-            wizard.ShowDialog();
-            wizard.Dispose();
-            wizard = null;
-        }
     }
 }

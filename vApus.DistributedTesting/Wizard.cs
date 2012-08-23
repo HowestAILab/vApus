@@ -93,7 +93,7 @@ namespace vApus.DistributedTesting
         #region Default Test Settings
         private void chkUseRDP_CheckedChanged(object sender, EventArgs e)
         {
-            clmUserName.HeaderText = chkUseRDP.Checked ? "* User Name" : "User Name";
+            clmUserName.HeaderText = chkUseRDP.Checked ? "* User Name (RDP)" : "User Name (RDP)";
             clmPassword.HeaderText = chkUseRDP.Checked ? "* Password" : "Password";
         }
         private void llblResultPath_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -132,15 +132,19 @@ namespace vApus.DistributedTesting
         /// <param name="e"></param>
         private void dgvClients_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            if (dgvClients.CurrentCell.ColumnIndex == 3)
-            {
-                TextBox txt = e.Control as TextBox;
-                if (txt != null)
+            TextBox txt = e.Control as TextBox;
+            if (txt != null)
+                if (dgvClients.CurrentCell.ColumnIndex == 3)
+                {
                     txt.UseSystemPasswordChar = true;
 
-                if (dgvClients.CurrentRow.Tag != null)
-                    txt.Text = dgvClients.CurrentRow.Tag.ToString();
-            }
+                    if (dgvClients.CurrentRow.Tag != null)
+                        txt.Text = dgvClients.CurrentRow.Tag.ToString();
+                }
+                else
+                {
+                    txt.UseSystemPasswordChar = false;
+                }
         }
         private void dgvClients_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
@@ -158,6 +162,17 @@ namespace vApus.DistributedTesting
 
         private void dgvClients_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
+            if (dgvClients.CurrentCell != null && dgvClients.CurrentCell.ColumnIndex == 3)
+                if (dgvClients.CurrentCell.Value == null)
+                {
+                    dgvClients.CurrentRow.Tag = null;
+                }
+                else
+                {
+                    dgvClients.CurrentRow.Tag = dgvClients.CurrentCell.Value.ToString();
+                    dgvClients.CurrentCell.Value = new string('*', dgvClients.CurrentCell.Value.ToString().Length);
+                }
+
             if (dgvClients.CurrentRow != dgvClients.Rows[dgvClients.Rows.Count - 1] &&
                 (dgvClients.CurrentRow.Cells[0].Value == null || dgvClients.CurrentRow.Cells[0].Value.ToString().Length == 0))
             {
@@ -367,8 +382,8 @@ namespace vApus.DistributedTesting
                 }
             }
 
-
-            lblNotAssignedTests.Text = (totalTestCount - totalAssignedTestCount) + " Tests are not Assigned to a Slave.";
+            int notAssigned = totalTestCount - totalAssignedTestCount;
+            lblNotAssignedTests.Text = notAssigned + " Test" + (notAssigned == 1 ? " is" : "s are") + " not Assigned to a Slave.";
 
             int notUsedTestCount = totalTestCount - totalUsedTestCount;
             if (notUsedTestCount > 0)
@@ -561,7 +576,8 @@ namespace vApus.DistributedTesting
 
                 client.UserName = row.Cells[1].Value as string;
                 client.Domain = row.Cells[2].Value as string;
-                client.Password = row.Cells[3].Value as string;
+                if (row.Tag != null)
+                    client.Password = row.Tag as string;
 
                 //Add slaves to the client.
                 int startPort = SocketListener.GetInstance().IP == client.IP ? 1338 : 1337;

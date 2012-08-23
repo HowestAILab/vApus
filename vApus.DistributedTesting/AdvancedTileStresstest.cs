@@ -209,7 +209,8 @@ namespace vApus.DistributedTesting
             try
             {
                 if (sender != null && this.Parent != null &&
-                    (sender == this.Parent || sender == (this.Parent as TileStresstest).DefaultSettingsTo))
+                    (sender == this.Parent.GetParent().GetParent().GetParent() || 
+                    sender == this.Parent || sender == (this.Parent as TileStresstest).DefaultSettingsTo))
                 {
                     TileStresstest parent = this.Parent as TileStresstest;
                     if (parent.AutomaticDefaultAdvancedSettings)

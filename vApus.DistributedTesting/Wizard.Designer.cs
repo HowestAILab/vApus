@@ -310,6 +310,7 @@
             this.llblResultPath.TabStop = true;
             this.llblResultPath.Text = "Result Path...";
             this.llblResultPath.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.toolTip.SetToolTip(this.llblResultPath, "The stresstesting results will be saved to the chosen path.");
             this.llblResultPath.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblResultPath_LinkClicked);
             // 
             // label6
@@ -437,6 +438,8 @@
             this.rdbSlavesPerCores.TabIndex = 16;
             this.rdbSlavesPerCores.TabStop = true;
             this.rdbSlavesPerCores.Text = "1 Slave per                    CPU Core(s) of a Client";
+            this.toolTip.SetToolTip(this.rdbSlavesPerCores, "If possible the processor affinity will be set for the slaves.\r\n(See the \'Slaves\'" +
+        " tab page when finished)");
             this.rdbSlavesPerCores.UseVisualStyleBackColor = true;
             this.rdbSlavesPerCores.CheckedChanged += new System.EventHandler(this.rdbSlavesPerCores_CheckedChanged);
             // 
@@ -467,6 +470,8 @@
             this.rdbSlavesPerClient.Size = new System.Drawing.Size(161, 17);
             this.rdbSlavesPerClient.TabIndex = 18;
             this.rdbSlavesPerClient.Text = "                 Slave(s) per Client";
+            this.toolTip.SetToolTip(this.rdbSlavesPerClient, "If possible the processor affinity will be set for the slaves.\r\n(See the \'Slaves\'" +
+        " tab page when finished)");
             this.rdbSlavesPerClient.UseVisualStyleBackColor = true;
             // 
             // pnlGenerateAndAddTiles
@@ -484,10 +489,10 @@
             this.rdbDoNotAddTiles.AutoSize = true;
             this.rdbDoNotAddTiles.Location = new System.Drawing.Point(217, 3);
             this.rdbDoNotAddTiles.Name = "rdbDoNotAddTiles";
-            this.rdbDoNotAddTiles.Size = new System.Drawing.Size(104, 17);
+            this.rdbDoNotAddTiles.Size = new System.Drawing.Size(230, 17);
             this.rdbDoNotAddTiles.TabIndex = 2;
-            this.rdbDoNotAddTiles.Text = "Do not Add Tiles";
-            this.toolTip.SetToolTip(this.rdbDoNotAddTiles, "Just reassign the stresstests to the slaves.");
+            this.rdbDoNotAddTiles.Text = "Only Reassign the Stresstests to the Slaves";
+            this.toolTip.SetToolTip(this.rdbDoNotAddTiles, "No Tiles are added to the distributed test if you choose this.");
             this.rdbDoNotAddTiles.UseVisualStyleBackColor = true;
             this.rdbDoNotAddTiles.CheckedChanged += new System.EventHandler(this.rdbsGenerateAndtAddTiles_CheckedChanged);
             // 
@@ -538,7 +543,7 @@
             this.Name = "Wizard";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Wizard";
+            this.Text = "Wizard - Let vApus build your distributed test ";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).EndInit();

@@ -54,7 +54,12 @@ namespace vApus.DistributedTesting
             Tile t = tvwTiles.SelectedNode.Tag as Tile;
             foreach (TileStresstest ts in t)
             {
-                TreeNode node = new TreeNode(ts.ToString());
+                string label = ts.Index + ") " +
+                ((ts.BasicTileStresstest.Connection == null || ts.BasicTileStresstest.Connection.IsEmpty) ?
+                string.Empty : ts.BasicTileStresstest.Connection.ToString());
+
+                TreeNode node = new TreeNode(label);
+                node.ToolTipText = ts.ToString();
                 node.Tag = ts;
                 tvwTileStresstests.Nodes.Add(node);
             }

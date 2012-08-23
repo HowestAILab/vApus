@@ -278,7 +278,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Create clone of this.
+        /// Create clone of this.f
         /// </summary>
         /// <returns></returns>
         public BasicTileStresstest Clone()

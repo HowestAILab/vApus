@@ -80,7 +80,22 @@ namespace vApus.DistributedTesting
 
             string ts = _slave.TileStresstest == null ? "..." : _slave.TileStresstest.ToString();
             if (llblTest.Text != ts)
+            {
                 llblTest.Text = ts;
+                if (ts == "...")
+                {
+                    toolTip.SetToolTip(llblTest, null);
+                }
+                else //Show the full name in the tooltip
+                {
+                    string label = _slave.TileStresstest.Parent.ToString() + " -> " + _slave.TileStresstest.Index + ") " +
+                                    ((_slave.TileStresstest.BasicTileStresstest.Connection == null || _slave.TileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
+                                    string.Empty : _slave.TileStresstest.BasicTileStresstest.Connection.ToString());
+
+
+                    toolTip.SetToolTip(llblTest, label);
+                }
+            }
         }
 
         private void nudPort_ValueChanged(object sender, EventArgs e)
@@ -145,7 +160,22 @@ namespace vApus.DistributedTesting
 
                     string ts = _slave.TileStresstest == null ? "..." : _slave.TileStresstest.ToString();
                     if (llblTest.Text != ts)
+                    {
                         llblTest.Text = ts;
+                        if (ts == "...")
+                        {
+                            toolTip.SetToolTip(llblTest, null);
+                        }
+                        else //Show the full name in the tooltip
+                        {
+                            string label = _slave.TileStresstest.Parent.ToString() + " -> " + _slave.TileStresstest.Index + ") " +
+                                            ((_slave.TileStresstest.BasicTileStresstest.Connection == null || _slave.TileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
+                                            string.Empty : _slave.TileStresstest.BasicTileStresstest.Connection.ToString());
+
+
+                            toolTip.SetToolTip(llblTest, label);
+                        }
+                    }
 
                     _slave.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 
