@@ -308,6 +308,12 @@
       <DependentUpon>TileStresstestView.cs</DependentUpon>
     </Compile>
     <Compile Include="Tile.cs" />
+    <Compile Include="WizardConnectionUsage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WizardConnectionUsage.Designer.cs">
+      <DependentUpon>WizardConnectionUsage.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.JumpStartStructures\vApus.JumpStartStructures.csproj">
@@ -393,6 +399,9 @@
     <EmbeddedResource Include="TileStresstestView.resx">
       <DependentUpon>TileStresstestView.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WizardConnectionUsage.resx">
+      <DependentUpon>WizardConnectionUsage.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

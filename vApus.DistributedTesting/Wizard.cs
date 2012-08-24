@@ -490,10 +490,26 @@ namespace vApus.DistributedTesting
         #region Exit
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (SetGuiToDistributedTest())
-                this.Close();
-            else
-                MessageBox.Show("One or more important(*) cells are not filled in under 'Add Clients and Slaves'.\nPlease do this first.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //Review the connections and make tweaks.
+            if (chkReview.Checked)
+            {
+                WizardConnectionUsage conUsage = new WizardConnectionUsage();
+
+                Tiles alreadyInStresstest = rdbStartFromScratch.Checked ? new Tiles() : _distributedTest.Tiles;
+                int tiles = rdbDoNotAddTiles.Checked ? 0 : (int)nudTiles.Value;
+                int tests = (int)nudTests.Value;
+
+                conUsage.Init(alreadyInStresstest, tiles, tests);
+                if (conUsage.ShowDialog() == DialogResult.Cancel)
+                    return;
+            }
+            //Set all changes to the distributed test.
+            if (!SetGuiToDistributedTest())
+                if (MessageBox.Show("One or more important(*) cells are not filled in under 'Add Clients and Slaves'.\nDo you want to proceed anyway?.",
+                    string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                    return;
+
+            this.Close();
         }
         /// <summary>
         /// 
@@ -663,6 +679,11 @@ namespace vApus.DistributedTesting
                         tileStresstest.BasicTileStresstest.Slaves = new Slave[] { slaves[slaveIndex++] };
                     }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="previous">Can be null</param>
+        /// <returns></returns>
         private Stresstest.Stresstest GetNextDefaultToStresstest(Stresstest.Stresstest previous)
         {
             SolutionComponent stresstestProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject));

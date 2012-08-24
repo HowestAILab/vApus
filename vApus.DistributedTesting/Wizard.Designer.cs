@@ -70,6 +70,7 @@
             this.rdbAppendTiles = new System.Windows.Forms.RadioButton();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.chkReview = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTests)).BeginInit();
@@ -85,6 +86,7 @@
             // 
             this.panel1.AutoScroll = true;
             this.panel1.BackColor = System.Drawing.Color.White;
+            this.panel1.Controls.Add(this.chkReview);
             this.panel1.Controls.Add(this.btnRefresh);
             this.panel1.Controls.Add(this.dgvClients);
             this.panel1.Controls.Add(this.btnCancel);
@@ -202,7 +204,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -215,7 +217,7 @@
             // 
             // btnOK
             // 
-            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOK.Location = new System.Drawing.Point(590, 527);
@@ -529,6 +531,19 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 20;
             // 
+            // chkReview
+            // 
+            this.chkReview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkReview.AutoSize = true;
+            this.chkReview.Checked = true;
+            this.chkReview.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkReview.Location = new System.Drawing.Point(361, 531);
+            this.chkReview.Name = "chkReview";
+            this.chkReview.Size = new System.Drawing.Size(223, 17);
+            this.chkReview.TabIndex = 27;
+            this.chkReview.Text = "Review Connection Usage before Closing";
+            this.chkReview.UseVisualStyleBackColor = true;
+            // 
             // Wizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -599,6 +614,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn clmSlaves;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmTests;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmCpuCores;
+        private System.Windows.Forms.CheckBox chkReview;
 
     }
 }
