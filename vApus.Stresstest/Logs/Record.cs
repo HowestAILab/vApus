@@ -396,7 +396,7 @@ namespace vApus.Stresstest
                     //Sort the log
                     try
                     {
-                        JProxy.sortLogByRequestTimestamp(path, _tempLogPath);
+                        ProxyLogSorter.sortLogfileByRequestTimestamp(path, _tempLogPath);
                     }
                     catch (Exception ex)
                     {
