@@ -22,7 +22,9 @@ namespace vApus.DistributedTesting
     {
         #region Fields
         private DistributedTest _distributedTest;
-        //private Bitmap _transparentImage = new Bitmap(16, 16);
+        //All connections in the solution.
+        private List<Stresstest.Connection> _connections = new List<Connection>();
+        private Stresstest.StresstestProject _stresstestProject;
 
         [ThreadStatic]
         private static CoreCount _coreCountWorkItem; //This is done in parallel, therefore a threadstatic work item.
@@ -39,9 +41,13 @@ namespace vApus.DistributedTesting
         public Wizard()
         {
             InitializeComponent();
-            //Graphics g = Graphics.FromImage(_transparentImage);
-            //g.FillRectangle(Brushes.Transparent, 0, 0, 16, 16);
-            //g.Dispose();
+
+            var connections = Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections)) as Stresstest.Connections;
+            foreach (var item in connections)
+                if (item is Stresstest.Connection)
+                    _connections.Add(item as Stresstest.Connection);
+
+            _stresstestProject = SolutionTree.Solution.ActiveSolution.GetProject("StresstestProject") as StresstestProject;
         }
         /// <summary>
         /// Set this, otherwise nothing will happen.
@@ -73,8 +79,7 @@ namespace vApus.DistributedTesting
         }
         private void SetAddClientsAndSlaves()
         {
-            StresstestProject stresstestProject = SolutionTree.Solution.ActiveSolution.GetProject("StresstestProject") as StresstestProject;
-            nudTests.Value = stresstestProject.CountOf(typeof(Stresstest.Stresstest));
+            nudTests.Value = _stresstestProject.CountOf(typeof(Stresstest.Stresstest));
 
             foreach (Client client in _distributedTest.Clients)
                 dgvClients.Rows.Add(client.HostName.Length == 0 ? client.IP : client.HostName,
@@ -82,8 +87,8 @@ namespace vApus.DistributedTesting
 
             RefreshDGV();
 
-            nudTiles.ValueChanged += new EventHandler(this.nudTiles_ValueChanged);
-            nudTests.ValueChanged += new EventHandler(this.nudTests_ValueChanged);
+            nudTiles.ValueChanged += new EventHandler(this.nudTilesAndTests_ValueChanged);
+            nudTests.ValueChanged += new EventHandler(this.nudTilesAndTests_ValueChanged);
             dgvClients.CellEndEdit += new DataGridViewCellEventHandler(dgvClients_CellEndEdit);
             dgvClients.RowsRemoved += new DataGridViewRowsRemovedEventHandler(this.dgvClients_RowsRemoved);
         }
@@ -106,11 +111,7 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Generate and Add Tiles
-        private void nudTiles_ValueChanged(object sender, EventArgs e)
-        {
-            SetCountsInGui();
-        }
-        private void nudTests_ValueChanged(object sender, EventArgs e)
+        private void nudTilesAndTests_ValueChanged(object sender, EventArgs e)
         {
             SetCountsInGui();
         }
@@ -490,21 +491,31 @@ namespace vApus.DistributedTesting
         #region Exit
         private void btnOK_Click(object sender, EventArgs e)
         {
+            Stresstest.Connection[] toAssignConnections = SmartAssignConnections();
             //Review the connections and make tweaks.
             if (chkReview.Checked)
             {
-                WizardConnectionUsage conUsage = new WizardConnectionUsage();
+                if (toAssignConnections.Length == 0 || toAssignConnections[0].IsEmpty)
+                {
+                    MessageBox.Show("You do not have connections in your solution!",string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    WizardConnectionUsage conUsage = new WizardConnectionUsage();
 
-                Tiles alreadyInStresstest = rdbStartFromScratch.Checked ? new Tiles() : _distributedTest.Tiles;
-                int tiles = rdbDoNotAddTiles.Checked ? 0 : (int)nudTiles.Value;
-                int tests = (int)nudTests.Value;
+                    Tiles alreadyInStresstest = rdbStartFromScratch.Checked ? new Tiles() : _distributedTest.Tiles;
+                    int tiles = rdbDoNotAddTiles.Checked ? 0 : (int)nudTiles.Value;
+                    int tests = (int)nudTests.Value;
 
-                conUsage.Init(alreadyInStresstest, tiles, tests);
-                if (conUsage.ShowDialog() == DialogResult.Cancel)
-                    return;
+                    conUsage.Init(alreadyInStresstest, tiles, tests, toAssignConnections);
+                    if (conUsage.ShowDialog() == DialogResult.Cancel)
+                        return;
+                    else
+                        toAssignConnections = conUsage.ToAssignConnections;
+                }
             }
             //Set all changes to the distributed test.
-            if (!SetGuiToDistributedTest())
+            if (!SetGuiToDistributedTest(toAssignConnections))
                 if (MessageBox.Show("One or more important(*) cells are not filled in under 'Add Clients and Slaves'.\nDo you want to proceed anyway?.",
                     string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                     return;
@@ -512,10 +523,66 @@ namespace vApus.DistributedTesting
             this.Close();
         }
         /// <summary>
+        /// Fills an array with connections. All available connections are used, the assign pattern thats used for stresstests is applied.
+        /// </summary>
+        private Stresstest.Connection[] SmartAssignConnections()
+        {
+            int totalTestCount = rdbDoNotAddTiles.Checked ? 0 : (int)(nudTiles.Value * nudTests.Value);
+
+            if (!rdbStartFromScratch.Checked) //In the other cases we do not add new tiles.
+                foreach (Tile tile in _distributedTest.Tiles)
+                    foreach (TileStresstest ts in tile)
+                        ++totalTestCount;
+
+
+            Stresstest.Connection[] toAssignConnections = new Stresstest.Connection[totalTestCount];
+
+            if (_connections.Count == 0) //Assign empty connections.
+            {
+                var connectionParent = Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections));
+                for (int i = 0; i != totalTestCount; i++)
+                    toAssignConnections[i] =
+                        BaseItem.GetNextOrEmptyChild(typeof(Stresstest.Connection), connectionParent) as Stresstest.Connection;
+            }
+            else
+            {
+                int[] assignPattern = GetAssignPattern();
+                for (int i = 0; i != totalTestCount; i++)
+                {
+                    //make sure assignPatternIndex can not go out of bounds.
+                    int assignPatternIndex = i;
+                    int connectionIndexOffset = 0; //Offset the connections so all can be used.
+                    while (assignPatternIndex >= assignPattern.Length)
+                    {
+                        assignPatternIndex -= assignPattern.Length;
+                        connectionIndexOffset += assignPattern.Length;
+                    }
+
+                    int connectionIndex = assignPattern[assignPatternIndex] + connectionIndexOffset;
+                    //Correct if it goes out of bounds off the connection collection.
+                    while (connectionIndex >= _connections.Count)
+                        connectionIndex -= _connections.Count;
+
+                    toAssignConnections[i] = _connections[connectionIndex];
+                }
+            }
+            return toAssignConnections;
+        }
+        private int[] GetAssignPattern()
+        {
+            List<int> assignPattern = new List<int>(_stresstestProject.CountOf(typeof(Stresstest.Stresstest)));
+
+            foreach (var item in _stresstestProject)
+                if (item is Stresstest.Stresstest)
+                    assignPattern.Add(_connections.IndexOf((item as Stresstest.Stresstest).Connection));
+
+            return assignPattern.ToArray();
+        }
+        /// <summary>
         /// 
         /// </summary>
         /// <returns>If the gui was succesfully set to the distributed test</returns>
-        private bool SetGuiToDistributedTest()
+        private bool SetGuiToDistributedTest(Stresstest.Connection[] toAssignConnections)
         {
             //Validate if the gui can be set to the distributed test.
             List<int> starredColumnIndices = new List<int>();
@@ -537,7 +604,7 @@ namespace vApus.DistributedTesting
 
             SetDefaultTestSettingToDistributedTest();
             List<Slave> toAssingTestsTo = AddClientsAndSlavesToDistributedTest();
-            GenerateAndAddTilesToDistributedTest(toAssingTestsTo);
+            GenerateAndAddTilesToDistributedTest(toAssignConnections, toAssingTestsTo);
 
             //Notify the gui.
             _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Added, nudTiles.Value > 1);
@@ -638,14 +705,20 @@ namespace vApus.DistributedTesting
         }
         /// <summary></summary>
         /// <param name="slaves">To assign the tests to</param>
-        private void GenerateAndAddTilesToDistributedTest(List<Slave> slaves)
+        private void GenerateAndAddTilesToDistributedTest(Stresstest.Connection[] toAssignConnections, List<Slave> slaves)
         {
             //The existing stresstests will be reassigned to the slaves.
             if (rdbDoNotAddTiles.Checked)
                 return;
 
+            //Distribute connections.
+            int connectionIndex = 0;
             if (rdbStartFromScratch.Checked)
                 _distributedTest.Tiles.ClearWithoutInvokingEvent(false);
+            else
+                foreach (Tile tile in _distributedTest.Tiles)
+                    foreach (TileStresstest tileStresstest in tile)
+                        tileStresstest.BasicTileStresstest.Connection = toAssignConnections[connectionIndex++];
 
             //Add the tests to the distributed test.
             for (int i = 0; i != (int)nudTiles.Value; i++)
@@ -661,6 +734,8 @@ namespace vApus.DistributedTesting
                     tileStresstest.DefaultSettingsTo = defaultToStresstest;
 
                     tile.AddWithoutInvokingEvent(tileStresstest, false);
+
+                    tileStresstest.BasicTileStresstest.Connection = toAssignConnections[connectionIndex++];
                 }
             }
 

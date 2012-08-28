@@ -34,6 +34,7 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkReview = new System.Windows.Forms.CheckBox();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.dgvClients = new System.Windows.Forms.DataGridView();
             this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -70,7 +71,6 @@
             this.rdbAppendTiles = new System.Windows.Forms.RadioButton();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.chkReview = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTests)).BeginInit();
@@ -113,6 +113,20 @@
             this.panel1.Size = new System.Drawing.Size(764, 562);
             this.panel1.TabIndex = 1;
             // 
+            // chkReview
+            // 
+            this.chkReview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkReview.AutoSize = true;
+            this.chkReview.Checked = true;
+            this.chkReview.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkReview.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkReview.Location = new System.Drawing.Point(323, 531);
+            this.chkReview.Name = "chkReview";
+            this.chkReview.Size = new System.Drawing.Size(261, 17);
+            this.chkReview.TabIndex = 27;
+            this.chkReview.Text = "Review Connection Usage before Closing";
+            this.chkReview.UseVisualStyleBackColor = true;
+            // 
             // btnRefresh
             // 
             this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -131,8 +145,8 @@
             // 
             // dgvClients
             // 
-            this.dgvClients.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvClients.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvClients.BackgroundColor = System.Drawing.Color.White;
             this.dgvClients.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.dgvClients.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -362,8 +376,8 @@
             this.chkUseRDP.TabIndex = 5;
             this.chkUseRDP.Text = "Use the vApus Remote Desktop Client";
             this.toolTip.SetToolTip(this.chkUseRDP, "Check this if you want vApus to open remote desktop connections to the used clien" +
-        "ts.\r\nRegardless if you check it or not, you need to be logged into the clients t" +
-        "o be able to stresstest.");
+                    "ts.\r\nRegardless if you check it or not, you need to be logged into the clients t" +
+                    "o be able to stresstest.");
             this.chkUseRDP.UseVisualStyleBackColor = true;
             this.chkUseRDP.CheckedChanged += new System.EventHandler(this.chkUseRDP_CheckedChanged);
             // 
@@ -441,7 +455,7 @@
             this.rdbSlavesPerCores.TabStop = true;
             this.rdbSlavesPerCores.Text = "1 Slave per                    CPU Core(s) of a Client";
             this.toolTip.SetToolTip(this.rdbSlavesPerCores, "If possible the processor affinity will be set for the slaves.\r\n(See the \'Slaves\'" +
-        " tab page when finished)");
+                    " tab page when finished)");
             this.rdbSlavesPerCores.UseVisualStyleBackColor = true;
             this.rdbSlavesPerCores.CheckedChanged += new System.EventHandler(this.rdbSlavesPerCores_CheckedChanged);
             // 
@@ -473,7 +487,7 @@
             this.rdbSlavesPerClient.TabIndex = 18;
             this.rdbSlavesPerClient.Text = "                 Slave(s) per Client";
             this.toolTip.SetToolTip(this.rdbSlavesPerClient, "If possible the processor affinity will be set for the slaves.\r\n(See the \'Slaves\'" +
-        " tab page when finished)");
+                    " tab page when finished)");
             this.rdbSlavesPerClient.UseVisualStyleBackColor = true;
             // 
             // pnlGenerateAndAddTiles
@@ -494,7 +508,8 @@
             this.rdbDoNotAddTiles.Size = new System.Drawing.Size(230, 17);
             this.rdbDoNotAddTiles.TabIndex = 2;
             this.rdbDoNotAddTiles.Text = "Only Reassign the Stresstests to the Slaves";
-            this.toolTip.SetToolTip(this.rdbDoNotAddTiles, "No Tiles are added to the distributed test if you choose this.");
+            this.toolTip.SetToolTip(this.rdbDoNotAddTiles, "No Tiles are added to the distributed test if you choose this.\r\nConnections will " +
+                    "be redistributed over existing tile stresstests if needed.");
             this.rdbDoNotAddTiles.UseVisualStyleBackColor = true;
             this.rdbDoNotAddTiles.CheckedChanged += new System.EventHandler(this.rdbsGenerateAndtAddTiles_CheckedChanged);
             // 
@@ -520,6 +535,7 @@
             this.rdbAppendTiles.TabIndex = 0;
             this.rdbAppendTiles.TabStop = true;
             this.rdbAppendTiles.Text = "Append Tiles";
+            this.toolTip.SetToolTip(this.rdbAppendTiles, "Connections will be redistributed over existing tile stresstests if needed.");
             this.rdbAppendTiles.UseVisualStyleBackColor = true;
             this.rdbAppendTiles.CheckedChanged += new System.EventHandler(this.rdbsGenerateAndtAddTiles_CheckedChanged);
             // 
@@ -530,19 +546,6 @@
             this.toolTip.InitialDelay = 100;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 20;
-            // 
-            // chkReview
-            // 
-            this.chkReview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkReview.AutoSize = true;
-            this.chkReview.Checked = true;
-            this.chkReview.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkReview.Location = new System.Drawing.Point(361, 531);
-            this.chkReview.Name = "chkReview";
-            this.chkReview.Size = new System.Drawing.Size(223, 17);
-            this.chkReview.TabIndex = 27;
-            this.chkReview.Text = "Review Connection Usage before Closing";
-            this.chkReview.UseVisualStyleBackColor = true;
             // 
             // Wizard
             // 
