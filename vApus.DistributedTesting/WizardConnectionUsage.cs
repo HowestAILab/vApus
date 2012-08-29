@@ -96,6 +96,11 @@ namespace vApus.DistributedTesting
         {
             if (tvw.SelectedNode != null && tvw.SelectedNode != null)
             {
+                string label = (tvw.SelectedNode.Parent.Nodes.IndexOf(tvw.SelectedNode) + 1) + ") " +
+                ((connection == null || connection.IsEmpty) ?
+                    string.Empty : connection.ToString());
+                tvw.SelectedNode.Text = label;
+
                 var kvp = (KeyValuePair<Stresstest.Stresstest, Stresstest.Connection>)tvw.SelectedNode.Tag;
                 tvw.SelectedNode.Tag = new KeyValuePair<Stresstest.Stresstest, Stresstest.Connection>(kvp.Key, connection);
             }
@@ -175,7 +180,9 @@ namespace vApus.DistributedTesting
                 new KeyValuePair<Stresstest.Stresstest, Stresstest.Connection>(defaultSettingsTo, connection);
 
             tn.Tag = defaultSettingsToAndConnection;
-            tn.ToolTipText = "Default other settings to " + defaultSettingsTo.ToString();
+            tn.ToolTipText = 
+                "The used connection defines the name of the tile stresstest.\nOther settings are defaulted to " + 
+                defaultSettingsTo.ToString();
             tileNode.Nodes.Add(tn);
             return tn;
         }
@@ -267,7 +274,9 @@ namespace vApus.DistributedTesting
             if (tvw.SelectedNode.Tag != null)
             {
                 var defaultSettingsToAndConnection = (KeyValuePair<Stresstest.Stresstest, Stresstest.Connection>)tvw.SelectedNode.Tag;
-                lblDefaultTo.Text = "Default Other Settings to " + defaultSettingsToAndConnection.Key.ToString();
+                lblDefaultTo.Text = 
+                    "The used connection defines the name of the tile stresstest.\nOther settings are defaulted to " + 
+                    defaultSettingsToAndConnection.Key.ToString();
 
                 foreach (RadioButton rdb in flp.Controls)
                     if (rdb.Tag == defaultSettingsToAndConnection.Value)

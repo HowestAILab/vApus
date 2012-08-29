@@ -131,12 +131,14 @@
             this.lblDefaultTo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.lblDefaultTo.AutoEllipsis = true;
+            this.lblDefaultTo.BackColor = System.Drawing.SystemColors.Control;
             this.lblDefaultTo.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDefaultTo.Location = new System.Drawing.Point(2, 417);
             this.lblDefaultTo.Name = "lblDefaultTo";
             this.lblDefaultTo.Size = new System.Drawing.Size(405, 50);
             this.lblDefaultTo.TabIndex = 1;
-            this.lblDefaultTo.Text = "Default Other Settings to ";
+            this.lblDefaultTo.Text = "The used connection defines the name of the tile stresstest.\r\nOther settings are " +
+                "defaulted to ";
             // 
             // toolTip
             // 

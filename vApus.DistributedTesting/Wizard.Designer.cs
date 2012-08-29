@@ -239,6 +239,7 @@
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 21;
             this.btnOK.Text = "OK";
+            this.toolTip.SetToolTip(this.btnOK, "Connections will be redistributed over existing tile stresstests if needed.");
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
