@@ -39,6 +39,9 @@ namespace vApus.DistributedTesting
         #region Functions
         public void SetDistributedTest(DistributedTest distributedTest)
         {
+            if (this.IsDisposed)
+                return;
+
             LockWindowUpdate(this.Handle.ToInt32());
             largeList.Clear();
             _distributedTest = distributedTest;

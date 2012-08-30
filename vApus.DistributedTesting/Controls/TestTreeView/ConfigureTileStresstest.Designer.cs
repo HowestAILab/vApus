@@ -31,85 +31,52 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigureTileStresstest));
             this.solutionComponentPropertyPanelBasic = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.solutionComponentPropertyPanelAdvanced = new vApus.SolutionTree.SolutionComponentPropertyPanel();
-            this.solutionComponentPropertyPanelDefaultTo = new vApus.SolutionTree.SolutionComponentPropertyPanel();
-            this.chkAutomatic = new System.Windows.Forms.CheckBox();
-            this.llblAdvancedSettings = new System.Windows.Forms.LinkLabel();
+            this.llblShowHideAdvancedSettings = new System.Windows.Forms.LinkLabel();
             this.lblUsage = new System.Windows.Forms.Label();
             this.lblUseRDP = new System.Windows.Forms.Label();
             this.lblRunSync = new System.Windows.Forms.Label();
+            this.defaultAdvancedSettingsToControl = new vApus.DistributedTesting.DefaultAdvancedSettingsToControl();
             this.SuspendLayout();
             // 
             // solutionComponentPropertyPanelBasic
             // 
-            this.solutionComponentPropertyPanelBasic.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.solutionComponentPropertyPanelBasic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)));
             this.solutionComponentPropertyPanelBasic.AutoSelectControl = false;
             this.solutionComponentPropertyPanelBasic.BackColor = System.Drawing.Color.White;
-            this.solutionComponentPropertyPanelBasic.Location = new System.Drawing.Point(0, 73);
-            this.solutionComponentPropertyPanelBasic.MaximumSize = new System.Drawing.Size(360, 9999);
+            this.solutionComponentPropertyPanelBasic.Location = new System.Drawing.Point(0, 11);
+            this.solutionComponentPropertyPanelBasic.MaximumSize = new System.Drawing.Size(360, 99999);
             this.solutionComponentPropertyPanelBasic.Name = "solutionComponentPropertyPanelBasic";
-            this.solutionComponentPropertyPanelBasic.Size = new System.Drawing.Size(300, 427);
+            this.solutionComponentPropertyPanelBasic.Size = new System.Drawing.Size(360, 489);
             this.solutionComponentPropertyPanelBasic.SolutionComponent = null;
             this.solutionComponentPropertyPanelBasic.TabIndex = 1;
             this.solutionComponentPropertyPanelBasic.Visible = false;
             // 
             // solutionComponentPropertyPanelAdvanced
             // 
-            this.solutionComponentPropertyPanelAdvanced.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.solutionComponentPropertyPanelAdvanced.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)));
             this.solutionComponentPropertyPanelAdvanced.AutoSelectControl = false;
-            this.solutionComponentPropertyPanelAdvanced.Location = new System.Drawing.Point(240, 73);
+            this.solutionComponentPropertyPanelAdvanced.Location = new System.Drawing.Point(363, 91);
             this.solutionComponentPropertyPanelAdvanced.Margin = new System.Windows.Forms.Padding(0);
+            this.solutionComponentPropertyPanelAdvanced.MaximumSize = new System.Drawing.Size(360, 99999);
             this.solutionComponentPropertyPanelAdvanced.Name = "solutionComponentPropertyPanelAdvanced";
-            this.solutionComponentPropertyPanelAdvanced.Size = new System.Drawing.Size(360, 427);
+            this.solutionComponentPropertyPanelAdvanced.Size = new System.Drawing.Size(360, 409);
             this.solutionComponentPropertyPanelAdvanced.SolutionComponent = null;
             this.solutionComponentPropertyPanelAdvanced.TabIndex = 0;
             this.solutionComponentPropertyPanelAdvanced.Visible = false;
             // 
-            // solutionComponentPropertyPanelDefaultTo
+            // llblShowHideAdvancedSettings
             // 
-            this.solutionComponentPropertyPanelDefaultTo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.solutionComponentPropertyPanelDefaultTo.AutoSelectControl = false;
-            this.solutionComponentPropertyPanelDefaultTo.BackColor = System.Drawing.Color.White;
-            this.solutionComponentPropertyPanelDefaultTo.Location = new System.Drawing.Point(0, 0);
-            this.solutionComponentPropertyPanelDefaultTo.Margin = new System.Windows.Forms.Padding(0);
-            this.solutionComponentPropertyPanelDefaultTo.Name = "solutionComponentPropertyPanelDefaultTo";
-            this.solutionComponentPropertyPanelDefaultTo.Size = new System.Drawing.Size(300, 70);
-            this.solutionComponentPropertyPanelDefaultTo.SolutionComponent = null;
-            this.solutionComponentPropertyPanelDefaultTo.TabIndex = 0;
-            this.solutionComponentPropertyPanelDefaultTo.Visible = false;
-            // 
-            // chkAutomatic
-            // 
-            this.chkAutomatic.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkAutomatic.AutoSize = true;
-            this.chkAutomatic.Checked = true;
-            this.chkAutomatic.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAutomatic.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkAutomatic.Location = new System.Drawing.Point(502, 53);
-            this.chkAutomatic.Name = "chkAutomatic";
-            this.chkAutomatic.Size = new System.Drawing.Size(70, 17);
-            this.chkAutomatic.TabIndex = 2;
-            this.chkAutomatic.Text = "Automatic";
-            this.chkAutomatic.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.chkAutomatic.UseVisualStyleBackColor = false;
-            this.chkAutomatic.Visible = false;
-            this.chkAutomatic.CheckedChanged += new System.EventHandler(this.chkAutomatic_CheckedChanged);
-            // 
-            // llblAdvancedSettings
-            // 
-            this.llblAdvancedSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.llblAdvancedSettings.AutoSize = true;
-            this.llblAdvancedSettings.Location = new System.Drawing.Point(499, 37);
-            this.llblAdvancedSettings.Name = "llblAdvancedSettings";
-            this.llblAdvancedSettings.Size = new System.Drawing.Size(97, 13);
-            this.llblAdvancedSettings.TabIndex = 1;
-            this.llblAdvancedSettings.TabStop = true;
-            this.llblAdvancedSettings.Text = "Advanced Settings";
-            this.llblAdvancedSettings.Visible = false;
-            this.llblAdvancedSettings.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblAdvancedSettings_LinkClicked);
+            this.llblShowHideAdvancedSettings.AutoSize = true;
+            this.llblShowHideAdvancedSettings.Location = new System.Drawing.Point(658, 67);
+            this.llblShowHideAdvancedSettings.Name = "llblShowHideAdvancedSettings";
+            this.llblShowHideAdvancedSettings.Size = new System.Drawing.Size(61, 13);
+            this.llblShowHideAdvancedSettings.TabIndex = 1;
+            this.llblShowHideAdvancedSettings.TabStop = true;
+            this.llblShowHideAdvancedSettings.Text = "Show/Hide";
+            this.llblShowHideAdvancedSettings.Visible = false;
+            this.llblShowHideAdvancedSettings.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblAdvancedSettings_LinkClicked);
             // 
             // lblUsage
             // 
@@ -117,12 +84,12 @@
             this.lblUsage.AutoSize = true;
             this.lblUsage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUsage.ForeColor = System.Drawing.Color.DimGray;
-            this.lblUsage.Location = new System.Drawing.Point(55, 237);
+            this.lblUsage.Location = new System.Drawing.Point(117, 237);
             this.lblUsage.Name = "lblUsage";
             this.lblUsage.Size = new System.Drawing.Size(489, 26);
             this.lblUsage.TabIndex = 3;
             this.lblUsage.Text = "Add Tiles to the Distributed Test and Tile Stresstests to a Tile clicking the \'+ " +
-    "button\'.\r\nSelect a Tile Stresstest to configure it.";
+                "button\'.\r\nSelect a Tile Stresstest to configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lblUseRDP
@@ -136,8 +103,8 @@
             this.lblUseRDP.Size = new System.Drawing.Size(553, 26);
             this.lblUseRDP.TabIndex = 4;
             this.lblUseRDP.Text = "Check \'Use RDP\' if you want vApus to open remote desktop connections to the used " +
-    "clients.\r\nRegardless if you check it or not, you need to be logged into the clie" +
-    "nts to be able to stresstest.";
+                "clients.\r\nRegardless if you check it or not, you need to be logged into the clie" +
+                "nts to be able to stresstest.";
             this.lblUseRDP.Visible = false;
             // 
             // lblRunSync
@@ -153,21 +120,30 @@
             this.lblRunSync.Text = resources.GetString("lblRunSync.Text");
             this.lblRunSync.Visible = false;
             // 
+            // defaultAdvancedSettingsToControl
+            // 
+            this.defaultAdvancedSettingsToControl.BackColor = System.Drawing.SystemColors.Control;
+            this.defaultAdvancedSettingsToControl.Location = new System.Drawing.Point(366, 14);
+            this.defaultAdvancedSettingsToControl.Name = "defaultAdvancedSettingsToControl";
+            this.defaultAdvancedSettingsToControl.Size = new System.Drawing.Size(350, 50);
+            this.defaultAdvancedSettingsToControl.TabIndex = 0;
+            this.defaultAdvancedSettingsToControl.CheckChanged += new System.EventHandler(this.defaultAdvancedSettingsToControl_CheckChanged);
+            // 
             // ConfigureTileStresstest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.lblRunSync);
             this.Controls.Add(this.lblUseRDP);
             this.Controls.Add(this.lblUsage);
-            this.Controls.Add(this.lblRunSync);
             this.Controls.Add(this.solutionComponentPropertyPanelAdvanced);
             this.Controls.Add(this.solutionComponentPropertyPanelBasic);
-            this.Controls.Add(this.chkAutomatic);
-            this.Controls.Add(this.solutionComponentPropertyPanelDefaultTo);
-            this.Controls.Add(this.llblAdvancedSettings);
+            this.Controls.Add(this.llblShowHideAdvancedSettings);
+            this.Controls.Add(this.defaultAdvancedSettingsToControl);
             this.Name = "ConfigureTileStresstest";
-            this.Size = new System.Drawing.Size(600, 500);
+            this.Size = new System.Drawing.Size(724, 500);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -177,11 +153,10 @@
 
         private SolutionTree.SolutionComponentPropertyPanel solutionComponentPropertyPanelBasic;
         private SolutionTree.SolutionComponentPropertyPanel solutionComponentPropertyPanelAdvanced;
-        private SolutionTree.SolutionComponentPropertyPanel solutionComponentPropertyPanelDefaultTo;
-        private System.Windows.Forms.CheckBox chkAutomatic;
-        private System.Windows.Forms.LinkLabel llblAdvancedSettings;
+        private System.Windows.Forms.LinkLabel llblShowHideAdvancedSettings;
         private System.Windows.Forms.Label lblUsage;
         private System.Windows.Forms.Label lblUseRDP;
         private System.Windows.Forms.Label lblRunSync;
+        private DefaultAdvancedSettingsToControl defaultAdvancedSettingsToControl;
     }
 }

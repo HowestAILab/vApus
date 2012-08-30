@@ -144,7 +144,7 @@ namespace vApus.DistributedTesting
                 TreeNode tileNode = AddNewTileNode();
                 foreach (TileStresstest tileStresstest in tile)
                 {
-                    TreeNode testNode = AddNewTestNode(tileNode, tileStresstest.DefaultSettingsTo, _toAssignConnections[connectionIndex++]);
+                    TreeNode testNode = AddNewTestNode(tileNode, tileStresstest.DefaultAdvancedSettingsTo, _toAssignConnections[connectionIndex++]);
                 }
             }
 
@@ -161,7 +161,12 @@ namespace vApus.DistributedTesting
             tvw.ExpandAll();
 
             if (tvw.Nodes.Count != 0)
-                tvw.SelectedNode = tvw.Nodes[0];
+            {
+                if (tvw.Nodes[0].Nodes.Count == 0)
+                    tvw.SelectedNode = tvw.Nodes[0];
+                else
+                    tvw.SelectedNode = tvw.Nodes[0].Nodes[0];
+            }
         }
         private TreeNode AddNewTileNode()
         {
@@ -173,15 +178,15 @@ namespace vApus.DistributedTesting
         {
             string label = (tileNode.Nodes.Count + 1) + ") " +
             ((connection == null || connection.IsEmpty) ?
-                string.Empty : defaultSettingsTo.Connection.ToString());
+                string.Empty : connection.ToString());
 
             TreeNode tn = new TreeNode(label);
             var defaultSettingsToAndConnection =
                 new KeyValuePair<Stresstest.Stresstest, Stresstest.Connection>(defaultSettingsTo, connection);
 
             tn.Tag = defaultSettingsToAndConnection;
-            tn.ToolTipText = 
-                "The used connection defines the name of the tile stresstest.\nOther settings are defaulted to " + 
+            tn.ToolTipText =
+                "The used connection defines the name of the tile stresstest.\nOther settings are defaulted to " +
                 defaultSettingsTo.ToString();
             tileNode.Nodes.Add(tn);
             return tn;
@@ -274,8 +279,8 @@ namespace vApus.DistributedTesting
             if (tvw.SelectedNode.Tag != null)
             {
                 var defaultSettingsToAndConnection = (KeyValuePair<Stresstest.Stresstest, Stresstest.Connection>)tvw.SelectedNode.Tag;
-                lblDefaultTo.Text = 
-                    "The used connection defines the name of the tile stresstest.\nOther settings are defaulted to " + 
+                lblDefaultTo.Text =
+                    "The used connection defines the name of the tile stresstest.\nOther settings are defaulted to " +
                     defaultSettingsToAndConnection.Key.ToString();
 
                 foreach (RadioButton rdb in flp.Controls)
@@ -299,7 +304,7 @@ namespace vApus.DistributedTesting
                 foreach (TreeNode tileStresstestNode in tileNode.Nodes)
                 {
                     var kvp = (KeyValuePair<Stresstest.Stresstest, Stresstest.Connection>)tileStresstestNode.Tag;
-                    _toAssignConnections[connectionIndex] = kvp.Value;
+                    _toAssignConnections[connectionIndex++] = kvp.Value;
                 }
 
             this.DialogResult = DialogResult.OK;

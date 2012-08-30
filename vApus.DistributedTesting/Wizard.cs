@@ -707,10 +707,6 @@ namespace vApus.DistributedTesting
         /// <param name="slaves">To assign the tests to</param>
         private void GenerateAndAddTilesToDistributedTest(Stresstest.Connection[] toAssignConnections, List<Slave> slaves)
         {
-            //The existing stresstests will be reassigned to the slaves.
-            if (rdbDoNotAddTiles.Checked)
-                return;
-
             //Distribute connections.
             int connectionIndex = 0;
             if (rdbStartFromScratch.Checked)
@@ -720,24 +716,26 @@ namespace vApus.DistributedTesting
                     foreach (TileStresstest tileStresstest in tile)
                         tileStresstest.BasicTileStresstest.Connection = toAssignConnections[connectionIndex++];
 
-            //Add the tests to the distributed test.
-            for (int i = 0; i != (int)nudTiles.Value; i++)
-            {
-                Tile tile = new Tile();
-                _distributedTest.Tiles.AddWithoutInvokingEvent(tile, false);
-
-                Stresstest.Stresstest defaultToStresstest = null;
-                for (int j = 0; j != (int)nudTests.Value; j++)
+            //The existing stresstests will be reassigned to the slaves.
+            if (!rdbDoNotAddTiles.Checked)
+                //Add the tests to the distributed test.
+                for (int i = 0; i != (int)nudTiles.Value; i++)
                 {
-                    TileStresstest tileStresstest = new TileStresstest();
-                    defaultToStresstest = GetNextDefaultToStresstest(defaultToStresstest); //Default to a stresstest in the solution.
-                    tileStresstest.DefaultSettingsTo = defaultToStresstest;
+                    Tile tile = new Tile();
+                    _distributedTest.Tiles.AddWithoutInvokingEvent(tile, false);
 
-                    tile.AddWithoutInvokingEvent(tileStresstest, false);
+                    Stresstest.Stresstest defaultToStresstest = null;
+                    for (int j = 0; j != (int)nudTests.Value; j++)
+                    {
+                        TileStresstest tileStresstest = new TileStresstest();
+                        defaultToStresstest = GetNextDefaultToStresstest(defaultToStresstest); //Default to a stresstest in the solution.
+                        tileStresstest.DefaultAdvancedSettingsTo = defaultToStresstest;
 
-                    tileStresstest.BasicTileStresstest.Connection = toAssignConnections[connectionIndex++];
+                        tile.AddWithoutInvokingEvent(tileStresstest, false);
+
+                        tileStresstest.BasicTileStresstest.Connection = toAssignConnections[connectionIndex++];
+                    }
                 }
-            }
 
             int slaveIndex = 0;
             //Assign the tests to slaves

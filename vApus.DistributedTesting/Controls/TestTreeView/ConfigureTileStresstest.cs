@@ -40,25 +40,21 @@ namespace vApus.DistributedTesting
         public void SetTileStresstest(TileStresstest tileStresstest)
         {
             lblRunSync.Visible =
-            lblUseRDP.Visible = 
+            lblUseRDP.Visible =
             lblUsage.Visible = false;
 
-            solutionComponentPropertyPanelDefaultTo.Visible =
+            defaultAdvancedSettingsToControl.Visible =
             solutionComponentPropertyPanelBasic.Visible =
-            llblAdvancedSettings.Visible =
-            chkAutomatic.Visible = true;
+            llblShowHideAdvancedSettings.Visible = true;
 
             if (_tileStresstest != tileStresstest)
             {
                 _tileStresstest = tileStresstest;
-                solutionComponentPropertyPanelDefaultTo.SolutionComponent = _tileStresstest;
+                defaultAdvancedSettingsToControl.Init(tileStresstest);
                 solutionComponentPropertyPanelBasic.SolutionComponent = _tileStresstest.BasicTileStresstest;
                 solutionComponentPropertyPanelAdvanced.SolutionComponent = _tileStresstest.AdvancedTileStresstest;
 
-
-                chkAutomatic.Checked = _tileStresstest.AutomaticDefaultAdvancedSettings;
-
-                Handle_chkAutomatic_CheckedChanged();
+                Handle_DefaultToChecked();
             }
         }
         /// <summary>
@@ -67,32 +63,29 @@ namespace vApus.DistributedTesting
         /// <param name="showDescriptions">Should only be shown if the run sync cbo is focused</param>
         public void ClearTileStresstest(bool showDescriptions)
         {
-            solutionComponentPropertyPanelDefaultTo.Visible =
+            defaultAdvancedSettingsToControl.Visible =
             solutionComponentPropertyPanelBasic.Visible =
             solutionComponentPropertyPanelAdvanced.Visible =
-            llblAdvancedSettings.Visible =
-            chkAutomatic.Visible = false;
+            llblShowHideAdvancedSettings.Visible = false;
 
             lblUseRDP.Visible = lblRunSync.Visible = showDescriptions;
             lblUsage.Visible = true;
-
         }
-        private void chkAutomatic_CheckedChanged(object sender, EventArgs e)
+        private void defaultAdvancedSettingsToControl_CheckChanged(object sender, EventArgs e)
         {
-            Handle_chkAutomatic_CheckedChanged();
+            Handle_DefaultToChecked();
         }
-
-        private void Handle_chkAutomatic_CheckedChanged()
+        private void Handle_DefaultToChecked()
         {
-            if (chkAutomatic.Checked)
+            if (defaultAdvancedSettingsToControl.DefaultToChecked)
                 solutionComponentPropertyPanelAdvanced.Lock();
             else
                 solutionComponentPropertyPanelAdvanced.Unlock();
 
-            if (_tileStresstest.AutomaticDefaultAdvancedSettings != chkAutomatic.Checked)
+            if (_tileStresstest.AutomaticDefaultAdvancedSettings != defaultAdvancedSettingsToControl.DefaultToChecked)
             {
                 solutionComponentPropertyPanelAdvanced.Visible = true;
-                _tileStresstest.AutomaticDefaultAdvancedSettings = chkAutomatic.Checked;
+                _tileStresstest.AutomaticDefaultAdvancedSettings = defaultAdvancedSettingsToControl.DefaultToChecked;
                 _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
@@ -104,25 +97,28 @@ namespace vApus.DistributedTesting
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            TileStresstest ts = solutionComponentPropertyPanelDefaultTo.SolutionComponent as TileStresstest;
-            if (ts != null)
+            if (sender is TileStresstest || sender is Stresstest.Stresstest || sender is Stresstest.StresstestProject)
             {
-                if (sender is StresstestProject || sender == ts.DefaultSettingsTo)
+                if (_tileStresstest != null)
                 {
-                    solutionComponentPropertyPanelDefaultTo.Refresh();
+                    if (sender is StresstestProject || sender == _tileStresstest.DefaultAdvancedSettingsTo)
+                    {
+                        defaultAdvancedSettingsToControl.Init(_tileStresstest);
+                    }
+                    if (sender is StresstestProject || sender == _tileStresstest || sender == _tileStresstest.DefaultAdvancedSettingsTo)
+                    {
+                        solutionComponentPropertyPanelBasic.Refresh();
+                        solutionComponentPropertyPanelAdvanced.Refresh();
+                    }
+                    else if (sender is AdvancedTileStresstest)
+                    {
+                        solutionComponentPropertyPanelAdvanced.Refresh();
+                    }
                 }
-                if (sender is StresstestProject || sender == ts || sender == ts.DefaultSettingsTo)
-                {
-                    solutionComponentPropertyPanelBasic.Refresh();
-                    solutionComponentPropertyPanelAdvanced.Refresh();
-                }
-                else if (sender is AdvancedTileStresstest)
-                {
-                    solutionComponentPropertyPanelAdvanced.Refresh();
-                }
+
             }
-            if (sender is Clients || sender is Client || sender is Slave ||
-                sender is Monitor.MonitorProject || sender is Monitor.Monitor)
+            else if (sender is Clients || sender is Client || sender is Slave ||
+                    sender is Monitor.MonitorProject || sender is Monitor.Monitor)
             {
                 solutionComponentPropertyPanelBasic.Refresh();
             }
@@ -135,20 +131,16 @@ namespace vApus.DistributedTesting
                 _distributedTestMode = distributedTestMode;
                 if (_distributedTestMode == DistributedTestMode.Edit)
                 {
-                    solutionComponentPropertyPanelDefaultTo.Unlock();
+                    defaultAdvancedSettingsToControl.Enabled = true;
                     solutionComponentPropertyPanelBasic.Unlock();
-                    if (!chkAutomatic.Checked)
+                    if (!defaultAdvancedSettingsToControl.DefaultToChecked)
                         solutionComponentPropertyPanelAdvanced.Unlock();
-
-                    chkAutomatic.Enabled = true;
                 }
                 else
                 {
-                    solutionComponentPropertyPanelDefaultTo.Lock();
+                    defaultAdvancedSettingsToControl.Enabled = false;
                     solutionComponentPropertyPanelBasic.Lock();
                     solutionComponentPropertyPanelAdvanced.Lock();
-
-                    chkAutomatic.Enabled = false;
                 }
             }
         }

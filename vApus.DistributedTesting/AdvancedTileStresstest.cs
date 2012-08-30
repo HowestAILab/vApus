@@ -210,11 +210,11 @@ namespace vApus.DistributedTesting
             {
                 if (sender != null && this.Parent != null &&
                     (sender == this.Parent.GetParent().GetParent().GetParent() || 
-                    sender == this.Parent || sender == (this.Parent as TileStresstest).DefaultSettingsTo))
+                    sender == this.Parent || sender == (this.Parent as TileStresstest).DefaultAdvancedSettingsTo))
                 {
                     TileStresstest parent = this.Parent as TileStresstest;
                     if (parent.AutomaticDefaultAdvancedSettings)
-                        DefaultTo(parent.DefaultSettingsTo);
+                        DefaultTo(parent.DefaultAdvancedSettingsTo);
                 }
             }
             catch { }

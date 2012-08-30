@@ -18,8 +18,6 @@ namespace vApus.DistributedTesting
     public class BasicTileStresstest : BaseItem
     {
         #region Fields
-        private Stresstest.Stresstest _defaultSettingsTo;
-
         protected internal Connection _connection;
         private Monitor.MonitorProject _monitorProject;
         private int[] _monitorIndices = { };
@@ -29,6 +27,7 @@ namespace vApus.DistributedTesting
         private int[] _slaveIndices = { };
         private Slave[] _slaves = { };
         private int[] _WorkDistribution = { };
+
         #endregion
 
         #region Properties
@@ -261,20 +260,6 @@ namespace vApus.DistributedTesting
                     Slaves = l.ToArray();
                 }
             }
-        }
-        /// <summary>
-        /// Default the settings to this automatically.
-        /// </summary>
-        /// <param name="stresstest"></param>
-        public void DefaultTo(Stresstest.Stresstest stresstest)
-        {
-            _defaultSettingsTo = stresstest;
-            if (_defaultSettingsTo.Connection != null)
-                Connection = _defaultSettingsTo.Connection;
-            Monitors = _defaultSettingsTo.Monitors;
-
-            if (Solution.ActiveSolution != null)
-                this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
         /// <summary>
