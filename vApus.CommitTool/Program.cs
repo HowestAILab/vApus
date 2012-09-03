@@ -39,10 +39,7 @@ namespace vApus.CommitTool
                     for (int i = 8; i < args.Length; i++)
                         excludedFilesOrFolders[j++] = args[i];
 
-                    bool addTimeStampToVersionIni = false;
-                    bool.TryParse(args[7], out addTimeStampToVersionIni);
-
-                    commit.Do(args[0], int.Parse(args[1]), args[2], args[3], args[4], args[5], out exception, args[6], addTimeStampToVersionIni, excludedFilesOrFolders);
+                    commit.Do(args[0], int.Parse(args[1]), args[2], args[3], args[4], args[5], out exception, args[6], args[7], excludedFilesOrFolders);
                 }
                 catch (Exception ex)
                 {

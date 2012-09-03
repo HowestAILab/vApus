@@ -42,7 +42,7 @@ namespace vApus.CommitTool
         /// <param name="excludedFilesOrFolders"></param>
         public void Do(string host, int port, string username, string password, string historyXml,
             string localGitRepository, out Exception exception, string gitCmd = @"C:\Program Files (x86)\Git\cmd\git.cmd",
-            bool addTimeStampToVersionIni = false,
+            string timeStamp = "",
             params string[] excludedFilesOrFolders)
         {
             Sftp sftp;
@@ -53,7 +53,7 @@ namespace vApus.CommitTool
                 string channel;
                 List<string> fileList, folderList;
 
-                MakeVersionIni(historyXml, localGitRepository, gitCmd, addTimeStampToVersionIni, excludedFilesOrFolders, out channel, out fileList, out folderList, out exception);
+                MakeVersionIni(historyXml, localGitRepository, gitCmd, timeStamp, excludedFilesOrFolders, out channel, out fileList, out folderList, out exception);
                 if (exception == null)
                     CommitBinaries(sftp, ssh, channel, fileList, folderList, out exception);
             }
@@ -144,7 +144,7 @@ namespace vApus.CommitTool
         #endregion
 
         #region Make the version.ini and get files and folder to commit to the server
-        private void MakeVersionIni(string historyXml, string localGitRepository, string gitCmd, bool addTimeStampToVersionIni,
+        private void MakeVersionIni(string historyXml, string localGitRepository, string gitCmd, string timeStamp,
             string[] excludedFilesOrFolders, out string channel, out List<string> fileList, out List<string> folderList, out Exception exception)
         {
             exception = null;
@@ -155,8 +155,8 @@ namespace vApus.CommitTool
             string version = GetVersion(localGitRepository, gitCmd, out exception);
             if (exception != null) return;
 
-            if (addTimeStampToVersionIni)
-                version += DateTime.Now.ToString(" YYYYMMDDhhmmss");
+            if (timeStamp.Length != 0)
+                version += " " + timeStamp;
 
             channel = GetChannel(localGitRepository, gitCmd, out exception);
             if (exception != null) return;
