@@ -62,9 +62,9 @@
             // 
             // flp
             // 
-            this.flp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.flp.AutoScroll = true;
             this.flp.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flp.Location = new System.Drawing.Point(0, 100);
@@ -84,7 +84,7 @@
             this.lblUsage.Size = new System.Drawing.Size(333, 26);
             this.lblUsage.TabIndex = 4;
             this.lblUsage.Text = "Add Clients to the Distributed Test clicking the \'+ button\'.\r\nSelect a Client to " +
-    "configure it.";
+                "configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // picSort
@@ -105,7 +105,7 @@
             // 
             this.picStatus.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picStatus.Image = ((System.Drawing.Image)(resources.GetObject("picStatus.Image")));
-            this.picStatus.Location = new System.Drawing.Point(181, 65);
+            this.picStatus.Location = new System.Drawing.Point(193, 38);
             this.picStatus.Name = "picStatus";
             this.picStatus.Size = new System.Drawing.Size(16, 16);
             this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -158,36 +158,38 @@
             // 
             // txtHostName
             // 
-            this.txtHostName.Location = new System.Drawing.Point(75, 36);
+            this.txtHostName.Location = new System.Drawing.Point(87, 62);
             this.txtHostName.Name = "txtHostName";
             this.txtHostName.Size = new System.Drawing.Size(200, 20);
-            this.txtHostName.TabIndex = 0;
+            this.txtHostName.TabIndex = 1;
+            this.toolTip.SetToolTip(this.txtHostName, "Typing the IP address is adviced.\r\nIf you want to avoid firewall issues the slave" +
+                    " must be in the same IP range as the master.\r\n");
             this.txtHostName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtHostName_KeyUp);
             // 
             // lblHostName
             // 
             this.lblHostName.AutoSize = true;
-            this.lblHostName.Location = new System.Drawing.Point(6, 39);
+            this.lblHostName.Location = new System.Drawing.Point(57, 39);
             this.lblHostName.Name = "lblHostName";
-            this.lblHostName.Size = new System.Drawing.Size(63, 13);
+            this.lblHostName.Size = new System.Drawing.Size(20, 13);
             this.lblHostName.TabIndex = 24;
-            this.lblHostName.Text = "Host Name:";
+            this.lblHostName.Text = "IP:";
             // 
             // lblIP
             // 
             this.lblIP.AutoSize = true;
-            this.lblIP.Location = new System.Drawing.Point(37, 65);
+            this.lblIP.Location = new System.Drawing.Point(6, 65);
             this.lblIP.Name = "lblIP";
-            this.lblIP.Size = new System.Drawing.Size(32, 13);
+            this.lblIP.Size = new System.Drawing.Size(75, 13);
             this.lblIP.TabIndex = 27;
-            this.lblIP.Text = "or IP:";
+            this.lblIP.Text = "or Host Name:";
             // 
             // txtIP
             // 
-            this.txtIP.Location = new System.Drawing.Point(75, 62);
+            this.txtIP.Location = new System.Drawing.Point(87, 36);
             this.txtIP.Name = "txtIP";
             this.txtIP.Size = new System.Drawing.Size(100, 20);
-            this.txtIP.TabIndex = 1;
+            this.txtIP.TabIndex = 0;
             this.txtIP.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtIP_KeyUp);
             // 
             // lblRDCredentials

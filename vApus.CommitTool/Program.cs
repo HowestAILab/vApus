@@ -30,16 +30,19 @@ namespace vApus.CommitTool
             Commit commit = Commit.GetInstance();
 
             Exception exception;
-            if (args.Length >= 7)
+            if (args.Length >= 8)
             {
                 try
                 {
-                    string[] excludedFilesOrFolders = new string[args.Length - 7];
+                    string[] excludedFilesOrFolders = new string[args.Length - 8];
                     int j = 0;
-                    for (int i = 7; i < args.Length; i++)
+                    for (int i = 8; i < args.Length; i++)
                         excludedFilesOrFolders[j++] = args[i];
 
-                    commit.Do(args[0], int.Parse(args[1]), args[2], args[3], args[4], args[5], out exception, args[6], excludedFilesOrFolders);
+                    bool addTimeStampToVersionIni = false;
+                    bool.TryParse(args[7], out addTimeStampToVersionIni);
+
+                    commit.Do(args[0], int.Parse(args[1]), args[2], args[3], args[4], args[5], out exception, args[6], addTimeStampToVersionIni, excludedFilesOrFolders);
                 }
                 catch (Exception ex)
                 {

@@ -37,13 +37,6 @@
             this.chkReview = new System.Windows.Forms.CheckBox();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.dgvClients = new System.Windows.Forms.DataGridView();
-            this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
             this.lblNotAssignedTests = new System.Windows.Forms.Label();
@@ -71,6 +64,13 @@
             this.rdbAppendTiles = new System.Windows.Forms.RadioButton();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTests)).BeginInit();
@@ -166,55 +166,6 @@
             this.dgvClients.TabIndex = 23;
             this.dgvClients.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvClients_CellFormatting);
             this.dgvClients.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dgvClients_EditingControlShowing);
-            // 
-            // clmIPorHostName
-            // 
-            this.clmIPorHostName.HeaderText = "* IP or Host Name";
-            this.clmIPorHostName.Name = "clmIPorHostName";
-            // 
-            // clmUserName
-            // 
-            this.clmUserName.HeaderText = "User Name (RDP)";
-            this.clmUserName.Name = "clmUserName";
-            // 
-            // clmDomain
-            // 
-            this.clmDomain.HeaderText = "Domain";
-            this.clmDomain.Name = "clmDomain";
-            this.clmDomain.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.clmDomain.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // clmPassword
-            // 
-            this.clmPassword.HeaderText = "Password";
-            this.clmPassword.Name = "clmPassword";
-            // 
-            // clmSlaves
-            // 
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
-            this.clmSlaves.HeaderText = "Number of Slaves (0)";
-            this.clmSlaves.Name = "clmSlaves";
-            this.clmSlaves.ReadOnly = true;
-            this.clmSlaves.Width = 85;
-            // 
-            // clmTests
-            // 
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
-            this.clmTests.HeaderText = "Number of Tests (0/?)";
-            this.clmTests.Name = "clmTests";
-            this.clmTests.ReadOnly = true;
-            this.clmTests.Width = 85;
-            // 
-            // clmCpuCores
-            // 
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle3;
-            this.clmCpuCores.HeaderText = "Number of CPU Cores";
-            this.clmCpuCores.Name = "clmCpuCores";
-            this.clmCpuCores.ReadOnly = true;
-            this.clmCpuCores.Width = 85;
             // 
             // btnCancel
             // 
@@ -548,6 +499,56 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 20;
             // 
+            // clmIPorHostName
+            // 
+            this.clmIPorHostName.HeaderText = "* IP or Host Name";
+            this.clmIPorHostName.Name = "clmIPorHostName";
+            this.clmIPorHostName.ToolTipText = "Typing the IP address is adviced.\nIf you want to avoid firewall issues the slave must be in the same IP range as the master.";
+            // 
+            // clmUserName
+            // 
+            this.clmUserName.HeaderText = "User Name (RDP)";
+            this.clmUserName.Name = "clmUserName";
+            // 
+            // clmDomain
+            // 
+            this.clmDomain.HeaderText = "Domain";
+            this.clmDomain.Name = "clmDomain";
+            this.clmDomain.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.clmDomain.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // clmPassword
+            // 
+            this.clmPassword.HeaderText = "Password";
+            this.clmPassword.Name = "clmPassword";
+            // 
+            // clmSlaves
+            // 
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
+            this.clmSlaves.HeaderText = "Number of Slaves (0)";
+            this.clmSlaves.Name = "clmSlaves";
+            this.clmSlaves.ReadOnly = true;
+            this.clmSlaves.Width = 85;
+            // 
+            // clmTests
+            // 
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
+            this.clmTests.HeaderText = "Number of Tests (0/?)";
+            this.clmTests.Name = "clmTests";
+            this.clmTests.ReadOnly = true;
+            this.clmTests.Width = 85;
+            // 
+            // clmCpuCores
+            // 
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle3;
+            this.clmCpuCores.HeaderText = "Number of CPU Cores";
+            this.clmCpuCores.Name = "clmCpuCores";
+            this.clmCpuCores.ReadOnly = true;
+            this.clmCpuCores.Width = 85;
+            // 
             // Wizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -611,6 +612,7 @@
         private System.Windows.Forms.RadioButton rdbStartFromScratch;
         private System.Windows.Forms.RadioButton rdbAppendTiles;
         private System.Windows.Forms.RadioButton rdbDoNotAddTiles;
+        private System.Windows.Forms.CheckBox chkReview;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmIPorHostName;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmUserName;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmDomain;
@@ -618,7 +620,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn clmSlaves;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmTests;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmCpuCores;
-        private System.Windows.Forms.CheckBox chkReview;
 
     }
 }

@@ -244,7 +244,7 @@
             this.nudPort.Size = new System.Drawing.Size(50, 20);
             this.nudPort.TabIndex = 1;
             this.nudPort.Value = new decimal(new int[] {
-            5222,
+            22, //External port 5222
             0,
             0,
             0});

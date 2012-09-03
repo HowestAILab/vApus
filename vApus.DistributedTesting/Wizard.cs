@@ -663,7 +663,7 @@ namespace vApus.DistributedTesting
                     client.Password = row.Tag as string;
 
                 //Add slaves to the client.
-                int startPort = SocketListener.GetInstance().IP == client.IP ? 1338 : 1337;
+                int startPort = SocketListener.GetInstance().IP == client.IP ? (SocketListener.GetInstance().Port + 1) : 1337;
                 List<int> alreadyUsedPas = new List<int>();
                 for (int i = 0; i != numberOfSlaves; i++)
                 {

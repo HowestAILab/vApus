@@ -40,7 +40,8 @@ namespace vApus.UpdateTool
         /// To auto connect.
         /// </summary>
         private string _host, _username, _password;
-        private int _port = 5222, _channel;
+        private int _port = 22; //External port 5222
+        private int _channel;
         private bool _autoUpdate;
 
         #endregion
