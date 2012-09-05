@@ -54,9 +54,21 @@ namespace vApus.Stresstest
         {
             get
             {
-                long estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                long estimatedRuntimeLeft = 0;
+                if (IsMeasuringTime) //For run sync first this must be 0.
+                {
+                    //If the run is broken it is visible in the run results, so we need to correct this here for calculating the runtime left.
+                    ulong totalLogEntriesProcessedWorkAround = 0;
+                    foreach (var cur in ConcurrentUsersResults)
+                        foreach (var pr in cur.PrecisionResults)
+                            foreach (var rr in pr.RunResults)
+                                totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
+
+                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) *
+                        (_metrics.TotalLogEntries - totalLogEntriesProcessedWorkAround) * 10000);
+                    if (estimatedRuntimeLeft < 0)
+                        estimatedRuntimeLeft = 0;
+                }
                 return new TimeSpan(estimatedRuntimeLeft);
             }
         }
@@ -88,6 +100,13 @@ namespace vApus.Stresstest
                 }
                 return false;
             }
+        }
+        /// <summary>
+        /// Used for calculating the estimated runtime left.
+        /// </summary>
+        public bool IsMeasuringTime
+        {
+            get { return _sw != null && _sw.IsRunning; }
         }
         #endregion
 
@@ -181,7 +200,8 @@ namespace vApus.Stresstest
         /// </summary>
         public void StopTimeMeasurement()
         {
-            _sw.Stop();
+            if (_sw != null)
+                _sw.Stop();
             foreach (ConcurrentUsersResult result in ConcurrentUsersResults)
                 result.StopTimeMeasurement();
         }
@@ -330,11 +350,29 @@ namespace vApus.Stresstest
         {
             get
             {
-                long estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                long estimatedRuntimeLeft = 0;
+                if (IsMeasuringTime) //For run sync first this must be 0.
+                {
+                    //If the run is broken it is visible in the run results, so we need to correct this here for calculating the runtime left.
+                    ulong totalLogEntriesProcessedWorkAround = 0;
+                    foreach (var pr in PrecisionResults)
+                        foreach (var rr in pr.RunResults)
+                            totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
+
+                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) *
+                        (_metrics.TotalLogEntries - totalLogEntriesProcessedWorkAround) * 10000);
+                    if (estimatedRuntimeLeft < 0)
+                        estimatedRuntimeLeft = 0;
+                }
                 return new TimeSpan(estimatedRuntimeLeft);
             }
+        }
+        /// <summary>
+        /// Used for calculating the estimated runtime left.
+        /// </summary>
+        public bool IsMeasuringTime
+        {
+            get { return _sw != null && _sw.IsRunning; }
         }
         public Metrics Metrics
         {
@@ -425,7 +463,8 @@ namespace vApus.Stresstest
         }
         public void StopTimeMeasurement()
         {
-            _sw.Stop();
+            if (_sw != null)
+                _sw.Stop();
             foreach (PrecisionResult result in PrecisionResults)
                 result.StopTimeMeasurement();
         }
@@ -728,11 +767,28 @@ namespace vApus.Stresstest
         {
             get
             {
-                long estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                long estimatedRuntimeLeft = 0;
+                if (IsMeasuringTime) //For run sync first this must be 0.
+                {
+                    //If the run is broken it is visible in the run results, so we need to correct this here for calculating the runtime left.
+                    ulong totalLogEntriesProcessedWorkAround = 0;
+                    foreach (var rr in RunResults)
+                        totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
+
+                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) *
+                        (_metrics.TotalLogEntries - totalLogEntriesProcessedWorkAround) * 10000);
+                    if (estimatedRuntimeLeft < 0)
+                        estimatedRuntimeLeft = 0;
+                }
                 return new TimeSpan(estimatedRuntimeLeft);
             }
+        }
+        /// <summary>
+        /// Used for calculating the estimated runtime left.
+        /// </summary>
+        public bool IsMeasuringTime
+        {
+            get { return _sw != null && _sw.IsRunning; }
         }
         public Metrics Metrics
         {
@@ -827,7 +883,8 @@ namespace vApus.Stresstest
         }
         public void StopTimeMeasurement()
         {
-            _sw.Stop();
+            if (_sw != null)
+                _sw.Stop();
             foreach (RunResult result in RunResults)
                 result.StopTimeMeasurement();
         }
@@ -1163,11 +1220,22 @@ namespace vApus.Stresstest
         {
             get
             {
-                long estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                long estimatedRuntimeLeft = 0;
+                if (IsMeasuringTime) //For run sync first this must be 0.
+                {
+                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
+                    if (estimatedRuntimeLeft < 0)
+                        estimatedRuntimeLeft = 0;
+                }
                 return new TimeSpan(estimatedRuntimeLeft);
             }
+        }
+        /// <summary>
+        /// Used for calculating the estimated runtime left.
+        /// </summary>
+        public bool IsMeasuringTime
+        {
+            get { return _sw != null && _sw.IsRunning; }
         }
         public Metrics Metrics
         {
@@ -1330,7 +1398,8 @@ namespace vApus.Stresstest
         }
         public void StopTimeMeasurement()
         {
-            _sw.Stop();
+            if (_sw != null)
+                _sw.Stop();
         }
 
         /// <summary>

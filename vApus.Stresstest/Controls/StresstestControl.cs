@@ -326,10 +326,14 @@ namespace vApus.Stresstest
                 {
                     metrics = result.Metrics;
                     int startIndex = lvwi.SubItems.Count - 6;
+                    string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
+
                     //Only update the ones needed to be updated
-                    if (lvwi.SubItems[startIndex].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries || metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
+                    if (lvwi.SubItems[startIndex].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
+                        lvwi.SubItems[1].Text != estimatedRuntimeLeft ||
+                        metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
                     {
-                        lvwi.SubItems[1].Text = result.EstimatedRuntimeLeft.ToShortFormattedString();
+                        lvwi.SubItems[1].Text = estimatedRuntimeLeft;
                         lvwi.SubItems[2].Text = metrics.MeasuredRunTime.ToShortFormattedString();
                         lvwi.SubItems[startIndex].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
                         lvwi.SubItems[startIndex + 1].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();

@@ -503,7 +503,7 @@
             // 
             this.clmIPorHostName.HeaderText = "* IP or Host Name";
             this.clmIPorHostName.Name = "clmIPorHostName";
-            this.clmIPorHostName.ToolTipText = "Typing the IP address is adviced.\nIf you want to avoid firewall issues the slave must be in the same IP range as the master.";
+            this.clmIPorHostName.ToolTipText = "Typing the IP address is advised.\nIf you want to avoid firewall issues the slave must be in the same IP range as the master.";
             // 
             // clmUserName
             // 

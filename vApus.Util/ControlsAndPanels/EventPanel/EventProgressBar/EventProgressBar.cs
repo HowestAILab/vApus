@@ -57,7 +57,7 @@ namespace vApus.Util
         {
             get { return _progressEvents.Count; }
         }
-        [Description("The begin of the time frame when the events occured ('at')")]
+        [Description("The begin of the time frame when the events occured ('at').")]
         /// </summary>
         public DateTime BeginOfTimeFrame
         {
@@ -68,7 +68,7 @@ namespace vApus.Util
             }
             get { return _beginOfTimeFrame; }
         }
-        [Description("The begin of the time frame when the events occured ('at')")]
+        [Description("The end of the time frame.")]
         public DateTime EndOfTimeFrame
         {
             set

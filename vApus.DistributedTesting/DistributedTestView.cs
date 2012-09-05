@@ -666,18 +666,25 @@ namespace vApus.DistributedTesting
                     {
                         ConcurrentUsersResult cr = new ConcurrentUsersResult(tcr.ConcurrentUsers, tcr.Metrics.TotalLogEntries, tcr.Metrics.StartMeasuringRuntime);
                         cr.Metrics = tcr.Metrics;
+                        if (tcr.EstimatedRuntimeLeft.Ticks == 0)
+                            cr.StopTimeMeasurement();
                         stresstestControl.AddFastResult(cr);
 
                         foreach (TilePrecisionProgressResult tpr in tcr.TilePrecisionProgressResults)
                         {
                             PrecisionResult pr = new PrecisionResult(tpr.Precision, tpr.Metrics.TotalLogEntries, tpr.Metrics.StartMeasuringRuntime);
                             pr.Metrics = tpr.Metrics;
+                            if (tpr.EstimatedRuntimeLeft.Ticks == 0)
+                                pr.StopTimeMeasurement();
                             stresstestControl.AddFastResult(pr);
 
                             foreach (TileRunProgressResult trr in tpr.TileRunProgressResults)
                             {
                                 RunResult rr = new RunResult(trr.Run, 1, trr.Metrics.TotalLogEntries, 1, trr.Metrics.StartMeasuringRuntime, trr.RunStartedAndStopped, trr.RunDoneOnce);
                                 rr.Metrics = trr.Metrics;
+                                if (trr.EstimatedRuntimeLeft.Ticks == 0)
+                                    rr.StopTimeMeasurement();
+
                                 stresstestControl.AddFastResult(rr);
                             }
                         }

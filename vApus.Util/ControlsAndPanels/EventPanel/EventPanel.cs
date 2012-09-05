@@ -40,7 +40,7 @@ namespace vApus.Util
             set { eventProgressBar.BeginOfTimeFrame = value; }
             get { return eventProgressBar.BeginOfTimeFrame; }
         }
-        [Description("The begin of the time frame when the events occured ('at').")]
+        [Description("The end of the time frame.")]
         public DateTime EndOfTimeFrame
         {
             set { eventProgressBar.EndOfTimeFrame = value; }

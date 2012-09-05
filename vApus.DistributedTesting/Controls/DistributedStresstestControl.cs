@@ -23,8 +23,6 @@ namespace vApus.DistributedTesting
         private static extern int LockWindowUpdate(int hWnd);
 
         private DistributedTest _distributedTest;
-        //The monitor views for the selected stresstest.
-        private List<MonitorView> _monitorViews;
 
         //Caching the progress here.
         private Dictionary<TileStresstest, TileStresstestProgressResults> _progress = new Dictionary<TileStresstest, TileStresstestProgressResults>();
@@ -62,13 +60,6 @@ namespace vApus.DistributedTesting
         {
             lvwFastResultsListing.Items.Clear();
             eventView.ClearEvents();
-        }
-        private void stresstestControl_MonitorClicked(object sender, EventArgs e)
-        {
-            if (_monitorViews != null)
-                foreach (MonitorView view in _monitorViews)
-                    if (!view.IsDisposed)
-                        view.Show();
         }
 
         /// <summary>
@@ -256,15 +247,16 @@ namespace vApus.DistributedTesting
             var metrics = result.Metrics;
 
             string tilestresstest = ts.ToString();
+            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
 
             //Only update the ones needed to be updated
-            if (lvwi.Text != tilestresstest ||
+            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
                 lvwi.SubItems[5].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
                 metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
             {
                 lvwi.SubItems[0].Text = tilestresstest;
                 lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
-                lvwi.SubItems[2].Text = result.EstimatedRuntimeLeft.ToShortFormattedString();
+                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
                 lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
                 lvwi.SubItems[4].Text = result.ConcurrentUsers.ToString();
                 lvwi.SubItems[5].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
@@ -273,6 +265,10 @@ namespace vApus.DistributedTesting
                 lvwi.SubItems[8].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
                 lvwi.SubItems[9].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
                 lvwi.SubItems[10].Text = metrics.Errors.ToString();
+                lvwi.SubItems[10].ForeColor = Color.Red;
+
+                while (lvwi.SubItems.Count > 11) //Remove the ones we do not need.
+                    lvwi.SubItems.RemoveAt(11);
             }
         }
         private ListViewItem NewConcurrentUsersLVWI(TileStresstest ts, TileConcurrentUsersProgressResult result)
@@ -359,15 +355,16 @@ namespace vApus.DistributedTesting
             var metrics = result.Metrics;
 
             string tilestresstest = ts.ToString();
+            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
 
             //Only update the ones needed to be updated
-            if (lvwi.Text != tilestresstest ||
+            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
                 lvwi.SubItems[6].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
                 metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
             {
                 lvwi.SubItems[0].Text = tilestresstest;
                 lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
-                lvwi.SubItems[2].Text = result.EstimatedRuntimeLeft.ToShortFormattedString();
+                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
                 lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
                 lvwi.SubItems[4].Text = cu.ConcurrentUsers.ToString();
                 lvwi.SubItems[5].Text = (result.Precision + 1).ToString();
@@ -376,7 +373,22 @@ namespace vApus.DistributedTesting
                 lvwi.SubItems[8].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
                 lvwi.SubItems[9].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
                 lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
-                lvwi.SubItems[11].Text = metrics.Errors.ToString();
+                lvwi.SubItems[10].ForeColor = Color.Black;
+
+                if (lvwi.SubItems.Count == 13) //Remove last cell, not needed.
+                    lvwi.SubItems.RemoveAt(12);
+
+                if (lvwi.SubItems.Count == 12) //Add errors if not available.
+                {
+                    lvwi.SubItems[11].Text = metrics.Errors.ToString();
+                    lvwi.SubItems[11].ForeColor = Color.Red;
+                }
+                else
+                {
+                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+                    sub.Font = lvwi.Font;
+                    sub.ForeColor = Color.Red;
+                }
             }
         }
         private ListViewItem NewPrecisionLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult result)
@@ -470,15 +482,16 @@ namespace vApus.DistributedTesting
             var metrics = result.Metrics;
 
             string tilestresstest = ts.ToString();
+            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
 
             //Only update the ones needed to be updated
-            if (lvwi.Text != tilestresstest ||
+            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
                 lvwi.SubItems[7].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
                 metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
             {
                 lvwi.SubItems[0].Text = tilestresstest;
                 lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
-                lvwi.SubItems[2].Text = result.EstimatedRuntimeLeft.ToShortFormattedString();
+                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
                 lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
                 lvwi.SubItems[4].Text = cu.ConcurrentUsers.ToString();
                 lvwi.SubItems[5].Text = (p.Precision + 1).ToString();
@@ -487,8 +500,32 @@ namespace vApus.DistributedTesting
                 lvwi.SubItems[8].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
                 lvwi.SubItems[9].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
                 lvwi.SubItems[10].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[11].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
-                lvwi.SubItems[12].Text = metrics.Errors.ToString();
+                lvwi.SubItems[10].ForeColor = Color.Black;
+
+                if (lvwi.SubItems.Count == 11) //Add if not available.
+                {
+                    lvwi.SubItems.Add(metrics.AverageDelay.TotalMilliseconds.ToString()).Font = lvwi.Font;
+                    
+                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+                    sub.Font = lvwi.Font;
+                    sub.ForeColor = Color.Red;
+                }
+                else if (lvwi.SubItems.Count == 12)
+                {
+                    lvwi.SubItems[11].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+
+                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+                    sub.Font = lvwi.Font;
+                    sub.ForeColor = Color.Red;
+                }
+                else if (lvwi.SubItems.Count == 13)
+                {
+                    lvwi.SubItems[11].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+                    lvwi.SubItems[11].ForeColor = Color.Black;
+
+                    lvwi.SubItems[12].Text = metrics.Errors.ToString();
+                    lvwi.SubItems[12].ForeColor = Color.Red;
+                }
             }
         }
         private ListViewItem NewRunLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult p, TileRunProgressResult result)

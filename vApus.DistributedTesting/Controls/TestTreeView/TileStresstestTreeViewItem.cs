@@ -275,7 +275,11 @@ namespace vApus.DistributedTesting
         {
             _stresstestResult = stresstestResult;
             if (downloadResultsProgress == 100)
+            {
                 _downloadResultsFinished = true;
+                eventProgressBar.EndOfTimeFrame = DateTime.Now;
+                eventProgressBar.SetProgressBarToNow();
+            }
 
             if (downloadResultsProgress == 0 || downloadResultsProgress == 100)
             {

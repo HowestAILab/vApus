@@ -162,7 +162,7 @@
             this.txtHostName.Name = "txtHostName";
             this.txtHostName.Size = new System.Drawing.Size(200, 20);
             this.txtHostName.TabIndex = 1;
-            this.toolTip.SetToolTip(this.txtHostName, "Typing the IP address is adviced.\r\nIf you want to avoid firewall issues the slave" +
+            this.toolTip.SetToolTip(this.txtHostName, "Typing the IP address is advised.\r\nIf you want to avoid firewall issues the slave" +
                     " must be in the same IP range as the master.\r\n");
             this.txtHostName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtHostName_KeyUp);
             // 
