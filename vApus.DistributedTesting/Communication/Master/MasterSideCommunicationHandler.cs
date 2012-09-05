@@ -6,6 +6,7 @@
  *    Vandroemme Dieter
  */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -14,7 +15,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using vApus.Stresstest;
 using vApus.Util;
-using System.Collections.Concurrent;
 
 namespace vApus.DistributedTesting
 {
@@ -521,6 +521,7 @@ namespace vApus.DistributedTesting
         public static void Init()
         {
             _lock = null;
+            GC.Collect();
             _lock = new object();
 
             DisconnectSlaves();
@@ -692,34 +693,44 @@ namespace vApus.DistributedTesting
         /// <param name="exception"></param>
         public static Exception[] StopTest()
         {
-            ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
+            var exceptions = new ConcurrentBag<Exception>();
+            var stopped = new ConcurrentBag<SocketWrapper>();
+
             int length = _connectedSlaves.Count;
 
             if (length != 0)
-            {
-                AutoResetEvent waitHandle = new AutoResetEvent(false);
-                int handled = 0;
-
-                foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
+                for (int i = 0; i != 3; i++) //Retry for the ones that are not stopped
                 {
-                    Thread t = new Thread(delegate(object parameter)
-                    {
-                        _stopTestWorkItem = new StopTestWorkItem();
-                        exceptions.Add(
-                            _stopTestWorkItem.StopTest(parameter as SocketWrapper)
-                            );
-                        _stopTestWorkItem = null;
+                    exceptions = new ConcurrentBag<Exception>();
 
-                        if (Interlocked.Increment(ref handled) == length)
-                            waitHandle.Set();
-                    });
-                    t.IsBackground = true;
-                    t.Start(socketWrapper);
-                }
+                    if (stopped.Count == length)
+                        break;
 
-                waitHandle.WaitOne();
-                waitHandle.Dispose();
-                waitHandle = null;
+                    AutoResetEvent waitHandle = new AutoResetEvent(false);
+                    int handled = 0;
+
+                    foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
+                        if (!stopped.Contains(socketWrapper))
+                        {
+                            Thread t = new Thread(delegate(object parameter)
+                            {
+                                _stopTestWorkItem = new StopTestWorkItem();
+                                _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
+                                _stopTestWorkItem = null;
+
+                                if (Interlocked.Increment(ref handled) == length)
+                                    waitHandle.Set();
+                            });
+                            t.IsBackground = true;
+                            t.Start(socketWrapper);
+                        }
+
+                    waitHandle.WaitOne(5000);
+                    waitHandle.Dispose();
+                    waitHandle = null;
+
+                    if (exceptions.Count == 0)
+                        break;
             }
 
             List<Exception> l = new List<Exception>();
@@ -906,28 +917,30 @@ namespace vApus.DistributedTesting
         }
         private class StopTestWorkItem
         {
-            public Exception StopTest(SocketWrapper socketWrapper)
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="socketWrapper"></param>
+            /// <param name="exceptions">Add to exceptions on exception.</param>
+            /// <param name="stopped">Add to stopped on succesful stop.</param>
+            public void StopTest(SocketWrapper socketWrapper, ref ConcurrentBag<Exception> exceptions, ref ConcurrentBag<SocketWrapper> stopped)
             {
-                Exception exception = null;
                 if (socketWrapper != null)
-                    for (int i = 1; i != 4; i++)
-                        try
-                        {
-                            Message<Key> message = SendAndReceive(socketWrapper, Key.StopTest, 30000);
+                    try
+                    {
+                        Message<Key> message = SendAndReceive(socketWrapper, Key.StopTest, 30000);
 
-                            StartAndStopMessage stopMessage = (StartAndStopMessage)message.Content;
-                            if (stopMessage.Exception != null)
-                                throw new Exception(stopMessage.Exception);
+                        StartAndStopMessage stopMessage = (StartAndStopMessage)message.Content;
+                        if (stopMessage.Exception != null)
+                            throw new Exception(stopMessage.Exception);
 
-                            exception = null;
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            exception = new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
-                            Thread.Sleep(i * 500);
-                        }
-                return exception;
+                        if (!stopped.Contains(socketWrapper))
+                            stopped.Add(socketWrapper);
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptions.Add(new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex));
+                    }
             }
         }
         #endregion

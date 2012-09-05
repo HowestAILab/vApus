@@ -14,6 +14,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
+using System.Collections.Concurrent;
 
 namespace vApus.Util
 {
@@ -630,6 +631,28 @@ namespace vApus.Util
             }
             sb.Append(array.GetValue(array.Length - 1));
             return sb.ToString();
+        }
+    }
+    public static class ConcurrentBagExtension
+    {
+        /// <summary>
+        /// A thread safe implementation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="concurrentBag"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static bool Contains<T>(this ConcurrentBag<T> concurrentBag, T item)
+        {
+            if (concurrentBag.GetTag() == null)
+                concurrentBag.SetTag(new object());
+            lock (concurrentBag.GetTag())
+            {
+                foreach (T i in concurrentBag)
+                    if (i.Equals(item))
+                        return true;
+                return false;
+            }
         }
     }
 }
