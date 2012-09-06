@@ -37,6 +37,15 @@ University College of West-Flanders, Department GKG
 
 // dllreferences:System.dll;System.Data.dll;vApus.Util.dll;vApus.Stresstest.dll;
 
+#region Preprocessors
+//
+// e.g. #define NOTMUCHUSEDFEATURE
+//
+// Further in code:
+// #if NOTMUCHUSEDFEATURE
+// do stuff...
+// #endif
+#endregion //Preprocessors
 #region Default Usings
 using System;
 using System.Data;

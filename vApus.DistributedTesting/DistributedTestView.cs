@@ -799,10 +799,8 @@ namespace vApus.DistributedTesting
         }
         private void _distributedTestCore_OnListeningError(object sender, ListeningErrorEventArgs e)
         {
-#warning Handle listening error
-            //foreach (TileStresstestSelectorControl tileStresstestControl in flpStresstestTileStresstests.Controls)
-            //    if (tileStresstestControl.TileStresstest.SlaveIP == e.SlaveIP && tileStresstestControl.TileStresstest.SlavePort == e.SlavePort)
-            //        tileStresstestControl.StresstestResult = StresstestResult.Error;
+            //Stop the distributed test (it is not valid anymore if a slave fails)
+            btnStop_Click(btnStop, null);
         }
         private void _distributedTestCore_ResultsDownloadProgressUpdated(object sender, ResultsDownloadProgressUpdatedEventArgs e)
         {

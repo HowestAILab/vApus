@@ -29,6 +29,8 @@ namespace vApus.DistributedTesting
 
         #region Fields
         private static object _lock = new object();
+        private  static object _stopLock = new object();
+
         //A slave side and a master side socket wrappers for full duplex communication.
         private static Dictionary<SocketWrapper, SocketWrapper> _connectedSlaves = new Dictionary<SocketWrapper, SocketWrapper>();
         private static AsyncCallback _onReceiveCallBack;
@@ -686,6 +688,7 @@ namespace vApus.DistributedTesting
 
             SendAndReceive(Key.Continue, continueMessage, out exception, 30000);
         }
+
         /// <summary>
         /// The retry count is 3 with a send and a receive timeout of 30 seconds.
         /// </summary>
@@ -693,52 +696,55 @@ namespace vApus.DistributedTesting
         /// <param name="exception"></param>
         public static Exception[] StopTest()
         {
-            var exceptions = new ConcurrentBag<Exception>();
-            var stopped = new ConcurrentBag<SocketWrapper>();
+            lock (_stopLock)
+            {
+                var exceptions = new ConcurrentBag<Exception>();
+                var stopped = new ConcurrentBag<SocketWrapper>();
 
-            int length = _connectedSlaves.Count;
+                int length = _connectedSlaves.Count;
 
-            if (length != 0)
-                for (int i = 0; i != 3; i++) //Retry for the ones that are not stopped
-                {
-                    exceptions = new ConcurrentBag<Exception>();
+                if (length != 0)
+                    for (int i = 0; i != 3; i++) //Retry for the ones that are not stopped
+                    {
+                        exceptions = new ConcurrentBag<Exception>();
 
-                    if (stopped.Count == length)
-                        break;
+                        if (stopped.Count == length)
+                            break;
 
-                    AutoResetEvent waitHandle = new AutoResetEvent(false);
-                    int handled = 0;
+                        AutoResetEvent waitHandle = new AutoResetEvent(false);
+                        int handled = 0;
 
-                    foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
-                        if (!stopped.Contains(socketWrapper))
-                        {
-                            Thread t = new Thread(delegate(object parameter)
+                        foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
+                            if (!stopped.Contains(socketWrapper))
                             {
-                                _stopTestWorkItem = new StopTestWorkItem();
-                                _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
-                                _stopTestWorkItem = null;
+                                Thread t = new Thread(delegate(object parameter)
+                                {
+                                    _stopTestWorkItem = new StopTestWorkItem();
+                                    _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
+                                    _stopTestWorkItem = null;
 
-                                if (Interlocked.Increment(ref handled) == length)
-                                    waitHandle.Set();
-                            });
-                            t.IsBackground = true;
-                            t.Start(socketWrapper);
-                        }
+                                    if (Interlocked.Increment(ref handled) == length && waitHandle != null)
+                                        waitHandle.Set();
+                                });
+                                t.IsBackground = true;
+                                t.Start(socketWrapper);
+                            }
 
-                    waitHandle.WaitOne(5000);
-                    waitHandle.Dispose();
-                    waitHandle = null;
+                        waitHandle.WaitOne(5000);
+                        waitHandle.Dispose();
+                        waitHandle = null;
 
-                    if (exceptions.Count == 0)
-                        break;
+                        if (exceptions.Count == 0)
+                            break;
+                    }
+
+                List<Exception> l = new List<Exception>();
+                foreach (Exception ex in exceptions)
+                    if (ex != null)
+                        l.Add(ex);
+
+                return l.ToArray();
             }
-
-            List<Exception> l = new List<Exception>();
-            foreach (Exception ex in exceptions)
-                if (ex != null)
-                    l.Add(ex);
-
-            return l.ToArray();
         }
         /// <summary>
         /// Only use after the test is stopped.

@@ -301,22 +301,7 @@ namespace vApus.DistributedTesting
 
                         InvokeOnListeningError(e);
 
-                        if (RunInitializedCount == Running)
-                        {
-                            _runInitialized = new string[] { };
-                            MasterSideCommunicationHandler.SendContinue();
-                        }
-                        else if (RunDoneOnceCount == Running)
-                        {
-                            _runDoneOnce = new string[] { };
-                            MasterSideCommunicationHandler.SendContinue();
-                        }
-                        else if (_distributedTest.RunSynchronization ==
-                            RunSynchronization.BreakOnFirstFinished && RunDoneOnceCount == Finished + 1)
-                        {
-                            MasterSideCommunicationHandler.SendBreak();
-                        }
-
+                        Stop(); //The test cannot be valid, therefore stop testing. It is stopped in the gui also, but stop it here explicitely for when the gui fails.
 
                         if (Finished == _usedTileStresstests.Count)
                             HandleFinished();
@@ -453,9 +438,11 @@ namespace vApus.DistributedTesting
                 return null;
             }
         }
+        /// <summary>
+        /// Stop the distributed test.
+        /// </summary>
         public void Stop()
         {
-#warning Handle exception
             MasterSideCommunicationHandler.StopTest();
         }
 

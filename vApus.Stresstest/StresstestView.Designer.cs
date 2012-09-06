@@ -60,15 +60,15 @@
             this.solutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.solutionComponentPropertyPanel.Location = new System.Drawing.Point(3, 3);
             this.solutionComponentPropertyPanel.Name = "solutionComponentPropertyPanel";
-            this.solutionComponentPropertyPanel.Size = new System.Drawing.Size(784, 488);
+            this.solutionComponentPropertyPanel.Size = new System.Drawing.Size(784, 491);
             this.solutionComponentPropertyPanel.SolutionComponent = null;
             this.solutionComponentPropertyPanel.TabIndex = 1;
             // 
             // tc
             // 
-            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpConfigure);
             this.tc.Controls.Add(this.tpStresstest);
@@ -86,10 +86,10 @@
             // 
             this.tpConfigure.BackColor = System.Drawing.Color.White;
             this.tpConfigure.Controls.Add(this.solutionComponentPropertyPanel);
-            this.tpConfigure.Location = new System.Drawing.Point(0, 22);
+            this.tpConfigure.Location = new System.Drawing.Point(0, 19);
             this.tpConfigure.Name = "tpConfigure";
             this.tpConfigure.Padding = new System.Windows.Forms.Padding(3);
-            this.tpConfigure.Size = new System.Drawing.Size(790, 494);
+            this.tpConfigure.Size = new System.Drawing.Size(790, 497);
             this.tpConfigure.TabIndex = 0;
             this.tpConfigure.Text = "Configure";
             // 
@@ -106,7 +106,7 @@
             // 
             // stresstestControl
             // 
-            this.stresstestControl.BackColor = System.Drawing.SystemColors.Control;
+            this.stresstestControl.BackColor = System.Drawing.Color.Transparent;
             this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestControl.MonitorConfigurationControlVisible = true;
@@ -119,10 +119,10 @@
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
             this.tpReport.Controls.Add(this.stresstestReportControl);
-            this.tpReport.Location = new System.Drawing.Point(0, 22);
+            this.tpReport.Location = new System.Drawing.Point(0, 19);
             this.tpReport.Name = "tpReport";
             this.tpReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpReport.Size = new System.Drawing.Size(790, 494);
+            this.tpReport.Size = new System.Drawing.Size(790, 497);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
             // 
@@ -133,7 +133,7 @@
             this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(784, 488);
+            this.stresstestReportControl.Size = new System.Drawing.Size(193, 74);
             this.stresstestReportControl.TabIndex = 0;
             // 
             // toolStrip

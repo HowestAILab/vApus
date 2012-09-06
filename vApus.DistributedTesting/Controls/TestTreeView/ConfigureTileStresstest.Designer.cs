@@ -124,9 +124,12 @@
             // 
             this.defaultAdvancedSettingsToControl.BackColor = System.Drawing.SystemColors.Control;
             this.defaultAdvancedSettingsToControl.Location = new System.Drawing.Point(366, 14);
+            this.defaultAdvancedSettingsToControl.MaximumSize = new System.Drawing.Size(350, 46);
+            this.defaultAdvancedSettingsToControl.MinimumSize = new System.Drawing.Size(350, 46);
             this.defaultAdvancedSettingsToControl.Name = "defaultAdvancedSettingsToControl";
-            this.defaultAdvancedSettingsToControl.Size = new System.Drawing.Size(350, 50);
+            this.defaultAdvancedSettingsToControl.Size = new System.Drawing.Size(350, 46);
             this.defaultAdvancedSettingsToControl.TabIndex = 0;
+            this.defaultAdvancedSettingsToControl.Visible = false;
             this.defaultAdvancedSettingsToControl.CheckChanged += new System.EventHandler(this.defaultAdvancedSettingsToControl_CheckChanged);
             // 
             // ConfigureTileStresstest
