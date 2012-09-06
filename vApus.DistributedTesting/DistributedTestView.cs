@@ -609,13 +609,17 @@ namespace vApus.DistributedTesting
         }
         private void _distributedTestCore_TestProgressMessageReceivedEventArgs(object sender, TestProgressMessageReceivedEventArgs e)
         {
+            Handle_distributedTestCore_TestProgressMessageReceivedEventArgs(e.TileStresstest, e.TestProgressMessage);
+        }
+        private void Handle_distributedTestCore_TestProgressMessageReceivedEventArgs(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
+        {
             DateTime beginOfTimeFrame, endOfTimeFrame;
             GetTimeFrame(out beginOfTimeFrame, out endOfTimeFrame);
 
             if (_selectedTestItem != null && _selectedTestItem is TileStresstestTreeViewItem &&
-                (_selectedTestItem as TileStresstestTreeViewItem).TileStresstest == e.TileStresstest)
+                (_selectedTestItem as TileStresstestTreeViewItem).TileStresstest == tileStresstest)
             {
-                SetSlaveProgress(e.TileStresstest, e.TestProgressMessage);
+                SetSlaveProgress(tileStresstest, testProgressMessage);
 
                 tmrProgressDelayCountDown.Stop();
                 _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
@@ -624,7 +628,7 @@ namespace vApus.DistributedTesting
             }
 
             SetOverallProgress();
-            SetSlaveProgressInTreeView(e.TileStresstest, e.TestProgressMessage);
+            SetSlaveProgressInTreeView(tileStresstest, testProgressMessage);
         }
         private void SetOverallProgress()
         {
@@ -710,7 +714,7 @@ namespace vApus.DistributedTesting
                     tileStresstest.AdvancedTileStresstest.Shuffle, tileStresstest.AdvancedTileStresstest.Distribute);
             }
         }
-        public void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
+        private void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
         {
             lock (_lock)
             {
@@ -801,6 +805,28 @@ namespace vApus.DistributedTesting
         {
             //Stop the distributed test (it is not valid anymore if a slave fails)
             btnStop_Click(btnStop, null);
+
+            //Update the stresstest result for the failed test and set the gui.
+            foreach (TileStresstest tileStresstest in _distributedTestCore.TestProgressMessages.Keys)
+            {
+                bool found = false;
+                foreach(Slave slave in tileStresstest.BasicTileStresstest.Slaves)
+                    if (slave.IP == e.SlaveIP && slave.Port == e.SlavePort)
+                    {
+                        if (_distributedTestCore.TestProgressMessages.ContainsKey(tileStresstest))
+                        {
+                            var testProgressMessage = _distributedTestCore.TestProgressMessages[tileStresstest];
+                            testProgressMessage.StresstestResult = StresstestResult.Error;
+                            _distributedTestCore.TestProgressMessages[tileStresstest] = testProgressMessage;
+
+                            Handle_distributedTestCore_TestProgressMessageReceivedEventArgs(tileStresstest, testProgressMessage);
+                        }
+                        found = true;
+                        break;
+                    }
+                if (found)
+                    break;
+            }
         }
         private void _distributedTestCore_ResultsDownloadProgressUpdated(object sender, ResultsDownloadProgressUpdatedEventArgs e)
         {
