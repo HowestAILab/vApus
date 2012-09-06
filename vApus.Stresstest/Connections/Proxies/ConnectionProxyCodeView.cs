@@ -76,6 +76,9 @@ namespace vApus.Stresstest
             _dllreferences.ReadOnly = true;
             document.Add(_dllreferences);
 
+            CodeBlock preprocessors = new CodeBlock("#region Preprocessors", "#endregion //Preprocessors", true);
+            document.Add(preprocessors);
+
             CodeBlock defaultUsings = new CodeBlock("#region Default Usings", "#endregion //Default Usings", true);
             defaultUsings.ReadOnly = true;
             document.Add(defaultUsings);
