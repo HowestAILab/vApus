@@ -128,6 +128,7 @@ namespace vApus.DistributedTesting
             }
         }
         [PropertyControl(2)]
+        [Description("Currently limited to one (only the first one counts). More than one slave will be handy in the future for many-to-one testing.")]
         public Slave[] Slaves
         {
             get
