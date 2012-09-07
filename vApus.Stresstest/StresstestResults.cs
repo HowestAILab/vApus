@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using vApus.Util;
+using System.Threading;
 
 namespace vApus.Stresstest
 {
@@ -222,6 +223,8 @@ namespace vApus.Stresstest
                 _metrics.TotalLogEntriesProcessedPerTick = 0;
                 _metrics.Errors = 0;
 
+                ulong totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
+
                 foreach (ConcurrentUsersResult result in ConcurrentUsersResults)
                 {
                     result.RefreshLogEntryResultMetrics();
@@ -231,10 +234,15 @@ namespace vApus.Stresstest
                     if (resultMetrics.MaxTimeToLastByte > _metrics.MaxTimeToLastByte)
                         _metrics.MaxTimeToLastByte = resultMetrics.MaxTimeToLastByte;
                     _metrics.AverageDelay = _metrics.AverageDelay.Add(resultMetrics.AverageDelay);
-                    _metrics.TotalLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
+                    totalAndExtraLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
                     _metrics.TotalLogEntriesProcessedPerTick += resultMetrics.TotalLogEntriesProcessedPerTick;
                     _metrics.Errors += resultMetrics.Errors;
                 }
+                if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
+                    _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
+
+                _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
+                
                 _metrics.TotalLogEntriesProcessedPerTick /= ConcurrentUsersResults.Count;
                 _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / ConcurrentUsersResults.Count);
                 _metrics.AverageDelay = new TimeSpan(_metrics.AverageDelay.Ticks / ConcurrentUsersResults.Count);
@@ -442,6 +450,8 @@ namespace vApus.Stresstest
             _metrics.TotalLogEntriesProcessed = 0;
             _metrics.TotalLogEntriesProcessedPerTick = 0;
             _metrics.Errors = 0;
+            
+            ulong totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
 
             foreach (PrecisionResult result in PrecisionResults)
             {
@@ -452,10 +462,15 @@ namespace vApus.Stresstest
                 if (resultMetrics.MaxTimeToLastByte > _metrics.MaxTimeToLastByte)
                     _metrics.MaxTimeToLastByte = resultMetrics.MaxTimeToLastByte;
                 _metrics.AverageDelay = _metrics.AverageDelay.Add(resultMetrics.AverageDelay);
-                _metrics.TotalLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
+                totalAndExtraLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
                 _metrics.TotalLogEntriesProcessedPerTick += resultMetrics.TotalLogEntriesProcessedPerTick;
                 _metrics.Errors += resultMetrics.Errors;
             }
+            if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
+                _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
+
+            _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
+
             _metrics.TotalLogEntriesProcessedPerTick /= PrecisionResults.Count;
             _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / PrecisionResults.Count);
             //_metrics.Percentile90MaxTimeToLastByte = new TimeSpan((long)((double)_metrics.MaxTimeToLastByte.Ticks * 0.9));
@@ -863,6 +878,8 @@ namespace vApus.Stresstest
             _metrics.TotalLogEntriesProcessedPerTick = 0;
             _metrics.Errors = 0;
 
+            ulong totalAndExtraLogEntriesProcessed = 0; //For run sync break on last.
+
             foreach (RunResult result in RunResults)
             {
                 result.RefreshLogEntryResultMetrics();
@@ -872,10 +889,16 @@ namespace vApus.Stresstest
                 if (resultMetrics.MaxTimeToLastByte > _metrics.MaxTimeToLastByte)
                     _metrics.MaxTimeToLastByte = resultMetrics.MaxTimeToLastByte;
                 _metrics.AverageDelay = _metrics.AverageDelay.Add(resultMetrics.AverageDelay);
-                _metrics.TotalLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
+
+                totalAndExtraLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
                 _metrics.TotalLogEntriesProcessedPerTick += resultMetrics.TotalLogEntriesProcessedPerTick;
                 _metrics.Errors += resultMetrics.Errors;
             }
+            if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
+                _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
+
+            _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
+
             _metrics.TotalLogEntriesProcessedPerTick /= RunResults.Count;
             _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / RunResults.Count);
             //_metrics.Percentile90MaxTimeToLastByte = new TimeSpan((long)((double)_metrics.MaxTimeToLastByte.Ticks * 0.9));
@@ -1193,6 +1216,7 @@ namespace vApus.Stresstest
         /// </summary>
         private bool _runDoneOnce;
         private Dictionary<DateTime, DateTime> _runStartedAndStopped = new Dictionary<DateTime, DateTime>();
+        private long _extraLogEntriesProcessed;
         public UserResult[] UserResults;
         #endregion
 
@@ -1285,6 +1309,13 @@ namespace vApus.Stresstest
         {
             get { return _runDoneOnce; }
         }
+        /// <summary>
+        /// The count of the log entries processed after the run was done once (Break on last run sync).
+        /// </summary>
+        public long ExtraLogEntriesProcessed
+        {
+            get { return _extraLogEntriesProcessed; }
+        }
         #endregion
 
         #region Constructors
@@ -1356,6 +1387,10 @@ namespace vApus.Stresstest
         {
             _runDoneOnce = true;
         }
+        public void IncrementExtraLogEntriesProcessed()
+        {
+            Interlocked.Increment(ref _extraLogEntriesProcessed);
+        }
         public void RefreshLogEntryResultMetrics()
         {
             _metrics.MeasuredRunTime = _sw.Elapsed;
@@ -1389,6 +1424,13 @@ namespace vApus.Stresstest
                 _metrics.TotalLogEntriesProcessedPerTick += resultLogEntriesProcessedPerTick;
                 _metrics.Errors += resultErrors;
             }
+
+            ulong totalAndExtraLogEntriesProcessed = _metrics.TotalLogEntriesProcessed + (ulong)_extraLogEntriesProcessed;
+            //Can be the case with break on last run sync.
+            if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
+                _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
+
+            _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
 
             if (enteredUserResultsCount != 0)
             {
@@ -1958,7 +2000,14 @@ namespace vApus.Stresstest
                 SentAt = sr.ReadDateTime();
                 TimeToLastByte = sr.ReadTimeSpan();
                 DelayInMilliseconds = sr.ReadInt32();
-                Exception = sr.ReadObject() as Exception;
+                try
+                {
+                    Exception = sr.ReadObject() as Exception;
+                }
+                catch (Exception ex)
+                {
+                    Exception = new Exception("The real exception could not be read because a connection proxy prerequisite is missing:\n" +ex.ToString());
+                }
             }
         }
         #endregion

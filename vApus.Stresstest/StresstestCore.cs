@@ -337,7 +337,7 @@ namespace vApus.Stresstest
                         {
                             SetRunDoneOnce();
 
-                            InvokeMessage("Initializing Rerun... (No further results will be added, only rerunning to keep load on the server and application)");
+                            InvokeMessage("Initializing Rerun... (No further results will be added, only rerunning to keep load on the server and application. However the processed log entries value will increase.)");
                             //No results can be added.
                             _stresstestResults.SetCurrentRunDoneOnce();
                             goto Rerun;
@@ -727,8 +727,13 @@ namespace vApus.Stresstest
                 {
                     UserResult result = runResult[threadIndex];
 
-                    //Meaning if not run done once (run sync break on last)
-                    if (result != null)
+                    //Meaning if run done once (run sync break on last)
+                    //In that case just increase the numer of done log entries.
+                    if (result == null)
+                    {
+                        runResult.IncrementExtraLogEntriesProcessed();
+                    }
+                    else
                     {
                         result.User = Thread.CurrentThread.Name;
                         result.SetLogEntryResultAt(testableLogEntryIndex, new LogEntryResult(testableLogEntry.LogEntryIndex, testableLogEntry.ParameterizedLogEntryString, testableLogEntry.UserActionIndex, testableLogEntry.UserAction, sentAt, timeToLastByte, delay, exception));
