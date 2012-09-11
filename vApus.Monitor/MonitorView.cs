@@ -182,8 +182,6 @@ namespace vApus.Monitor
             if (exception != null)
             {
                 string message = "Could not connect to the monitor client.";
-                if (!_forStresstest)
-                    MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
             }
 
@@ -354,8 +352,16 @@ namespace vApus.Monitor
 
                 PushSavedWiW();
 
-                llblCheckAllVisible.Enabled = tvwCounters.Nodes.Count != 0;
+                llblUncheckAllVisible.Enabled = HasCheckedNodes();
+                llblCheckAllVisible.Enabled = !llblUncheckAllVisible.Enabled;
             }
+        }
+        private bool HasCheckedNodes()
+        {
+            foreach (TreeNode node in tvwCounters.Nodes)
+                if (node.Checked)
+                    return true;
+            return false;
         }
         /// <summary>
         /// 
@@ -580,7 +586,8 @@ namespace vApus.Monitor
             try
             {
                 txtFilter.Text = _monitor.Filter.Combine(", ");
-                llblCheckAllVisible.Enabled = tvwCounters.Nodes.Count != 0;
+                llblUncheckAllVisible.Enabled = HasCheckedNodes();
+                llblCheckAllVisible.Enabled = !llblUncheckAllVisible.Enabled;
             }
             catch { }
         }
@@ -890,6 +897,41 @@ namespace vApus.Monitor
                 LockWindowUpdate(0);
             }
         }
+        private void llblUncheckAllVisible_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            LockWindowUpdate(this.Handle.ToInt32());
+            try
+            {
+                tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
+
+                foreach (TreeNode counterNode in tvwCounters.Nodes)
+                {
+                    counterNode.Checked = false;
+                    foreach (TreeNode node in counterNode.Nodes)
+                        node.Checked = false;
+
+                    if (counterNode.Tag != null)
+                    {
+                        TreeNode[] counterNodes = counterNode.Tag as TreeNode[];
+                        foreach (TreeNode node in counterNodes)
+                            node.Checked = false;
+                    }
+
+                    ApplyToWIW(counterNode);
+                }
+
+                tvwCounters.AfterCheck += tvwCounter_AfterCheck;
+                SetChosenCountersInListViewItems();
+
+                btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+            }
+            catch { throw; }
+            finally
+            {
+                LockWindowUpdate(0);
+            }
+        }
+
         private void tvwCounter_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             AddNodesFromTag(e.Node);

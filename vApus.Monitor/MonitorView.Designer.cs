@@ -56,7 +56,6 @@
             this.split = new System.Windows.Forms.SplitContainer();
             this.lblMonitorSourceMismatch = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.parameterPanel = new vApus.Monitor.MonitorParameterPanel();
             this.propertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnConfiguration = new System.Windows.Forms.Button();
             this.btnGetCounters = new System.Windows.Forms.Button();
@@ -77,11 +76,13 @@
             this.txtFilterMonitorControlColumns = new System.Windows.Forms.TextBox();
             this.btnSaveFilteredMonitoredCounters = new System.Windows.Forms.Button();
             this.btnSaveAllMonitorCounters = new System.Windows.Forms.Button();
-            this.monitorControl = new vApus.Monitor.MonitorControl();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.llblUncheckAllVisible = new System.Windows.Forms.LinkLabel();
+            this.parameterPanel = new vApus.Monitor.MonitorParameterPanel();
+            this.monitorControl = new vApus.Monitor.MonitorControl();
             this.toolStrip.SuspendLayout();
             this.tpConfigure.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
@@ -93,8 +94,8 @@
             this.tpMonitor.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picFilterMonitorControlColumns)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.monitorControl)).BeginInit();
             this.tc.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.monitorControl)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip
@@ -159,7 +160,7 @@
             this.btnLocalOrRemoteSMT.Size = new System.Drawing.Size(98, 37);
             this.btnLocalOrRemoteSMT.Text = "SMT: <local>";
             this.btnLocalOrRemoteSMT.ToolTipText = "Use the local server monitoring binaries or connect to a remote vApus Server Moni" +
-    "toring Tool running somewhere in the network.";
+                "toring Tool running somewhere in the network.";
             this.btnLocalOrRemoteSMT.Visible = false;
             this.btnLocalOrRemoteSMT.Click += new System.EventHandler(this.btnLocalOrRemoteSMT_Click);
             // 
@@ -210,8 +211,8 @@
             // 
             // lblMonitorSourceMismatch
             // 
-            this.lblMonitorSourceMismatch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblMonitorSourceMismatch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.lblMonitorSourceMismatch.AutoEllipsis = true;
             this.lblMonitorSourceMismatch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.lblMonitorSourceMismatch.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -220,9 +221,9 @@
             this.lblMonitorSourceMismatch.Size = new System.Drawing.Size(636, 13);
             this.lblMonitorSourceMismatch.TabIndex = 9;
             this.lblMonitorSourceMismatch.Text = "These counters are not valid for the chosen monitor source, undo your previous ac" +
-    "tion or \'get\' the counters again.";
+                "tion or \'get\' the counters again.";
             this.toolTip.SetToolTip(this.lblMonitorSourceMismatch, "These counters are not valid for the chosen monitor source, undo your previous ac" +
-        "tion or \'get\' the counters again.");
+                    "tion or \'get\' the counters again.");
             this.lblMonitorSourceMismatch.Visible = false;
             // 
             // label4
@@ -237,24 +238,11 @@
             this.label4.TabIndex = 8;
             this.label4.Text = "Monitor Source Parameters";
             // 
-            // parameterPanel
-            // 
-            this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.parameterPanel.AutoSelectControl = false;
-            this.parameterPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.parameterPanel.Location = new System.Drawing.Point(597, 23);
-            this.parameterPanel.Name = "parameterPanel";
-            this.parameterPanel.ParametersWithValues = null;
-            this.parameterPanel.Size = new System.Drawing.Size(404, 291);
-            this.parameterPanel.TabIndex = 1;
-            this.parameterPanel.ParameterValueChanged += new System.EventHandler(this.parameterPanel_ParameterValueChanged);
-            // 
             // propertyPanel
             // 
-            this.propertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.propertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyPanel.BackColor = System.Drawing.Color.Transparent;
             this.propertyPanel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.propertyPanel.Location = new System.Drawing.Point(3, 3);
@@ -299,15 +287,16 @@
             // 
             // panel1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.llblUncheckAllVisible);
             this.panel1.Controls.Add(this.picFilter);
             this.panel1.Controls.Add(this.llblCheckAllVisible);
             this.panel1.Controls.Add(this.txtFilter);
             this.panel1.Location = new System.Drawing.Point(362, 4);
             this.panel1.MinimumSize = new System.Drawing.Size(227, 21);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(235, 21);
+            this.panel1.Size = new System.Drawing.Size(355, 21);
             this.panel1.TabIndex = 1;
             // 
             // picFilter
@@ -323,7 +312,7 @@
             this.picFilter.TabIndex = 8;
             this.picFilter.TabStop = false;
             this.toolTip.SetToolTip(this.picFilter, "Type comma to split filter entries and \'return\' to submit. Wild card * can be use" +
-        "d. Not case sensitive.\r\nAll entries are in OR-relation with each other.");
+                    "d. Not case sensitive.\r\nAll entries are in OR-relation with each other.");
             this.picFilter.Click += new System.EventHandler(this.picFilter_Click);
             // 
             // llblCheckAllVisible
@@ -333,6 +322,7 @@
             this.llblCheckAllVisible.AutoSize = true;
             this.llblCheckAllVisible.BackColor = System.Drawing.SystemColors.Control;
             this.llblCheckAllVisible.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.llblCheckAllVisible.Enabled = false;
             this.llblCheckAllVisible.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.llblCheckAllVisible.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.llblCheckAllVisible.LinkColor = System.Drawing.Color.Black;
@@ -350,8 +340,8 @@
             // 
             // txtFilter
             // 
-            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFilter.HideSelection = false;
             this.txtFilter.Location = new System.Drawing.Point(1, 1);
             this.txtFilter.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
@@ -361,14 +351,14 @@
             this.txtFilter.TabIndex = 0;
             this.txtFilter.TabStop = false;
             this.toolTip.SetToolTip(this.txtFilter, "Type comma to split filter entries and \'return\' to submit. Wild card * can be use" +
-        "d. Not case sensitive.\r\nAll entries are in OR-relation with each other.");
+                    "d. Not case sensitive.\r\nAll entries are in OR-relation with each other.");
             this.txtFilter.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFilter_KeyDown);
             this.txtFilter.Leave += new System.EventHandler(this.txtFilter_Leave);
             // 
             // lvwEntities
             // 
-            this.lvwEntities.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.lvwEntities.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)));
             this.lvwEntities.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lvwEntities.CheckBoxes = true;
             this.lvwEntities.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -382,7 +372,7 @@
             this.lvwEntities.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lvwEntities.MultiSelect = false;
             this.lvwEntities.Name = "lvwEntities";
-            this.lvwEntities.Size = new System.Drawing.Size(353, 342);
+            this.lvwEntities.Size = new System.Drawing.Size(353, 344);
             this.lvwEntities.SmallImageList = this.imgListEntityState;
             this.lvwEntities.TabIndex = 0;
             this.lvwEntities.UseCompatibleStateImageBehavior = false;
@@ -415,15 +405,15 @@
             // 
             // tvwCounters
             // 
-            this.tvwCounters.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tvwCounters.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tvwCounters.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tvwCounters.CheckBoxes = true;
             this.tvwCounters.Location = new System.Drawing.Point(359, 33);
             this.tvwCounters.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.tvwCounters.Name = "tvwCounters";
-            this.tvwCounters.Size = new System.Drawing.Size(642, 312);
+            this.tvwCounters.Size = new System.Drawing.Size(642, 314);
             this.tvwCounters.TabIndex = 2;
             this.tvwCounters.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwCounter_AfterCheck);
             this.tvwCounters.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwCounter_BeforeExpand);
@@ -445,8 +435,8 @@
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.Controls.Add(this.lblCountDown);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(208, 47);
@@ -481,13 +471,13 @@
             this.picFilterMonitorControlColumns.TabIndex = 11;
             this.picFilterMonitorControlColumns.TabStop = false;
             this.toolTip.SetToolTip(this.picFilterMonitorControlColumns, "Type comma to split filter entries and \'return\' to submit. Wild card * can be use" +
-        "d. Not case sensitive.\r\nAll entries are in OR-relation with each other.");
+                    "d. Not case sensitive.\r\nAll entries are in OR-relation with each other.");
             this.picFilterMonitorControlColumns.Click += new System.EventHandler(this.picFilterMonitorControlColumns_Click);
             // 
             // txtFilterMonitorControlColumns
             // 
-            this.txtFilterMonitorControlColumns.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtFilterMonitorControlColumns.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFilterMonitorControlColumns.HideSelection = false;
             this.txtFilterMonitorControlColumns.Location = new System.Drawing.Point(12, 16);
             this.txtFilterMonitorControlColumns.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
@@ -496,7 +486,7 @@
             this.txtFilterMonitorControlColumns.TabIndex = 0;
             this.txtFilterMonitorControlColumns.TabStop = false;
             this.toolTip.SetToolTip(this.txtFilterMonitorControlColumns, "Type comma to split filter entries and \'return\' to submit. Wild card * can be use" +
-        "d. Not case sensitive.\r\nAll entries are in OR-relation with each other.");
+                    "d. Not case sensitive.\r\nAll entries are in OR-relation with each other.");
             this.txtFilterMonitorControlColumns.TextChanged += new System.EventHandler(this.txtFilterMonitorControlColumns_TextChanged);
             this.txtFilterMonitorControlColumns.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFilterMonitorControlColumns_KeyDown);
             this.txtFilterMonitorControlColumns.Leave += new System.EventHandler(this.txtFilterMonitorControlColumns_Leave);
@@ -516,7 +506,7 @@
             this.btnSaveFilteredMonitoredCounters.TabIndex = 1;
             this.btnSaveFilteredMonitoredCounters.Text = "Save Filtered...";
             this.toolTip.SetToolTip(this.btnSaveFilteredMonitoredCounters, "To filter the counters in a (large) counter collection. Wild card * can be used. " +
-        "Not case sensitive. All entries are in OR-relation with each other.");
+                    "Not case sensitive. All entries are in OR-relation with each other.");
             this.btnSaveFilteredMonitoredCounters.UseVisualStyleBackColor = false;
             this.btnSaveFilteredMonitoredCounters.Click += new System.EventHandler(this.btnSaveFilteredMonitoredCounters_Click);
             // 
@@ -535,40 +525,15 @@
             this.btnSaveAllMonitorCounters.TabIndex = 2;
             this.btnSaveAllMonitorCounters.Text = "Save All...";
             this.toolTip.SetToolTip(this.btnSaveAllMonitorCounters, "To filter the counters in a (large) counter collection. Wild card * can be used. " +
-        "Not case sensitive. All entries are in OR-relation with each other.");
+                    "Not case sensitive. All entries are in OR-relation with each other.");
             this.btnSaveAllMonitorCounters.UseVisualStyleBackColor = false;
             this.btnSaveAllMonitorCounters.Click += new System.EventHandler(this.btnSaveAllMonitorCounters_Click);
             // 
-            // monitorControl
-            // 
-            this.monitorControl.AllowUserToAddRows = false;
-            this.monitorControl.AllowUserToDeleteRows = false;
-            this.monitorControl.AllowUserToResizeRows = false;
-            this.monitorControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.monitorControl.BackgroundColor = System.Drawing.Color.White;
-            this.monitorControl.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.monitorControl.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
-            this.monitorControl.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.monitorControl.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.monitorControl.DoubleBuffered = true;
-            this.monitorControl.EnableHeadersVisualStyles = false;
-            this.monitorControl.Font = new System.Drawing.Font("Consolas", 9.75F);
-            this.monitorControl.Location = new System.Drawing.Point(0, 80);
-            this.monitorControl.Name = "monitorControl";
-            this.monitorControl.ReadOnly = true;
-            this.monitorControl.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.monitorControl.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.monitorControl.Size = new System.Drawing.Size(1007, 615);
-            this.monitorControl.TabIndex = 3;
-            this.monitorControl.VirtualMode = true;
-            // 
             // tc
             // 
-            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpConfigure);
             this.tc.Controls.Add(this.tpMonitor);
@@ -596,6 +561,67 @@
             // 
             this.saveFileDialog.Filter = "TXT Files | *.txt";
             // 
+            // llblUncheckAllVisible
+            // 
+            this.llblUncheckAllVisible.ActiveLinkColor = System.Drawing.Color.Black;
+            this.llblUncheckAllVisible.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.llblUncheckAllVisible.AutoSize = true;
+            this.llblUncheckAllVisible.BackColor = System.Drawing.SystemColors.Control;
+            this.llblUncheckAllVisible.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.llblUncheckAllVisible.Enabled = false;
+            this.llblUncheckAllVisible.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llblUncheckAllVisible.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.llblUncheckAllVisible.LinkColor = System.Drawing.Color.Black;
+            this.llblUncheckAllVisible.Location = new System.Drawing.Point(236, 1);
+            this.llblUncheckAllVisible.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.llblUncheckAllVisible.MinimumSize = new System.Drawing.Size(2, 20);
+            this.llblUncheckAllVisible.Name = "llblUncheckAllVisible";
+            this.llblUncheckAllVisible.Size = new System.Drawing.Size(117, 20);
+            this.llblUncheckAllVisible.TabIndex = 9;
+            this.llblUncheckAllVisible.TabStop = true;
+            this.llblUncheckAllVisible.Text = "Uncheck all visible";
+            this.llblUncheckAllVisible.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.llblUncheckAllVisible.VisitedLinkColor = System.Drawing.Color.Black;
+            this.llblUncheckAllVisible.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblUncheckAllVisible_LinkClicked);
+            // 
+            // parameterPanel
+            // 
+            this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.parameterPanel.AutoSelectControl = false;
+            this.parameterPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.parameterPanel.Location = new System.Drawing.Point(597, 23);
+            this.parameterPanel.Name = "parameterPanel";
+            this.parameterPanel.ParametersWithValues = null;
+            this.parameterPanel.Size = new System.Drawing.Size(404, 291);
+            this.parameterPanel.TabIndex = 1;
+            this.parameterPanel.ParameterValueChanged += new System.EventHandler(this.parameterPanel_ParameterValueChanged);
+            // 
+            // monitorControl
+            // 
+            this.monitorControl.AllowUserToAddRows = false;
+            this.monitorControl.AllowUserToDeleteRows = false;
+            this.monitorControl.AllowUserToResizeRows = false;
+            this.monitorControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.monitorControl.BackgroundColor = System.Drawing.Color.White;
+            this.monitorControl.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.monitorControl.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleVertical;
+            this.monitorControl.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.monitorControl.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.monitorControl.DoubleBuffered = true;
+            this.monitorControl.EnableHeadersVisualStyles = false;
+            this.monitorControl.Font = new System.Drawing.Font("Consolas", 9.75F);
+            this.monitorControl.Location = new System.Drawing.Point(0, 80);
+            this.monitorControl.Name = "monitorControl";
+            this.monitorControl.ReadOnly = true;
+            this.monitorControl.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.monitorControl.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.monitorControl.Size = new System.Drawing.Size(1007, 615);
+            this.monitorControl.TabIndex = 3;
+            this.monitorControl.VirtualMode = true;
+            // 
             // MonitorView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -622,8 +648,8 @@
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picFilterMonitorControlColumns)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.monitorControl)).EndInit();
             this.tc.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.monitorControl)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -667,5 +693,6 @@
         private System.Windows.Forms.TextBox txtFilterMonitorControlColumns;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.LinkLabel llblUncheckAllVisible;
     }
 }
