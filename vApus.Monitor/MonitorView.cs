@@ -353,13 +353,20 @@ namespace vApus.Monitor
                 PushSavedWiW();
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
-                llblCheckAllVisible.Enabled = !llblUncheckAllVisible.Enabled;
+                llblCheckAllVisible.Enabled = HasUncheckedNodes();
             }
         }
         private bool HasCheckedNodes()
         {
             foreach (TreeNode node in tvwCounters.Nodes)
                 if (node.Checked)
+                    return true;
+            return false;
+        }
+        private bool HasUncheckedNodes()
+        {
+            foreach (TreeNode node in tvwCounters.Nodes)
+                if (!node.Checked)
                     return true;
             return false;
         }
@@ -587,7 +594,7 @@ namespace vApus.Monitor
             {
                 txtFilter.Text = _monitor.Filter.Combine(", ");
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
-                llblCheckAllVisible.Enabled = !llblUncheckAllVisible.Enabled;
+                llblCheckAllVisible.Enabled = HasUncheckedNodes();
             }
             catch { }
         }
@@ -890,6 +897,9 @@ namespace vApus.Monitor
                 SetChosenCountersInListViewItems();
 
                 btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+
+                llblUncheckAllVisible.Enabled = HasCheckedNodes();
+                llblCheckAllVisible.Enabled = HasUncheckedNodes();
             }
             catch { throw; }
             finally
@@ -924,6 +934,10 @@ namespace vApus.Monitor
                 SetChosenCountersInListViewItems();
 
                 btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+
+                llblUncheckAllVisible.Enabled = HasCheckedNodes();
+                llblCheckAllVisible.Enabled = HasUncheckedNodes();
+
             }
             catch { throw; }
             finally
