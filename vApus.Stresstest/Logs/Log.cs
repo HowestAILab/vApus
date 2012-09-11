@@ -96,7 +96,10 @@ namespace vApus.Stresstest
                 LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+
+            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
+
         /// <summary>
         /// Only for sending from master to slave.
         /// </summary>
@@ -132,7 +135,11 @@ namespace vApus.Stresstest
         {
             LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
-
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
+        {
+            if (sender is LogRuleSets)
+                LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+        }
         public override void Activate()
         {
             SolutionComponentViewManager.Show(this);
