@@ -70,7 +70,8 @@ namespace vApus.Gui
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
-                if (Solution.ShowStresstestingSolutionExplorer())
+                if (Solution.ShowStresstestingSolutionExplorer() && 
+                    global::vApus.Gui.Properties.Settings.Default.GreetWithWelcomePage == true)
                     _welcome.Show(dockPanel);
                 OnActiveSolutionChanged(null);
 
@@ -314,6 +315,9 @@ namespace vApus.Gui
         private void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _welcome.Show(dockPanel);
+            //Show it again the next time.
+            global::vApus.Gui.Properties.Settings.Default.GreetWithWelcomePage = true;
+            global::vApus.Gui.Properties.Settings.Default.Save();
         }
         private void stresstestingSolutionExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {

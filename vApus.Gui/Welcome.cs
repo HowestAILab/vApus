@@ -27,5 +27,18 @@ namespace vApus.Gui
             if (File.Exists(path))
                 webBrowser.Navigate(path);
         }
+
+        private void Welcome_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (this.Visible)
+            {
+                //Do not show the next time if you don't want to
+                global::vApus.Gui.Properties.Settings.Default.GreetWithWelcomePage =
+                     MessageBox.Show("Do not show the welcome page the next time vApus is started?", string.Empty,
+                     MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Cancel;
+
+                global::vApus.Gui.Properties.Settings.Default.Save();
+            }
+        }
     }
 }
