@@ -92,10 +92,16 @@ namespace vApus.Util
             password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
             channel = vApus.Util.Properties.Settings.Default.Channel;
 
-            //Trust the one in version.ini before the one in the settings.
-            string versionIni = Path.Combine(Application.StartupPath, "version.ini");
-            if (File.Exists(versionIni))
-                channel = GetChannel(Path.Combine(Application.StartupPath, "version.ini")) == "Stable" ? 0 : 1;
+            //If there is no channel set get it from the version.ini.
+            if (channel == -1)
+            {
+                string versionIni = Path.Combine(Application.StartupPath, "version.ini");
+                if (File.Exists(versionIni))
+                    channel = GetChannel(Path.Combine(Application.StartupPath, "version.ini")) == "Stable" ? 0 : 1;
+            }
+            //If there is no version.ini set the channel to stable.
+            if (channel == -1)
+                channel = 0;
         }
 
         /// <summary>
