@@ -14,6 +14,8 @@ namespace vApus.Gui
 {
     public partial class Welcome : DockablePanel
     {
+        private bool _formClosingEventHandlingEnabled = true;
+
         public Welcome()
         {
             InitializeComponent();
@@ -21,7 +23,7 @@ namespace vApus.Gui
             HandleCreated += new EventHandler(Welcome_HandleCreated);
         }
 
-        void Welcome_HandleCreated(object sender, EventArgs e)
+        private void Welcome_HandleCreated(object sender, EventArgs e)
         {
             string path = Path.Combine(Application.StartupPath, "Welcome\\welcome.htm");
             if (File.Exists(path))
@@ -30,7 +32,7 @@ namespace vApus.Gui
 
         private void Welcome_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (this.Visible)
+            if (_formClosingEventHandlingEnabled)
             {
                 //Do not show the next time if you don't want to
                 global::vApus.Gui.Properties.Settings.Default.GreetWithWelcomePage =
@@ -39,6 +41,11 @@ namespace vApus.Gui
 
                 global::vApus.Gui.Properties.Settings.Default.Save();
             }
+        }
+
+        public void DisableFormClosingEventHandling()
+        {
+            _formClosingEventHandlingEnabled = false;
         }
     }
 }

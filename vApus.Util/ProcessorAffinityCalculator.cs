@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace vApus.Util
 {
@@ -14,6 +15,14 @@ namespace vApus.Util
     /// </summary>
     public static class ProcessorAffinityCalculator
     {
+        /// <summary>
+        /// to know how much cores a group contains
+        /// </summary>
+        /// <param name="groupNumber">the group number if any, or ALL_PROCESSOR_GROUPS (0xffff) for every group</param>
+        /// <returns></returns>
+        [DllImport("kernel32.dll")]
+        public static extern uint GetActiveProcessorCount(ushort groupNumber);
+
         /// <summary>
         /// Converts from a hex bitmask to an array of cpu's this process its affinity is set to.
         /// </summary>
@@ -23,8 +32,8 @@ namespace vApus.Util
         {
             //To check if the bitmask contains the cpu's a binairy and is used.
             List<int> cpus = new List<int>();
-            int iBitmask = bitmask.ToInt32();
-            for (int i = 0; i < Environment.ProcessorCount; i++)
+            long iBitmask = bitmask.ToInt64();
+            for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++)        //(0xFFFF) to include all processor groups
                 if ((iBitmask & (int)Math.Pow(2, i)) > 0)
                     cpus.Add(i);
             return cpus.ToArray();

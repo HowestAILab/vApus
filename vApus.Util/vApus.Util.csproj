@@ -258,6 +258,9 @@
     <Compile Include="ControlsAndPanels\ScrollablePanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ControlsAndPanels\ToolStripStatusSpringLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.cs">
       <SubType>Form</SubType>
     </Compile>

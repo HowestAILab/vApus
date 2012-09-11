@@ -81,8 +81,6 @@
             this.lblLocalization = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblProcessorAffinity = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel9 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblSocketListener = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -92,6 +90,7 @@
             this.lblMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
             this.tmrSetStatusStrip = new System.Windows.Forms.Timer(this.components);
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.lblProcessorAffinity = new vApus.Util.ToolStripStatusSpringLabel();
             this.mainMenu.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -317,13 +316,12 @@
             this.toolStripStatusLabel3,
             this.toolStripStatusLabel4,
             this.lblLocalization,
+            this.toolStripStatusLabel10,
+            this.toolStripStatusLabel1,
+            this.lblSocketListener,
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel2,
             this.lblProcessorAffinity,
-            this.toolStripStatusLabel9,
-            this.toolStripStatusLabel1,
-            this.lblSocketListener,
-            this.toolStripStatusLabel10,
             this.toolStripStatusLabel12,
             this.lblCleanTempData,
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled,
@@ -405,21 +403,6 @@
             this.toolStripStatusLabel2.Size = new System.Drawing.Size(103, 17);
             this.toolStripStatusLabel2.Text = "Processor Affinity:";
             // 
-            // lblProcessorAffinity
-            // 
-            this.lblProcessorAffinity.IsLink = true;
-            this.lblProcessorAffinity.Name = "lblProcessorAffinity";
-            this.lblProcessorAffinity.Size = new System.Drawing.Size(16, 17);
-            this.lblProcessorAffinity.Text = "...";
-            this.lblProcessorAffinity.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lblProcessorAffinity.Click += new System.EventHandler(this.lblProcessorAffinity_Click);
-            // 
-            // toolStripStatusLabel9
-            // 
-            this.toolStripStatusLabel9.Name = "toolStripStatusLabel9";
-            this.toolStripStatusLabel9.Size = new System.Drawing.Size(10, 17);
-            this.toolStripStatusLabel9.Text = "|";
-            // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
@@ -482,9 +465,9 @@
             // dockPanel
             // 
             this.dockPanel.ActiveAutoHideContent = null;
-            this.dockPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dockPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.dockPanel.DockBackColor = System.Drawing.SystemColors.Control;
             this.dockPanel.Location = new System.Drawing.Point(0, 24);
             this.dockPanel.Name = "dockPanel";
@@ -534,6 +517,17 @@
             dockPanelSkin1.DockPaneStripSkin = dockPaneStripSkin1;
             this.dockPanel.Skin = dockPanelSkin1;
             this.dockPanel.TabIndex = 1;
+            // 
+            // lblProcessorAffinity
+            // 
+            this.lblProcessorAffinity.IsLink = true;
+            this.lblProcessorAffinity.Name = "lblProcessorAffinity";
+            this.lblProcessorAffinity.Size = new System.Drawing.Size(365, 17);
+            this.lblProcessorAffinity.Spring = true;
+            this.lblProcessorAffinity.Text = "...";
+            this.lblProcessorAffinity.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblProcessorAffinity.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lblProcessorAffinity.Click += new System.EventHandler(this.lblProcessorAffinity_Click);
             // 
             // MainWindow
             // 
@@ -603,8 +597,7 @@
         private System.Windows.Forms.ToolStripMenuItem reportToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
         private System.Windows.Forms.ToolStripStatusLabel lblUpdateNotifier;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel9;
-        private System.Windows.Forms.ToolStripStatusLabel lblProcessorAffinity;
+        private vApus.Util.ToolStripStatusSpringLabel lblProcessorAffinity;
         private System.Windows.Forms.Timer tmrSetStatusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel12;

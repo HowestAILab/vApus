@@ -33,8 +33,8 @@ namespace vApus.Gui
         private UpdateNotifierPanel _updateNotifierPanel;
         private LogPanel _logPanel;
         private LogErrorToolTip _logErrorToolTip;
-        private LocalizationPanel _localizationPanel;
         private ProcessorAffinityPanel _processorAffinityPanel;
+        private LocalizationPanel _localizationPanel;
         private CleanTempDataPanel _cleanTempDataPanel;
         private DisableFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
         #endregion
@@ -70,7 +70,7 @@ namespace vApus.Gui
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
-                if (Solution.ShowStresstestingSolutionExplorer() && 
+                if (Solution.ShowStresstestingSolutionExplorer() &&
                     global::vApus.Gui.Properties.Settings.Default.GreetWithWelcomePage == true)
                     _welcome.Show(dockPanel);
                 OnActiveSolutionChanged(null);
@@ -217,6 +217,7 @@ namespace vApus.Gui
                         Solution.SaveActiveSolution();
                     tmrSetStatusStrip.Stop();
 
+                    _welcome.DisableFormClosingEventHandling();
                     //For the DockablePanels that are shown as dockstate document, otherwise the form won't close.
                     _welcome.Hide();
                     _welcome.Close();
@@ -232,6 +233,7 @@ namespace vApus.Gui
             {
                 tmrSetStatusStrip.Stop();
 
+                _welcome.DisableFormClosingEventHandling();
                 //For the DockablePanels that are shown as dockstate document, otherwise the form won't close.
                 _welcome.Hide();
                 _welcome.Close();
@@ -447,8 +449,8 @@ namespace vApus.Gui
                 _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
-                _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
+                _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
             }
@@ -491,6 +493,9 @@ namespace vApus.Gui
                 this.Show();
                 this.TopMost = false;
             }
+            if (m.Msg == 16) //WM_CLOSE
+                _welcome.DisableFormClosingEventHandling();
+
             base.WndProc(ref m);
         }
         #endregion
@@ -591,11 +596,11 @@ namespace vApus.Gui
         {
             ShowOptionsDialog(2);
         }
-        private void lblProcessorAffinity_Click(object sender, EventArgs e)
+        private void lblSocketListener_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(3);
         }
-        private void lblSocketListener_Click(object sender, EventArgs e)
+        private void lblProcessorAffinity_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(4);
         }
