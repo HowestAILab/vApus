@@ -970,6 +970,8 @@ namespace vApus.Monitor
         private void tvwCounter_AfterCheck(object sender, TreeViewEventArgs e)
         {
             ExtractWIWForTreeViewAction(e.Node);
+            llblUncheckAllVisible.Enabled = HasCheckedNodes();
+            llblCheckAllVisible.Enabled = HasUncheckedNodes();
         }
 
         private void ExtractWIWForTreeViewAction(TreeNode counterNode)
