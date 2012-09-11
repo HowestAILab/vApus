@@ -75,6 +75,11 @@ namespace vApus.Stresstest
             List<string> entries = new List<string>(_customListParameter.CustomList);
             bool customRandomParameterException = false;
 
+            if (cboParameterType.SelectedIndex == 2)
+                _generateFromParameter = _customRandomParameterPanel.Parameter;
+            else
+                _generateFromParameter = _parameterTypeSolutionComponentPropertyPanel.SolutionComponent as BaseParameter;
+
             if (_generateFromParameter is TextParameter ||
                 (_generateFromParameter is NumericParameter && (_generateFromParameter as NumericParameter).Random))
                 for (int i = 0; i != nudGenerate.Value; i++)
