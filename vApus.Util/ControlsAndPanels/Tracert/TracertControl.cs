@@ -34,14 +34,26 @@ namespace vApus.Util
         public TracertControl()
         {
             InitializeComponent();
+            _tracertDialog.CancelTraceRoute += new EventHandler(_tracertDialog_CancelTraceRoute);
         }
-
         #region Functions
         public void SetToTrace(string hostNameOrIP, int maxHops = 100, int timeout = 5000)
         {
             _hostNameOrIP = hostNameOrIP;
             _maxHops = maxHops;
             _timeout = timeout;
+        }
+        private void _tracertDialog_CancelTraceRoute(object sender, EventArgs e)
+        {
+            btnStatus.Text = "Idle";
+            btnStatus.BackColor = Color.Transparent;
+            btnTraceRoute.Enabled = true;
+
+            _tracert.Dispose();
+            _tracert = null;
+
+            if (Done != null)
+                Done(this, null);
         }
         private void Trace()
         {
@@ -69,6 +81,8 @@ namespace vApus.Util
             _tracertDialog.ClearHops();
             btnTraceRoute.Enabled = false;
             Trace();
+
+            _tracertDialog.ShowDialog();
         }
         private void _tracert_Hop(object sender, Tracert.HopEventArgs e)
         {

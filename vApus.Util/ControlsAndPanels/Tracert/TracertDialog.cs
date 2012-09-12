@@ -12,6 +12,8 @@ namespace vApus.Util
 {
     public partial class TracertDialog : Form
     {
+        public event EventHandler CancelTraceRoute;
+
         public TracertDialog()
         {
             InitializeComponent();
@@ -24,11 +26,19 @@ namespace vApus.Util
         /// <param name="roundtripTime">Already formatted</param>
         public void AddHop(string ip, string hostName, string roundtripTime)
         {
+            btnCancelTraceRoute.Enabled = true;
             lvw.Items.Add(new ListViewItem(new string[] { (lvw.Items.Count + 1).ToString(), ip, hostName, roundtripTime }));
         }
         public void ClearHops()
         {
             lvw.Items.Clear();
+        }
+
+        private void btnCancelTraceRoute_Click(object sender, EventArgs e)
+        {
+            btnCancelTraceRoute.Enabled = false;
+            if (CancelTraceRoute != null)
+                CancelTraceRoute(this, null);
         }
     }
 }
