@@ -195,7 +195,7 @@ namespace vApus.CommitTool
             try
             {
                 exception = null;
-                var output = GetCMDOutput(localGitRepository, "\"" + gitCmd + "\" tag");
+                var output = GetCMDOutput(localGitRepository, "\"" + gitCmd + "\" describe \"--abbrev=0\" --tags");
                 version = output[output.Count - 1];
                 version = version.Replace('_', ' ');
             }
