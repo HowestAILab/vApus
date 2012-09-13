@@ -40,7 +40,7 @@ namespace vApus.Util
             cboChannel.SelectedIndex = channel;
 
             SetEnabled();
-            SetUpdatePanel();
+            SetUpdatePanel(true);
         }
         public override string ToString()
         {
@@ -61,7 +61,7 @@ namespace vApus.Util
             if (cboChannel.SelectedIndex != channel)
                 if (MessageBox.Show("Are you sure you want to change the channel?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     SetEnabled();
-                else 
+                else
                     cboChannel.SelectedIndex = channel;
         }
         private void _KeyUp(object sender, KeyEventArgs e)
@@ -110,15 +110,15 @@ namespace vApus.Util
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
-                SetUpdatePanel();
+                SetUpdatePanel(true);
                 this.Cursor = Cursors.Default;
             }, null);
         }
 
-        private void SetUpdatePanel(bool enforceUpdate = true)
+        private void SetUpdatePanel(bool doUpdate)
         {
             if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.Disabled ||
-                            UpdateNotifier.UpdateNotifierState == UpdateNotifierState.FailedConnectingToTheUpdateServer)
+                UpdateNotifier.UpdateNotifierState == UpdateNotifierState.FailedConnectingToTheUpdateServer)
                 pic.Image = vApus.Util.Properties.Resources.Error;
             else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.PleaseRefresh ||
                 UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound)
@@ -129,12 +129,12 @@ namespace vApus.Util
             DescriptionAttribute[] attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
             lbl.Text = attr[0].Description;
 
-            if (enforceUpdate)
+            if (doUpdate)
                 if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
                     UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
-                    ShowUpdateDialog(enforceUpdate);
+                    ShowUpdateDialog(false);
         }
-        private void ShowUpdateDialog(bool autoUpdate)
+        private void ShowUpdateDialog(bool forceUpdate)
         {
             this.Cursor = Cursors.WaitCursor;
             string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
@@ -143,11 +143,8 @@ namespace vApus.Util
                 Process process = new Process();
                 process.EnableRaisingEvents = true;
                 int port = (int)nudPort.Value;
-                if (pnlRefresh.Enabled)
-                    process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " +
-                        port + " " + txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + autoUpdate);
-                else
-                    process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + cboChannel.SelectedIndex);
+                process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " +
+                    port + " " + txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + forceUpdate);
 
                 this.Enabled = false;
 
@@ -179,7 +176,7 @@ namespace vApus.Util
                 btnSet.Enabled = false;
                 UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
             }
-            ShowUpdateDialog(false);
+            ShowUpdateDialog(true);
         }
         private void btnSet_Click(object sender, EventArgs e)
         {

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdateNotifierPanel));
             this.btnSet = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
@@ -54,6 +55,7 @@
             this.pnlBorderChannel = new System.Windows.Forms.Panel();
             this.cboChannel = new System.Windows.Forms.ComboBox();
             this.btnUpdateManually = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.pnlRefresh.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pic)).BeginInit();
@@ -69,8 +71,8 @@
             // 
             // btnSet
             // 
-            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSet.BackColor = System.Drawing.Color.White;
             this.btnSet.Enabled = false;
             this.btnSet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -102,9 +104,9 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.pnlRefresh);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
@@ -164,9 +166,9 @@
             // 
             // flpConnectTo
             // 
-            this.flpConnectTo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpConnectTo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.flpConnectTo.Controls.Add(this.panel1);
             this.flpConnectTo.Controls.Add(this.panel2);
             this.flpConnectTo.Controls.Add(this.panel3);
@@ -244,7 +246,7 @@
             this.nudPort.Size = new System.Drawing.Size(50, 20);
             this.nudPort.TabIndex = 1;
             this.nudPort.Value = new decimal(new int[] {
-            22, //External port 5222
+            22,
             0,
             0,
             0});
@@ -376,9 +378,10 @@
             this.btnUpdateManually.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
             this.btnUpdateManually.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnUpdateManually.Name = "btnUpdateManually";
-            this.btnUpdateManually.Size = new System.Drawing.Size(126, 24);
+            this.btnUpdateManually.Size = new System.Drawing.Size(96, 24);
             this.btnUpdateManually.TabIndex = 2;
-            this.btnUpdateManually.Text = "Update Manually...";
+            this.btnUpdateManually.Text = "Force Update";
+            this.toolTip.SetToolTip(this.btnUpdateManually, "Update all files regardless if they need to be updated.");
             this.btnUpdateManually.UseVisualStyleBackColor = false;
             this.btnUpdateManually.Click += new System.EventHandler(this.btnUpdateManually_Click);
             // 
@@ -441,5 +444,6 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }
