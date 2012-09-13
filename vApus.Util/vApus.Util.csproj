@@ -258,6 +258,9 @@
     <Compile Include="ControlsAndPanels\ScrollablePanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ControlsAndPanels\ToolStripStatusSpringLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -467,17 +470,17 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifier.cs" />
-    <Compile Include="Tracert\Tracert.cs" />
-    <Compile Include="Tracert\TracertControl.cs">
+    <Compile Include="ControlsAndPanels\Tracert\Tracert.cs" />
+    <Compile Include="ControlsAndPanels\Tracert\TracertControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Tracert\TracertControl.Designer.cs">
+    <Compile Include="ControlsAndPanels\Tracert\TracertControl.Designer.cs">
       <DependentUpon>TracertControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Tracert\TracertDialog.cs">
+    <Compile Include="ControlsAndPanels\Tracert\TracertDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Tracert\TracertDialog.Designer.cs">
+    <Compile Include="ControlsAndPanels\Tracert\TracertDialog.Designer.cs">
       <DependentUpon>TracertDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="WeightedRandom.cs" />
@@ -571,10 +574,10 @@
     <EmbeddedResource Include="ControlsAndPanels\RemoteDesktopClient.resx">
       <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Tracert\TracertControl.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Tracert\TracertControl.resx">
       <DependentUpon>TracertControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Tracert\TracertDialog.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Tracert\TracertDialog.resx">
       <DependentUpon>TracertDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>

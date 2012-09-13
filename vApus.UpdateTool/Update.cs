@@ -8,13 +8,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml;
 using Tamir.SharpSsh;
-using vApus.Gui;
 using vApus.Util;
 
 namespace vApus.UpdateTool
@@ -23,13 +20,9 @@ namespace vApus.UpdateTool
     {
         #region Fields
         private Sftp _sftp;
-        private int _previousCaretPosition;
         //This exe is run as a copy, so set the startup path to the parent directory.
         private string _startupPath;
         private List<string[]> _currentVersions;
-        private Font _titleFont;
-        private Font _dateFont;
-        private Font _itemFont;
         private bool _updating;
 
         private Win32WindowMessageHandler _msgHandler;
@@ -39,10 +32,10 @@ namespace vApus.UpdateTool
         /// <summary>
         /// To auto connect.
         /// </summary>
-        private string _host, _username, _password;
+        private string _host, _userName, _password;
         private int _port = 22; //External port 5222
         private int _channel;
-        private bool _autoUpdate;
+        private bool _force; //Update all files regardesly that they must or must not be updated
 
         #endregion
 
@@ -59,172 +52,102 @@ namespace vApus.UpdateTool
             {
                 _host = args[1];
                 _port = int.Parse(args[2]);
-                _username = args[3];
+                _userName = args[3];
                 _password = args[4];
                 _channel = int.Parse(args[5]);
-                _autoUpdate = bool.Parse(args[6]);
-            }
-            else if (args.Length == 2)
-            {
-                _channel = int.Parse(args[1]);
+                _force = bool.Parse(args[6]);
             }
 
             this.HandleCreated += new EventHandler(Update_HandleCreated);
 
-            if (_host != null && _autoUpdate)
+            if (_host != null)
                 this.Shown += new EventHandler(Update_Shown);
         }
         private void Update_HandleCreated(object sender, EventArgs e)
         {
             try
             {
-                _titleFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Bold);
-                _dateFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Italic);
-                _itemFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Regular);
-
                 _msgHandler = new Win32WindowMessageHandler();
 
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
-
-                LoadConnection();
 
                 _currentVersions = LoadVersion(Path.Combine(_startupPath, "version.ini"));
             }
             catch { }
 
         }
-        private void LoadConnection()
-        {
-            txtHost.Text = _host;
-            nudPort.Value = _port;
-            txtUsername.Text = _username;
-            txtPassword.Text = _password;
-        }
         private void Update_Shown(object sender, EventArgs e)
         {
             this.Shown -= Update_Shown;
 
-            LoadConnection();
-
             //Tries connecting first, if that works then update.
-            if (PerformConnectClick())
-                UpdateOrReinstall();
+            if (Connect())
+                DoUpdate();
         }
         #endregion
 
         #region Connect
-        private void txtHost_TextChanged(object sender, EventArgs e)
-        {
-            btnConnect.Enabled = txtHost.Text.Length != 0;
-        }
-        private void txtUsername_TextChanged(object sender, EventArgs e)
-        {
-            txtPassword.Enabled = txtUsername.Text.Length != 0;
-            if (!txtPassword.Enabled)
-                txtPassword.Text = string.Empty;
-        }
-        private void txtPort_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            e.Handled = !(e.KeyChar == '\b' || e.KeyChar.IsDigit());
-        }
-
-        private void _KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter && btnConnect.Enabled == true && btnConnect.Text == "Connect")
-                PerformConnectClick();
-        }
-
-        private void btnConnect_Click(object sender, EventArgs e)
-        {
-            PerformConnectClick();
-        }
-        /// <summary>
-        /// Returns true on connected.
-        /// </summary>
-        /// <returns></returns>
-        private bool PerformConnectClick()
+        private bool Connect()
         {
             bool connected = false;
-
             this.Cursor = Cursors.WaitCursor;
-            switch (btnConnect.Text)
+
+            try
             {
-                case "Connect":
-                    try
-                    {
-                        int port = (int)nudPort.Value;
+                _sftp = new Sftp(_host, _userName, _password);
+                _sftp.Connect(_port);
 
-                        AppendLogLine("Connecting to \"" + txtUsername.Text + '@' + txtHost.Text + '\"' + port + '.', Color.Black);
-                        _sftp = new Sftp(txtHost.Text, txtUsername.Text, txtPassword.Text);
-                        _sftp.Connect(port);
-                        flpConnectTo.Enabled = false;
-                        btnRefresh.Enabled = true;
-                        btnUpdateOrReinstall.Text = chkGetAll.Checked ? "Reinstall" : "Update";
-                        btnConnect.Text = "Disconnect";
-                        tcCommit.SelectedIndex = 1;
-                        AppendLogLine("Connected.", Color.Green);
+                GetFilesToUpdate();
 
-                        GetFilesToUpdate();
+                connected = true;
+            }
+            catch
+            {
+                MessageBox.Show("Failed to connect!\nAre your credentials correct?", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
-                        connected = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        AppendLogLine("Failed to connect: " + ex.Message, Color.Red);
-                    }
-                    break;
 
-                default:
-                    if (_updating && MessageBox.Show("Are you sure you want to disconnect while updating?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.No)
-                    {
-                        connected = true;
-                    }
-                    else
-                    {
-                        _updating = false;
-                        try
-                        {
-                            _sftp.Close();
-                        }
-                        catch { }
-                        _sftp = null;
-                        btnUpdateOrReinstall.Enabled = false;
-                        lvwUpdate.ClearEmbeddedControls();
-                        lvwUpdate.Items.Clear();
-                        pbTotal.Value = 0;
-                        pbTotal.Tag = null;
-                        flpConnectTo.Enabled = true;
-                        btnRefresh.Enabled = false;
+            this.Cursor = Cursors.Default;
+            return connected;
+        }
+        private void Disconnect()
+        {
+            this.Cursor = Cursors.WaitCursor;
 
-                        string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
-                        string tempVersion = Path.Combine(tempFolder, "version.ini");
-                        try
-                        {
-                            if (File.Exists(tempVersion))
-                                File.Delete(tempVersion);
-                        }
-                        catch { }
+            if (!_updating || MessageBox.Show("Are you sure you want to disconnect while updating?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+            {
+                _updating = false;
+                try
+                {
+                    _sftp.Close();
+                }
+                catch { }
+                _sftp = null;
+                lvwUpdate.ClearEmbeddedControls();
+                lvwUpdate.Items.Clear();
 
-                        btnConnect.Text = "Connect";
-                        AppendLogLine("Disconnected.", Color.Green);
-                    }
-                    break;
+                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempVersion = Path.Combine(tempFolder, "version.ini");
+                try
+                {
+                    if (File.Exists(tempVersion))
+                        File.Delete(tempVersion);
+                }
+                catch { }
             }
             this.Cursor = Cursors.Default;
-
-            return connected;
         }
         #endregion
 
         #region Versioning
         /// <summary>
-        /// Updates the gui for version and history of changes, and returns the versions of the files.
+        /// Returns the versions of the files.
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
         private List<string[]> LoadVersion(string versionControl)
         {
-            bool versionFound = false, channelFound = false, historyFound = false, filesFound = false;
+            bool filesFound = false;
             List<string[]> fileVersions = new List<string[]>();
             string line = string.Empty;
 
@@ -238,20 +161,10 @@ namespace vApus.UpdateTool
                     if (line.Length == 0)
                         continue;
 
-                    switch (line)
+                    if (line == "[FILES]")
                     {
-                        case "[VERSION]":
-                            versionFound = true;
-                            continue;
-                        case "[CHANNEL]":
-                            channelFound = true;
-                            continue;
-                        case "[HISTORY]":
-                            historyFound = true;
-                            continue;
-                        case "[FILES]":
-                            filesFound = true;
-                            continue;
+                        filesFound = true;
+                        continue;
                     }
 
                     if (filesFound)
@@ -259,21 +172,6 @@ namespace vApus.UpdateTool
                         string[] splittedLine = line.Split(':');
                         if (splittedLine.Length == 2)
                             fileVersions.Add(splittedLine);
-                    }
-                    else if (historyFound)
-                    {
-                        FillHistory(line);
-                        historyFound = false;
-                    }
-                    else if (channelFound)
-                    {
-                        lblChannel.Text = "Channel: " + line;
-                        channelFound = false;
-                    }
-                    else if (versionFound)
-                    {
-                        lblVersion.Text = "Version: " + line;
-                        versionFound = false;
                     }
                 }
                 try { sr.Close(); }
@@ -284,90 +182,10 @@ namespace vApus.UpdateTool
             }
             return fileVersions;
         }
-        private void FillHistory(string historyOfChanges)
-        {
-            rtxtHistoryOfChanges.Text = string.Empty;
-
-            List<HistoryPart> parts = new List<HistoryPart>();
-
-            MemoryStream ms = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(historyOfChanges));
-            XmlReader reader = XmlReader.Create(ms);
-            XmlDocument doc = new XmlDocument();
-            XmlNode node = doc.ReadNode(reader);
-
-            //First filling the rtxt and then applying the style
-            int previousCaretPosition = 0;
-            foreach (XmlNode n in node.ChildNodes)
-            {
-                switch (n.Name)
-                {
-                    case "t":
-                        foreach (XmlNode nn in n.ChildNodes)
-                        {
-                            switch (nn.Name)
-                            {
-                                case "d":
-                                    rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + " (" + nn.InnerText + ")" + Environment.NewLine;
-                                    parts.Add(new HistoryPart("d", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
-                                    break;
-                                default:
-                                    if (previousCaretPosition > 0)
-                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + Environment.NewLine + nn.InnerText;
-                                    else
-                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + nn.InnerText;
-                                    parts.Add(new HistoryPart("t", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
-                                    break;
-                            }
-                            previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
-                            rtxtHistoryOfChanges.Select(rtxtHistoryOfChanges.Text.Length, 0);
-                        }
-                        break;
-                    case "i":
-                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + n.InnerText + Environment.NewLine;
-                        parts.Add(new HistoryPart("i", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
-                        break;
-                }
-                previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
-            }
-            foreach (HistoryPart part in parts)
-            {
-                rtxtHistoryOfChanges.Select(part.SelectionStart, part.Length);
-                switch (part.Type)
-                {
-                    case "d":
-                        rtxtHistoryOfChanges.SelectionFont = _dateFont;
-                        rtxtHistoryOfChanges.SelectionColor = Color.Blue;
-                        break;
-                    case "i":
-                        rtxtHistoryOfChanges.SelectionFont = _itemFont;
-                        rtxtHistoryOfChanges.SelectionBullet = true;
-                        break;
-                    default:
-                        rtxtHistoryOfChanges.SelectionFont = _titleFont;
-                        rtxtHistoryOfChanges.SelectionColor = Color.Green;
-                        break;
-                }
-            }
-            rtxtHistoryOfChanges.Select(0, 0);
-        }
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-            this.Cursor = Cursors.WaitCursor;
-            lvwUpdate.ClearEmbeddedControls();
-            lvwUpdate.Items.Clear();
-            pbTotal.Value = 0;
-            pbTotal.Tag = null;
-            btnUpdateOrReinstall.Text = chkGetAll.Checked ? "Reinstall" : "Update";
-            tcCommit.SelectedIndex = 1;
-            GetFilesToUpdate();
-            this.Cursor = Cursors.Default;
-        }
         private void GetFilesToUpdate()
         {
             try
             {
-                AppendLogLine("Getting the list of files needed to be versioned.", Color.Green);
-
                 string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
                 if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
@@ -383,13 +201,6 @@ namespace vApus.UpdateTool
 
                 string tempVersion = Path.Combine(tempFolder, "version.ini");
 
-                try
-                {
-                    if (File.Exists(tempVersion))
-                        File.Delete(tempVersion);
-                }
-                catch { }
-
                 string channelDir = _channel == 0 ? "stable" : "nightly";
                 _sftp.Get(channelDir + "/version.ini", tempVersion);
 
@@ -398,7 +209,7 @@ namespace vApus.UpdateTool
                 foreach (string[] line in serverVersions)
                 {
                     string remoteMD5Hash = string.Empty;
-                    if (chkGetAll.Checked | !AlreadyVersioned(line, _currentVersions, out remoteMD5Hash))
+                    if (_force | !AlreadyVersioned(line, _currentVersions, out remoteMD5Hash))
                         if (remoteMD5Hash.Length != 0)
                         {
                             ListViewItem lvwi = new ListViewItem(line);
@@ -408,15 +219,10 @@ namespace vApus.UpdateTool
                         }
                 }
 
-                btnUpdateOrReinstall.Enabled = lvwUpdate.Items.Count != 0;
-                if (!btnUpdateOrReinstall.Enabled && Directory.Exists(tempFolder))
-                    Directory.Delete(tempFolder, true);
-
-                AppendLogLine("Done.", Color.Green);
             }
-            catch (Exception ex)
+            catch
             {
-                AppendLogLine("Failed to get the list of files needed to be versioned: " + ex.Message, Color.Red);
+                MessageBox.Show("Failed to get the list of files needed to be versioned.\nThe update server is probably down.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private bool AlreadyVersioned(string[] entry, List<string[]> versioned, out string md5Hash)
@@ -439,22 +245,13 @@ namespace vApus.UpdateTool
         #endregion
 
         #region Update or reinstall
-        private void btnUpdateOrReinstall_Click(object sender, EventArgs e)
+        private void DoUpdate()
         {
-            UpdateOrReinstall();
-        }
-        private void UpdateOrReinstall()
-        {
-            AppendLogLine("Updating/re-installing started.", Color.Black);
-            tcCommit.SelectedIndex = 1;
             string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
             _sftp.OnTransferProgress += new FileTransferEvent(_sftp_OnTransferProgress);
             _sftp.OnTransferEnd += new FileTransferEvent(_sftp_OnTransferEnd);
             try
             {
-                btnRefresh.Enabled = false;
-                chkGetAll.Enabled = false;
-                btnUpdateOrReinstall.Enabled = false;
                 string possibleNonExistingFolder;
 
                 string channelDir = _channel == 0 ? "stable" : "nightly";
@@ -482,24 +279,19 @@ namespace vApus.UpdateTool
 
                         SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                         {
-                            btnRefresh.Enabled = true;
-                            chkGetAll.Enabled = true;
-
                             _sftp.OnTransferProgress -= _sftp_OnTransferProgress;
                             _sftp.OnTransferEnd -= _sftp_OnTransferEnd;
-
-                            AppendLogLine("Completed!", Color.Green);
 
                             OverwriteFiles();
                         }, null);
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         try
                         {
                             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                             {
-                                AppendLogLine("Failed to update or reinstall: " + ex.Message, Color.Red);
+                                MessageBox.Show("Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }, null);
                         }
                         catch { }
@@ -513,8 +305,8 @@ namespace vApus.UpdateTool
             }
             catch (Exception ex)
             {
-                PerformConnectClick();
-                AppendLogLine("Failed to update or reinstall: " + ex.Message, Color.Red);
+                Disconnect();
+                MessageBox.Show("Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private void OverwriteFiles()
@@ -554,8 +346,7 @@ namespace vApus.UpdateTool
                     }
                     else
                     {
-                        this.Enabled = true;
-                        return;
+                        this.Close();
                     }
                 }
 
@@ -601,8 +392,6 @@ namespace vApus.UpdateTool
                         if (File.Exists(filename))
                         {
                             MessageBox.Show(filename + "\n\n" + ex.ToString());
-
-                            //MessageBox.Show("Not all files where update due to access or authorization errors!\nThose files are stored in the 'UpdateTempFiles' folder located in the top directory of vApus, so you can put them at the right place manually.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                             throw ex;
                         }
                     }
@@ -694,17 +483,6 @@ namespace vApus.UpdateTool
                         pb.Value = pb.Maximum;
                         break;
                     }
-                float total;
-                if (pbTotal.Tag == null)
-                    total = (float)pbTotal.Maximum / lvwUpdate.Items.Count;
-                else
-                    total = (float)pbTotal.Tag + (float)pbTotal.Maximum / lvwUpdate.Items.Count;
-
-                pbTotal.Tag = total;
-                if (total == pbTotal.Maximum)
-                    pbTotal.Value = pbTotal.Maximum;
-                else
-                    pbTotal.Value = (int)total;
             }, null);
         }
 
@@ -727,23 +505,6 @@ namespace vApus.UpdateTool
         #endregion
 
         #region Other
-        private void AppendLogLine(string line, Color color)
-        {
-            switch (rtxtLog.Text.Length)
-            {
-                case 0:
-                    rtxtLog.Text = line;
-                    break;
-                default:
-                    rtxtLog.Text = rtxtLog.Text + Environment.NewLine + line;
-                    break;
-            }
-            rtxtLog.Select(_previousCaretPosition, rtxtLog.Text.Length - _previousCaretPosition);
-            rtxtLog.SelectionColor = color;
-            rtxtLog.Select(rtxtLog.Text.Length, 0);
-            _previousCaretPosition = rtxtLog.SelectionStart;
-            rtxtLog.ScrollToCaret();
-        }
         protected override void WndProc(ref Message m)
         {
             if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG)
@@ -762,7 +523,7 @@ namespace vApus.UpdateTool
                     try
                     {
                         _updating = false;
-                        PerformConnectClick();
+                        Disconnect();
                     }
                     catch { }
                 else

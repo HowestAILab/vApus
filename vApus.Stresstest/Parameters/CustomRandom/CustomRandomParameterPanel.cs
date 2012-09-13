@@ -14,6 +14,13 @@ namespace vApus.Stresstest
     public partial class CustomRandomParameterPanel : UserControl
     {
         private CustomRandomParameter _parameter;
+        /// <summary>
+        /// Call Init(...) to set.
+        /// </summary>
+        public CustomRandomParameter Parameter
+        {
+            get { return _parameter; }
+        }
 
         public CustomRandomParameterPanel()
         {
