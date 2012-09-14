@@ -253,22 +253,28 @@ namespace vApus.Util
         {
             _locked = true;
             if (IsHandleCreated)
-                foreach (BaseValueControl control in this.Controls)
-                    if (control.IsHandleCreated)
-                        control.Lock();
+                foreach (Control control in this.Controls)
+                    if (control is BaseValueControl)
+                    {
+                        if (control.IsHandleCreated)
+                            (control as BaseValueControl).Lock();
+                        else
+                            control.HandleCreated += new EventHandler(control_lock_HandleCreated);
+                    }
                     else
-                        control.HandleCreated += new EventHandler(control_lock_HandleCreated);
-            else
-                this.HandleCreated += new EventHandler(ValueControlPanel_lock_HandleCreated);
+                        this.HandleCreated += new EventHandler(ValueControlPanel_lock_HandleCreated);
         }
         private void ValueControlPanel_lock_HandleCreated(object sender, EventArgs e)
         {
             this.HandleCreated -= ValueControlPanel_lock_HandleCreated;
-            foreach (BaseValueControl control in this.Controls)
-                if (control.IsHandleCreated)
-                    control.Lock();
-                else
-                    control.HandleCreated += new EventHandler(control_lock_HandleCreated);
+            foreach (Control control in this.Controls)
+                if (control is BaseValueControl)
+                {
+                    if (control.IsHandleCreated)
+                        (control as BaseValueControl).Lock();
+                    else
+                        control.HandleCreated += new EventHandler(control_lock_HandleCreated);
+                }
         }
         private void control_lock_HandleCreated(object sender, EventArgs e)
         {
@@ -283,21 +289,27 @@ namespace vApus.Util
         {
             _locked = false;
             if (IsHandleCreated)
-                foreach (BaseValueControl control in this.Controls)
-                    if (control.IsHandleCreated)
-                        control.Unlock();
+                foreach (Control control in this.Controls)
+                    if (control is BaseValueControl)
+                    {
+                        if (control.IsHandleCreated)
+                            (control as BaseValueControl).Unlock();
+                        else
+                            control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
+                    }
                     else
-                        control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
-            else
-                this.HandleCreated += new EventHandler(ValueControlPanel_unlock_HandleCreated);
+                        this.HandleCreated += new EventHandler(ValueControlPanel_unlock_HandleCreated);
         }
         private void ValueControlPanel_unlock_HandleCreated(object sender, EventArgs e)
         {
-            foreach (BaseValueControl control in this.Controls)
-                if (control.IsHandleCreated)
-                    control.Unlock();
-                else
-                    control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
+            foreach (Control control in this.Controls)
+                if (control is BaseValueControl)
+                {
+                    if (control.IsHandleCreated)
+                        (control as BaseValueControl).Unlock();
+                    else
+                        control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
+                }
         }
         private void control_unlock_HandleCreated(object sender, EventArgs e)
         {

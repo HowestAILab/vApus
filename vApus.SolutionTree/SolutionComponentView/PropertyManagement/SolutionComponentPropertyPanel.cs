@@ -31,8 +31,8 @@ namespace vApus.SolutionTree
         //Can be sorted, kept here.
         private List<PropertyInfo> _properties;
 
-        //For restoring the parents --> temp solution.
-        // private Dictionary<Type, SolutionComponent> _parentCache = new Dictionary<Type, SolutionComponent>();
+        private LinkLabel _showHideAdvancedSettings = new LinkLabel();
+        private bool _showAdvancedSettings = false;
         #endregion
 
         [DefaultValue(true)]
@@ -75,6 +75,12 @@ namespace vApus.SolutionTree
         public SolutionComponentPropertyPanel()
         {
             InitializeComponent();
+
+            _showHideAdvancedSettings.Text = "Show/Hide Advanced Settings";
+            _showHideAdvancedSettings.AutoSize = true;
+            _showHideAdvancedSettings.Click += new EventHandler(_showHideAdvancedSettings_Click);
+            _showHideAdvancedSettings.KeyUp += new KeyEventHandler(_showHideAdvancedSettings_KeyUp);
+
             if (this.IsHandleCreated)
                 SetGui(true);
             else
@@ -86,6 +92,19 @@ namespace vApus.SolutionTree
         #endregion
 
         #region Functions
+        private void _showHideAdvancedSettings_Click(object sender, EventArgs e)
+        {
+            _showAdvancedSettings = !_showAdvancedSettings;
+            Refresh();
+        }
+        private void _showHideAdvancedSettings_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                _showAdvancedSettings = !_showAdvancedSettings;
+                Refresh();
+            }
+        }
         private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueControlPanel.ValueChangedEventArgs e)
         {
             if (Solution.ActiveSolution != null)
@@ -129,6 +148,7 @@ namespace vApus.SolutionTree
             if (_solutionComponent != null && IsHandleCreated)
             {
                 bool locked = _locked;
+                bool showHideAdvancedSettingsControl = false;
                 //if (_solutionComponentTypeChanged || _properties == null)
                 //{
                 _properties = new List<PropertyInfo>();
@@ -137,7 +157,16 @@ namespace vApus.SolutionTree
                     object[] attributes = propertyInfo.GetCustomAttributes(typeof(PropertyControlAttribute), true);
                     PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
                     if (propertyControlAttribute != null)
-                        _properties.Add(propertyInfo);
+                        if (propertyControlAttribute.AdvancedProperty)
+                        {
+                            showHideAdvancedSettingsControl = true;
+                            if (_showAdvancedSettings) //Show advanced settings only if chosen to.
+                                _properties.Add(propertyInfo);
+                        }
+                        else
+                        {
+                            _properties.Add(propertyInfo);
+                        }
                 }
                 _properties.Sort(PropertyInfoComparer.GetInstance());
                 _properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
@@ -174,6 +203,9 @@ namespace vApus.SolutionTree
 
                 if (_locked)
                     base.Lock();
+
+                if (showHideAdvancedSettingsControl)
+                    this.Controls.Add(_showHideAdvancedSettings);
                 //}
                 //else //Recycle controls
                 //{

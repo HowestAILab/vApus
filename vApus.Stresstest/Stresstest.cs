@@ -208,7 +208,7 @@ namespace vApus.Stresstest
         }
 
         [Description("Useful for tests with low or no delay. It appends the runtime for every concurrency level in a way they even out. For example: a minimum request of 10 with 5 concurrent users makes the runtime twice as long, of 15 three times."), DisplayName("Dynamic Run Multiplier")]
-        [SavableCloneable, PropertyControl(5)]
+        [SavableCloneable, PropertyControl(5, true)]
         public int DynamicRunMultiplier
         {
             get { return _dynamicRunMultiplier; }
@@ -221,7 +221,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(6)]
+        [PropertyControl(6, true)]
         public int MinimumDelay
         {
             get { return _minimumDelay; }
@@ -246,7 +246,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(7)]
+        [PropertyControl(7, true)]
         public int MaximumDelay
         {
             get { return _maximumDelay; }
@@ -284,7 +284,7 @@ namespace vApus.Stresstest
         }
 
         [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance. Note:This can't be used in combination with parameters (works but it breaks the parameter refresh logic, giving a wrong result).")]
-        [SavableCloneable, PropertyControl(9)]
+        [SavableCloneable, PropertyControl(9, true)]
         public ActionAndLogEntryDistribution Distribute
         {
             get { return _distribute; }
@@ -298,7 +298,7 @@ namespace vApus.Stresstest
 
 #if EnableBetaFeature
         [Description("If this equals false then the parallel switch for log entries is ignored."), DisplayName("Use Parallel Execution of Log Entries")]
-        [SavableCloneable, PropertyControl(10)]
+        [SavableCloneable, PropertyControl(10, true)]
         public bool UseParallelExecutionOfLogEntries
         {
             get { return _useParallelExecutionOfLogEntries; }

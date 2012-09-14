@@ -31,6 +31,7 @@ namespace vApus.DistributedTesting
         {
             InitializeComponent();
 
+
             //For refreshing the property panels.
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }

@@ -50,12 +50,17 @@ namespace vApus.SolutionTree
     {
         #region Fields
         private int _displayIndex = -1;
+        private bool _advancedProperty = false;
         #endregion
 
         #region Properties
         public int DisplayIndex
         {
             get { return _displayIndex; }
+        }
+        public bool AdvancedProperty
+        {
+            get { return _advancedProperty; }
         }
         #endregion
 
@@ -76,6 +81,20 @@ namespace vApus.SolutionTree
         public PropertyControlAttribute(int displayIndex)
         {
             _displayIndex = displayIndex;
+        }
+        /// <summary>
+        /// To define that a common property control can be created for the property.
+        /// This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
+        /// Use an other constructor if you want a custom property control.
+        /// </summary>
+        /// <param name="displayIndex">A number greater than -1, it doesn't matter if it isn't directly following the display indices of other property control attributes.
+        /// If this is not spedified, alphabetical sorting will take place.</param>
+        /// <param name="advancedProperty">An advanced property will be hidden. The user can choose to see it. This value is default false.
+        /// </param>
+        public PropertyControlAttribute(int displayIndex, bool advancedProperty)
+            :this(displayIndex)
+        {
+            _advancedProperty = advancedProperty;
         }
     }
     /// <summary>
