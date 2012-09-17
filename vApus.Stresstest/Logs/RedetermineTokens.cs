@@ -108,7 +108,6 @@ namespace vApus.Stresstest
                 return;
             }
 
-
             //Old indices are equal to the new ones.
             Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices = new Dictionary<BaseParameter, KeyValuePair<int, int>>();
             Parameters parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
