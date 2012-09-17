@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Gui", "vApus.Gui\vApus.Gui.csproj", "{C45D47EE-85F0-4621-AFEB-D4E9CADF9678}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.SolutionTree", "vApus.SolutionTree\vApus.SolutionTree.csproj", "{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}"

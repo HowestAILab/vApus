@@ -446,11 +446,11 @@ namespace vApus.Stresstest
                             {
                                 _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
                                 _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
-
-                                if (Interlocked.Increment(ref i) == count)
-                                    disposeWaitHandle.Set();
                             }
                             catch { }
+
+                            if (Interlocked.Increment(ref i) == count)
+                                disposeWaitHandle.Set();
 
                         });
                         t.IsBackground = true;
@@ -478,8 +478,12 @@ namespace vApus.Stresstest
                                 object[] args = new object[] { pConnectionProxy, i, true };
                                 Thread t = new Thread(delegate(object state)
                                 {
-                                    _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
-                                    _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
+                                    try
+                                    {
+                                        _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
+                                        _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
+                                    }
+                                    catch { }
 
                                     if (Interlocked.Increment(ref i) == count)
                                         disposeWaitHandle.Set();

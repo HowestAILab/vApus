@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -33,14 +34,12 @@ namespace vApus.Stresstest
         internal string _value;
         internal string _description = string.Empty;
 
-        /// <summary>
-        /// Will be determined if equals -1.
-        /// </summary>
-        internal int _tokenNumericIdentifier = -1;
+        private object _lock = new object();
+        private int _tokenNumericIdentifier = -1;
         #endregion
 
         #region Properties
-        
+
         public string Value
         {
             get { return _value; }
@@ -50,11 +49,40 @@ namespace vApus.Stresstest
         /// 
         /// (One-based)
         /// </summary>
-        
         public int TokenNumericIdentifier
         {
-            get { return _tokenNumericIdentifier; }
-            internal set { _tokenNumericIdentifier = value; }
+            get
+            {
+                lock (_lock)
+                {
+                    if (_tokenNumericIdentifier == -1)
+                        DetermineTokenNumericIdentifier();
+
+                    return _tokenNumericIdentifier;
+                }
+            }
+            set
+            { Interlocked.Exchange(ref _tokenNumericIdentifier, value); }
+        }
+        private void DetermineTokenNumericIdentifier()
+        {
+            _tokenNumericIdentifier = 0;
+
+            //One based
+            if (this.Parent != null && this.Parent.GetParent() != null)
+            {
+                object grandParent = this.Parent.GetParent();
+                if (grandParent is Parameters)
+                {
+                    Parameters parameters = grandParent as Parameters;
+                    foreach (BaseParameter parameter in parameters.GetAllParameters())
+                    {
+                        ++_tokenNumericIdentifier;
+                        if (parameter == this)
+                            break;
+                    }
+                }
+            }
         }
         [PropertyControl(int.MaxValue), DisplayName("Read Me")]
         public string ReadMe
@@ -65,45 +93,9 @@ namespace vApus.Stresstest
 
         public BaseParameter()
         {
-            //Initialize the tokenindex when a parent has been assigned to this.
-            ObjectExtension.ParentChanged += new ObjectExtension.ParentChangedEventHandler(ObjectExtension_ParentChanged);
         }
 
         #region Functions
-        private void ObjectExtension_ParentChanged(ObjectExtension.ParentOrTagChangedEventArgs parentOrTagChangedEventArgs)
-        {
-            if (_tokenNumericIdentifier == -1 && parentOrTagChangedEventArgs.New != null)
-            {
-                Parameters parameters = null;
-
-                //Get the parameters collection.
-                if (parentOrTagChangedEventArgs.New is Parameters)
-                {
-                    parameters = parentOrTagChangedEventArgs.New as Parameters;
-
-                }
-                else
-                {
-                    var o = parentOrTagChangedEventArgs.New.GetParent();
-                    if (o != null)
-                        parameters = o as Parameters;
-                }
-
-                //Determine the token using the 'index' of this.
-                if (parameters != null)
-                {
-                    _tokenNumericIdentifier = 0;
-
-                    //One based
-                    foreach (BaseParameter parameter in parameters.GetAllParameters())
-                    {
-                        ++_tokenNumericIdentifier;
-                        if (parameter == this)
-                            break;
-                    }
-                }
-            }
-        }
         /// <summary>
         /// Calculates a new value.
         /// When not random a unique value will always be calculated.

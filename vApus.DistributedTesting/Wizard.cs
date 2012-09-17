@@ -263,7 +263,6 @@ namespace vApus.DistributedTesting
             this.Cursor = Cursors.WaitCursor;
             //Put all in an array for thread safety.
             List<DataGridViewRow> r = new List<DataGridViewRow>();
-            int i = 0;
             foreach (DataGridViewRow row in dgvClients.Rows)
                 if (row.Cells[0].Value != row.Cells[0].DefaultNewRowValue &&
                     row.Cells[0].Value != null && row.Cells[0].Value.ToString().Length != 0)

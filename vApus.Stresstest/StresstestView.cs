@@ -321,7 +321,6 @@ namespace vApus.Stresstest
             _monitorViews.Clear();
 
             //Also remove the tab pages.
-            int i = 3;
             while (tc.TabCount != 3)
                 tc.TabPages.RemoveAt(3);
 

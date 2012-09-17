@@ -303,7 +303,7 @@ namespace vApus.UpdateTool
                 });
                 t.Start();
             }
-            catch (Exception ex)
+            catch
             {
                 Disconnect();
                 MessageBox.Show("Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
