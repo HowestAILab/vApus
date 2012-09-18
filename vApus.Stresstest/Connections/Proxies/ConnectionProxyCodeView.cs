@@ -102,14 +102,12 @@ namespace vApus.Stresstest
             CodeBlock openConnection = new CodeBlock("public void OpenConnection() {", "} //OpenConnection", true);
             CodeBlock closeConnection = new CodeBlock("public void CloseConnection() {", "} //CloseConnection", true);
             CodeBlock sendAndReceive = new CodeBlock("public void SendAndReceive(StringTree parameterizedLogEntry, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {", "} //SendAndReceive", true);
-            CodeBlock testSendAndReceive = new CodeBlock("public void TestSendAndReceive(StringTree parameterizedLogEntry, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {", "} //TestSendAndReceive", true);
             CodeBlock dispose = new CodeBlock("public void Dispose() {", "} //Dispose", true);
             CodeBlock functions = new CodeBlock("#region Functions", "#endregion //Functions", false,
                 testConnection,
                 openConnection,
                 closeConnection,
                 sendAndReceive,
-                testSendAndReceive,
                 dispose);
 
             CodeBlock freeCoding = new CodeBlock("#region Free Coding", "#endregion //Free Coding", true);
@@ -143,8 +141,6 @@ namespace vApus.Stresstest
             find.Document = document;
             compile.Document = document;
             compile.ConnectionProxyCode = _connectionProxyCode;
-            execute.Compile = compile;
-            execute.ConnectionProxyCode = _connectionProxyCode;
         }
 
         private void document_SizeChanged(object sender, EventArgs e)

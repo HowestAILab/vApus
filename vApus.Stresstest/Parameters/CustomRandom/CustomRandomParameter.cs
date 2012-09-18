@@ -25,7 +25,6 @@ namespace vApus.Stresstest
 }";
         private bool _unique;
 
-
         [SavableCloneable]
         public string GenerateFunction
         {
@@ -39,36 +38,49 @@ namespace vApus.Stresstest
             get { return _unique; }
             set { _unique = value; }
         }
+        [SavableCloneable, Description("Normally the parameter values are determined before testing, you can choose to let them generate during a test. The scope of the value (see log entry editor) will however not be respected.")]
+        public new bool GenerateWhileTesting
+        {
+            get { return _generateWhileTesting; }
+            set { _generateWhileTesting = value; }
+        }
+        public new string ReadMe
+        {
+            get { return "Normally the parameter values are determined before testing, you can choose to let them generate during a test. The scope of the value (see log entry editor) will however not be respected."; }
+        }
         public override void Next()
         {
-            try
+            lock (_lock)//For thread safety, only here, because only for this type of parameter this function can be used while testing.
             {
-                if (_customRandomParameter == null)
-                    CreateInstance();
+                try
+                {
+                    if (_customRandomParameter == null)
+                        CreateInstance();
 
-                _value = _customRandomParameter.Generate();
-            }
-            catch
-            {
-                throw new Exception("[" + this + "] The custom code does not compile!\nPlease check it for errors.");
-            }
+                    _value = _customRandomParameter.Generate();
+                }
+                catch
+                {
+                    throw new Exception("[" + this + "] The custom code does not compile!\nPlease check it for errors.");
+                }
 
-            if (_unique)
-            {
-                if (_chosenValues.Count == int.MaxValue)
-                    _chosenValues.Clear();
-
-                int loops = 0; //Preferably max 1, detecting infinite loops here.
-                int maxLoops = 10;
-                while (!_chosenValues.Add(_value))
+                if (_unique)
                 {
                     if (_chosenValues.Count == int.MaxValue)
                         _chosenValues.Clear();
 
-                    _value = _customRandomParameter.Generate();
+                    int loops = 0; //Preferably max 1, detecting infinite loops here.
+                    int maxLoops = 10;
+                    while (!_chosenValues.Add(_value))
+                    {
+                        if (_chosenValues.Count == int.MaxValue)
+                            _chosenValues.Clear();
 
-                    if (++loops == maxLoops)
-                        throw new Exception("[" + this + "] Your code cannot provide unique values!");
+                        _value = _customRandomParameter.Generate();
+
+                        if (++loops == maxLoops)
+                            throw new Exception("[" + this + "] Your code cannot provide unique values!");
+                    }
                 }
             }
         }

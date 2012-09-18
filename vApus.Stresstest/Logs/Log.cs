@@ -194,9 +194,11 @@ namespace vApus.Stresstest
         /// <summary>
         /// Get a list of string trees, these are used in the connection proxy code.
         /// </summary>
+        /// <param name="generateWhileTestingParameterTokens">The tokens and parameters that must generate values while stresstesting.</param>
         /// <returns></returns>
-        public List<StringTree> GetParameterizedStructure()
+        public List<StringTree> GetParameterizedStructure(out Dictionary<string, BaseParameter> generateWhileTestingParameterTokens)
         {
+            generateWhileTestingParameterTokens = new Dictionary<string, BaseParameter>();
             var parameterizedStructure = new List<StringTree>(Count);
             var chosenNextValueParametersForLScope = new HashSet<BaseParameter>();
 
@@ -206,10 +208,13 @@ namespace vApus.Stresstest
 
             foreach (BaseItem item in this)
                 if (item is UserAction)
-                    foreach (StringTree ps in (item as UserAction).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope))
+                    foreach (StringTree ps in (item as UserAction).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope,
+                        generateWhileTestingParameterTokens))
                         parameterizedStructure.Add(ps);
                 else
-                    parameterizedStructure.Add((item as LogEntry).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope));
+                    parameterizedStructure.Add((item as LogEntry).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope,
+                        new HashSet<BaseParameter>(),
+                        generateWhileTestingParameterTokens));
 
             return parameterizedStructure;
         }

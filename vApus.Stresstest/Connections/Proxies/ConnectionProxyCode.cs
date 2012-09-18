@@ -175,14 +175,6 @@ timeToLastByte = _stopwatch.Elapsed;
 _stopwatch.Reset();
 }
 } //SendAndReceive
-public void TestSendAndReceive(StringTree parameterizedLogEntry, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {
-//
-// Serves at making a unit test, you can for example save the output here eg a htm page.
-// You are adviced to always test the send and receive function here, otherwise this is a useless function.
-//
-
-SendAndReceive(parameterizedLogEntry, out sentAt, out timeToLastByte, out exception);
-} //TestSendAndReceive
 public void Dispose() {
 if (!_isDisposed)
 {

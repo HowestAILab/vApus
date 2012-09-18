@@ -43,8 +43,6 @@ namespace vApus.Stresstest
             this.find = new vApus.Stresstest.FindAndReplace();
             this.tpCompile = new System.Windows.Forms.TabPage();
             this.compile = new vApus.Stresstest.Compile();
-            this.tpExecute = new System.Windows.Forms.TabPage();
-            this.execute = new vApus.Stresstest.Execute();
             this.sfd = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitCode)).BeginInit();
             this.splitCode.Panel1.SuspendLayout();
@@ -55,7 +53,6 @@ namespace vApus.Stresstest
             this.tpReferences.SuspendLayout();
             this.tpFind.SuspendLayout();
             this.tpCompile.SuspendLayout();
-            this.tpExecute.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitCode
@@ -174,7 +171,6 @@ namespace vApus.Stresstest
             this.tcTools.Controls.Add(this.tpReferences);
             this.tcTools.Controls.Add(this.tpFind);
             this.tcTools.Controls.Add(this.tpCompile);
-            this.tcTools.Controls.Add(this.tpExecute);
             this.tcTools.Location = new System.Drawing.Point(4, 4);
             this.tcTools.Name = "tcTools";
             this.tcTools.SelectedIndex = 0;
@@ -245,27 +241,6 @@ namespace vApus.Stresstest
             this.compile.CompileError += new System.EventHandler(this.compile_CompileError);
             this.compile.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.Compile.CompileErrorButtonClickedEventArgs>(this.compile_CompileErrorButtonClicked);
             // 
-            // tpExecute
-            // 
-            this.tpExecute.Controls.Add(this.execute);
-            this.tpExecute.Location = new System.Drawing.Point(4, 22);
-            this.tpExecute.Name = "tpExecute";
-            this.tpExecute.Padding = new System.Windows.Forms.Padding(3);
-            this.tpExecute.Size = new System.Drawing.Size(789, 153);
-            this.tpExecute.TabIndex = 4;
-            this.tpExecute.Text = "Execute";
-            this.tpExecute.UseVisualStyleBackColor = true;
-            // 
-            // execute
-            // 
-            this.execute.BackColor = System.Drawing.Color.White;
-            this.execute.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.execute.Location = new System.Drawing.Point(3, 3);
-            this.execute.Name = "execute";
-            this.execute.Padding = new System.Windows.Forms.Padding(9);
-            this.execute.Size = new System.Drawing.Size(783, 147);
-            this.execute.TabIndex = 0;
-            // 
             // sfd
             // 
             this.sfd.Filter = "cs-file|*.cs";
@@ -290,7 +265,6 @@ namespace vApus.Stresstest
             this.tpReferences.ResumeLayout(false);
             this.tpFind.ResumeLayout(false);
             this.tpCompile.ResumeLayout(false);
-            this.tpExecute.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -304,8 +278,6 @@ namespace vApus.Stresstest
         private System.Windows.Forms.TabPage tpCompile;
         private References references;
         private Compile compile;
-        private System.Windows.Forms.TabPage tpExecute;
-        private Execute execute;
         private System.Windows.Forms.TabPage tpFind;
         private FindAndReplace find;
         private System.Windows.Forms.Button btnExport;

@@ -363,6 +363,8 @@ namespace vApus.Stresstest
 
                 Random delaysRandom = new Random(DateTime.Now.Millisecond);
 
+                Dictionary<string, BaseParameter> generateWhileTestingParameterTokens = new Dictionary<string, BaseParameter>();
+
                 for (int t = 0; t != concurrentUsers; t++)
                 {
                     if (_cancel)
@@ -374,7 +376,7 @@ namespace vApus.Stresstest
                     var tle = new TestableLogEntry[testPatternIndices.Length];
                     int index = 0;
 
-                    var parameterizedStructure = _stresstest.Log.GetParameterizedStructure();
+                    var parameterizedStructure = _stresstest.Log.GetParameterizedStructure(out generateWhileTestingParameterTokens);
 
                     for (int i = 0; i != testPatternIndices.Length; i++)
                     {
@@ -404,7 +406,8 @@ namespace vApus.Stresstest
                             userAction = parent.ToString();
                         }
 
-                        tle[index++] = new TestableLogEntry(logEntryIndex, parameterizedLogEntry, userActionIndex, userAction, logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs);
+                        tle[index++] = new TestableLogEntry(logEntryIndex, parameterizedLogEntry, userActionIndex, userAction, 
+                            logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, generateWhileTestingParameterTokens);
                     }
 
                     testableLogEntries.Add(tle);
@@ -691,9 +694,15 @@ namespace vApus.Stresstest
                 try
                 {
                     if (connectionProxy == null || connectionProxy.IsDisposed)
+                    {
                         exception = new Exception("Connectionproxy is disposed. Metrics for this log entry (" + testableLogEntry.ParameterizedLogEntryString + ") are not correct.");
+                    }
                     else
-                        connectionProxy.SendAndReceive(testableLogEntry.ParameterizedLogEntry, out sentAt, out timeToLastByte, out exception);
+                    {
+                        StringTree parameterizedLogEntry = testableLogEntry.ParameterizedLogEntry;
+
+                        connectionProxy.SendAndReceive(parameterizedLogEntry, out sentAt, out timeToLastByte, out exception);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -976,6 +985,9 @@ namespace vApus.Stresstest
         /// </summary>
         private struct TestableLogEntry
         {
+            private StringTree _parameterizedLogEntry;
+            private Dictionary<string, BaseParameter> _generateWhileTestingParameterTokens;
+
             public int UserActionIndex;
             /// <summary>
             /// Should be log.IndexOf(LogEntry) or log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry), this must be unique
@@ -989,7 +1001,44 @@ namespace vApus.Stresstest
             /// The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do).
             /// </summary>
             public int ParallelOffsetInMs;
-            public StringTree ParameterizedLogEntry;
+            public StringTree ParameterizedLogEntry
+            { 
+                get 
+                {
+                    if (_generateWhileTestingParameterTokens.Count != 0)
+                    {
+                        ApplyParameters(_parameterizedLogEntry);
+                        ParameterizedLogEntryString = _parameterizedLogEntry.CombineValues();
+                    }
+                    return _parameterizedLogEntry; 
+                } 
+            }
+            private void ApplyParameters(StringTree stringTree)
+            {
+                if (string.IsNullOrEmpty(stringTree.Value))
+                {
+                    foreach (StringTree subTree in stringTree)
+                        ApplyParameters(subTree);
+                }
+                else
+                {
+                    string parameterizedValue = stringTree.Value;
+                    foreach (string token in _generateWhileTestingParameterTokens.Keys)
+                    {
+                        BaseParameter parameter = _generateWhileTestingParameterTokens[token];
+                        string[] split = parameterizedValue.Split(new string[] { token }, StringSplitOptions.None);
+
+                        parameterizedValue = string.Empty;
+                        for (int i = 0; i != split.Length - 1; i++)
+                        {
+                            parameter.Next();
+                            parameterizedValue += split[i] + parameter.Value;
+                        }
+                        parameterizedValue += split[split.Length - 1];
+                    }
+                    stringTree.Value = parameterizedValue;
+                }
+            }
 
             /// <summary>
             /// Log entry with metadata.
@@ -998,7 +1047,9 @@ namespace vApus.Stresstest
             /// <param name="parameterizedLogEntry"></param>
             /// <param name="userAction">Can not be null, string.empty is allowed</param>
             /// <param name="userAction">Can not be null, string.empty is allowed</param>
-            public TestableLogEntry(string logEntryIndex, StringTree parameterizedLogEntry, int userActionIndex, string userAction, bool executeInParallelWithPrevious, int parallelOffsetInMs)
+            /// <param name="generateWhileTestingParameterTokens">The needed ones will be filtered.</param>
+            public TestableLogEntry(string logEntryIndex, StringTree parameterizedLogEntry, int userActionIndex, string userAction,
+                bool executeInParallelWithPrevious, int parallelOffsetInMs, Dictionary<string, BaseParameter> generateWhileTestingParameterTokens)
             {
                 if (userAction == null)
                     throw new ArgumentNullException("userAction");
@@ -1006,11 +1057,17 @@ namespace vApus.Stresstest
                 LogEntryIndex = logEntryIndex;
                 UserActionIndex = userActionIndex;
 
-                ParameterizedLogEntry = parameterizedLogEntry;
-                ParameterizedLogEntryString = ParameterizedLogEntry.CombineValues();
+                _parameterizedLogEntry = parameterizedLogEntry;
+                ParameterizedLogEntryString = _parameterizedLogEntry.CombineValues();
                 UserAction = userAction;
                 ExecuteInParallelWithPrevious = executeInParallelWithPrevious;
                 ParallelOffsetInMs = parallelOffsetInMs;
+
+                //Get usable tokens
+                _generateWhileTestingParameterTokens = new Dictionary<string, BaseParameter>();
+                foreach (string token in generateWhileTestingParameterTokens.Keys)
+                    if (ParameterizedLogEntryString.Contains(token))
+                        _generateWhileTestingParameterTokens.Add(token, generateWhileTestingParameterTokens[token]);
             }
         }
     }

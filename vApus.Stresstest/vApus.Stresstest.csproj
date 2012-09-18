@@ -316,12 +316,6 @@
     </Compile>
     <Compile Include="Connections\Proxies\ConnectionProxies.cs" />
     <Compile Include="Connections\Proxies\ConnectionProxy.cs" />
-    <Compile Include="Connections\Proxies\Panels\Execute.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Connections\Proxies\Panels\Execute.designer.cs">
-      <DependentUpon>Execute.cs</DependentUpon>
-    </Compile>
     <Compile Include="Connections\Proxies\ConnectionProxyCodeView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -485,9 +479,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\Panels\FindAndReplace.resx">
       <DependentUpon>FindAndReplace.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\Execute.resx">
-      <DependentUpon>Execute.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\ConnectionProxyCodeView.resx">
       <DependentUpon>ConnectionProxyCodeView.cs</DependentUpon>

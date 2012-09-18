@@ -117,4 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="chkGenerateWhileTesting.ToolTip" xml:space="preserve">
+    <value>Normally the parameter values are determined before testing, you can choose to let them generate during a test.
+
+The scope of the value (see log entry editor) will however not be respected. Doing this will also make the test more resource intensive.
+I advise you to program such parameters directly in the connection proxy code rather than using this. </value>
+  </data>
 </root>

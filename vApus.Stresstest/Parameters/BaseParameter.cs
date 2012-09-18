@@ -34,12 +34,16 @@ namespace vApus.Stresstest
         internal string _value;
         internal string _description = string.Empty;
 
-        private object _lock = new object();
+        protected object _lock = new object();
         private int _tokenNumericIdentifier = -1;
+
+        /// <summary>
+        /// Should be false in most cases.
+        /// </summary>
+        protected bool _generateWhileTesting;
         #endregion
 
         #region Properties
-
         public string Value
         {
             get { return _value; }
@@ -83,6 +87,11 @@ namespace vApus.Stresstest
                     }
                 }
             }
+        }
+        [Description("Normally the parameter values are determined before testing, you can choose to let them generate during a test. The scope of the value (see log entry editor) will however not be respected.")]
+        public bool GenerateWhileTesting
+        {
+            get { return _generateWhileTesting; }
         }
         [PropertyControl(int.MaxValue), DisplayName("Read Me")]
         public string ReadMe
