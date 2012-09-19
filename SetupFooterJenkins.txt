@@ -1,4 +1,6 @@
 [Run]
+Filename: {app}\dotNetFx45_Full_setup.exe
+Filename: {app}\JavaSetup7u7.exe
 Filename: {app}\vApus.JumpStart.exe; Flags: nowait
 [UninstallRun]
 Filename: {app}\vApus.KillvApusAndTools.exe
