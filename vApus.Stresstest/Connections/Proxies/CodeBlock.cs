@@ -327,10 +327,18 @@ namespace vApus.Stresstest
         private void SetCode(ref List<string> lines)
         {
             //Remove the header, use this as a check
-            lines[0] = lines[0].Trim();
-            if (lines[0] == lblHeader.Text)
-                lines.RemoveAt(0);
-            else
+            bool headerFound = false;
+            for (int i = 0; i != lines.Count; i++)
+            {
+                lines[i] = lines[i].Trim();
+                if (lines[i] == lblHeader.Text)
+                {
+                    headerFound = true;
+                    lines.RemoveRange(0, i + 1); //Remove the lines we don't need (version differences).
+                    break;
+                }
+            }
+            if (!headerFound)
                 return;
 
             if (_codeBlockTextBox == null)

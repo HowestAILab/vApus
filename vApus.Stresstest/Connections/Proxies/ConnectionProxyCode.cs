@@ -22,10 +22,6 @@ namespace vApus.Stresstest
     public class ConnectionProxyCode : BaseItem, ISerializable
     {
         #region Fields
-        private int _threads = 1;
-        private Log _testLog;
-        private int _testLogEntryIndex = -1;
-        private string _testConnectionString = string.Empty;
         private string _code = ConnectionProxyCode.DEFAULTCODE;
         private const string DEFAULTCODE =
 @"//Connection Proxy Document
@@ -203,41 +199,6 @@ _isDisposed = true;
             get { return Parent[0] as ConnectionProxyRuleSet; }
         }
         [SavableCloneable]
-        [DisplayName("Threads")]
-        public int Threads
-        {
-            get { return _threads; }
-            set { _threads = value; }
-        }
-        [DisplayName("Test Log")]
-        public Log TestLog
-        {
-            get { return _testLog; }
-            set
-            {
-                value.ParentIsNull -= _testLog_ParentIsNull;
-                _testLog = value;
-                _testLog.ParentIsNull += _testLog_ParentIsNull;
-            }
-        }
-        [DisplayName("Test Log Entry Index"), Description("- 1 for all.")]
-        public int TestLogEntryIndex
-        {
-            get { return _testLogEntryIndex; }
-            set
-            {
-                if (value < -1)
-                    throw new ArgumentOutOfRangeException("Cannot be smaller than -1.");
-                _testLogEntryIndex = value;
-            }
-        }
-        [DisplayName("Test Connection String")]
-        public string TestConnectionString
-        {
-            get { return _testConnectionString; }
-            set { _testConnectionString = value; }
-        }
-        [SavableCloneable]
         public string Code
         {
             get { return _code; }
@@ -252,10 +213,6 @@ _isDisposed = true;
         #region Constructor
         public ConnectionProxyCode()
         {
-            if (Solution.ActiveSolution != null)
-                TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-            else
-                Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
         /// <summary>
         /// Only for sending from master to slave.
@@ -276,15 +233,6 @@ _isDisposed = true;
         #endregion
 
         #region Functions
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-        }
-        private void _testLog_ParentIsNull(object sender, EventArgs e)
-        {
-            TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-        }
         public string BuildConnectionProxyClass(ConnectionProxyRuleSet connectionProxyRuleSet, string connectionString)
         {
             string[] split = _code.Split(new string[] { "// -- RuleSetFields --" }, StringSplitOptions.None);

@@ -40,8 +40,6 @@ namespace vApus.Stresstest
             Connection connection = new Connection();
             Connection stub = new Connection();
             stub.ConnectionProxy = ConnectionProxyCode.Parent as ConnectionProxy;
-            if (!string.IsNullOrEmpty(ConnectionProxyCode.TestConnectionString))
-                stub.ConnectionString = ConnectionProxyCode.TestConnectionString;
             ConnectionProxyPool connectionProxyPool = new ConnectionProxyPool(stub);
             CompilerResults results = connectionProxyPool.CompileConnectionProxyClass(debug, deleteTempFiles);
 

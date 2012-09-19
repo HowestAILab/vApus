@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -300,12 +301,12 @@ namespace vApus.Stresstest
 
             RemoveEmptyUserActions();
 
-//#if EnableBetaFeature
-//            bool successfullyParallized = SetParallelExecutions();
-//#else
+            //#if EnableBetaFeature
+            //            bool successfullyParallized = SetParallelExecutions();
+            //#else
 #warning Parallel executions temp not available
             bool successfullyParallized = true;
-//#endif
+            //#endif
             SetIgnoreDelays();
             FillLargeList();
 
@@ -512,7 +513,7 @@ namespace vApus.Stresstest
             {
                 //We need to have a StringTree for the log entrym we can get that calling GetParameterizedStructure.
                 var parameterizedLogEntry = logEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter, new HashSet<BaseParameter>(),
-                    new HashSet<BaseParameter>(), new Dictionary<string,BaseParameter>());
+                    new HashSet<BaseParameter>(), new Dictionary<string, BaseParameter>());
                 string begin = null, end = null;
 
                 if (endTimestampIndex < parameterizedLogEntry.Count)
@@ -595,52 +596,57 @@ namespace vApus.Stresstest
 
         private void btnRecord_Click(object sender, EventArgs e)
         {
-            Record record = new Record();
-            record.SetConfig(_log.RecordIps, _log.RecordPorts);
-            if (!record.IsDisposed)
+            string jarPath = Path.Combine(Application.StartupPath, "Lupus-Proxy.jar");
+            //record.SetConfig(_log.RecordIps, _log.RecordPorts);
+            if (File.Exists(jarPath))
             {
-                if (record.ShowDialog() == DialogResult.OK)
+                string logPath = Path.Combine(Application.StartupPath, "lupusProxyLog");
+                Process lupusProcess = Process.Start("java", "-jar " + jarPath + " lupusProxyLog");
+                lupusProcess.WaitForExit();
+
+                bool aoc = _log.LogRuleSet.ActionizeOnComment;
+                bool aof = _log.LogRuleSet.ActionizeOnFile;
+
+                _log.LogRuleSet.ActionizeOnComment = true;
+                _log.LogRuleSet.ActionizeOnFile = false;
+
+                int i = 0;
+            Retry:
+                try
                 {
-                    bool aoc = _log.LogRuleSet.ActionizeOnComment;
-                    bool aof = _log.LogRuleSet.ActionizeOnFile;
-
-                    _log.LogRuleSet.ActionizeOnComment = true;
-                    _log.LogRuleSet.ActionizeOnFile = false;
-
-                    int i = 0;
-                Retry:
-                    try
+                    ImportLogFiles(logPath);
+                }
+                catch (Exception ex)
+                {
+                    if (i++ != 10)
                     {
-                        ImportLogFiles(record.LogPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (i++ != 10)
-                        {
-                            Thread.Sleep(500);
-                            goto Retry;
-                        }
-
-                        string message = this.Text + ": Could not import " + record.LogPath + ".\n" + ex.ToString();
-                        LogWrapper.LogByLevel(message, LogLevel.Error);
+                        Thread.Sleep(500);
+                        goto Retry;
                     }
 
-                    try
-                    {
-                        File.Delete(record.LogPath);
-                    }
-                    catch { }
-
-                    _log.LogRuleSet.ActionizeOnComment = aoc;
-                    _log.LogRuleSet.ActionizeOnFile = aof;
+                    string message = this.Text + ": Could not import " + logPath + ".\n" + ex.ToString();
+                    LogWrapper.LogByLevel(message, LogLevel.Error);
                 }
 
-                string[] recordIps;
-                int[] recordPorts;
-                record.GetConfig(out recordIps, out  recordPorts);
+                try
+                {
+                    File.Delete(logPath);
+                }
+                catch { }
 
-                _log.RecordIps = recordIps;
-                _log.RecordPorts = recordPorts;
+                _log.LogRuleSet.ActionizeOnComment = aoc;
+                _log.LogRuleSet.ActionizeOnFile = aof;
+
+                //string[] recordIps;
+                //int[] recordPorts;
+                //record.GetConfig(out recordIps, out  recordPorts);
+
+                //_log.RecordIps = recordIps;
+                //_log.RecordPorts = recordPorts;
+            }
+            else 
+            {
+                LogWrapper.LogByLevel("Could not find Lupus-Proxy.jar!", LogLevel.Error);
             }
         }
 

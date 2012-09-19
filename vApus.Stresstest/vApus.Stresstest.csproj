@@ -172,24 +172,6 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="IKVM.OpenJDK.Core">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.OpenJDK.SwingAWT">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.SwingAWT.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.OpenJDK.Text">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Text.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.OpenJDK.Util">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Util.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.Runtime">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Lupus_HTTP_Proxy">
-      <HintPath>..\Prerequisites\Lupus Proxy\Lupus_HTTP_Proxy.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="QuickLZ.Net">
       <HintPath>..\Prerequisites\QuickLZ.Net\QuickLZ.Net.dll</HintPath>
@@ -360,12 +342,6 @@
     <Compile Include="Logs\Controls\UserActionControl.Designer.cs">
       <DependentUpon>UserActionControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Record.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Logs\Record.Designer.cs">
-      <DependentUpon>Record.cs</DependentUpon>
-    </Compile>
     <Compile Include="Logs\RuleSets\LogSyntaxItem.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -522,9 +498,6 @@
     <EmbeddedResource Include="Logs\LogView.resx">
       <DependentUpon>LogView.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Record.resx">
-      <DependentUpon>Record.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\RedetermineTokens.resx">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
@@ -702,6 +675,9 @@
     <Content Include="Resources\UserAction.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>copy /y $(SolutionDir)\"Prerequisites\Lupus Proxy\Lupus-Proxy.jar" $(SolutionDir)\Build\Lupus-Proxy.jar</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
