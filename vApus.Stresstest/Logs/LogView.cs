@@ -603,6 +603,8 @@ namespace vApus.Stresstest
                 string logPath = Path.Combine(Application.StartupPath, "lupusProxyLog");
                 Process lupusProcess = Process.Start("\"" + jarPath + "\"", "lupusProxyLog");
                 lupusProcess.WaitForExit();
+                if (!File.Exists(logPath))
+                    return;
 
                 bool aoc = _log.LogRuleSet.ActionizeOnComment;
                 bool aof = _log.LogRuleSet.ActionizeOnFile;
@@ -614,7 +616,6 @@ namespace vApus.Stresstest
             Retry:
                 try
                 {
-                    if (File.Exists(logPath))
                         ImportLogFiles(logPath);
                 }
                 catch (Exception ex)
