@@ -601,7 +601,7 @@ namespace vApus.Stresstest
             if (File.Exists(jarPath))
             {
                 string logPath = Path.Combine(Application.StartupPath, "lupusProxyLog");
-                Process lupusProcess = Process.Start("\"" + jarPath + "\"" , "lupusProxyLog");
+                Process lupusProcess = Process.Start("\"" + jarPath + "\"", "lupusProxyLog");
                 lupusProcess.WaitForExit();
 
                 bool aoc = _log.LogRuleSet.ActionizeOnComment;
@@ -614,7 +614,8 @@ namespace vApus.Stresstest
             Retry:
                 try
                 {
-                    ImportLogFiles(logPath);
+                    if (File.Exists(logPath))
+                        ImportLogFiles(logPath);
                 }
                 catch (Exception ex)
                 {
@@ -644,7 +645,7 @@ namespace vApus.Stresstest
                 //_log.RecordIps = recordIps;
                 //_log.RecordPorts = recordPorts;
             }
-            else 
+            else
             {
                 LogWrapper.LogByLevel("Could not find Lupus-Proxy.jar!", LogLevel.Error);
             }
