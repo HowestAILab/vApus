@@ -33,7 +33,10 @@ begin
 		Exec(ExpandConstant('{app}\JavaSetup7u7.exe'), '', '', SW_SHOW,
 			ewWaitUntilTerminated, ResultCode)
 	end;
-    	if not IsDotNetDetected() then begin
+    	if IsDotNetDetected() then begin
+		Exec(ExpandConstant('{app}\vApus.JumpStart.exe'), '', '', SW_SHOW, ewNoWait, ResultCode);
+	end
+    	else begin
 		if Exec(ExpandConstant('{app}\dotNetFx45_Full_setup.exe'), '', '', SW_SHOW,
 			ewWaitUntilTerminated, ResultCode) then begin
 			Exec(ExpandConstant('{app}\vApus.JumpStart.exe'), '', '', SW_SHOW, ewNoWait, ResultCode);
