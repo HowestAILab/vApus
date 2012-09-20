@@ -1,6 +1,42 @@
-[Run]
-Filename: {app}\dotNetFx45_Full_setup.exe
-Filename: {app}\JavaSetup7u7.exe
-Filename: {app}\vApus.JumpStart.exe; Flags: nowait
 [UninstallRun]
 Filename: {app}\vApus.KillvApusAndTools.exe
+
+[Code]
+function IsDotNetDetected(): boolean;
+var
+    key, version: string;
+    install: cardinal;
+    success: boolean;
+begin
+    key := 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full';
+    success := RegQueryDWordValue(HKLM, key, 'Install', install);
+    success := success and RegQueryStringValue(HKLM, key, 'Version', version);
+
+    result := success and (install = 1) and (pos('4.5', version) = 1);
+end;
+function IsJavaDetected() : boolean;
+var
+    key, version: string;
+    success: boolean;
+begin
+    key := 'SOFTWARE\Wow6432Node\JavaSoft\Java Runtime Environment';
+    success := RegQueryStringValue(HKLM, key, 'CurrentVersion', version);
+
+    result := success and (pos('1.7', version) = 1);
+end;
+
+procedure DeinitializeSetup();
+var
+  ResultCode: integer;
+begin
+	if not IsJavaDetected() then begin
+		Exec(ExpandConstant('{app}\JavaSetup7u7.exe'), '', '', SW_SHOW,
+			ewWaitUntilTerminated, ResultCode)
+	end;
+    	if not IsDotNetDetected() then begin
+		if Exec(ExpandConstant('{app}\dotNetFx45_Full_setup.exe'), '', '', SW_SHOW,
+			ewWaitUntilTerminated, ResultCode) then begin
+			Exec(ExpandConstant('{app}\vApus.JumpStart.exe'), '', '', SW_SHOW, ewNoWait, ResultCode);
+		end;
+	end;
+end;

@@ -601,7 +601,7 @@ namespace vApus.Stresstest
             if (File.Exists(jarPath))
             {
                 string logPath = Path.Combine(Application.StartupPath, "lupusProxyLog");
-                Process lupusProcess = Process.Start("java", "-jar " + jarPath + " lupusProxyLog");
+                Process lupusProcess = Process.Start("\"" + jarPath + "\"" , "lupusProxyLog");
                 lupusProcess.WaitForExit();
 
                 bool aoc = _log.LogRuleSet.ActionizeOnComment;
