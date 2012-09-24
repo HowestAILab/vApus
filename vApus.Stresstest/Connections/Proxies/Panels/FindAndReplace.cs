@@ -210,8 +210,6 @@ namespace vApus.Stresstest
         public class FoundReplacedButtonClickedEventArgs : EventArgs
         {
             public readonly int LineNumber;
-            public readonly CodeBlock CodeBlock;
-
             public FoundReplacedButtonClickedEventArgs(int lineNumber)
             {
                 LineNumber = lineNumber;
