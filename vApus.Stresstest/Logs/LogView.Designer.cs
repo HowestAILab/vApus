@@ -141,7 +141,6 @@
             this.splitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer.Location = new System.Drawing.Point(0, 28);
             this.splitContainer.Margin = new System.Windows.Forms.Padding(0);
@@ -161,7 +160,7 @@
             this.splitContainer.Panel2.Controls.Add(this.toolStripEdit);
             this.splitContainer.Panel2.Controls.Add(this.largelist);
             this.splitContainer.Size = new System.Drawing.Size(941, 434);
-            this.splitContainer.SplitterDistance = 200;
+            this.splitContainer.SplitterDistance = 115;
             this.splitContainer.TabIndex = 26;
             // 
             // logSolutionComponentPropertyPanel
@@ -171,7 +170,7 @@
             this.logSolutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.logSolutionComponentPropertyPanel.Location = new System.Drawing.Point(0, 0);
             this.logSolutionComponentPropertyPanel.Name = "logSolutionComponentPropertyPanel";
-            this.logSolutionComponentPropertyPanel.Size = new System.Drawing.Size(939, 198);
+            this.logSolutionComponentPropertyPanel.Size = new System.Drawing.Size(941, 115);
             this.logSolutionComponentPropertyPanel.SolutionComponent = null;
             this.logSolutionComponentPropertyPanel.TabIndex = 2;
             // 
@@ -180,7 +179,7 @@
             this.btnCollapseExpand.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCollapseExpand.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(153)))), ((int)(((byte)(180)))), ((int)(((byte)(209)))));
             this.btnCollapseExpand.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCollapseExpand.Location = new System.Drawing.Point(887, 0);
+            this.btnCollapseExpand.Location = new System.Drawing.Point(889, 0);
             this.btnCollapseExpand.Name = "btnCollapseExpand";
             this.btnCollapseExpand.Size = new System.Drawing.Size(28, 25);
             this.btnCollapseExpand.TabIndex = 28;
@@ -193,10 +192,11 @@
             // chk
             // 
             this.chk.AutoSize = true;
+            this.chk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chk.Location = new System.Drawing.Point(11, 5);
             this.chk.Name = "chk";
-            this.chk.Size = new System.Drawing.Size(15, 14);
-            this.chk.TabIndex = 5;
+            this.chk.Size = new System.Drawing.Size(12, 11);
+            this.chk.TabIndex = 0;
             this.chk.UseVisualStyleBackColor = true;
             this.chk.CheckStateChanged += new System.EventHandler(this.chk_CheckStateChanged);
             // 
@@ -218,7 +218,7 @@
             this.btnActionizeUnactionize});
             this.toolStripEdit.Location = new System.Drawing.Point(0, 0);
             this.toolStripEdit.Name = "toolStripEdit";
-            this.toolStripEdit.Size = new System.Drawing.Size(939, 25);
+            this.toolStripEdit.Size = new System.Drawing.Size(941, 25);
             this.toolStripEdit.TabIndex = 3;
             // 
             // toolStripLabel1
@@ -333,7 +333,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.largelist.Location = new System.Drawing.Point(-1, 26);
             this.largelist.Name = "largelist";
-            this.largelist.Size = new System.Drawing.Size(941, 203);
+            this.largelist.Size = new System.Drawing.Size(943, 290);
             this.largelist.SizeMode = vApus.Util.SizeMode.StretchHorizontal;
             this.largelist.TabIndex = 2;
             // 
@@ -344,7 +344,7 @@
             this.errorAndFindSelector.Found = null;
             this.errorAndFindSelector.Location = new System.Drawing.Point(284, 0);
             this.errorAndFindSelector.Name = "errorAndFindSelector";
-            this.errorAndFindSelector.Size = new System.Drawing.Size(597, 25);
+            this.errorAndFindSelector.Size = new System.Drawing.Size(599, 25);
             this.errorAndFindSelector.TabIndex = 4;
             this.errorAndFindSelector.SelectError += new System.EventHandler<vApus.Stresstest.SelectErrorEventArgs>(this.errorAndFindSelector_SelectError);
             this.errorAndFindSelector.Find += new System.EventHandler<vApus.Stresstest.FindEventArgs>(this.errorAndFindSelector_Find);

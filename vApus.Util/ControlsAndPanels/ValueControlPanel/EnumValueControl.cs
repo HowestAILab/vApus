@@ -6,14 +6,15 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Windows.Forms;
-using System.Drawing;
 using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace vApus.Util
 {
     public partial class EnumValueControl : BaseValueControl, IValueControl
     {
+        [ToolboxItem(false)]
         public EnumValueControl()
         {
             InitializeComponent();
@@ -49,8 +50,9 @@ namespace vApus.Util
             }
 
             cbo.SelectedIndexChanged -= cbo_SelectedIndexChanged;
+            cbo.Items.Clear();
             //Extract all the values.
-            Type valueType = value.GetType();
+            Type valueType = value.__Value.GetType();
             foreach (Enum e in Enum.GetValues(valueType))
             {
                 //The description value will be used instead of the tostring of the enum, if any.
@@ -58,8 +60,8 @@ namespace vApus.Util
                 cbo.Items.Add(attr.Length != 0 ? attr[0].Description : e.ToString());
             }
 
-            DescriptionAttribute[] attr2 = valueType.GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
-            cbo.SelectedItem = attr2.Length > 0 ? attr2[0].Description : value.ToString();
+            DescriptionAttribute[] attr2 = valueType.GetField(value.__Value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+            cbo.SelectedItem = attr2.Length > 0 ? attr2[0].Description : value.__Value.ToString();
 
             cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
 
@@ -77,13 +79,17 @@ namespace vApus.Util
         }
         private void cbo_Leave(object sender, EventArgs e)
         {
-            ComboBox cbo = base.ValueControl as ComboBox;
-            base.HandleValueChanged(ExtractValue(cbo));
+            try
+            {
+                ComboBox cbo = base.ValueControl as ComboBox;
+                base.HandleValueChanged(ExtractValue(cbo));
+            }
+            catch { }
         }
 
         private object ExtractValue(ComboBox cbo)
         {
-            Type valueType = base.__Value.GetType();
+            Type valueType = base.__Value.__Value.GetType();
             foreach (Enum e in Enum.GetValues(valueType))
             {
                 DescriptionAttribute[] attr = valueType.GetField(e.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];

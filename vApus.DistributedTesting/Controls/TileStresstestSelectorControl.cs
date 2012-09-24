@@ -29,7 +29,7 @@ namespace vApus.DistributedTesting
 
 
         #region Fields
-        private TileStresstest _tileStresstest;
+        private OldTileStresstest _tileStresstest;
 
         /// <summary>
         /// The monitor if any.
@@ -56,7 +56,7 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Properties
-        public TileStresstest TileStresstest
+        public OldTileStresstest TileStresstest
         {
             get { return _tileStresstest; }
         }
@@ -161,7 +161,7 @@ namespace vApus.DistributedTesting
         /// This will initialize a new monitor if the property is set to true.
         /// </summary>
         /// <param name="tileStresstest"></param>
-        public TileStresstestSelectorControl(TileStresstest tileStresstest)
+        public TileStresstestSelectorControl(OldTileStresstest tileStresstest)
             : this()
         {
             _tileStresstest = tileStresstest;
@@ -174,7 +174,6 @@ namespace vApus.DistributedTesting
         {
             //show the monitorview
             var view = SolutionComponentViewManager.Show(monitor) as Monitor.MonitorView;
-            view.ShowLabelControl = false;
             view.Tag = new MonitorReportControl();
             //For each view initialized, DistributedStresstestControl takes care of starting the test.
             view.MonitorInitialized += new EventHandler<MonitorView.MonitorInitializedEventArgs>(view_MonitorInitialized);

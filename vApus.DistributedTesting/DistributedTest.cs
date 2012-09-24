@@ -5,8 +5,8 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Stresstest;
@@ -19,24 +19,32 @@ namespace vApus.DistributedTesting
     [DisplayName("Distributed Test")]
     public class DistributedTest : LabeledBaseItem
     {
-        #region Events
-        public event EventHandler TilesSynchronized;
-        #endregion
-
         #region Fields
-        private RunSynchronization _runSynchronization;
-        private string _resultPath = SpecialFolder.GetPath(SpecialFolder.Folder.Desktop);
+        private bool _useRDP;
+        private RunSynchronization _runSynchronization = RunSynchronization.BreakOnFirstFinished;
+        private string _resultPath;
         #endregion
 
         #region Properties
-        [Browsable(true)]
+        /// <summary>
+        /// True if you want vApus to open remote desktop connections to the used clients.
+        /// Regardless if you check it or not, you need to be logged into the clients to be able to stresstest.
+        /// </summary>
         [SavableCloneable]
-        public new string Label
+        [DisplayName("Use RDP")]
+        public bool UseRDP
         {
-            get { return base.Label; }
-            set { base.Label = value; }
+            get { return _useRDP; }
+            set { _useRDP = value; }
         }
-                
+        /// <summary>
+        /// Run Synchronization exists to keep all the tests equal in duration.
+        /// That way the tested applications are never idle and results can be matched/compared.
+        /// 
+        /// Break on First: If a run from a test is finished the other runs will break.
+        /// Break on Last: Runs will re-run untill the longest one is finished for the first time.
+        /// Note that the vApus think time is included in the test duration of a run.  
+        /// </summary>
         [SavableCloneable]
         [DisplayName("Run Synchronization")]
         public RunSynchronization RunSynchronization
@@ -47,43 +55,46 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// The path where to the results are saved.
         /// </summary>
-        
+
         [SavableCloneable]
         public string ResultPath
         {
-            get { return _resultPath; }
+            get
+            {
+                if (_resultPath != DefaultResultPath || !Directory.Exists(_resultPath))
+                    _resultPath = DefaultResultPath;
+                return _resultPath;
+            }
             set { _resultPath = value; }
+        }
+        private string DefaultResultPath
+        {
+            get { return Path.Combine(Application.StartupPath, "DistributedTestResults"); }
+        }
+        public Tiles Tiles
+        {
+            get { return this[0] as Tiles; }
+        }
+        public Clients Clients
+        {
+            get { return this[1] as Clients; }
         }
         #endregion
 
         #region Constructor
         public DistributedTest()
         {
-            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
-            AddAsDefaultItem(new Tile());
+            _resultPath = DefaultResultPath;
+
+            AddAsDefaultItem(new Tiles());
+            AddAsDefaultItem(new Clients());
         }
         #endregion
 
         #region Functions
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            if (sender is Stresstest.Stresstest || sender is Stresstest.StresstestProject)
-            {
-                bool didSynchronize = true;
-                //Only needs to be checked once.
-                foreach (BaseItem item in this)
-                    if (!(item as Tile).SynchronizeTileStresstests())
-                    {
-                        didSynchronize = false;
-                        break;
-                    }
-                if (didSynchronize && TilesSynchronized != null)
-                    TilesSynchronized(this, null);
-            }
-        }
         public override void Activate()
         {
-            SolutionComponentViewManager.Show(this);
+            SolutionComponentViewManager.Show(this, typeof(DistributedTestView));
         }
         #endregion
     }

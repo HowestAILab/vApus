@@ -8,16 +8,18 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
     [ContextMenu(new string[] { "Activate_Click" }, new string[] { "Edit" })]
     [Hotkeys(new string[] { "Activate_Click" }, new Keys[] { Keys.Enter })]
     [DisplayName("Connection Proxy Code"), Serializable]
-    public class ConnectionProxyCode : BaseItem
+    public class ConnectionProxyCode : BaseItem, ISerializable
     {
         #region Fields
         private int _threads = 1;
@@ -35,6 +37,15 @@ University College of West-Flanders, Department GKG
 
 // dllreferences:System.dll;System.Data.dll;vApus.Util.dll;vApus.Stresstest.dll;
 
+#region Preprocessors
+//
+// e.g. #define NOTMUCHUSEDFEATURE
+//
+// Further in code:
+// #if NOTMUCHUSEDFEATURE
+// do stuff...
+// #endif
+#endregion //Preprocessors
 #region Default Usings
 using System;
 using System.Data;
@@ -195,7 +206,6 @@ _isDisposed = true;
 
         #region Properties
         //Never use this in a distributed test.
-
         public ConnectionProxyRuleSet ConnectionProxyRuleSet
         {
             get { return Parent[0] as ConnectionProxyRuleSet; }
@@ -211,7 +221,12 @@ _isDisposed = true;
         public Log TestLog
         {
             get { return _testLog; }
-            set { _testLog = value; }
+            set
+            {
+                value.ParentIsNull -= _testLog_ParentIsNull;
+                _testLog = value;
+                _testLog.ParentIsNull += _testLog_ParentIsNull;
+            }
         }
         [DisplayName("Test Log Entry Index"), Description("- 1 for all.")]
         public int TestLogEntryIndex
@@ -246,18 +261,38 @@ _isDisposed = true;
         public ConnectionProxyCode()
         {
             if (Solution.ActiveSolution != null)
-                _testLog = BaseItem.Empty(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+                TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
             else
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
+        public ConnectionProxyCode(SerializationInfo info, StreamingContext ctxt)
         {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            _testLog = BaseItem.Empty(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info))
+            {
+                _code = sr.ReadString();
+            }
+            sr = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
         }
         #endregion
 
         #region Functions
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
+        {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+        }
+        private void _testLog_ParentIsNull(object sender, EventArgs e)
+        {
+            TestLog = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+        }
         public string BuildConnectionProxyClass(ConnectionProxyRuleSet connectionProxyRuleSet, string connectionString)
         {
             string[] split = _code.Split(new string[] { "// -- RuleSetFields --" }, StringSplitOptions.None);
@@ -306,6 +341,24 @@ _isDisposed = true;
         public override void Activate()
         {
             SolutionComponentViewManager.Show(this);
+        }
+
+        /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter())
+            {
+                sw.Write(_code);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
         }
         #endregion
     }

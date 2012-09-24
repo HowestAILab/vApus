@@ -7,7 +7,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace vApus.Util
 {
@@ -26,6 +25,17 @@ namespace vApus.Util
             while (currentIndex++ < index)
                 enumerator.MoveNext();
             return enumerator.Current;
+        }
+        public static bool TryGetKey<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value, out TKey key)
+        {
+            foreach (TKey k in dictionary.Keys)
+                if (dictionary[k].Equals(value))
+                {
+                    key = k;
+                    return true;
+                }
+            key = default(TKey);
+            return false;
         }
     }
 }

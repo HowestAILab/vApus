@@ -229,6 +229,12 @@
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.Designer.cs">
       <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
     </Compile>
+    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.Designer.cs">
+      <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="StresstestThreadPool.cs" />
     <Compile Include="Logs\BulkEditLog.cs">
       <SubType>Form</SubType>
@@ -242,10 +248,10 @@
     <Compile Include="Logs\RedetermineTokens.Designer.cs">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\Custom List\CustomListGenerator.cs">
+    <Compile Include="Parameters\CustomList\CustomListGenerator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Parameters\Custom List\CustomListGenerator.Designer.cs">
+    <Compile Include="Parameters\CustomList\CustomListGenerator.Designer.cs">
       <DependentUpon>CustomListGenerator.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\CustomRandom\TestCustomRandom.cs">
@@ -321,12 +327,6 @@
       <DependentUpon>References.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
-    <Compile Include="Connections\RuleSets\ConnectionProxyRuleSetSyntaxItemPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Connections\RuleSets\ConnectionProxyRuleSetSyntaxItemPanel.Designer.cs">
-      <DependentUpon>ConnectionProxyRuleSetSyntaxItemPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\StresstestReportControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -375,8 +375,8 @@
     <Compile Include="Enums.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Metrics.cs" />
-    <Compile Include="Parameters\Custom List\CustomListParameters.cs" />
-    <Compile Include="Parameters\Custom List\CustomListParameter.cs" />
+    <Compile Include="Parameters\CustomList\CustomListParameters.cs" />
+    <Compile Include="Parameters\CustomList\CustomListParameter.cs" />
     <Compile Include="Parameters\Numeric\NumericParameters.cs" />
     <Compile Include="Parameters\Numeric\NumericParameter.cs" />
     <Compile Include="Parameters\Text\TextParameters.cs" />
@@ -430,18 +430,6 @@
     <Compile Include="Logs\RuleSets\LogRuleSet.cs" />
     <Compile Include="RuleSets\BaseRuleSet.cs" />
     <Compile Include="RuleSets\LexicalResult.cs" />
-    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.Designer.cs">
-      <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="RuleSets\Controls\SyntaxItemControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="RuleSets\Controls\SyntaxItemControl.Designer.cs">
-      <DependentUpon>SyntaxItemControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="RuleSets\SyntaxItem.cs" />
     <Compile Include="RuleSets\BaseRuleSets.cs" />
     <Compile Include="RuleSets\Rule.cs" />
@@ -502,10 +490,6 @@
     <EmbeddedResource Include="Connections\Proxies\Panels\References.resx">
       <DependentUpon>References.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\RuleSets\ConnectionProxyRuleSetSyntaxItemPanel.resx">
-      <DependentUpon>ConnectionProxyRuleSetSyntaxItemPanel.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Connections\TestAllConnections.resx">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </EmbeddedResource>
@@ -549,7 +533,7 @@
     <EmbeddedResource Include="Logs\RedetermineTokens.resx">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\Custom List\CustomListGenerator.resx">
+    <EmbeddedResource Include="Parameters\CustomList\CustomListGenerator.resx">
       <DependentUpon>CustomListGenerator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\CustomRandom\TestCustomRandom.resx">
@@ -570,14 +554,6 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="RuleSets\Controls\RuleSetSyntaxItemPanel.resx">
-      <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="RuleSets\Controls\SyntaxItemControl.resx">
-      <DependentUpon>SyntaxItemControl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="StresstestView.resx">
@@ -723,10 +699,10 @@
     <None Include="Resources\Error.png" />
     <None Include="Resources\CustomRandomParameter.png" />
     <None Include="Resources\CustomRandomParameters.png" />
-    <None Include="Resources\NotParallel.png" />
-    <None Include="Resources\Parallel.png" />
     <None Include="Resources\RedetermineTokens.png" />
     <None Include="Resources\RedetermineTokens1.png" />
+    <None Include="Resources\notparallel.png" />
+    <None Include="Resources\Parallel.png" />
     <Content Include="Resources\UserAction.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

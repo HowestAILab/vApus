@@ -6,10 +6,12 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace vApus.Util
 {
+    [ToolboxItem(false)]
     public partial class NumericValueControl : BaseValueControl, IValueControl
     {
         public NumericValueControl()
@@ -23,11 +25,11 @@ namespace vApus.Util
 
             //Only take the value into account, the other properties are taken care off.
             //Keep control recycling in mind.
-            NumericUpDown nud = null;
+            FixedNumericUpDown nud = null;
 
             if (base.ValueControl == null)
             {
-                nud = new NumericUpDown();
+                nud = new FixedNumericUpDown();
 
                 if (value.__Value is short)
                 {
@@ -70,13 +72,12 @@ namespace vApus.Util
                 nud.Dock = DockStyle.Fill;
 
                 //Use text changed rather then value changed, value changed is not invoked when the text is changed.
-                nud.TextChanged += new EventHandler(nud_TextChanged);
                 nud.Leave += new EventHandler(nud_Leave);
                 nud.KeyUp += new KeyEventHandler(nud_KeyUp);
             }
             else
             {
-                nud = base.ValueControl as NumericUpDown;
+                nud = base.ValueControl as FixedNumericUpDown;
             }
 
             nud.Value = Convert.ToDecimal(value.__Value);
@@ -84,20 +85,40 @@ namespace vApus.Util
             base.ValueControl = nud;
         }
 
-        private void nud_TextChanged(object sender, EventArgs e)
-        {
-            NumericUpDown nud = sender as NumericUpDown;
-            base.HandleValueChanged(nud.Value);
-        }
         private void nud_KeyUp(object sender, KeyEventArgs e)
         {
-            NumericUpDown nud = sender as NumericUpDown;
-            base.HandleKeyUp(e.KeyCode, nud.Value);
+            FixedNumericUpDown nud = sender as FixedNumericUpDown;
+            base.HandleKeyUp(e.KeyCode, ConvertToNumericType(nud.Value));
         }
         private void nud_Leave(object sender, EventArgs e)
         {
-            NumericUpDown nud = sender as NumericUpDown;
-            base.HandleValueChanged(nud.Value);
+            try
+            {
+                FixedNumericUpDown nud = sender as FixedNumericUpDown;
+                base.HandleValueChanged(ConvertToNumericType(nud.Value));
+            }
+            catch { }
+        }
+        private object ConvertToNumericType(decimal value)
+        {
+            Type numericType = base.__Value.__Value.GetType();
+            if (numericType == typeof(short))
+                return Convert.ToInt16(value);
+            if (numericType == typeof(int))
+                return Convert.ToInt32(value);
+            if (numericType == typeof(long))
+                return Convert.ToInt64(value);
+            if (numericType == typeof(ushort))
+                return Convert.ToUInt16(value);
+            if (numericType == typeof(uint))
+                return Convert.ToUInt32(value);
+            if (numericType == typeof(ulong))
+                return Convert.ToUInt64(value);
+            if (numericType == typeof(float))
+                return Convert.ToSingle(value);
+            if (numericType == typeof(double))
+                return Convert.ToDouble(value);
+            return Convert.ToDecimal(value);
         }
     }
 }

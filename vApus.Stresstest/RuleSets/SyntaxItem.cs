@@ -156,7 +156,7 @@ namespace vApus.Stresstest
                             SyntaxItem syntaxItem = this[i] as SyntaxItem;
                             ASTNode syntaxItemOutput = null;
                             LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters , out syntaxItemOutput);
-                            output.AddWithoutInvokingEvent(syntaxItemOutput);
+                            output.AddWithoutInvokingEvent(syntaxItemOutput, false);
                             if (lexicalResult != LexicalResult.OK)
                             {
                                 output.Value = input;
@@ -180,7 +180,7 @@ namespace vApus.Stresstest
                         }
                         output.Error = "The input does not comply to one of the rules.";
                         foreach (ASTNode ruleoutput in ruleOutputs)
-                            output.AddWithoutInvokingEvent(ruleoutput);
+                            output.AddWithoutInvokingEvent(ruleoutput, false);
                         return LexicalResult.Error;
                     }
 
@@ -202,7 +202,7 @@ namespace vApus.Stresstest
                     {
                         ASTNode syntaxItemOutput = null;
                         syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
-                        output.AddWithoutInvokingEvent(syntaxItemOutput);
+                        output.AddWithoutInvokingEvent(syntaxItemOutput, false);
                     }
                 }
                 else
@@ -218,7 +218,7 @@ namespace vApus.Stresstest
                                 LexicalResult lexicalResult = rule.TryLexicalAnaysis(splitInput[i], parameters, out ruleOutput);
                                 if (lexicalResult == LexicalResult.OK)
                                 {
-                                    output.AddWithoutInvokingEvent(ruleOutput);
+                                    output.AddWithoutInvokingEvent(ruleOutput, false);
                                     break;
                                 }
                             }
@@ -268,12 +268,12 @@ namespace vApus.Stresstest
                                 }
                                 else
                                 {
-                                    output.AddWithoutInvokingEvent(syntaxItemOutput);
+                                    output.AddWithoutInvokingEvent(syntaxItemOutput, false);
                                     output.Error = syntaxItemOutput.Error;
                                     return lexicalResult;
                                 }
                             else
-                                output.AddWithoutInvokingEvent(syntaxItemOutput);
+                                output.AddWithoutInvokingEvent(syntaxItemOutput, false);
 
                             //Apply the syntax item validation times the occurancy.
                             if (syntaxItem.Occurance > 0 && occuranceCheck == 0)
@@ -308,14 +308,6 @@ namespace vApus.Stresstest
                 }
             }
             return LexicalResult.OK;
-        }
-        /// <summary>
-        /// Gets a control based on the first rule if any.
-        /// </summary>
-        /// <returns></returns>
-        internal Control GetControl()
-        {
-            return null;
         }
         #endregion
     }

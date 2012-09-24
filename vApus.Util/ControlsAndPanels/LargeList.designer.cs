@@ -82,6 +82,7 @@ namespace vApus.Util
             this.pnl.Name = "pnl";
             this.pnl.Size = new System.Drawing.Size(150, 17);
             this.pnl.TabIndex = 4;
+            this.pnl.Visible = false;
             // 
             // txtView
             // 

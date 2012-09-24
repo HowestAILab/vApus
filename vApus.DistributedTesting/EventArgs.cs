@@ -40,12 +40,27 @@ namespace vApus.DistributedTesting
             return "Listening error occured for slave " + SlaveIP + ":" + SlavePort + " threw following exception: " + Exception;
         }
     }
-    public class PushMessageReceivedEventArgs : EventArgs
+    public class TestInitializedEventArgs : EventArgs
     {
-        public readonly PushMessage PushMessage;
-        public PushMessageReceivedEventArgs(PushMessage pushMessage)
+        public readonly Exception Exception;
+        public readonly TileStresstest TileStresstest;
+        public TestInitializedEventArgs(TileStresstest tileStresstest, Exception exception)
         {
-            PushMessage = pushMessage;
+            TileStresstest = tileStresstest;
+            Exception = exception;
+        }
+    }
+    public class TestProgressMessageReceivedEventArgs : EventArgs
+    {
+        public readonly TileStresstest TileStresstest;
+        public readonly TestProgressMessage TestProgressMessage;
+        public TestProgressMessageReceivedEventArgs(TestProgressMessage testProgressMessage)
+            : this(null, testProgressMessage)
+        { }
+        public TestProgressMessageReceivedEventArgs(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
+        {
+            TileStresstest = tileStresstest;
+            TestProgressMessage = testProgressMessage;
         }
     }
     public class FinishedEventArgs : EventArgs
@@ -58,12 +73,24 @@ namespace vApus.DistributedTesting
             Error = error;
         }
     }
-    public class ResultsMessageReceivedEventArgs : EventArgs
+    public class ResultsDownloadProgressUpdatedEventArgs : EventArgs
     {
-        public readonly ResultsMessage ResultsMessage;
-        public ResultsMessageReceivedEventArgs(ResultsMessage resultsMessage)
+        public readonly TileStresstest TileStresstest;
+        public readonly int PercentCompleted;
+        public ResultsDownloadProgressUpdatedEventArgs(TileStresstest tileStresstest, int percentCompleted)
         {
-            ResultsMessage = resultsMessage;
+            TileStresstest = tileStresstest;
+            PercentCompleted = percentCompleted;
+        }
+    }
+    public class ResultsDownloadCompletedEventArgs : EventArgs
+    {
+        public readonly TileStresstest TileStresstest;
+        public readonly string ResultPath;
+        public ResultsDownloadCompletedEventArgs(TileStresstest tileStresstest,string resultPath)
+        {
+            TileStresstest = tileStresstest;
+            ResultPath = resultPath;
         }
     }
 }

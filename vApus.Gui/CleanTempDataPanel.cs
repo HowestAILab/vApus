@@ -59,7 +59,7 @@ namespace vApus.Gui
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     GetAndStoreAllSizes();
-                });
+                }, null);
             }
             catch { }
         }

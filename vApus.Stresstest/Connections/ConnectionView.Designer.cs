@@ -31,7 +31,7 @@
             this.btnTestConnection = new System.Windows.Forms.Button();
             this.split = new System.Windows.Forms.SplitContainer();
             this.solutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
-            this.ruleSetSyntaxItemPanel = new vApus.Stresstest.ConnectionProxyRuleSetSyntaxItemPanel();
+            this.ruleSetSyntaxItemPanel = new vApus.Stresstest.RuleSetSyntaxItemPanel();
             this.tracertControl = new vApus.Util.TracertControl();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
@@ -135,7 +135,7 @@
         #endregion
 
         private System.Windows.Forms.Button btnTestConnection;
-        private ConnectionProxyRuleSetSyntaxItemPanel ruleSetSyntaxItemPanel;
+        private RuleSetSyntaxItemPanel ruleSetSyntaxItemPanel;
         private System.Windows.Forms.SplitContainer split;
         private SolutionTree.SolutionComponentPropertyPanel solutionComponentPropertyPanel;
         private Util.TracertControl tracertControl;

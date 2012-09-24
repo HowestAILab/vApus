@@ -6,51 +6,30 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
+using System.Collections.Generic;
 
 namespace vApus.Stresstest
 {
     [ContextMenu(new string[] { "Activate_Click", "Add_Click", "Export_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }, new string[] { "Edit", "Add Syntax Item", "Export", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
     [Hotkeys(new string[] { "Activate_Click", "Add_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }, new Keys[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
     [DisplayName("Log Rule Set"), Serializable]
-    public class LogRuleSet : LabeledBaseItem
+    public class LogRuleSet : BaseRuleSet, ISerializable
     {
         [field: NonSerialized]
         public event EventHandler LogRuleSetChanged;
 
         #region Fields
-        private string _childDelimiter = string.Empty, _description = string.Empty;
         private string _singleLineCommentString = string.Empty, _beginCommentString = string.Empty, _endCommentString = string.Empty;
         private bool _actionizeOnComment = true, _actionizeOnFile = true;
         private uint _beginTimestampIndex, _endTimestampIndex;
         #endregion
 
         #region Properties
-        //[SavableCloneable, PropertyControl(1)]
-        //[Description("A value to specify that different rule sets are compatible with each other, for example: log and connection rule sets")]
-        //public string Category
-        //{
-        //    get { return _catagory; }
-        //    set { _catagory = value; }
-        //}
-        [SavableCloneable, PropertyControl(2)]
-        [Description("If the length of the delimiter is zero, the given string will not be splitted into parts (space = valid)."), DisplayName("Child Delimiter")]
-        public virtual string ChildDelimiter
-        {
-            get { return _childDelimiter; }
-            set { _childDelimiter = value; }
-        }
-        [SavableCloneable, PropertyControl(int.MaxValue)]
-        [Description("Describes this rule set.")]
-        public virtual string Description
-        {
-            get { return _description; }
-            set { _description = value; }
-        }
-
         [SavableCloneable, PropertyControl(3)]
         [Description("A string that specifies single line comments, for example: \"//\"."), DisplayName("Single Line Comment String")]
         public string SingleLineCommentString
@@ -113,6 +92,27 @@ namespace vApus.Stresstest
         {
             BaseItem.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(BaseItem_SolutionComponentChanged);
         }
+               /// <summary>
+        /// Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
+        public LogRuleSet(SerializationInfo info, StreamingContext ctxt)
+        {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info))
+            {
+                Label = sr.ReadString();
+                _childDelimiter = sr.ReadString();
+                _beginTimestampIndex = sr.ReadUInt32();
+                _endTimestampIndex = sr.ReadUInt32();
+
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+            }
+            sr = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
+        }
         #endregion
 
         #region Functions
@@ -123,7 +123,6 @@ namespace vApus.Stresstest
         }
         private bool DeepContains(BaseItem parent, BaseItem possibleChild)
         {
-            // if (possibleChild is LogSyntaxItem || possibleChild is Rule)
             if (possibleChild is SyntaxItem || possibleChild is Rule)
                 if (parent.Contains(possibleChild))
                     return true;
@@ -133,25 +132,33 @@ namespace vApus.Stresstest
                             return true;
             return false;
         }
-        protected virtual void Add_Click(object sender, EventArgs e)
+        protected new void Add_Click(object sender, EventArgs e)
         {
             Add(new LogSyntaxItem());
         }
+
+
         /// <summary>
-        /// Lexes the input if possible and builds an AST.
+        /// Only for sending from master to slave.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="parameters">Can be null.</param>
-        /// <param name="output"></param>
-        /// <returns></returns>
-        public LexicalResult TryLexicalAnalysis(string input, Parameters parameters, out ASTNode output)
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            return RuleSetLexer.TryLexicalAnalysis(input, this, _childDelimiter, parameters, out output);
-        }
-        public IEnumerable<Control> GetControls()
-        {
-            foreach (BaseItem item in this)
-                yield return (item as SyntaxItem).GetControl();
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter())
+            {
+                sw.Write(Label);
+                sw.Write(_childDelimiter);
+                sw.Write(_beginTimestampIndex);
+                sw.Write(_endTimestampIndex);
+
+                sw.Write(this);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
         }
         #endregion
     }

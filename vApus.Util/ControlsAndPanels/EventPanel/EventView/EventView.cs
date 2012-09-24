@@ -7,12 +7,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Collections.Generic;
 
 namespace vApus.Util
 {
@@ -56,8 +56,12 @@ namespace vApus.Util
             var item = new EventViewItem(largeList, eventType, message, at);
             item.Visible = visible;
 
+            //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
+            bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
+
             largeList.Add(item);
-            if (_userEntered == null)
+
+            if (autoScroll)
                 largeList.ScrollIntoView(item);
 
             SetSize(item);
@@ -75,7 +79,7 @@ namespace vApus.Util
         {
             LockWindowUpdate(this.Handle.ToInt32());
 
-            int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left - item.Margin.Right - 12;
+            int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left - item.Margin.Right - 18;
 
             Size size = TextRenderer.MeasureText("I", item.Font);
             int height = (int)size.Height + item.Padding.Top + item.Padding.Bottom;

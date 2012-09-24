@@ -199,6 +199,9 @@
     <Compile Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.Designer.cs">
       <DependentUpon>DisableFirewallAutoUpdatePanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\FixedNumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ControlsAndPanels\KeyValuePairControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -285,11 +288,29 @@
     <Compile Include="ControlsAndPanels\ValueControlPanel\CharValueControl.Designer.cs">
       <DependentUpon>CharValueControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionItemValueControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionItemValueControl.Designer.cs">
+      <DependentUpon>CollectionItemValueControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionValueControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionValueControl.Designer.cs">
       <DependentUpon>CollectionValueControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\DefinedKVPCollectionControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\DefinedKVPCollectionControl.Designer.cs">
+      <DependentUpon>DefinedKVPCollectionControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\DefinedCollectionControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\DefinedCollectionControl.Designer.cs">
+      <DependentUpon>DefinedCollectionControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\EnumValueControl.cs">
       <SubType>UserControl</SubType>
@@ -303,6 +324,12 @@
     <Compile Include="ControlsAndPanels\ValueControlPanel\NumericValueControl.Designer.cs">
       <DependentUpon>NumericValueControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\SelectCollectionItemsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\SelectCollectionItemsDialog.Designer.cs">
+      <DependentUpon>SelectCollectionItemsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\StringValueControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -310,11 +337,11 @@
       <DependentUpon>StringValueControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\IValueControl.cs" />
-    <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionControl.cs">
+    <Compile Include="ControlsAndPanels\ValueControlPanel\UndefinedCollectionControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\ValueControlPanel\CollectionControl.Designer.cs">
-      <DependentUpon>CollectionControl.cs</DependentUpon>
+    <Compile Include="ControlsAndPanels\ValueControlPanel\UndefinedCollectionControl.Designer.cs">
+      <DependentUpon>UndefinedCollectionControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\ValueControlPanel.cs">
       <SubType>Component</SubType>
@@ -420,6 +447,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="ProxyHelper.cs" />
+    <Compile Include="ControlsAndPanels\RemoteDesktopClient.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\RemoteDesktopClient.Designer.cs">
+      <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
+    </Compile>
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />
@@ -484,8 +517,17 @@
       <DependentUpon>BaseValueControl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\CollectionControl.resx">
-      <DependentUpon>CollectionControl.cs</DependentUpon>
+    <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\DefinedKVPCollectionControl.resx">
+      <DependentUpon>DefinedKVPCollectionControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\DefinedCollectionControl.resx">
+      <DependentUpon>DefinedCollectionControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\SelectCollectionItemsDialog.resx">
+      <DependentUpon>SelectCollectionItemsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\UndefinedCollectionControl.resx">
+      <DependentUpon>UndefinedCollectionControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\LogMessageDialog.resx">
       <DependentUpon>LogMessageDialog.cs</DependentUpon>
@@ -526,6 +568,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\RemoteDesktopClient.resx">
+      <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Tracert\TracertControl.resx">
       <DependentUpon>TracertControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -562,7 +607,25 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="AxMSTSCLib">
+      <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>aximp</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+    <COMReference Include="MSTSCLib">
+      <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="ControlsAndPanels\Charts\ChartTypes\Direct2D\README.txt" />
     <Content Include="quicklz150_64_1.dll">

@@ -56,7 +56,7 @@
             this.split = new System.Windows.Forms.SplitContainer();
             this.lblMonitorSourceMismatch = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.parameterPanel = new vApus.Monitor.ParameterPanel();
+            this.parameterPanel = new vApus.Monitor.MonitorParameterPanel();
             this.propertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnConfiguration = new System.Windows.Forms.Button();
             this.btnGetCounters = new System.Windows.Forms.Button();
@@ -241,6 +241,7 @@
             // 
             this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.parameterPanel.AutoSelectControl = false;
             this.parameterPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.parameterPanel.Location = new System.Drawing.Point(597, 23);
             this.parameterPanel.Name = "parameterPanel";
@@ -255,7 +256,6 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyPanel.BackColor = System.Drawing.Color.Transparent;
-            this.propertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.propertyPanel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.propertyPanel.Location = new System.Drawing.Point(3, 3);
             this.propertyPanel.Margin = new System.Windows.Forms.Padding(0);
@@ -382,7 +382,7 @@
             this.lvwEntities.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lvwEntities.MultiSelect = false;
             this.lvwEntities.Name = "lvwEntities";
-            this.lvwEntities.Size = new System.Drawing.Size(353, 340);
+            this.lvwEntities.Size = new System.Drawing.Size(353, 342);
             this.lvwEntities.SmallImageList = this.imgListEntityState;
             this.lvwEntities.TabIndex = 0;
             this.lvwEntities.UseCompatibleStateImageBehavior = false;
@@ -423,7 +423,7 @@
             this.tvwCounters.Location = new System.Drawing.Point(359, 33);
             this.tvwCounters.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.tvwCounters.Name = "tvwCounters";
-            this.tvwCounters.Size = new System.Drawing.Size(642, 310);
+            this.tvwCounters.Size = new System.Drawing.Size(642, 312);
             this.tvwCounters.TabIndex = 2;
             this.tvwCounters.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwCounter_AfterCheck);
             this.tvwCounters.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwCounter_BeforeExpand);
@@ -656,7 +656,7 @@
         private System.Windows.Forms.Label lblMonitorSourceMismatch;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Label label4;
-        private ParameterPanel parameterPanel;
+        private MonitorParameterPanel parameterPanel;
         private vApus.Monitor.MonitorControl monitorControl;
         private System.Windows.Forms.Button btnSaveFilteredMonitoredCounters;
         private System.Windows.Forms.Button btnSaveAllMonitorCounters;

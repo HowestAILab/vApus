@@ -21,6 +21,11 @@ namespace vApus.DistributedTesting
     public class SocketListener
     {
         #region Events
+        /// <summary>
+        /// Use this for instance to show the test name in the title bar of the main window.
+        /// </summary>
+        public event EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> NewTest;
+
         public event EventHandler<IPChangedEventArgs> IPChanged;
         public event EventHandler<ListeningErrorEventArgs> ListeningError;
         #endregion
@@ -108,6 +113,7 @@ namespace vApus.DistributedTesting
         private SocketListener()
         {
             NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(NetworkChange_NetworkAddressChanged);
+            SlaveSideCommunicationHandler.NewTest += new EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs>(SlaveSideCommunicationHandler_NewTest);
         }
         #endregion
 
@@ -118,6 +124,12 @@ namespace vApus.DistributedTesting
             if (_socketListener == null)
                 _socketListener = new SocketListener();
             return _socketListener;
+        }
+        private void SlaveSideCommunicationHandler_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e)
+        {
+            if (NewTest != null)
+                foreach (EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> del in NewTest.GetInvocationList())
+                    del.BeginInvoke(this, e, null, null);
         }
 
         #region Start & Stop
@@ -135,7 +147,7 @@ namespace vApus.DistributedTesting
                         SetIPAndPort(ip, _port, false);
                     }
 
-                });
+                }, null);
             }
             catch { }
         }
@@ -144,12 +156,12 @@ namespace vApus.DistributedTesting
             Stop();
             try
             {
-                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(ip), port));
-                _serverSocket.Listen(100);
-                _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
                 _ip = ip;
                 _port = port;
+                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), _port));
+                _serverSocket.Listen(100);
+                _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
                 if (preferred)
                 {
                     global::vApus.DistributedTesting.Properties.Settings.Default.PreferredIP = _ip;
@@ -352,6 +364,8 @@ namespace vApus.DistributedTesting
                 else
                 {
                     DisconnectMaster(socketWrapper);
+                    SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));//The test cannot be valid without a master, stop the test if any.
+                    LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Error);
                     if (ListeningError != null)
                         ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
                 }
@@ -382,6 +396,8 @@ namespace vApus.DistributedTesting
             catch (Exception exception)
             {
                 DisconnectMaster(socketWrapper);
+                SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));//The test cannot be valid without a master, stop the test if any.
+                LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Error);
                 if (ListeningError != null)
                     ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
             }

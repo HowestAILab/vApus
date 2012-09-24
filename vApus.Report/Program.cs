@@ -24,6 +24,9 @@ namespace vApus.Report
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            //Otherwise probing privatePath will not work --> ConnectionProxyPrerequisites sub folder.
+            System.IO.Directory.SetCurrentDirectory(Application.StartupPath);
+
             if (args != null && args.Length != 0)
                 Application.Run(new Report(args[0]));
             else

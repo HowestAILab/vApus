@@ -171,9 +171,9 @@ namespace vApus.Stresstest
         {
             Cursor = Cursors.WaitCursor;
 
-            LocalMonitor.StartMonitoring(Stresstest.ProgressUpdateDelay * 1000);
+            try { LocalMonitor.StartMonitoring(Stresstest.ProgressUpdateDelay * 1000); }
+            catch { stresstestControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
             tmrProgress.Interval = Stresstest.ProgressUpdateDelay * 1000;
-            tmrProgress.Start();
 
             try
             {
@@ -184,8 +184,6 @@ namespace vApus.Stresstest
                 _stresstestCore.RunInitializedFirstTime += new EventHandler<RunInitializedFirstTimeEventArgs>(_stresstestCore_RunInitializedFirstTime);
                 _stresstestCore.Message += new EventHandler<MessageEventArgs>(_stresstestCore_Message);
                 _stresstestCore.InitializeTest();
-
-                stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
 
                 StartMonitors();
 
@@ -246,7 +244,7 @@ namespace vApus.Stresstest
                                    try
                                    {
                                        var monitorReportControl = view.Tag as MonitorReportControl;
-                                       monitorReportControl.SetHeaders_MonitorValuesAndStresstestResults(view.GetHeaders(), view.GetMonitorValues(), _stresstestResults);
+                                       monitorReportControl.SetConfig_Headers_MonitorValuesAndStresstestResults(view.Configuration, view.GetHeaders(), view.GetMonitorValues(), _stresstestResults);
                                    }
                                    catch (Exception e)
                                    {
@@ -269,7 +267,7 @@ namespace vApus.Stresstest
                                stresstestControl.SetStresstestStopped(stresstestResult, message);
                                break;
                        }
-                   });
+                   }, null);
                 }
             }
         }
@@ -323,28 +321,25 @@ namespace vApus.Stresstest
             _monitorViews.Clear();
 
             //Also remove the tab pages.
-            while (tcReport.TabCount != 1)
-                tcReport.TabPages.RemoveAt(1);
+            int i = 3;
+            while (tc.TabCount != 3)
+                tc.TabPages.RemoveAt(3);
 
             foreach (var monitor in _stresstest.Monitors)
             {
                 var monitorView = SolutionComponentViewManager.Show(monitor) as Monitor.MonitorView;
-                monitorView.Text += " for " + this.Text;
                 this.Show();
 
                 stresstestControl.AppendMessages("Initializing " + monitorView.Text + "...");
                 _monitorViews.Add(monitorView);
 
                 //Add a new tab page.
-                var monitorTabPage = new TabPage("Monitor Report: " + monitor);
-                monitorTabPage.Padding = new Padding(3);
-                monitorTabPage.BackColor = Color.White;
-
+                var monitorTabPage = new TabPage("Report " + monitorView.Text);
                 var monitorReportControl = new MonitorReportControl();
                 monitorReportControl.Dock = DockStyle.Fill;
 
                 monitorTabPage.Controls.Add(monitorReportControl);
-                tcReport.TabPages.Add(monitorTabPage);
+                tc.TabPages.Add(monitorTabPage);
 
                 //For easy reporting
                 monitorView.Tag = monitorReportControl;
@@ -377,14 +372,14 @@ namespace vApus.Stresstest
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 stresstestControl.AppendMessages((sender as MonitorView).Text + ": A counter became unavailable while monitoring:\n" + e.GetException(), LogLevel.Warning);
-            });
+            }, null);
         }
         private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 stresstestControl.AppendMessages((sender as MonitorView).Text + ": An error has occured while monitoring, monitor stopped!\n" + e.GetException(), LogLevel.Error);
-            });
+            }, null);
         }
         /// <summary>
         /// Used in stresstest started eventhandling.
@@ -422,7 +417,6 @@ namespace vApus.Stresstest
             StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
         }
         private void _stresstestCore_PrecisionStarted(object sender, PrecisionStartedEventArgs e)
         {
@@ -430,7 +424,6 @@ namespace vApus.Stresstest
             StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunInitializedFirstTimeEventArgs e)
         {
@@ -438,7 +431,6 @@ namespace vApus.Stresstest
             StopProgressDelayCountDown();
             tmrProgress.Stop();
             stresstestControl.AddFastResult(e.Result);
-            stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
 
             stresstestControl.SetCountDownProgressDelay(_countDown--);
             tmrProgressDelayCountDown.Start();
@@ -447,14 +439,17 @@ namespace vApus.Stresstest
         }
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e)
         {
-            stresstestControl.SetCountDownProgressDelay(_countDown);
-            --_countDown;
+            stresstestControl.SetCountDownProgressDelay(_countDown--);
         }
         private void tmrProgress_Tick(object sender, EventArgs e)
         {
             if (_stresstestCore != null)
             {
-                stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                try
+                {
+                    stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                }
+                catch { } //Exception on false WMI. 
                 stresstestControl.UpdateFastResults();
 
                 _countDown = Stresstest.ProgressUpdateDelay;
@@ -538,7 +533,11 @@ namespace vApus.Stresstest
 
             if (_stresstestCore != null)
             {
-                stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                try
+                {
+                    stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                }
+                catch { } //Exception on false WMI. 
                 stresstestControl.UpdateFastResults();
 
                 // Can only be cancelled once, calling multiple times is not a problem.

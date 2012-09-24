@@ -85,7 +85,7 @@ namespace vApus.Stresstest
             userAction.Pinned = _pinned;
 
             foreach (LogEntry entry in this)
-                userAction.AddWithoutInvokingEvent(entry.Clone());
+                userAction.AddWithoutInvokingEvent(entry.Clone(), false);
 
             return userAction;
         }

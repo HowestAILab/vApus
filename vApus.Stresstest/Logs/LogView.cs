@@ -8,12 +8,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
-using System.Runtime.InteropServices;
 
 namespace vApus.Stresstest
 {
@@ -268,7 +268,7 @@ namespace vApus.Stresstest
                     if (_log.LogRuleSet.ActionizeOnFile)
                     {
                         userAction = new UserAction(fileName);
-                        _log.Add(userAction);
+                        _log.AddWithoutInvokingEvent(userAction, false);
                     }
                     logFile = logFile.Replace(Environment.NewLine, "\n").Replace('\r', '\n');
                     foreach (string line in logFile.Split('\n'))
@@ -282,30 +282,30 @@ namespace vApus.Stresstest
                             if (_log.LogRuleSet.ActionizeOnComment)
                             {
                                 userAction = new UserAction(output);
-                                _log.Add(userAction);
+                                _log.AddWithoutInvokingEvent(userAction, false);
                             }
                         }
                         else if (userAction == null)
                         {
                             LogEntry logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
-                            _log.Add(logEntry);
+                            _log.AddWithoutInvokingEvent(logEntry, false);
                         }
                         else
                         {
                             LogEntry logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
-                            userAction.Add(logEntry);
+                            userAction.AddWithoutInvokingEvent(logEntry, false);
                         }
                     }
                 }
 
             RemoveEmptyUserActions();
 
-#if EnableBetaFeature
-            bool successfullyParallized = SetParallelExecutions();
-#else
+//#if EnableBetaFeature
+//            bool successfullyParallized = SetParallelExecutions();
+//#else
 #warning Parallel executions temp not available
             bool successfullyParallized = true;
-#endif
+//#endif
             SetIgnoreDelays();
             FillLargeList();
 
@@ -314,6 +314,8 @@ namespace vApus.Stresstest
                 string message = this.Text + ": Could not determine the begin- and end timestamps for one or more log entries in the different user actions, are they correctly formatted?";
                 LogWrapper.LogByLevel(message, LogLevel.Error);
             }
+
+            _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         /// <summary>
         /// 
@@ -670,7 +672,7 @@ namespace vApus.Stresstest
         private void ApplyChanges()
         {
             this.Cursor = Cursors.WaitCursor;
-            _log.ClearWithoutInvokingEvent();
+            _log.ClearWithoutInvokingEvent(false);
             for (int i = 0; i < largelist.ViewCount; i++)
                 for (int j = 0; j < largelist[i].Count; j++)
                 {
@@ -679,10 +681,10 @@ namespace vApus.Stresstest
 
                     if (control.IndentationLevel == 0)
                     {
-                        _log.AddWithoutInvokingEvent(control.LogChild);
+                        _log.AddWithoutInvokingEvent(control.LogChild, false);
                         if (control is UserActionControl)
                             foreach (LogEntryControl logEntryControl in (control as UserActionControl).LogEntryControls)
-                                control.LogChild.AddWithoutInvokingEvent(logEntryControl.LogChild);
+                                control.LogChild.AddWithoutInvokingEvent(logEntryControl.LogChild, false);
                     }
                 }
             ApplyLogRuleSet(_log);

@@ -219,7 +219,7 @@ namespace vApus.SolutionTree
                 }
                 tvw.AfterLabelEdit += tvw_AfterLabelEdit;
                 tvw.BeforeLabelEdit += tvw_BeforeLabelEdit;
-            });
+            }, null);
         }
         private void tvw_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
@@ -260,7 +260,7 @@ namespace vApus.SolutionTree
                     node.Text = item.ToString();
                 }
                 catch { }
-            });
+            }, null);
         }
 
         private void tvw_Leave(object sender, EventArgs e)

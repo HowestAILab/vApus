@@ -166,7 +166,7 @@ namespace vApus.Stresstest
                 {
                     Exception ex = new Exception("Could not load the r-file because of a version mismatch:\n" + e.Exception);
                     LoadingError(this, new ErrorEventArgs(ex));
-                });
+                }, null);
             }
 
             if (ReportMade != null)
@@ -206,7 +206,7 @@ namespace vApus.Stresstest
                 {
                     exception = ex;
                 }
-            });
+            }, null);
 
             if (exception != null)
                 throw (exception);
@@ -339,7 +339,7 @@ namespace vApus.Stresstest
                         SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                         {
                             dgvDetailedResultsListing.RowCount = cacheCount;
-                        });
+                        }, null);
                 }
                 catch { }
         }
@@ -410,7 +410,7 @@ namespace vApus.Stresstest
                     pivotLevel = cboPivotLevel.SelectedIndex;
                 }
                 catch { }
-            });
+            }, null);
 
             _reportThread = new Thread(delegate()
             {
@@ -452,7 +452,7 @@ namespace vApus.Stresstest
                         }
                         lblWait.Visible = false;
                         btnRefresh.Enabled = true;
-                    });
+                    }, null);
                 }
                 catch (Exception e)
                 {
@@ -466,7 +466,7 @@ namespace vApus.Stresstest
                             Exception ex = new Exception("Could not make the report:\n" + e);
                             LoadingError(this, new ErrorEventArgs(ex));
                         }
-                    });
+                    }, null);
                 }
             });
             _reportThread.IsBackground = true;
@@ -520,7 +520,7 @@ namespace vApus.Stresstest
 
                 pnlBorderPivotLevel.Visible = true;
                 lblPivotLevel.Visible = true;
-            });
+            }, null);
         }
 
         private void MakeReportForAveragesPivotConcurrentUsers()
@@ -564,7 +564,7 @@ namespace vApus.Stresstest
 
                 clmDRLPrecision.Visible = false;
                 clmDRLRun.Visible = false;
-            });
+            }, null);
         }
         private void MakeReportForAveragesPivotConcurrentUsersCR(ConcurrentUsersResult cr, bool precisionChecked, bool runChecked)
         {
@@ -684,7 +684,7 @@ namespace vApus.Stresstest
                 clmDRLPrecision.Visible = true;
                 clmDRLRun.Visible = false;
 
-            });
+            }, null);
         }
         private void MakeReportForAveragesPivotPrecisionPR(ConcurrentUsersResult cr, PrecisionResult pr, bool ConcurrentUsersChecked, bool runChecked)
         {
@@ -812,7 +812,7 @@ namespace vApus.Stresstest
 
                 clmDRLPrecision.Visible = true;
                 clmDRLRun.Visible = true;
-            });
+            }, null);
         }
         private void MakeReportForAveragesPivotRunRR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, bool concurrentUsersChecked, bool precisionChecked)
         {
@@ -975,7 +975,7 @@ namespace vApus.Stresstest
 
                 pnlBorderPivotLevel.Visible = false;
                 lblPivotLevel.Visible = false;
-            });
+            }, null);
         }
         private void MakeReportForUsersUR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur)
         {
@@ -1210,7 +1210,7 @@ namespace vApus.Stresstest
 
                 pnlBorderPivotLevel.Visible = false;
                 lblPivotLevel.Visible = false;
-            });
+            }, null);
         }
         /// <summary>
         /// Returns true for errors

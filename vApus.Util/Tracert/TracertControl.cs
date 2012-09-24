@@ -89,7 +89,7 @@ namespace vApus.Util
                 _lastStatus = e.Status;
 
                 _tracertDialog.AddHop(e.IP, e.HostName, roundtripTime);
-            });
+            }, null);
         }
         private void _tracert_Done(object sender, EventArgs e)
         {
@@ -112,7 +112,7 @@ namespace vApus.Util
 
                 if (Done != null)
                     Done(this, null);
-            });
+            }, null);
         }
 
         private void btnStatus_Click(object sender, EventArgs e)

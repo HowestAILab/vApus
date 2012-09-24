@@ -115,7 +115,7 @@ namespace vApus.Util
         {
             if (Done != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                { Done(null, e); });
+                { Done(null, e); }, null);
         }
         private static void ApplyPostData(HttpWebRequest httpWebRequest, string postData)
         {

@@ -13,23 +13,14 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            tmrSchedule.Stop();
-            try
-            {
-                SolutionTree.SolutionComponent.SolutionComponentChanged -= SolutionComponent_SolutionComponentChanged;
-            }
-            catch { }
-
-            foreach (TileStresstestSelectorControl tileStresstestSelectorControl in flpStresstestTileStresstests.Controls)
-                tileStresstestSelectorControl.StopMonitorIfAny();
-
-            if (_distributedTestCore != null)
-                _distributedTestCore.Dispose();
             if (disposing && (components != null))
             {
                 components.Dispose();
             }
             base.Dispose(disposing);
+
+            JumpStart.Done -= JumpStart_Done;
+            Stop(false);
         }
 
         #region Windows Form Designer generated code
@@ -46,60 +37,38 @@
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
-            this.btnLinkageOverview = new System.Windows.Forms.ToolStripButton();
-            this.cboRunSynchronization = new System.Windows.Forms.ToolStripComboBox();
-            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.tc = new vApus.Util.TabControlWithAdjustableBorders();
-            this.tpConfigure = new System.Windows.Forms.TabPage();
-            this.splitConfigure = new System.Windows.Forms.SplitContainer();
-            this.btnRemove = new System.Windows.Forms.Button();
-            this.tvwTiles = new System.Windows.Forms.TreeView();
-            this.btnAddTile = new System.Windows.Forms.Button();
-            this.btnResetToDefaults = new System.Windows.Forms.Button();
-            this.propertiesSolutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
+            this.btnWizard = new System.Windows.Forms.ToolStripButton();
+            this.tmrSetGui = new System.Windows.Forms.Timer(this.components);
+            this.split = new System.Windows.Forms.SplitContainer();
+            this.tcTree = new vApus.Util.TabControlWithAdjustableBorders();
+            this.tpTests = new System.Windows.Forms.TabPage();
+            this.testTreeView = new vApus.DistributedTesting.TestTreeView();
+            this.tpSlaves = new System.Windows.Forms.TabPage();
+            this.slaveTreeView = new vApus.DistributedTesting.SlaveTreeView();
+            this.tcTest = new vApus.Util.TabControlWithAdjustableBorders();
+            this.tpConfigureTest = new System.Windows.Forms.TabPage();
+            this.configureTileStresstest = new vApus.DistributedTesting.ConfigureTileStresstest();
+            this.configureSlaves = new vApus.DistributedTesting.ConfigureSlaves();
             this.tpStresstest = new System.Windows.Forms.TabPage();
-            this.splitStresstest = new System.Windows.Forms.SplitContainer();
-            this.pnlDistributedTestStresstest = new System.Windows.Forms.Panel();
-            this.btnCollapseExpandStresstest = new System.Windows.Forms.Button();
-            this.flpStresstestTiles = new System.Windows.Forms.FlowLayoutPanel();
-            this.flpStresstestTileStresstests = new System.Windows.Forms.FlowLayoutPanel();
+            this.stresstestControl = new vApus.Stresstest.StresstestControl();
+            this.distributedStresstestControl = new vApus.DistributedTesting.DistributedStresstestControl();
             this.tpReport = new System.Windows.Forms.TabPage();
-            this.splitReport = new System.Windows.Forms.SplitContainer();
-            this.pnlDistributedTestReport = new System.Windows.Forms.Panel();
-            this.btnCollapseExpandReport = new System.Windows.Forms.Button();
-            this.flpReportTiles = new System.Windows.Forms.FlowLayoutPanel();
-            this.flpReportTileStresstests = new System.Windows.Forms.FlowLayoutPanel();
-            this.tcReport = new vApus.Util.TabControlWithAdjustableBorders();
-            this.tpStresstestReport = new System.Windows.Forms.TabPage();
-            this.btnOpenRFilesFolder = new System.Windows.Forms.Button();
             this.stresstestReportControl = new vApus.Stresstest.StresstestReportControl();
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
-            this.fbd = new System.Windows.Forms.FolderBrowserDialog();
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
-            this.tmrCheckTvwTiles = new System.Windows.Forms.Timer(this.components);
-            this.distributedStresstestControl = new vApus.DistributedTesting.DistributedStresstestControl();
             this.toolStrip.SuspendLayout();
-            this.tc.SuspendLayout();
-            this.tpConfigure.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitConfigure)).BeginInit();
-            this.splitConfigure.Panel1.SuspendLayout();
-            this.splitConfigure.Panel2.SuspendLayout();
-            this.splitConfigure.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
+            this.split.Panel1.SuspendLayout();
+            this.split.Panel2.SuspendLayout();
+            this.split.SuspendLayout();
+            this.tcTree.SuspendLayout();
+            this.tpTests.SuspendLayout();
+            this.tpSlaves.SuspendLayout();
+            this.tcTest.SuspendLayout();
+            this.tpConfigureTest.SuspendLayout();
             this.tpStresstest.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitStresstest)).BeginInit();
-            this.splitStresstest.Panel1.SuspendLayout();
-            this.splitStresstest.Panel2.SuspendLayout();
-            this.splitStresstest.SuspendLayout();
-            this.pnlDistributedTestStresstest.SuspendLayout();
             this.tpReport.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitReport)).BeginInit();
-            this.splitReport.Panel1.SuspendLayout();
-            this.splitReport.Panel2.SuspendLayout();
-            this.splitReport.SuspendLayout();
-            this.pnlDistributedTestReport.SuspendLayout();
-            this.tcReport.SuspendLayout();
-            this.tpStresstestReport.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip
@@ -109,17 +78,16 @@
             this.btnStart,
             this.btnSchedule,
             this.btnStop,
-            this.btnLinkageOverview,
-            this.cboRunSynchronization,
-            this.toolStripLabel1});
+            this.btnWizard});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.MinimumSize = new System.Drawing.Size(0, 40);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(884, 40);
-            this.toolStrip.TabIndex = 0;
+            this.toolStrip.Size = new System.Drawing.Size(911, 40);
+            this.toolStrip.TabIndex = 2;
             // 
             // btnStart
             // 
+            this.btnStart.Enabled = false;
             this.btnStart.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
             this.btnStart.Image = ((System.Drawing.Image)(resources.GetObject("btnStart.Image")));
             this.btnStart.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
@@ -155,386 +123,207 @@
             this.btnStop.Text = "Stop";
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
-            // btnLinkageOverview
+            // btnWizard
             // 
-            this.btnLinkageOverview.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.btnLinkageOverview.Image = ((System.Drawing.Image)(resources.GetObject("btnLinkageOverview.Image")));
-            this.btnLinkageOverview.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnLinkageOverview.Margin = new System.Windows.Forms.Padding(3, 1, 0, 2);
-            this.btnLinkageOverview.Name = "btnLinkageOverview";
-            this.btnLinkageOverview.Size = new System.Drawing.Size(120, 37);
-            this.btnLinkageOverview.Text = "Linkage Overview";
-            this.btnLinkageOverview.Click += new System.EventHandler(this.btnLinkageOverview_Click);
+            this.btnWizard.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.btnWizard.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnWizard.Image = ((System.Drawing.Image)(resources.GetObject("btnWizard.Image")));
+            this.btnWizard.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnWizard.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnWizard.Name = "btnWizard";
+            this.btnWizard.Size = new System.Drawing.Size(83, 37);
+            this.btnWizard.Text = "Wizard...";
+            this.btnWizard.Click += new System.EventHandler(this.btnWizard_Click);
             // 
-            // cboRunSynchronization
+            // tmrSetGui
             // 
-            this.cboRunSynchronization.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.cboRunSynchronization.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboRunSynchronization.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboRunSynchronization.Items.AddRange(new object[] {
-            "None",
-            "Break on First Finished",
-            "Break on Last Finished"});
-            this.cboRunSynchronization.Name = "cboRunSynchronization";
-            this.cboRunSynchronization.Size = new System.Drawing.Size(141, 40);
+            this.tmrSetGui.Enabled = true;
+            this.tmrSetGui.Interval = 1000;
+            this.tmrSetGui.Tick += new System.EventHandler(this.tmrSetGui_Tick);
             // 
-            // toolStripLabel1
+            // split
             // 
-            this.toolStripLabel1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(59, 37);
-            this.toolStripLabel1.Text = "Run Sync:";
-            // 
-            // tc
-            // 
-            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.split.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tc.BottomVisible = false;
-            this.tc.Controls.Add(this.tpConfigure);
-            this.tc.Controls.Add(this.tpStresstest);
-            this.tc.Controls.Add(this.tpReport);
-            this.tc.LeftVisible = false;
-            this.tc.Location = new System.Drawing.Point(0, 43);
-            this.tc.Name = "tc";
-            this.tc.RightVisible = false;
-            this.tc.SelectedIndex = 0;
-            this.tc.Size = new System.Drawing.Size(884, 618);
-            this.tc.TabIndex = 1;
-            this.tc.TopVisible = true;
+            this.split.BackColor = System.Drawing.Color.White;
+            this.split.Location = new System.Drawing.Point(0, 43);
+            this.split.Name = "split";
             // 
-            // tpConfigure
+            // split.Panel1
             // 
-            this.tpConfigure.BackColor = System.Drawing.Color.White;
-            this.tpConfigure.Controls.Add(this.splitConfigure);
-            this.tpConfigure.Location = new System.Drawing.Point(0, 22);
-            this.tpConfigure.Name = "tpConfigure";
-            this.tpConfigure.Padding = new System.Windows.Forms.Padding(3);
-            this.tpConfigure.Size = new System.Drawing.Size(883, 595);
-            this.tpConfigure.TabIndex = 0;
-            this.tpConfigure.Text = "Configure";
+            this.split.Panel1.Controls.Add(this.tcTree);
             // 
-            // splitConfigure
+            // split.Panel2
             // 
-            this.splitConfigure.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitConfigure.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitConfigure.Location = new System.Drawing.Point(3, 3);
-            this.splitConfigure.Name = "splitConfigure";
+            this.split.Panel2.Controls.Add(this.tcTest);
+            this.split.Size = new System.Drawing.Size(911, 648);
+            this.split.SplitterDistance = 301;
+            this.split.TabIndex = 1;
             // 
-            // splitConfigure.Panel1
+            // tcTree
             // 
-            this.splitConfigure.Panel1.Controls.Add(this.btnRemove);
-            this.splitConfigure.Panel1.Controls.Add(this.tvwTiles);
-            this.splitConfigure.Panel1.Controls.Add(this.btnAddTile);
+            this.tcTree.BottomVisible = false;
+            this.tcTree.Controls.Add(this.tpTests);
+            this.tcTree.Controls.Add(this.tpSlaves);
+            this.tcTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tcTree.LeftVisible = false;
+            this.tcTree.Location = new System.Drawing.Point(0, 0);
+            this.tcTree.Margin = new System.Windows.Forms.Padding(0);
+            this.tcTree.Name = "tcTree";
+            this.tcTree.RightVisible = false;
+            this.tcTree.SelectedIndex = 0;
+            this.tcTree.Size = new System.Drawing.Size(301, 648);
+            this.tcTree.TabIndex = 0;
+            this.tcTree.TopVisible = true;
+            this.tcTree.SelectedIndexChanged += new System.EventHandler(this.tpTree_SelectedIndexChanged);
             // 
-            // splitConfigure.Panel2
+            // tpTests
             // 
-            this.splitConfigure.Panel2.Controls.Add(this.btnResetToDefaults);
-            this.splitConfigure.Panel2.Controls.Add(this.propertiesSolutionComponentPropertyPanel);
-            this.splitConfigure.Size = new System.Drawing.Size(877, 589);
-            this.splitConfigure.SplitterDistance = 300;
-            this.splitConfigure.TabIndex = 1;
+            this.tpTests.BackColor = System.Drawing.Color.White;
+            this.tpTests.Controls.Add(this.testTreeView);
+            this.tpTests.Location = new System.Drawing.Point(0, 22);
+            this.tpTests.Name = "tpTests";
+            this.tpTests.Padding = new System.Windows.Forms.Padding(3);
+            this.tpTests.Size = new System.Drawing.Size(300, 625);
+            this.tpTests.TabIndex = 0;
+            this.tpTests.Text = "Tests (0/0)";
             // 
-            // btnRemove
+            // testTreeView
             // 
-            this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRemove.BackColor = System.Drawing.SystemColors.Control;
-            this.btnRemove.Enabled = false;
-            this.btnRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRemove.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRemove.Location = new System.Drawing.Point(225, 562);
-            this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(75, 23);
-            this.btnRemove.TabIndex = 2;
-            this.btnRemove.Text = "Remove";
-            this.btnRemove.UseVisualStyleBackColor = false;
-            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
+            this.testTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.testTreeView.Location = new System.Drawing.Point(3, 3);
+            this.testTreeView.Name = "testTreeView";
+            this.testTreeView.Size = new System.Drawing.Size(294, 619);
+            this.testTreeView.TabIndex = 0;
+            this.testTreeView.AfterSelect += new System.EventHandler(this.testTreeView_AfterSelect);
+            this.testTreeView.EventClicked += new System.EventHandler<vApus.Util.EventProgressBar.ProgressEventEventArgs>(this.testTreeView_EventClicked);
             // 
-            // tvwTiles
+            // tpSlaves
             // 
-            this.tvwTiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvwTiles.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tvwTiles.CheckBoxes = true;
-            this.tvwTiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tvwTiles.HideSelection = false;
-            this.tvwTiles.Location = new System.Drawing.Point(5, 3);
-            this.tvwTiles.Name = "tvwTiles";
-            this.tvwTiles.ShowLines = false;
-            this.tvwTiles.Size = new System.Drawing.Size(295, 553);
-            this.tvwTiles.TabIndex = 0;
-            this.tvwTiles.BeforeCheck += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwTiles_BeforeCheck);
-            this.tvwTiles.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwTiles_AfterCheck);
-            this.tvwTiles.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwTiles_AfterSelect);
+            this.tpSlaves.BackColor = System.Drawing.Color.White;
+            this.tpSlaves.Controls.Add(this.slaveTreeView);
+            this.tpSlaves.Location = new System.Drawing.Point(0, 22);
+            this.tpSlaves.Name = "tpSlaves";
+            this.tpSlaves.Padding = new System.Windows.Forms.Padding(3);
+            this.tpSlaves.Size = new System.Drawing.Size(300, 625);
+            this.tpSlaves.TabIndex = 1;
+            this.tpSlaves.Text = "Slaves (0/0)";
             // 
-            // btnAddTile
+            // slaveTreeView
             // 
-            this.btnAddTile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddTile.BackColor = System.Drawing.SystemColors.Control;
-            this.btnAddTile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddTile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnAddTile.Location = new System.Drawing.Point(5, 562);
-            this.btnAddTile.Name = "btnAddTile";
-            this.btnAddTile.Size = new System.Drawing.Size(218, 23);
-            this.btnAddTile.TabIndex = 1;
-            this.btnAddTile.Text = "Add Tile";
-            this.btnAddTile.UseVisualStyleBackColor = false;
-            this.btnAddTile.Click += new System.EventHandler(this.btnAddTile_Click);
+            this.slaveTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.slaveTreeView.Location = new System.Drawing.Point(3, 3);
+            this.slaveTreeView.Name = "slaveTreeView";
+            this.slaveTreeView.Size = new System.Drawing.Size(294, 619);
+            this.slaveTreeView.TabIndex = 0;
+            this.slaveTreeView.AfterSelect += new System.EventHandler(this.slaveTreeView_AfterSelect);
             // 
-            // btnResetToDefaults
+            // tcTest
             // 
-            this.btnResetToDefaults.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnResetToDefaults.BackColor = System.Drawing.SystemColors.Control;
-            this.btnResetToDefaults.Enabled = false;
-            this.btnResetToDefaults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnResetToDefaults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnResetToDefaults.Location = new System.Drawing.Point(3, 562);
-            this.btnResetToDefaults.Name = "btnResetToDefaults";
-            this.btnResetToDefaults.Size = new System.Drawing.Size(564, 23);
-            this.btnResetToDefaults.TabIndex = 1;
-            this.btnResetToDefaults.Text = "Reset to Defaults";
-            this.btnResetToDefaults.UseVisualStyleBackColor = false;
-            this.btnResetToDefaults.Click += new System.EventHandler(this.btnResetToDefaults_Click);
+            this.tcTest.BottomVisible = false;
+            this.tcTest.Controls.Add(this.tpConfigureTest);
+            this.tcTest.Controls.Add(this.tpStresstest);
+            this.tcTest.Controls.Add(this.tpReport);
+            this.tcTest.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tcTest.LeftVisible = true;
+            this.tcTest.Location = new System.Drawing.Point(0, 0);
+            this.tcTest.Name = "tcTest";
+            this.tcTest.RightVisible = false;
+            this.tcTest.SelectedIndex = 0;
+            this.tcTest.Size = new System.Drawing.Size(606, 648);
+            this.tcTest.TabIndex = 0;
+            this.tcTest.TopVisible = true;
             // 
-            // propertiesSolutionComponentPropertyPanel
+            // tpConfigureTest
             // 
-            this.propertiesSolutionComponentPropertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.propertiesSolutionComponentPropertyPanel.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            this.propertiesSolutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.propertiesSolutionComponentPropertyPanel.Location = new System.Drawing.Point(3, 3);
-            this.propertiesSolutionComponentPropertyPanel.Name = "propertiesSolutionComponentPropertyPanel";
-            this.propertiesSolutionComponentPropertyPanel.Size = new System.Drawing.Size(564, 553);
-            this.propertiesSolutionComponentPropertyPanel.SolutionComponent = null;
-            this.propertiesSolutionComponentPropertyPanel.TabIndex = 0;
+            this.tpConfigureTest.BackColor = System.Drawing.Color.White;
+            this.tpConfigureTest.Controls.Add(this.configureTileStresstest);
+            this.tpConfigureTest.Controls.Add(this.configureSlaves);
+            this.tpConfigureTest.Location = new System.Drawing.Point(4, 19);
+            this.tpConfigureTest.Name = "tpConfigureTest";
+            this.tpConfigureTest.Padding = new System.Windows.Forms.Padding(3);
+            this.tpConfigureTest.Size = new System.Drawing.Size(601, 628);
+            this.tpConfigureTest.TabIndex = 0;
+            this.tpConfigureTest.Text = "Configure";
+            // 
+            // configureTileStresstest
+            // 
+            this.configureTileStresstest.BackColor = System.Drawing.Color.White;
+            this.configureTileStresstest.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.configureTileStresstest.Location = new System.Drawing.Point(3, 3);
+            this.configureTileStresstest.Name = "configureTileStresstest";
+            this.configureTileStresstest.Size = new System.Drawing.Size(595, 622);
+            this.configureTileStresstest.TabIndex = 0;
+            // 
+            // configureSlaves
+            // 
+            this.configureSlaves.BackColor = System.Drawing.Color.White;
+            this.configureSlaves.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.configureSlaves.Location = new System.Drawing.Point(3, 3);
+            this.configureSlaves.Name = "configureSlaves";
+            this.configureSlaves.Size = new System.Drawing.Size(595, 622);
+            this.configureSlaves.TabIndex = 1;
+            this.configureSlaves.Visible = false;
+            this.configureSlaves.GoToAssignedTest += new System.EventHandler(this.configureSlaves_GoToAssignedTest);
             // 
             // tpStresstest
             // 
             this.tpStresstest.BackColor = System.Drawing.Color.White;
-            this.tpStresstest.Controls.Add(this.splitStresstest);
-            this.tpStresstest.Location = new System.Drawing.Point(0, 22);
+            this.tpStresstest.Controls.Add(this.stresstestControl);
+            this.tpStresstest.Controls.Add(this.distributedStresstestControl);
+            this.tpStresstest.Location = new System.Drawing.Point(4, 19);
             this.tpStresstest.Name = "tpStresstest";
-            this.tpStresstest.Size = new System.Drawing.Size(883, 595);
+            this.tpStresstest.Padding = new System.Windows.Forms.Padding(3);
+            this.tpStresstest.Size = new System.Drawing.Size(601, 628);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
             // 
-            // splitStresstest
+            // stresstestControl
             // 
-            this.splitStresstest.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitStresstest.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitStresstest.Location = new System.Drawing.Point(0, 0);
-            this.splitStresstest.Name = "splitStresstest";
-            this.splitStresstest.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.stresstestControl.BackColor = System.Drawing.Color.Transparent;
+            this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stresstestControl.Location = new System.Drawing.Point(3, 3);
+            this.stresstestControl.MonitorConfigurationControlVisible = false;
+            this.stresstestControl.Name = "stresstestControl";
+            this.stresstestControl.Size = new System.Drawing.Size(595, 622);
+            this.stresstestControl.TabIndex = 0;
             // 
-            // splitStresstest.Panel1
+            // distributedStresstestControl
             // 
-            this.splitStresstest.Panel1.Controls.Add(this.pnlDistributedTestStresstest);
-            // 
-            // splitStresstest.Panel2
-            // 
-            this.splitStresstest.Panel2.Controls.Add(this.distributedStresstestControl);
-            this.splitStresstest.Size = new System.Drawing.Size(883, 595);
-            this.splitStresstest.SplitterDistance = 100;
-            this.splitStresstest.TabIndex = 3;
-            // 
-            // pnlDistributedTestStresstest
-            // 
-            this.pnlDistributedTestStresstest.BackColor = System.Drawing.Color.White;
-            this.pnlDistributedTestStresstest.Controls.Add(this.btnCollapseExpandStresstest);
-            this.pnlDistributedTestStresstest.Controls.Add(this.flpStresstestTiles);
-            this.pnlDistributedTestStresstest.Controls.Add(this.flpStresstestTileStresstests);
-            this.pnlDistributedTestStresstest.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlDistributedTestStresstest.Location = new System.Drawing.Point(0, 0);
-            this.pnlDistributedTestStresstest.Name = "pnlDistributedTestStresstest";
-            this.pnlDistributedTestStresstest.Padding = new System.Windows.Forms.Padding(3);
-            this.pnlDistributedTestStresstest.Size = new System.Drawing.Size(883, 100);
-            this.pnlDistributedTestStresstest.TabIndex = 0;
-            // 
-            // btnCollapseExpandStresstest
-            // 
-            this.btnCollapseExpandStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCollapseExpandStresstest.BackColor = System.Drawing.Color.White;
-            this.btnCollapseExpandStresstest.FlatAppearance.BorderSize = 0;
-            this.btnCollapseExpandStresstest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCollapseExpandStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCollapseExpandStresstest.Location = new System.Drawing.Point(857, 73);
-            this.btnCollapseExpandStresstest.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.btnCollapseExpandStresstest.Name = "btnCollapseExpandStresstest";
-            this.btnCollapseExpandStresstest.Size = new System.Drawing.Size(20, 21);
-            this.btnCollapseExpandStresstest.TabIndex = 2;
-            this.btnCollapseExpandStresstest.TabStop = false;
-            this.btnCollapseExpandStresstest.Text = "+";
-            this.btnCollapseExpandStresstest.UseVisualStyleBackColor = false;
-            this.btnCollapseExpandStresstest.Click += new System.EventHandler(this.btnCollapseExpandStresstest_Click);
-            // 
-            // flpStresstestTiles
-            // 
-            this.flpStresstestTiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpStresstestTiles.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.flpStresstestTiles.Location = new System.Drawing.Point(3, 71);
-            this.flpStresstestTiles.Name = "flpStresstestTiles";
-            this.flpStresstestTiles.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.flpStresstestTiles.Size = new System.Drawing.Size(877, 26);
-            this.flpStresstestTiles.TabIndex = 1;
-            // 
-            // flpStresstestTileStresstests
-            // 
-            this.flpStresstestTileStresstests.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpStresstestTileStresstests.AutoScroll = true;
-            this.flpStresstestTileStresstests.Location = new System.Drawing.Point(3, 3);
-            this.flpStresstestTileStresstests.Name = "flpStresstestTileStresstests";
-            this.flpStresstestTileStresstests.Padding = new System.Windows.Forms.Padding(3);
-            this.flpStresstestTileStresstests.Size = new System.Drawing.Size(877, 62);
-            this.flpStresstestTileStresstests.TabIndex = 0;
+            this.distributedStresstestControl.BackColor = System.Drawing.SystemColors.Control;
+            this.distributedStresstestControl.DistributedTest = null;
+            this.distributedStresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.distributedStresstestControl.Location = new System.Drawing.Point(3, 3);
+            this.distributedStresstestControl.Name = "distributedStresstestControl";
+            this.distributedStresstestControl.Size = new System.Drawing.Size(595, 622);
+            this.distributedStresstestControl.TabIndex = 1;
             // 
             // tpReport
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
-            this.tpReport.Controls.Add(this.splitReport);
-            this.tpReport.Location = new System.Drawing.Point(0, 22);
+            this.tpReport.Controls.Add(this.stresstestReportControl);
+            this.tpReport.Location = new System.Drawing.Point(4, 19);
             this.tpReport.Name = "tpReport";
-            this.tpReport.Size = new System.Drawing.Size(883, 595);
+            this.tpReport.Padding = new System.Windows.Forms.Padding(3);
+            this.tpReport.Size = new System.Drawing.Size(601, 628);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
             // 
-            // splitReport
-            // 
-            this.splitReport.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitReport.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitReport.Location = new System.Drawing.Point(0, 0);
-            this.splitReport.Name = "splitReport";
-            this.splitReport.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitReport.Panel1
-            // 
-            this.splitReport.Panel1.Controls.Add(this.pnlDistributedTestReport);
-            // 
-            // splitReport.Panel2
-            // 
-            this.splitReport.Panel2.Controls.Add(this.tcReport);
-            this.splitReport.Size = new System.Drawing.Size(883, 595);
-            this.splitReport.SplitterDistance = 100;
-            this.splitReport.TabIndex = 4;
-            // 
-            // pnlDistributedTestReport
-            // 
-            this.pnlDistributedTestReport.BackColor = System.Drawing.Color.White;
-            this.pnlDistributedTestReport.Controls.Add(this.btnCollapseExpandReport);
-            this.pnlDistributedTestReport.Controls.Add(this.flpReportTiles);
-            this.pnlDistributedTestReport.Controls.Add(this.flpReportTileStresstests);
-            this.pnlDistributedTestReport.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlDistributedTestReport.Location = new System.Drawing.Point(0, 0);
-            this.pnlDistributedTestReport.Name = "pnlDistributedTestReport";
-            this.pnlDistributedTestReport.Padding = new System.Windows.Forms.Padding(3);
-            this.pnlDistributedTestReport.Size = new System.Drawing.Size(883, 100);
-            this.pnlDistributedTestReport.TabIndex = 2;
-            // 
-            // btnCollapseExpandReport
-            // 
-            this.btnCollapseExpandReport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCollapseExpandReport.BackColor = System.Drawing.Color.White;
-            this.btnCollapseExpandReport.FlatAppearance.BorderSize = 0;
-            this.btnCollapseExpandReport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCollapseExpandReport.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCollapseExpandReport.Location = new System.Drawing.Point(857, 73);
-            this.btnCollapseExpandReport.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.btnCollapseExpandReport.Name = "btnCollapseExpandReport";
-            this.btnCollapseExpandReport.Size = new System.Drawing.Size(20, 21);
-            this.btnCollapseExpandReport.TabIndex = 3;
-            this.btnCollapseExpandReport.TabStop = false;
-            this.btnCollapseExpandReport.Text = "+";
-            this.btnCollapseExpandReport.UseVisualStyleBackColor = false;
-            this.btnCollapseExpandReport.Click += new System.EventHandler(this.btnCollapseExpandReport_Click);
-            // 
-            // flpReportTiles
-            // 
-            this.flpReportTiles.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.flpReportTiles.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flpReportTiles.Location = new System.Drawing.Point(3, 71);
-            this.flpReportTiles.Name = "flpReportTiles";
-            this.flpReportTiles.Size = new System.Drawing.Size(877, 26);
-            this.flpReportTiles.TabIndex = 1;
-            // 
-            // flpReportTileStresstests
-            // 
-            this.flpReportTileStresstests.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpReportTileStresstests.AutoScroll = true;
-            this.flpReportTileStresstests.Location = new System.Drawing.Point(3, 3);
-            this.flpReportTileStresstests.Name = "flpReportTileStresstests";
-            this.flpReportTileStresstests.Padding = new System.Windows.Forms.Padding(3);
-            this.flpReportTileStresstests.Size = new System.Drawing.Size(877, 62);
-            this.flpReportTileStresstests.TabIndex = 0;
-            // 
-            // tcReport
-            // 
-            this.tcReport.BottomVisible = false;
-            this.tcReport.Controls.Add(this.tpStresstestReport);
-            this.tcReport.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tcReport.LeftVisible = false;
-            this.tcReport.Location = new System.Drawing.Point(0, 0);
-            this.tcReport.Name = "tcReport";
-            this.tcReport.RightVisible = false;
-            this.tcReport.SelectedIndex = 0;
-            this.tcReport.Size = new System.Drawing.Size(883, 491);
-            this.tcReport.TabIndex = 5;
-            this.tcReport.TopVisible = false;
-            // 
-            // tpStresstestReport
-            // 
-            this.tpStresstestReport.Controls.Add(this.btnOpenRFilesFolder);
-            this.tpStresstestReport.Controls.Add(this.stresstestReportControl);
-            this.tpStresstestReport.Location = new System.Drawing.Point(0, 19);
-            this.tpStresstestReport.Name = "tpStresstestReport";
-            this.tpStresstestReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstestReport.Size = new System.Drawing.Size(882, 471);
-            this.tpStresstestReport.TabIndex = 0;
-            this.tpStresstestReport.Text = "Stresstest Report";
-            this.tpStresstestReport.UseVisualStyleBackColor = true;
-            // 
-            // btnOpenRFilesFolder
-            // 
-            this.btnOpenRFilesFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnOpenRFilesFolder.AutoSize = true;
-            this.btnOpenRFilesFolder.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnOpenRFilesFolder.BackColor = System.Drawing.SystemColors.Control;
-            this.btnOpenRFilesFolder.Enabled = false;
-            this.btnOpenRFilesFolder.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOpenRFilesFolder.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOpenRFilesFolder.Location = new System.Drawing.Point(331, 251);
-            this.btnOpenRFilesFolder.MaximumSize = new System.Drawing.Size(168, 24);
-            this.btnOpenRFilesFolder.Name = "btnOpenRFilesFolder";
-            this.btnOpenRFilesFolder.Size = new System.Drawing.Size(162, 24);
-            this.btnOpenRFilesFolder.TabIndex = 4;
-            this.btnOpenRFilesFolder.Text = "Open the R-files Folder...";
-            this.btnOpenRFilesFolder.UseVisualStyleBackColor = false;
-            this.btnOpenRFilesFolder.Click += new System.EventHandler(this.btnOpenRFilesFolder_Click);
-            // 
             // stresstestReportControl
             // 
-            this.stresstestReportControl.CanSaveRFile = false;
+            this.stresstestReportControl.BackColor = System.Drawing.SystemColors.Control;
+            this.stresstestReportControl.CanSaveRFile = true;
             this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
             this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(876, 465);
-            this.stresstestReportControl.TabIndex = 3;
+            this.stresstestReportControl.Size = new System.Drawing.Size(595, 622);
+            this.stresstestReportControl.TabIndex = 0;
+            this.stresstestReportControl.ReportMade += new System.EventHandler(this.stresstestReportControl_ReportMade);
             // 
             // tmrSchedule
             // 
             this.tmrSchedule.Tick += new System.EventHandler(this.tmrSchedule_Tick);
-            // 
-            // fbd
-            // 
-            this.fbd.Description = "Select where you want to save the result files (R-files) after the test completed" +
-    ". This is needed for the result fetching and displaying to work.";
             // 
             // tmrProgressDelayCountDown
             // 
@@ -545,55 +334,30 @@
             // 
             this.tmrProgress.Tick += new System.EventHandler(this.tmrProgress_Tick);
             // 
-            // tmrCheckTvwTiles
-            // 
-            this.tmrCheckTvwTiles.Interval = 200;
-            this.tmrCheckTvwTiles.Tick += new System.EventHandler(this.tmrCheckTvwTiles_Tick);
-            // 
-            // distributedStresstestControl
-            // 
-            this.distributedStresstestControl.DistributedTest = null;
-            this.distributedStresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.distributedStresstestControl.Location = new System.Drawing.Point(0, 0);
-            this.distributedStresstestControl.Margin = new System.Windows.Forms.Padding(0);
-            this.distributedStresstestControl.Name = "distributedStresstestControl";
-            this.distributedStresstestControl.Size = new System.Drawing.Size(883, 491);
-            this.distributedStresstestControl.TabIndex = 0;
-            this.distributedStresstestControl.DrillDownChanged += new System.EventHandler(this.distributedStresstestControl_DrillDownChanged);
-            // 
             // DistributedTestView
             // 
-            this.ClientSize = new System.Drawing.Size(884, 662);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(911, 691);
             this.Controls.Add(this.toolStrip);
-            this.Controls.Add(this.tc);
+            this.Controls.Add(this.split);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "DistributedTestView";
             this.Text = "DistributedTestView";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DistributedTestView_FormClosing);
-            this.Shown += new System.EventHandler(this.DistributedTestView_Shown);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
-            this.tc.ResumeLayout(false);
-            this.tpConfigure.ResumeLayout(false);
-            this.splitConfigure.Panel1.ResumeLayout(false);
-            this.splitConfigure.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitConfigure)).EndInit();
-            this.splitConfigure.ResumeLayout(false);
+            this.split.Panel1.ResumeLayout(false);
+            this.split.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.split)).EndInit();
+            this.split.ResumeLayout(false);
+            this.tcTree.ResumeLayout(false);
+            this.tpTests.ResumeLayout(false);
+            this.tpSlaves.ResumeLayout(false);
+            this.tcTest.ResumeLayout(false);
+            this.tpConfigureTest.ResumeLayout(false);
             this.tpStresstest.ResumeLayout(false);
-            this.splitStresstest.Panel1.ResumeLayout(false);
-            this.splitStresstest.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitStresstest)).EndInit();
-            this.splitStresstest.ResumeLayout(false);
-            this.pnlDistributedTestStresstest.ResumeLayout(false);
             this.tpReport.ResumeLayout(false);
-            this.splitReport.Panel1.ResumeLayout(false);
-            this.splitReport.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitReport)).EndInit();
-            this.splitReport.ResumeLayout(false);
-            this.pnlDistributedTestReport.ResumeLayout(false);
-            this.tcReport.ResumeLayout(false);
-            this.tpStresstestReport.ResumeLayout(false);
-            this.tpStresstestReport.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -601,42 +365,29 @@
 
         #endregion
 
+        private Util.TabControlWithAdjustableBorders tcTree;
+        private System.Windows.Forms.TabPage tpTests;
+        private System.Windows.Forms.TabPage tpSlaves;
+        private TestTreeView testTreeView;
+        private System.Windows.Forms.SplitContainer split;
+        private Util.TabControlWithAdjustableBorders tcTest;
+        private System.Windows.Forms.TabPage tpConfigureTest;
+        private System.Windows.Forms.TabPage tpStresstest;
+        private System.Windows.Forms.TabPage tpReport;
         private System.Windows.Forms.ToolStrip toolStrip;
         private System.Windows.Forms.ToolStripButton btnStart;
-        private System.Windows.Forms.ToolStripButton btnStop;
-        private vApus.Util.TabControlWithAdjustableBorders tc;
-        private System.Windows.Forms.TabPage tpConfigure;
-        private System.Windows.Forms.SplitContainer splitConfigure;
-        private System.Windows.Forms.Button btnAddTile;
-        private SolutionTree.SolutionComponentPropertyPanel propertiesSolutionComponentPropertyPanel;
-        private System.Windows.Forms.TabPage tpStresstest;
-        private System.Windows.Forms.TreeView tvwTiles;
-        private System.Windows.Forms.Button btnResetToDefaults;
-        private System.Windows.Forms.Button btnRemove;
-        private System.Windows.Forms.Panel pnlDistributedTestStresstest;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripComboBox cboRunSynchronization;
         private System.Windows.Forms.ToolStripButton btnSchedule;
-        private System.Windows.Forms.Timer tmrSchedule;
-        private System.Windows.Forms.FolderBrowserDialog fbd;
-        private System.Windows.Forms.TabPage tpReport;
-        private System.Windows.Forms.FlowLayoutPanel flpStresstestTileStresstests;
-        private System.Windows.Forms.Panel pnlDistributedTestReport;
-        private System.Windows.Forms.FlowLayoutPanel flpReportTiles;
-        private System.Windows.Forms.FlowLayoutPanel flpReportTileStresstests;
-        private Stresstest.StresstestReportControl stresstestReportControl;
-        private System.Windows.Forms.ToolStripButton btnLinkageOverview;
-        private System.Windows.Forms.SplitContainer splitReport;
-        private System.Windows.Forms.SplitContainer splitStresstest;
-        private System.Windows.Forms.Button btnOpenRFilesFolder;
+        private System.Windows.Forms.ToolStripButton btnStop;
+        private Stresstest.StresstestControl stresstestControl;
+        private ConfigureTileStresstest configureTileStresstest;
+        private SlaveTreeView slaveTreeView;
+        private System.Windows.Forms.Timer tmrSetGui;
+        private vApus.DistributedTesting.ConfigureSlaves configureSlaves;
         private DistributedStresstestControl distributedStresstestControl;
+        private Stresstest.StresstestReportControl stresstestReportControl;
+        private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
         private System.Windows.Forms.Timer tmrProgress;
-        private System.Windows.Forms.Button btnCollapseExpandStresstest;
-        private System.Windows.Forms.Button btnCollapseExpandReport;
-        private Util.TabControlWithAdjustableBorders tcReport;
-        private System.Windows.Forms.TabPage tpStresstestReport;
-        private System.Windows.Forms.FlowLayoutPanel flpStresstestTiles;
-        private System.Windows.Forms.Timer tmrCheckTvwTiles;
+        private System.Windows.Forms.ToolStripButton btnWizard;
     }
 }

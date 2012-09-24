@@ -10,9 +10,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
-using vApus.Monitor;
-using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting
@@ -22,21 +21,15 @@ namespace vApus.DistributedTesting
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
-        public event EventHandler DrillDownChanged;
-
         private DistributedTest _distributedTest;
-        //The monitor views for the selected stresstest.
-        private List<MonitorView> _monitorViews;
 
+        //Caching the progress here.
+        private Dictionary<TileStresstest, TileStresstestProgressResults> _progress = new Dictionary<TileStresstest, TileStresstestProgressResults>();
         #region Properties
         public DistributedTest DistributedTest
         {
             get { return _distributedTest; }
             set { _distributedTest = value; }
-        }
-        public int FastResultsCount
-        {
-            get { return stresstestControl.FastResultsCount; }
         }
         #endregion
 
@@ -61,73 +54,11 @@ namespace vApus.DistributedTesting
         private void SetGui()
         {
             cboDrillDown.SelectedIndex = 0;
-            this.epnlMasterMessages.CollapsedChanged += new System.EventHandler(this.epnlMasterMessages_CollapsedChanged);
-            this.SizeChanged += new System.EventHandler(this.DistributedStresstestControl_SizeChanged);
-        }
-        /// <summary>
-        /// </summary>
-        /// <param name="countDown">smaller than 0 for paused or unknown</param>
-        public void SetCountDownProgressDelay(int countDown)
-        {
-            stresstestControl.SetCountDownProgressDelay(countDown);
         }
         public void Clear()
         {
-            dgvFastResults.Rows.Clear();
-            epnlMasterMessages.ClearEvents();
-        }
-        /// <summary>
-        /// Resets everything to the initial state.
-        /// </summary>
-        public void SetSlaveInitialized()
-        {
-            stresstestControl.SetStresstestInitialized();
-        }
-        /// <summary>
-        /// Switch between the master and slave tab
-        /// </summary>
-        /// <param name="index"></param>
-        public void SetSelectedTabIndex(int index)
-        {
-            tc.SelectedIndex = index;
-        }
-        /// <summary>
-        /// Set the configuration for the chosen tile stresstest.
-        /// </summary>
-        /// <param name="tileStresstest"></param>
-        public void SetSlaveConfigurationControls(TileStresstest tileStresstest, List<MonitorView> monitorViews)
-        {
-            stresstestControl.SetConfigurationControls(tileStresstest.GetNewStresstest());
-            _monitorViews = monitorViews;
-        }
-        private void stresstestControl_MonitorClicked(object sender, EventArgs e)
-        {
-            if (_monitorViews != null)
-                foreach (MonitorView view in _monitorViews)
-                    if (!view.IsDisposed)
-                        view.Show();
-        }
-
-        /// <summary>
-        /// Leave all empty for the default values.
-        /// </summary>
-        /// <param name="threadsInUse"></param>
-        /// <param name="cpuUsage"></param>
-        /// <param name="contextSwitchesPerSecond"></param>
-        /// <param name="threadQueueLengthPerSecond"></param>
-        /// <param name="threadContentionsPerSecond"></param>
-        /// <param name="memoryUsage"></param>
-        /// <param name="totalVisibleMemory"></param>
-        public void SetSlaveMonitoring(int threadsInUse = 0,
-            float cpuUsage = -1f,
-            float contextSwitchesPerSecond = -1f,
-            int memoryUsage = -1,
-            int totalVisibleMemory = -1,
-            float nicsSent = -1,
-            float nicsReceived = -1)
-        {
-            stresstestControl.SetClientMonitoring(threadsInUse, cpuUsage, contextSwitchesPerSecond, memoryUsage,
-                totalVisibleMemory, nicsSent, nicsReceived);
+            lvwFastResultsListing.Items.Clear();
+            eventView.ClearEvents();
         }
 
         /// <summary>
@@ -165,12 +96,6 @@ namespace vApus.DistributedTesting
 
             kvmFailed.Visible = failed != 0;
             kvmFailed.Value = failed.ToString();
-
-            if (runningTests == 0 && ok != 0 && cancelled == 0 && failed == 0)
-            {
-                epnlMasterMessages.EndOfTimeFrame = DateTime.Now;
-                epnlMasterMessages.SetProgressBarToNow();
-            }
 
             if (cpuUsage == -1)
             {
@@ -247,214 +172,425 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tileStresstest"></param>
-        /// <param name="pushMessage"></param>
-        /// <param name="overalEndOfTimeFrame">The end of time frame for the full test.</param>
-        public void SetSlaveProgress(TileStresstest tileStresstest, PushMessage pushMessage, DateTime overalBeginOfTimeFrame, DateTime overalEndOfTimeFrame)
+        /// <param name="title">Distributed test or the tostring of the tile</param>
+        /// <param name="progress"></param>
+        public void SetOverallFastResults(string title, Dictionary<TileStresstest, TileStresstestProgressResults> progress)
         {
-            LockWindowUpdate(this.Handle.ToInt32());
-
-            epnlMasterMessages.BeginOfTimeFrame = overalBeginOfTimeFrame;
-            epnlMasterMessages.EndOfTimeFrame = overalEndOfTimeFrame;
-            epnlMasterMessages.SetProgressBarToNow();
-
-            //Build and add fast results.
-            stresstestControl.ClearFastResults();
-            if (pushMessage.TileStresstestProgressResults != null)
+            _progress = progress;
+            lblFastResultListing.Text = "Fast Results Listing [" + title + "]";
+            SetOverallFastResults();
+        }
+        private void SetOverallFastResults()
+        {
+            LockWindowUpdate(lvwFastResultsListing.Handle.ToInt32());
+            try
             {
-                foreach (TileConcurrentUsersProgressResult tcr in pushMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
+                if (!this.IsDisposed && _progress != null)
                 {
-                    ConcurrentUsersResult cr = new ConcurrentUsersResult(tcr.ConcurrentUsers, tcr.Metrics.TotalLogEntries, tcr.Metrics.StartMeasuringRuntime);
-                    cr.Metrics = tcr.Metrics;
-                    stresstestControl.AddFastResult(cr);
-
-                    foreach (TilePrecisionProgressResult tpr in tcr.TilePrecisionProgressResults)
-                    {
-                        PrecisionResult pr = new PrecisionResult(tpr.Precision, tpr.Metrics.TotalLogEntries, tpr.Metrics.StartMeasuringRuntime);
-                        pr.Metrics = tpr.Metrics;
-                        stresstestControl.AddFastResult(pr);
-
-                        foreach (TileRunProgressResult trr in tpr.TileRunProgressResults)
-                        {
-                            RunResult rr = new RunResult(trr.Run, 1, trr.Metrics.TotalLogEntries, 1, trr.Metrics.StartMeasuringRuntime, trr.RunStartedAndStopped, trr.RunDoneOnce);
-                            rr.Metrics = trr.Metrics;
-                            stresstestControl.AddFastResult(rr);
-                        }
-                    }
+                    if (cboDrillDown.SelectedIndex == 0)
+                        SetConcurrentUsersProgress();
+                    else if (cboDrillDown.SelectedIndex == 1)
+                        SetPrecisionProgress();
+                    else
+                        SetRunProgress();
                 }
-                stresstestControl.SetStresstestStarted(pushMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);
-                stresstestControl.SetMeasuredRunTime(pushMessage.TileStresstestProgressResults.Metrics.MeasuredRunTime, pushMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
             }
-
-            if (pushMessage.Events == null)
-                stresstestControl.ClearEvents();
-            else
-                stresstestControl.SetEvents(pushMessage.Events);
-
-            stresstestControl.SetStresstestStopped(pushMessage.StresstestResult);
-
+            catch { }
             LockWindowUpdate(0);
         }
-        public void SetOverallFastResults(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+
+        private void SetConcurrentUsersProgress()
         {
-            if (cboDrillDown.SelectedIndex == 0)
-                SetConcurrentUsersProgress(progress);
-            else if (cboDrillDown.SelectedIndex == 1)
-                SetPrecisionProgress(progress);
-            else
-                SetRunProgress(progress);
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
+            {
+                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
+                clmFRLConcurrentUsers.Width = -2;
+            }
+            if (lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
+                lvwFastResultsListing.Columns.Remove(clmFRLPrecision);
+            if (lvwFastResultsListing.Columns.Contains(clmFRLRun))
+                lvwFastResultsListing.Columns.Remove(clmFRLRun);
 
-        }
-        private void SetConcurrentUsersProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
-        {
-            dgvFastResults.Rows.Clear();
+            //Remove the ListViewItems we don't need.
+            int count = 0;
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult result in _progress[key].TileConcurrentUsersProgressResults)
+                        ++count;
 
-            //Add the header.
-            dgvFastResults.Rows.Add("Tile Stresstest", "Started At", "Time Left", "Measured Time", "Concurrent Users",
-                "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
+            while (lvwFastResultsListing.Items.Count > count)
+                lvwFastResultsListing.Items.RemoveAt(count);
 
-            //Add the rows
-            foreach (TileStresstest key in progress.Keys)
-                if (progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult result in progress[key].TileConcurrentUsersProgressResults)
+            //Add new or recycle.
+            int index = 0;
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult result in _progress[key].TileConcurrentUsersProgressResults)
                     {
-                        var metrics = result.Metrics;
-                        dgvFastResults.Rows.Add(key,
-                            metrics.StartMeasuringRuntime,
-                            result.EstimatedRuntimeLeft.ToShortFormattedString(),
-                            metrics.MeasuredRunTime.ToShortFormattedString(),
-                            result.ConcurrentUsers,
-                            metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries,
-                            Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4),
-                            metrics.AverageTimeToLastByte.TotalMilliseconds,
-                            metrics.MaxTimeToLastByte.TotalMilliseconds,
-                            metrics.AverageDelay.TotalMilliseconds, metrics.Errors);
+                        if (index < lvwFastResultsListing.Items.Count)
+                            RefreshConcurrentUsersLVWI(key, result, lvwFastResultsListing.Items[index]);
+                        else
+                            lvwFastResultsListing.Items.Add(NewConcurrentUsersLVWI(key, result));
+
+                        ++index;
                     }
         }
-        private void SetPrecisionProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        /// <summary>
+        /// Recycles list view items.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="lvwi"></param>
+        private void RefreshConcurrentUsersLVWI(TileStresstest ts, TileConcurrentUsersProgressResult result, ListViewItem lvwi)
         {
-            dgvFastResults.Rows.Clear();
+            lvwi.Tag = result;
+            var metrics = result.Metrics;
 
-            //Add the header.
-            dgvFastResults.Rows.Add("Tile Stresstest", "Started At", "Time Left", "Measured Time", "Concurrent Users", "Precision",
-                "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
+            string tilestresstest = ts.ToString();
+            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
 
-            //Add the rows.
-            foreach (TileStresstest key in progress.Keys)
-                if (progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult cu in progress[key].TileConcurrentUsersProgressResults)
+            //Only update the ones needed to be updated
+            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
+                lvwi.SubItems[5].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
+                metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
+            {
+                lvwi.SubItems[0].Text = tilestresstest;
+                lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
+                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
+                lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
+                lvwi.SubItems[4].Text = result.ConcurrentUsers.ToString();
+                lvwi.SubItems[5].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
+                lvwi.SubItems[6].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
+                lvwi.SubItems[7].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
+                lvwi.SubItems[8].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
+                lvwi.SubItems[9].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+                lvwi.SubItems[10].Text = metrics.Errors.ToString();
+                lvwi.SubItems[10].ForeColor = Color.Red;
+
+                while (lvwi.SubItems.Count > 11) //Remove the ones we do not need.
+                    lvwi.SubItems.RemoveAt(11);
+            }
+        }
+        private ListViewItem NewConcurrentUsersLVWI(TileStresstest ts, TileConcurrentUsersProgressResult result)
+        {
+            var metrics = result.Metrics;
+
+            string tilestresstest = ts.ToString();
+
+            ListViewItem lvwi = new ListViewItem(tilestresstest);
+            lvwi.UseItemStyleForSubItems = false;
+
+            Font font = new Font("Consolas", 10.25f);
+
+            lvwi.Font = font;
+            lvwi.Tag = result;
+
+            lvwi.SubItems.Add(result.Metrics.StartMeasuringRuntime.ToString()).Font = font;
+            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
+
+            lvwi.SubItems.Add(result.ConcurrentUsers.ToString()).Font = font;
+
+            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());
+            sub.Font = font;
+            sub.Name = "LogEntriesProcessed";
+            lvwi.SubItems.Add(Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
+
+            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
+            sub.Font = font;
+            sub.ForeColor = Color.Red;
+
+            return lvwi;
+        }
+        private void SetPrecisionProgress()
+        {
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
+            {
+                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
+                clmFRLConcurrentUsers.Width = -2;
+            }
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
+            {
+                lvwFastResultsListing.Columns.Insert(4, clmFRLPrecision);
+                clmFRLPrecision.Width = -2;
+            }
+            if (lvwFastResultsListing.Columns.Contains(clmFRLRun))
+                lvwFastResultsListing.Columns.Remove(clmFRLRun);
+
+            int count = 0;
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
+                        foreach (TilePrecisionProgressResult result in cu.TilePrecisionProgressResults)
+                            ++count;
+
+            while (lvwFastResultsListing.Items.Count > count)
+                lvwFastResultsListing.Items.RemoveAt(count);
+
+            int index = 0;
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
                         foreach (TilePrecisionProgressResult result in cu.TilePrecisionProgressResults)
                         {
-                            var metrics = result.Metrics;
-                            dgvFastResults.Rows.Add(key,
-                                metrics.StartMeasuringRuntime,
-                                result.EstimatedRuntimeLeft.ToShortFormattedString(),
-                                metrics.MeasuredRunTime.ToShortFormattedString(),
-                                cu.ConcurrentUsers,
-                                result.Precision,
-                                metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries,
-                                Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4),
-                                metrics.AverageTimeToLastByte.TotalMilliseconds,
-                                metrics.MaxTimeToLastByte.TotalMilliseconds,
-                                metrics.AverageDelay.TotalMilliseconds, metrics.Errors);
+                            if (index < lvwFastResultsListing.Items.Count)
+                                RefreshPrecisionLVWI(key, cu, result, lvwFastResultsListing.Items[index]);
+                            else
+                                lvwFastResultsListing.Items.Add(NewPrecisionLVWI(key, cu, result));
+
+                            ++index;
                         }
         }
-        private void SetRunProgress(Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        /// <summary>
+        /// Recycles list view items.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="lvwi"></param>
+        private void RefreshPrecisionLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult result, ListViewItem lvwi)
         {
-            dgvFastResults.Rows.Clear();
+            lvwi.Tag = result;
+            var metrics = result.Metrics;
 
-            //Add the header.
-            dgvFastResults.Rows.Add("Tile Stresstest", "Started At", "Time Left", "Measured Time", "Concurrent Users", "Precision", "Run",
-                "Log Entries Processed", "Throughput / s", "Response Time in ms", "Max. Response Time", "Delay in ms", "Errors");
+            string tilestresstest = ts.ToString();
+            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
 
-            //Add the rows.
-            foreach (TileStresstest key in progress.Keys)
-                if (progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult cu in progress[key].TileConcurrentUsersProgressResults)
+            //Only update the ones needed to be updated
+            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
+                lvwi.SubItems[6].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
+                metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
+            {
+                lvwi.SubItems[0].Text = tilestresstest;
+                lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
+                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
+                lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
+                lvwi.SubItems[4].Text = cu.ConcurrentUsers.ToString();
+                lvwi.SubItems[5].Text = (result.Precision + 1).ToString();
+                lvwi.SubItems[6].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
+                lvwi.SubItems[7].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
+                lvwi.SubItems[8].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
+                lvwi.SubItems[9].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
+                lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+                lvwi.SubItems[10].ForeColor = Color.Black;
+
+                if (lvwi.SubItems.Count == 13) //Remove last cell, not needed.
+                    lvwi.SubItems.RemoveAt(12);
+
+                if (lvwi.SubItems.Count == 12) //Add errors if not available.
+                {
+                    lvwi.SubItems[11].Text = metrics.Errors.ToString();
+                    lvwi.SubItems[11].ForeColor = Color.Red;
+                }
+                else
+                {
+                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+                    sub.Font = lvwi.Font;
+                    sub.ForeColor = Color.Red;
+                }
+            }
+        }
+        private ListViewItem NewPrecisionLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult result)
+        {
+            string tilestresstest = ts.ToString();
+
+            var metrics = result.Metrics;
+            ListViewItem lvwi = new ListViewItem(tilestresstest);
+            lvwi.UseItemStyleForSubItems = false;
+
+            Font font = new Font("Consolas", 10.25f);
+
+            lvwi.Font = font;
+            lvwi.Tag = result;
+
+            lvwi.SubItems.Add(result.Metrics.StartMeasuringRuntime.ToString()).Font = font;
+            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
+
+
+            lvwi.SubItems.Add(cu.ConcurrentUsers.ToString()).Font = font;
+            lvwi.SubItems.Add((result.Precision + 1).ToString()).Font = font;
+
+            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());
+            sub.Font = font;
+            sub.Name = "LogEntriesProcessed";
+            lvwi.SubItems.Add(Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
+
+            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
+            sub.Font = font;
+            sub.ForeColor = Color.Red;
+
+            return lvwi;
+        }
+        private void SetRunProgress()
+        {
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
+            {
+                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
+                clmFRLConcurrentUsers.Width = -2;
+            }
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
+            {
+                lvwFastResultsListing.Columns.Insert(4, clmFRLPrecision);
+                clmFRLPrecision.Width = -2;
+            }
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLRun))
+            {
+                lvwFastResultsListing.Columns.Insert(5, clmFRLRun);
+                clmFRLRun.Width = -2;
+            }
+
+            int count = 0;
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
+                        foreach (TilePrecisionProgressResult p in cu.TilePrecisionProgressResults)
+                            foreach (TileRunProgressResult result in p.TileRunProgressResults)
+                                ++count;
+
+            while (lvwFastResultsListing.Items.Count > count)
+                lvwFastResultsListing.Items.RemoveAt(count);
+
+            int index = 0;
+            foreach (TileStresstest key in _progress.Keys)
+                if (_progress[key] != null)
+                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
                         foreach (TilePrecisionProgressResult p in cu.TilePrecisionProgressResults)
                             foreach (TileRunProgressResult result in p.TileRunProgressResults)
                             {
-                                var metrics = result.Metrics;
-                                dgvFastResults.Rows.Add(key,
-                                    metrics.StartMeasuringRuntime,
-                                    result.EstimatedRuntimeLeft.ToShortFormattedString(),
-                                    metrics.MeasuredRunTime.ToShortFormattedString(),
-                                    cu.ConcurrentUsers,
-                                    p.Precision,
-                                    result.Run,
-                                    metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries,
-                                    Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4),
-                                    metrics.AverageTimeToLastByte.TotalMilliseconds,
-                                    metrics.MaxTimeToLastByte.TotalMilliseconds,
-                                    metrics.AverageDelay.TotalMilliseconds, metrics.Errors);
-                            }
-        }
+                                if (index < lvwFastResultsListing.Items.Count)
+                                    RefreshRunLVWI(key, cu, p, result, lvwFastResultsListing.Items[index]);
+                                else
+                                    lvwFastResultsListing.Items.Add(NewRunLVWI(key, cu, p, result));
 
+                                ++index;
+                            }
+
+        }
+        /// <summary>
+        /// Recycles list view items.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="lvwi"></param>
+        private void RefreshRunLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult p, TileRunProgressResult result, ListViewItem lvwi)
+        {
+            lvwi.Tag = result;
+            var metrics = result.Metrics;
+
+            string tilestresstest = ts.ToString();
+            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
+
+            //Only update the ones needed to be updated
+            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
+                lvwi.SubItems[7].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
+                metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
+            {
+                lvwi.SubItems[0].Text = tilestresstest;
+                lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
+                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
+                lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
+                lvwi.SubItems[4].Text = cu.ConcurrentUsers.ToString();
+                lvwi.SubItems[5].Text = (p.Precision + 1).ToString();
+                lvwi.SubItems[6].Text = (result.Run + 1).ToString();
+                lvwi.SubItems[7].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
+                lvwi.SubItems[8].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
+                lvwi.SubItems[9].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
+                lvwi.SubItems[10].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
+                lvwi.SubItems[10].ForeColor = Color.Black;
+
+                if (lvwi.SubItems.Count == 11) //Add if not available.
+                {
+                    lvwi.SubItems.Add(metrics.AverageDelay.TotalMilliseconds.ToString()).Font = lvwi.Font;
+                    
+                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+                    sub.Font = lvwi.Font;
+                    sub.ForeColor = Color.Red;
+                }
+                else if (lvwi.SubItems.Count == 12)
+                {
+                    lvwi.SubItems[11].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+
+                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+                    sub.Font = lvwi.Font;
+                    sub.ForeColor = Color.Red;
+                }
+                else if (lvwi.SubItems.Count == 13)
+                {
+                    lvwi.SubItems[11].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+                    lvwi.SubItems[11].ForeColor = Color.Black;
+
+                    lvwi.SubItems[12].Text = metrics.Errors.ToString();
+                    lvwi.SubItems[12].ForeColor = Color.Red;
+                }
+            }
+        }
+        private ListViewItem NewRunLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult p, TileRunProgressResult result)
+        {
+            string tilestresstest = ts.ToString();
+            var metrics = result.Metrics;
+
+            ListViewItem lvwi = new ListViewItem(tilestresstest);
+            lvwi.UseItemStyleForSubItems = false;
+            Font font = new Font("Consolas", 10.25f);
+
+            lvwi.Font = font;
+            lvwi.Tag = result;
+
+            lvwi.SubItems.Add(result.Metrics.StartMeasuringRuntime.ToString()).Font = font;
+            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
+
+
+            lvwi.SubItems.Add(cu.ConcurrentUsers.ToString()).Font = font;
+            lvwi.SubItems.Add((p.Precision + 1).ToString()).Font = font;
+            lvwi.SubItems.Add((result.Run + 1).ToString()).Font = font;
+
+            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());
+            sub.Font = font;
+            sub.Name = "LogEntriesProcessed";
+            lvwi.SubItems.Add(Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
+
+            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
+            sub.Font = font;
+            sub.ForeColor = Color.Red;
+
+            return lvwi;
+        }
         public void AppendMasterMessages(string message, LogLevel logLevel = LogLevel.Info)
         {
-            Color[] c = new Color[] { Color.DarkGray, Color.Orange, Color.Red };
-            AppendMasterMessages(message, c[(int)logLevel], logLevel);
-        }
-        public void AppendMasterMessages(string message, Color eventColor, LogLevel logLevel = LogLevel.Info)
-        {
-            try
-            {
-                epnlMasterMessages.AddEvent((EventViewEventType)logLevel, eventColor, message);
-            }
+            try { eventView.AddEvent((EventViewEventType)logLevel, message); }
             catch { }
-        }
-        // Gui correction, the epnl wil not be sized correctly otherwise.
-        private void DistributedStresstestControl_SizeChanged(object sender, EventArgs e)
-        {
-            LockWindowUpdate(this.Handle.ToInt32());
-            epnlMasterMessages.Collapsed = !epnlMasterMessages.Collapsed;
-            epnlMasterMessages.Collapsed = !epnlMasterMessages.Collapsed;
-            LockWindowUpdate(0);
-        }
-        // Set the splitter distance of the splitcontainer if collapsed has changed.
-        private void epnlMasterMessages_CollapsedChanged(object sender, EventArgs e)
-        {
-            epnlMasterMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
-
-            splitContainer.IsSplitterFixed = epnlMasterMessages.Collapsed;
-
-            int distance = splitContainer.Panel2.Height - epnlMasterMessages.Bottom;
-            if (splitContainer.SplitterDistance + distance > 0)
-            {
-                splitContainer.Panel2MinSize = 25;
-                splitContainer.SplitterDistance += distance;
-            }
-
-            epnlMasterMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }
         /// <summary>
         /// label updates in visibility
         /// </summary>
         public void SetStresstestStopped()
         {
-            stresstestControl.SetStresstestStopped();
+            //stresstestControl.SetStresstestStopped();
         }
         private void btnExport_Click(object sender, EventArgs e)
         {
-            epnlMasterMessages.Export();
+            eventView.Export();
         }
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e)
         {
-            if (dgvFastResults.RowCount == 0)
-                return;
-
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Title = "Where do you want to save the displayed results?";
-            sfd.FileName = _distributedTest.ToString().ReplaceInvalidWindowsFilenameChars('_');
+            if (_distributedTest != null)
+                sfd.FileName = _distributedTest.ToString().ReplaceInvalidWindowsFilenameChars('_');
             sfd.Filter = "TXT|*.txt";
             if (sfd.ShowDialog() == DialogResult.OK)
                 try
                 {
                     using (StreamWriter sw = new StreamWriter(sfd.FileName))
                     {
-                        foreach (DataGridViewRow row in dgvFastResults.Rows)
-                            sw.WriteLine(row.ToSV("\t"));
-
+                        sw.Write(GetDisplayedResults());
                         sw.Flush();
                     }
                 }
@@ -463,10 +599,36 @@ namespace vApus.DistributedTesting
                     MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
         }
+        /// <summary>
+        /// Get the displayed results.
+        /// </summary>
+        /// <param name="appendHeaders"></param>
+        /// <param name="addStresstestColumn"></param>
+        /// <returns></returns>
+        private string GetDisplayedResults()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (ColumnHeader clm in lvwFastResultsListing.Columns)
+            {
+                sb.Append(clm.Text);
+                sb.Append("\t");
+            }
+            sb.AppendLine();
+
+            foreach (ListViewItem lvwi in lvwFastResultsListing.Items)
+            {
+                foreach (ListViewItem.ListViewSubItem subItem in lvwi.SubItems)
+                {
+                    sb.Append(subItem.Text);
+                    sb.Append("\t");
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (DrillDownChanged != null)
-                DrillDownChanged(this, null);
+            SetOverallFastResults();
         }
         #endregion
     }

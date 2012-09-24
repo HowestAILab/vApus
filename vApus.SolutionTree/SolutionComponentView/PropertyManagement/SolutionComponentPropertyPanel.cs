@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2009 (c) Sizing Servers Lab
+ * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.Util;
+using System.ComponentModel;
 
 namespace vApus.SolutionTree
 {
@@ -21,19 +22,28 @@ namespace vApus.SolutionTree
     /// Or else you can always make your own control derived from "BaseSolutionComponentPropertyControl".
     /// The value of the property may not be null or an exception will be thrown.
     /// </summary>
-    public partial class SolutionComponentPropertyPanel : UserControl
+    public partial class SolutionComponentPropertyPanel : ValueControlPanel
     {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
 
         #region Fields
         private SolutionComponent _solutionComponent;
-        private bool _locked;
+        private bool _solutionComponentTypeChanged;
+        //Can be sorted, kept here.
+        private List<PropertyInfo> _properties;
+
+        //For restoring the parents --> temp solution.
+        // private Dictionary<Type, SolutionComponent> _parentCache = new Dictionary<Type, SolutionComponent>();
         #endregion
 
-        #region Properties
+        [DefaultValue(true)]
+        public new bool AutoSelectControl
+        {
+            get { return base.AutoSelectControl; }
+            set { base.AutoSelectControl = value; }
+        }
+
         /// <summary>
-        /// Sets the Gui if the panel is empty.
+        /// Set the gui if the panel is empty.
         /// </summary>
         public SolutionComponent SolutionComponent
         {
@@ -42,26 +52,17 @@ namespace vApus.SolutionTree
             {
                 if (_solutionComponent != value)
                 {
-                    bool recycle = _solutionComponent != null && value != null && value.GetType() == _solutionComponent.GetType();
+                    this.ValueChanged -= SolutionComponentPropertyPanel_ValueChanged;
+
+                    _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
-                    if (IsHandleCreated)
-                        SetGui(recycle);
+                    SetGui(true);
+                    _solutionComponentTypeChanged = false;
+
+                    this.ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
                 }
             }
         }
-        public FlowDirection FlowDirection
-        {
-            get { return flp.FlowDirection; }
-            set { flp.FlowDirection = value; }
-        }
-        /// <summary>
-        /// All the solution component property controls.
-        /// </summary>
-        public ControlCollection SolutionComponentPropertyControls
-        {
-            get { return flp.Controls; }
-        }
-        #endregion
 
         #region Constructors
         /// <summary>
@@ -75,134 +76,117 @@ namespace vApus.SolutionTree
         {
             InitializeComponent();
             if (this.IsHandleCreated)
-                SetGui(false);
+                SetGui(true);
             else
                 this.HandleCreated += new EventHandler(SolutionComponentPropertyPanel_HandleCreated);
+
+            this.ValueChanged += new EventHandler<ValueChangedEventArgs>(SolutionComponentPropertyPanel_ValueChanged);
         }
+
         #endregion
 
         #region Functions
+        private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueControlPanel.ValueChangedEventArgs e)
+        {
+            if (Solution.ActiveSolution != null)
+                SetValue(e.Index, e.NewValue, e.OldValue, true);
+        }
+        private void SetValue(int index, object newValue, object oldValue, bool invokeEvent)
+        {
+            //Nothing can be null, this is solved this way.
+            if (oldValue is BaseItem && newValue == null)
+            {
+                if ((oldValue as BaseItem).IsEmpty)
+                    return;
+                var empty = BaseItem.Empty(oldValue.GetType(), oldValue.GetParent() as SolutionComponent);
+                empty.SetParent(oldValue.GetParent());
+                _properties[index].SetValue(_solutionComponent, empty, null);
+            }
+            else
+            {
+                _properties[index].SetValue(_solutionComponent, newValue, null);
+            }
+            //Very needed, for when leaving when disposed, or key up == enter while creating.
+            if (invokeEvent)
+                try
+                {
+                    //var attributes = _propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
+                    //if (attributes.Length != 0)
+                    _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                }
+                catch { }
+        }
         private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e)
         {
-            SetGui(false);
-            if (_locked)
-                Lock();
-            else
-                Unlock();
+            SetGui(true);
         }
-        private void SetGui(bool recycle)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="collapse">not on refresh</param>
+        private void SetGui(bool collapse)
         {
-            LockWindowUpdate(this.Handle.ToInt32());
-
-            List<PropertyInfo> properties = null;
-            if (_solutionComponent != null)
+            if (_solutionComponent != null && IsHandleCreated)
             {
-                properties = new List<PropertyInfo>(_solutionComponent.GetType().GetProperties());
-                properties.Sort(PropertyInfoComparer.GetInstance());
-                properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
-            }
-            if (recycle)
-            {
-                int controlIndex = 0;
-                foreach (PropertyInfo info in properties)
+                bool locked = _locked;
+                //if (_solutionComponentTypeChanged || _properties == null)
+                //{
+                _properties = new List<PropertyInfo>();
+                foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties())
                 {
-                    object[] attributes = info.GetCustomAttributes(typeof(PropertyControlAttribute), true);
+                    object[] attributes = propertyInfo.GetCustomAttributes(typeof(PropertyControlAttribute), true);
                     PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
                     if (propertyControlAttribute != null)
-                        if (propertyControlAttribute.UseCustomPropertyControlType)
-                        {
-                            Control customPropertyControl = flp.Controls[controlIndex++];
-                            customPropertyControl = propertyControlAttribute.GetCustomPropertyControl(_solutionComponent, info);
-                        }
-                        else
-                            try
-                            {
-                                (flp.Controls[controlIndex++] as SolutionComponentCommonPropertyControl).Recycle(_solutionComponent, info);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw ex;
-                            }
+                        _properties.Add(propertyInfo);
                 }
-            }
-            else
-            {
-                flp.Controls.Clear();
-                if (_solutionComponent != null)
-                {
-                    this.Cursor = Cursors.WaitCursor;
-                    foreach (PropertyInfo info in properties)
-                    {
-                        object[] attributes = info.GetCustomAttributes(typeof(PropertyControlAttribute), true);
-                        PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
-                        if (propertyControlAttribute != null)
-                            if (propertyControlAttribute.UseCustomPropertyControlType)
-                            {
-                                flp.Controls.Add(propertyControlAttribute.GetCustomPropertyControl(_solutionComponent, info));
-                            }
-                            else
-                                try
-                                {
-                                    flp.Controls.Add(new SolutionComponentCommonPropertyControl(_solutionComponent, info));
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw new Exception("\"SolutionComponentCommonPropertyControl\" is a standard control to edit a property of the types: string, char, bool, all numeric types and array or list of those.\nThe type of the property must be one of the above and may not be null.", ex);
-                                }
-                    }
-                    this.Cursor = Cursors.Default;
-                }
-                if (flp.Controls.Count > 0)
-                    flp.Controls[0].VisibleChanged += new EventHandler(SolutionComponentPropertyControl_VisibleChanged);
-            }
-            flp.AutoScroll = true;
+                _properties.Sort(PropertyInfoComparer.GetInstance());
+                _properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
 
-            LockWindowUpdate(0);
-        }
-        private void SolutionComponentPropertyControl_VisibleChanged(object sender, EventArgs e)
-        {
-            Control control = sender as Control;
-            if (control.Visible)
-            {
-                control.VisibleChanged -= SolutionComponentPropertyControl_VisibleChanged;
-                control.Select();
+                BaseValueControl.Value[] values = new BaseValueControl.Value[_properties.Count];
+                for (int i = 0; i != values.Length; i++)
+                {
+                    PropertyInfo propertyInfo = _properties[i];
+
+                    object value = _properties[i].GetValue(_solutionComponent, null);
+
+                    object[] attributes = propertyInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+                    string label = (attributes.Length != 0) ? (attributes[0] as DisplayNameAttribute).DisplayName : propertyInfo.Name;
+
+                    //for dynamic descriptions you can choose to call SetDescription however usage of the description attribute is adviced.
+                    string description = value.GetDescription();
+                    if (description == null)
+                    {
+                        attributes = propertyInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
+                        description = (attributes.Length != 0) ? (attributes[0] as DescriptionAttribute).Description : string.Empty;
+                    }
+
+                    attributes = propertyInfo.GetCustomAttributes(typeof(ReadOnlyAttribute), true);
+                    bool isReadOnly = !propertyInfo.CanWrite || (attributes.Length > 0 && (attributes[0] as ReadOnlyAttribute).IsReadOnly);
+
+                    attributes = propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
+                    bool isEncrypted = (attributes.Length != 0 && (attributes[0] as SavableCloneableAttribute).Encrypt);
+
+
+                    values[i] = new BaseValueControl.Value { __Value = value, Description = description, IsEncrypted = isEncrypted, IsReadOnly = isReadOnly, Label = label };
+                }
+
+                base.SetValues(values);
+
+                if (_locked)
+                    base.Lock();
+                //}
+                //else //Recycle controls
+                //{
+                //    object[] values = new object[_properties.Count];
+                //    for (int i = 0; i != values.Length; i++)
+                //    {
+                //        values[i] = _properties[i].GetValue(_solutionComponent, null);
+                //        base.SetDescriptionAt(i, values[i].GetDescription());
+                //    }
+
+                //   base.Set__Values(collapse, values);
+                //}
             }
-        }
-        /// <summary>
-        /// Lock all containing "BaseSolutionComponentPropertyControl"'s.
-        /// </summary>
-        public void Lock()
-        {
-            _locked = true;
-            foreach (Control control in flp.Controls)
-                if (control.IsHandleCreated)
-                    (control as BaseSolutionComponentPropertyControl).Lock();
-                else
-                    control.HandleCreated += new EventHandler(control_lock_HandleCreated);
-        }
-        private void control_lock_HandleCreated(object sender, EventArgs e)
-        {
-            BaseSolutionComponentPropertyControl control = sender as BaseSolutionComponentPropertyControl;
-            control.HandleCreated -= control_lock_HandleCreated;
-            control.Lock();
-        }
-        /// <summary>
-        /// Unlock all containing "BaseSolutionComponentPropertyControl"'s.
-        /// </summary>
-        public void Unlock()
-        {
-            _locked = false;
-            foreach (Control control in flp.Controls)
-                if (control.IsHandleCreated)
-                    (control as BaseSolutionComponentPropertyControl).Unlock();
-                else
-                    control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
-        }
-        private void control_unlock_HandleCreated(object sender, EventArgs e)
-        {
-            BaseSolutionComponentPropertyControl control = sender as BaseSolutionComponentPropertyControl;
-            control.HandleCreated -= control_lock_HandleCreated;
-            control.Unlock();
         }
         /// <summary>
         /// This is used in the solution component view manager, please implement this always.
@@ -210,11 +194,7 @@ namespace vApus.SolutionTree
         public override void Refresh()
         {
             base.Refresh();
-            foreach (Control control in flp.Controls)
-            {
-                (control as BaseSolutionComponentPropertyControl).Target = _solutionComponent;
-                control.Refresh();
-            }
+            SetGui(false);
         }
         #endregion
     }

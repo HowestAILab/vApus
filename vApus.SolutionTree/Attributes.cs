@@ -50,20 +50,12 @@ namespace vApus.SolutionTree
     {
         #region Fields
         private int _displayIndex = -1;
-        private Type _customPropertyControlType;
         #endregion
 
         #region Properties
         public int DisplayIndex
         {
             get { return _displayIndex; }
-        }
-        /// <summary>
-        /// A custom property control can be supplied if you like, otherwise the standard is used. This control cannot be recycled, so overriding "Recycle()" is useless.
-        /// </summary>
-        public bool UseCustomPropertyControlType
-        {
-            get { return _customPropertyControlType != null; }
         }
         #endregion
 
@@ -84,41 +76,6 @@ namespace vApus.SolutionTree
         public PropertyControlAttribute(int displayIndex)
         {
             _displayIndex = displayIndex;
-        }
-        /// <summary>
-        /// To define that a common property control can be created for the property.
-        /// This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
-        /// </summary>
-        /// <param name="customPropertyControlType">The custom property control that can be created.</param>
-        public PropertyControlAttribute(Type customPropertyControlType)
-        {
-            if (customPropertyControlType == null)
-                throw new ArgumentException("customPropertyControlType");
-            if (customPropertyControlType != typeof(BaseSolutionComponentPropertyControl))
-                throw new InvalidCastException("customPropertyControlType must be of type \"BaseSolutionComponentPropertyControl\"");
-            _customPropertyControlType = customPropertyControlType;
-        }
-        /// <summary>
-        /// To define that a common property control can be created for the property.
-        /// This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
-        /// </summary>
-        /// <param name="displayIndex">A number greater than -1, it doesn't matter if it isn't directly following the display indices of other property control attributes.
-        /// If this is not spedified, alphabetical sorting will take place.</param>
-        /// <param name="customPropertyControlType">The custom property control that can be created.</param>
-        public PropertyControlAttribute(int displayIndex, Type customPropertyControlType)
-            : this(customPropertyControlType)
-        {
-            _displayIndex = displayIndex;
-        }
-        /// <summary>
-        /// Will fail if the "BaseSolutionComponentPropertyControl" is not found and the type having the given property control type name is not derived from the type of "BaseSolutionComponentPropertyControl".
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="info"></param>
-        /// <returns></returns>
-        internal BaseSolutionComponentPropertyControl GetCustomPropertyControl(SolutionComponent target, PropertyInfo info)
-        {
-            return Activator.CreateInstance(_customPropertyControlType, target, info) as BaseSolutionComponentPropertyControl;
         }
     }
     /// <summary>

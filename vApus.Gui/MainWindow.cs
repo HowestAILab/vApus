@@ -11,7 +11,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -66,40 +65,56 @@ namespace vApus.Gui
         }
         private void SetGui()
         {
-            SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
-            Solution.RegisterDockPanel(dockPanel);
-            Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
-            Solution.ShowStresstestingSolutionExplorer();
-            _welcome.Show(dockPanel);
-            OnActiveSolutionChanged(null);
+            try
+            {
+                SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
+                Solution.RegisterDockPanel(dockPanel);
+                Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+                if (Solution.ShowStresstestingSolutionExplorer())
+                    _welcome.Show(dockPanel);
+                OnActiveSolutionChanged(null);
 
-            ArgumentsAnalyzer.AnalyzeAndExecute(_args);
+                string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
+                if (error.Length != 0)
+                    LogWrapper.LogByLevel("Argument Analyzer " + error, LogLevel.Error);
 
-            _updateNotifierPanel = new UpdateNotifierPanel();
-            _logPanel = new LogPanel();
-            _logPanel.LogErrorCountChanged += new EventHandler<LogPanel.LogErrorCountChangedEventArgs>(_logPanel_LogErrorCountChanged);
-            _logErrorToolTip = new LogErrorToolTip();
-            _logErrorToolTip.AutoPopDelay = 10000;
+                _updateNotifierPanel = new UpdateNotifierPanel();
+                _logPanel = new LogPanel();
+                _logPanel.LogErrorCountChanged += new EventHandler<LogPanel.LogErrorCountChangedEventArgs>(_logPanel_LogErrorCountChanged);
+                _logErrorToolTip = new LogErrorToolTip();
+                _logErrorToolTip.AutoPopDelay = 10000;
 
-            _localizationPanel = new LocalizationPanel();
-            _processorAffinityPanel = new ProcessorAffinityPanel();
-            _cleanTempDataPanel = new CleanTempDataPanel();
-            _disableFirewallAutoUpdatePanel = new DisableFirewallAutoUpdatePanel();
+                _localizationPanel = new LocalizationPanel();
+                _processorAffinityPanel = new ProcessorAffinityPanel();
+                _cleanTempDataPanel = new CleanTempDataPanel();
+                _disableFirewallAutoUpdatePanel = new DisableFirewallAutoUpdatePanel();
 
-            string host, username, password;
-            int port, channel;
-            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
+                //When this vApus is used for a slave, the title bar will change.
+                SocketListenerLinker.NewTest += new EventHandler(SocketListenerLinker_NewTest);
 
-            UpdateNotifier.Refresh();
+                string host, username, password;
+                int port, channel;
+                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
 
-            if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
-                UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
-                //Doing stuff automatically
-                if (Update(host, port, username, password, channel))
-                    this.Close();
+                UpdateNotifier.Refresh();
+
+                if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
+                    UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
+                    //Doing stuff automatically
+                    if (Update(host, port, username, password, channel))
+                        this.Close();
+            }
+            catch (Exception ex)
+            {
+                LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
+            }
         }
         #endregion
 
+        private void SocketListenerLinker_NewTest(object sender, EventArgs e)
+        {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { this.Text = sender.ToString(); }, null);
+        }
         private void MainWindow_LocationChanged(object sender, EventArgs e)
         {
             RelocateLogErrorToolTip();
@@ -460,7 +475,7 @@ namespace vApus.Gui
                             _msgHandler.PostMessage();
                         }
                         catch { }
-                    });
+                    }, null);
             }
             catch { }
         }
@@ -530,12 +545,12 @@ namespace vApus.Gui
         private void SetProcessorAffinityLabel()
         {
             int[] cpus = ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity);
+            //Make it one-based
+            int[] oneBasedCPUs = new int[cpus.Length];
+            for (int i = 0; i != cpus.Length; i++)
+                oneBasedCPUs[i] = cpus[i] + 1;
 
-            string s = string.Empty;
-            for (int i = 0; i != cpus.Length - 1; i++)
-                s += (i + 1) + "; ";
-            s += (cpus[cpus.Length - 1] + 1);
-            lblProcessorAffinity.Text = s.Trim();
+            lblProcessorAffinity.Text = oneBasedCPUs.Combine(", ");
         }
         private void SetWindowsFirewallAutoUpdateLabel()
         {

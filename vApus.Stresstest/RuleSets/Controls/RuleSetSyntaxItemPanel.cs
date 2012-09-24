@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2010 (c) Sizing Servers Lab
+ * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
@@ -7,13 +7,11 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
-    /// <summary>
-    /// </summary>
-    public partial class RuleSetSyntaxItemPanel : UserControl
+    public partial class RuleSetSyntaxItemPanel : ValueControlPanel
     {
         #region Events
         public event EventHandler InputChanged;
@@ -34,33 +32,30 @@ namespace vApus.Stresstest
         {
             get { return _input; }
         }
-        //Temporarily
-        public List<string> SplitInput
-        {
-            get { return _splitInput; }
-        }
-        public FlowDirection FlowDirection
-        {
-            get { return flp.FlowDirection; }
-            set { flp.FlowDirection = value; }
-        }
         #endregion
 
-        #region Constructors
-        /// <summary>
-        /// </summary>
         public RuleSetSyntaxItemPanel()
         {
             InitializeComponent();
-        }
-        #endregion
 
-        #region Functions
-        private void RuleSetSyntaxItemPanel_HandleCreated(object sender, EventArgs e)
-        {
-            this.HandleCreated -= RuleSetSyntaxItemPanel_HandleCreated;
-            SetGui();
+            this.ValueChanged += new EventHandler<ValueChangedEventArgs>(RuleSetSyntaxItemPanel_ValueChanged);
         }
+
+        private void RuleSetSyntaxItemPanel_ValueChanged(object sender, ValueControlPanel.ValueChangedEventArgs e)
+        {
+            _input = string.Empty;
+            _splitInput = new List<string> { };
+            for (int i = 0; i < base.ValueControls.Count; i++)
+            {
+                BaseValueControl valueControl = base.ValueControls[i] as BaseValueControl;
+                string value = valueControl.__Value.__Value.ToString();
+                _splitInput.Add(value);
+                _input = (i == 0) ? value : string.Format("{0}{1}{2}", _input, _ruleSet.ChildDelimiter, value);
+            }
+            if (InputChanged != null)
+                InputChanged(this, null);
+        }
+
         public void SetRuleSetAndInput(BaseRuleSet ruleSet, string input)
         {
             if (ruleSet == null)
@@ -68,87 +63,117 @@ namespace vApus.Stresstest
             if (input == null)
                 throw new ArgumentNullException("input");
 
-            if (_ruleSet == ruleSet && _ruleSet.Count == flp.Controls.Count && _input == input)
-            {
-                foreach (Control control in flp.Controls)
-                    control.Refresh();
-            }
-            else
-            {
-                _ruleSet = ruleSet;
-                _input = input;
-                _splitInput = new List<string>(_input.Split(new string[] { _ruleSet.ChildDelimiter }, StringSplitOptions.None));
+            this.ValueChanged -= RuleSetSyntaxItemPanel_ValueChanged;
 
-                if (IsHandleCreated)
-                    SetGui();
-                else
-                    this.HandleCreated += new EventHandler(RuleSetSyntaxItemPanel_HandleCreated);
-            }
+            _ruleSet = ruleSet;
+            _input = input;
+            _splitInput = new List<string>(_input.Split(new string[] { _ruleSet.ChildDelimiter }, StringSplitOptions.None));
+
+            if (IsHandleCreated)
+                SetGui();
+            else
+                this.HandleCreated += new EventHandler(RuleSetSyntaxItemPanel_HandleCreated);
+
+            this.ValueChanged += RuleSetSyntaxItemPanel_ValueChanged;
+        }
+        private void RuleSetSyntaxItemPanel_HandleCreated(object sender, EventArgs e)
+        {
+            this.HandleCreated -= RuleSetSyntaxItemPanel_HandleCreated;
+            SetGui();
         }
         private void SetGui()
         {
-            this.SuspendLayout();
-            flp.Controls.Clear();
-
+            List<BaseValueControl.Value> values = new List<BaseValueControl.Value>(_ruleSet.Count);
             if (_input != null && _ruleSet != null)
             {
                 if (_input.Length == 0)
+                {
                     for (int i = 0; i < _ruleSet.Count; i++)
-                    {
-                        SyntaxItem syntaxItem = _ruleSet[i] as SyntaxItem;
-                        flp.Controls.Add(new SyntaxItemControl(syntaxItem, string.Empty));
-                    }
+                        values.Add(CreateValue(_ruleSet[i] as SyntaxItem, string.Empty));
+                }
                 else
                 {
                     int indexModifier = 0;
                     for (int i = 0; i < _ruleSet.Count; i++)
                     {
                         SyntaxItem syntaxItem = _ruleSet[i] as SyntaxItem;
-                        if (indexModifier == _splitInput.Count)
-                        {
-                            flp.Controls.Add(new SyntaxItemControl(syntaxItem, string.Empty));
-                            ++indexModifier;
-                        }
+                        if (indexModifier >= _splitInput.Count)
+                            values.Add(CreateValue(syntaxItem, string.Empty));
                         else
-                        {
-                            flp.Controls.Add(new SyntaxItemControl(syntaxItem, _splitInput[indexModifier]));
-                            ++indexModifier;
-                        }
+                            values.Add(CreateValue(syntaxItem, _splitInput[indexModifier]));
+                        ++indexModifier;
                     }
                 }
             }
-            if (flp.Controls.Count > 0)
-                flp.Controls[0].VisibleChanged += new EventHandler(RuleSetSyntaxItemPanel_VisibleChanged);
-            foreach (Control control in flp.Controls)
-                (control as SyntaxItemControl).InputChanged += new EventHandler(RuleSetSyntaxItemPanel_InputChanged);
-            flp.AutoScroll = true;
-            this.ResumeLayout(true);
+            base.SetValues(values.ToArray());
         }
-        private void RuleSetSyntaxItemPanel_VisibleChanged(object sender, EventArgs e)
+        private BaseValueControl.Value CreateValue(SyntaxItem syntaxItem, string input)
         {
-            Control control = sender as Control;
-            if (control.Visible)
+            object value = input;
+            bool isEncrypted = false;
+            if (syntaxItem.Count != 0 && syntaxItem[0] is Rule)
             {
-                control.VisibleChanged -= RuleSetSyntaxItemPanel_VisibleChanged;
-                control.Focus();
+                Rule rule = syntaxItem[0] as Rule;
+                isEncrypted = rule.UsePasswordChar;
+
+                switch (rule.ValueType)
+                {
+                    case Rule.ValueTypes.boolType:
+                        bool b;
+                        value = bool.TryParse(input, out b) ? b : false;
+                        break;
+                    case Rule.ValueTypes.charType:
+                        value = input[0];
+                        break;
+                    case Rule.ValueTypes.decimalType:
+                        decimal dec = 0;
+                        decimal.TryParse(input, out dec);
+                        value = dec;
+                        break;
+                    case Rule.ValueTypes.doubleType:
+                        double d = 0;
+                        double.TryParse(input, out d);
+                        value = d;
+                        break;
+                    case Rule.ValueTypes.floatType:
+                        float f = 0;
+                        float.TryParse(input, out f);
+                        value = f;
+                        break;
+                    case Rule.ValueTypes.intType:
+                        int i = 0;
+                        int.TryParse(input, out i);
+                        value = i;
+                        break;
+                    case Rule.ValueTypes.longType:
+                        long l = 0;
+                        long.TryParse(input, out l);
+                        value = l;
+                        break;
+                    case Rule.ValueTypes.shortType:
+                        short s = 0;
+                        short.TryParse(input, out s);
+                        value = s;
+                        break;
+                    case Rule.ValueTypes.uintType:
+                        uint ui = 0;
+                        uint.TryParse(input, out ui);
+                        value = ui;
+                        break;
+                    case Rule.ValueTypes.ulongType:
+                        ulong ul = 0;
+                        ulong.TryParse(input, out ul);
+                        value = ul;
+                        break;
+                    case Rule.ValueTypes.ushortType:
+                        ushort us = 0;
+                        ushort.TryParse(input, out us);
+                        value = us;
+                        break;
+                }
             }
+
+            return new BaseValueControl.Value { __Value = value, Description = syntaxItem.Description, IsEncrypted = isEncrypted, IsReadOnly = false, Label = syntaxItem.Label };
         }
-        private void RuleSetSyntaxItemPanel_InputChanged(object sender, EventArgs e)
-        {
-            _input = string.Empty;
-            _splitInput = new List<string> { };
-            for (int i = 0; i < flp.Controls.Count; i++)
-            {
-                SyntaxItemControl syntaxItemControl = flp.Controls[i] as SyntaxItemControl;
-                _splitInput.Add(syntaxItemControl.Value);
-                if (i == 0)
-                    _input = syntaxItemControl.Value;
-                else
-                    _input = string.Format("{0}{1}{2}", _input, _ruleSet.ChildDelimiter, syntaxItemControl.Value);
-            }
-            if (InputChanged != null)
-                InputChanged(this, null);
-        }
-        #endregion
     }
 }

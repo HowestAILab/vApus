@@ -40,7 +40,8 @@ namespace vApus.UpdateTool
         /// To auto connect.
         /// </summary>
         private string _host, _username, _password;
-        private int _port = 5222, _channel;
+        private int _port = 22; //External port 5222
+        private int _channel;
         private bool _autoUpdate;
 
         #endregion
@@ -490,7 +491,7 @@ namespace vApus.UpdateTool
                             AppendLogLine("Completed!", Color.Green);
 
                             OverwriteFiles();
-                        });
+                        }, null);
                     }
                     catch (Exception ex)
                     {
@@ -499,7 +500,7 @@ namespace vApus.UpdateTool
                             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                             {
                                 AppendLogLine("Failed to update or reinstall: " + ex.Message, Color.Red);
-                            });
+                            }, null);
                         }
                         catch { }
                     }
@@ -704,7 +705,7 @@ namespace vApus.UpdateTool
                     pbTotal.Value = pbTotal.Maximum;
                 else
                     pbTotal.Value = (int)total;
-            });
+            }, null);
         }
 
         private void _sftp_OnTransferProgress(string src, string dst, int transferredBytes, int totalBytes, string message)
@@ -721,7 +722,7 @@ namespace vApus.UpdateTool
                         pb.Value = transferredBytes;
                         break;
                     }
-            });
+            }, null);
         }
         #endregion
 
@@ -758,14 +759,14 @@ namespace vApus.UpdateTool
             if (_updating)
             {
                 if (MessageBox.Show("Are you sure you want to disconnect while updating?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                {
-                    _updating = false;
-                    PerformConnectClick();
-                }
+                    try
+                    {
+                        _updating = false;
+                        PerformConnectClick();
+                    }
+                    catch { }
                 else
-                {
                     e.Cancel = true;
-                }
             }
             else if (_sftp != null)
             {

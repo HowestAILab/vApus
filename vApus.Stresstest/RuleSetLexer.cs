@@ -54,7 +54,7 @@ namespace vApus.Stresstest
                                 return lexicalResult;
                             }
                         }
-                        output.AddWithoutInvokingEvent(syntaxItemOutput);
+                        output.AddWithoutInvokingEvent(syntaxItemOutput, false);
                     }
                 }
                 else
@@ -69,7 +69,7 @@ namespace vApus.Stresstest
                         {
                             ASTNode syntaxItemOutput = null;
                             syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
-                            output.AddWithoutInvokingEvent(syntaxItemOutput);
+                            output.AddWithoutInvokingEvent(syntaxItemOutput, false);
                         }
                     }
                     else
@@ -110,12 +110,12 @@ namespace vApus.Stresstest
                                 }
                                 else
                                 {
-                                    output.AddWithoutInvokingEvent(syntaxItemOutput);
+                                    output.AddWithoutInvokingEvent(syntaxItemOutput, false);
                                     output.Error = syntaxItemOutput.Error;
                                     return lexicalResult;
                                 }
                             else
-                                output.AddWithoutInvokingEvent(syntaxItemOutput);
+                                output.AddWithoutInvokingEvent(syntaxItemOutput, false);
 
                             //Apply the syntax item validation times the occurancy.
                             if (syntaxItem.Occurance > 0 && occuranceCheck == 0)

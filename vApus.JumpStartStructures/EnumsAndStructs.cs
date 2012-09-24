@@ -14,35 +14,57 @@ namespace vApus.JumpStartStructures
     {
         JumpStart,
         Kill,
+        CpuCoreCount
     }
     [Serializable]
     public struct JumpStartMessage
     {
         public string IP;
+        /// <summary>
+        /// All ports comma separated.
+        /// </summary>
         public string Port;
+        /// <summary>
+        /// All cores space separated, comma separated per port.
+        /// </summary>
+        public string ProcessorAffinity;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port">can be multiple ports divided by a comma.</param>
         /// <param name="processID"></param>
-        public JumpStartMessage(string ip, string port)
+        public JumpStartMessage(string ip, string port, string processorAffinity)
         {
             IP = ip;
             Port = port;
+            ProcessorAffinity = processorAffinity;
         }
     }
     [Serializable]
     public struct KillMessage
     {
-        public string ProcessID;
+        //The master port for example
+        public int ExcludeProcessID;
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="processID">If -1 all instances of vApus will be killed.</param>
-        public KillMessage(string processID = "-1")
+        /// <param name="excludeIP"></param>
+        /// <param name="excludeProcessID"></param>
+        /// <param name="processID"></param>
+        public KillMessage(int excludeProcessID)
         {
-            ProcessID = processID;
+            ExcludeProcessID = excludeProcessID;
+        }
+    }
+    [Serializable]
+    public struct CpuCoreCountMessage
+    {
+        public int CpuCoreCount;
+        public CpuCoreCountMessage(int cpuCoreCount)
+        {
+            CpuCoreCount = cpuCoreCount;
         }
     }
 }

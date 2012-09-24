@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using vApus.Util;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace vApus.Stresstest
 {
@@ -31,11 +33,8 @@ namespace vApus.Stresstest
         {
             this.Cursor = Cursors.WaitCursor;
             lvwGac.Items.Clear();
+           // ConcurrentBag<object> cb = new ConcurrentBag<object>();
             string gac = Path.Combine(SpecialFolder.GetPath(SpecialFolder.Folder.Windows), "assembly");
-            foreach (string file in Directory.GetFiles(gac, "*Acces*", SearchOption.AllDirectories))
-            {
-
-            }
             foreach (string processorArchitecture in Directory.GetDirectories(gac))
             {
                 string trimmedProcessorArchitecture = Path.GetFileName(processorArchitecture);
@@ -48,6 +47,7 @@ namespace vApus.Stresstest
                     foreach (string version_Culture_PublicKeyToken in Directory.GetDirectories(assemblyName))
                     {
                         string[] properties = Path.GetFileName(version_Culture_PublicKeyToken).Split('_');
+                        //Parallel.ForEach(Directory.GetFiles(version_Culture_PublicKeyToken, "*.dll"), delegate(string file)
                         foreach (string file in Directory.GetFiles(version_Culture_PublicKeyToken, "*.dll"))
                         {
                             ListViewItem item = lvwGac.Items[trimmedAssemblyName];
@@ -71,6 +71,7 @@ namespace vApus.Stresstest
                                     item.SubItems[3].Text += ", " + trimmedProcessorArchitecture;
                             }
                         }
+                        //);
                     }
                 }
             }

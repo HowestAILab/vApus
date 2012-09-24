@@ -180,16 +180,10 @@
     <Compile Include="Controls\MonitorControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\MonitorParameterControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\MonitorParameterControl.designer.cs">
-      <DependentUpon>MonitorParameterControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\MonitorParameterPanel.cs">
-      <SubType>UserControl</SubType>
+      <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\MonitorParameterPanel.designer.cs">
+    <Compile Include="Controls\MonitorParameterPanel.Designer.cs">
       <DependentUpon>MonitorParameterPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="LocalMonitor.cs" />
@@ -242,12 +236,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Controls\MonitorParameterControl.resx">
-      <DependentUpon>MonitorParameterControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\MonitorParameterPanel.resx">
-      <DependentUpon>MonitorParameterPanel.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="LocalOrRemoteSMT.resx">
       <DependentUpon>LocalOrRemoteSMT.cs</DependentUpon>
     </EmbeddedResource>

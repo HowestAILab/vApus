@@ -24,7 +24,7 @@ namespace vApus.SolutionTree
         #endregion
 
         #region Properties
-        [SavableCloneable, PropertyControl]
+        [SavableCloneable]
         public virtual string Label
         {
             get { return _label; }
@@ -34,6 +34,9 @@ namespace vApus.SolutionTree
                     _label = value == null ? string.Empty : value;
             }
         }
+        /// <summary>
+        /// The one-based index of this item in the collection of its parent.
+        /// </summary>
         [Description("The one-based index of this item in the collection of its parent.")]
         public int Index
         {
@@ -77,7 +80,7 @@ namespace vApus.SolutionTree
         public override string ToString()
         {
             if (IsEmpty)
-                return null;
+                return "<none>";
             return _label == string.Empty ? Name + ' ' + Index : Name + ' ' + Index + ": " + _label;
         }
         #endregion

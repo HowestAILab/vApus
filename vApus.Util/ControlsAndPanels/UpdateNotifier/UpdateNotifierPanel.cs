@@ -112,7 +112,7 @@ namespace vApus.Util
             {
                 SetUpdatePanel();
                 this.Cursor = Cursors.Default;
-            });
+            }, null);
         }
 
         private void SetUpdatePanel(bool enforceUpdate = true)
@@ -170,7 +170,7 @@ namespace vApus.Util
                 UpdateNotifier.Refresh();
 
                 SetUpdatePanel(false);
-            });
+            }, null);
         }
         private void btnUpdateManually_Click(object sender, EventArgs e)
         {
@@ -189,11 +189,11 @@ namespace vApus.Util
         private void btnClear_Click(object sender, EventArgs e)
         {
             txtHost.Text = string.Empty;
-            nudPort.Value = 5222;
+            nudPort.Value = 22; //External port 5222
             txtUsername.Text = string.Empty;
             txtPassword.Text = string.Empty;
 
-            UpdateNotifier.SetCredentials(txtHost.Text, 5222, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
+            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
 
             pnlRefresh.Enabled = false;
             btnSet.Enabled = false;

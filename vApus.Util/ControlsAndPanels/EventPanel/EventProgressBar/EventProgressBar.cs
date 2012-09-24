@@ -26,9 +26,11 @@ namespace vApus.Util
         public event EventHandler<ProgressEventEventArgs> EventMouseLeave;
         [Description("Occurs when a progress event is clicked.")]
         public event EventHandler<ProgressEventEventArgs> EventClick;
+
         #region Fields
 
         private List<ProgressEvent> _progressEvents = new List<ProgressEvent>();
+        private List<ProgressEvent> _sortedProgressEvents = new List<ProgressEvent>(); //Sorted on importance, to draw the lines.
         private ProgressEvent _previouslyHovered;
         private bool _toolTipThisShown = false;
         private bool _eventToolTip = true;
@@ -55,7 +57,7 @@ namespace vApus.Util
         {
             get { return _progressEvents.Count; }
         }
-        [Description("The begin of the time frame when the events occured ('at')")]
+        [Description("The begin of the time frame when the events occured ('at').")]
         /// </summary>
         public DateTime BeginOfTimeFrame
         {
@@ -66,7 +68,7 @@ namespace vApus.Util
             }
             get { return _beginOfTimeFrame; }
         }
-        [Description("The begin of the time frame when the events occured ('at')")]
+        [Description("The end of the time frame.")]
         public DateTime EndOfTimeFrame
         {
             set
@@ -120,10 +122,55 @@ namespace vApus.Util
             pe.Click += new EventHandler(pe_Click);
             _progressEvents.Add(pe);
 
+            _sortedProgressEvents = Sort(_progressEvents);
+
             this.Invalidate();
 
             return pe;
         }
+        /// <summary>
+        /// Sort on color, the smallest counts first
+        /// </summary>
+        /// <param name="progressEvents"></param>
+        /// <returns></returns>
+        private List<ProgressEvent> Sort(List<ProgressEvent> progressEvents)
+        {
+            var pes = new List<ProgressEvent>(progressEvents.Count);
+            var sorter = new Dictionary<Color, List<ProgressEvent>>();
+
+            foreach (var pe in progressEvents)
+                if (sorter.ContainsKey(pe.Color))
+                {
+                    sorter[pe.Color].Add(pe);
+                }
+                else
+                {
+                    var value = new List<ProgressEvent>();
+                    value.Add(pe);
+                    sorter.Add(pe.Color, value);
+                }
+
+            var sorted = new Dictionary<Color, List<ProgressEvent>>(sorter.Count);
+
+            while (sorter.Count != 0)
+            {
+                Color smallestCount = Color.Empty;
+                foreach (var key in sorter.Keys)
+                    if (smallestCount == Color.Empty)
+                        smallestCount = key;
+                    else if (sorter[key].Count < sorter[smallestCount].Count)
+                        smallestCount = key;
+
+                sorted.Add(smallestCount, sorter[smallestCount]);
+                sorter.Remove(smallestCount);
+            }
+
+            foreach (var key in sorted.Keys)
+                pes.AddRange(sorted[key]);
+
+            return pes;
+        }
+
         public List<ProgressEvent> GetEvents()
         {
             return _progressEvents;
@@ -160,11 +207,16 @@ namespace vApus.Util
 
                 DrawProgressBar(g);
                 ProgressEvent entered = null;
-                foreach (var pe in _progressEvents)
+
+                //Do this in reversed order --> the most important are drawn last.
+                for (int i = _sortedProgressEvents.Count - 1; i != -1; i--)
+                {
+                    var pe = _sortedProgressEvents[i];
                     if (pe.Entered)
                         entered = pe;
                     else
                         pe.Draw(g);
+                }
                 if (entered != null)
                     entered.Draw(g);
             }
@@ -173,9 +225,9 @@ namespace vApus.Util
         private void DrawProgressBar(Graphics g)
         {
             ProgressEvent pe = null;
-            if (_progressEvents.Count != 0)
+            if (_sortedProgressEvents.Count != 0)
             {
-                pe = _progressEvents[_progressEvents.Count - 1];
+                pe = _sortedProgressEvents[_sortedProgressEvents.Count - 1];
                 if (_nowProgressEvent == null || _nowProgressEvent.At < pe.At)
                     _nowProgressEvent = pe;
             }
@@ -215,7 +267,7 @@ namespace vApus.Util
         }
         public void PerformMouseEnter(DateTime at, bool showToolTip)
         {
-            foreach (ProgressEvent pe in _progressEvents)
+            foreach (ProgressEvent pe in _sortedProgressEvents)
                 if (pe.At == at)
                 {
                     PerformMouseEnter(pe, showToolTip);
@@ -264,7 +316,7 @@ namespace vApus.Util
         private ProgressEvent GetHoveredProgressEvent()
         {
             Point p = PointToClient(Cursor.Position);
-            foreach (var pe in _progressEvents)
+            foreach (var pe in _sortedProgressEvents)
             {
                 Point location = pe.Location;
                 if (p.X >= location.X &&

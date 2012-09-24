@@ -39,8 +39,9 @@ namespace vApus.Stresstest
                 nudThreads.ValueChanged += new EventHandler(nudThreads_ValueChanged);
 
                 flp.Controls.Clear();
-                flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLog")));
-                flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLogEntryIndex")));
+                #warning Fix this
+                //flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLog")));
+                //flp.Controls.Add(new SolutionComponentCommonPropertyControl(_connectionProxyCode, _connectionProxyCode.GetType().GetProperty("TestLogEntryIndex")));
 
                 ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connectionProxyCode.ConnectionProxyRuleSet, _connectionProxyCode.TestConnectionString);
                 ruleSetSyntaxItemPanel.InputChanged += ruleSetSyntaxItemPanel_InputChanged;
@@ -135,7 +136,7 @@ namespace vApus.Stresstest
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 MessageBox.Show("Could not test the code:\n" + e.Exception.ToString(), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            });
+            }, null);
             SetFinished();
         }
         private void connectionProxyPool_TestWorkFinished(object sender, EventArgs e)
@@ -156,7 +157,7 @@ namespace vApus.Stresstest
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     SetGui(false);
-                });
+                }, null);
             }
         }
         private void connectionProxyPool_LogEntryTested(object sender, ConnectionProxyPool.LogEntryTestedEventArgs e)
@@ -194,7 +195,7 @@ namespace vApus.Stresstest
                     if (cboThread.SelectedIndex == -1)
                         cboThread.SelectedIndex = 0;
                     ++_processed;
-                });
+                }, null);
             }
             catch { }
         }

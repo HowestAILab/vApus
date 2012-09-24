@@ -16,7 +16,6 @@ namespace vApus.Stresstest
     public class StresstestThreadPool : IDisposable
     {
         #region Events
-        public event EventHandler<MessageEventArgs> Message;
         public event EventHandler<MessageEventArgs> ThreadWorkException;
         #endregion
 
@@ -254,14 +253,12 @@ namespace vApus.Stresstest
         private void WriteMessage(string message, LogLevel logLevel = LogLevel.Info)
         {
             Debug.WriteLine(message, ToString());
-            if (Message != null)
-                Message(this, new MessageEventArgs(message, Color.Empty, logLevel));
         }
         private void WriteThreadWorkException(string message)
         {
-            Debug.WriteLine(message, ToString());
             if (ThreadWorkException != null)
-                ThreadWorkException(this, new MessageEventArgs(message, Color.Empty, LogLevel.Error));
+                foreach (EventHandler<MessageEventArgs> del in ThreadWorkException.GetInvocationList())
+                    del.BeginInvoke(this, new MessageEventArgs(message, Color.Empty, LogLevel.Error), null, null);
         }
         #endregion
 
@@ -296,9 +293,6 @@ namespace vApus.Stresstest
             #endregion
 
             #region Functions
-            public static void Init()
-            {
-            }
             public void Execute()
             {
                 // Make sure that only a used thread can be executed.

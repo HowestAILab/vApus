@@ -105,31 +105,41 @@ namespace vApus.Stresstest
         }
         public void SetConfigurationControls(Stresstest stresstest)
         {
-            kvmStresstest.Key = stresstest.ToString();
-            kvmConnection.Key = stresstest.Connection.ToString();
-            kvmConnectionProxy.Key = stresstest.ConnectionProxy;
+            SetConfigurationControls(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy, stresstest.Log, stresstest.LogRuleSet,
+                stresstest.Monitors, stresstest.ConcurrentUsers, stresstest.Precision, stresstest.DynamicRunMultiplier, stresstest.MinimumDelay,
+                stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute);
+        }
+        public void SetConfigurationControls(string stresstest, Connection connection, string connectionProxy,
+                                              Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrentUsers,
+                                              int precision, int dynamicRunMultiplier, int minimumDelay, int maximumDelay, bool shuffle,
+                                              ActionAndLogEntryDistribution distribute)
+        {
+            kvmStresstest.Key = stresstest;
+            kvmConnection.Key = connection.ToString();
+            kvmConnectionProxy.Key = connectionProxy;
 
-            kvmLog.Key = stresstest.Log.ToString();
-            kvmLogRuleSet.Key = stresstest.LogRuleSet;
+            kvmLog.Key = log.ToString();
+            kvmLogRuleSet.Key = logRuleSet;
 
-            if (stresstest.Monitors == null || stresstest.Monitors.Length == 0)
+            if (monitors == null || monitors.Length == 0)
             {
                 btnMonitor.Text = "No Monitor";
                 btnMonitor.BackColor = Color.Orange;
             }
             else
             {
-                btnMonitor.Text = stresstest.Monitors.Combine(", ") + "...";
+                btnMonitor.Text = monitors.Combine(", ") + "...";
                 btnMonitor.BackColor = Color.LightBlue;
             }
 
-            kvmConcurrentUsers.Value = stresstest.ConcurrentUsers.Combine(", ");
+            kvmConcurrentUsers.Value = concurrentUsers.Combine(", ");
 
-            kvmPrecision.Value = stresstest.Precision.ToString();
-            kvmDynamicRunMultiplier.Value = stresstest.DynamicRunMultiplier.ToString();
-            kvmDelay.Value = (stresstest.MinimumDelay == stresstest.MaximumDelay ? stresstest.MinimumDelay.ToString() : stresstest.MinimumDelay + " - " + stresstest.MaximumDelay) + " ms";
-            kvmShuffle.Value = stresstest.Shuffle ? "Yes" : "No";
-            kvmDistribute.Value = stresstest.Distribute.ToString();
+            kvmPrecision.Value = precision.ToString();
+            kvmDynamicRunMultiplier.Value = dynamicRunMultiplier.ToString();
+            kvmDelay.Value = (minimumDelay == maximumDelay ? minimumDelay.ToString() : minimumDelay + " - " + maximumDelay) + " ms";
+            kvmShuffle.Value = shuffle ? "Yes" : "No";
+            kvmDistribute.Value = distribute.ToString();
+
         }
         private void btnMonitor_Click(object sender, EventArgs e)
         {
@@ -316,10 +326,14 @@ namespace vApus.Stresstest
                 {
                     metrics = result.Metrics;
                     int startIndex = lvwi.SubItems.Count - 6;
+                    string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
+
                     //Only update the ones needed to be updated
-                    if (lvwi.SubItems[startIndex].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries || metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
+                    if (lvwi.SubItems[startIndex].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
+                        lvwi.SubItems[1].Text != estimatedRuntimeLeft ||
+                        metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
                     {
-                        lvwi.SubItems[1].Text = result.EstimatedRuntimeLeft.ToShortFormattedString();
+                        lvwi.SubItems[1].Text = estimatedRuntimeLeft;
                         lvwi.SubItems[2].Text = metrics.MeasuredRunTime.ToShortFormattedString();
                         lvwi.SubItems[startIndex].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
                         lvwi.SubItems[startIndex + 1].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
@@ -519,7 +533,7 @@ namespace vApus.Stresstest
         }
         private void btnRerunning_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("The current run is rerunning until the slowest current run on another slave is finished (aka Break on Last Run Sync).", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("The current run is rerunning until the slowest current run on another slave is finished (aka Break on Last Run Sync).\nNo further results will be added, only rerunning to keep load on the server and application.\nHowever the processed log entries value will increase.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         /// <summary>
         /// label updates in visibility
@@ -615,6 +629,8 @@ namespace vApus.Stresstest
         /// </summary>
         public void SetEvents(List<EventPanelEvent> events)
         {
+            if (this.IsDisposed)
+                return;
             LockWindowUpdate(this.Handle.ToInt32());
             epnlMessages.ClearEvents();
             foreach (var epe in events)
@@ -624,6 +640,14 @@ namespace vApus.Stresstest
         public void ClearEvents()
         {
             epnlMessages.ClearEvents();
+        }
+        /// <summary>
+        /// Show event message at the right date time, use this if you have an external event progress bar.
+        /// </summary>
+        /// <param name="at"></param>
+        public void ShowEvent(DateTime at)
+        {
+            epnlMessages.ShowEvent(at);
         }
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -765,6 +789,7 @@ namespace vApus.Stresstest
                     splitContainer.SplitterDistance += distance;
 
                 splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
+                this.BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;
             }
             catch { }
 

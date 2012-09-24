@@ -94,10 +94,29 @@ namespace vApus.SolutionTree
         /// If the explorer is not visible it will be shown, docking left.
         /// Note: call 'RegisterDockPanel(DockPanel dockPanel)' prior to this.
         /// </summary>
-        public static void ShowStresstestingSolutionExplorer()
+        /// <returns>True on success</returns>
+        public static bool ShowStresstestingSolutionExplorer()
         {
-            _stresstestingSolutionExplorer.Show(_dockPanel, DockState.DockLeft);
+            try
+            {
+                int dockState = global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState;
+                if (dockState == -1)
+                    dockState = 8; //DockLeft
+
+                _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
+            }
+            catch
+            {
+                //Could fail for slaves
+                return false;
+            }
+            return true;
         }
+        public static void HideStresstestingSolutionExplorer()
+        {
+            _stresstestingSolutionExplorer.Hide();
+        }
+
         /// <summary>
         /// Tooltips will be provide for the items.
         /// </summary>
@@ -140,6 +159,7 @@ namespace vApus.SolutionTree
                 if (_recentSolutions.Count == 10)
                     _recentSolutions.RemoveAt(9);
                 _recentSolutions.Insert(0, _activeSolution.FileName);
+                global::vApus.SolutionTree.Properties.Settings.Default.RecentSolutions = _recentSolutions;
                 global::vApus.SolutionTree.Properties.Settings.Default.Save();
             }
         }
@@ -149,7 +169,7 @@ namespace vApus.SolutionTree
         {
             if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
             {
-                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before creating a new one?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before creating a new solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
                     ActiveSolution = new Solution();
                 else if (result == DialogResult.No)
@@ -204,7 +224,7 @@ namespace vApus.SolutionTree
         {
             if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
             {
-                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before opening another one?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
                     return LoadSolution(fileName);
                 else if (result == DialogResult.No)
@@ -343,6 +363,22 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             _sfd.Filter = _ofd.Filter;
 
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+
+
+            _stresstestingSolutionExplorer.DockStateChanged += new EventHandler(_stresstestingSolutionExplorer_DockStateChanged);
+        }
+        static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e)
+        {
+            if (_stresstestingSolutionExplorer.DockState == DockState.Hidden)
+            {
+                global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
+                global::vApus.SolutionTree.Properties.Settings.Default.Save();
+            }
+            else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown)
+            {
+                global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
+                global::vApus.SolutionTree.Properties.Settings.Default.Save();
+            }
         }
         private Solution()
         {

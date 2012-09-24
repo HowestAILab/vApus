@@ -52,31 +52,19 @@ namespace vApus.Monitor
         //The refresht ime of the counter pushing In ms 
         private int _refreshTimeInMS;
 
-        /// <summary>
-        /// Show the label control in the first panel.
-        /// </summary>
-        private bool _showLabelControl = true;
-
         private bool _forStresstest = false;
+
+        private string _configuration;
         #endregion
 
         #region Properties
-        /// <summary>
-        /// Show the label control in the first panel.
-        /// </summary>
-        public bool ShowLabelControl
+        public Monitor Monitor
         {
-            get { return _showLabelControl; }
-            set
-            {
-                _showLabelControl = value;
-                foreach (SolutionComponentCommonPropertyControl ctrl in propertyPanel.SolutionComponentPropertyControls)
-                    if (ctrl.Label == "Label")
-                    {
-                        ctrl.Visible = _showLabelControl;
-                        break;
-                    }
-            }
+            get { return _monitor; }
+        }
+        public string Configuration
+        {
+            get { return _configuration; }
         }
         #endregion
 
@@ -116,7 +104,7 @@ namespace vApus.Monitor
                 if (_forStresstest && OnHandledException != null)
                     foreach (EventHandler<ErrorEventArgs> del in OnHandledException.GetInvocationList())
                         del.BeginInvoke(this, e, null, null);
-            });
+            }, null);
         }
         private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e)
         {
@@ -128,7 +116,7 @@ namespace vApus.Monitor
                 if (_forStresstest && OnUnhandledException != null)
                     foreach (EventHandler<ErrorEventArgs> del in OnUnhandledException.GetInvocationList())
                         del.BeginInvoke(this, e, null, null);
-            });
+            }, null);
         }
         private void _monitorProxy_OnMonitor(object sender, OnMonitorEventArgs e)
         {
@@ -160,7 +148,7 @@ namespace vApus.Monitor
                     }
                 }
                 catch { }
-            });
+            }, null);
         }
 
         #region Init
@@ -177,7 +165,6 @@ namespace vApus.Monitor
             Text = SolutionComponent.ToString();
             string ip = _localOrRemoteSMT.IP;
             btnLocalOrRemoteSMT.Text = (ip == "127.0.0.1") ? "SMT: <local>" : "SMT: Remote at " + ip;
-            ShowLabelControl = _showLabelControl;
 
             if (SynchronizationContextWrapper.SynchronizationContext == null)
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
@@ -197,7 +184,7 @@ namespace vApus.Monitor
                 string message = "Could not connect to the monitor client.";
                 if (!_forStresstest)
                     MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                LogWrapper.LogByLevel(message, LogLevel.Error);
+                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
             }
 
             //Use this for filtering the counters.
@@ -644,7 +631,7 @@ namespace vApus.Monitor
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 SetParameters(parameters);
-            });
+            }, null);
             if (exception == null)
                 _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
 
@@ -662,7 +649,7 @@ namespace vApus.Monitor
                 if (exception == null)
                 {
                     btnConfiguration.Enabled = (configuration != null);
-                    btnConfiguration.Tag = configuration;
+                    _configuration = configuration;
                     try
                     {
                         FillEntities(wdyh);
@@ -679,8 +666,11 @@ namespace vApus.Monitor
                 {
                     btnStart.Enabled = false;
                     btnSchedule.Enabled = false;
+
+                    string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
                     if (!forStresstest)
-                        MessageBox.Show("Entities and counters could not be retrieved!\nHave you filled in the right credentials?", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
                 }
                 split.Panel2.Enabled = true;
                 btnGetCounters.Enabled = true;
@@ -689,7 +679,7 @@ namespace vApus.Monitor
                 parameterPanel.Unlock();
 
                 this.Cursor = Cursors.Default;
-            });
+            }, null);
         }
 
         private void SetParameters(Parameter[] parameters)
@@ -1042,8 +1032,8 @@ namespace vApus.Monitor
 
         private void btnConfiguration_Click(object sender, EventArgs e)
         {
-            if (btnConfiguration.Tag != null)
-                (new ConfigurationDialog(btnConfiguration.Tag as string)).ShowDialog();
+            if (_configuration != null)
+                (new ConfigurationDialog(_configuration)).ShowDialog();
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -1148,8 +1138,6 @@ namespace vApus.Monitor
                 {
                     propertyPanel.SolutionComponent = null;
                     propertyPanel.SolutionComponent = _monitor;
-
-                    ShowLabelControl = _showLabelControl;
                 }
                 catch { throw; }
                 finally
@@ -1264,7 +1252,7 @@ namespace vApus.Monitor
                 if (MonitorInitialized != null)
                     MonitorInitialized(this, new MonitorView.MonitorInitializedEventArgs(errorMessage));
 
-            });
+            }, null);
         }
         public void Start()
         {
@@ -1359,7 +1347,7 @@ namespace vApus.Monitor
             else
             {
                 Stop();
-                string message = "Could not connect to the monitor!\n" + exception.ToString();
+                string message = "Could not connect to the monitor!";
                 if (_forStresstest)
                     if (OnUnhandledException != null)
                     {
@@ -1371,6 +1359,7 @@ namespace vApus.Monitor
                     {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
             }
             this.Cursor = Cursors.Default;
         }

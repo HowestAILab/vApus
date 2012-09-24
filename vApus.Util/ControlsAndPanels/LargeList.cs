@@ -333,7 +333,11 @@ namespace vApus.Util
                 this.HandleCreated += new EventHandler(LargeList_HandleCreated);
             }
         }
-        private void Add(Control control, bool refresh)
+        /// <summary>
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="refresh"></param>
+        public void Add(Control control, bool refresh)
         {
             if (_controlCount == MAXCAPACITY)
                 throw new OverflowException("The maximum capacity is 134 217 728.");
@@ -383,6 +387,7 @@ namespace vApus.Util
             }
 
             lblTotalViews.Text = _controls.Count.ToString();
+            pnl.Visible = lblTotalViews.Text != "1";
             _controls[_controls.Count - 1].Add(control);
             ++_controlCount;
 
@@ -491,6 +496,7 @@ namespace vApus.Util
             _currentView = 0;
             txtView.Text = "1";
             lblTotalViews.Text = "1";
+            pnl.Visible = false;
             lblTotalViews_TextChanged(null, null);
             if (ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
@@ -508,6 +514,55 @@ namespace vApus.Util
                 if (controls.Contains(control))
                     return true;
             return false;
+        }
+
+        /// <summary>
+        /// Go from a flat index to a usable index for the largelist (handy for inserting / removing controls and all that)
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>kvp(-1,-1) if not found.</returns>
+        public KeyValuePair<int, int> ParseFlatIndex(long index)
+        {
+            for (int view = 0; view != this.ViewCount; view++)
+            {
+                int countOfView = this[view].Count;
+                if (countOfView > index)
+                    return new KeyValuePair<int, int>(view, (int)index);
+
+                index -= countOfView;
+            }
+            return new KeyValuePair<int, int>(-1, -1);
+        }
+        /// <summary>
+        /// Go from a usable index to a flat one, you can increment this for instance and parse it to a usable one again.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public long ParseIndex(KeyValuePair<int, int> index)
+        {
+
+            long flatIndex = 0;
+            if (index.Key <= this.ViewCount)
+            {
+                for (int view = 0; view != this.ViewCount; view++)
+                    if (view == index.Key)
+                    {
+                        if (this[view].Count > index.Value)
+                            flatIndex += index.Value;
+                        else
+                            return -1;
+                    }
+                    else
+                    {
+                        flatIndex += this[view].Count;
+                    }
+            }
+            else
+            {
+                return -1;
+            }
+
+            return flatIndex;
         }
         /// <summary>
         /// Gets the view(index) and the index(value) in view of the given control. -1 for both if not found.
@@ -549,7 +604,7 @@ namespace vApus.Util
         /// <param name="control"></param>
         /// <param name="index"></param>
         /// <param name="refresh"></param>
-        private void Insert(Control control, KeyValuePair<int, int> index, bool refresh)
+        public void Insert(Control control, KeyValuePair<int, int> index, bool refresh)
         {
             _controls[index.Key].Insert(index.Value, control);
             switch (refresh)
@@ -859,6 +914,7 @@ namespace vApus.Util
                 scrollbar_ValueChanged(null, null);
             }
             lblTotalViews.Text = _controls.Count == 0 ? "1" : _controls.Count.ToString();
+            pnl.Visible = lblTotalViews.Text != "1";
             OrderSelection();
             this.Cursor = Cursors.Default;
         }
@@ -875,7 +931,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="control"></param>
         /// <param name="refresh"></param>
-        private void Remove(Control control, bool refresh)
+        public void Remove(Control control, bool refresh)
         {
             int key = -1;
             for (int i = 0; i < _controls.Count; i++)
@@ -1497,15 +1553,6 @@ namespace vApus.Util
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
-        /// <summary>
-        /// For selections.
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnLeave(EventArgs e)
-        {
-            base.OnLeave(e);
-        }
-        #endregion
 
         #region scrollbar
         /// <summary>
@@ -1532,7 +1579,7 @@ namespace vApus.Util
                         break;
                     }
                 }
-                if (above - key < below - key && above - key > 0)
+                if (Math.Abs(above - key) < Math.Abs(below - key))
                     key = above;
                 else
                     key = below;
@@ -1563,7 +1610,6 @@ namespace vApus.Util
                     AfterViewSwitch.Invoke(this, new AfterSwithViewsEventArgs(_currentView, flpnl.Controls.Count));
                 Thread.Sleep(0);
             }
-            scrollbar.Select();
         }
         #endregion
 
@@ -1639,6 +1685,8 @@ namespace vApus.Util
             txtView.Width = lblTotalViews.Width;
             scrollbar.Width = txtView.Location.X - 1;
         }
+        #endregion
+
         #endregion
 
         #endregion

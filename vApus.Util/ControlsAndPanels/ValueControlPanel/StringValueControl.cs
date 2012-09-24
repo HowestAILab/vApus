@@ -6,10 +6,12 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace vApus.Util
 {
+    [ToolboxItem(false)]
     public partial class StringValueControl : BaseValueControl, IValueControl
     {
         public StringValueControl()
@@ -33,7 +35,6 @@ namespace vApus.Util
                 txt = new TextBox();
                 txt.Dock = DockStyle.Fill;
 
-                txt.TextChanged += new EventHandler(txt_TextChanged);
                 txt.Leave += new EventHandler(txt_Leave);
                 txt.KeyUp += new KeyEventHandler(txt_KeyUp);
             }
@@ -42,18 +43,11 @@ namespace vApus.Util
                 txt = base.ValueControl as TextBox;
             }
 
-            txt.TextChanged -= txt_TextChanged;
             txt.Text = value.__Value as string;
-            txt.TextChanged += txt_TextChanged;
 
             base.ValueControl = txt;
         }
 
-        private void txt_TextChanged(object sender, EventArgs e)
-        {
-            TextBox txt = sender as TextBox;
-            base.HandleValueChanged(txt.Text);
-        }
         private void txt_KeyUp(object sender, KeyEventArgs e)
         {
             TextBox txt = sender as TextBox;
@@ -61,8 +55,12 @@ namespace vApus.Util
         }
         private void txt_Leave(object sender, EventArgs e)
         {
-            TextBox txt = sender as TextBox;
-            base.HandleValueChanged(txt.Text);
+            try
+            {
+                TextBox txt = sender as TextBox;
+                base.HandleValueChanged(txt.Text);
+            }
+            catch { }
         }
     }
 }

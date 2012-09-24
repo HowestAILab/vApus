@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using vApus.Util;
+using System.Threading;
 
 namespace vApus.Stresstest
 {
@@ -54,9 +55,21 @@ namespace vApus.Stresstest
         {
             get
             {
-                long estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                long estimatedRuntimeLeft = 0;
+                if (IsMeasuringTime) //For run sync first this must be 0.
+                {
+                    //If the run is broken it is visible in the run results, so we need to correct this here for calculating the runtime left.
+                    ulong totalLogEntriesProcessedWorkAround = 0;
+                    foreach (var cur in ConcurrentUsersResults)
+                        foreach (var pr in cur.PrecisionResults)
+                            foreach (var rr in pr.RunResults)
+                                totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
+
+                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) *
+                        (_metrics.TotalLogEntries - totalLogEntriesProcessedWorkAround) * 10000);
+                    if (estimatedRuntimeLeft < 0)
+                        estimatedRuntimeLeft = 0;
+                }
                 return new TimeSpan(estimatedRuntimeLeft);
             }
         }
@@ -89,6 +102,13 @@ namespace vApus.Stresstest
                 return false;
             }
         }
+        /// <summary>
+        /// Used for calculating the estimated runtime left.
+        /// </summary>
+        public bool IsMeasuringTime
+        {
+            get { return _sw != null && _sw.IsRunning; }
+        }
         #endregion
 
         #region Constructors
@@ -99,9 +119,9 @@ namespace vApus.Stresstest
         /// <param name="stresstest"></param>
         /// <param name="totalLogEntries"></param>
         /// <param name="startOfStresstest"></param>
-        public StresstestResults(string solution, Stresstest stresstest, ulong totalLogEntries, DateTime startOfStresstest)
+        public StresstestResults(Stresstest stresstest, ulong totalLogEntries, DateTime startOfStresstest)
         {
-            Solution = solution;
+            Solution = stresstest.Solution;
             Stresstest = stresstest.ToString();
 
             Connection = stresstest.Connection.ToString();
@@ -181,7 +201,8 @@ namespace vApus.Stresstest
         /// </summary>
         public void StopTimeMeasurement()
         {
-            _sw.Stop();
+            if (_sw != null)
+                _sw.Stop();
             foreach (ConcurrentUsersResult result in ConcurrentUsersResults)
                 result.StopTimeMeasurement();
         }
@@ -202,6 +223,8 @@ namespace vApus.Stresstest
                 _metrics.TotalLogEntriesProcessedPerTick = 0;
                 _metrics.Errors = 0;
 
+                ulong totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
+
                 foreach (ConcurrentUsersResult result in ConcurrentUsersResults)
                 {
                     result.RefreshLogEntryResultMetrics();
@@ -211,10 +234,15 @@ namespace vApus.Stresstest
                     if (resultMetrics.MaxTimeToLastByte > _metrics.MaxTimeToLastByte)
                         _metrics.MaxTimeToLastByte = resultMetrics.MaxTimeToLastByte;
                     _metrics.AverageDelay = _metrics.AverageDelay.Add(resultMetrics.AverageDelay);
-                    _metrics.TotalLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
+                    totalAndExtraLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
                     _metrics.TotalLogEntriesProcessedPerTick += resultMetrics.TotalLogEntriesProcessedPerTick;
                     _metrics.Errors += resultMetrics.Errors;
                 }
+                if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
+                    _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
+
+                _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
+                
                 _metrics.TotalLogEntriesProcessedPerTick /= ConcurrentUsersResults.Count;
                 _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / ConcurrentUsersResults.Count);
                 _metrics.AverageDelay = new TimeSpan(_metrics.AverageDelay.Ticks / ConcurrentUsersResults.Count);
@@ -330,11 +358,29 @@ namespace vApus.Stresstest
         {
             get
             {
-                long estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                long estimatedRuntimeLeft = 0;
+                if (IsMeasuringTime) //For run sync first this must be 0.
+                {
+                    //If the run is broken it is visible in the run results, so we need to correct this here for calculating the runtime left.
+                    ulong totalLogEntriesProcessedWorkAround = 0;
+                    foreach (var pr in PrecisionResults)
+                        foreach (var rr in pr.RunResults)
+                            totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
+
+                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) *
+                        (_metrics.TotalLogEntries - totalLogEntriesProcessedWorkAround) * 10000);
+                    if (estimatedRuntimeLeft < 0)
+                        estimatedRuntimeLeft = 0;
+                }
                 return new TimeSpan(estimatedRuntimeLeft);
             }
+        }
+        /// <summary>
+        /// Used for calculating the estimated runtime left.
+        /// </summary>
+        public bool IsMeasuringTime
+        {
+            get { return _sw != null && _sw.IsRunning; }
         }
         public Metrics Metrics
         {
@@ -404,6 +450,8 @@ namespace vApus.Stresstest
             _metrics.TotalLogEntriesProcessed = 0;
             _metrics.TotalLogEntriesProcessedPerTick = 0;
             _metrics.Errors = 0;
+            
+            ulong totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
 
             foreach (PrecisionResult result in PrecisionResults)
             {
@@ -414,10 +462,15 @@ namespace vApus.Stresstest
                 if (resultMetrics.MaxTimeToLastByte > _metrics.MaxTimeToLastByte)
                     _metrics.MaxTimeToLastByte = resultMetrics.MaxTimeToLastByte;
                 _metrics.AverageDelay = _metrics.AverageDelay.Add(resultMetrics.AverageDelay);
-                _metrics.TotalLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
+                totalAndExtraLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
                 _metrics.TotalLogEntriesProcessedPerTick += resultMetrics.TotalLogEntriesProcessedPerTick;
                 _metrics.Errors += resultMetrics.Errors;
             }
+            if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
+                _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
+
+            _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
+
             _metrics.TotalLogEntriesProcessedPerTick /= PrecisionResults.Count;
             _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / PrecisionResults.Count);
             //_metrics.Percentile90MaxTimeToLastByte = new TimeSpan((long)((double)_metrics.MaxTimeToLastByte.Ticks * 0.9));
@@ -425,7 +478,8 @@ namespace vApus.Stresstest
         }
         public void StopTimeMeasurement()
         {
-            _sw.Stop();
+            if (_sw != null)
+                _sw.Stop();
             foreach (PrecisionResult result in PrecisionResults)
                 result.StopTimeMeasurement();
         }
@@ -728,11 +782,28 @@ namespace vApus.Stresstest
         {
             get
             {
-                long estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                long estimatedRuntimeLeft = 0;
+                if (IsMeasuringTime) //For run sync first this must be 0.
+                {
+                    //If the run is broken it is visible in the run results, so we need to correct this here for calculating the runtime left.
+                    ulong totalLogEntriesProcessedWorkAround = 0;
+                    foreach (var rr in RunResults)
+                        totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
+
+                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) *
+                        (_metrics.TotalLogEntries - totalLogEntriesProcessedWorkAround) * 10000);
+                    if (estimatedRuntimeLeft < 0)
+                        estimatedRuntimeLeft = 0;
+                }
                 return new TimeSpan(estimatedRuntimeLeft);
             }
+        }
+        /// <summary>
+        /// Used for calculating the estimated runtime left.
+        /// </summary>
+        public bool IsMeasuringTime
+        {
+            get { return _sw != null && _sw.IsRunning; }
         }
         public Metrics Metrics
         {
@@ -807,6 +878,8 @@ namespace vApus.Stresstest
             _metrics.TotalLogEntriesProcessedPerTick = 0;
             _metrics.Errors = 0;
 
+            ulong totalAndExtraLogEntriesProcessed = 0; //For run sync break on last.
+
             foreach (RunResult result in RunResults)
             {
                 result.RefreshLogEntryResultMetrics();
@@ -816,10 +889,16 @@ namespace vApus.Stresstest
                 if (resultMetrics.MaxTimeToLastByte > _metrics.MaxTimeToLastByte)
                     _metrics.MaxTimeToLastByte = resultMetrics.MaxTimeToLastByte;
                 _metrics.AverageDelay = _metrics.AverageDelay.Add(resultMetrics.AverageDelay);
-                _metrics.TotalLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
+
+                totalAndExtraLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
                 _metrics.TotalLogEntriesProcessedPerTick += resultMetrics.TotalLogEntriesProcessedPerTick;
                 _metrics.Errors += resultMetrics.Errors;
             }
+            if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
+                _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
+
+            _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
+
             _metrics.TotalLogEntriesProcessedPerTick /= RunResults.Count;
             _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / RunResults.Count);
             //_metrics.Percentile90MaxTimeToLastByte = new TimeSpan((long)((double)_metrics.MaxTimeToLastByte.Ticks * 0.9));
@@ -827,7 +906,8 @@ namespace vApus.Stresstest
         }
         public void StopTimeMeasurement()
         {
-            _sw.Stop();
+            if (_sw != null)
+                _sw.Stop();
             foreach (RunResult result in RunResults)
                 result.StopTimeMeasurement();
         }
@@ -1136,6 +1216,7 @@ namespace vApus.Stresstest
         /// </summary>
         private bool _runDoneOnce;
         private Dictionary<DateTime, DateTime> _runStartedAndStopped = new Dictionary<DateTime, DateTime>();
+        private long _extraLogEntriesProcessed;
         public UserResult[] UserResults;
         #endregion
 
@@ -1163,11 +1244,22 @@ namespace vApus.Stresstest
         {
             get
             {
-                long estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                long estimatedRuntimeLeft = 0;
+                if (IsMeasuringTime) //For run sync first this must be 0.
+                {
+                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) * (_metrics.TotalLogEntries - _metrics.TotalLogEntriesProcessed) * 10000);
+                    if (estimatedRuntimeLeft < 0)
+                        estimatedRuntimeLeft = 0;
+                }
                 return new TimeSpan(estimatedRuntimeLeft);
             }
+        }
+        /// <summary>
+        /// Used for calculating the estimated runtime left.
+        /// </summary>
+        public bool IsMeasuringTime
+        {
+            get { return _sw != null && _sw.IsRunning; }
         }
         public Metrics Metrics
         {
@@ -1216,6 +1308,13 @@ namespace vApus.Stresstest
         public bool RunDoneOnce
         {
             get { return _runDoneOnce; }
+        }
+        /// <summary>
+        /// The count of the log entries processed after the run was done once (Break on last run sync).
+        /// </summary>
+        public long ExtraLogEntriesProcessed
+        {
+            get { return _extraLogEntriesProcessed; }
         }
         #endregion
 
@@ -1288,6 +1387,10 @@ namespace vApus.Stresstest
         {
             _runDoneOnce = true;
         }
+        public void IncrementExtraLogEntriesProcessed()
+        {
+            Interlocked.Increment(ref _extraLogEntriesProcessed);
+        }
         public void RefreshLogEntryResultMetrics()
         {
             _metrics.MeasuredRunTime = _sw.Elapsed;
@@ -1322,6 +1425,13 @@ namespace vApus.Stresstest
                 _metrics.Errors += resultErrors;
             }
 
+            ulong totalAndExtraLogEntriesProcessed = _metrics.TotalLogEntriesProcessed + (ulong)_extraLogEntriesProcessed;
+            //Can be the case with break on last run sync.
+            if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
+                _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
+
+            _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
+
             if (enteredUserResultsCount != 0)
             {
                 _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / enteredUserResultsCount);
@@ -1330,7 +1440,8 @@ namespace vApus.Stresstest
         }
         public void StopTimeMeasurement()
         {
-            _sw.Stop();
+            if (_sw != null)
+                _sw.Stop();
         }
 
         /// <summary>
@@ -1889,7 +2000,14 @@ namespace vApus.Stresstest
                 SentAt = sr.ReadDateTime();
                 TimeToLastByte = sr.ReadTimeSpan();
                 DelayInMilliseconds = sr.ReadInt32();
-                Exception = sr.ReadObject() as Exception;
+                try
+                {
+                    Exception = sr.ReadObject() as Exception;
+                }
+                catch (Exception ex)
+                {
+                    Exception = new Exception("The real exception could not be read because a connection proxy prerequisite is missing:\n" +ex.ToString());
+                }
             }
         }
         #endregion

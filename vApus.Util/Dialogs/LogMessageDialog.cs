@@ -57,23 +57,26 @@ namespace vApus.Util
         }
         private void NewIssue_Done(object sender, ActiveObject.OnResultEventArgs e)
         {
-            if (e.Exception == null)
+            if (e != null && e.Returned != null)
             {
-                btnReportThisBug.Width = 93;
-                btnReportThisBug.Text = "Reported!";
+                if (e.Exception == null)
+                {
+                    btnReportThisBug.Width = 93;
+                    btnReportThisBug.Text = "Reported!";
 
-                llblBug.Text = e.Returned.ToString();
-            }
-            else
-            {
-                btnReportThisBug.Width = 123;
-                btnReportThisBug.Text = "Report this bug";
-                btnReportThisBug.Enabled = true;
+                    llblBug.Text = e.Returned.ToString();
+                }
+                else
+                {
+                    btnReportThisBug.Width = 123;
+                    btnReportThisBug.Text = "Report this bug";
+                    btnReportThisBug.Enabled = true;
 
-                LogWrapper.LogByLevel("[" + this + "] " +  e.Exception.ToString(), LogLevel.Error);
-                MessageBox.Show(e.Exception.Message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LogWrapper.LogByLevel("[" + this + "] " + e.Exception.ToString(), LogLevel.Error);
+                    MessageBox.Show(e.Exception.Message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                _reporting = false;
             }
-            _reporting = false;
         }
         private void llblBug_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {

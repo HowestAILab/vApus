@@ -22,6 +22,7 @@ namespace vApus.Util
     /// Or else you can always make your own control derived from "BaseSolutionComponentPropertyControl".
     /// The value of the property may not be null or an exception will be thrown.
     /// </summary>
+    [ToolboxItem(false)]
     public partial class BaseValueControl : UserControl
     {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
@@ -40,29 +41,30 @@ namespace vApus.Util
         #region Fields
         private BaseValueControl.Value _value;
         private TextBox _collapsedTextBox;
-        private bool _lock, _isEncrypted, _isReadOnly;
+        private ToggleState _toggleState = ToggleState.Collapse;
+        private bool _locked;
         #endregion
 
         #region Properties
         public string Label
         {
-            get { return lblLabel.Text; }
-            set { lblLabel.Text = value; }
+            get { return _value.Label; }
         }
         public string Description
         {
-            get { return rtxtDescription.Text; }
-            set { rtxtDescription.Text = value; }
+            get { return _value.Description; }
+        }
+        public bool Locked
+        {
+            get { return _locked; }
         }
         public bool IsReadOnly
         {
-            get { return _isReadOnly; }
-            set { _isReadOnly = value; }
+            get { return _value.IsReadOnly; }
         }
         public bool IsEncrypted
         {
-            get { return _isEncrypted; }
-            set { _isEncrypted = value; }
+            get { return _value.IsEncrypted; }
         }
         /// <summary>
         /// This will not fire the value changed event, this event is invoked through user actions.
@@ -75,7 +77,7 @@ namespace vApus.Util
                 _value = value;
 
                 lblLabel.Text = _value.Label == null ? string.Empty : _value.Label; ;
-                rtxtDescription.Text = _value.Description == null ? string.Empty : _value.Description;
+                rtxtDescription.Text = string.IsNullOrEmpty(_value.Description) ? string.Empty : _value.Description;
             }
         }
         protected internal object ValueParent
@@ -100,12 +102,19 @@ namespace vApus.Util
                 split.Panel1.Controls.Clear();
                 split.Panel1.Controls.Add(value);
 
-                if (_value.IsEncrypted && value is TextBox)
-                    (value as TextBox).UseSystemPasswordChar = true;
+                if (IsEncrypted && _value.__Value is string)
+                {
+                    if (value is TextBox)
+                        (value as TextBox).UseSystemPasswordChar = true;
+                }
+                else
+                {
+                    _value.IsEncrypted = false;
+                }
 
-                value.Enabled = !_value.IsReadOnly;
+                value.Enabled = !IsReadOnly;
 
-                Toggle(ToggleState.Collapse);
+                Toggle(_toggleState);
             }
         }
         #endregion
@@ -130,13 +139,15 @@ namespace vApus.Util
         {
             if (key == Keys.Enter)
                 SetValue(value);
-            else
-                Refresh();
         }
         private void SetValue(object value)
         {
+            if (value == null && _value.__Value == null)
+                return;
             //Equals is used instead of  ==  because == results in a shallow check (just handles (pointers)).
-            if (!_value.__Value.Equals(value))
+            if (_value.__Value != null &&
+                value != null &&
+                !_value.__Value.Equals(value))
             {
                 object oldValue = _value.__Value;
                 _value.__Value = value;
@@ -156,35 +167,47 @@ namespace vApus.Util
         /// <param name="toggleState"></param>
         public void Toggle(ToggleState toggleState)
         {
-            if (_lock)
-                return;
             int splitterDistance;
-            if (toggleState == ToggleState.Expand)
+            _toggleState = toggleState;
+            if (_toggleState == ToggleState.Expand)
             {
                 this.BackColor = Color.LightBlue;
-                split.Panel1.Controls.Remove(_collapsedTextBox);
-                split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
-                rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : rtxtDescription.Height;
-                ValueControl.Visible = true;
-                splitterDistance = ValueControl.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom + ValueControl.Margin.Bottom + ValueControl.Margin.Top;
-
-                //Ugly but works.
-                if (ParentForm.MdiParent == null)
+                if (_locked)
                 {
-                    ParentForm.TopMost = true;
-                    ParentForm.TopMost = false;
-                    ParentForm.Activate();
+                    split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
+                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : rtxtDescription.Height;
+                    ValueControl.Visible = false;
+                    SetCollapsedTextBoxText();
+                    if (!split.Panel1.Controls.Contains(_collapsedTextBox))
+                        split.Panel1.Controls.Add(_collapsedTextBox);
+                    splitterDistance = _collapsedTextBox.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom + _collapsedTextBox.Margin.Bottom + _collapsedTextBox.Margin.Top;
                 }
                 else
                 {
-                    ParentForm.MdiParent.TopMost = true;
-                    ParentForm.MdiParent.TopMost = false;
-                    ParentForm.MdiParent.Activate();
-                }
+                    split.Panel1.Controls.Remove(_collapsedTextBox);
+                    split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
+                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : rtxtDescription.Height;
+                    ValueControl.Visible = true;
+                    splitterDistance = ValueControl.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom + ValueControl.Margin.Bottom + ValueControl.Margin.Top;
 
-                lblLabel.Select();
-                Application.DoEvents();
-                ValueControl.Select();
+                    //Ugly but works.
+                    if (ParentForm.MdiParent == null)
+                    {
+                        ParentForm.TopMost = true;
+                        ParentForm.TopMost = false;
+                        ParentForm.Activate();
+                    }
+                    else
+                    {
+                        ParentForm.MdiParent.TopMost = true;
+                        ParentForm.MdiParent.TopMost = false;
+                        ParentForm.MdiParent.Activate();
+                    }
+
+                    lblLabel.Select();
+                    Application.DoEvents();
+                    ValueControl.Select();
+                }
             }
             else
             {
@@ -211,9 +234,6 @@ namespace vApus.Util
 
                 _collapsedTextBox.ReadOnly = true;
 
-                if (!IsReadOnly)
-                    _collapsedTextBox.BackColor = Color.White;
-
                 if (IsEncrypted)
                     _collapsedTextBox.UseSystemPasswordChar = true;
 
@@ -222,14 +242,17 @@ namespace vApus.Util
             if (IsEncrypted)
                 _collapsedTextBox.UseSystemPasswordChar = true;
 
+            _collapsedTextBox.BackColor = _locked ? Color.FromArgb(240, 240, 240) : Color.White;
+
+
             object value = _value.__Value;
             if (value == null)
                 value = string.Empty;
-            if (ValueParent != null && ValueParent is IEnumerable && !(value is IEnumerable))
+            if (ValueControl is ComboBox)
             {
                 try
                 {
-                    _collapsedTextBox.Text = (ValueControl as ComboBox).SelectedItem.ToString();
+                    _collapsedTextBox.Text = value.ToString();
                 }
                 catch { }
             }
@@ -271,15 +294,16 @@ namespace vApus.Util
         /// </summary>
         public void Lock()
         {
-            Toggle(ToggleState.Collapse);
-            _lock = true;
+            _locked = true;
+            Toggle(_toggleState);
         }
         /// <summary>
         /// Unlock this.
         /// </summary>
         public void Unlock()
         {
-            _lock = false;
+            _locked = false;
+            Toggle(_toggleState);
         }
         #endregion
 
@@ -308,6 +332,11 @@ namespace vApus.Util
             /// Only applicable for strings.
             /// </summary>
             public bool IsEncrypted;
+
+            public override string ToString()
+            {
+                return __Value.ToString();
+            }
         }
 
         public class ValueChangedEventArgs : EventArgs

@@ -7,14 +7,14 @@
  */
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Concurrent;
 
 namespace vApus.Util
 {
@@ -340,7 +340,6 @@ namespace vApus.Util
         public delegate void TagChangedEventHandler(ParentOrTagChangedEventArgs parentOrTagChangedEventArgs);
 
         public static event ParentChangedEventHandler ParentChanged;
-        public static event TagChangedEventHandler TagChanged;
 
         private static object _lock = new object();
         //Nifty hack to make this work everywhere (also in derived types when shallow copying).
@@ -351,6 +350,8 @@ namespace vApus.Util
         private static Hashtable _tags = new Hashtable();
         [NonSerialized]
         private static Hashtable _parents = new Hashtable();
+        [NonSerialized]
+        private static Hashtable _descriptions = new Hashtable();
         /// <summary>
         ///Nifty hack to make this work everywhere (also in derived types when shallow copying).
         ///Having just a static field for tag and parent doesn't work, they will be the same for every object you assign them.
@@ -364,21 +365,17 @@ namespace vApus.Util
             lock (_tags.SyncRoot)
                 if (o != null)
                 {
-                    object previous = null;
-
                     if (_tags.Contains(o))
                     {
-                        previous = _tags[o];
-                        _tags[o] = tag;
+                        if (tag == null)
+                            _tags.Remove(o);
+                        else
+                            _tags[o] = tag;
                     }
-                    else
+                    else if (tag != null)
                     {
                         _tags.Add(o, tag);
                     }
-
-                    if (TagChanged != null)
-                        foreach (TagChangedEventHandler del in TagChanged.GetInvocationList())
-                            del.BeginInvoke(new ParentOrTagChangedEventArgs(o, previous, tag), null, null);
                 }
         }
         public static object GetTag(this object o)
@@ -396,7 +393,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o"></param>
         /// <param name="parent"></param>
-        public static void SetParent(this object o, object parent)
+        public static void SetParent(this object o, object parent, bool invokeParentChanged = true)
         {
             lock (_parents.SyncRoot)
                 if (o != null)
@@ -406,14 +403,26 @@ namespace vApus.Util
                     if (_parents.Contains(o))
                     {
                         previous = _parents[o];
-                        _parents[o] = parent;
+                        if (parent == null)
+                        {
+                            _parents.Remove(o);
+                        }
+                        else
+                        {
+                            if (previous != null && !previous.Equals(parent))
+                                _parents[o] = parent;
+                            else
+                                return;
+                        }
                     }
                     else
                     {
+                        if (parent == null)
+                            return;
                         _parents.Add(o, parent);
                     }
 
-                    if (ParentChanged != null)
+                    if (invokeParentChanged && ParentChanged != null)
                         foreach (ParentChangedEventHandler del in ParentChanged.GetInvocationList())
                             del.BeginInvoke(new ParentOrTagChangedEventArgs(o, previous, parent), null, null);
                 }
@@ -425,59 +434,36 @@ namespace vApus.Util
                 return null;
             return _parents.Contains(o) ? _parents[o] : null;
         }
-        public static HashSet<T> GetFromCache<T>()
+
+        public static void SetDescription(this object o, string description)
         {
-            lock (_lock)
-            {
-                HashSet<T> objects = new HashSet<T>();
-                foreach (object o in _tags.Keys)
-                    if (o is T)
-                        objects.Add((T)o);
-                foreach (object o in _parents.Keys)
-                    if (o is T)
-                        objects.Add((T)o);
-                return objects;
-            }
+            lock (_descriptions.SyncRoot)
+                if (o != null)
+                    if (_descriptions.Contains(o))
+                    {
+                        if (description == null)
+                            _descriptions.Remove(o);
+                        else
+                            _descriptions[o] = description;
+                    }
+                    else if (description != null)
+                    {
+                        _descriptions.Add(o, description);
+                    }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tag">If this is 'null' it will not be used.</param>
-        /// <param name="parent">If this is 'null' it will not be used.</param>
-        /// <returns></returns>
-        public static HashSet<T> GetFromCache<T>(object tag, object parent)
+        public static string GetDescription(this object o)
         {
-            lock (_lock)
-            {
-                HashSet<T> objects = new HashSet<T>();
-                if (tag == null)
-                {
-                    foreach (object o in _tags.Keys)
-                        if (o is T && _tags[o] == tag)
-                            objects.Add((T)o);
-                }
-                else if (parent == null)
-                {
-                    foreach (object o in _parents.Keys)
-                        if (o is T && _parents[o] == parent)
-                            objects.Add((T)o);
-                }
-                else
-                {
-                    foreach (object o in _tags.Keys)
-                        if (o is T && _tags[o] == tag && _parents[o] == parent)
-                            objects.Add((T)o);
-                }
-                return objects;
-            }
+            //Threadsafe for reader threads.
+            if (o == null)
+                return null;
+            return (_descriptions.Contains(o) ? _descriptions[o] : null) as string;
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="o">Child</param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveParentFromCache(this object o)
+        public static bool RemoveParent(this object o, bool invokeParentChanged = true)
         {
             lock (_lock)
             {
@@ -489,7 +475,7 @@ namespace vApus.Util
                     _parents.Remove(o);
                     removed = true;
 
-                    if (ParentChanged != null)
+                    if (invokeParentChanged && ParentChanged != null)
                         foreach (ParentChangedEventHandler del in ParentChanged.GetInvocationList())
                             del.BeginInvoke(new ParentOrTagChangedEventArgs(o, parent, null), null, null);
                 }
@@ -499,9 +485,9 @@ namespace vApus.Util
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="o">Child</param>
+        /// <param name="o"></param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveTagFromCache(this object o)
+        public static bool RemoveTag(this object o)
         {
             lock (_lock)
             {
@@ -512,10 +498,6 @@ namespace vApus.Util
 
                     _tags.Remove(o);
                     removed = true;
-
-                    if (TagChanged != null)
-                        foreach (TagChangedEventHandler del in TagChanged.GetInvocationList())
-                            del.BeginInvoke(new ParentOrTagChangedEventArgs(o, tag, null), null, null);
                 }
                 return removed;
             }
@@ -523,26 +505,38 @@ namespace vApus.Util
         /// <summary>
         /// 
         /// </summary>
-        /// <returns>True if the cache was not empty.</returns>
-        public static bool ClearCache()
+        /// <param name="o"></param>
+        /// <returns>True if the object was removed.</returns>
+        public static bool RemoveDescription(this object o)
         {
             lock (_lock)
             {
-                bool cleared = _tags.Count > 0 || _parents.Count > 0;
-                foreach (object o in _tags.Keys)
+                if (_descriptions.Contains(o))
                 {
-                    if (TagChanged != null)
-                        foreach (TagChangedEventHandler del in TagChanged.GetInvocationList())
-                            del.BeginInvoke(new ParentOrTagChangedEventArgs(o, _tags[o], null), null, null);
+                    _descriptions.Remove(o);
+                    return true;
                 }
-                foreach (object o in _parents.Keys)
-                {
-                    if (ParentChanged != null)
+                return false;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>True if the cache was not empty.</returns>
+        public static bool ClearCache(bool invokeParentChanged = true)
+        {
+            lock (_lock)
+            {
+                bool cleared = _tags.Count != 0 || _parents.Count != 0 || _descriptions.Count != 0;
+
+                if (invokeParentChanged && ParentChanged != null)
+                    foreach (object o in _parents.Keys)
                         foreach (ParentChangedEventHandler del in ParentChanged.GetInvocationList())
                             del.BeginInvoke(new ParentOrTagChangedEventArgs(o, _parents[o], null), null, null);
-                }
+
                 _tags.Clear();
                 _parents.Clear();
+                _descriptions.Clear();
                 return cleared;
             }
         }
@@ -637,6 +631,28 @@ namespace vApus.Util
             }
             sb.Append(array.GetValue(array.Length - 1));
             return sb.ToString();
+        }
+    }
+    public static class ConcurrentBagExtension
+    {
+        /// <summary>
+        /// A thread safe implementation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="concurrentBag"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static bool Contains<T>(this ConcurrentBag<T> concurrentBag, T item)
+        {
+            if (concurrentBag.GetTag() == null)
+                concurrentBag.SetTag(new object());
+            lock (concurrentBag.GetTag())
+            {
+                foreach (T i in concurrentBag)
+                    if (i.Equals(item))
+                        return true;
+                return false;
+            }
         }
     }
 }
