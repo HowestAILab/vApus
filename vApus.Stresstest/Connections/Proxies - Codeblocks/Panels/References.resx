@@ -117,25 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="btnExport.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfbAhYGJBEkSqCJ
-        AAABqUlEQVQ4T6WSzSuEURTG3yw0mUwhZDaImiIjkT/Amj1FITOy8rGSIo3IV4xhMCGFjZWyUMrCRsli
-        zIhCY0KxECVjvPe+Hx5zb83HxUScOnXvOc/53XNOV5KSmE7DuOivwOVAFdg5me7buBZ6wnmfFcHuDAR7
-        sviZxX4FoY+3OOspwHVvDuTpYu43fWYeY7kvkMBVALNzToyOD8Pl6MJRsxF3A2aQxXLIk7mQJ7JB5ktx
-        7yjCUUs61zAtq2G1knvBBVl+w2vgECd2Ex7GLCDrNSDLlZHX87gTj5XHHmeqcdqRybXhtzBYrcRoiqLA
-        2yjFvSkFZLMOxF0IMpcPulmL4+ZUQUMp4Z1wgKqpSDR/qwFkqx50yQLqKYay3QC/3Qgt/ByTsUdjAE3T
-        BIAvAqA7NtDVMtCVEqi7dvhtRkGjqgkAXdeFpDfSrrLXCWWjEspaObT9bvja0kRApOtYB/q7CPC3GaAe
-        DEI/dMT8pN0kAFjX8RF0cQRhoQnL1RQ5voPoCCOjQwL58zhCMuESCr2A1UpO11QyzY/xWbcTEvtNfzX+
-        E/9aHK37N+ADDDP4Jq8bmsYAAAAASUVORK5CYII=
-</value>
-  </data>
-  <metadata name="sfd.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <metadata name="openFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>59</value>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>150, 17</value>
   </metadata>
 </root>

@@ -194,6 +194,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Connections\ParallelConnectionProxy.cs" />
+    <Compile Include="Connections\Proxies\CodeTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Connections\Proxies\Panels\FindAndReplace.cs">
       <SubType>UserControl</SubType>
     </Compile>

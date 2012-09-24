@@ -18,6 +18,7 @@ namespace vApus.Stresstest
         public event EventHandler<CompileErrorButtonClickedEventArgs> CompileErrorButtonClicked;
 
         #region Fields
+        public CodeBlock Document;
         public ConnectionProxyCode ConnectionProxyCode;
         #endregion
 
@@ -145,7 +146,7 @@ namespace vApus.Stresstest
                 btn.FlatAppearance.BorderColor = Color.Red;
                 btn.Text = "Error at line " + errorOrWarning.Line + " column " + errorOrWarning.Column + ":\n" + errorOrWarning.ErrorText;
             }
-            btn.Tag = errorOrWarning.Line - 1;
+            btn.Tag = errorOrWarning.Line;
             btn.Click += new EventHandler(btn_Click);
             flpCompileLog.Controls.Add(btn);
 
@@ -157,8 +158,11 @@ namespace vApus.Stresstest
         private void btn_Click(object sender, EventArgs e)
         {
             int lineNumber = (int)(sender as Button).Tag;
+            CodeBlock codeBlock = Document.ContainsLine(lineNumber);
+            while (codeBlock == null)
+                codeBlock = Document.ContainsLine(++lineNumber);
             if (CompileErrorButtonClicked != null)
-                CompileErrorButtonClicked(this, new CompileErrorButtonClickedEventArgs(lineNumber));
+                CompileErrorButtonClicked(this, new CompileErrorButtonClickedEventArgs(lineNumber, codeBlock));
         }
         private void flpCompileLog_SizeChanged(object sender, EventArgs e)
         {
@@ -170,10 +174,12 @@ namespace vApus.Stresstest
         public class CompileErrorButtonClickedEventArgs : EventArgs
         {
             public readonly int LineNumber;
+            public readonly CodeBlock CodeBlock;
 
-            public CompileErrorButtonClickedEventArgs(int lineNumber)
+            public CompileErrorButtonClickedEventArgs(int lineNumber, CodeBlock codePart)
             {
                 LineNumber = lineNumber;
+                CodeBlock = codePart;
             }
         }
     }
