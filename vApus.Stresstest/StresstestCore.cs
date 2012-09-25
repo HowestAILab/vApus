@@ -12,7 +12,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Threading;
-using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest
@@ -30,7 +29,7 @@ namespace vApus.Stresstest
         /// </summary>
         [ThreadStatic]
         private static SyncAndAsyncWorkItem _syncAndAsyncWorkItem;
-
+        /// <summary>Measures intit actions and such to be able to output to the gui.</summary>
         private Stopwatch _sw = new Stopwatch();
 
         private Stresstest _stresstest;
@@ -46,14 +45,16 @@ namespace vApus.Stresstest
         private AutoResetEvent _runSynchronizationContinueWaitHandle = new AutoResetEvent(false);
         private RunSynchronization _runSynchronization;
 
-        //The number of all parallel connections, they will be disposed along the road
+        /// <summary> The number of all parallel connections, they will be disposed along the road. </summary>
         private int _parallelConnectionsModifier;
 
-        //Store the current run for run synchronization.
+        /// <summary> Store the current run for run synchronization. </summary>
         private int _continueCounter;
+        /// <summary> To be able to loop the runs in the stresstest. </summary>
         private int[] _runsConcurrentUsers;
 
         private volatile bool _failed, _cancel, _completed, _break, _isDisposed;
+        /// <summary> Needed for break on last. </summary>
         private volatile bool _runDoneOnce;
 
         private StresstestResults _stresstestResults;
@@ -68,7 +69,6 @@ namespace vApus.Stresstest
             get { return _runSynchronization; }
             set { _runSynchronization = value; }
         }
-
         public StresstestResults StresstestResults
         {
             get { return _stresstestResults; }
@@ -88,6 +88,11 @@ namespace vApus.Stresstest
         #endregion
 
         #region Con-/Destructor
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stresstest"></param>
+        /// <param name="limitSimultaniousRunningToOne">Allow only one stresstest to run at a time.</param>
         public StresstestCore(Stresstest stresstest, bool limitSimultaniousRunningToOne = true)
         {
             StaticObjectServiceWrapper.ObjectService.MaxSuscribers = limitSimultaniousRunningToOne ? 1 : int.MaxValue;
@@ -156,7 +161,7 @@ namespace vApus.Stresstest
                     foreach (LogEntry logEntry in item)
                     {
                         logEntries.Add(logEntry);
-#warning Occurances for parallel executuions?
+#warning Occurances for parallel executions?
 
                         if (logEntry.ExecuteInParallelWithPrevious)
                             _parallelConnectionsModifier += logEntry.Occurance;
@@ -983,7 +988,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// Log entry with metadata.
         /// </summary>
-        private struct TestableLogEntry
+        private struct TestableLogEntry 
         {
             private StringTree _parameterizedLogEntry;
             private Dictionary<string, BaseParameter> _generateWhileTestingParameterTokens;
@@ -1001,6 +1006,10 @@ namespace vApus.Stresstest
             /// The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do).
             /// </summary>
             public int ParallelOffsetInMs;
+
+            /// <summary>
+            /// This will also add parameter values while testing if any (only in custom random parameter available)
+            /// </summary>
             public StringTree ParameterizedLogEntry
             { 
                 get 

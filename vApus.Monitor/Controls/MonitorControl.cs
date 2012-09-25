@@ -66,7 +66,6 @@ namespace vApus.Monitor
                     }
                     else
                     {
-#warning This can be set to true, but the output is not seen as a number in excel
                         s = StringUtil.FloatToLongString(f, false);
                     }
                     value = s;

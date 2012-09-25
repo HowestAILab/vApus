@@ -294,7 +294,7 @@ namespace vApus.DistributedTesting
                 {
                     if (!_isDisposed && Finished < _usedTileStresstests.Count)
                     {
-#warning allow multiple slaves yadda yadda
+#warning Allow multiple slaves for work distribution
                         foreach (TileStresstest tileStresstest in _usedTileStresstests)
                             if (tileStresstest.BasicTileStresstest.Slaves[0].IP == e.SlaveIP && tileStresstest.BasicTileStresstest.Slaves[0].Port == e.SlavePort)
                                 _failed = AddUniqueToStringArray(_failed, tileStresstest.TileStresstestIndex);

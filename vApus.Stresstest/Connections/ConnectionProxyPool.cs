@@ -21,10 +21,6 @@ namespace vApus.Stresstest
     /// </summary>
     public class ConnectionProxyPool : IDisposable
     {
-        public event EventHandler<LogEntryTestedEventArgs> LogEntryTested;
-        public event EventHandler TestWorkFinished;
-        public event EventHandler<TestWorkExceptionEventArgs> TestWorkException;
-
         #region Fields
         private int _usedConnectionProxies;
         private CompilerUnit _compilerUnit = new CompilerUnit();
@@ -35,8 +31,6 @@ namespace vApus.Stresstest
         private ParallelConnectionProxy[][] _parallelConnectionProxies;
 
         private bool _isShutdown, _isDisposed;
-
-        private StringTree[] _unitTestParameterizedLogEntries;
 
         //Dispose multi threaded.
         [ThreadStatic]
@@ -423,32 +417,6 @@ namespace vApus.Stresstest
         }
         #endregion
 
-        public class LogEntryTestedEventArgs : EventArgs
-        {
-            public string Thread;
-            public StringTree ParameterizedLogEntry;
-            public DateTime SentAt;
-            public TimeSpan TimeToLastByte;
-            public Exception Exception;
-
-            public LogEntryTestedEventArgs(string thread, StringTree parameterizedLogEntry, DateTime sentAt, TimeSpan timeToLastByte, Exception exception = null)
-            {
-                Thread = thread;
-                ParameterizedLogEntry = parameterizedLogEntry;
-                SentAt = sentAt;
-                TimeToLastByte = timeToLastByte;
-                Exception = exception;
-            }
-        }
-        public class TestWorkExceptionEventArgs : EventArgs
-        {
-            public Exception Exception;
-
-            public TestWorkExceptionEventArgs(Exception exception)
-            {
-                Exception = exception;
-            }
-        }
         private class DisposeConnectionProxyWorkItem
         {
             private static object _lock = new object();

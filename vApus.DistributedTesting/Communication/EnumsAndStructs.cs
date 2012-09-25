@@ -38,7 +38,6 @@ namespace vApus.DistributedTesting
         /// This will return a torrent file in bytes that the torrent client will use on the master-side.
         /// </summary>
         Results,
-#warning implement this
         StopSeedingResults
     }
     [Serializable]
