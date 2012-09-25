@@ -91,7 +91,7 @@ namespace vApus.Stresstest
                     _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
             }
-            else 
+            else
             {
                 _codeInitialized = true;
             }
@@ -118,6 +118,7 @@ namespace vApus.Stresstest
             {
                 using (StreamWriter sw = new StreamWriter(sfd.FileName))
                     sw.Write(codeTextBox.Text);
+#pragma warning disable 0168
                 if (MessageBox.Show("Do you want to open the file?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     try
                     {
