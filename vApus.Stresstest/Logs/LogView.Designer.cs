@@ -41,6 +41,7 @@
             this.logSolutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.chk = new System.Windows.Forms.CheckBox();
+            this.errorAndFindSelector = new vApus.Stresstest.ErrorAndFindSelector();
             this.toolStripEdit = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.lblCount = new System.Windows.Forms.ToolStripLabel();
@@ -55,7 +56,6 @@
             this.btnActionizeUnactionize = new System.Windows.Forms.ToolStripButton();
             this.largelist = new vApus.Util.LargeList();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.errorAndFindSelector = new vApus.Stresstest.ErrorAndFindSelector();
             this.toolStripImport.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -200,6 +200,18 @@
             this.chk.UseVisualStyleBackColor = true;
             this.chk.CheckStateChanged += new System.EventHandler(this.chk_CheckStateChanged);
             // 
+            // errorAndFindSelector
+            // 
+            this.errorAndFindSelector.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.errorAndFindSelector.Found = null;
+            this.errorAndFindSelector.Location = new System.Drawing.Point(284, 0);
+            this.errorAndFindSelector.Name = "errorAndFindSelector";
+            this.errorAndFindSelector.Size = new System.Drawing.Size(599, 25);
+            this.errorAndFindSelector.TabIndex = 4;
+            this.errorAndFindSelector.SelectError += new System.EventHandler<vApus.Stresstest.SelectErrorEventArgs>(this.errorAndFindSelector_SelectError);
+            this.errorAndFindSelector.Find += new System.EventHandler<vApus.Stresstest.FindEventArgs>(this.errorAndFindSelector_Find);
+            // 
             // toolStripEdit
             // 
             this.toolStripEdit.AutoSize = false;
@@ -336,18 +348,6 @@
             this.largelist.Size = new System.Drawing.Size(943, 290);
             this.largelist.SizeMode = vApus.Util.SizeMode.StretchHorizontal;
             this.largelist.TabIndex = 2;
-            // 
-            // errorAndFindSelector
-            // 
-            this.errorAndFindSelector.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.errorAndFindSelector.Found = null;
-            this.errorAndFindSelector.Location = new System.Drawing.Point(284, 0);
-            this.errorAndFindSelector.Name = "errorAndFindSelector";
-            this.errorAndFindSelector.Size = new System.Drawing.Size(599, 25);
-            this.errorAndFindSelector.TabIndex = 4;
-            this.errorAndFindSelector.SelectError += new System.EventHandler<vApus.Stresstest.SelectErrorEventArgs>(this.errorAndFindSelector_SelectError);
-            this.errorAndFindSelector.Find += new System.EventHandler<vApus.Stresstest.FindEventArgs>(this.errorAndFindSelector_Find);
             // 
             // LogView
             // 

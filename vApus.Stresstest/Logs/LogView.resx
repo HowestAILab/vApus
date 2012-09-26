@@ -150,20 +150,20 @@
   <data name="btnRecord.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        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
+        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
 </value>
   </data>
   <data name="btnRedetermineTokens.ToolTipText" xml:space="preserve">
