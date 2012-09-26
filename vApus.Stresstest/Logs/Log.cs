@@ -305,7 +305,7 @@ namespace vApus.Stresstest
 
             return replacement;
         }
-        public Log Clone()
+        public Log Clone(bool cloneChildren = true)
         {
             Log log = new Log();
             log.Parent = Parent;
@@ -315,11 +315,12 @@ namespace vApus.Stresstest
             log.PreferredTokenDelimiterIndex = _preferredTokenDelimiterIndex;
             log._parameters = _parameters;
 
-            foreach (BaseItem item in this)
-                if (item is UserAction)
-                    log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
-                else
-                    log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
+            if (cloneChildren)
+                foreach (BaseItem item in this)
+                    if (item is UserAction)
+                        log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
+                    else
+                        log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
 
             return log;
 

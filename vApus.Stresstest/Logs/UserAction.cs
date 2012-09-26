@@ -81,11 +81,11 @@ namespace vApus.Stresstest
             return parameterizedStructure;
         }
 
-        public UserAction Clone()
+        public UserAction Clone(bool setParent = true)
         {
             UserAction userAction = new UserAction(Label);
-            userAction.Parent = Parent;
-            userAction.Label = Label;
+            if (setParent)
+                userAction.Parent = Parent;
             userAction.Occurance = _occurance;
             userAction.Pinned = _pinned;
 

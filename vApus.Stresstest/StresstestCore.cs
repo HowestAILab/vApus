@@ -37,6 +37,7 @@ namespace vApus.Stresstest
         private StresstestThreadPool _threadPool;
 
         private TestPatternsAndDelaysGenerator _testPatternsAndDelaysGenerator;
+        private Log _log;
         private LogEntry[] _logEntries;
         private TestableLogEntry[][] _testableLogEntries;
         private int[][] _delays;
@@ -149,29 +150,26 @@ namespace vApus.Stresstest
                 throw ex;
             }
 
-            _stresstest.Log.ApplyLogRuleSet();
+            _log = LogTimesOccurancies(_stresstest.Log, _stresstest.Distribute);
+            _log.ApplyLogRuleSet();
+
 
             //Parallel connections, check per user aciotn
             _parallelConnectionsModifier = 0;
             List<LogEntry> logEntries = new List<LogEntry>();
-            foreach (var item in _stresstest.Log)
-            {
+            foreach (var item in _log)
                 if (item is UserAction)
-                {
                     foreach (LogEntry logEntry in item)
                     {
                         logEntries.Add(logEntry);
 #warning Occurances for parallel executions?
 
                         if (logEntry.ExecuteInParallelWithPrevious)
-                            _parallelConnectionsModifier += logEntry.Occurance;
+                            ++_parallelConnectionsModifier;
                     }
-                }
                 else if (item is LogEntry)
-                {
                     logEntries.Add(item as LogEntry);
-                }
-            }
+
             _logEntries = logEntries.ToArray();
 
             _testPatternsAndDelaysGenerator = new TestPatternsAndDelaysGenerator
@@ -185,6 +183,55 @@ namespace vApus.Stresstest
             _sw.Stop();
             InvokeMessage(string.Format(" ...Log Initialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
+        }
+        /// <summary>
+        /// Expands the log (into a new one) times the occurance, this is only done if the Action Distribution is not equal to none.
+        /// Otherwise the original on is returned.
+        /// </summary>
+        /// <returns></returns>
+        private Log LogTimesOccurancies(Log log, ActionAndLogEntryDistribution distribute)
+        {
+            if (distribute == ActionAndLogEntryDistribution.None)
+            {
+                return log;
+            }
+            else
+            {
+                Log newLog = log.Clone(false);
+                foreach (var item in log)
+                    if (item is UserAction)
+                    {
+                        UserAction action = item as UserAction;
+                        for (int i = 0; i != action.Occurance; i++)
+                        {
+                            var actionClone = new UserAction(action.Label);
+                            actionClone.Occurance = 1; //Must be one now, this value doesn't matter anymore.
+                            actionClone.Pinned = action.Pinned;
+
+                            foreach (LogEntry child in action)
+                                for (int j = 0; j != child.Occurance; j++)
+                                {
+                                    var childClone = child.Clone(false);
+                                    childClone.Occurance = 1;
+                                    actionClone.AddWithoutInvokingEvent(childClone, false);
+                                }
+
+                            newLog.AddWithoutInvokingEvent(actionClone, false);
+                        }
+                    }
+                    else
+                    {
+                        LogEntry entry = item as LogEntry;
+                        for (int i = 0; i != entry.Occurance; i++)
+                        {
+                            var entryClone = entry.Clone(false);
+                            entryClone.Occurance = 1;
+                            newLog.AddWithoutInvokingEvent(entryClone, false);
+                        }
+                    }
+
+                return newLog;
+            }
         }
         private void InitializeConnectionProxyPool()
         {
@@ -381,7 +428,7 @@ namespace vApus.Stresstest
                     var tle = new TestableLogEntry[testPatternIndices.Length];
                     int index = 0;
 
-                    var parameterizedStructure = _stresstest.Log.GetParameterizedStructure(out generateWhileTestingParameterTokens);
+                    var parameterizedStructure = _log.GetParameterizedStructure(out generateWhileTestingParameterTokens);
 
                     for (int i = 0; i != testPatternIndices.Length; i++)
                     {

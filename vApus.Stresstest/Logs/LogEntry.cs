@@ -64,7 +64,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// Is valid after calling ApplyLogRuleSet.
         /// </summary>
-        
+
         [Description("Specifies if the entry is valid or not."), DisplayName("Lexical Result")]
         public LexicalResult LexicalResult
         {
@@ -86,12 +86,12 @@ namespace vApus.Stresstest
         /// <summary>
         /// Is valid after calling ApplyLogRuleSet.
         /// </summary>
-        
+
         public ASTNode LexedLogEntry
         {
             get { return _lexedLogEntry; }
         }
-        
+
         public LogRuleSet LogRuleSet
         {
             get
@@ -294,10 +294,11 @@ namespace vApus.Stresstest
                 generateWhileTestingParameterTokens);
         }
 
-        public LogEntry Clone()
+        public LogEntry Clone(bool setParent = true)
         {
             LogEntry logEntry = new LogEntry();
-            logEntry.Parent = Parent;
+            if (setParent)
+                logEntry.Parent = Parent;
             logEntry.Occurance = _occurance;
             logEntry.LogEntryString = _logEntryString;
             logEntry.LogEntryStringAsImported = _logEntryStringAsImported;
