@@ -58,7 +58,8 @@ namespace vApus.Stresstest
             {
                 if (_solution == null && vApus.SolutionTree.Solution.ActiveSolution != null)
                     _solution = vApus.SolutionTree.Solution.ActiveSolution.FileName;
-                return _solution; }
+                return _solution;
+            }
         }
         [Description("The connection to the application to test.")]
         [SavableCloneable, PropertyControl(0)]
@@ -270,30 +271,20 @@ namespace vApus.Stresstest
             set { _maximumDelay = value; }
         }
 
-        [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns; obligatory for Fast Action and Log Entry Distribution.")]
+        [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
         [SavableCloneable, PropertyControl(8)]
         public bool Shuffle
         {
             get { return _shuffle; }
-            set
-            {
-                if (value == false && _distribute == ActionAndLogEntryDistribution.Fast)
-                    throw new Exception("Fast action and log entry distribution cannot happen unshuffled.");
-                _shuffle = value;
-            }
+            set { _shuffle = value; }
         }
 
-        [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance. Note:This can't be used in combination with parameters (works but it breaks the parameter refresh logic, giving a wrong result).")]
+        [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance.")]
         [SavableCloneable, PropertyControl(9, true)]
         public ActionAndLogEntryDistribution Distribute
         {
             get { return _distribute; }
-            set
-            {
-                if (value == ActionAndLogEntryDistribution.Fast && !_shuffle)
-                    throw new Exception("For 'Fast Action and Log Entry Distribution' the 'Shuffle Actions and Loose Log Entries' property must be set to 'True'.");
-                _distribute = value;
-            }
+            set { _distribute = value; }
         }
 
 #if EnableBetaFeature

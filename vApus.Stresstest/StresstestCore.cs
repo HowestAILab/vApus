@@ -153,7 +153,6 @@ namespace vApus.Stresstest
             _log = LogTimesOccurancies(_stresstest.Log, _stresstest.Distribute);
             _log.ApplyLogRuleSet();
 
-
             //Parallel connections, check per user aciotn
             _parallelConnectionsModifier = 0;
             List<LogEntry> logEntries = new List<LogEntry>();
@@ -171,10 +170,12 @@ namespace vApus.Stresstest
                     logEntries.Add(item as LogEntry);
 
             _logEntries = logEntries.ToArray();
+            int actionCount = _stresstest.Distribute == ActionAndLogEntryDistribution.Fast ? _stresstest.Log.Count : _log.Count; //Needed for fast log entry distribution
 
             _testPatternsAndDelaysGenerator = new TestPatternsAndDelaysGenerator
             (
                 _logEntries,
+                actionCount,
                 _stresstest.Shuffle,
                 _stresstest.Distribute,
                 _stresstest.MinimumDelay,
@@ -458,7 +459,7 @@ namespace vApus.Stresstest
                             userAction = parent.ToString();
                         }
 
-                        tle[index++] = new TestableLogEntry(logEntryIndex, parameterizedLogEntry, userActionIndex, userAction, 
+                        tle[index++] = new TestableLogEntry(logEntryIndex, parameterizedLogEntry, userActionIndex, userAction,
                             logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, generateWhileTestingParameterTokens);
                     }
 
@@ -1035,7 +1036,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// Log entry with metadata.
         /// </summary>
-        private struct TestableLogEntry 
+        private struct TestableLogEntry
         {
             private StringTree _parameterizedLogEntry;
             private Dictionary<string, BaseParameter> _generateWhileTestingParameterTokens;
@@ -1058,16 +1059,16 @@ namespace vApus.Stresstest
             /// This will also add parameter values while testing if any (only in custom random parameter available)
             /// </summary>
             public StringTree ParameterizedLogEntry
-            { 
-                get 
+            {
+                get
                 {
                     if (_generateWhileTestingParameterTokens.Count != 0)
                     {
                         ApplyParameters(_parameterizedLogEntry);
                         ParameterizedLogEntryString = _parameterizedLogEntry.CombineValues();
                     }
-                    return _parameterizedLogEntry; 
-                } 
+                    return _parameterizedLogEntry;
+                }
             }
             private void ApplyParameters(StringTree stringTree)
             {
