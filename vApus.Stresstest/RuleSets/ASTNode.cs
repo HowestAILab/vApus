@@ -105,24 +105,20 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="beginTokenDelimiter">Must be determined for a collection of ast nodes (a log) (GetUniqueParameterTokenDelimiters()).</param>
         /// <param name="endTokenDelimiter">Must be determined for a collection of ast nodes (a log) (GetUniqueParameterTokenDelimiters()).</param>
-        /// <param name="generateWhileTestingParameterTokens">The tokens and parameters that must generate values while stresstesting.</param>
         public StringTree GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter,
             HashSet<BaseParameter> chosenNextValueParametersForLScope,
             HashSet<BaseParameter> chosenNextValueParametersForUAScope,
-            HashSet<BaseParameter> chosenNextValueParametersForLEScope,
-            Dictionary<string, BaseParameter> generateWhileTestingParameterTokens)
+            HashSet<BaseParameter> chosenNextValueParametersForLEScope)
         {
             return GetParameterizedStructure(GetParameterTokens(beginTokenDelimiter, endTokenDelimiter),
                 chosenNextValueParametersForLScope,
                 chosenNextValueParametersForUAScope,
-                chosenNextValueParametersForLEScope,
-                generateWhileTestingParameterTokens);
+                chosenNextValueParametersForLEScope);
         }
         private StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens,
             HashSet<BaseParameter> chosenNextValueParametersForLScope,
             HashSet<BaseParameter> chosenNextValueParametersForUAScope,
-            HashSet<BaseParameter> chosenNextValueParametersForLEScope,
-            Dictionary<string, BaseParameter> generateWhileTestingParameterTokens)
+            HashSet<BaseParameter> chosenNextValueParametersForLEScope)
         {
             StringTree st = new StringTree(string.Empty, _childDelimiter);
 
@@ -131,8 +127,7 @@ namespace vApus.Stresstest
                 st.Value = ParameterizeValue(parameterTokens,
                                              chosenNextValueParametersForLScope,
                                              chosenNextValueParametersForUAScope,
-                                             chosenNextValueParametersForLEScope,
-                                             generateWhileTestingParameterTokens);
+                                             chosenNextValueParametersForLEScope);
             }
             else
             {
@@ -140,8 +135,7 @@ namespace vApus.Stresstest
                     st.Add(node.GetParameterizedStructure(parameterTokens,
                                                           chosenNextValueParametersForLScope,
                                                           chosenNextValueParametersForUAScope,
-                                                          chosenNextValueParametersForLEScope,
-                                                          generateWhileTestingParameterTokens));
+                                                          chosenNextValueParametersForLEScope));
             }
             return st;
         }
@@ -171,8 +165,7 @@ namespace vApus.Stresstest
         private string ParameterizeValue(Dictionary<string, BaseParameter> parameterTokens,
             HashSet<BaseParameter> chosenNextValueParametersForLScope,
             HashSet<BaseParameter> chosenNextValueParametersForUAScope,
-            HashSet<BaseParameter> chosenNextValueParametersForLEScope,
-            Dictionary<string, BaseParameter> generateWhileTestingParameterTokens)
+            HashSet<BaseParameter> chosenNextValueParametersForLEScope)
         {
             string parameterizedValue = _value;
             /*
@@ -189,12 +182,6 @@ namespace vApus.Stresstest
                 if (parameterizedValue.Contains(token))
                 {
                     var parameter = parameterTokens[token];
-                    if (parameter.GenerateWhileTesting)
-                    {
-                        if (!generateWhileTestingParameterTokens.ContainsKey(token))
-                            generateWhileTestingParameterTokens.Add(token, parameter);
-                        continue;
-                    }
                     bool next = false; //Can a next value be determined, this is based on if it could be added to the right hash set or not.
 
                     if (token.Contains(LOG_PARAMETER_SCOPE))

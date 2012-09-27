@@ -415,9 +415,6 @@ namespace vApus.Stresstest
                 var delays = new List<int[]>();
 
                 Random delaysRandom = new Random(DateTime.Now.Millisecond);
-
-                Dictionary<string, BaseParameter> generateWhileTestingParameterTokens = new Dictionary<string, BaseParameter>();
-
                 for (int t = 0; t != concurrentUsers; t++)
                 {
                     if (_cancel)
@@ -429,7 +426,7 @@ namespace vApus.Stresstest
                     var tle = new TestableLogEntry[testPatternIndices.Length];
                     int index = 0;
 
-                    var parameterizedStructure = _log.GetParameterizedStructure(out generateWhileTestingParameterTokens);
+                    var parameterizedStructure = _log.GetParameterizedStructure();
 
                     for (int i = 0; i != testPatternIndices.Length; i++)
                     {
@@ -460,7 +457,7 @@ namespace vApus.Stresstest
                         }
 
                         tle[index++] = new TestableLogEntry(logEntryIndex, parameterizedLogEntry, userActionIndex, userAction,
-                            logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, generateWhileTestingParameterTokens);
+                            logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs);
                     }
 
                     testableLogEntries.Add(tle);
@@ -1038,8 +1035,7 @@ namespace vApus.Stresstest
         /// </summary>
         private struct TestableLogEntry
         {
-            private StringTree _parameterizedLogEntry;
-            private Dictionary<string, BaseParameter> _generateWhileTestingParameterTokens;
+            public StringTree ParameterizedLogEntry;
 
             public int UserActionIndex;
             /// <summary>
@@ -1056,48 +1052,6 @@ namespace vApus.Stresstest
             public int ParallelOffsetInMs;
 
             /// <summary>
-            /// This will also add parameter values while testing if any (only in custom random parameter available)
-            /// </summary>
-            public StringTree ParameterizedLogEntry
-            {
-                get
-                {
-                    if (_generateWhileTestingParameterTokens.Count != 0)
-                    {
-                        ApplyParameters(_parameterizedLogEntry);
-                        ParameterizedLogEntryString = _parameterizedLogEntry.CombineValues();
-                    }
-                    return _parameterizedLogEntry;
-                }
-            }
-            private void ApplyParameters(StringTree stringTree)
-            {
-                if (string.IsNullOrEmpty(stringTree.Value))
-                {
-                    foreach (StringTree subTree in stringTree)
-                        ApplyParameters(subTree);
-                }
-                else
-                {
-                    string parameterizedValue = stringTree.Value;
-                    foreach (string token in _generateWhileTestingParameterTokens.Keys)
-                    {
-                        BaseParameter parameter = _generateWhileTestingParameterTokens[token];
-                        string[] split = parameterizedValue.Split(new string[] { token }, StringSplitOptions.None);
-
-                        parameterizedValue = string.Empty;
-                        for (int i = 0; i != split.Length - 1; i++)
-                        {
-                            parameter.Next();
-                            parameterizedValue += split[i] + parameter.Value;
-                        }
-                        parameterizedValue += split[split.Length - 1];
-                    }
-                    stringTree.Value = parameterizedValue;
-                }
-            }
-
-            /// <summary>
             /// Log entry with metadata.
             /// </summary>
             /// <param name="logEntryIndex">Should be log.IndexOf(LogEntry) or log.IndexOf(UserAction) + '.'. + UserAction.IndexOf(LogEntry), this must be unique</param>
@@ -1106,7 +1060,7 @@ namespace vApus.Stresstest
             /// <param name="userAction">Can not be null, string.empty is allowed</param>
             /// <param name="generateWhileTestingParameterTokens">The needed ones will be filtered.</param>
             public TestableLogEntry(string logEntryIndex, StringTree parameterizedLogEntry, int userActionIndex, string userAction,
-                bool executeInParallelWithPrevious, int parallelOffsetInMs, Dictionary<string, BaseParameter> generateWhileTestingParameterTokens)
+                bool executeInParallelWithPrevious, int parallelOffsetInMs)
             {
                 if (userAction == null)
                     throw new ArgumentNullException("userAction");
@@ -1114,17 +1068,11 @@ namespace vApus.Stresstest
                 LogEntryIndex = logEntryIndex;
                 UserActionIndex = userActionIndex;
 
-                _parameterizedLogEntry = parameterizedLogEntry;
-                ParameterizedLogEntryString = _parameterizedLogEntry.CombineValues();
+                ParameterizedLogEntry = parameterizedLogEntry;
+                ParameterizedLogEntryString = ParameterizedLogEntry.CombineValues();
                 UserAction = userAction;
                 ExecuteInParallelWithPrevious = executeInParallelWithPrevious;
                 ParallelOffsetInMs = parallelOffsetInMs;
-
-                //Get usable tokens
-                _generateWhileTestingParameterTokens = new Dictionary<string, BaseParameter>();
-                foreach (string token in generateWhileTestingParameterTokens.Keys)
-                    if (ParameterizedLogEntryString.Contains(token))
-                        _generateWhileTestingParameterTokens.Add(token, generateWhileTestingParameterTokens[token]);
             }
         }
     }

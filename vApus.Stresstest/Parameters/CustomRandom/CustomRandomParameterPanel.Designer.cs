@@ -29,9 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CustomRandomParameterPanel));
             this.chkUnique = new System.Windows.Forms.CheckBox();
-            this.chkGenerateWhileTesting = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.compileCustomRandom = new vApus.Stresstest.TestCustomRandom();
             this.cbGenerate = new vApus.Stresstest.CodeBlock();
@@ -49,20 +47,6 @@
             this.chkUnique.Text = "Return value is unique for each call (keep infinite loops in mind!)";
             this.chkUnique.UseVisualStyleBackColor = true;
             this.chkUnique.CheckedChanged += new System.EventHandler(this.chkUnique_CheckedChanged);
-            // 
-            // chkGenerateWhileTesting
-            // 
-            this.chkGenerateWhileTesting.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkGenerateWhileTesting.AutoSize = true;
-            this.chkGenerateWhileTesting.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkGenerateWhileTesting.Location = new System.Drawing.Point(462, 298);
-            this.chkGenerateWhileTesting.Name = "chkGenerateWhileTesting";
-            this.chkGenerateWhileTesting.Size = new System.Drawing.Size(213, 22);
-            this.chkGenerateWhileTesting.TabIndex = 2;
-            this.chkGenerateWhileTesting.Text = "Generate while stresstesting";
-            this.toolTip.SetToolTip(this.chkGenerateWhileTesting, resources.GetString("chkGenerateWhileTesting.ToolTip"));
-            this.chkGenerateWhileTesting.UseVisualStyleBackColor = true;
-            this.chkGenerateWhileTesting.CheckedChanged += new System.EventHandler(this.chkGenerateWhileTesting_CheckedChanged);
             // 
             // toolTip
             // 
@@ -108,7 +92,6 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.chkGenerateWhileTesting);
             this.Controls.Add(this.chkUnique);
             this.Controls.Add(this.compileCustomRandom);
             this.Controls.Add(this.cbGenerate);
@@ -125,7 +108,6 @@
         private CodeBlock cbGenerate;
         private TestCustomRandom compileCustomRandom;
         private System.Windows.Forms.CheckBox chkUnique;
-        private System.Windows.Forms.CheckBox chkGenerateWhileTesting;
         private System.Windows.Forms.ToolTip toolTip;
     }
 }

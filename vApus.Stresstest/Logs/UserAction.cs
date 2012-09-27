@@ -65,19 +65,16 @@ namespace vApus.Stresstest
         /// <param name="beginTokenDelimiter">Needed to dermine parameter tokens</param>
         /// <param name="endTokenDelimiter">Needed to dermine parameter tokens</param>
         /// <param name="chosenNextValueParametersForLScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
-        /// <param name="generateWhileTestingParameterTokens">The tokens and parameters that must generate values while stresstesting.</param>
         /// <returns></returns>
         internal List<StringTree> GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter,
-                                                                   HashSet<BaseParameter> chosenNextValueParametersForLScope,
-                                                                   Dictionary<string, BaseParameter> generateWhileTestingParameterTokens)
+                                                                   HashSet<BaseParameter> chosenNextValueParametersForLScope)
         {
             List<StringTree> parameterizedStructure = new List<StringTree>();
             HashSet<BaseParameter> chosenNextValueParametersForUAScope = new HashSet<BaseParameter>();
 
             foreach (LogEntry logEntry in this)
                 parameterizedStructure.Add(logEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter,
-                    chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope,
-                    generateWhileTestingParameterTokens));
+                    chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope));
             return parameterizedStructure;
         }
 

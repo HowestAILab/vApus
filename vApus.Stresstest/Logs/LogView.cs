@@ -513,7 +513,7 @@ namespace vApus.Stresstest
             {
                 //We need to have a StringTree for the log entrym we can get that calling GetParameterizedStructure.
                 var parameterizedLogEntry = logEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter, new HashSet<BaseParameter>(),
-                    new HashSet<BaseParameter>(), new Dictionary<string, BaseParameter>());
+                    new HashSet<BaseParameter>());
                 string begin = null, end = null;
 
                 if (endTimestampIndex < parameterizedLogEntry.Count)

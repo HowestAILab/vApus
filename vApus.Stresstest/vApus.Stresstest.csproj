@@ -372,7 +372,6 @@
     <Compile Include="Parameters\ParameterView.Designer.cs">
       <DependentUpon>ParameterView.cs</DependentUpon>
     </Compile>
-    <Compile Include="oldTestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Connections\ConnectionProxyPool.cs" />
     <Compile Include="Connections\IConnectionProxy.cs" />
     <Compile Include="Connections\RuleSets\ConnectionProxySyntaxItem.cs" />

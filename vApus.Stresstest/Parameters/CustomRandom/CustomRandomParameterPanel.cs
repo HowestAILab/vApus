@@ -42,10 +42,6 @@ namespace vApus.Stresstest
             chkUnique.CheckedChanged -= chkUnique_CheckedChanged;
             chkUnique.Checked = _parameter.Unique;
             chkUnique.CheckedChanged += chkUnique_CheckedChanged;
-
-            chkGenerateWhileTesting.CheckedChanged -= chkGenerateWhileTesting_CheckedChanged;
-            chkGenerateWhileTesting.Checked = _parameter.GenerateWhileTesting;
-            chkGenerateWhileTesting.CheckedChanged += chkGenerateWhileTesting_CheckedChanged;
         }
         private void cbGenerate_CodeTextChangedDelayed(object sender, EventArgs e)
         {
@@ -66,12 +62,6 @@ namespace vApus.Stresstest
         private void chkUnique_CheckedChanged(object sender, EventArgs e)
         {
             _parameter.Unique = chkUnique.Checked;
-            _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, null);
-        }
-
-        private void chkGenerateWhileTesting_CheckedChanged(object sender, EventArgs e)
-        {
-            _parameter.GenerateWhileTesting = chkGenerateWhileTesting.Checked;
             _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, null);
         }
     }

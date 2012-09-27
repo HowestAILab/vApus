@@ -278,20 +278,17 @@ namespace vApus.Stresstest
         /// <param name="endTokenDelimiter">Needed to dermine parameter tokens</param>
         /// <param name="chosenNextValueParametersForLScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
         /// <param name="chosenNextValueParametersForUAScope">Can be an empty hash set but may not be null, used to store all these values for the right scope. If the log entry is not in a user action this should be an empty hash set.</param>
-        /// <param name="generateWhileTestingParameterTokens">The tokens and parameters that must generate values while stresstesting.</param>
         /// <returns></returns>
         internal StringTree GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter,
                                                   HashSet<BaseParameter> chosenNextValueParametersForLScope,
-                                                  HashSet<BaseParameter> chosenNextValueParametersForUAScope,
-                                                  Dictionary<string, BaseParameter> generateWhileTestingParameterTokens)
+                                                  HashSet<BaseParameter> chosenNextValueParametersForUAScope)
         {
             if (chosenNextValueParametersForUAScope == null)
                 chosenNextValueParametersForUAScope = new HashSet<BaseParameter>();
             HashSet<BaseParameter> chosenNextValueParametersForLEScope = new HashSet<BaseParameter>();
 
             return _lexedLogEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter,
-                chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope,
-                generateWhileTestingParameterTokens);
+                chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
         }
 
         public LogEntry Clone(bool setParent = true)
