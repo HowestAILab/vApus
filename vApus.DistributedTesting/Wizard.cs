@@ -693,7 +693,7 @@ namespace vApus.DistributedTesting
                 int mod = numberOfCores % numberOfSlaves; //If it is not a clean division the last slave gets a core extra.
 
                 for (int i = 1; i <= numberOfCores; i++) //One-based pa.
-                    if (!alreadyUsedPAs.Contains(i) && numberUsed++ != numberToUse)
+                    if (!alreadyUsedPAs.Contains(i) && numberUsed++ < numberToUse)
                         pa.Add(i);
 
                 if (pa.Count != 0 && pa[pa.Count - 1] == numberOfCores - 1 && mod != 0)
