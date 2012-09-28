@@ -697,7 +697,7 @@ namespace vApus.DistributedTesting
                     if (!alreadyUsedPAs.Contains(i) && numberUsed++ != numberToUse)
                         pa.Add(i);
 
-                if (pa[pa.Count - 1] == numberOfCores - 1 && mod != 0)
+                if (pa.Count != 0 && pa[pa.Count - 1] == numberOfCores - 1 && mod != 0)
                     pa.Add(numberOfCores);
 
             }
