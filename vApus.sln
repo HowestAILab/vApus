@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Gui", "vApus.Gui\vApus.Gui.csproj", "{C45D47EE-85F0-4621-AFEB-D4E9CADF9678}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.SolutionTree", "vApus.SolutionTree\vApus.SolutionTree.csproj", "{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}"
@@ -357,8 +357,8 @@ Global
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.Release|x86.Build.0 = Release|x86
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|Any CPU.ActiveCfg = TestingBuild|Any CPU
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|Any CPU.Build.0 = TestingBuild|Any CPU
-		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|Any CPU
-		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|Any CPU
+		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|x64
+		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|x64
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|x64.ActiveCfg = TestingBuild|x64
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|x64.Build.0 = TestingBuild|x64
 		{D1635BE1-1EEE-48E6-BCAF-71BAC67B3843}.TestingBuild|x86.ActiveCfg = TestingBuild|x86
@@ -383,9 +383,10 @@ Global
 		{0B87A110-73F8-496A-B656-9050272CFE7B}.Release|x86.ActiveCfg = Release|Any CPU
 		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|Any CPU.ActiveCfg = TestingBuild|Any CPU
 		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|Any CPU.Build.0 = TestingBuild|Any CPU
-		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|Any CPU
-		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|Any CPU
-		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|x64.ActiveCfg = TestingBuild|Any CPU
+		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|x64
+		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|x64
+		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|x64.ActiveCfg = TestingBuild|x64
+		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|x64.Build.0 = TestingBuild|x64
 		{0B87A110-73F8-496A-B656-9050272CFE7B}.TestingBuild|x86.ActiveCfg = TestingBuild|Any CPU
 		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -410,9 +411,10 @@ Global
 		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.Release|x86.Build.0 = Release|x86
 		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|Any CPU.ActiveCfg = TestingBuild|Any CPU
 		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|Any CPU.Build.0 = TestingBuild|Any CPU
-		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|Any CPU
-		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|Any CPU
-		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|x64.ActiveCfg = TestingBuild|x86
+		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|x64
+		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|x64
+		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|x64.ActiveCfg = TestingBuild|x64
+		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|x64.Build.0 = TestingBuild|x64
 		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|x86.ActiveCfg = TestingBuild|x86
 		{C5BA233C-FD27-4FF6-A570-85C233E39ECF}.TestingBuild|x86.Build.0 = TestingBuild|x86
 		{ECC9F609-0B28-4638-8273-B2FE275BFBFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -466,9 +468,10 @@ Global
 		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.Release|x86.Build.0 = Release|x86
 		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|Any CPU.ActiveCfg = TestingBuild|Any CPU
 		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|Any CPU.Build.0 = TestingBuild|Any CPU
-		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|Any CPU
-		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|Any CPU
-		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|x64.ActiveCfg = TestingBuild|x86
+		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|x64
+		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|x64
+		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|x64.ActiveCfg = TestingBuild|x64
+		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|x64.Build.0 = TestingBuild|x64
 		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|x86.ActiveCfg = TestingBuild|x86
 		{298815E9-CE67-43AB-9DFA-0A8E6FA0783D}.TestingBuild|x86.Build.0 = TestingBuild|x86
 		{6158C187-16A6-4022-9B2C-ECF8872F1462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -494,9 +497,10 @@ Global
 		{6158C187-16A6-4022-9B2C-ECF8872F1462}.Release|x86.Build.0 = Release|x86
 		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|Any CPU.ActiveCfg = TestingBuild|Any CPU
 		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|Any CPU.Build.0 = TestingBuild|Any CPU
-		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|Any CPU
-		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|Any CPU
-		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|x64.ActiveCfg = TestingBuild|x86
+		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|Mixed Platforms.ActiveCfg = TestingBuild|x64
+		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|Mixed Platforms.Build.0 = TestingBuild|x64
+		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|x64.ActiveCfg = TestingBuild|x64
+		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|x64.Build.0 = TestingBuild|x64
 		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|x86.ActiveCfg = TestingBuild|x86
 		{6158C187-16A6-4022-9B2C-ECF8872F1462}.TestingBuild|x86.Build.0 = TestingBuild|x86
 	EndGlobalSection

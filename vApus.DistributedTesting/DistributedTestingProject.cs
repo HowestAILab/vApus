@@ -12,14 +12,9 @@ using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting
 {
-#if EnableBetaFeature
     [ContextMenu(new string[] { "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" }, new string[] { "Add Distributed Test", "Sort", "Clear", "Paste" })]
     [Hotkeys(new string[] { "Add_Click", "Paste_Click" }, new Keys[] { Keys.Insert, (Keys.Control | Keys.V) })]
     [DisplayName("Distributed Testing")]
-#else
-#warning Distributed testing in beta
-    [DisplayName("Distributed Testing, Soon Available")]
-#endif
     public class DistributedTestingProject : BaseProject
     {
         private void Add_Click(object sender, EventArgs e)
