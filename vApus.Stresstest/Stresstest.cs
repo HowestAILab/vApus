@@ -40,6 +40,9 @@ namespace vApus.Stresstest
         private int[] _monitorIndices = { };
         [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
+        private uint _monitorBefore;
+        private uint _monitorAfter;
+
         private bool _useParallelExecutionOfLogEntries;
 
         /// <summary>
@@ -287,9 +290,36 @@ namespace vApus.Stresstest
             set { _distribute = value; }
         }
 
+        [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."), DisplayName("Monitor Before")]
+        [SavableCloneable, PropertyControl(10, true)]
+        public uint MonitorBefore
+        {
+            get { return _monitorBefore; }
+            set
+            {
+                if (value > 60)
+                    value = 60;
+                _monitorBefore = value;
+            }
+        }
+
+        [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."), DisplayName("Monitor After")]
+        [SavableCloneable, PropertyControl(11, true)]
+        public uint MonitorAfter
+        {
+            get { return _monitorAfter; }
+            set
+            {
+                if (value > 60)
+                    value = 60;
+                _monitorAfter = value;
+            }
+        }
+
+
 #if EnableBetaFeature
         [Description("If this equals false then the parallel switch for log entries is ignored."), DisplayName("Use Parallel Execution of Log Entries")]
-        [SavableCloneable, PropertyControl(10, true)]
+        [SavableCloneable, PropertyControl(int.MaxValue, true)]
         public bool UseParallelExecutionOfLogEntries
         {
             get { return _useParallelExecutionOfLogEntries; }

@@ -360,6 +360,7 @@
     <Compile Include="ControlsAndPanels\ValueControlPanel\ValueControlPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Countdown.cs" />
     <Compile Include="Dialogs\LogMessageDialog.cs">
       <SubType>Form</SubType>
     </Compile>

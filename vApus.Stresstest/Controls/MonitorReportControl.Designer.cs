@@ -55,8 +55,8 @@
             this.flpDetailedResults = new System.Windows.Forms.FlowLayoutPanel();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.btnConfiguration = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
+            this.btnConfiguration = new System.Windows.Forms.Button();
             this.pnlFastResultListing.SuspendLayout();
             this.flpFastMetrics.SuspendLayout();
             this.pnlBorderDrillDownAverages.SuspendLayout();
@@ -421,6 +421,18 @@
             this.panel2.Size = new System.Drawing.Size(655, 40);
             this.panel2.TabIndex = 0;
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.Color.Black;
+            this.label3.Location = new System.Drawing.Point(2, 10);
+            this.label3.Margin = new System.Windows.Forms.Padding(3);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(104, 20);
+            this.label3.TabIndex = 18;
+            this.label3.Text = "Configuration";
+            // 
             // btnConfiguration
             // 
             this.btnConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -438,18 +450,6 @@
             this.btnConfiguration.Text = "Show and/or Save...";
             this.btnConfiguration.UseVisualStyleBackColor = false;
             this.btnConfiguration.Click += new System.EventHandler(this.btnConfiguration_Click);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.ForeColor = System.Drawing.Color.Black;
-            this.label3.Location = new System.Drawing.Point(2, 10);
-            this.label3.Margin = new System.Windows.Forms.Padding(3);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(104, 20);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "Configuration";
             // 
             // MonitorReportControl
             // 

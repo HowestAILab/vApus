@@ -191,18 +191,19 @@ namespace vApus.Util
                     splitterDistance = ValueControl.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom + ValueControl.Margin.Bottom + ValueControl.Margin.Top;
 
                     //Ugly but works.
-                    if (ParentForm.MdiParent == null)
-                    {
-                        ParentForm.TopMost = true;
-                        ParentForm.TopMost = false;
-                        ParentForm.Activate();
-                    }
-                    else
-                    {
-                        ParentForm.MdiParent.TopMost = true;
-                        ParentForm.MdiParent.TopMost = false;
-                        ParentForm.MdiParent.Activate();
-                    }
+                    if (ParentForm != null)
+                        if (ParentForm.MdiParent == null)
+                        {
+                            ParentForm.TopMost = true;
+                            ParentForm.TopMost = false;
+                            ParentForm.Activate();
+                        }
+                        else
+                        {
+                            ParentForm.MdiParent.TopMost = true;
+                            ParentForm.MdiParent.TopMost = false;
+                            ParentForm.MdiParent.Activate();
+                        }
 
                     lblLabel.Select();
                     Application.DoEvents();
