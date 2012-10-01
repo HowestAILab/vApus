@@ -596,12 +596,23 @@ namespace vApus.Stresstest
         private void btnRecord_Click(object sender, EventArgs e)
         {
             string jarPath = Path.Combine(Application.StartupPath, "Lupus-Proxy.jar");
-            //record.SetConfig(_log.RecordIps, _log.RecordPorts);
+            string config = "--vapus -slupusProxyLog -d\"" + _log.LogRuleSet.ChildDelimiter + "\"";
+
+            if (_log.RecordIps.Length != 0)
+                config += " -f\"" + _log.RecordIps.Combine(",");
+            if (_log.RecordPorts.Length != 0)
+                config += "\" -p\"" + _log.RecordPorts.Combine(",") + "\"";
+
             if (File.Exists(jarPath))
             {
+                ProxyHelper.SetProxy("127.0.0.1:5555");
+
                 string logPath = Path.Combine(Application.StartupPath, "lupusProxyLog");
-                Process lupusProcess = Process.Start("\"" + jarPath + "\"", "lupusProxyLog");
+                Process lupusProcess = Process.Start("\"" + jarPath + "\"", config);
                 lupusProcess.WaitForExit();
+
+                ProxyHelper.UnsetProxy();
+
                 if (!File.Exists(logPath))
                     return;
 
@@ -615,7 +626,7 @@ namespace vApus.Stresstest
             Retry:
                 try
                 {
-                        ImportLogFiles(logPath);
+                    ImportLogFiles(logPath);
                 }
                 catch (Exception ex)
                 {
@@ -638,12 +649,12 @@ namespace vApus.Stresstest
                 _log.LogRuleSet.ActionizeOnComment = aoc;
                 _log.LogRuleSet.ActionizeOnFile = aof;
 
-                //string[] recordIps;
-                //int[] recordPorts;
-                //record.GetConfig(out recordIps, out  recordPorts);
+                string[] recordIps;
+                int[] recordPorts;
+                GetConfig(out recordIps, out recordPorts);
 
-                //_log.RecordIps = recordIps;
-                //_log.RecordPorts = recordPorts;
+                _log.RecordIps = recordIps;
+                _log.RecordPorts = recordPorts;
             }
             else
             {
