@@ -172,24 +172,6 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="IKVM.OpenJDK.Core">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.OpenJDK.SwingAWT">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.SwingAWT.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.OpenJDK.Text">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Text.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.OpenJDK.Util">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.OpenJDK.Util.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.Runtime">
-      <HintPath>..\Prerequisites\Lupus Proxy\IKVM.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Lupus_HTTP_Proxy">
-      <HintPath>..\Prerequisites\Lupus Proxy\Lupus_HTTP_Proxy.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="QuickLZ.Net">
       <HintPath>..\Prerequisites\QuickLZ.Net\QuickLZ.Net.dll</HintPath>

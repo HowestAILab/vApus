@@ -661,6 +661,37 @@ namespace vApus.Stresstest
                 LogWrapper.LogByLevel("Could not find Lupus-Proxy.jar!", LogLevel.Error);
             }
         }
+        private void GetConfig(out string[] recordIps, out int[] recordPorts)
+        {
+            recordIps = new string[] { };
+            recordPorts = new int[] { };
+
+            string configPath = Path.Combine(Application.StartupPath, "config.ini");
+            if (File.Exists(configPath))
+            {
+                var sr = new StreamReader(configPath);
+                while (sr.Peek() != -1)
+                {
+                    string line = sr.ReadLine();
+                    if (line.TrimStart().StartsWith("fixatedIpsAndHosts"))
+                    {
+                        recordIps = line.Substring(line.IndexOf('=') + 1).Trim().Split(',');
+                    }
+                    else if (line.TrimStart().StartsWith("fixatedPorts"))
+                    {
+                        var ports = line.Substring(line.IndexOf('=') + 1).Trim().Split(',');
+                        var l = new List<int>();
+                        for (int i = 0; i != ports.Length; i++)
+                        {
+                            int port;
+                            if (int.TryParse(ports[i], out port))
+                                l.Add(port);
+                        }
+                        recordPorts = l.ToArray();
+                    }
+                }
+            }
+        }
 
         private void btnBulkEditLog_Click(object sender, EventArgs e)
         {

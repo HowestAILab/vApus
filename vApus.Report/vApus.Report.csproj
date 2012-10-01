@@ -229,9 +229,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="vApus.Util">
-      <HintPath>..\vApus.Util\bin\Debug\vApus.Util.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Report.cs">
@@ -268,6 +265,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.32x32.vApus.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
+      <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>
+      <Name>vApus.Util</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
