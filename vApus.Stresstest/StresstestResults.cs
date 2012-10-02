@@ -186,14 +186,13 @@ namespace vApus.Stresstest
         /// Used when redoing the same run for for instance break on last run synchronization.
         /// </summary>
         /// <param name="logEntries"></param>
-        public void SetCurrentRunDoneOnce()
+        public void IncreaseRunResults()
         {
             var c = ConcurrentUsersResults[ConcurrentUsersResults.Count - 1];
             var p = c.PrecisionResults[c.PrecisionResults.Count - 1];
             var r = p.RunResults[p.RunResults.Count - 1];
 
-            r.SetRunDoneOnce();
-
+            c.IncreaseRunResults();
             _metrics.TotalLogEntries += r.BaseLogEntryCount;
         }
         /// <summary>
@@ -242,7 +241,7 @@ namespace vApus.Stresstest
                     _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
 
                 _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
-                
+
                 _metrics.TotalLogEntriesProcessedPerTick /= ConcurrentUsersResults.Count;
                 _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / ConcurrentUsersResults.Count);
                 _metrics.AverageDelay = new TimeSpan(_metrics.AverageDelay.Ticks / ConcurrentUsersResults.Count);
@@ -438,6 +437,18 @@ namespace vApus.Stresstest
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Used when redoing the same run for for instance break on last run synchronization.
+        /// </summary>
+        /// <param name="logEntries"></param>
+        public void IncreaseRunResults()
+        {
+            var p = PrecisionResults[PrecisionResults.Count - 1];
+            var r = p.RunResults[p.RunResults.Count - 1];
+
+            p.IncreaseRunResults();
+            _metrics.TotalLogEntries += r.BaseLogEntryCount;
+        }
         public void RefreshLogEntryResultMetrics()
         {
             _metrics.MeasuredRunTime = _sw.Elapsed;
@@ -450,7 +461,7 @@ namespace vApus.Stresstest
             _metrics.TotalLogEntriesProcessed = 0;
             _metrics.TotalLogEntriesProcessedPerTick = 0;
             _metrics.Errors = 0;
-            
+
             ulong totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
 
             foreach (PrecisionResult result in PrecisionResults)
@@ -866,6 +877,17 @@ namespace vApus.Stresstest
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Used when redoing the same run for for instance break on last run synchronization.
+        /// </summary>
+        /// <param name="logEntries"></param>
+        public void IncreaseRunResults()
+        {
+            var r = RunResults[RunResults.Count - 1];
+
+            r.IncreaseRunResults();
+            _metrics.TotalLogEntries += r.BaseLogEntryCount;
+        }
         public void RefreshLogEntryResultMetrics()
         {
             _metrics.MeasuredRunTime = _sw.Elapsed;
@@ -1215,9 +1237,10 @@ namespace vApus.Stresstest
         /// Set if the run was finished once. (Meaning the result set can not grow anymore (run sync break on last)).
         /// </summary>
         private bool _runDoneOnce;
+        private int _runOffset;
         private Dictionary<DateTime, DateTime> _runStartedAndStopped = new Dictionary<DateTime, DateTime>();
-        private long _extraLogEntriesProcessed;
         public UserResult[] UserResults;
+        public int _baseUserCount;
         #endregion
 
         #region Properties
@@ -1235,9 +1258,7 @@ namespace vApus.Stresstest
         {
             get
             {
-                if (_runDoneOnce)
-                    return null;
-                return UserResults[index];
+                return UserResults[_runOffset + index];
             }
         }
         public TimeSpan EstimatedRuntimeLeft
@@ -1266,11 +1287,6 @@ namespace vApus.Stresstest
             get { return _metrics; }
             //Manual override
             set { _metrics = value; }
-        }
-
-        public ulong BaseLogEntryCount
-        {
-            get { return _baseLogEntryCount; }
         }
 
         private ulong LogEntryResultsCount
@@ -1309,12 +1325,10 @@ namespace vApus.Stresstest
         {
             get { return _runDoneOnce; }
         }
-        /// <summary>
-        /// The count of the log entries processed after the run was done once (Break on last run sync).
-        /// </summary>
-        public long ExtraLogEntriesProcessed
+
+        public ulong BaseLogEntryCount
         {
-            get { return _extraLogEntriesProcessed; }
+            get { return _baseLogEntryCount; }
         }
         #endregion
 
@@ -1328,12 +1342,13 @@ namespace vApus.Stresstest
         /// <param name="singleUserLogEntryCount"></param>
         /// <param name="initOfRun"></param>
         /// <param name="runStartedAndStopped">Optional, if none have been determined (started only after initialization of the thread and connectionpool)</param>
-        /// <param name="runDoneOnce">If the run was done onse or not (break on last run sync)</param>
+        /// <param name="runDoneOnce">If the run was done once or not (break on last run sync)</param>
         public RunResult(int run, int users, ulong totalLogEntries, int singleUserLogEntryCount, DateTime initOfRun, Dictionary<DateTime, DateTime> runStartedAndStopped = null, bool runDoneOnce = false)
         {
             _run = run;
             _singleUserLogEntryCount = singleUserLogEntryCount;
             UserResults = new UserResult[users];
+            _baseUserCount = users;
             for (int i = 0; i < users; i++)
                 UserResults[i] = new UserResult(_singleUserLogEntryCount);
 
@@ -1383,13 +1398,20 @@ namespace vApus.Stresstest
         /// <summary>
         /// Used when redoing the same run for for instance break on last run synchronization.
         /// </summary>
-        public void SetRunDoneOnce()
+        public void IncreaseRunResults()
         {
             _runDoneOnce = true;
-        }
-        public void IncrementExtraLogEntriesProcessed()
-        {
-            Interlocked.Increment(ref _extraLogEntriesProcessed);
+            _runOffset += _baseUserCount;
+            _metrics.TotalLogEntries += _baseLogEntryCount;
+
+            UserResult[] increasedUserResults = new UserResult[UserResults.Length + _baseUserCount];
+            for (int i = 0; i != UserResults.LongLength; i++)
+                increasedUserResults[i] = UserResults[i];
+
+            for (int i = UserResults.Length; i != increasedUserResults.Length; i++)
+                increasedUserResults[i] = new UserResult(_singleUserLogEntryCount);
+
+            UserResults = increasedUserResults;
         }
         public void RefreshLogEntryResultMetrics()
         {
@@ -1424,13 +1446,6 @@ namespace vApus.Stresstest
                 _metrics.TotalLogEntriesProcessedPerTick += resultLogEntriesProcessedPerTick;
                 _metrics.Errors += resultErrors;
             }
-
-            ulong totalAndExtraLogEntriesProcessed = _metrics.TotalLogEntriesProcessed + (ulong)_extraLogEntriesProcessed;
-            //Can be the case with break on last run sync.
-            if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
-                _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
-
-            _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
 
             if (enteredUserResultsCount != 0)
             {
@@ -2006,7 +2021,7 @@ namespace vApus.Stresstest
                 }
                 catch (Exception ex)
                 {
-                    Exception = new Exception("The real exception could not be read because a connection proxy prerequisite is missing:\n" +ex.ToString());
+                    Exception = new Exception("The real exception could not be read because a connection proxy prerequisite is missing:\n" + ex.ToString());
                 }
             }
         }

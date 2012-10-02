@@ -387,9 +387,9 @@ namespace vApus.Stresstest
                         {
                             SetRunDoneOnce();
 
-                            InvokeMessage("Initializing Rerun... (No further results will be added, only rerunning to keep load on the server and application. However the processed log entries value will increase.)");
-                            //No results can be added.
-                            _stresstestResults.SetCurrentRunDoneOnce();
+                            InvokeMessage("Initializing Rerun...");
+                            //Increase resultset
+                            _stresstestResults.IncreaseRunResults();
                             goto Rerun;
                         }
 
@@ -782,18 +782,9 @@ namespace vApus.Stresstest
                 finally
                 {
                     UserResult result = runResult[threadIndex];
+                    result.User = Thread.CurrentThread.Name;
+                    result.SetLogEntryResultAt(testableLogEntryIndex, new LogEntryResult(testableLogEntry.LogEntryIndex, testableLogEntry.ParameterizedLogEntryString, testableLogEntry.UserActionIndex, testableLogEntry.UserAction, sentAt, timeToLastByte, delay, exception));
 
-                    //Meaning if run done once (run sync break on last)
-                    //In that case just increase the numer of done log entries.
-                    if (result == null)
-                    {
-                        runResult.IncrementExtraLogEntriesProcessed();
-                    }
-                    else
-                    {
-                        result.User = Thread.CurrentThread.Name;
-                        result.SetLogEntryResultAt(testableLogEntryIndex, new LogEntryResult(testableLogEntry.LogEntryIndex, testableLogEntry.ParameterizedLogEntryString, testableLogEntry.UserActionIndex, testableLogEntry.UserAction, sentAt, timeToLastByte, delay, exception));
-                    }
 
                     if (delay != 0 && !(stresstestCore._cancel || stresstestCore._break))
                         sleepWaitHandle.WaitOne(delay);
