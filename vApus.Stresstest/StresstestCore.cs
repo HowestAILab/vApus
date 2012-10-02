@@ -296,9 +296,6 @@ namespace vApus.Stresstest
         }
         public StresstestResult ExecuteStresstest()
         {
-            _cancel = false;
-            _failed = false;
-
             //No run started yet.
             _continueCounter = -1;
             SetStresstestStarted();
