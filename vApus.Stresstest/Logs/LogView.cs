@@ -614,7 +614,7 @@ namespace vApus.Stresstest
 
                 ProxyHelper.UnsetProxy();
 
-                if (!File.Exists(logPath))
+                if (!File.Exists(logPath) || lupusProcess.ExitCode != 0)
                     return;
 
                 bool aoc = _log.LogRuleSet.ActionizeOnComment;
