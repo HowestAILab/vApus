@@ -614,7 +614,9 @@ namespace vApus.Stresstest
         }
         private void MakeReportForAveragesPivotConcurrentUsersLER(ConcurrentUsersResult cr, LogEntryResult ler, Metrics metrics)
         {
-            object[] row = {
+            if (!ler.Empty)
+            {
+                object[] row = {
                            string.Empty,
                            string.Empty,
                            (tbtnConcurrentUsers.Checked || tbtnUserAction.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
@@ -632,7 +634,8 @@ namespace vApus.Stresstest
                            metrics.Errors
                            };
 
-            AddToCache(row);
+                AddToCache(row);
+            }
         }
 
         private void MakeReportForAveragesPivotPrecision()
@@ -737,7 +740,9 @@ namespace vApus.Stresstest
         }
         private void MakeReportForAveragesPivotPrecisionLER(ConcurrentUsersResult cr, PrecisionResult pr, LogEntryResult ler, Metrics metrics)
         {
-            object[] row = { 
+            if (!ler.Empty)
+            {
+                object[] row = { 
                            string.Empty,
                            string.Empty,
                            (tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnUserAction.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
@@ -755,7 +760,8 @@ namespace vApus.Stresstest
                            metrics.Errors
                            };
 
-            AddToCache(row);
+                AddToCache(row);
+            }
         }
 
         private void MakeReportForAveragesPivotRun()
@@ -866,7 +872,9 @@ namespace vApus.Stresstest
         }
         private void MakeReportForAveragesPivotRunLER(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, LogEntryResult ler, Metrics metrics)
         {
-            object[] row = { 
+            if (!ler.Empty)
+            {
+                object[] row = { 
                            string.Empty,
                            string.Empty,
                            (tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnRun.Checked || tbtnUserAction.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
@@ -884,7 +892,8 @@ namespace vApus.Stresstest
                            metrics.Errors
                            };
 
-            AddToCache(row);
+                AddToCache(row);
+            }
         }
         #endregion
 
@@ -1055,7 +1064,9 @@ namespace vApus.Stresstest
         }
         private void MakeReportForUsersUARLER(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur, UserActionResult userActionResult, LogEntryResult logEntryResult)
         {
-            object[] row = { 
+            if (!logEntryResult.Empty)
+            {
+                object[] row = { 
                            logEntryResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                            string.Empty,
                            string.Empty,
@@ -1073,13 +1084,16 @@ namespace vApus.Stresstest
                            ((logEntryResult.Exception == null) ? string.Empty : logEntryResult.Exception.ToString().Replace("\n", VBLRn).Replace("\r", VBLRr))
                            };
 
-            AddToCache(row);
+                AddToCache(row);
+            }
         }
         private void MakeReportForUsersLER(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur, LogEntryResult logEntryResult)
         {
-            object[] row = null;
-            if (tbtnUser.Checked)
-                row = new object[] {
+            if (!logEntryResult.Empty)
+            {
+                object[] row = null;
+                if (tbtnUser.Checked)
+                    row = new object[] {
                                    logEntryResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                                    string.Empty,
                                    cr.ConcurrentUsers,
@@ -1096,8 +1110,8 @@ namespace vApus.Stresstest
                                    logEntryResult.DelayInMilliseconds,
                                    ((logEntryResult.Exception == null) ? string.Empty : logEntryResult.Exception.ToString().Replace("\n", VBLRn).Replace("\r", VBLRr))
                                    };
-            else
-                row = new object[] {
+                else
+                    row = new object[] {
                                    logEntryResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                                    string.Empty,
                                    cr.ConcurrentUsers,
@@ -1114,7 +1128,8 @@ namespace vApus.Stresstest
                                    logEntryResult.DelayInMilliseconds,
                                    ((logEntryResult.Exception == null) ? string.Empty : logEntryResult.Exception.ToString().Replace("\n", VBLRn).Replace("\r", VBLRr))
                                    };
-            AddToCache(row);
+                AddToCache(row);
+            }
         }
         #endregion
 

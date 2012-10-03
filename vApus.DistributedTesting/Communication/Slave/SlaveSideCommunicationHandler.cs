@@ -60,9 +60,8 @@ namespace vApus.DistributedTesting
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show(ex.ToString(), "Communication error");
+                LogWrapper.LogByLevel("Communication error:\n" + ex.ToString(), LogLevel.Error);
             }
-            //'Communication error' in here?
             return message;
         }
         private static Message<Key> HandlePoll(Message<Key> message)
