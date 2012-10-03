@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StresstestControl));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnl = new System.Windows.Forms.Panel();
@@ -58,18 +59,18 @@
             this.lblUpdatesIn = new System.Windows.Forms.Label();
             this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
-            this.kvmStresstest = new vApus.Util.KeyValuePairControl();
-            this.kvmConnection = new vApus.Util.KeyValuePairControl();
-            this.kvmConnectionProxy = new vApus.Util.KeyValuePairControl();
-            this.kvmLog = new vApus.Util.KeyValuePairControl();
-            this.kvmLogRuleSet = new vApus.Util.KeyValuePairControl();
+            this.kvpStresstest = new vApus.Util.KeyValuePairControl();
+            this.kvpConnection = new vApus.Util.KeyValuePairControl();
+            this.kvpConnectionProxy = new vApus.Util.KeyValuePairControl();
+            this.kvpLog = new vApus.Util.KeyValuePairControl();
+            this.kvpLogRuleSet = new vApus.Util.KeyValuePairControl();
             this.btnMonitor = new System.Windows.Forms.Button();
-            this.kvmConcurrentUsers = new vApus.Util.KeyValuePairControl();
-            this.kvmPrecision = new vApus.Util.KeyValuePairControl();
-            this.kvmDynamicRunMultiplier = new vApus.Util.KeyValuePairControl();
-            this.kvmDelay = new vApus.Util.KeyValuePairControl();
-            this.kvmShuffle = new vApus.Util.KeyValuePairControl();
-            this.kvmDistribute = new vApus.Util.KeyValuePairControl();
+            this.kvpConcurrentUsers = new vApus.Util.KeyValuePairControl();
+            this.kvpPrecision = new vApus.Util.KeyValuePairControl();
+            this.kvpDynamicRunMultiplier = new vApus.Util.KeyValuePairControl();
+            this.kvpDelay = new vApus.Util.KeyValuePairControl();
+            this.kvpShuffle = new vApus.Util.KeyValuePairControl();
+            this.kvpDistribute = new vApus.Util.KeyValuePairControl();
             this.epnlMessages = new vApus.Util.EventPanel();
             this.flpMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -80,6 +81,9 @@
             this.kvmNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnExport = new System.Windows.Forms.Button();
+            this.kvpMonitorBefore = new vApus.Util.KeyValuePairControl();
+            this.kvpMonitorAfter = new vApus.Util.KeyValuePairControl();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -380,18 +384,20 @@
             this.flpConfiguration.AutoScroll = true;
             this.flpConfiguration.BackColor = System.Drawing.Color.White;
             this.flpConfiguration.Controls.Add(this.label3);
-            this.flpConfiguration.Controls.Add(this.kvmStresstest);
-            this.flpConfiguration.Controls.Add(this.kvmConnection);
-            this.flpConfiguration.Controls.Add(this.kvmConnectionProxy);
-            this.flpConfiguration.Controls.Add(this.kvmLog);
-            this.flpConfiguration.Controls.Add(this.kvmLogRuleSet);
+            this.flpConfiguration.Controls.Add(this.kvpStresstest);
+            this.flpConfiguration.Controls.Add(this.kvpConnection);
+            this.flpConfiguration.Controls.Add(this.kvpConnectionProxy);
+            this.flpConfiguration.Controls.Add(this.kvpLog);
+            this.flpConfiguration.Controls.Add(this.kvpLogRuleSet);
             this.flpConfiguration.Controls.Add(this.btnMonitor);
-            this.flpConfiguration.Controls.Add(this.kvmConcurrentUsers);
-            this.flpConfiguration.Controls.Add(this.kvmPrecision);
-            this.flpConfiguration.Controls.Add(this.kvmDynamicRunMultiplier);
-            this.flpConfiguration.Controls.Add(this.kvmDelay);
-            this.flpConfiguration.Controls.Add(this.kvmShuffle);
-            this.flpConfiguration.Controls.Add(this.kvmDistribute);
+            this.flpConfiguration.Controls.Add(this.kvpConcurrentUsers);
+            this.flpConfiguration.Controls.Add(this.kvpPrecision);
+            this.flpConfiguration.Controls.Add(this.kvpDynamicRunMultiplier);
+            this.flpConfiguration.Controls.Add(this.kvpDelay);
+            this.flpConfiguration.Controls.Add(this.kvpShuffle);
+            this.flpConfiguration.Controls.Add(this.kvpDistribute);
+            this.flpConfiguration.Controls.Add(this.kvpMonitorBefore);
+            this.flpConfiguration.Controls.Add(this.kvpMonitorAfter);
             this.flpConfiguration.Location = new System.Drawing.Point(0, 0);
             this.flpConfiguration.Name = "flpConfiguration";
             this.flpConfiguration.Size = new System.Drawing.Size(897, 105);
@@ -409,70 +415,70 @@
             this.label3.TabIndex = 16;
             this.label3.Text = "Configuration";
             // 
-            // kvmStresstest
+            // kvpStresstest
             // 
-            this.kvmStresstest.BackColor = System.Drawing.Color.LightBlue;
-            this.kvmStresstest.Key = "Stresstest";
-            this.kvmStresstest.Location = new System.Drawing.Point(116, 6);
-            this.kvmStresstest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmStresstest.Name = "kvmStresstest";
-            this.kvmStresstest.Size = new System.Drawing.Size(69, 24);
-            this.kvmStresstest.TabIndex = 14;
-            this.kvmStresstest.TabStop = false;
-            this.kvmStresstest.Tooltip = "";
-            this.kvmStresstest.Value = "";
+            this.kvpStresstest.BackColor = System.Drawing.Color.LightBlue;
+            this.kvpStresstest.Key = "Stresstest";
+            this.kvpStresstest.Location = new System.Drawing.Point(116, 6);
+            this.kvpStresstest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpStresstest.Name = "kvpStresstest";
+            this.kvpStresstest.Size = new System.Drawing.Size(69, 24);
+            this.kvpStresstest.TabIndex = 14;
+            this.kvpStresstest.TabStop = false;
+            this.kvpStresstest.Tooltip = "";
+            this.kvpStresstest.Value = "";
             // 
-            // kvmConnection
+            // kvpConnection
             // 
-            this.kvmConnection.BackColor = System.Drawing.Color.LightBlue;
-            this.kvmConnection.Key = "Connection";
-            this.kvmConnection.Location = new System.Drawing.Point(188, 6);
-            this.kvmConnection.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmConnection.Name = "kvmConnection";
-            this.kvmConnection.Size = new System.Drawing.Size(77, 24);
-            this.kvmConnection.TabIndex = 8;
-            this.kvmConnection.TabStop = false;
-            this.kvmConnection.Tooltip = "The connection to the application to test.";
-            this.kvmConnection.Value = "";
+            this.kvpConnection.BackColor = System.Drawing.Color.LightBlue;
+            this.kvpConnection.Key = "Connection";
+            this.kvpConnection.Location = new System.Drawing.Point(188, 6);
+            this.kvpConnection.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpConnection.Name = "kvpConnection";
+            this.kvpConnection.Size = new System.Drawing.Size(77, 24);
+            this.kvpConnection.TabIndex = 8;
+            this.kvpConnection.TabStop = false;
+            this.kvpConnection.Tooltip = "The connection to the application to test.";
+            this.kvpConnection.Value = "";
             // 
-            // kvmConnectionProxy
+            // kvpConnectionProxy
             // 
-            this.kvmConnectionProxy.BackColor = System.Drawing.SystemColors.Control;
-            this.kvmConnectionProxy.Key = "Connection Proxy";
-            this.kvmConnectionProxy.Location = new System.Drawing.Point(268, 6);
-            this.kvmConnectionProxy.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmConnectionProxy.Name = "kvmConnectionProxy";
-            this.kvmConnectionProxy.Size = new System.Drawing.Size(112, 24);
-            this.kvmConnectionProxy.TabIndex = 15;
-            this.kvmConnectionProxy.TabStop = false;
-            this.kvmConnectionProxy.Tooltip = "This is used in and defines the connection.";
-            this.kvmConnectionProxy.Value = "";
+            this.kvpConnectionProxy.BackColor = System.Drawing.SystemColors.Control;
+            this.kvpConnectionProxy.Key = "Connection Proxy";
+            this.kvpConnectionProxy.Location = new System.Drawing.Point(268, 6);
+            this.kvpConnectionProxy.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpConnectionProxy.Name = "kvpConnectionProxy";
+            this.kvpConnectionProxy.Size = new System.Drawing.Size(112, 24);
+            this.kvpConnectionProxy.TabIndex = 15;
+            this.kvpConnectionProxy.TabStop = false;
+            this.kvpConnectionProxy.Tooltip = "This is used in and defines the connection.";
+            this.kvpConnectionProxy.Value = "";
             // 
-            // kvmLog
+            // kvpLog
             // 
-            this.kvmLog.BackColor = System.Drawing.Color.LightBlue;
-            this.kvmLog.Key = "Log";
-            this.kvmLog.Location = new System.Drawing.Point(383, 6);
-            this.kvmLog.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmLog.Name = "kvmLog";
-            this.kvmLog.Size = new System.Drawing.Size(34, 24);
-            this.kvmLog.TabIndex = 8;
-            this.kvmLog.TabStop = false;
-            this.kvmLog.Tooltip = "The log used to test the application.";
-            this.kvmLog.Value = "";
+            this.kvpLog.BackColor = System.Drawing.Color.LightBlue;
+            this.kvpLog.Key = "Log";
+            this.kvpLog.Location = new System.Drawing.Point(383, 6);
+            this.kvpLog.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpLog.Name = "kvpLog";
+            this.kvpLog.Size = new System.Drawing.Size(34, 24);
+            this.kvpLog.TabIndex = 8;
+            this.kvpLog.TabStop = false;
+            this.kvpLog.Tooltip = "The log used to test the application.";
+            this.kvpLog.Value = "";
             // 
-            // kvmLogRuleSet
+            // kvpLogRuleSet
             // 
-            this.kvmLogRuleSet.BackColor = System.Drawing.SystemColors.Control;
-            this.kvmLogRuleSet.Key = "Log Rule Set";
-            this.kvmLogRuleSet.Location = new System.Drawing.Point(420, 6);
-            this.kvmLogRuleSet.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmLogRuleSet.Name = "kvmLogRuleSet";
-            this.kvmLogRuleSet.Size = new System.Drawing.Size(87, 24);
-            this.kvmLogRuleSet.TabIndex = 17;
-            this.kvmLogRuleSet.TabStop = false;
-            this.kvmLogRuleSet.Tooltip = "This is used in and defines the log entries.";
-            this.kvmLogRuleSet.Value = "";
+            this.kvpLogRuleSet.BackColor = System.Drawing.SystemColors.Control;
+            this.kvpLogRuleSet.Key = "Log Rule Set";
+            this.kvpLogRuleSet.Location = new System.Drawing.Point(420, 6);
+            this.kvpLogRuleSet.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpLogRuleSet.Name = "kvpLogRuleSet";
+            this.kvpLogRuleSet.Size = new System.Drawing.Size(87, 24);
+            this.kvpLogRuleSet.TabIndex = 17;
+            this.kvpLogRuleSet.TabStop = false;
+            this.kvpLogRuleSet.Tooltip = "This is used in and defines the log entries.";
+            this.kvpLogRuleSet.Value = "";
             // 
             // btnMonitor
             // 
@@ -488,93 +494,94 @@
             this.btnMonitor.Size = new System.Drawing.Size(73, 24);
             this.btnMonitor.TabIndex = 18;
             this.btnMonitor.Text = "Monitor...";
+            this.toolTip.SetToolTip(this.btnMonitor, "The monitors used to link stresstest results to performance counters. Maximum 5 a" +
+        "llowed.");
             this.btnMonitor.UseVisualStyleBackColor = false;
             this.btnMonitor.Click += new System.EventHandler(this.btnMonitor_Click);
             // 
-            // kvmConcurrentUsers
+            // kvpConcurrentUsers
             // 
-            this.kvmConcurrentUsers.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmConcurrentUsers.Key = "Concurrent Users";
-            this.kvmConcurrentUsers.Location = new System.Drawing.Point(595, 6);
-            this.kvmConcurrentUsers.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
-            this.kvmConcurrentUsers.Name = "kvmConcurrentUsers";
-            this.kvmConcurrentUsers.Size = new System.Drawing.Size(111, 24);
-            this.kvmConcurrentUsers.TabIndex = 8;
-            this.kvmConcurrentUsers.TabStop = false;
-            this.kvmConcurrentUsers.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
+            this.kvpConcurrentUsers.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpConcurrentUsers.Key = "Concurrent Users";
+            this.kvpConcurrentUsers.Location = new System.Drawing.Point(595, 6);
+            this.kvpConcurrentUsers.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
+            this.kvpConcurrentUsers.Name = "kvpConcurrentUsers";
+            this.kvpConcurrentUsers.Size = new System.Drawing.Size(111, 24);
+            this.kvpConcurrentUsers.TabIndex = 8;
+            this.kvpConcurrentUsers.TabStop = false;
+            this.kvpConcurrentUsers.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
     "e.";
-            this.kvmConcurrentUsers.Value = "";
+            this.kvpConcurrentUsers.Value = "";
             // 
-            // kvmPrecision
+            // kvpPrecision
             // 
-            this.kvmPrecision.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmPrecision.Key = "Precision";
-            this.kvmPrecision.Location = new System.Drawing.Point(709, 6);
-            this.kvmPrecision.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmPrecision.Name = "kvmPrecision";
-            this.kvmPrecision.Size = new System.Drawing.Size(65, 24);
-            this.kvmPrecision.TabIndex = 8;
-            this.kvmPrecision.TabStop = false;
-            this.kvmPrecision.Tooltip = "A static multiplier of the runtime for each concurrency level. Must be greater th" +
+            this.kvpPrecision.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpPrecision.Key = "Precision";
+            this.kvpPrecision.Location = new System.Drawing.Point(709, 6);
+            this.kvpPrecision.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpPrecision.Name = "kvpPrecision";
+            this.kvpPrecision.Size = new System.Drawing.Size(65, 24);
+            this.kvpPrecision.TabIndex = 8;
+            this.kvpPrecision.TabStop = false;
+            this.kvpPrecision.Tooltip = "A static multiplier of the runtime for each concurrency level. Must be greater th" +
     "an zero.";
-            this.kvmPrecision.Value = "";
+            this.kvpPrecision.Value = "";
             // 
-            // kvmDynamicRunMultiplier
+            // kvpDynamicRunMultiplier
             // 
-            this.kvmDynamicRunMultiplier.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmDynamicRunMultiplier.Key = "Dynamic Run Multiplier";
-            this.kvmDynamicRunMultiplier.Location = new System.Drawing.Point(3, 39);
-            this.kvmDynamicRunMultiplier.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmDynamicRunMultiplier.Name = "kvmDynamicRunMultiplier";
-            this.kvmDynamicRunMultiplier.Size = new System.Drawing.Size(143, 24);
-            this.kvmDynamicRunMultiplier.TabIndex = 8;
-            this.kvmDynamicRunMultiplier.TabStop = false;
-            this.kvmDynamicRunMultiplier.Tooltip = resources.GetString("kvmDynamicRunMultiplier.Tooltip");
-            this.kvmDynamicRunMultiplier.Value = "";
+            this.kvpDynamicRunMultiplier.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpDynamicRunMultiplier.Key = "Dynamic Run Multiplier";
+            this.kvpDynamicRunMultiplier.Location = new System.Drawing.Point(3, 39);
+            this.kvpDynamicRunMultiplier.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpDynamicRunMultiplier.Name = "kvpDynamicRunMultiplier";
+            this.kvpDynamicRunMultiplier.Size = new System.Drawing.Size(143, 24);
+            this.kvpDynamicRunMultiplier.TabIndex = 8;
+            this.kvpDynamicRunMultiplier.TabStop = false;
+            this.kvpDynamicRunMultiplier.Tooltip = resources.GetString("kvpDynamicRunMultiplier.Tooltip");
+            this.kvpDynamicRunMultiplier.Value = "";
             // 
-            // kvmDelay
+            // kvpDelay
             // 
-            this.kvmDelay.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmDelay.Key = "Delay";
-            this.kvmDelay.Location = new System.Drawing.Point(149, 39);
-            this.kvmDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmDelay.Name = "kvmDelay";
-            this.kvmDelay.Size = new System.Drawing.Size(45, 24);
-            this.kvmDelay.TabIndex = 9;
-            this.kvmDelay.TabStop = false;
-            this.kvmDelay.Tooltip = "The delay in milliseconds between the execution of log entries per user.\nKeep thi" +
-    "s and zero to have an ASAP test.";
-            this.kvmDelay.Value = "";
+            this.kvpDelay.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpDelay.Key = "Delay";
+            this.kvpDelay.Location = new System.Drawing.Point(149, 39);
+            this.kvpDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpDelay.Name = "kvpDelay";
+            this.kvpDelay.Size = new System.Drawing.Size(45, 24);
+            this.kvpDelay.TabIndex = 9;
+            this.kvpDelay.TabStop = false;
+            this.kvpDelay.Tooltip = "The delay in milliseconds between the execution of log entries per user.\r\nKeep th" +
+    "is zero to have an ASAP test.";
+            this.kvpDelay.Value = "";
             // 
-            // kvmShuffle
+            // kvpShuffle
             // 
-            this.kvmShuffle.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmShuffle.Key = "Shuffle";
-            this.kvmShuffle.Location = new System.Drawing.Point(197, 39);
-            this.kvmShuffle.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmShuffle.Name = "kvmShuffle";
-            this.kvmShuffle.Size = new System.Drawing.Size(53, 24);
-            this.kvmShuffle.TabIndex = 10;
-            this.kvmShuffle.TabStop = false;
-            this.kvmShuffle.Tooltip = "The actions and loose log entries will be shuffled for each concurrent user when " +
-    "testing, creating unique usage patterns.\nObligatory for Fast Action and Log Entr" +
-    "y Distribution.";
-            this.kvmShuffle.Value = "";
+            this.kvpShuffle.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpShuffle.Key = "Shuffle";
+            this.kvpShuffle.Location = new System.Drawing.Point(197, 39);
+            this.kvpShuffle.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpShuffle.Name = "kvpShuffle";
+            this.kvpShuffle.Size = new System.Drawing.Size(53, 24);
+            this.kvpShuffle.TabIndex = 10;
+            this.kvpShuffle.TabStop = false;
+            this.kvpShuffle.Tooltip = "The actions and loose log entries will be shuffled for each concurrent user when " +
+    "testing, creating unique usage patterns.";
+            this.kvpShuffle.Value = "";
             // 
-            // kvmDistribute
+            // kvpDistribute
             // 
-            this.kvmDistribute.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmDistribute.Key = "Distribute";
-            this.kvmDistribute.Location = new System.Drawing.Point(253, 39);
-            this.kvmDistribute.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvmDistribute.Name = "kvmDistribute";
-            this.kvmDistribute.Size = new System.Drawing.Size(67, 24);
-            this.kvmDistribute.TabIndex = 10;
-            this.kvmDistribute.TabStop = false;
-            this.kvmDistribute.Tooltip = "Action and Loose Log Entry Distribution\nFast: The length of the log stays the sam" +
+            this.kvpDistribute.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpDistribute.Key = "Distribute";
+            this.kvpDistribute.Location = new System.Drawing.Point(253, 39);
+            this.kvpDistribute.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpDistribute.Name = "kvpDistribute";
+            this.kvpDistribute.Size = new System.Drawing.Size(67, 24);
+            this.kvpDistribute.TabIndex = 10;
+            this.kvpDistribute.TabStop = false;
+            this.kvpDistribute.Tooltip = "Action and Loose Log Entry Distribution\nFast: The length of the log stays the sam" +
     "e, entries are picked by chance based on the occurance.\nFull: entries are execut" +
     "ed X times the occurance.";
-            this.kvmDistribute.Value = "";
+            this.kvpDistribute.Value = "";
             // 
             // epnlMessages
             // 
@@ -725,6 +732,33 @@
             this.btnExport.UseVisualStyleBackColor = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
+            // kvpMonitorBefore
+            // 
+            this.kvpMonitorBefore.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpMonitorBefore.Key = "Monitor Before";
+            this.kvpMonitorBefore.Location = new System.Drawing.Point(323, 39);
+            this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpMonitorBefore.Name = "kvpMonitorBefore";
+            this.kvpMonitorBefore.Size = new System.Drawing.Size(96, 24);
+            this.kvpMonitorBefore.TabIndex = 19;
+            this.kvpMonitorBefore.TabStop = false;
+            this.kvpMonitorBefore.Tooltip = "Start monitoring before the test starts, expressed in minutes with a max of 60.";
+            this.kvpMonitorBefore.Value = "";
+            // 
+            // kvpMonitorAfter
+            // 
+            this.kvpMonitorAfter.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpMonitorAfter.Key = "Monitor After";
+            this.kvpMonitorAfter.Location = new System.Drawing.Point(422, 39);
+            this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpMonitorAfter.Name = "kvpMonitorAfter";
+            this.kvpMonitorAfter.Size = new System.Drawing.Size(86, 24);
+            this.kvpMonitorAfter.TabIndex = 20;
+            this.kvpMonitorAfter.TabStop = false;
+            this.kvpMonitorAfter.Tooltip = "Continue monitoring after the test is finished, expressed in minutes with a max o" +
+    "f 60.";
+            this.kvpMonitorAfter.Value = "";
+            // 
             // StresstestControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -758,16 +792,16 @@
         private System.Windows.Forms.Panel pnl;
         private System.Windows.Forms.FlowLayoutPanel flpConfiguration;
         private System.Windows.Forms.Label label3;
-        private vApus.Util.KeyValuePairControl kvmStresstest;
-        private vApus.Util.KeyValuePairControl kvmConnection;
-        private vApus.Util.KeyValuePairControl kvmConnectionProxy;
-        private vApus.Util.KeyValuePairControl kvmLog;
-        private vApus.Util.KeyValuePairControl kvmConcurrentUsers;
-        private vApus.Util.KeyValuePairControl kvmPrecision;
-        private vApus.Util.KeyValuePairControl kvmDynamicRunMultiplier;
-        private vApus.Util.KeyValuePairControl kvmDelay;
-        private vApus.Util.KeyValuePairControl kvmShuffle;
-        private vApus.Util.KeyValuePairControl kvmDistribute;
+        private vApus.Util.KeyValuePairControl kvpStresstest;
+        private vApus.Util.KeyValuePairControl kvpConnection;
+        private vApus.Util.KeyValuePairControl kvpConnectionProxy;
+        private vApus.Util.KeyValuePairControl kvpLog;
+        private vApus.Util.KeyValuePairControl kvpConcurrentUsers;
+        private vApus.Util.KeyValuePairControl kvpPrecision;
+        private vApus.Util.KeyValuePairControl kvpDynamicRunMultiplier;
+        private vApus.Util.KeyValuePairControl kvpDelay;
+        private vApus.Util.KeyValuePairControl kvpShuffle;
+        private vApus.Util.KeyValuePairControl kvpDistribute;
         private System.Windows.Forms.Panel pnlFastResultListing;
         private System.Windows.Forms.FlowLayoutPanel flpFastMetrics;
         private System.Windows.Forms.Label label1;
@@ -799,11 +833,14 @@
         private vApus.Util.KeyValuePairControl kvmMemoryUsage;
         private vApus.Util.KeyValuePairControl kvmNicsSent;
         private vApus.Util.KeyValuePairControl kvmNicsReceived;
-        private vApus.Util.KeyValuePairControl kvmLogRuleSet;
+        private vApus.Util.KeyValuePairControl kvpLogRuleSet;
         private Util.EventPanel epnlMessages;
         private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.Button btnMonitor;
         private System.Windows.Forms.Button btnRerunning;
         private System.Windows.Forms.Panel pnlBorderDrillDown;
+        private Util.KeyValuePairControl kvpMonitorBefore;
+        private Util.KeyValuePairControl kvpMonitorAfter;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

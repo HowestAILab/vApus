@@ -426,6 +426,9 @@ namespace vApus.Stresstest
                             {
                                 LogWrapper.LogByLevel(view.Text + " is not started.\n" + e.ToString(), LogLevel.Error);
                                 stresstestControl.AppendMessages(view.Text + " is not started.");
+
+                                try { view.Stop(); }
+                                catch { }
                             }
                             catch { }
                         }
@@ -579,7 +582,6 @@ namespace vApus.Stresstest
         private void Stop(Exception ex = null, bool monitorAfter = false)
         {
             Cursor = Cursors.WaitCursor;
-
 
             if (!monitorAfter)
                 StopMonitors();
