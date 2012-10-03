@@ -42,10 +42,6 @@ namespace vApus.Stresstest
             }
         }
 
-        private void _connectionProxy_ParentIsNull(object sender, EventArgs e)
-        {
-            ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
-        }
         [SavableCloneable(true)]
         [DisplayName("Connection String")]
         [ReadOnly(true), Browsable(false)]
@@ -109,6 +105,11 @@ namespace vApus.Stresstest
         #endregion
 
         #region Functions
+        private void _connectionProxy_ParentIsNull(object sender, EventArgs e)
+        {
+            ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+        }
+
         /// <summary>
         /// Build and returns a new connection proxy class. 
         /// </summary>

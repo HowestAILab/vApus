@@ -93,11 +93,14 @@ namespace vApus.Stresstest
         public Log()
         {
             if (Solution.ActiveSolution != null)
+            {
                 LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+                _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            }
             else
+            {
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
-
-            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+            }
         }
 
         /// <summary>
@@ -134,11 +137,6 @@ namespace vApus.Stresstest
         private void _logRuleSet_ParentIsNull(object sender, EventArgs e)
         {
             LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
-        }
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            if (sender is LogRuleSets)
-                LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
         public override void Activate()
         {
