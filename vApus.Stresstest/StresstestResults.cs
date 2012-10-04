@@ -1237,10 +1237,8 @@ namespace vApus.Stresstest
         /// Set if the run was finished once. (Meaning the result set can not grow anymore (run sync break on last)).
         /// </summary>
         private bool _runDoneOnce;
-        private int _runOffset;
         private Dictionary<DateTime, DateTime> _runStartedAndStopped = new Dictionary<DateTime, DateTime>();
         public UserResult[] UserResults;
-        public int _baseUserCount;
         #endregion
 
         #region Properties
@@ -1258,7 +1256,7 @@ namespace vApus.Stresstest
         {
             get
             {
-                return UserResults[_runOffset + index];
+                return UserResults[index];
             }
         }
         public TimeSpan EstimatedRuntimeLeft
@@ -1348,7 +1346,6 @@ namespace vApus.Stresstest
             _run = run;
             _singleUserLogEntryCount = singleUserLogEntryCount;
             UserResults = new UserResult[users];
-            _baseUserCount = users;
             for (int i = 0; i < users; i++)
                 UserResults[i] = new UserResult(_singleUserLogEntryCount);
 
@@ -1401,17 +1398,11 @@ namespace vApus.Stresstest
         public void IncreaseRunResults()
         {
             _runDoneOnce = true;
-            _runOffset += _baseUserCount;
+
+            foreach (UserResult ur in UserResults)
+                ur.IncreaseRunResults();
+
             _metrics.TotalLogEntries += _baseLogEntryCount;
-
-            UserResult[] increasedUserResults = new UserResult[UserResults.Length + _baseUserCount];
-            for (int i = 0; i != UserResults.LongLength; i++)
-                increasedUserResults[i] = UserResults[i];
-
-            for (int i = UserResults.Length; i != increasedUserResults.Length; i++)
-                increasedUserResults[i] = new UserResult(_singleUserLogEntryCount);
-
-            UserResults = increasedUserResults;
         }
         public void RefreshLogEntryResultMetrics()
         {
@@ -1712,6 +1703,10 @@ namespace vApus.Stresstest
         /// Can contain null!
         /// </summary>
         public LogEntryResult[] LogEntryResults;
+
+        //For break on last.
+        private int _baseLogEntryCount;
+        public int _runOffset;
         #endregion
 
         /// <summary>
@@ -1735,12 +1730,12 @@ namespace vApus.Stresstest
                         if (!ler.Empty)
                         {
                             userActionResult = null;
-                            if (!UserActionResults.TryGetValue(ler.UserActionIndex, out userActionResult))
+                            if (!_userActionResults.TryGetValue(ler.UserActionIndex, out userActionResult))
                             {
                                 string userActionName = ler.UserAction;
                                 int userActionIndex = ler.UserActionIndex;
                                 userActionResult = new UserActionResult(userActionIndex, userActionName);
-                                UserActionResults.Add(userActionIndex, userActionResult);
+                                _userActionResults.Add(userActionIndex, userActionResult);
                             }
                             userActionResult.LogEntryResults.Add(ler);
                         }
@@ -1757,6 +1752,7 @@ namespace vApus.Stresstest
         public UserResult(int logEntryCount)
         {
             LogEntryResults = new LogEntryResult[logEntryCount];
+            _baseLogEntryCount = logEntryCount;
             for (int i = 0; i != LogEntryResults.Length; i++)
                 LogEntryResults[i] = new LogEntryResult();
         }
@@ -1780,6 +1776,22 @@ namespace vApus.Stresstest
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Used when redoing the same run for for instance break on last run synchronization.
+        /// </summary>
+        public void IncreaseRunResults()
+        {
+            _runOffset += _baseLogEntryCount;
+
+            LogEntryResult[] increasedLogEntryResults = new LogEntryResult[LogEntryResults.Length + _baseLogEntryCount];
+            for (int i = 0; i != LogEntryResults.LongLength; i++)
+                increasedLogEntryResults[i] = LogEntryResults[i];
+
+            for (int i = LogEntryResults.Length; i != increasedLogEntryResults.Length; i++)
+                increasedLogEntryResults[i] = new LogEntryResult();
+
+            LogEntryResults = increasedLogEntryResults;
+        }
         public void RefreshLogEntryResultMetrics()
         {
             CalculateLogEntryResultMetrics(out _averageTimeToLastByte,
@@ -1854,7 +1866,7 @@ namespace vApus.Stresstest
         }
         public void SetLogEntryResultAt(int index, LogEntryResult result)
         {
-            LogEntryResults[index] = result;
+            LogEntryResults[_runOffset + index] = result;
             ++_logEntriesProcessed;
         }
         public void GetObjectData(SerializationInfo info, StreamingContext context)
