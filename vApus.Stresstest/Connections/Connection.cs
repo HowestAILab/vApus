@@ -68,9 +68,15 @@ namespace vApus.Stresstest
         public Connection()
         {
             if (Solution.ActiveSolution != null)
+            {
                 ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+                if (_parameters == null)
+                    _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            }
             else
+            {
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+            }
         }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {

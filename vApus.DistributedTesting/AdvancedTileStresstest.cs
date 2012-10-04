@@ -167,7 +167,7 @@ namespace vApus.DistributedTesting
             set { _distribute = value; }
         }
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(8, true)]
+        [SavableCloneable, PropertyControl(8)]
         public uint MonitorBefore
         {
             get { return _monitorBefore; }
@@ -180,7 +180,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(9, true)]
+        [SavableCloneable, PropertyControl(9)]
         public uint MonitorAfter
         {
             get { return _monitorAfter; }
