@@ -113,7 +113,8 @@ namespace vApus.Stresstest
         #region Functions
         private void _connectionProxy_ParentIsNull(object sender, EventArgs e)
         {
-            ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+            if (_connectionProxy == sender)
+                ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
         }
 
         /// <summary>

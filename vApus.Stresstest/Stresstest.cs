@@ -377,11 +377,13 @@ namespace vApus.Stresstest
         }
         private void _connection_ParentIsNull(object sender, EventArgs e)
         {
-            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
+            if (_connection == sender)
+                Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
         }
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
-            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            if (_log == sender)
+                Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {

@@ -33,9 +33,9 @@ namespace vApus.DistributedTesting
             get { return _defaultAdvancedSettingsTo; }
             set
             {
-                value.ParentIsNull -= _defaultTo_ParentIsNull;
+                value.ParentIsNull -= _defaultAdvancedSettingsTo_ParentIsNull;
                 _defaultAdvancedSettingsTo = value;
-                _defaultAdvancedSettingsTo.ParentIsNull += new EventHandler(_defaultTo_ParentIsNull);
+                _defaultAdvancedSettingsTo.ParentIsNull += new EventHandler(_defaultAdvancedSettingsTo_ParentIsNull);
             }
         }
         [SavableCloneable]
@@ -103,13 +103,16 @@ namespace vApus.DistributedTesting
             _canDefaultAdvancedSettingsTo = true;
         }
 
-        private void _defaultTo_ParentIsNull(object sender, EventArgs e)
+        private void _defaultAdvancedSettingsTo_ParentIsNull(object sender, EventArgs e)
         {
-            DefaultAdvancedSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            if (_defaultAdvancedSettingsTo == sender)
             {
-                this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }, null);
+                DefaultAdvancedSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+                {
+                    this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                }, null);
+            }
         }
 
         public override string ToString()

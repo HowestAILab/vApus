@@ -218,7 +218,8 @@ namespace vApus.DistributedTesting
         }
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
-            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            if (_log == sender)
+                Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
