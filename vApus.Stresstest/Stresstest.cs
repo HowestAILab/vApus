@@ -70,6 +70,8 @@ namespace vApus.Stresstest
         {
             get
             {
+                if (_connection.IsEmpty)
+                    Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
 
                 if (_connection != null)
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
@@ -103,6 +105,9 @@ namespace vApus.Stresstest
         {
             get
             {
+                if (_log.IsEmpty)
+                    Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+
                 if (_log != null)
                     _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
 

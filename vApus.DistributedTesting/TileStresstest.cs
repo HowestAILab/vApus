@@ -30,7 +30,13 @@ namespace vApus.DistributedTesting
         [SavableCloneable]
         public Stresstest.Stresstest DefaultAdvancedSettingsTo
         {
-            get { return _defaultAdvancedSettingsTo; }
+            get
+            {
+                if (_defaultAdvancedSettingsTo.IsEmpty)
+                    DefaultAdvancedSettingsTo = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.StresstestProject))) as Stresstest.Stresstest;
+
+                return _defaultAdvancedSettingsTo;
+            }
             set
             {
                 value.ParentIsNull -= _defaultAdvancedSettingsTo_ParentIsNull;

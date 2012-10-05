@@ -40,7 +40,13 @@ namespace vApus.Stresstest
         [DisplayName("Log Rule Set"), Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
         public LogRuleSet LogRuleSet
         {
-            get { return _logRuleSet; }
+            get
+            {
+                if (_logRuleSet.IsEmpty)
+                    LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+
+                return _logRuleSet;
+            }
             set
             {
                 if (value == null)

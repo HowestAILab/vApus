@@ -31,7 +31,13 @@ namespace vApus.Stresstest
         [Description("To be able to connect to the application-to-test."), DisplayName("Connection Proxy")]
         public ConnectionProxy ConnectionProxy
         {
-            get { return _connectionProxy; }
+            get
+            {
+                if (_connectionProxy.IsEmpty)
+                    ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+
+                return _connectionProxy;
+            }
             set
             {
                 if (value == null)
@@ -125,7 +131,7 @@ namespace vApus.Stresstest
         {
             return _connectionProxy.BuildConnectionProxyClass(_connectionString);
         }
-       
+
         /// <summary>
         /// Only for sending from master to slave.
         /// </summary>

@@ -34,7 +34,12 @@ namespace vApus.DistributedTesting
             get
             {
                 if (_log != null)
+                {
+                    if (_log.IsEmpty)
+                        Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+
                     _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
+                }
 
                 return _log;
             }
