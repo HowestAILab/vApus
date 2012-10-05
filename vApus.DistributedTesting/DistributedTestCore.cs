@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -422,11 +423,30 @@ namespace vApus.DistributedTesting
                     }
                     InvokeOnTestProgressMessageReceived(ts, tpm);
 
+                    WriteRestProgress(ts, tpm);
+
                     if (Finished == _usedTileStresstests.Count)
                         HandleFinished();
                 }
                 catch { }
             }
+        }
+        private void WriteRestProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
+        {
+            Hashtable testProgressCache = new Hashtable(1);
+            foreach (var tcu in testProgressMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
+                foreach (var tpu in tcu.TilePrecisionProgressResults)
+                    foreach (var tru in tpu.TileRunProgressResults)
+                        vApus.REST.Convert.Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
+                                                     "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
+                                                     tileStresstest.BasicTileStresstest.Connection.Label,
+                                                     tcu.ConcurrentUsers, tpu.Precision + 1, tru.Run + 1,
+                                                     tru.Metrics,
+                                                     tru.EstimatedRuntimeLeft,
+                                                     testProgressMessage.RunStateChange,
+                                                     testProgressMessage.StresstestResult);
+
+            vApus.REST.Convert.Converter.WriteToFile(testProgressCache, "TestProgress");
         }
         private TileStresstest GetTileStresstest(string tileStresstestIndex)
         {
