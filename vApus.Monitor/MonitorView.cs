@@ -30,8 +30,6 @@ namespace vApus.Monitor
         public event EventHandler<ErrorEventArgs> OnHandledException, OnUnhandledException;
 
         #region Fields
-        //Keep de dialog here.
-        private LocalOrRemoteSMT _localOrRemoteSMT = new LocalOrRemoteSMT();
 
         //Point the solution component to here.
         private Monitor _monitor;
@@ -163,9 +161,6 @@ namespace vApus.Monitor
         private void InitMonitorView()
         {
             Text = SolutionComponent.ToString();
-            string ip = _localOrRemoteSMT.IP;
-            btnLocalOrRemoteSMT.Text = (ip == "127.0.0.1") ? "SMT: <local>" : "SMT: Remote at " + ip;
-
             if (SynchronizationContextWrapper.SynchronizationContext == null)
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
 
@@ -626,7 +621,6 @@ namespace vApus.Monitor
 
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
-            btnLocalOrRemoteSMT.Enabled = false;
 
             btnGetCounters.Text = "Getting Counters...";
             _activeObject.Send(_wdyhDel, _forStresstest);
@@ -688,7 +682,6 @@ namespace vApus.Monitor
                 }
                 split.Panel2.Enabled = true;
                 btnGetCounters.Enabled = true;
-                btnLocalOrRemoteSMT.Enabled = true;
                 propertyPanel.Unlock();
                 parameterPanel.Unlock();
 
@@ -787,7 +780,7 @@ namespace vApus.Monitor
             lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
             e.Item.Checked = itemChecked;
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
-            
+
             ExtractWIWForListViewAction();
         }
         private void ExtractWIWForListViewAction()
@@ -1157,54 +1150,6 @@ namespace vApus.Monitor
         {
             Stop();
         }
-
-#warning btnLocalOrRemoteSMT_Click Uitgeschakeld atm
-        private void btnLocalOrRemoteSMT_Click(object sender, EventArgs e)
-        {
-            //Set the Gui again, this will connect to smt.
-            if (_localOrRemoteSMT.ShowDialog() == DialogResult.OK)
-            {
-                if (_monitorProxy != null)
-                {
-                    try
-                    {
-                        Exception stopEx;
-                        _monitorProxy.Stop(out stopEx);
-                    }
-                    catch { }
-                    try { _monitorProxy.Dispose(); }
-                    catch { }
-                    _monitorProxy = null;
-                }
-                _monitor.Wiw.Clear();
-                tvwCounters.Nodes.Clear();
-                lvwEntities.Items.Clear();
-
-                btnStart.Enabled = false;
-                btnSchedule.Enabled = false;
-                btnConfiguration.Enabled = false;
-
-                int _monitorSourceIndex = _monitor.MonitorSourceIndex;
-                InitMonitorView();
-                try
-                {
-                    _monitor.MonitorSource = _monitor._monitorSources[_monitorSourceIndex];
-                }
-                catch { }
-
-                LockWindowUpdate(this.Handle.ToInt32());
-                try
-                {
-                    propertyPanel.SolutionComponent = null;
-                    propertyPanel.SolutionComponent = _monitor;
-                }
-                catch { throw; }
-                finally
-                {
-                    LockWindowUpdate(0);
-                }
-            }
-        }
         private void btnSaveAllMonitorCounters_Click(object sender, EventArgs e)
         {
             if (monitorControl.GetHeaders() != null && monitorControl.GetHeaders().Length != 0)
@@ -1323,7 +1268,6 @@ namespace vApus.Monitor
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
             btnStop.Enabled = true;
-            btnLocalOrRemoteSMT.Enabled = false;
 
             ExtendedSchedule schedule = btnSchedule.Tag as ExtendedSchedule;
             if (schedule != null && schedule.ScheduledAt > DateTime.Now)
@@ -1336,7 +1280,6 @@ namespace vApus.Monitor
             btnStop.Enabled = true;
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
-            btnLocalOrRemoteSMT.Enabled = false;
             tmrSchedule.Start();
         }
         private void tmrSchedule_Tick(object sender, EventArgs e)
@@ -1469,7 +1412,6 @@ namespace vApus.Monitor
                 btnStart.Enabled = true;
                 btnSchedule.Enabled = true;
                 btnStop.Enabled = false;
-                btnLocalOrRemoteSMT.Enabled = true;
 
                 lblCountDown.ForeColor = Color.Black;
                 lblCountDown.BackColor = Color.Orange;

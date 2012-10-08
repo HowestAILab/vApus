@@ -50,7 +50,6 @@
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
-            this.btnLocalOrRemoteSMT = new System.Windows.Forms.ToolStripButton();
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.split = new System.Windows.Forms.SplitContainer();
@@ -104,8 +103,7 @@
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnStart,
             this.btnSchedule,
-            this.btnStop,
-            this.btnLocalOrRemoteSMT});
+            this.btnStop});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.MinimumSize = new System.Drawing.Size(0, 40);
             this.toolStrip.Name = "toolStrip";
@@ -148,21 +146,6 @@
             this.btnStop.Size = new System.Drawing.Size(90, 37);
             this.btnStop.Text = "Stop";
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
-            // 
-            // btnLocalOrRemoteSMT
-            // 
-            this.btnLocalOrRemoteSMT.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.btnLocalOrRemoteSMT.Image = ((System.Drawing.Image)(resources.GetObject("btnLocalOrRemoteSMT.Image")));
-            this.btnLocalOrRemoteSMT.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.btnLocalOrRemoteSMT.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnLocalOrRemoteSMT.Margin = new System.Windows.Forms.Padding(6, 1, 0, 2);
-            this.btnLocalOrRemoteSMT.Name = "btnLocalOrRemoteSMT";
-            this.btnLocalOrRemoteSMT.Size = new System.Drawing.Size(98, 37);
-            this.btnLocalOrRemoteSMT.Text = "SMT: <local>";
-            this.btnLocalOrRemoteSMT.ToolTipText = "Use the local server monitoring binaries or connect to a remote vApus Server Moni" +
-                "toring Tool running somewhere in the network.";
-            this.btnLocalOrRemoteSMT.Visible = false;
-            this.btnLocalOrRemoteSMT.Click += new System.EventHandler(this.btnLocalOrRemoteSMT_Click);
             // 
             // tmrProgressDelayCountDown
             // 
@@ -676,7 +659,6 @@
         private System.Windows.Forms.Label lblCountDown;
         private System.Windows.Forms.ToolStripButton btnStop;
         private System.Windows.Forms.SplitContainer split;
-        private System.Windows.Forms.ToolStripButton btnLocalOrRemoteSMT;
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.ColumnHeader clmChosenCounters;
         private System.Windows.Forms.Label lblMonitorSourceMismatch;
