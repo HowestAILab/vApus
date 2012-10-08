@@ -597,12 +597,12 @@ namespace vApus.Stresstest
         private void btnRecord_Click(object sender, EventArgs e)
         {
             string jarPath = Path.Combine(Application.StartupPath, "Lupus-Proxy.jar");
-            string config = "--vapus -slupusProxyLog -d\"" + _log.LogRuleSet.ChildDelimiter + "\"";
+            string ips = _log.RecordIps.Length == 0 ? " " : _log.RecordIps.Combine(",");
+            string ports = _log.RecordPorts.Length == 0 ? " " : _log.RecordPorts.Combine(",");
 
-            if (_log.RecordIps.Length != 0)
-                config += " -f\"" + _log.RecordIps.Combine(",");
-            if (_log.RecordPorts.Length != 0)
-                config += "\" -p\"" + _log.RecordPorts.Combine(",") + "\"";
+            string config = "--vapus -slupusProxyLog -d\"" +
+                _log.LogRuleSet.ChildDelimiter +
+                "\" -f\"" + ips + "\" -p\"" + ports + "\"";
 
             if (File.Exists(jarPath))
             {
