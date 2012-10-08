@@ -1025,7 +1025,8 @@ namespace vApus.Monitor
             Entity entity = GetEntity(_monitor.Wiw, entityName);
 
             lvwiEntity.Checked = false;
-            foreach (TreeNode node in tvwCounters.Nodes)
+            TreeNode[] nodes = lvwiEntity.Tag as TreeNode[];
+            foreach (TreeNode node in nodes)
                 if (node.Checked)
                 {
                     lvwiEntity.Checked = true;
