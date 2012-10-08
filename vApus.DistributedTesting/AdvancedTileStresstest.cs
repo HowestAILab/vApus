@@ -254,7 +254,7 @@ namespace vApus.DistributedTesting
             _shuffle = _defaultSettingsTo.Shuffle;
             _distribute = _defaultSettingsTo.Distribute;
             _monitorBefore = _defaultSettingsTo.MonitorBefore;
-            _monitorBefore = _defaultSettingsTo.MonitorAfter;
+            _monitorAfter = _defaultSettingsTo.MonitorAfter;
 
             if (Solution.ActiveSolution != null)
                 this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
