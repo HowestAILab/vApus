@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
+using System.Threading;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -361,11 +361,10 @@ namespace vApus.DistributedTesting
                             break;
                     }
 
-
                     //Check if it is needed to do anything
-                    if (Running != 0)
+                    if (Running != 0 && Cancelled == 0 && Failed == 0)
                     {
-                        //Thread this as stopped.
+                        //Threat this as stopped.
                         if (okCancelError)
                             _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
 
@@ -431,6 +430,9 @@ namespace vApus.DistributedTesting
                     WriteRestProgress(ts, tpm);
 #endif
 
+                    if (Cancelled != 0 || Failed != 0)
+                        Stop(); //Test is invalid stop the test.
+
                     if (Finished == _usedTileStresstests.Count)
                         HandleFinished();
                 }
@@ -492,7 +494,7 @@ namespace vApus.DistributedTesting
 
                 if (exception != null)
                 {
-                    ++_resultsReceived;
+                    Interlocked.Increment(ref _resultsReceived);
                     InvokeMessage("Could not receive one or more resuls!\n" + exception.ToString(), LogLevel.Error);
                 }
                 if (_resultsReceived == Finished)
@@ -521,7 +523,7 @@ namespace vApus.DistributedTesting
 
             source = null;
 
-            if (++_resultsReceived == Finished)
+            if (Interlocked.Increment(ref _resultsReceived) == Finished)
                 InvokeOnFinished();
         }
 

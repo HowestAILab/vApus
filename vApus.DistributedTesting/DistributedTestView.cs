@@ -762,12 +762,13 @@ namespace vApus.DistributedTesting
 
                 if (tileStresstestTreeViewItem != null)
                 {
+                    tileStresstestTreeViewItem.SetStresstestResult(testProgressMessage.StresstestResult, 0);
+
                     //Build and add fast results.
                     if (testProgressMessage.TileStresstestProgressResults != null)
                     {
                         tileStresstestTreeViewItem.SetStresstestStarted(testProgressMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);
                         tileStresstestTreeViewItem.SetMeasuredRunTime(testProgressMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
-                        tileStresstestTreeViewItem.SetStresstestResult(testProgressMessage.StresstestResult, 0);
 
                         //Set the distributed test tree view item
                         distributedTestTreeViewItem.SetStresstestStarted();
@@ -864,7 +865,7 @@ namespace vApus.DistributedTesting
                             if (tstvi.TileStresstest == e.TileStresstest)
                                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                                 {
-                                    tstvi.SetStresstestResult(tstvi.StresstestResult, e.PercentCompleted);
+                                    tstvi.SetStresstestResult(e.PercentCompleted);
                                 }, null);
                         }
 
@@ -892,7 +893,7 @@ namespace vApus.DistributedTesting
                     if (tstvi.TileStresstest == e.TileStresstest)
                         SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                         {
-                            tstvi.SetStresstestResult(tstvi.StresstestResult, 100);
+                            tstvi.SetStresstestResult(100);
                         }, null);
                 }
         }

@@ -274,6 +274,10 @@ namespace vApus.DistributedTesting
         public void SetStresstestResult(StresstestResult stresstestResult, int downloadResultsProgress)
         {
             _stresstestResult = stresstestResult;
+            SetStresstestResult(downloadResultsProgress);
+        }
+        public void SetStresstestResult(int downloadResultsProgress)
+        {
             if (downloadResultsProgress == 100)
             {
                 _downloadResultsFinished = true;
@@ -283,7 +287,7 @@ namespace vApus.DistributedTesting
 
             if (downloadResultsProgress == 0 || downloadResultsProgress == 100)
             {
-                switch (stresstestResult)
+                switch (_stresstestResult)
                 {
                     case StresstestResult.Ok:
                         picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
