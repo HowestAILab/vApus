@@ -56,7 +56,7 @@ namespace vApus.SolutionTree
 
                     _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
-                    SetGui(true);
+                    SetGui();
                     _solutionComponentTypeChanged = false;
 
                     this.ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
@@ -82,7 +82,7 @@ namespace vApus.SolutionTree
             _showHideAdvancedSettings.KeyUp += new KeyEventHandler(_showHideAdvancedSettings_KeyUp);
 
             if (this.IsHandleCreated)
-                SetGui(true);
+                SetGui();
             else
                 this.HandleCreated += new EventHandler(SolutionComponentPropertyPanel_HandleCreated);
 
@@ -137,20 +137,18 @@ namespace vApus.SolutionTree
         }
         private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e)
         {
-            SetGui(true);
+            SetGui();
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="collapse">not on refresh</param>
-        private void SetGui(bool collapse)
+        private void SetGui()
         {
             if (_solutionComponent != null && IsHandleCreated)
             {
                 bool locked = _locked;
                 bool showHideAdvancedSettingsControl = false;
-                //if (_solutionComponentTypeChanged || _properties == null)
-                //{
                 _properties = new List<PropertyInfo>();
                 foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties())
                 {
@@ -206,18 +204,6 @@ namespace vApus.SolutionTree
 
                 if (showHideAdvancedSettingsControl)
                     this.Controls.Add(_showHideAdvancedSettings);
-                //}
-                //else //Recycle controls
-                //{
-                //    object[] values = new object[_properties.Count];
-                //    for (int i = 0; i != values.Length; i++)
-                //    {
-                //        values[i] = _properties[i].GetValue(_solutionComponent, null);
-                //        base.SetDescriptionAt(i, values[i].GetDescription());
-                //    }
-
-                //   base.Set__Values(collapse, values);
-                //}
             }
         }
         /// <summary>
@@ -226,7 +212,7 @@ namespace vApus.SolutionTree
         public override void Refresh()
         {
             base.Refresh();
-            SetGui(false);
+            SetGui();
         }
         #endregion
     }

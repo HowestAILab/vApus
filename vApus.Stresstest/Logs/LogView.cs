@@ -598,7 +598,7 @@ namespace vApus.Stresstest
         {
             string jarPath = Path.Combine(Application.StartupPath, "Lupus-Proxy.jar");
             string ips = _log.RecordIps.Length == 0 ? " " : _log.RecordIps.Combine(",");
-            string ports = _log.RecordPorts.Length == 0 ? " " : _log.RecordPorts.Combine(",");
+            string ports = _log.RecordPorts.Length == 0 ? "80" : _log.RecordPorts.Combine(",");
 
             string config = "--vapus -slupusProxyLog -d\"" +
                 _log.LogRuleSet.ChildDelimiter +

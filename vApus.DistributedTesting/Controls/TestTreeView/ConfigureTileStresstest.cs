@@ -145,6 +145,15 @@ namespace vApus.DistributedTesting
                 }
             }
         }
+
+        /// <summary>
+        /// Refresh some properties that are overriden in code.
+        /// </summary>
+        public override void Refresh()
+        {
+            base.Refresh();
+            solutionComponentPropertyPanelAdvanced.Refresh();
+        }
         #endregion
     }
 }

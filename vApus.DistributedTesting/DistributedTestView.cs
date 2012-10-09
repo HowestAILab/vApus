@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -240,6 +241,14 @@ namespace vApus.DistributedTesting
 
             if (_distributedTestMode == DistributedTestMode.Edit)
                 btnStart.Enabled = !testTreeView.Exclamation;
+        }
+        /// <summary>
+        /// Refresh some properties that are overriden in code.
+        /// </summary>
+        public override void Refresh()
+        {
+            base.Refresh();
+            configureTileStresstest.Refresh();
         }
 
         private void configureSlaves_GoToAssignedTest(object sender, EventArgs e)
@@ -660,6 +669,10 @@ namespace vApus.DistributedTesting
 
                     distributedStresstestControl.SetOverallFastResults(ttvi.Tile.Name + " " + ttvi.Tile.Index, progress);
                 }
+
+#if EnableBetaFeature
+            WriteMonitorRestProgress();
+#endif
         }
         /// <summary>
         /// 
@@ -1034,6 +1047,10 @@ namespace vApus.DistributedTesting
                     monitorAfterCountDown.Stop();
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
+
+#if EnableBetaFeature
+                WriteMonitorRestConfig();
+#endif
             }, null);
         }
         private void monitorAfterCountdown_Stopped(object sender, EventArgs e)
@@ -1046,6 +1063,10 @@ namespace vApus.DistributedTesting
             Countdown monitorAfterCountdown = sender as Countdown;
             monitorAfterCountdown.Dispose();
             monitorAfterCountdown = null;
+
+#if EnableBetaFeature
+            WriteMonitorRestConfig();
+#endif
         }
         #endregion
 
@@ -1076,6 +1097,10 @@ namespace vApus.DistributedTesting
             if (!_monitorViews.ContainsKey(tileStresstest))
                 _monitorViews.Add(tileStresstest, new List<MonitorView>());
             _monitorViews[tileStresstest].Add(monitorView);
+
+#if EnableBetaFeature
+            WriteMonitorRestConfig();
+#endif
         }
         /// <summary>
         /// To init it only once.
@@ -1178,6 +1203,10 @@ namespace vApus.DistributedTesting
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
+#if EnableBetaFeature
+                WriteMonitorRestConfig();
+#endif
+
             }, null);
         }
         private void monitorBeforeCountDown_Stopped(object sender, EventArgs e)
@@ -1187,6 +1216,11 @@ namespace vApus.DistributedTesting
                 _monitorBeforeCountDown.Dispose();
                 _monitorBeforeCountDown = null;
             }
+
+#if EnableBetaFeature
+            WriteMonitorRestConfig();
+#endif
+
             MonitorBeforeDone();
         }
         /// <summary>
@@ -1312,6 +1346,35 @@ namespace vApus.DistributedTesting
                         break;
                     }
 
+        }
+        #endregion
+
+        #region REST
+        private void WriteMonitorRestConfig()
+        {
+            try
+            {
+                Hashtable monitorConfigCache = new Hashtable(1);
+                foreach (var key in _monitorViews.Keys)
+                    foreach (MonitorView view in _monitorViews[key])
+                        vApus.REST.Convert.Converter.SetMonitorConfig(monitorConfigCache, _distributedTest.ToString(), view.Monitor);
+
+                vApus.REST.Convert.Converter.WriteToFile(monitorConfigCache, "MonitorConfig");
+            }
+            catch { }
+        }
+        private void WriteMonitorRestProgress()
+        {
+            try
+            {
+                Hashtable monitorProgressCache = new Hashtable(1);
+                foreach (var key in _monitorViews.Keys)
+                    foreach (MonitorView view in _monitorViews[key])
+                        vApus.REST.Convert.Converter.SetMonitorProgress(monitorProgressCache, _distributedTest.ToString(), view.Monitor, view.GetHeaders(), view.GetMonitorValues());
+
+                vApus.REST.Convert.Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
+            }
+            catch { }
         }
         #endregion
     }

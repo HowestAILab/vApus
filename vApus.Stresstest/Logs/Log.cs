@@ -32,7 +32,7 @@ namespace vApus.Stresstest
 
         //Record settings
         private string[] _recordIps = new string[] { };
-        private int[] _recordPorts = new int[] { };
+        private int[] _recordPorts = new int[] { 80 };
         #endregion
 
         #region Properties

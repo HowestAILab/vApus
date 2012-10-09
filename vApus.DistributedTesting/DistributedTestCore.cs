@@ -152,6 +152,10 @@ namespace vApus.DistributedTesting
             //The path where results are stored.
             string subResultDir = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
             _resultPath = Path.Combine(_distributedTest.ResultPath, subResultDir);
+
+#if EnableBetaFeature
+            WriteRestConfig();
+#endif
         }
 
         ~DistributedTestCore()
@@ -423,30 +427,15 @@ namespace vApus.DistributedTesting
                     }
                     InvokeOnTestProgressMessageReceived(ts, tpm);
 
+#if EnableBetaFeature
                     WriteRestProgress(ts, tpm);
+#endif
 
                     if (Finished == _usedTileStresstests.Count)
                         HandleFinished();
                 }
                 catch { }
             }
-        }
-        private void WriteRestProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
-        {
-            Hashtable testProgressCache = new Hashtable(1);
-            foreach (var tcu in testProgressMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
-                foreach (var tpu in tcu.TilePrecisionProgressResults)
-                    foreach (var tru in tpu.TileRunProgressResults)
-                        vApus.REST.Convert.Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
-                                                     "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
-                                                     tileStresstest.BasicTileStresstest.Connection.Label,
-                                                     tcu.ConcurrentUsers, tpu.Precision + 1, tru.Run + 1,
-                                                     tru.Metrics,
-                                                     tru.EstimatedRuntimeLeft,
-                                                     testProgressMessage.RunStateChange,
-                                                     testProgressMessage.StresstestResult);
-
-            vApus.REST.Convert.Converter.WriteToFile(testProgressCache, "TestProgress");
         }
         private TileStresstest GetTileStresstest(string tileStresstestIndex)
         {
@@ -570,6 +559,63 @@ namespace vApus.DistributedTesting
 
                 StaticObjectServiceWrapper.ObjectService.Unsuscribe(this);
             }
+        }
+        #endregion
+
+        #region REST
+        private void WriteRestConfig()
+        {
+            try
+            {
+                vApus.REST.Convert.Converter.ClearWrittenFiles();
+
+                Hashtable testConfigCache = new Hashtable(1);
+                foreach (Tile tile in _distributedTest.Tiles)
+                    foreach (TileStresstest tileStresstest in tile)
+                        if (tileStresstest.Use)
+                            vApus.REST.Convert.Converter.SetTestConfig(testConfigCache, _distributedTest.ToString(), _distributedTest.RunSynchronization.ToString(),
+                                                         "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
+                                                          tileStresstest.BasicTileStresstest.Connection.Label,
+                                                          tileStresstest.BasicTileStresstest.Connection,
+                                                          tileStresstest.BasicTileStresstest.ConnectionProxy,
+                                                          tileStresstest.BasicTileStresstest.Monitors,
+                                                          tileStresstest.BasicTileStresstest.Slaves.Length == 0 ? string.Empty : tileStresstest.BasicTileStresstest.Slaves[0].ToString(),
+                                                          tileStresstest.AdvancedTileStresstest.Log,
+                                                          tileStresstest.AdvancedTileStresstest.LogRuleSet,
+                                                          tileStresstest.AdvancedTileStresstest.ConcurrentUsers,
+                                                          tileStresstest.AdvancedTileStresstest.Precision,
+                                                          tileStresstest.AdvancedTileStresstest.DynamicRunMultiplier,
+                                                          tileStresstest.AdvancedTileStresstest.MinimumDelay,
+                                                          tileStresstest.AdvancedTileStresstest.MaximumDelay,
+                                                          tileStresstest.AdvancedTileStresstest.Shuffle,
+                                                          tileStresstest.AdvancedTileStresstest.Distribute,
+                                                          tileStresstest.AdvancedTileStresstest.MonitorBefore,
+                                                          tileStresstest.AdvancedTileStresstest.MonitorAfter);
+
+                vApus.REST.Convert.Converter.WriteToFile(testConfigCache, "TestConfig");
+            }
+            catch { }
+        }
+        private void WriteRestProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
+        {
+            try
+            {
+                Hashtable testProgressCache = new Hashtable(1);
+                foreach (var tcu in testProgressMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
+                    foreach (var tpu in tcu.TilePrecisionProgressResults)
+                        foreach (var tru in tpu.TileRunProgressResults)
+                            vApus.REST.Convert.Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
+                                                         "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
+                                                         tileStresstest.BasicTileStresstest.Connection.Label,
+                                                         tcu.ConcurrentUsers, tpu.Precision + 1, tru.Run + 1,
+                                                         tru.Metrics,
+                                                         tru.EstimatedRuntimeLeft,
+                                                         testProgressMessage.RunStateChange,
+                                                         testProgressMessage.StresstestResult);
+
+                vApus.REST.Convert.Converter.WriteToFile(testProgressCache, "TestProgress");
+            }
+            catch { }
         }
         #endregion
 
