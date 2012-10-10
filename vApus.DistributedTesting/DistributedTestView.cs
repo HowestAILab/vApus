@@ -1288,11 +1288,11 @@ namespace vApus.DistributedTesting
                         }
 
                 //remove the old ones.
-                for (int index = 3; index < tcTest.TabCount; index++)
+                while (oldMonitorReportControls.Count!= 0)
                     foreach (var mrc in oldMonitorReportControls)
-                        if (tcTest.TabPages[index].Controls[0] == mrc)
+                        if (tcTest.TabPages[3].Controls[0] == mrc)
                         {
-                            tcTest.TabPages.RemoveAt(index);
+                            tcTest.TabPages.Remove(tcTest.TabPages[3]);
                             oldMonitorReportControls.Remove(mrc);
                             break;
                         }
