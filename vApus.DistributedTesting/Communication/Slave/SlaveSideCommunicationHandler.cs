@@ -199,6 +199,7 @@ namespace vApus.DistributedTesting
                 }
                 catch (Exception ex)
                 {
+                    MessageBox.Show(ex.ToString());
                     resultsMessage.Exception = ex.ToString();
                 }
             }

@@ -29,7 +29,7 @@ namespace vApus.DistributedTesting
 
         #region Fields
         private static object _lock = new object();
-        private  static object _stopLock = new object();
+        private static object _stopLock = new object();
 
         //A slave side and a master side socket wrappers for full duplex communication.
         private static Dictionary<SocketWrapper, SocketWrapper> _connectedSlaves = new Dictionary<SocketWrapper, SocketWrapper>();
@@ -43,6 +43,8 @@ namespace vApus.DistributedTesting
         private static InitializeTestWorkItem _initializeTestWorkItem;
         [ThreadStatic]
         private static StopTestWorkItem _stopTestWorkItem;
+        [ThreadStatic]
+        private static GetResultsWorkItem _getResultsWorkItem;
 
         #endregion
 
@@ -323,7 +325,7 @@ namespace vApus.DistributedTesting
         /// <param name="content"></param>
         /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Key key, object content, int tempSendReceiveTimeout = -1)
+        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Key key, object content = null, int tempSendReceiveTimeout = -1)
         {
             lock (_lock)
             {
@@ -756,44 +758,42 @@ namespace vApus.DistributedTesting
         /// <param name="port"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public static List<ResultsMessage> GetResults(out Exception exception)
+        public static ResultsMessage[] GetResults(out Exception[] exception)
         {
-            Exception e = null;
-            List<ResultsMessage> l = new List<ResultsMessage>(_connectedSlaves.Count);
+            int length = _connectedSlaves.Count;
+            ConcurrentBag<Exception> exc = new ConcurrentBag<Exception>();
+            ConcurrentBag<ResultsMessage> resultsMsgs = new ConcurrentBag<ResultsMessage>();
 
-            Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper)
+            if (length != 0)
             {
-                if (socketWrapper != null && socketWrapper.Connected)
+                AutoResetEvent waitHandle = new AutoResetEvent(false);
+                int handled = 0;
+
+                foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
                 {
-                    ResultsMessage resultsMessage = new ResultsMessage();
-                    for (int i = 1; i != 4; i++)
-                        try
+                    Thread t = new Thread(delegate(object parameter)
                         {
-                            object data = SendAndReceive(socketWrapper, Key.Results, 30000).Content;
-                            while (data is SynchronizeBuffersMessage)
-                            {
-                                socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)data).BufferSize;
-                                data = Receive(socketWrapper, 30000).Content;
-                            }
-                            resultsMessage = (ResultsMessage)data;
-                            if (resultsMessage.Exception != null)
-                                throw new Exception(resultsMessage.Exception);
+                            _getResultsWorkItem = new GetResultsWorkItem();
+                            _getResultsWorkItem.GetResults(parameter as SocketWrapper, ref exc, ref resultsMsgs);
+                            _getResultsWorkItem = null;
 
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            e = new Exception("Failed to get the test results from " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
-                            Thread.Sleep(i * 500);
-                        }
-
-                    lock (_lock)
-                        l.Add(resultsMessage);
+                            if (Interlocked.Increment(ref handled) == length && waitHandle != null)
+                                waitHandle.Set();
+                        });
+                    t.IsBackground = true;
+                    t.Start(socketWrapper);
                 }
-            });
 
-            exception = e;
-            return l;
+                waitHandle.WaitOne();
+            }
+
+            exception = new Exception[exc.Count];
+            exc.CopyTo(exception, 0);
+
+            ResultsMessage[] resultsMessages = new ResultsMessage[resultsMsgs.Count];
+            resultsMsgs.CopyTo(resultsMessages, 0);
+
+            return resultsMessages;
         }
         /// <summary>
         /// The retry count is 3 with a send timeout of 30 seconds.
@@ -947,6 +947,47 @@ namespace vApus.DistributedTesting
                     {
                         exceptions.Add(new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex));
                     }
+            }
+        }
+        private class GetResultsWorkItem
+        {
+            public void GetResults(SocketWrapper socketWrapper, ref ConcurrentBag<Exception> exceptions, ref ConcurrentBag<ResultsMessage> resultsMessages)
+            {
+                Exception e = null;
+                if (socketWrapper != null && socketWrapper.Connected)
+                {
+                    ResultsMessage resultsMessage = new ResultsMessage();
+                    for (int i = 1; i != 4; i++)
+                        try
+                        {
+                            socketWrapper.SendTimeout = 30000;
+                            socketWrapper.Send(new Message<Key>(Key.Results, null), SendType.Binary);
+                            socketWrapper.SendTimeout = -1;
+
+                            socketWrapper.ReceiveTimeout = 30000;
+                            object data = ((Message<Key>)socketWrapper.Receive(SendType.Binary)).Content;
+                            while (data is SynchronizeBuffersMessage)
+                            {
+                                socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)data).BufferSize;
+                                data = ((Message<Key>)socketWrapper.Receive(SendType.Binary)).Content;
+                            }
+                            socketWrapper.ReceiveTimeout = -1;
+
+                            resultsMessage = (ResultsMessage)data;
+                            if (resultsMessage.Exception != null)
+                                throw new Exception(resultsMessage.Exception);
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            e = new Exception("Failed to get the test results from " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
+                            Thread.Sleep(i * 500);
+                        }
+                    if (e != null)
+                        exceptions.Add(e);
+
+                    resultsMessages.Add(resultsMessage);
+                }
             }
         }
         #endregion

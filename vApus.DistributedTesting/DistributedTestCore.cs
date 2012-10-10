@@ -478,7 +478,9 @@ namespace vApus.DistributedTesting
                 catch (Exception ex) { exception = ex; }
 
                 if (exception == null)
-                    foreach (ResultsMessage rm in MasterSideCommunicationHandler.GetResults(out exception))
+                {
+                    Exception[] exceptions;
+                    foreach (ResultsMessage rm in MasterSideCommunicationHandler.GetResults(out exceptions))
                         try
                         {
                             TorrentClient torrentClient = new TorrentClient();
@@ -491,6 +493,10 @@ namespace vApus.DistributedTesting
                             torrentClient.DownloadTorrentFromBytes(rm.TorrentInfo, _resultPath);
                         }
                         catch (Exception ex) { exception = ex; }
+
+                    if (exceptions.Length != 0)
+                        exception = new Exception(exceptions.Combine("\n"));
+                }
 
                 if (exception != null)
                 {

@@ -1369,11 +1369,15 @@ namespace vApus.DistributedTesting
             try
             {
                 Hashtable monitorProgressCache = new Hashtable(1);
+                int monitorCount = 0;
                 foreach (var key in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[key])
+                    {
+                        ++monitorCount;
                         vApus.REST.Convert.Converter.SetMonitorProgress(monitorProgressCache, _distributedTest.ToString(), view.Monitor, view.GetHeaders(), view.GetMonitorValues());
-
-                vApus.REST.Convert.Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
+                    }
+                if (monitorCount != 0)
+                    vApus.REST.Convert.Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
             }
             catch { }
         }
