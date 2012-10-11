@@ -72,7 +72,7 @@ namespace vApus.Stresstest
             _logEntry.LexicalResultChanged += new EventHandler(_logEntry_LexicalResultChanged);
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
-            lblLogEntry.Text = _logEntry.LogEntryString;
+            lblLogEntry.Text = _logEntry.LogEntryString.Replace("&", "&&");
 
             //Backwards compatible.
             if (_logEntry.Parent is UserAction)
@@ -98,7 +98,7 @@ namespace vApus.Stresstest
             || (_logEntry.Parent is UserAction && sender == (_logEntry.Parent as UserAction).Parent))))
             {
                 SetImages();
-                lblLogEntry.Text = _logEntry.LogEntryString;
+                lblLogEntry.Text = _logEntry.LogEntryString.Replace("&", "&&");
             }
         }
         private void _logEntry_LexicalResultChanged(object sender, EventArgs e)
