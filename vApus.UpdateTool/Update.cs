@@ -185,7 +185,7 @@ namespace vApus.UpdateTool
         private void GetFilesToUpdate()
         {
             try
-            {
+            {                
                 string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
                 if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
@@ -208,26 +208,25 @@ namespace vApus.UpdateTool
 
                 foreach (string[] line in serverVersions)
                 {
-                    string remoteMD5Hash = string.Empty;
-                    if (_force | !AlreadyVersioned(line, _currentVersions, out remoteMD5Hash))
-                        if (remoteMD5Hash.Length != 0)
+                    string localMD5Hash;
+                    if (_force | !AlreadyVersioned(line, _currentVersions, out localMD5Hash))
                         {
-                            ListViewItem lvwi = new ListViewItem(line);
-                            lvwi.SubItems.Add(remoteMD5Hash);
+                            ListViewItem lvwi = new ListViewItem(line[0]);
+                            lvwi.SubItems.Add(localMD5Hash);
+                            lvwi.SubItems.Add(line[1]);
                             lvwUpdate.Items.Add(lvwi);
                             lvwUpdate.AddEmbeddedControl(new ProgressBar(), lvwUpdate.Columns.Count - 1, lvwUpdate.Items.Count - 1);
                         }
                 }
-
             }
             catch
             {
                 MessageBox.Show("Failed to get the list of files needed to be versioned.\nThe update server is probably down.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private bool AlreadyVersioned(string[] entry, List<string[]> versioned, out string md5Hash)
+        private bool AlreadyVersioned(string[] entry, List<string[]> versioned, out string localMD5Hash)
         {
-            md5Hash = string.Empty;
+            localMD5Hash = string.Empty;
             foreach (string[] line in versioned)
             {
                 List<bool> equals = new List<bool>(line.Length);
@@ -235,7 +234,7 @@ namespace vApus.UpdateTool
                     equals.Add(line[i] == entry[i]);
 
                 if (equals[0] == true)
-                    md5Hash = line[1];
+                    localMD5Hash = line[1];
                 if (!equals.Contains(false))
                     return true;
             }

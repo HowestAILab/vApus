@@ -120,6 +120,7 @@
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "UpdateNotifierDialog";
             this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "New update found!";
             this.TopMost = true;
