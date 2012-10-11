@@ -346,6 +346,7 @@ namespace vApus.UpdateTool
                     else
                     {
                         this.Close();
+                        return;
                     }
                 }
 

@@ -37,6 +37,8 @@ namespace vApus.Gui
         private LocalizationPanel _localizationPanel;
         private CleanTempDataPanel _cleanTempDataPanel;
         private DisableFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
+
+        private delegate void CloseDelayed();
         #endregion
 
         public MainWindow(string[] args = null)
@@ -103,12 +105,21 @@ namespace vApus.Gui
                     UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
                     //Doing stuff automatically
                     if (Update(host, port, username, password, channel))
-                        this.Close();
+                    {
+                        StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(CloseDelayedCallback));
+                    }
             }
             catch (Exception ex)
             {
                 LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
             }
+        }
+        private void CloseDelayedCallback()
+        {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            {
+                this.Close();
+            }, null);
         }
         #endregion
 
