@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
@@ -25,6 +26,13 @@ namespace vApus.Stresstest
         private UserActionControl _userActionControl;
         private LogEntry _logEntry;
         private uint _indentationLevel;
+
+        private const string VBLRn = "<16 0C 02 12n>";
+        private const string VBLRr = "<16 0C 02 12r>";
+        private string _logChildDelimiter = null;
+
+        //Replace above 3 values with this in the label;
+        private string _delimiterReplacement = "◦";
         #endregion
 
         #region Properties
@@ -72,11 +80,15 @@ namespace vApus.Stresstest
             _logEntry.LexicalResultChanged += new EventHandler(_logEntry_LexicalResultChanged);
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
-            lblLogEntry.Text = _logEntry.LogEntryString.Replace("&", "&&");
+            if (_logEntry.LogRuleSet != null && !_logEntry.LogRuleSet.IsEmpty)
+                _logChildDelimiter = _logEntry.LogRuleSet.ChildDelimiter;
+            
+            SetLabel();
 
             //Backwards compatible.
             if (_logEntry.Parent is UserAction)
                 _logEntry.Pinned = true;
+    
 
             nudOccurance.Value = _logEntry.Occurance;
             nudParallelOffsetInMs.Value = _logEntry.ParallelOffsetInMs;
@@ -98,7 +110,7 @@ namespace vApus.Stresstest
             || (_logEntry.Parent is UserAction && sender == (_logEntry.Parent as UserAction).Parent))))
             {
                 SetImages();
-                lblLogEntry.Text = _logEntry.LogEntryString.Replace("&", "&&");
+                SetLabel();
             }
         }
         private void _logEntry_LexicalResultChanged(object sender, EventArgs e)
@@ -106,6 +118,13 @@ namespace vApus.Stresstest
             SetImages();
             if (LexicalResultChanged != null)
                 LexicalResultChanged(this, null);
+        }
+        private void SetLabel()
+        {
+            lblLogEntry.Text = _logEntry.LogEntryString.Replace("&", "&&")
+                .Replace(VBLRn, _delimiterReplacement)
+                .Replace(VBLRr, _delimiterReplacement)
+                .Replace(_logChildDelimiter, _delimiterReplacement);
         }
         private void SetImages()
         {
