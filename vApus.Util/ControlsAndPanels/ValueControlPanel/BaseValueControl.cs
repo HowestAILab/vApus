@@ -249,18 +249,18 @@ namespace vApus.Util
             object value = _value.__Value;
             if (value == null)
                 value = string.Empty;
-            if (ValueControl is ComboBox)
+            if (value is Enum)
+            {
+                DescriptionAttribute[] attr = value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+                _collapsedTextBox.Text = attr.Length != 0 ? attr[0].Description : value.ToString();
+            }
+            else if (ValueControl is ComboBox)
             {
                 try
                 {
                     _collapsedTextBox.Text = value.ToString();
                 }
                 catch { }
-            }
-            else if (value is Enum)
-            {
-                DescriptionAttribute[] attr = value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
-                _collapsedTextBox.Text = attr.Length != 0 ? attr[0].Description : value.ToString();
             }
             else if (value is string)
             {

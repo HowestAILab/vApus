@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -188,6 +189,10 @@ namespace vApus.Stresstest
         #region Load
         private void FillLargeList()
         {
+            chk.CheckStateChanged -= chk_CheckStateChanged;
+            chk.CheckState = CheckState.Unchecked;
+            chk.CheckStateChanged += chk_CheckStateChanged;
+
             largelist.Clear();
             foreach (BaseItem item in _log)
                 FillLargeList(item);
@@ -757,6 +762,8 @@ namespace vApus.Stresstest
             btnDown.Enabled = false;
             btnActionizeUnactionize.Enabled = false;
             btnRemove.Enabled = false;
+            btnCopy.Enabled = false;
+            btnPaste.Enabled = false;
 
             logEntryControl = largelist.LastClickedControl as LogEntryControl;
             userActionControl = largelist.LastClickedControl as UserActionControl;
@@ -773,6 +780,7 @@ namespace vApus.Stresstest
                 btnDown.Enabled = true;
                 btnActionizeUnactionize.Enabled = true;
                 btnRemove.Enabled = true;
+                btnCopy.Enabled = true;
 
                 largelist.OrderSelection();
                 largelist.ScrollIntoView(largelist.ActiveControl);
@@ -823,7 +831,10 @@ namespace vApus.Stresstest
                     {
                         btnUp.Enabled = false;
                         if (logEntryControl != null && logEntryControl.UserActionControl != null && logEntryControl.UserActionControl.LogChild.Count < 2)
+                        {
                             btnRemove.Enabled = false;
+                            btnCopy.Enabled = false;
+                        }
                     }
                 }
 
@@ -863,6 +874,9 @@ namespace vApus.Stresstest
 
             if (logEntryControl != null)
                 logEntryControl.Select();
+
+            btnPaste.Enabled = true;
+
             this.Cursor = Cursors.Default;
         }
 
@@ -1384,8 +1398,52 @@ namespace vApus.Stresstest
                 }
             btnCollapseExpand.Text = collapsed ? "+" : "-";
         }
-        #endregion
 
+        private void btnCopy_Click(object sender, EventArgs e)
+        {
+            Hashtable h = new Hashtable();
+            List<BaseItem> l = new List<BaseItem>();
+            foreach (Control control in largelist.Selection)
+            {
+                if (control is UserActionControl)
+                {
+                    var uac = control as UserActionControl;
+                    l.Add(uac.LogChild);
+                }
+                else if (control is LogEntryControl)
+                {
+                    var lec = control as LogEntryControl;
+                    if (lec.UserActionControl == null)
+                        l.Add(lec.LogChild);
+                }
+            }
+            h.Add("logCopy", l);
+
+            ClipboardWrapper.SetDataObject(h);
+        }
+        private void btnPaste_Click(object sender, EventArgs e)
+        {
+            IDataObject dataObject = ClipboardWrapper.GetDataObject();
+            Type hashtableType = typeof(Hashtable);
+            if (dataObject.GetDataPresent(hashtableType))
+            {
+                try
+                {
+                    Hashtable h = dataObject.GetData(hashtableType) as Hashtable;
+                    if (h.Contains("logCopy"))
+                    {
+                        List<BaseItem> l = h["logCopy"] as List<BaseItem>;
+                        if (l != null)
+                        {
+                            _log.AddRange(l);
+                            FillLargeList();
+                        }
+                    }
+                }
+                catch { }
+            }
+        }
+        #endregion
         #endregion
 
         #endregion

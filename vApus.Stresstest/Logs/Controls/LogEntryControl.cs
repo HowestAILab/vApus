@@ -82,13 +82,13 @@ namespace vApus.Stresstest
 
             if (_logEntry.LogRuleSet != null && !_logEntry.LogRuleSet.IsEmpty)
                 _logChildDelimiter = _logEntry.LogRuleSet.ChildDelimiter;
-            
+
             SetLabel();
 
             //Backwards compatible.
             if (_logEntry.Parent is UserAction)
                 _logEntry.Pinned = true;
-    
+
 
             nudOccurance.Value = _logEntry.Occurance;
             nudParallelOffsetInMs.Value = _logEntry.ParallelOffsetInMs;
@@ -123,8 +123,10 @@ namespace vApus.Stresstest
         {
             lblLogEntry.Text = _logEntry.LogEntryString.Replace("&", "&&")
                 .Replace(VBLRn, _delimiterReplacement)
-                .Replace(VBLRr, _delimiterReplacement)
-                .Replace(_logChildDelimiter, _delimiterReplacement);
+                .Replace(VBLRr, _delimiterReplacement);
+
+            if (_logChildDelimiter != null && _logChildDelimiter.Length != 0)
+                lblLogEntry.Text = lblLogEntry.Text.Replace(_logChildDelimiter, _delimiterReplacement);
         }
         private void SetImages()
         {
