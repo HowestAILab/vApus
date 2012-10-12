@@ -258,6 +258,12 @@ namespace vApus.Gui
             Solution.CreateNew();
             this.Cursor = Cursors.Default;
         }
+        private void newFromTemplateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            Solution.CreateNewFromTemplate();
+            this.Cursor = Cursors.Default;
+        }
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
@@ -629,5 +635,6 @@ namespace vApus.Gui
             ShowOptionsDialog(6);
         }
         #endregion
+
     }
 }
