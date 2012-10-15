@@ -254,9 +254,11 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CleanTempDataPanel.resx">
       <DependentUpon>CleanTempDataPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="LocalizationPanel.resx">
       <DependentUpon>LocalizationPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="LogErrorToolTip.resx">
       <DependentUpon>LogErrorToolTip.cs</DependentUpon>

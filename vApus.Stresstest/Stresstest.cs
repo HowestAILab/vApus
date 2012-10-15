@@ -40,6 +40,9 @@ namespace vApus.Stresstest
         private int[] _monitorIndices = { };
         [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
+        private uint _monitorBefore;
+        private uint _monitorAfter;
+
         private bool _useParallelExecutionOfLogEntries;
 
         /// <summary>
@@ -58,7 +61,8 @@ namespace vApus.Stresstest
             {
                 if (_solution == null && vApus.SolutionTree.Solution.ActiveSolution != null)
                     _solution = vApus.SolutionTree.Solution.ActiveSolution.FileName;
-                return _solution; }
+                return _solution;
+            }
         }
         [Description("The connection to the application to test.")]
         [SavableCloneable, PropertyControl(0)]
@@ -66,6 +70,8 @@ namespace vApus.Stresstest
         {
             get
             {
+                if (_connection.IsEmpty)
+                    Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
 
                 if (_connection != null)
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
@@ -99,6 +105,9 @@ namespace vApus.Stresstest
         {
             get
             {
+                if (_log.IsEmpty)
+                    Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+
                 if (_log != null)
                     _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
 
@@ -208,7 +217,7 @@ namespace vApus.Stresstest
         }
 
         [Description("Useful for tests with low or no delay. It appends the runtime for every concurrency level in a way they even out. For example: a minimum request of 10 with 5 concurrent users makes the runtime twice as long, of 15 three times."), DisplayName("Dynamic Run Multiplier")]
-        [SavableCloneable, PropertyControl(5)]
+        [SavableCloneable, PropertyControl(5, true)]
         public int DynamicRunMultiplier
         {
             get { return _dynamicRunMultiplier; }
@@ -221,7 +230,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(6)]
+        [PropertyControl(6, true)]
         public int MinimumDelay
         {
             get { return _minimumDelay; }
@@ -246,7 +255,7 @@ namespace vApus.Stresstest
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(7)]
+        [PropertyControl(7, true)]
         public int MaximumDelay
         {
             get { return _maximumDelay; }
@@ -270,35 +279,52 @@ namespace vApus.Stresstest
             set { _maximumDelay = value; }
         }
 
-        [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns; obligatory for Fast Action and Log Entry Distribution.")]
+        [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
         [SavableCloneable, PropertyControl(8)]
         public bool Shuffle
         {
             get { return _shuffle; }
-            set
-            {
-                if (value == false && _distribute == ActionAndLogEntryDistribution.Fast)
-                    throw new Exception("Fast action and log entry distribution cannot happen unshuffled.");
-                _shuffle = value;
-            }
+            set { _shuffle = value; }
         }
 
-        [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance. Note:This can't be used in combination with parameters (works but it breaks the parameter refresh logic, giving a wrong result).")]
-        [SavableCloneable, PropertyControl(9)]
+        [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance.")]
+        [SavableCloneable, PropertyControl(9, true)]
         public ActionAndLogEntryDistribution Distribute
         {
             get { return _distribute; }
+            set { _distribute = value; }
+        }
+
+        [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."), DisplayName("Monitor Before")]
+        [SavableCloneable, PropertyControl(10, true)]
+        public uint MonitorBefore
+        {
+            get { return _monitorBefore; }
             set
             {
-                if (value == ActionAndLogEntryDistribution.Fast && !_shuffle)
-                    throw new Exception("For 'Fast Action and Log Entry Distribution' the 'Shuffle Actions and Loose Log Entries' property must be set to 'True'.");
-                _distribute = value;
+                if (value > 60)
+                    value = 60;
+                _monitorBefore = value;
             }
         }
 
+        [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."), DisplayName("Monitor After")]
+        [SavableCloneable, PropertyControl(11, true)]
+        public uint MonitorAfter
+        {
+            get { return _monitorAfter; }
+            set
+            {
+                if (value > 60)
+                    value = 60;
+                _monitorAfter = value;
+            }
+        }
+
+
 #if EnableBetaFeature
         [Description("If this equals false then the parallel switch for log entries is ignored."), DisplayName("Use Parallel Execution of Log Entries")]
-        [SavableCloneable, PropertyControl(10)]
+        [SavableCloneable, PropertyControl(int.MaxValue, true)]
         public bool UseParallelExecutionOfLogEntries
         {
             get { return _useParallelExecutionOfLogEntries; }
@@ -356,11 +382,13 @@ namespace vApus.Stresstest
         }
         private void _connection_ParentIsNull(object sender, EventArgs e)
         {
-            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
+            if (_connection == sender)
+                Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Connection), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
         }
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
-            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            if (_log == sender)
+                Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {

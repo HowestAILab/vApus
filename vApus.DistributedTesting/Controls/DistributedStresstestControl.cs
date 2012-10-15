@@ -112,7 +112,7 @@ namespace vApus.DistributedTesting
                 else
                 {
                     kvmMasterCPUUsage.BackColor = Color.Orange;
-                    AppendMasterMessages(cpuUsage + " % CPU Usage", LogLevel.Warning);
+                    AppendMessages(cpuUsage + " % CPU Usage", LogLevel.Warning);
                 }
             }
             kvmMasterContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1) ? "N/A" : contextSwitchesPerSecond.ToString();
@@ -131,7 +131,7 @@ namespace vApus.DistributedTesting
                 else if (memoryUsage != 0)
                 {
                     kvmMasterMemoryUsage.BackColor = Color.Orange;
-                    AppendMasterMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
+                    AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
                 }
             }
             if (nicsSent == -1)
@@ -148,7 +148,7 @@ namespace vApus.DistributedTesting
                 else
                 {
                     kvmMasterNicsSent.BackColor = Color.Orange;
-                    AppendMasterMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
+                    AppendMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
                 }
             }
             if (nicsReceived == -1)
@@ -165,7 +165,7 @@ namespace vApus.DistributedTesting
                 else
                 {
                     kvmMasterNicsReceived.BackColor = Color.Orange;
-                    AppendMasterMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
+                    AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
                 }
             }
         }
@@ -562,7 +562,7 @@ namespace vApus.DistributedTesting
 
             return lvwi;
         }
-        public void AppendMasterMessages(string message, LogLevel logLevel = LogLevel.Info)
+        public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info)
         {
             try { eventView.AddEvent((EventViewEventType)logLevel, message); }
             catch { }

@@ -32,7 +32,7 @@ namespace vApus.Stresstest
 
         //Record settings
         private string[] _recordIps = new string[] { };
-        private int[] _recordPorts = new int[] { };
+        private int[] _recordPorts = new int[] { 80 };
         #endregion
 
         #region Properties
@@ -40,7 +40,13 @@ namespace vApus.Stresstest
         [DisplayName("Log Rule Set"), Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
         public LogRuleSet LogRuleSet
         {
-            get { return _logRuleSet; }
+            get
+            {
+                if (_logRuleSet.IsEmpty)
+                    LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+
+                return _logRuleSet;
+            }
             set
             {
                 if (value == null)
@@ -93,10 +99,16 @@ namespace vApus.Stresstest
         public Log()
         {
             if (Solution.ActiveSolution != null)
+            {
                 LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+                _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            }
             else
+            {
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+            }
         }
+
         /// <summary>
         /// Only for sending from master to slave.
         /// </summary>
@@ -130,9 +142,9 @@ namespace vApus.Stresstest
         }
         private void _logRuleSet_ParentIsNull(object sender, EventArgs e)
         {
-            LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+            if (_logRuleSet == sender)
+                LogRuleSet = SolutionComponent.GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
-
         public override void Activate()
         {
             SolutionComponentViewManager.Show(this);
@@ -202,7 +214,8 @@ namespace vApus.Stresstest
                     foreach (StringTree ps in (item as UserAction).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope))
                         parameterizedStructure.Add(ps);
                 else
-                    parameterizedStructure.Add((item as LogEntry).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope));
+                    parameterizedStructure.Add((item as LogEntry).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope,
+                        new HashSet<BaseParameter>()));
 
             return parameterizedStructure;
         }
@@ -293,7 +306,7 @@ namespace vApus.Stresstest
 
             return replacement;
         }
-        public Log Clone()
+        public Log Clone(bool cloneChildren = true)
         {
             Log log = new Log();
             log.Parent = Parent;
@@ -303,11 +316,12 @@ namespace vApus.Stresstest
             log.PreferredTokenDelimiterIndex = _preferredTokenDelimiterIndex;
             log._parameters = _parameters;
 
-            foreach (BaseItem item in this)
-                if (item is UserAction)
-                    log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
-                else
-                    log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
+            if (cloneChildren)
+                foreach (BaseItem item in this)
+                    if (item is UserAction)
+                        log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
+                    else
+                        log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
 
             return log;
 

@@ -195,12 +195,6 @@
       <DependentUpon>MonitorParameterPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="LocalMonitor.cs" />
-    <Compile Include="LocalOrRemoteSMT.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="LocalOrRemoteSMT.Designer.cs">
-      <DependentUpon>LocalOrRemoteSMT.cs</DependentUpon>
-    </Compile>
     <Compile Include="Monitor.cs" />
     <Compile Include="MonitorProject.cs" />
     <Compile Include="MonitorSource.cs" />
@@ -227,7 +221,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
@@ -244,9 +237,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="LocalOrRemoteSMT.resx">
-      <DependentUpon>LocalOrRemoteSMT.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MonitorView.resx">
       <DependentUpon>MonitorView.cs</DependentUpon>
       <SubType>Designer</SubType>

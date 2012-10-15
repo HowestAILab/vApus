@@ -11,7 +11,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using FastColoredTextBoxNS;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -23,12 +26,12 @@ namespace vApus.Stresstest
         private static extern int LockWindowUpdate(int hWnd);
 
         #region Fields
-        private CodeBlock _dllreferences;
         private ConnectionProxyCode _connectionProxyCode;
-        private Point _autoScrollPosition;
-        private delegate void AutoScrollPositionDelegate();
-        private bool _autoScrollPositionSet;
         private int _previousSplitterDistance;
+
+        private CSharpTextStyle _csharpTextStyle;
+
+        private bool _codeInitialized = false;
         #endregion
 
         #region Constructor
@@ -68,153 +71,37 @@ namespace vApus.Stresstest
         }
         private void SetGui()
         {
-            CodeBlock comments = new CodeBlock("/*", "*/", true);
-            comments.ReadOnly = true;
-            document.Add(comments);
+            _csharpTextStyle = new CSharpTextStyle(codeTextBox);
+            codeTextBox.Text = (_connectionProxyCode.Parent as ConnectionProxy).BuildConnectionProxyClass();
 
-            _dllreferences = new CodeBlock(string.Empty, string.Empty, true);
-            _dllreferences.ReadOnly = true;
-            document.Add(_dllreferences);
-
-            CodeBlock preprocessors = new CodeBlock("#region Preprocessors", "#endregion //Preprocessors", true);
-            document.Add(preprocessors);
-
-            CodeBlock defaultUsings = new CodeBlock("#region Default Usings", "#endregion //Default Usings", true);
-            defaultUsings.ReadOnly = true;
-            document.Add(defaultUsings);
-
-            CodeBlock customUsings = new CodeBlock("#region Custom Usings", "#endregion //Custom Usings", true);
-            document.Add(customUsings);
-
-            CodeBlock defaultFields = new CodeBlock("#region Default Fields", "#endregion //Default Fields", true);
-            defaultFields.ReadOnly = true;
-
-            CodeBlock customFields = new CodeBlock("#region Custom Fields", "#endregion //Custom Fields", true);
-
-            CodeBlock isConnectionOpen = new CodeBlock("public bool IsConnectionOpen { get {", "}} //IsConnectionOpen", true);
-            CodeBlock isDisposed = new CodeBlock("public bool IsDisposed { get {", "}} //IsDisposed", true);
-            isDisposed.ReadOnly = true;
-            CodeBlock properties = new CodeBlock("#region Properties", "#endregion //Properties", false, isConnectionOpen, isDisposed);
-
-            CodeBlock constructor = new CodeBlock("public ConnectionProxy() {", "} //ConnectionProxy", true);
-
-            CodeBlock testConnection = new CodeBlock("public void TestConnection(out string error) {", "} //TestConnection", true);
-            CodeBlock openConnection = new CodeBlock("public void OpenConnection() {", "} //OpenConnection", true);
-            CodeBlock closeConnection = new CodeBlock("public void CloseConnection() {", "} //CloseConnection", true);
-            CodeBlock sendAndReceive = new CodeBlock("public void SendAndReceive(StringTree parameterizedLogEntry, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {", "} //SendAndReceive", true);
-            CodeBlock testSendAndReceive = new CodeBlock("public void TestSendAndReceive(StringTree parameterizedLogEntry, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {", "} //TestSendAndReceive", true);
-            CodeBlock dispose = new CodeBlock("public void Dispose() {", "} //Dispose", true);
-            CodeBlock functions = new CodeBlock("#region Functions", "#endregion //Functions", false,
-                testConnection,
-                openConnection,
-                closeConnection,
-                sendAndReceive,
-                testSendAndReceive,
-                dispose);
-
-            CodeBlock freeCoding = new CodeBlock("#region Free Coding", "#endregion //Free Coding", true);
-            CodeBlock __class = new CodeBlock("public class ConnectionProxy : IConnectionProxy {", "} //ConnectionProxy", false,
-                defaultFields,
-                customFields,
-                properties,
-                constructor,
-                functions,
-                freeCoding);
-
-            CodeBlock nameSpace = new CodeBlock("namespace vApus.Stresstest {", "} //vApus.Stresstest", false, __class);
-
-            document.Add(nameSpace);
-            document.Code = (_connectionProxyCode.Parent as ConnectionProxy).BuildConnectionProxyClass();
-            document.RefreshLineNumbers();
-
-            isDisposed.Collapsed = true;
-            defaultUsings.Collapsed = true;
-            defaultFields.Collapsed = true;
-
-            document.CodeTextChangedDelayed += new EventHandler(document_CodeTextChangedDelayed);
-            document.CodeLineCountChanged += new EventHandler<CodeBlock.CodeLineCountChangedEventArgs>(document_CodeLineCountChanged);
-            document.CaretPositionChangedUsingKeyboard += new EventHandler<CodeBlock.CaretPositionChangedEventArgs>(document_CaretPositionChangedUsingKeyboard);
-
-            string body = _dllreferences.Code.Trim();
-            List<string> filenames = new List<string>();
-            filenames.AddRange(body.Split(':')[1].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
-            references.Filenames = filenames;
-
-            find.Document = document;
-            compile.Document = document;
+            references.CodeTextBox = codeTextBox;
+            find.CodeTextBox = codeTextBox;
             compile.ConnectionProxyCode = _connectionProxyCode;
-            execute.Compile = compile;
-            execute.ConnectionProxyCode = _connectionProxyCode;
+
+            codeTextBox.TextChangedDelayed += codeTextBox_TextChangedDelayed;
         }
 
-        private void document_SizeChanged(object sender, EventArgs e)
+        private void codeTextBox_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
         {
-            _autoScrollPositionSet = false;
-            BeginInvoke(new AutoScrollPositionDelegate(SetAutoScrollPosition));
-        }
-        private void SetAutoScrollPosition()
-        {
-            scrollablePanel.AutoScrollPosition = _autoScrollPosition;
-            _autoScrollPositionSet = true;
-        }
-        private void document_CodeTextChangedDelayed(object sender, EventArgs e)
-        {
-            _connectionProxyCode.Code = document.Code;
-            _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-        private void document_CodeLineCountChanged(object sender, CodeBlock.CodeLineCountChangedEventArgs e)
-        {
-            document.RefreshLineNumbers();
-            //Can only set one at a time (begin invoke!)
-            if (_autoScrollPositionSet)
-                _autoScrollPosition = new Point(-1 * scrollablePanel.AutoScrollPosition.X, -1 * scrollablePanel.AutoScrollPosition.Y);
-        }
-        private void document_CaretPositionChangedUsingKeyboard(object sender, CodeBlock.CaretPositionChangedEventArgs e)
-        {
-            //Can only set one at a time (begin invoke!)
-            if (_autoScrollPositionSet)
-                ScrollToCaret(e.CaretPosition);
-        }
-        private void ScrollToCaret(Point caretPosition)
-        {
-            Point location = PointToScreen(scrollablePanel.Location);
-            if (caretPosition.Y < location.Y + 50)
+            if (_codeInitialized)
             {
-                _autoScrollPosition = new Point(-1 * scrollablePanel.AutoScrollPosition.X,
-                    -1 * scrollablePanel.AutoScrollPosition.Y - (location.Y - caretPosition.Y) - 50);
-                _autoScrollPositionSet = false;
-                BeginInvoke(new AutoScrollPositionDelegate(SetAutoScrollPosition));
+                if (_connectionProxyCode.Code != codeTextBox.Text)
+                {
+                    _connectionProxyCode.Code = codeTextBox.Text;
+                    _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                }
             }
-            else if (caretPosition.Y > location.Y + scrollablePanel.Height - 120)
+            else
             {
-                _autoScrollPosition = new Point(-1 * scrollablePanel.AutoScrollPosition.X,
-                    -1 * scrollablePanel.AutoScrollPosition.Y + (caretPosition.Y - (location.Y + scrollablePanel.Height)) + 120);
-                _autoScrollPositionSet = false;
-                BeginInvoke(new AutoScrollPositionDelegate(SetAutoScrollPosition));
+                _codeInitialized = true;
             }
-        }
-
-        private void scrollablePanel_Scroll(object sender, ScrollEventArgs e)
-        {
-            if (_autoScrollPositionSet)
-                _autoScrollPosition = new Point(-1 * scrollablePanel.AutoScrollPosition.X, -1 * scrollablePanel.AutoScrollPosition.Y);
         }
 
         #region Tools
-        private void references_ReferencesChanged(object sender, EventArgs e)
-        {
-            string code = _dllreferences.Header + "\n// dllreferences:";
-            foreach (string filename in references.ShortFilenames)
-                code += filename + ';';
-
-            _dllreferences.Code = code;
-            _connectionProxyCode.Code = document.Code;
-        }
         private void find_FoundButtonClicked(object sender, FindAndReplace.FoundReplacedButtonClickedEventArgs e)
         {
-            document.ClearSelection();
-            e.CodeBlock.SelectLine(e.LineNumber);
-            ScrollToCaret(CaretPosition.Get());
+            codeTextBox.ClearSelection();
+            codeTextBox.SelectLine(e.LineNumber);
         }
         private void compile_CompileError(object sender, EventArgs e)
         {
@@ -222,16 +109,16 @@ namespace vApus.Stresstest
         }
         private void compile_CompileErrorButtonClicked(object sender, Compile.CompileErrorButtonClickedEventArgs e)
         {
-            document.ClearSelection();
-            e.CodeBlock.SelectLine(e.LineNumber);
-            ScrollToCaret(CaretPosition.Get());
+            codeTextBox.ClearSelection();
+            codeTextBox.SelectLine(e.LineNumber);
         }
         private void btnExport_Click(object sender, EventArgs e)
         {
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 using (StreamWriter sw = new StreamWriter(sfd.FileName))
-                    sw.Write(document.Code.Replace("#region", "\n#region"));
+                    sw.Write(codeTextBox.Text);
+#pragma warning disable 0168
                 if (MessageBox.Show("Do you want to open the file?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     try
                     {
@@ -272,28 +159,7 @@ namespace vApus.Stresstest
             if (e.KeyChar == (char)6)
                 tcTools.SelectedIndex = 1;
         }
-        private void btnFoldUnfold_Click(object sender, EventArgs e)
-        {
-            this.Cursor = Cursors.WaitCursor;
-            LockWindowUpdate(this.Handle.ToInt32());
 
-            bool fold = btnFoldUnfold.Text.StartsWith("Fold");
-            foreach (CodeBlock codeBlock in document.GetCodeBlocks())
-                FoldUnFold(codeBlock, fold);
-
-            btnFoldUnfold.Text = (fold ? "Unfold" : "Fold") + " Code Text Blocks";
-
-            LockWindowUpdate(0);
-            this.Cursor = Cursors.Default;
-        }
-        private void FoldUnFold(CodeBlock codeBlock, bool fold)
-        {
-            CodeBlock[] codeBlocks = codeBlock.GetCodeBlocks();
-            if (codeBlocks.Length == 0)
-                codeBlock.Collapsed = fold;
-            else foreach (CodeBlock cb in codeBlocks)
-                    FoldUnFold(cb, fold);
-        }
         #endregion
 
         #endregion

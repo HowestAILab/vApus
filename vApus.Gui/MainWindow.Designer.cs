@@ -68,7 +68,6 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -79,19 +78,19 @@
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblLocalization = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblProcessorAffinity = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel9 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblSocketListener = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel10 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel12 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblProcessorAffinity = new vApus.Util.ToolStripStatusSpringLabel();
             this.lblCleanTempData = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblTempDataSize = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
             this.tmrSetStatusStrip = new System.Windows.Forms.Timer(this.components);
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.newFromTemplateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -114,6 +113,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem,
+            this.newFromTemplateToolStripMenuItem,
             this.openToolStripMenuItem,
             this.openRecentToolStripMenuItem,
             this.toolStripSeparator,
@@ -131,7 +131,7 @@
             this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.newToolStripMenuItem.Text = "&New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
@@ -141,7 +141,7 @@
             this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -151,7 +151,7 @@
             this.clearToolStripMenuItem,
             this.toolStripSeparator2});
             this.openRecentToolStripMenuItem.Name = "openRecentToolStripMenuItem";
-            this.openRecentToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.openRecentToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.openRecentToolStripMenuItem.Text = "Open Recent";
             this.openRecentToolStripMenuItem.DropDownOpening += new System.EventHandler(this.openRecentToolStripMenuItem_DropDownOpening);
             // 
@@ -171,7 +171,7 @@
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(143, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(188, 6);
             // 
             // saveToolStripMenuItem
             // 
@@ -180,7 +180,7 @@
             this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -188,19 +188,19 @@
             // 
             this.saveAsToolStripMenuItem.Enabled = false;
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.saveAsToolStripMenuItem.Text = "Save &As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(143, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(188, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -286,18 +286,10 @@
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.helpToolStripMenuItem1,
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
-            // 
-            // helpToolStripMenuItem1
-            // 
-            this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
-            this.helpToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
-            this.helpToolStripMenuItem1.Text = "Help";
-            this.helpToolStripMenuItem1.Click += new System.EventHandler(this.helpToolStripMenuItem1_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -317,18 +309,17 @@
             this.toolStripStatusLabel3,
             this.toolStripStatusLabel4,
             this.lblLocalization,
+            this.toolStripStatusLabel10,
+            this.toolStripStatusLabel1,
+            this.lblSocketListener,
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel2,
             this.lblProcessorAffinity,
-            this.toolStripStatusLabel9,
-            this.toolStripStatusLabel1,
-            this.lblSocketListener,
-            this.toolStripStatusLabel10,
-            this.toolStripStatusLabel12,
             this.lblCleanTempData,
+            this.lblTempDataSize,
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled,
             this.lblMicrosoftFirewallAutoUpdateEnabled});
-            this.statusStrip.Location = new System.Drawing.Point(0, 740);
+            this.statusStrip.Location = new System.Drawing.Point(0, 704);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1184, 22);
             this.statusStrip.TabIndex = 4;
@@ -393,32 +384,11 @@
             this.lblLocalization.VisitedLinkColor = System.Drawing.Color.Blue;
             this.lblLocalization.Click += new System.EventHandler(this.lblLocalization_Click);
             // 
-            // toolStripStatusLabel6
+            // toolStripStatusLabel10
             // 
-            this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
-            this.toolStripStatusLabel6.Size = new System.Drawing.Size(10, 17);
-            this.toolStripStatusLabel6.Text = "|";
-            // 
-            // toolStripStatusLabel2
-            // 
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(103, 17);
-            this.toolStripStatusLabel2.Text = "Processor Affinity:";
-            // 
-            // lblProcessorAffinity
-            // 
-            this.lblProcessorAffinity.IsLink = true;
-            this.lblProcessorAffinity.Name = "lblProcessorAffinity";
-            this.lblProcessorAffinity.Size = new System.Drawing.Size(16, 17);
-            this.lblProcessorAffinity.Text = "...";
-            this.lblProcessorAffinity.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lblProcessorAffinity.Click += new System.EventHandler(this.lblProcessorAffinity_Click);
-            // 
-            // toolStripStatusLabel9
-            // 
-            this.toolStripStatusLabel9.Name = "toolStripStatusLabel9";
-            this.toolStripStatusLabel9.Size = new System.Drawing.Size(10, 17);
-            this.toolStripStatusLabel9.Text = "|";
+            this.toolStripStatusLabel10.Name = "toolStripStatusLabel10";
+            this.toolStripStatusLabel10.Size = new System.Drawing.Size(10, 17);
+            this.toolStripStatusLabel10.Text = "|";
             // 
             // toolStripStatusLabel1
             // 
@@ -435,26 +405,46 @@
             this.lblSocketListener.VisitedLinkColor = System.Drawing.Color.Blue;
             this.lblSocketListener.Click += new System.EventHandler(this.lblSocketListener_Click);
             // 
-            // toolStripStatusLabel10
+            // toolStripStatusLabel6
             // 
-            this.toolStripStatusLabel10.Name = "toolStripStatusLabel10";
-            this.toolStripStatusLabel10.Size = new System.Drawing.Size(10, 17);
-            this.toolStripStatusLabel10.Text = "|";
+            this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
+            this.toolStripStatusLabel6.Size = new System.Drawing.Size(10, 17);
+            this.toolStripStatusLabel6.Text = "|";
             // 
-            // toolStripStatusLabel12
+            // toolStripStatusLabel2
             // 
-            this.toolStripStatusLabel12.Name = "toolStripStatusLabel12";
-            this.toolStripStatusLabel12.Size = new System.Drawing.Size(128, 17);
-            this.toolStripStatusLabel12.Text = "Clean Temporary Data:";
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(103, 17);
+            this.toolStripStatusLabel2.Text = "Processor Affinity:";
+            // 
+            // lblProcessorAffinity
+            // 
+            this.lblProcessorAffinity.IsLink = true;
+            this.lblProcessorAffinity.Name = "lblProcessorAffinity";
+            this.lblProcessorAffinity.Size = new System.Drawing.Size(580, 17);
+            this.lblProcessorAffinity.Spring = true;
+            this.lblProcessorAffinity.Text = "...";
+            this.lblProcessorAffinity.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblProcessorAffinity.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lblProcessorAffinity.Click += new System.EventHandler(this.lblProcessorAffinity_Click);
             // 
             // lblCleanTempData
             // 
-            this.lblCleanTempData.IsLink = true;
             this.lblCleanTempData.Name = "lblCleanTempData";
-            this.lblCleanTempData.Size = new System.Drawing.Size(30, 17);
-            this.lblCleanTempData.Text = "?MB";
-            this.lblCleanTempData.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lblCleanTempData.Click += new System.EventHandler(this.lblCleanTempData_Click);
+            this.lblCleanTempData.Size = new System.Drawing.Size(128, 17);
+            this.lblCleanTempData.Text = "Clean Temporary Data:";
+            this.lblCleanTempData.Visible = false;
+            // 
+            // lblTempDataSize
+            // 
+            this.lblTempDataSize.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTempDataSize.IsLink = true;
+            this.lblTempDataSize.Name = "lblTempDataSize";
+            this.lblTempDataSize.Size = new System.Drawing.Size(31, 17);
+            this.lblTempDataSize.Text = "?MB";
+            this.lblTempDataSize.Visible = false;
+            this.lblTempDataSize.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lblTempDataSize.Click += new System.EventHandler(this.lblCleanTempData_Click);
             // 
             // lblPipeMicrosoftFirewallAutoUpdateEnabled
             // 
@@ -488,7 +478,7 @@
             this.dockPanel.DockBackColor = System.Drawing.SystemColors.Control;
             this.dockPanel.Location = new System.Drawing.Point(0, 24);
             this.dockPanel.Name = "dockPanel";
-            this.dockPanel.Size = new System.Drawing.Size(1184, 716);
+            this.dockPanel.Size = new System.Drawing.Size(1184, 680);
             dockPanelGradient1.EndColor = System.Drawing.SystemColors.ControlLight;
             dockPanelGradient1.StartColor = System.Drawing.SystemColors.ControlLight;
             autoHideStripSkin1.DockStripGradient = dockPanelGradient1;
@@ -535,11 +525,18 @@
             this.dockPanel.Skin = dockPanelSkin1;
             this.dockPanel.TabIndex = 1;
             // 
+            // newFromTemplateToolStripMenuItem
+            // 
+            this.newFromTemplateToolStripMenuItem.Name = "newFromTemplateToolStripMenuItem";
+            this.newFromTemplateToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.newFromTemplateToolStripMenuItem.Text = "New From Template...";
+            this.newFromTemplateToolStripMenuItem.Click += new System.EventHandler(this.newFromTemplateToolStripMenuItem_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 762);
+            this.ClientSize = new System.Drawing.Size(1184, 726);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.mainMenu);
             this.Controls.Add(this.dockPanel);
@@ -569,7 +566,6 @@
         private System.Windows.Forms.ToolStripMenuItem stresstestToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel;
         private System.Windows.Forms.ToolStripMenuItem stresstestingSolutionExplorerToolStripMenuItem;
@@ -603,14 +599,14 @@
         private System.Windows.Forms.ToolStripMenuItem reportToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
         private System.Windows.Forms.ToolStripStatusLabel lblUpdateNotifier;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel9;
-        private System.Windows.Forms.ToolStripStatusLabel lblProcessorAffinity;
+        private vApus.Util.ToolStripStatusSpringLabel lblProcessorAffinity;
         private System.Windows.Forms.Timer tmrSetStatusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel12;
         private System.Windows.Forms.ToolStripStatusLabel lblCleanTempData;
+        private System.Windows.Forms.ToolStripStatusLabel lblTempDataSize;
         private System.Windows.Forms.ToolStripStatusLabel lblPipeMicrosoftFirewallAutoUpdateEnabled;
         private System.Windows.Forms.ToolStripStatusLabel lblMicrosoftFirewallAutoUpdateEnabled;
+        private System.Windows.Forms.ToolStripMenuItem newFromTemplateToolStripMenuItem;
     }
 }
 

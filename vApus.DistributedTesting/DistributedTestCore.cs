@@ -6,11 +6,12 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
+using System.Threading;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -151,6 +152,10 @@ namespace vApus.DistributedTesting
             //The path where results are stored.
             string subResultDir = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
             _resultPath = Path.Combine(_distributedTest.ResultPath, subResultDir);
+
+#if EnableBetaFeature
+            WriteRestConfig();
+#endif
         }
 
         ~DistributedTestCore()
@@ -294,7 +299,7 @@ namespace vApus.DistributedTesting
                 {
                     if (!_isDisposed && Finished < _usedTileStresstests.Count)
                     {
-#warning allow multiple slaves yadda yadda
+#warning Allow multiple slaves for work distribution
                         foreach (TileStresstest tileStresstest in _usedTileStresstests)
                             if (tileStresstest.BasicTileStresstest.Slaves[0].IP == e.SlaveIP && tileStresstest.BasicTileStresstest.Slaves[0].Port == e.SlavePort)
                                 _failed = AddUniqueToStringArray(_failed, tileStresstest.TileStresstestIndex);
@@ -356,11 +361,10 @@ namespace vApus.DistributedTesting
                             break;
                     }
 
-
                     //Check if it is needed to do anything
-                    if (Running != 0)
+                    if (Running != 0 && Cancelled == 0 && Failed == 0)
                     {
-                        //Thread this as stopped.
+                        //Threat this as stopped.
                         if (okCancelError)
                             _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
 
@@ -422,6 +426,13 @@ namespace vApus.DistributedTesting
                     }
                     InvokeOnTestProgressMessageReceived(ts, tpm);
 
+#if EnableBetaFeature
+                    WriteRestProgress(ts, tpm);
+#endif
+
+                    if (Cancelled != 0 || Failed != 0)
+                        Stop(); //Test is invalid stop the test.
+
                     if (Finished == _usedTileStresstests.Count)
                         HandleFinished();
                 }
@@ -467,7 +478,9 @@ namespace vApus.DistributedTesting
                 catch (Exception ex) { exception = ex; }
 
                 if (exception == null)
-                    foreach (ResultsMessage rm in MasterSideCommunicationHandler.GetResults(out exception))
+                {
+                    Exception[] exceptions;
+                    foreach (ResultsMessage rm in MasterSideCommunicationHandler.GetResults(out exceptions))
                         try
                         {
                             TorrentClient torrentClient = new TorrentClient();
@@ -481,9 +494,13 @@ namespace vApus.DistributedTesting
                         }
                         catch (Exception ex) { exception = ex; }
 
+                    if (exceptions.Length != 0)
+                        exception = new Exception(exceptions.Combine("\n"));
+                }
+
                 if (exception != null)
                 {
-                    ++_resultsReceived;
+                    Interlocked.Increment(ref _resultsReceived);
                     InvokeMessage("Could not receive one or more resuls!\n" + exception.ToString(), LogLevel.Error);
                 }
                 if (_resultsReceived == Finished)
@@ -512,7 +529,7 @@ namespace vApus.DistributedTesting
 
             source = null;
 
-            if (++_resultsReceived == Finished)
+            if (Interlocked.Increment(ref _resultsReceived) == Finished)
                 InvokeOnFinished();
         }
 
@@ -550,6 +567,63 @@ namespace vApus.DistributedTesting
 
                 StaticObjectServiceWrapper.ObjectService.Unsuscribe(this);
             }
+        }
+        #endregion
+
+        #region REST
+        private void WriteRestConfig()
+        {
+            try
+            {
+                vApus.REST.Convert.Converter.ClearWrittenFiles();
+
+                Hashtable testConfigCache = new Hashtable(1);
+                foreach (Tile tile in _distributedTest.Tiles)
+                    foreach (TileStresstest tileStresstest in tile)
+                        if (tileStresstest.Use)
+                            vApus.REST.Convert.Converter.SetTestConfig(testConfigCache, _distributedTest.ToString(), _distributedTest.RunSynchronization.ToString(),
+                                                         "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
+                                                          tileStresstest.BasicTileStresstest.Connection.Label,
+                                                          tileStresstest.BasicTileStresstest.Connection,
+                                                          tileStresstest.BasicTileStresstest.ConnectionProxy,
+                                                          tileStresstest.BasicTileStresstest.Monitors,
+                                                          tileStresstest.BasicTileStresstest.Slaves.Length == 0 ? string.Empty : tileStresstest.BasicTileStresstest.Slaves[0].ToString(),
+                                                          tileStresstest.AdvancedTileStresstest.Log,
+                                                          tileStresstest.AdvancedTileStresstest.LogRuleSet,
+                                                          tileStresstest.AdvancedTileStresstest.ConcurrentUsers,
+                                                          tileStresstest.AdvancedTileStresstest.Precision,
+                                                          tileStresstest.AdvancedTileStresstest.DynamicRunMultiplier,
+                                                          tileStresstest.AdvancedTileStresstest.MinimumDelay,
+                                                          tileStresstest.AdvancedTileStresstest.MaximumDelay,
+                                                          tileStresstest.AdvancedTileStresstest.Shuffle,
+                                                          tileStresstest.AdvancedTileStresstest.Distribute,
+                                                          tileStresstest.AdvancedTileStresstest.MonitorBefore,
+                                                          tileStresstest.AdvancedTileStresstest.MonitorAfter);
+
+                vApus.REST.Convert.Converter.WriteToFile(testConfigCache, "TestConfig");
+            }
+            catch { }
+        }
+        private void WriteRestProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
+        {
+            try
+            {
+                Hashtable testProgressCache = new Hashtable(1);
+                foreach (var tcu in testProgressMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
+                    foreach (var tpu in tcu.TilePrecisionProgressResults)
+                        foreach (var tru in tpu.TileRunProgressResults)
+                            vApus.REST.Convert.Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
+                                                         "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
+                                                         tileStresstest.BasicTileStresstest.Connection.Label,
+                                                         tcu.ConcurrentUsers, tpu.Precision + 1, tru.Run + 1,
+                                                         tru.Metrics,
+                                                         tru.EstimatedRuntimeLeft,
+                                                         testProgressMessage.RunStateChange,
+                                                         testProgressMessage.StresstestResult);
+
+                vApus.REST.Convert.Converter.WriteToFile(testProgressCache, "TestProgress");
+            }
+            catch { }
         }
         #endregion
 

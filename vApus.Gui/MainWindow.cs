@@ -33,10 +33,14 @@ namespace vApus.Gui
         private UpdateNotifierPanel _updateNotifierPanel;
         private LogPanel _logPanel;
         private LogErrorToolTip _logErrorToolTip;
-        private LocalizationPanel _localizationPanel;
         private ProcessorAffinityPanel _processorAffinityPanel;
+        private LocalizationPanel _localizationPanel;
         private CleanTempDataPanel _cleanTempDataPanel;
         private DisableFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
+
+        private ProgressSpammerPanel _progressSpammerPannel;
+
+        private delegate void CloseDelayed();
         #endregion
 
         public MainWindow(string[] args = null)
@@ -70,7 +74,8 @@ namespace vApus.Gui
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
-                if (Solution.ShowStresstestingSolutionExplorer())
+                if (Solution.ShowStresstestingSolutionExplorer() &&
+                    global::vApus.Gui.Properties.Settings.Default.GreetWithWelcomePage == true)
                     _welcome.Show(dockPanel);
                 OnActiveSolutionChanged(null);
 
@@ -102,12 +107,23 @@ namespace vApus.Gui
                     UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
                     //Doing stuff automatically
                     if (Update(host, port, username, password, channel))
-                        this.Close();
+                    {
+                        StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(CloseDelayedCallback));
+                    }
+
+                _progressSpammerPannel = new ProgressSpammerPanel();
             }
             catch (Exception ex)
             {
                 LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
             }
+        }
+        private void CloseDelayedCallback()
+        {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            {
+                this.Close();
+            }, null);
         }
         #endregion
 
@@ -216,6 +232,7 @@ namespace vApus.Gui
                         Solution.SaveActiveSolution();
                     tmrSetStatusStrip.Stop();
 
+                    _welcome.DisableFormClosingEventHandling();
                     //For the DockablePanels that are shown as dockstate document, otherwise the form won't close.
                     _welcome.Hide();
                     _welcome.Close();
@@ -231,6 +248,7 @@ namespace vApus.Gui
             {
                 tmrSetStatusStrip.Stop();
 
+                _welcome.DisableFormClosingEventHandling();
                 //For the DockablePanels that are shown as dockstate document, otherwise the form won't close.
                 _welcome.Hide();
                 _welcome.Close();
@@ -242,6 +260,12 @@ namespace vApus.Gui
         {
             this.Cursor = Cursors.WaitCursor;
             Solution.CreateNew();
+            this.Cursor = Cursors.Default;
+        }
+        private void newFromTemplateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            Solution.CreateNewFromTemplate();
             this.Cursor = Cursors.Default;
         }
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -314,6 +338,9 @@ namespace vApus.Gui
         private void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _welcome.Show(dockPanel);
+            //Show it again the next time.
+            global::vApus.Gui.Properties.Settings.Default.GreetWithWelcomePage = true;
+            global::vApus.Gui.Properties.Settings.Default.Save();
         }
         private void stresstestingSolutionExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -406,7 +433,7 @@ namespace vApus.Gui
                     Process process = new Process();
                     process.EnableRaisingEvents = true;
                     process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " +
-                            port + " " + username + " " + password + " " + channel + " " + true);
+                            port + " " + username + " " + password + " " + channel + " " + false);
 
                     launchedNewUpdater = process.Start();
                     if (launchedNewUpdater)
@@ -443,10 +470,11 @@ namespace vApus.Gui
                 _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
-                _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
+                _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
+                //_optionsDialog.AddOptionsPanel(_progressSpammerPannel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.ShowDialog(this);
@@ -487,6 +515,9 @@ namespace vApus.Gui
                 this.Show();
                 this.TopMost = false;
             }
+            if (m.Msg == 16) //WM_CLOSE
+                _welcome.DisableFormClosingEventHandling();
+
             base.WndProc(ref m);
         }
         #endregion
@@ -534,13 +565,18 @@ namespace vApus.Gui
             if (!SocketListenerLinker.SocketListenerIsRunning)
                 lblSocketListener.Text += " [Stopped]";
 
+            SetWindowsFirewallAutoUpdateLabel();
+
             if (_cleanTempDataPanel != null)
             {
                 double tempDataSizeInMB = _cleanTempDataPanel.TempDataSizeInMB;
-                lblCleanTempData.Text = tempDataSizeInMB + "MB";
-                lblCleanTempData.Font = new Font(lblCleanTempData.Font, tempDataSizeInMB == 0 ? FontStyle.Regular : FontStyle.Bold);
+                lblTempDataSize.Text = tempDataSizeInMB + "MB";
+
+                if (tempDataSizeInMB == 0)
+                    lblCleanTempData.Visible = lblTempDataSize.Visible = lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = false;
+                else
+                    lblCleanTempData.Visible = lblTempDataSize.Visible = true;
             }
-            SetWindowsFirewallAutoUpdateLabel();
         }
         private void SetProcessorAffinityLabel()
         {
@@ -587,11 +623,11 @@ namespace vApus.Gui
         {
             ShowOptionsDialog(2);
         }
-        private void lblProcessorAffinity_Click(object sender, EventArgs e)
+        private void lblSocketListener_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(3);
         }
-        private void lblSocketListener_Click(object sender, EventArgs e)
+        private void lblProcessorAffinity_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(4);
         }
@@ -604,5 +640,6 @@ namespace vApus.Gui
             ShowOptionsDialog(6);
         }
         #endregion
+
     }
 }

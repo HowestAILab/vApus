@@ -167,7 +167,6 @@ namespace vApus.CommitTool
             string files = GetFiles(excludedFilesOrFolders, out fileList, out folderList, out exception);
             if (exception != null) return;
 
-#warning Encrypt the version.ini?
             using (var sw = new StreamWriter(Path.Combine(Application.StartupPath, "version.ini")))
             {
                 sw.WriteLine("[VERSION]");

@@ -31,6 +31,7 @@ namespace vApus.DistributedTesting
         {
             InitializeComponent();
 
+
             //For refreshing the property panels.
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
         }
@@ -143,6 +144,15 @@ namespace vApus.DistributedTesting
                     solutionComponentPropertyPanelAdvanced.Lock();
                 }
             }
+        }
+
+        /// <summary>
+        /// Refresh some properties that are overriden in code.
+        /// </summary>
+        public override void Refresh()
+        {
+            base.Refresh();
+            solutionComponentPropertyPanelAdvanced.Refresh();
         }
         #endregion
     }

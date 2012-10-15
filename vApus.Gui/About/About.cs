@@ -66,7 +66,7 @@ namespace vApus.Gui
             InitializeComponent();
 
             lblDescription.Text = AssemblyDescription;
-            lblCopyright.Text = AssemblyCopyright;
+            txtCopyright.Text = AssemblyCopyright;
 
             _titleFont = new Font(rtxtHistory.Font, FontStyle.Bold);
             _dateFont = new Font(rtxtHistory.Font, FontStyle.Italic);
@@ -113,12 +113,12 @@ namespace vApus.Gui
                     }
                     else if (channelFound)
                     {
-                        lblChannel.Text = "Channel: " + line;
+                        txtChannel.Text = "Channel: " + line;
                         channelFound = false;
                     }
                     else if (versionFound)
                     {
-                        lblVersion.Text = "Version: " + line;
+                        txtVersion.Text = "Version: " + line;
                         versionFound = false;
                     }
                 }

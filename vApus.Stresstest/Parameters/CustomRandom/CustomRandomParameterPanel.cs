@@ -14,6 +14,13 @@ namespace vApus.Stresstest
     public partial class CustomRandomParameterPanel : UserControl
     {
         private CustomRandomParameter _parameter;
+        /// <summary>
+        /// Call Init(...) to set.
+        /// </summary>
+        public CustomRandomParameter Parameter
+        {
+            get { return _parameter; }
+        }
 
         public CustomRandomParameterPanel()
         {
@@ -26,8 +33,6 @@ namespace vApus.Stresstest
             _parameter = solutionComponent as CustomRandomParameter;
             compileCustomRandom.Document = cbGenerate;
             compileCustomRandom.Parameter = _parameter;
-
-            lblReadMe.Text = _parameter.ReadMe;
 
             cbGenerate.ShowLineNumbers = true;
             cbGenerate.Code = _parameter.GenerateFunction;

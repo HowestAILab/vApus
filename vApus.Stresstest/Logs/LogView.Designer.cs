@@ -41,6 +41,7 @@
             this.logSolutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.chk = new System.Windows.Forms.CheckBox();
+            this.errorAndFindSelector = new vApus.Stresstest.ErrorAndFindSelector();
             this.toolStripEdit = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.lblCount = new System.Windows.Forms.ToolStripLabel();
@@ -53,9 +54,11 @@
             this.btnRemove = new System.Windows.Forms.ToolStripButton();
             this.separator3 = new System.Windows.Forms.ToolStripSeparator();
             this.btnActionizeUnactionize = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnCopy = new System.Windows.Forms.ToolStripButton();
+            this.btnPaste = new System.Windows.Forms.ToolStripButton();
             this.largelist = new vApus.Util.LargeList();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.errorAndFindSelector = new vApus.Stresstest.ErrorAndFindSelector();
             this.toolStripImport.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -200,6 +203,18 @@
             this.chk.UseVisualStyleBackColor = true;
             this.chk.CheckStateChanged += new System.EventHandler(this.chk_CheckStateChanged);
             // 
+            // errorAndFindSelector
+            // 
+            this.errorAndFindSelector.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.errorAndFindSelector.Found = null;
+            this.errorAndFindSelector.Location = new System.Drawing.Point(330, 0);
+            this.errorAndFindSelector.Name = "errorAndFindSelector";
+            this.errorAndFindSelector.Size = new System.Drawing.Size(553, 25);
+            this.errorAndFindSelector.TabIndex = 4;
+            this.errorAndFindSelector.SelectError += new System.EventHandler<vApus.Stresstest.SelectErrorEventArgs>(this.errorAndFindSelector_SelectError);
+            this.errorAndFindSelector.Find += new System.EventHandler<vApus.Stresstest.FindEventArgs>(this.errorAndFindSelector_Find);
+            // 
             // toolStripEdit
             // 
             this.toolStripEdit.AutoSize = false;
@@ -215,7 +230,10 @@
             this.btnAddLogEntry,
             this.btnRemove,
             this.separator3,
-            this.btnActionizeUnactionize});
+            this.btnActionizeUnactionize,
+            this.toolStripSeparator1,
+            this.btnCopy,
+            this.btnPaste});
             this.toolStripEdit.Location = new System.Drawing.Point(0, 0);
             this.toolStripEdit.Name = "toolStripEdit";
             this.toolStripEdit.Size = new System.Drawing.Size(941, 25);
@@ -326,6 +344,32 @@
             this.btnActionizeUnactionize.Text = "Actionize Selected Log Entries";
             this.btnActionizeUnactionize.Click += new System.EventHandler(this.btnActionizeUnactionize_Click);
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // btnCopy
+            // 
+            this.btnCopy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnCopy.Enabled = false;
+            this.btnCopy.Image = ((System.Drawing.Image)(resources.GetObject("btnCopy.Image")));
+            this.btnCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnCopy.Name = "btnCopy";
+            this.btnCopy.Size = new System.Drawing.Size(23, 22);
+            this.btnCopy.Text = "Copy checked items";
+            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
+            // 
+            // btnPaste
+            // 
+            this.btnPaste.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnPaste.Image = ((System.Drawing.Image)(resources.GetObject("btnPaste.Image")));
+            this.btnPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnPaste.Name = "btnPaste";
+            this.btnPaste.Size = new System.Drawing.Size(23, 22);
+            this.btnPaste.Text = "Paste at the end";
+            this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
+            // 
             // largelist
             // 
             this.largelist.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -336,18 +380,6 @@
             this.largelist.Size = new System.Drawing.Size(943, 290);
             this.largelist.SizeMode = vApus.Util.SizeMode.StretchHorizontal;
             this.largelist.TabIndex = 2;
-            // 
-            // errorAndFindSelector
-            // 
-            this.errorAndFindSelector.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.errorAndFindSelector.Found = null;
-            this.errorAndFindSelector.Location = new System.Drawing.Point(284, 0);
-            this.errorAndFindSelector.Name = "errorAndFindSelector";
-            this.errorAndFindSelector.Size = new System.Drawing.Size(599, 25);
-            this.errorAndFindSelector.TabIndex = 4;
-            this.errorAndFindSelector.SelectError += new System.EventHandler<vApus.Stresstest.SelectErrorEventArgs>(this.errorAndFindSelector_SelectError);
-            this.errorAndFindSelector.Find += new System.EventHandler<vApus.Stresstest.FindEventArgs>(this.errorAndFindSelector_Find);
             // 
             // LogView
             // 
@@ -402,6 +434,9 @@
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
         private System.Windows.Forms.ToolStripButton btnExportToTextFile;
         private System.Windows.Forms.ToolStripButton btnRedetermineTokens;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripButton btnCopy;
+        private System.Windows.Forms.ToolStripButton btnPaste;
 
     }
 }

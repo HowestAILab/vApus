@@ -194,6 +194,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Connections\ParallelConnectionProxy.cs" />
+    <Compile Include="Connections\Proxies\CodeTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Connections\Proxies\Panels\FindAndReplace.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -212,6 +215,7 @@
     <Compile Include="Controls\MonitorReportControl.Designer.cs">
       <DependentUpon>MonitorReportControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">
       <SubType>Form</SubType>
@@ -298,12 +302,6 @@
     </Compile>
     <Compile Include="Connections\Proxies\ConnectionProxies.cs" />
     <Compile Include="Connections\Proxies\ConnectionProxy.cs" />
-    <Compile Include="Connections\Proxies\Panels\Execute.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Connections\Proxies\Panels\Execute.designer.cs">
-      <DependentUpon>Execute.cs</DependentUpon>
-    </Compile>
     <Compile Include="Connections\Proxies\ConnectionProxyCodeView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -374,10 +372,6 @@
     <Compile Include="Parameters\ParameterView.Designer.cs">
       <DependentUpon>ParameterView.cs</DependentUpon>
     </Compile>
-    <Compile Include="StresstestThreadPoolWithRecycling.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Connections\ConnectionProxyPool.cs" />
     <Compile Include="Connections\IConnectionProxy.cs" />
     <Compile Include="Connections\RuleSets\ConnectionProxySyntaxItem.cs" />
@@ -464,9 +458,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\Panels\FindAndReplace.resx">
       <DependentUpon>FindAndReplace.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\Execute.resx">
-      <DependentUpon>Execute.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\ConnectionProxyCodeView.resx">
       <DependentUpon>ConnectionProxyCodeView.cs</DependentUpon>
@@ -687,6 +678,10 @@
     <Content Include="Resources\UserAction.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

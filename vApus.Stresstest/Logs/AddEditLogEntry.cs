@@ -121,7 +121,7 @@ namespace vApus.Stresstest
 
             root.Tag = _logEntry.LexedLogEntry;
             string lexedLogEntry_ToString = "Validated against: " +
-                _logEntry.LexedLogEntry.ToString(chkShowNamesAndIndices.Checked, chkShowLabels.Checked) +
+                _logEntry.LexedLogEntry.ToString(false, chkShowLabels.Checked) +
                 " [ > Select to Show/Edit Full Log Entry String]";
 
 
@@ -290,7 +290,7 @@ namespace vApus.Stresstest
                     childTreeNode.ImageIndex = 1;
                 }
 
-                string childPartToString = childPart.ToString(chkShowNamesAndIndices.Checked, chkShowLabels.Checked);
+                string childPartToString = childPart.ToString(false, chkShowLabels.Checked);
                 if (childTreeNode.Text != childPartToString)
                 {
                     childTreeNode.Text = childPartToString;

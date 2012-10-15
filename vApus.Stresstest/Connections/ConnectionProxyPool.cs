@@ -21,10 +21,6 @@ namespace vApus.Stresstest
     /// </summary>
     public class ConnectionProxyPool : IDisposable
     {
-        public event EventHandler<LogEntryTestedEventArgs> LogEntryTested;
-        public event EventHandler TestWorkFinished;
-        public event EventHandler<TestWorkExceptionEventArgs> TestWorkException;
-
         #region Fields
         private int _usedConnectionProxies;
         private CompilerUnit _compilerUnit = new CompilerUnit();
@@ -35,8 +31,6 @@ namespace vApus.Stresstest
         private ParallelConnectionProxy[][] _parallelConnectionProxies;
 
         private bool _isShutdown, _isDisposed;
-
-        private StringTree[] _unitTestParameterizedLogEntries;
 
         //Dispose multi threaded.
         [ThreadStatic]
@@ -128,108 +122,6 @@ namespace vApus.Stresstest
         {
             if (_compilerUnit != null)
                 _compilerUnit.DeleteTempFiles();
-        }
-
-        /// <summary>
-        /// The connection proxy class must be compiled with debug == true. After this is finished al will be disposed.
-        /// </summary>
-        /// <param name="log"></param>
-        /// <param name="logEntryIndex">-1 == all log entries.</param>
-        /// <param name="threadCount"></param>
-        public void TestCode(Log log, int logEntryIndex = -1, int threadCount = 1)
-        {
-            if (log == null || log.IsEmpty)
-                throw new Exception("Please select a log.");
-
-            if (log.Count == 0)
-                throw new Exception("This log does not contain any log entries.");
-
-            if (logEntryIndex < -1 || logEntryIndex > log.Count)
-                throw new ArgumentOutOfRangeException("logEntryIndex");
-
-            if (threadCount < 1)
-                throw new ArgumentOutOfRangeException("threadCount");
-
-            Thread t = new Thread(delegate()
-            {
-                try
-                {
-                    var unitTestParameterizedLogEntries = new List<StringTree>();
-                    log.ApplyLogRuleSet();
-
-
-                    if (logEntryIndex == -1)
-                    {
-                        foreach (StringTree st in log.GetParameterizedStructure())
-                            unitTestParameterizedLogEntries.Add(st);
-                    }
-                    else
-                    {
-                        int i = 0;
-                        foreach (StringTree st in log.GetParameterizedStructure())
-                            if (i++ == logEntryIndex)
-                            {
-                                unitTestParameterizedLogEntries.Add(st);
-                                break;
-                            }
-                        if (unitTestParameterizedLogEntries.Count == 0)
-                            throw new ArgumentOutOfRangeException("logEntryIndex");
-                    }
-
-                    _unitTestParameterizedLogEntries = unitTestParameterizedLogEntries.ToArray();
-
-                    SetAndConnectConnectionProxies(threadCount);
-
-                    StresstestThreadPool threadPool = new StresstestThreadPool(TestWork);
-                    threadPool.SetThreads(threadCount);
-                    threadPool.DoWorkAndWaitForIdle();
-                }
-                catch (Exception ex)
-                {
-                    if (!_isDisposed && TestWorkException != null)
-                        TestWorkException(this, new TestWorkExceptionEventArgs(new Exception("Test work exception!\n" + ex)));
-                }
-                finally
-                {
-                    Dispose();
-                    if (TestWorkFinished != null)
-                        TestWorkFinished(this, null);
-                }
-            });
-            t.IsBackground = true;
-            t.Start();
-        }
-        /// <summary>
-        /// Uses IConnectionProxy.TestSendAndReceive instead of IConnectionProxy.SendAndReceive;
-        /// </summary>
-        /// <param name="threadIndex"></param>
-        /// <param name="patternIndex"></param>
-        internal void TestWork(int threadIndex)
-        {
-            DateTime sentAt = DateTime.Now;
-            TimeSpan timeToLastByte = new TimeSpan(); ;
-            Exception exception = null;
-            IConnectionProxy connectionProxy = this[threadIndex];
-            for (int i = 0; i != _unitTestParameterizedLogEntries.Length; i++)
-            {
-                StringTree parameterizedLogEntry = _unitTestParameterizedLogEntries[i];
-                try
-                {
-                    connectionProxy.TestSendAndReceive(parameterizedLogEntry, out sentAt, out timeToLastByte, out exception);
-                    Debug.WriteLine(string.Format("{0}: {1}", Thread.CurrentThread.Name, parameterizedLogEntry.CombineValues()));
-                }
-                catch (Exception ex)
-                {
-                    exception = ex;
-                }
-
-                if (exception != null)
-                    Debug.WriteLine(exception);
-
-                if (LogEntryTested != null)
-                    foreach (EventHandler<LogEntryTestedEventArgs> del in LogEntryTested.GetInvocationList())
-                        del.BeginInvoke(this, new LogEntryTestedEventArgs(Thread.CurrentThread.Name, parameterizedLogEntry, sentAt, timeToLastByte, exception), null, null);
-            }
         }
         /// <summary>
         /// Tests if a single connection can be establisht.
@@ -446,11 +338,11 @@ namespace vApus.Stresstest
                             {
                                 _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
                                 _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
-
-                                if (Interlocked.Increment(ref i) == count)
-                                    disposeWaitHandle.Set();
                             }
                             catch { }
+
+                            if (Interlocked.Increment(ref i) == count)
+                                disposeWaitHandle.Set();
 
                         });
                         t.IsBackground = true;
@@ -478,8 +370,12 @@ namespace vApus.Stresstest
                                 object[] args = new object[] { pConnectionProxy, i, true };
                                 Thread t = new Thread(delegate(object state)
                                 {
-                                    _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
-                                    _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
+                                    try
+                                    {
+                                        _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
+                                        _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
+                                    }
+                                    catch { }
 
                                     if (Interlocked.Increment(ref i) == count)
                                         disposeWaitHandle.Set();
@@ -521,32 +417,6 @@ namespace vApus.Stresstest
         }
         #endregion
 
-        public class LogEntryTestedEventArgs : EventArgs
-        {
-            public string Thread;
-            public StringTree ParameterizedLogEntry;
-            public DateTime SentAt;
-            public TimeSpan TimeToLastByte;
-            public Exception Exception;
-
-            public LogEntryTestedEventArgs(string thread, StringTree parameterizedLogEntry, DateTime sentAt, TimeSpan timeToLastByte, Exception exception = null)
-            {
-                Thread = thread;
-                ParameterizedLogEntry = parameterizedLogEntry;
-                SentAt = sentAt;
-                TimeToLastByte = timeToLastByte;
-                Exception = exception;
-            }
-        }
-        public class TestWorkExceptionEventArgs : EventArgs
-        {
-            public Exception Exception;
-
-            public TestWorkExceptionEventArgs(Exception exception)
-            {
-                Exception = exception;
-            }
-        }
         private class DisposeConnectionProxyWorkItem
         {
             private static object _lock = new object();

@@ -23,6 +23,7 @@ namespace vApus.DistributedTesting
         private bool _shuffle = true;
         private ActionAndLogEntryDistribution _distribute;
         protected internal Log _log;
+        private uint _monitorBefore, _monitorAfter;
         #endregion
 
         #region Properties
@@ -33,7 +34,12 @@ namespace vApus.DistributedTesting
             get
             {
                 if (_log != null)
+                {
+                    if (_log.IsEmpty)
+                        Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+
                     _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
+                }
 
                 return _log;
             }
@@ -150,29 +156,44 @@ namespace vApus.DistributedTesting
             set { _maximumDelay = value; }
         }
 
-        [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns; obligatory for Fast Action and Log Entry Distribution.")]
+        [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
         [SavableCloneable, PropertyControl(6)]
         public bool Shuffle
         {
             get { return _shuffle; }
-            set
-            {
-                if (value == false && _distribute == ActionAndLogEntryDistribution.Fast)
-                    throw new Exception("Fast action and log entry distribution cannot happen unshuffled.");
-                _shuffle = value;
-            }
+            set { _shuffle = value; }
         }
 
-        [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance. Note:This can't be used in combination with parameters (works but it breaks the parameter refresh logic, giving a wrong result).")]
+        [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance.")]
         [SavableCloneable, PropertyControl(7)]
         public ActionAndLogEntryDistribution Distribute
         {
             get { return _distribute; }
+            set { _distribute = value; }
+        }
+        [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
+        [SavableCloneable, PropertyControl(8)]
+        public uint MonitorBefore
+        {
+            get { return _monitorBefore; }
             set
             {
-                if (value == ActionAndLogEntryDistribution.Fast && !_shuffle)
-                    throw new Exception("For 'Fast Action and Log Entry Distribution' the 'Shuffle Actions and Loose Log Entries' property must be set to 'True'.");
-                _distribute = value;
+                if (value > 60)
+                    value = 60;
+                _monitorBefore = value;
+            }
+        }
+
+        [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
+        [SavableCloneable, PropertyControl(9)]
+        public uint MonitorAfter
+        {
+            get { return _monitorAfter; }
+            set
+            {
+                if (value > 60)
+                    value = 60;
+                _monitorAfter = value;
             }
         }
         #endregion
@@ -202,14 +223,15 @@ namespace vApus.DistributedTesting
         }
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
-            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            if (_log == sender)
+                Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
             try
             {
                 if (sender != null && this.Parent != null &&
-                    (sender == this.Parent.GetParent().GetParent().GetParent() || 
+                    (sender == this.Parent.GetParent().GetParent().GetParent() ||
                     sender == this.Parent || sender == (this.Parent as TileStresstest).DefaultAdvancedSettingsTo))
                 {
                     TileStresstest parent = this.Parent as TileStresstest;
@@ -231,6 +253,8 @@ namespace vApus.DistributedTesting
             _maximumDelay = _defaultSettingsTo.MaximumDelay;
             _shuffle = _defaultSettingsTo.Shuffle;
             _distribute = _defaultSettingsTo.Distribute;
+            _monitorBefore = _defaultSettingsTo.MonitorBefore;
+            _monitorAfter = _defaultSettingsTo.MonitorAfter;
 
             if (Solution.ActiveSolution != null)
                 this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
@@ -251,6 +275,8 @@ namespace vApus.DistributedTesting
             clone.MaximumDelayOverride = _maximumDelay;
             clone.Shuffle = _shuffle;
             clone.Distribute = _distribute;
+            clone.MonitorBefore = _monitorBefore;
+            clone.MonitorAfter = _monitorAfter;
             return clone;
         }
         #endregion

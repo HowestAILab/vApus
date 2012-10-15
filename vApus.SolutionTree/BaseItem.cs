@@ -362,7 +362,7 @@ namespace vApus.SolutionTree
         /// <summary>
         /// An item's dependencies are set using branched indices, they must be resolved to load the right values from "referenced" objects.
         /// </summary>
-        internal void ResolveBranchedIndices()
+        public void ResolveBranchedIndices()
         {
             foreach (BaseItem item in this)
                 item.ResolveBranchedIndices();

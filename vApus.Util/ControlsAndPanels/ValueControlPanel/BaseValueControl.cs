@@ -191,18 +191,19 @@ namespace vApus.Util
                     splitterDistance = ValueControl.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom + ValueControl.Margin.Bottom + ValueControl.Margin.Top;
 
                     //Ugly but works.
-                    if (ParentForm.MdiParent == null)
-                    {
-                        ParentForm.TopMost = true;
-                        ParentForm.TopMost = false;
-                        ParentForm.Activate();
-                    }
-                    else
-                    {
-                        ParentForm.MdiParent.TopMost = true;
-                        ParentForm.MdiParent.TopMost = false;
-                        ParentForm.MdiParent.Activate();
-                    }
+                    if (ParentForm != null)
+                        if (ParentForm.MdiParent == null)
+                        {
+                            ParentForm.TopMost = true;
+                            ParentForm.TopMost = false;
+                            ParentForm.Activate();
+                        }
+                        else
+                        {
+                            ParentForm.MdiParent.TopMost = true;
+                            ParentForm.MdiParent.TopMost = false;
+                            ParentForm.MdiParent.Activate();
+                        }
 
                     lblLabel.Select();
                     Application.DoEvents();
@@ -248,18 +249,18 @@ namespace vApus.Util
             object value = _value.__Value;
             if (value == null)
                 value = string.Empty;
-            if (ValueControl is ComboBox)
+            if (value is Enum)
+            {
+                DescriptionAttribute[] attr = value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+                _collapsedTextBox.Text = attr.Length != 0 ? attr[0].Description : value.ToString();
+            }
+            else if (ValueControl is ComboBox)
             {
                 try
                 {
                     _collapsedTextBox.Text = value.ToString();
                 }
                 catch { }
-            }
-            else if (value is Enum)
-            {
-                DescriptionAttribute[] attr = value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
-                _collapsedTextBox.Text = attr.Length != 0 ? attr[0].Description : value.ToString();
             }
             else if (value is string)
             {

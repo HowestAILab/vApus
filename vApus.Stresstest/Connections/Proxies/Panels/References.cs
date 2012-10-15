@@ -9,65 +9,78 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 namespace vApus.Stresstest
 {
     public partial class References : UserControl
     {
-        public event EventHandler ReferencesChanged;
         private AddReferences _addReferences;
 
 
         #region Fields
-        private List<string> _defaultFilenames = new List<string>(new string[] { "System.dll", "System.Data.dll", "vApus.Util.dll", "vApus.Stresstest.dll" });
-        private List<string> _filenames = new List<string>();
+        private CodeTextBox _codeTextBox;
         #endregion
 
         #region Properties
-        
-        [ReadOnly(true)]
-        public List<string> Filenames
+        public CodeTextBox CodeTextBox
+        {
+            get { return _codeTextBox; }
+            set
+            {
+                _codeTextBox = value;
+                SetGui();
+                _codeTextBox.TextChangedDelayed += _codeTextBox_TextChangedDelayed;
+            }
+        }
+
+        private List<string> Filenames
         {
             get
             {
-                List<string> filenames = new List<string>(_filenames.Count + _defaultFilenames.Count);
-                filenames.AddRange(_defaultFilenames);
-                filenames.AddRange(_filenames);
-                filenames.Sort();
+                List<string> filenames = new List<string>();
+
+                string[] split = _codeTextBox.Text.Split(new string[] { "// dllreferences:" }, StringSplitOptions.None);
+                if (split.Length == 2)
+                {
+                    string references = split[1];
+                    references = references.Split(new string[] { "\n", "\r" }, StringSplitOptions.None)[0];
+                    if (references.Length >= 2)
+                        filenames.AddRange(references.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
+                }
+
                 return filenames;
             }
             set
             {
-                _filenames.Clear();
-                foreach (string filename in value)
-                    if (!_defaultFilenames.Contains(filename))
-                        _filenames.Add(filename);
-                if (_filenames.Count == 0)
-                { }
-                lvwCustomReferences.Items.Clear();
-                foreach (string filename in _filenames)
+                string[] split = _codeTextBox.Text.Split(new string[] { "// dllreferences:" }, StringSplitOptions.None);
+                if (split.Length == 2)
                 {
-                    string shortFilename = Path.GetFileName(filename);
-                    ListViewItem item = lvwCustomReferences.Items.Add(shortFilename);
-                    item.Name = shortFilename;
-                    if (filename != shortFilename)
-                        item.Tag = filename;
+                    string references = split[1];
+                    references = references.Split(new string[] { "\n", "\r" }, StringSplitOptions.None)[0];
+
+                    StringBuilder sb = new StringBuilder();
+                    foreach (string reference in value)
+                    {
+                        sb.Append(reference);
+                        sb.Append(';');
+                    }
+
+                    int selectionStart = _codeTextBox.SelectionStart;
+                    _codeTextBox.TextChangedDelayed -= _codeTextBox_TextChangedDelayed;
+                    _codeTextBox.Text = split[0] + "// dllreferences:" + sb.ToString() + split[1].Substring(references.Length);
+                    _codeTextBox.TextChangedDelayed += _codeTextBox_TextChangedDelayed;
+
+                    _codeTextBox.SelectionLength = 0;
+                    _codeTextBox.SelectionStart = _codeTextBox.SelectionStart;
+
+                    _codeTextBox.DoSelectionVisible();
+                    _codeTextBox.ForceCreateCaret();
                 }
             }
         }
-        public IEnumerable<string> ShortFilenames
-        {
-            get
-            {
-                foreach (string filename in _defaultFilenames)
-                    yield return filename;
-                foreach (ListViewItem item in lvwCustomReferences.Items)
-                    yield return item.Text;
-            }
-        }
         #endregion
-
 
         public References()
         {
@@ -75,140 +88,96 @@ namespace vApus.Stresstest
         }
 
         #region Functions
+        private void _codeTextBox_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
+        {
+            SetGui();
+        }
+        private void SetGui()
+        {
+            lvwReferences.Items.Clear();
+            var filenames = Filenames;
+            foreach (string reference in filenames)
+            {
+                ListViewItem item = lvwReferences.Items.Add(reference);
+                item.Name = reference;
+            }
+
+            if (lvwReferences.SelectedIndices.Count == 0 && lvwReferences.Items.Count != 0)
+                lvwReferences.Items[0].Selected = true;
+        }
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (_addReferences == null)
                 _addReferences = new AddReferences();
             if (_addReferences.ShowDialog() == DialogResult.OK)
             {
+                var filenames = Filenames;
                 foreach (string reference in _addReferences.References)
-                    if (!lvwCustomReferences.Items.ContainsKey(reference) && !_filenames.Contains(reference))
-                    {
-                        _filenames.Add(reference);
-                        ListViewItem item = lvwCustomReferences.Items.Add(reference);
-                        item.Name = reference;
-                    }
+                    if (!filenames.Contains(reference))
+                        filenames.Add(reference);
 
-                if (lvwCustomReferences.SelectedIndices.Count == 0 && lvwCustomReferences.Items.Count != 0)
-                    lvwCustomReferences.Items[0].Selected = true;
-
-                if (ReferencesChanged != null)
-                    ReferencesChanged(this, null);
+                Filenames = filenames;
             }
         }
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
+                var filenames = Filenames;
                 foreach (string filename in openFileDialog.FileNames)
-                    if (!_filenames.Contains(filename))
+                {
+                    string shortFilename = Path.GetFileName(filename);
+
+                    if (!filenames.Contains(shortFilename))
+                        filenames.Add(shortFilename);
+                    try
                     {
-                        _filenames.Add(filename);
-                        string shortFilename = Path.GetFileName(filename);
-
-                        if (_filenames.Contains(shortFilename))
-                            _filenames.Remove(shortFilename);
-
-                        ListViewItem item = lvwCustomReferences.Items.ContainsKey(shortFilename) ? lvwCustomReferences.Items[shortFilename] : lvwCustomReferences.Items.Add(shortFilename);
-                        item.Name = shortFilename;
-                        item.Tag = filename;
-
-                        try
-                        {
-                            /*
-                              <runtime>
-                                <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
-                                    <probing privatePath="ConnectionProxyPrerequisites"/>
-                                </assemblyBinding>
-                              </runtime>
+                        /*
+                          <runtime>
+                            <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+                                <probing privatePath="ConnectionProxyPrerequisites"/>
+                            </assemblyBinding>
+                          </runtime>
                              
-                             in the app.config for reference resolving.
-                             */
-                            string connectionProxyPrerequisitesDir = Path.Combine(Application.StartupPath, "ConnectionProxyPrerequisites");
-                            string dest1 = Path.Combine(connectionProxyPrerequisitesDir, shortFilename);
-                            string dest2 = Path.Combine(Application.StartupPath, shortFilename);
-                            if (dest1 != filename || dest2 != filename)
-                            {
-                                if (!Directory.Exists(connectionProxyPrerequisitesDir))
-                                    Directory.CreateDirectory(connectionProxyPrerequisitesDir);
-
-                                File.Copy(filename, dest1, true);
-                            }
-                        }
-                        catch (Exception ex)
+                         in the app.config for reference resolving.
+                         */
+                        string connectionProxyPrerequisitesDir = Path.Combine(Application.StartupPath, "ConnectionProxyPrerequisites");
+                        string dest1 = Path.Combine(connectionProxyPrerequisitesDir, shortFilename);
+                        string dest2 = Path.Combine(Application.StartupPath, shortFilename);
+                        if (dest1 != filename || dest2 != filename)
                         {
-                            MessageBox.Show("Could not copy '" + filename + "' to '" + Path.Combine(Application.StartupPath, shortFilename) + "'.\n" + ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            if (!Directory.Exists(connectionProxyPrerequisitesDir))
+                                Directory.CreateDirectory(connectionProxyPrerequisitesDir);
+
+                            File.Copy(filename, dest1, true);
                         }
                     }
-                if (ReferencesChanged != null)
-                    ReferencesChanged(this, null);
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Could not copy '" + filename + "' to '" + Path.Combine(Application.StartupPath, shortFilename) + "'.\n" + ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                Filenames = filenames;
             }
         }
         private void btnRemove_Click(object sender, EventArgs e)
         {
-            ListViewItem[] items = new ListViewItem[lvwCustomReferences.Items.Count - lvwCustomReferences.SelectedItems.Count];
+            var filenames = Filenames;
+            foreach (ListViewItem item in lvwReferences.Items)
+                if (lvwReferences.SelectedItems.Contains(item))
+                    filenames.Remove(item.Text);
 
-            int i = 0;
-            foreach (ListViewItem item in lvwCustomReferences.Items)
-                if (!item.Selected)
-                {
-                    items[i++] = item;
-                }
-                else
-                {
-                    if (item.Tag != null)
-                    {
-                        _filenames.Remove(item.Tag as string);
-                        string filename = Path.Combine(Application.StartupPath, Path.GetFileName(item.Tag as string));
-                        if (File.Exists(filename))
-                            try
-                            {
-                                File.Delete(filename);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("Could not delete '" + filename + "'.\n" + ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                    }
-                    else
-                    {
-                        _filenames.Remove(item.Text);
-                    }
-                }
-
-            lvwCustomReferences.Items.Clear();
-            lvwCustomReferences.Items.AddRange(items);
-
-            if (ReferencesChanged != null)
-                ReferencesChanged(this, null);
-        }
-        private void Added(ListViewItem item)
-        {
-            this.Cursor = Cursors.WaitCursor;
-            try
-            {
-                if (item.Tag != null)
-                    File.Copy(item.Tag as string, Path.Combine(Application.StartupPath, item.Text));
-
-                if (ReferencesChanged != null)
-                    ReferencesChanged(this, null);
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Could not copy '" + item.Tag + "' to '" + Path.Combine(Application.StartupPath, item.Text) + "'.\n" + ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            this.Cursor = Cursors.Default;
+            Filenames = filenames;
         }
         private void References_Resize(object sender, EventArgs e)
         {
-            clm.Width = lvwCustomReferences.Width - 18;
+            clm.Width = lvwReferences.Width - 18;
         }
 
         private void References_VisibleChanged(object sender, EventArgs e)
         {
-            if (lvwCustomReferences.SelectedIndices.Count == 0 && lvwCustomReferences.Items.Count != 0)
-                lvwCustomReferences.Items[0].Selected = true;
+            if (lvwReferences.SelectedIndices.Count == 0 && lvwReferences.Items.Count != 0)
+                lvwReferences.Items[0].Selected = true;
         }
         #endregion
     }

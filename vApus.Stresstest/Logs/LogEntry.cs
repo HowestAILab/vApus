@@ -64,7 +64,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// Is valid after calling ApplyLogRuleSet.
         /// </summary>
-        
+
         [Description("Specifies if the entry is valid or not."), DisplayName("Lexical Result")]
         public LexicalResult LexicalResult
         {
@@ -86,12 +86,12 @@ namespace vApus.Stresstest
         /// <summary>
         /// Is valid after calling ApplyLogRuleSet.
         /// </summary>
-        
+
         public ASTNode LexedLogEntry
         {
             get { return _lexedLogEntry; }
         }
-        
+
         public LogRuleSet LogRuleSet
         {
             get
@@ -277,11 +277,11 @@ namespace vApus.Stresstest
         /// <param name="beginTokenDelimiter">Needed to dermine parameter tokens</param>
         /// <param name="endTokenDelimiter">Needed to dermine parameter tokens</param>
         /// <param name="chosenNextValueParametersForLScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
-        /// <param name="chosenNextValueParametersForUAScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
+        /// <param name="chosenNextValueParametersForUAScope">Can be an empty hash set but may not be null, used to store all these values for the right scope. If the log entry is not in a user action this should be an empty hash set.</param>
         /// <returns></returns>
         internal StringTree GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter,
                                                   HashSet<BaseParameter> chosenNextValueParametersForLScope,
-                                                  HashSet<BaseParameter> chosenNextValueParametersForUAScope = null)
+                                                  HashSet<BaseParameter> chosenNextValueParametersForUAScope)
         {
             if (chosenNextValueParametersForUAScope == null)
                 chosenNextValueParametersForUAScope = new HashSet<BaseParameter>();
@@ -291,10 +291,11 @@ namespace vApus.Stresstest
                 chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
         }
 
-        public LogEntry Clone()
+        public LogEntry Clone(bool setParent = true)
         {
             LogEntry logEntry = new LogEntry();
-            logEntry.Parent = Parent;
+            if (setParent)
+                logEntry.Parent = Parent;
             logEntry.Occurance = _occurance;
             logEntry.LogEntryString = _logEntryString;
             logEntry.LogEntryStringAsImported = _logEntryStringAsImported;

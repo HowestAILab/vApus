@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdateNotifierPanel));
             this.btnSet = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
@@ -54,6 +55,7 @@
             this.pnlBorderChannel = new System.Windows.Forms.Panel();
             this.cboChannel = new System.Windows.Forms.ComboBox();
             this.btnUpdateManually = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.pnlRefresh.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pic)).BeginInit();
@@ -115,16 +117,17 @@
             // 
             // pnlRefresh
             // 
+            this.pnlRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlRefresh.BackColor = System.Drawing.Color.White;
             this.pnlRefresh.Controls.Add(this.btnRefresh);
             this.pnlRefresh.Controls.Add(this.lbl);
             this.pnlRefresh.Controls.Add(this.pic);
-            this.pnlRefresh.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlRefresh.Enabled = false;
-            this.pnlRefresh.Location = new System.Drawing.Point(0, 155);
+            this.pnlRefresh.Location = new System.Drawing.Point(1, 153);
             this.pnlRefresh.Name = "pnlRefresh";
             this.pnlRefresh.Padding = new System.Windows.Forms.Padding(3);
-            this.pnlRefresh.Size = new System.Drawing.Size(360, 33);
+            this.pnlRefresh.Size = new System.Drawing.Size(358, 33);
             this.pnlRefresh.TabIndex = 1;
             // 
             // btnRefresh
@@ -133,7 +136,7 @@
             this.btnRefresh.AutoSize = true;
             this.btnRefresh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
-            this.btnRefresh.Location = new System.Drawing.Point(332, 5);
+            this.btnRefresh.Location = new System.Drawing.Point(330, 5);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(22, 22);
             this.btnRefresh.TabIndex = 0;
@@ -172,10 +175,10 @@
             this.flpConnectTo.Controls.Add(this.panel3);
             this.flpConnectTo.Controls.Add(this.panel4);
             this.flpConnectTo.Controls.Add(this.panel5);
-            this.flpConnectTo.Location = new System.Drawing.Point(12, 20);
+            this.flpConnectTo.Location = new System.Drawing.Point(13, 20);
             this.flpConnectTo.Name = "flpConnectTo";
             this.flpConnectTo.Padding = new System.Windows.Forms.Padding(3);
-            this.flpConnectTo.Size = new System.Drawing.Size(360, 146);
+            this.flpConnectTo.Size = new System.Drawing.Size(358, 146);
             this.flpConnectTo.TabIndex = 0;
             // 
             // panel1
@@ -244,7 +247,7 @@
             this.nudPort.Size = new System.Drawing.Size(50, 20);
             this.nudPort.TabIndex = 1;
             this.nudPort.Value = new decimal(new int[] {
-            22, //External port 5222
+            22,
             0,
             0,
             0});
@@ -376,9 +379,10 @@
             this.btnUpdateManually.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
             this.btnUpdateManually.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnUpdateManually.Name = "btnUpdateManually";
-            this.btnUpdateManually.Size = new System.Drawing.Size(126, 24);
+            this.btnUpdateManually.Size = new System.Drawing.Size(96, 24);
             this.btnUpdateManually.TabIndex = 2;
-            this.btnUpdateManually.Text = "Update Manually...";
+            this.btnUpdateManually.Text = "Force Update";
+            this.toolTip.SetToolTip(this.btnUpdateManually, "Update all files regardless if they need to be updated.");
             this.btnUpdateManually.UseVisualStyleBackColor = false;
             this.btnUpdateManually.Click += new System.EventHandler(this.btnUpdateManually_Click);
             // 
@@ -441,5 +445,6 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

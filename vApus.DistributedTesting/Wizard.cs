@@ -82,8 +82,12 @@ namespace vApus.DistributedTesting
             nudTests.Value = _stresstestProject.CountOf(typeof(Stresstest.Stresstest));
 
             foreach (Client client in _distributedTest.Clients)
-                dgvClients.Rows.Add(client.HostName.Length == 0 ? client.IP : client.HostName,
-                     client.UserName, client.Domain, client.Password, client.Count, 0);
+            {
+                string ipOrHostname = client.HostName.Length == 0 ? client.IP : client.HostName;
+                ipOrHostname = ipOrHostname.Trim();
+                if (ipOrHostname.Length != null)
+                    dgvClients.Rows.Add(ipOrHostname, client.UserName, client.Domain, client.Password, client.Count, 0);
+            }
 
             RefreshDGV();
 
@@ -236,22 +240,27 @@ namespace vApus.DistributedTesting
         private void SetSlaveCountsPerCores()
         {
             List<int> coreCounts = GetCoreCounts();
-            List<int> slaveCounts = new List<int>(dgvClients.RowCount - 1);
-            for (int i = 0; i != dgvClients.RowCount - 1; i++)
+            if (coreCounts.Count != 0)
             {
-                int slaveCount = (int)(coreCounts[i] / nudSlavesPerCores.Value);
-                slaveCounts.Add(slaveCount);
+                List<int> slaveCounts = new List<int>(dgvClients.RowCount - 1);
+                for (int i = 0; i != dgvClients.RowCount - 1; i++)
+                {
+                    int slaveCount = (int)(coreCounts[i] / nudSlavesPerCores.Value);
+                    slaveCounts.Add(slaveCount);
+                }
+                SetSlaveCountInDataGridView(slaveCounts);
             }
-            SetSlaveCountInDataGridView(slaveCounts);
             SetCoreCountInDataGridView(coreCounts);
             SetCountsInGui();
         }
         private void SetSlaveCountsPerClients()
         {
+            List<int> coreCounts = GetCoreCounts();
             List<int> slaveCounts = new List<int>(dgvClients.RowCount - 1);
             for (int i = 0; i != dgvClients.RowCount - 1; i++)
                 slaveCounts.Add((int)nudSlavesPerClient.Value);
             SetSlaveCountInDataGridView(slaveCounts);
+            SetCoreCountInDataGridView(coreCounts);
             SetCountsInGui();
         }
         /// <summary>
@@ -263,7 +272,6 @@ namespace vApus.DistributedTesting
             this.Cursor = Cursors.WaitCursor;
             //Put all in an array for thread safety.
             List<DataGridViewRow> r = new List<DataGridViewRow>();
-            int i = 0;
             foreach (DataGridViewRow row in dgvClients.Rows)
                 if (row.Cells[0].Value != row.Cells[0].DefaultNewRowValue &&
                     row.Cells[0].Value != null && row.Cells[0].Value.ToString().Length != 0)
@@ -428,17 +436,17 @@ namespace vApus.DistributedTesting
             {
                 IPAddress address = null;
                 string ip = null, hostName = null;
-                if (IPAddress.TryParse(ipOrHostName, out address))
+                try
                 {
-                    ip = ipOrHostName;
-                    hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
-                }
-                else
-                {
-                    try
+                    if (IPAddress.TryParse(ipOrHostName, out address))
+                    {
+                        ip = ipOrHostName;
+                        hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
+                    }
+                    else
                     {
                         ipOrHostName = ipOrHostName.ToLower().Split('.')[0];
-                        IPHostEntry hostEntry = Dns.GetHostEntry(ipOrHostName);
+                        IPHostEntry hostEntry = Dns.GetHostByName(ipOrHostName);
                         foreach (var a in hostEntry.AddressList)
                             if (a.AddressFamily == AddressFamily.InterNetwork)
                             {
@@ -447,20 +455,19 @@ namespace vApus.DistributedTesting
                             }
 
                         ip = address.ToString();
-                        hostName = hostEntry.HostName.ToLower();
+                        hostName = ipOrHostName != "localhost" ? hostEntry.HostName.ToLower() : "localhost";
                     }
-                    catch { }
-                }
 
-                try
-                {
                     lock (_lock)
                         if (wizard._ipsAndHostNames.ContainsKey(ip))
                             wizard._ipsAndHostNames[ip] = hostName.Split('.')[0];
                         else
                             wizard._ipsAndHostNames.Add(ip, hostName.Split('.')[0]);
                 }
-                catch { }
+                catch
+                {
+                    address = null;
+                }
 
                 if (address != null)
                 {
@@ -497,7 +504,7 @@ namespace vApus.DistributedTesting
             {
                 if (toAssignConnections.Length == 0 || toAssignConnections[0].IsEmpty)
                 {
-                    MessageBox.Show("You do not have connections in your solution!",string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("You do not have connections in your solution!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
@@ -694,7 +701,7 @@ namespace vApus.DistributedTesting
                 int mod = numberOfCores % numberOfSlaves; //If it is not a clean division the last slave gets a core extra.
 
                 for (int i = 1; i <= numberOfCores; i++) //One-based pa.
-                    if (!alreadyUsedPAs.Contains(i) && numberUsed++ != numberToUse)
+                    if (!alreadyUsedPAs.Contains(i) && numberUsed++ < numberToUse)
                         pa.Add(i);
 
                 if (pa.Count != 0 && pa[pa.Count - 1] == numberOfCores - 1 && mod != 0)

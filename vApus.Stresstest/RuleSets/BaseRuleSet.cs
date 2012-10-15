@@ -24,7 +24,7 @@ namespace vApus.Stresstest
 
         #region Properties
         [SavableCloneable, PropertyControl(1)]
-        [Description("If the length of the delimiter is zero, the given string will not be splitted into parts (space = valid). Please use <16 0C 02 12$> as it is the default for the log recorder."), DisplayName("Child Delimiter")]
+        [Description("If no delimiter is given, the string will not be splitted into parts (space = valid)."), DisplayName("Child Delimiter")]
         public virtual string ChildDelimiter
         {
             get { return _childDelimiter; }

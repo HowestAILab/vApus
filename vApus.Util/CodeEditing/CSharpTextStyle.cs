@@ -66,6 +66,9 @@ namespace vApus.Util
             e.ChangedRange.SetFoldingMarkers("{", "}");//allow to collapse brackets block
             e.ChangedRange.SetFoldingMarkers(@"#region\b", @"#endregion\b");//allow to collapse #region blocks
             e.ChangedRange.SetFoldingMarkers(@"/\*", @"\*/");//allow to collapse comment block
+
+            //Preprocessor stuff
+            e.ChangedRange.SetStyle(BlueStyle, @"(#define|#undef|#if|#else|#elif|#endif)\b");
         }
     }
 }

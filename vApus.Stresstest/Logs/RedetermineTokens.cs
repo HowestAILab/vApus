@@ -101,17 +101,11 @@ namespace vApus.Stresstest
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (_warning &&
-                MessageBox.Show("The chosen delimiters do not occur in the log entries as they were imported [If the error button is not shown!],\nbut they do in the editted log entry strings.\nAre you sure you want to use these, this can make the log invalid!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
-                return;
-            if (_error)
+            if ((_warning || _error) &&
+                        MessageBox.Show("Are you sure you want to use these delimiters, this can make the log invalid!", string.Empty, MessageBoxButtons.YesNo, 
+                        MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
             {
-                if (MessageBox.Show("The chosen delimiters do occur in the log entries as they were imported.\nThese can only be applied if these are modified themself.\nA unique string that replaces the newly chosen delimiters and it's content will be generated prefixed with 'begin' or 'end'.\nAre you sure?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                    return;
-
-                string replacement = _log.ReplaceTokenDelimitersInLogEntryStringAsImported(lblNewBegin.Text, lblNewEnd.Text);
-
-                MessageBox.Show("Replaced '" + lblNewBegin.Text + "' with 'begin" + replacement + "'; Replaced '" + lblNewEnd.Text + "' with 'end" + replacement + "'.", string.Empty, MessageBoxButtons.OK);
+                return;
             }
 
             //Old indices are equal to the new ones.

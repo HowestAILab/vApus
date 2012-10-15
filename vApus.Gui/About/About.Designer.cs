@@ -30,7 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(About));
             this.pnl = new System.Windows.Forms.Panel();
-            this.lblChannel = new System.Windows.Forms.Label();
+            this.txtChannel = new System.Windows.Forms.TextBox();
             this.lblWebsite = new System.Windows.Forms.LinkLabel();
             this.tc = new System.Windows.Forms.TabControl();
             this.tbpAuthors = new System.Windows.Forms.TabPage();
@@ -39,8 +39,8 @@
             this.rtxtHistory = new System.Windows.Forms.RichTextBox();
             this.tbpLicenses = new System.Windows.Forms.TabPage();
             this.rtxtLicenses = new System.Windows.Forms.RichTextBox();
-            this.lblCopyright = new System.Windows.Forms.Label();
-            this.lblVersion = new System.Windows.Forms.Label();
+            this.txtCopyright = new System.Windows.Forms.TextBox();
+            this.txtVersion = new System.Windows.Forms.TextBox();
             this.lblDescription = new System.Windows.Forms.Label();
             this.pnl.SuspendLayout();
             this.tc.SuspendLayout();
@@ -52,11 +52,11 @@
             // pnl
             // 
             this.pnl.BackColor = System.Drawing.Color.White;
-            this.pnl.Controls.Add(this.lblChannel);
+            this.pnl.Controls.Add(this.txtChannel);
             this.pnl.Controls.Add(this.lblWebsite);
             this.pnl.Controls.Add(this.tc);
-            this.pnl.Controls.Add(this.lblCopyright);
-            this.pnl.Controls.Add(this.lblVersion);
+            this.pnl.Controls.Add(this.txtCopyright);
+            this.pnl.Controls.Add(this.txtVersion);
             this.pnl.Controls.Add(this.lblDescription);
             this.pnl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnl.Location = new System.Drawing.Point(0, 0);
@@ -64,17 +64,19 @@
             this.pnl.Size = new System.Drawing.Size(628, 441);
             this.pnl.TabIndex = 4;
             // 
-            // lblChannel
+            // txtChannel
             // 
-            this.lblChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblChannel.ForeColor = System.Drawing.Color.SteelBlue;
-            this.lblChannel.Location = new System.Drawing.Point(28, 56);
-            this.lblChannel.Name = "lblChannel";
-            this.lblChannel.Size = new System.Drawing.Size(580, 18);
-            this.lblChannel.TabIndex = 13;
-            this.lblChannel.Text = "Channel";
+            this.txtChannel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtChannel.ForeColor = System.Drawing.Color.SteelBlue;
+            this.txtChannel.Location = new System.Drawing.Point(31, 56);
+            this.txtChannel.Name = "txtChannel";
+            this.txtChannel.Size = new System.Drawing.Size(577, 13);
+            this.txtChannel.TabIndex = 13;
+            this.txtChannel.TabStop = false;
+            this.txtChannel.Text = "Channel";
             // 
             // lblWebsite
             // 
@@ -168,29 +170,33 @@
             this.rtxtLicenses.TabIndex = 0;
             this.rtxtLicenses.Text = "";
             // 
-            // lblCopyright
+            // txtCopyright
             // 
-            this.lblCopyright.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtCopyright.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblCopyright.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCopyright.ForeColor = System.Drawing.Color.SteelBlue;
-            this.lblCopyright.Location = new System.Drawing.Point(28, 75);
-            this.lblCopyright.Name = "lblCopyright";
-            this.lblCopyright.Size = new System.Drawing.Size(580, 18);
-            this.lblCopyright.TabIndex = 7;
-            this.lblCopyright.Text = "Copyright";
+            this.txtCopyright.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtCopyright.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtCopyright.ForeColor = System.Drawing.Color.SteelBlue;
+            this.txtCopyright.Location = new System.Drawing.Point(31, 75);
+            this.txtCopyright.Name = "txtCopyright";
+            this.txtCopyright.Size = new System.Drawing.Size(577, 13);
+            this.txtCopyright.TabIndex = 7;
+            this.txtCopyright.TabStop = false;
+            this.txtCopyright.Text = "Copyright";
             // 
-            // lblVersion
+            // txtVersion
             // 
-            this.lblVersion.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtVersion.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblVersion.ForeColor = System.Drawing.Color.SteelBlue;
-            this.lblVersion.Location = new System.Drawing.Point(28, 38);
-            this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(580, 18);
-            this.lblVersion.TabIndex = 6;
-            this.lblVersion.Text = "Version";
+            this.txtVersion.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtVersion.ForeColor = System.Drawing.Color.SteelBlue;
+            this.txtVersion.Location = new System.Drawing.Point(31, 38);
+            this.txtVersion.Name = "txtVersion";
+            this.txtVersion.Size = new System.Drawing.Size(577, 13);
+            this.txtVersion.TabIndex = 6;
+            this.txtVersion.TabStop = false;
+            this.txtVersion.Text = "Version";
             // 
             // lblDescription
             // 
@@ -217,6 +223,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "About";
             this.pnl.ResumeLayout(false);
+            this.pnl.PerformLayout();
             this.tc.ResumeLayout(false);
             this.tbpAuthors.ResumeLayout(false);
             this.tbpHistory.ResumeLayout(false);
@@ -234,12 +241,12 @@
         private System.Windows.Forms.RichTextBox rtxtHistory;
         private System.Windows.Forms.TabPage tbpLicenses;
         private System.Windows.Forms.RichTextBox rtxtLicenses;
-        private System.Windows.Forms.Label lblCopyright;
-        private System.Windows.Forms.Label lblVersion;
+        private System.Windows.Forms.TextBox txtCopyright;
+        private System.Windows.Forms.TextBox txtVersion;
         private System.Windows.Forms.Label lblDescription;
         private AuthorGrid authorGrid;
         private System.Windows.Forms.LinkLabel lblWebsite;
-        private System.Windows.Forms.Label lblChannel;
+        private System.Windows.Forms.TextBox txtChannel;
 
 
     }

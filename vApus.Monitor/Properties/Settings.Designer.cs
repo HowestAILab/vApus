@@ -22,41 +22,5 @@ namespace vApus.Monitor.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool rdbLocal {
-            get {
-                return ((bool)(this["rdbLocal"]));
-            }
-            set {
-                this["rdbLocal"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string txtIP {
-            get {
-                return ((string)(this["txtIP"]));
-            }
-            set {
-                this["txtIP"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool chkSaveSettings {
-            get {
-                return ((bool)(this["chkSaveSettings"]));
-            }
-            set {
-                this["chkSaveSettings"] = value;
-            }
-        }
     }
 }

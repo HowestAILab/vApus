@@ -28,11 +28,43 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.cbGenerate = new vApus.Stresstest.CodeBlock();
+            this.components = new System.ComponentModel.Container();
             this.chkUnique = new System.Windows.Forms.CheckBox();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.compileCustomRandom = new vApus.Stresstest.TestCustomRandom();
-            this.lblReadMe = new System.Windows.Forms.Label();
+            this.cbGenerate = new vApus.Stresstest.CodeBlock();
             this.SuspendLayout();
+            // 
+            // chkUnique
+            // 
+            this.chkUnique.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkUnique.AutoSize = true;
+            this.chkUnique.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkUnique.Location = new System.Drawing.Point(12, 298);
+            this.chkUnique.Name = "chkUnique";
+            this.chkUnique.Size = new System.Drawing.Size(441, 22);
+            this.chkUnique.TabIndex = 1;
+            this.chkUnique.Text = "Return value is unique for each call (keep infinite loops in mind!)";
+            this.chkUnique.UseVisualStyleBackColor = true;
+            this.chkUnique.CheckedChanged += new System.EventHandler(this.chkUnique_CheckedChanged);
+            // 
+            // toolTip
+            // 
+            this.toolTip.AutoPopDelay = 20000;
+            this.toolTip.InitialDelay = 100;
+            this.toolTip.ReshowDelay = 100;
+            // 
+            // compileCustomRandom
+            // 
+            this.compileCustomRandom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.compileCustomRandom.BackColor = System.Drawing.Color.White;
+            this.compileCustomRandom.Location = new System.Drawing.Point(0, 326);
+            this.compileCustomRandom.Name = "compileCustomRandom";
+            this.compileCustomRandom.Padding = new System.Windows.Forms.Padding(9);
+            this.compileCustomRandom.Size = new System.Drawing.Size(915, 173);
+            this.compileCustomRandom.TabIndex = 3;
+            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
             // 
             // cbGenerate
             // 
@@ -56,45 +88,10 @@
             this.cbGenerate.TabIndex = 0;
             this.cbGenerate.CodeTextChangedDelayed += new System.EventHandler(this.cbGenerate_CodeTextChangedDelayed);
             // 
-            // chkUnique
-            // 
-            this.chkUnique.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkUnique.AutoSize = true;
-            this.chkUnique.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkUnique.Location = new System.Drawing.Point(12, 298);
-            this.chkUnique.Name = "chkUnique";
-            this.chkUnique.Size = new System.Drawing.Size(441, 22);
-            this.chkUnique.TabIndex = 2;
-            this.chkUnique.Text = "Return value is unique for each call (keep infinite loops in mind!)";
-            this.chkUnique.UseVisualStyleBackColor = true;
-            this.chkUnique.CheckedChanged += new System.EventHandler(this.chkUnique_CheckedChanged);
-            // 
-            // compileCustomRandom
-            // 
-            this.compileCustomRandom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.compileCustomRandom.BackColor = System.Drawing.Color.White;
-            this.compileCustomRandom.Location = new System.Drawing.Point(0, 326);
-            this.compileCustomRandom.Name = "compileCustomRandom";
-            this.compileCustomRandom.Padding = new System.Windows.Forms.Padding(9);
-            this.compileCustomRandom.Size = new System.Drawing.Size(915, 173);
-            this.compileCustomRandom.TabIndex = 1;
-            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
-            // 
-            // lblReadMe
-            // 
-            this.lblReadMe.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblReadMe.AutoSize = true;
-            this.lblReadMe.Location = new System.Drawing.Point(459, 303);
-            this.lblReadMe.Name = "lblReadMe";
-            this.lblReadMe.Size = new System.Drawing.Size(0, 13);
-            this.lblReadMe.TabIndex = 3;
-            // 
             // CustomRandomParameterPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.lblReadMe);
             this.Controls.Add(this.chkUnique);
             this.Controls.Add(this.compileCustomRandom);
             this.Controls.Add(this.cbGenerate);
@@ -111,6 +108,6 @@
         private CodeBlock cbGenerate;
         private TestCustomRandom compileCustomRandom;
         private System.Windows.Forms.CheckBox chkUnique;
-        private System.Windows.Forms.Label lblReadMe;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

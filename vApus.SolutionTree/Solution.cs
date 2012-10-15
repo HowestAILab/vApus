@@ -276,6 +276,70 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             }
             return false;
         }
+
+        public static bool CreateNewFromTemplate()
+        {
+            return CreateNewFromTemplate(null);
+        }
+        private static bool CreateNewFromTemplate(string fileName)
+        {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
+            {
+                DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes && SaveActiveSolution())
+                    return LoadSolutionFromTemplate(fileName);
+                else if (result == DialogResult.No)
+                    return LoadSolutionFromTemplate(fileName);
+                //Do nothing on cancel.
+            }
+            else
+            {
+                return LoadSolutionFromTemplate(fileName);
+            }
+            return false;
+        }
+        private static bool LoadSolutionFromTemplate(string fileName)
+        {
+            string errorMessage = string.Empty;
+            try
+            {
+                if (fileName != null)
+                {
+                    Solution sln = new Solution();
+                    sln.FileName = fileName;
+                    sln.Load(out errorMessage);
+                    sln.FileName = null;
+                    ActiveSolution = sln;
+                    ActiveSolution.ResolveBranchedIndices();
+                    return true;
+                }
+                else
+                {
+                    if (_ofd.ShowDialog() == DialogResult.OK)
+                    {
+                        Solution sln = new Solution();
+                        sln.FileName = _ofd.FileName;
+                        sln.Load(out errorMessage);
+                        sln.FileName = null;
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                        return true;
+                    }
+                }
+            }
+            catch { throw; }
+            finally
+            {
+                if (errorMessage.Length > 0)
+                    MessageBox.Show(@"Failed loading one or more items/properties.
+
+This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
+Take a copy of the file to be sure and test if stresstesting works.
+
+See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            return false;
+        }
         #endregion
 
         #endregion
@@ -313,12 +377,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         public string FileName
         {
             get { return _fileName; }
-            private set
-            {
-                if (value == null)
-                    throw new ArgumentNullException("filename");
-                _fileName = value;
-            }
+            private set { _fileName = value; }
         }
         public bool IsSaved
         {

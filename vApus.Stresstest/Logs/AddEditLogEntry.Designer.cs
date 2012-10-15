@@ -32,7 +32,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddEditLogEntry));
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.chkShowLabels = new System.Windows.Forms.CheckBox();
-            this.chkShowNamesAndIndices = new System.Windows.Forms.CheckBox();
             this.flpTokens = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.cboParameterScope = new System.Windows.Forms.ComboBox();
@@ -86,18 +85,6 @@
             this.chkShowLabels.Text = "Show Labels";
             this.chkShowLabels.UseVisualStyleBackColor = true;
             this.chkShowLabels.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
-            // 
-            // chkShowNamesAndIndices
-            // 
-            this.chkShowNamesAndIndices.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkShowNamesAndIndices.AutoSize = true;
-            this.chkShowNamesAndIndices.Location = new System.Drawing.Point(100, 701);
-            this.chkShowNamesAndIndices.Name = "chkShowNamesAndIndices";
-            this.chkShowNamesAndIndices.Size = new System.Drawing.Size(147, 17);
-            this.chkShowNamesAndIndices.TabIndex = 1;
-            this.chkShowNamesAndIndices.Text = "Show Names and Indices";
-            this.chkShowNamesAndIndices.UseVisualStyleBackColor = true;
-            this.chkShowNamesAndIndices.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
             // 
             // flpTokens
             // 
@@ -333,7 +320,6 @@
             // 
             this.split1.Panel1.BackColor = System.Drawing.SystemColors.Control;
             this.split1.Panel1.Controls.Add(this.chkVisualizeWhitespace);
-            this.split1.Panel1.Controls.Add(this.chkShowNamesAndIndices);
             this.split1.Panel1.Controls.Add(this.chkShowLabels);
             this.split1.Panel1.Controls.Add(this.split2);
             // 
@@ -385,7 +371,6 @@
         #endregion
 
         private System.Windows.Forms.TreeView tvwValidation;
-        private System.Windows.Forms.CheckBox chkShowNamesAndIndices;
         private System.Windows.Forms.ImageList imageList;
         private System.Windows.Forms.SplitContainer split2;
         private System.Windows.Forms.CheckBox chkShowLabels;

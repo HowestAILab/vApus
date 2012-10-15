@@ -316,7 +316,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="data"></param>
         /// <param name="direct"></param>
-        private void SendBytes(byte[] data)
+        public void SendBytes(byte[] data)
         {
             _socket.SendTo(data, _sendSocketFlags, _remoteEP);
         }
@@ -466,7 +466,7 @@ namespace vApus.Util
         /// Receives bytes.
         /// </summary>
         /// <returns></returns>
-        private byte[] ReceiveBytes()
+        public byte[] ReceiveBytes()
         {
             _buffer = new byte[_socket.ReceiveBufferSize];
             // Read data from the remote device.

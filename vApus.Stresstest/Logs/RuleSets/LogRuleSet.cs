@@ -30,6 +30,13 @@ namespace vApus.Stresstest
         #endregion
 
         #region Properties
+        [SavableCloneable, PropertyControl(1)]
+        [Description("If no delimiter is given, the log entry will not be splitted into parts (space = valid). Please use <16 0C 02 12$> as it is the default for the log recorder. Just like new lines this is replaced by \"◦\" in the labels of the log entry controls for readability."), DisplayName("Child Delimiter")]
+        public override string ChildDelimiter
+        {
+            get { return base.ChildDelimiter; }
+            set { base.ChildDelimiter = value; }
+        }
         [SavableCloneable, PropertyControl(3)]
         [Description("A string that specifies single line comments, for example: \"//\"."), DisplayName("Single Line Comment String")]
         public string SingleLineCommentString
@@ -92,7 +99,7 @@ namespace vApus.Stresstest
         {
             BaseItem.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(BaseItem_SolutionComponentChanged);
         }
-               /// <summary>
+        /// <summary>
         /// Only for sending from master to slave.
         /// </summary>
         /// <param name="info"></param>

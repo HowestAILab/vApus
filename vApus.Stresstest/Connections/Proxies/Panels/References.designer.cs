@@ -32,9 +32,8 @@
             this.btnBrowse = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.lvwCustomReferences = new System.Windows.Forms.ListView();
+            this.lvwReferences = new System.Windows.Forms.ListView();
             this.clm = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.lblDefaultReferences = new System.Windows.Forms.Label();
             this.btnAdd = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
@@ -80,38 +79,26 @@
             this.openFileDialog.Filter = "Dll files|*.dll";
             this.openFileDialog.Multiselect = true;
             // 
-            // lvwCustomReferences
+            // lvwReferences
             // 
-            this.lvwCustomReferences.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.lvwReferences.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lvwCustomReferences.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.lvwReferences.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clm});
-            this.lvwCustomReferences.FullRowSelect = true;
-            this.lvwCustomReferences.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
-            this.lvwCustomReferences.HideSelection = false;
-            this.lvwCustomReferences.Location = new System.Drawing.Point(15, 25);
-            this.lvwCustomReferences.Name = "lvwCustomReferences";
-            this.lvwCustomReferences.Size = new System.Drawing.Size(470, 108);
-            this.lvwCustomReferences.Sorting = System.Windows.Forms.SortOrder.Ascending;
-            this.lvwCustomReferences.TabIndex = 0;
-            this.lvwCustomReferences.UseCompatibleStateImageBehavior = false;
-            this.lvwCustomReferences.View = System.Windows.Forms.View.Details;
+            this.lvwReferences.FullRowSelect = true;
+            this.lvwReferences.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lvwReferences.HideSelection = false;
+            this.lvwReferences.Location = new System.Drawing.Point(15, 12);
+            this.lvwReferences.Name = "lvwReferences";
+            this.lvwReferences.Size = new System.Drawing.Size(470, 121);
+            this.lvwReferences.TabIndex = 0;
+            this.lvwReferences.UseCompatibleStateImageBehavior = false;
+            this.lvwReferences.View = System.Windows.Forms.View.Details;
             // 
             // clm
             // 
             this.clm.Width = 451;
-            // 
-            // lblDefaultReferences
-            // 
-            this.lblDefaultReferences.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblDefaultReferences.AutoSize = true;
-            this.lblDefaultReferences.Location = new System.Drawing.Point(12, 9);
-            this.lblDefaultReferences.Name = "lblDefaultReferences";
-            this.lblDefaultReferences.Size = new System.Drawing.Size(292, 13);
-            this.lblDefaultReferences.TabIndex = 6;
-            this.lblDefaultReferences.Text = "System.dll;System.Data.dll;vApus.Util.dll;vApus.Stresstest.dll;";
             // 
             // btnAdd
             // 
@@ -134,8 +121,7 @@
             // 
             // References
             // 
-            this.Controls.Add(this.lblDefaultReferences);
-            this.Controls.Add(this.lvwCustomReferences);
+            this.Controls.Add(this.lvwReferences);
             this.Controls.Add(this.btnRemove);
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.btnBrowse);
@@ -154,9 +140,8 @@
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.Button btnRemove;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private System.Windows.Forms.ListView lvwCustomReferences;
+        private System.Windows.Forms.ListView lvwReferences;
         private System.Windows.Forms.ColumnHeader clm;
-        private System.Windows.Forms.Label lblDefaultReferences;
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.ToolTip toolTip;
 

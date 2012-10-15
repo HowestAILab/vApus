@@ -31,7 +31,13 @@ namespace vApus.Stresstest
         [Description("To be able to connect to the application-to-test."), DisplayName("Connection Proxy")]
         public ConnectionProxy ConnectionProxy
         {
-            get { return _connectionProxy; }
+            get
+            {
+                if (_connectionProxy.IsEmpty)
+                    ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+
+                return _connectionProxy;
+            }
             set
             {
                 if (value == null)
@@ -42,10 +48,6 @@ namespace vApus.Stresstest
             }
         }
 
-        private void _connectionProxy_ParentIsNull(object sender, EventArgs e)
-        {
-            ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
-        }
         [SavableCloneable(true)]
         [DisplayName("Connection String")]
         [ReadOnly(true), Browsable(false)]
@@ -72,9 +74,15 @@ namespace vApus.Stresstest
         public Connection()
         {
             if (Solution.ActiveSolution != null)
+            {
                 ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+                if (_parameters == null)
+                    _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            }
             else
+            {
                 Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+            }
         }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
@@ -109,6 +117,12 @@ namespace vApus.Stresstest
         #endregion
 
         #region Functions
+        private void _connectionProxy_ParentIsNull(object sender, EventArgs e)
+        {
+            if (_connectionProxy == sender)
+                ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+        }
+
         /// <summary>
         /// Build and returns a new connection proxy class. 
         /// </summary>
@@ -117,7 +131,7 @@ namespace vApus.Stresstest
         {
             return _connectionProxy.BuildConnectionProxyClass(_connectionString);
         }
-       
+
         /// <summary>
         /// Only for sending from master to slave.
         /// </summary>

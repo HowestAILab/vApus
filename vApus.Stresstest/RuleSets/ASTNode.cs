@@ -123,17 +123,20 @@ namespace vApus.Stresstest
             StringTree st = new StringTree(string.Empty, _childDelimiter);
 
             if (this.Count == 0)
+            {
                 st.Value = ParameterizeValue(parameterTokens,
                                              chosenNextValueParametersForLScope,
                                              chosenNextValueParametersForUAScope,
                                              chosenNextValueParametersForLEScope);
+            }
             else
+            {
                 foreach (ASTNode node in this)
                     st.Add(node.GetParameterizedStructure(parameterTokens,
                                                           chosenNextValueParametersForLScope,
                                                           chosenNextValueParametersForUAScope,
                                                           chosenNextValueParametersForLEScope));
-
+            }
             return st;
         }
         public Dictionary<string, BaseParameter> GetParameterTokens(string beginTokenDelimiter, string endTokenDelimiter)
@@ -179,7 +182,7 @@ namespace vApus.Stresstest
                 if (parameterizedValue.Contains(token))
                 {
                     var parameter = parameterTokens[token];
-                    bool next = false;
+                    bool next = false; //Can a next value be determined, this is based on if it could be added to the right hash set or not.
 
                     if (token.Contains(LOG_PARAMETER_SCOPE))
                     {

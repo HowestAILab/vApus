@@ -129,6 +129,9 @@
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>
+    </NoWarn>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -222,6 +225,12 @@
     <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.designer.cs">
       <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\ProgressSpamming\ProgressSpammerPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ProgressSpamming\ProgressSpammerPanel.Designer.cs">
+      <DependentUpon>ProgressSpammerPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsAndPanels\TabControlWithAdjustableBorders.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -264,6 +273,9 @@
       <DependentUpon>LargeList.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\ScrollablePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ToolStripStatusSpringLabel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.cs">
@@ -354,6 +366,7 @@
     <Compile Include="ControlsAndPanels\ValueControlPanel\ValueControlPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Countdown.cs" />
     <Compile Include="Dialogs\LogMessageDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -443,6 +456,7 @@
       <DependentUpon>LogPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
+    <Compile Include="MultimediaTimer.cs" />
     <Compile Include="ProcessorAffinityCalculator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -475,17 +489,17 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifier.cs" />
-    <Compile Include="Tracert\Tracert.cs" />
-    <Compile Include="Tracert\TracertControl.cs">
+    <Compile Include="ControlsAndPanels\Tracert\Tracert.cs" />
+    <Compile Include="ControlsAndPanels\Tracert\TracertControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Tracert\TracertControl.Designer.cs">
+    <Compile Include="ControlsAndPanels\Tracert\TracertControl.Designer.cs">
       <DependentUpon>TracertControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Tracert\TracertDialog.cs">
+    <Compile Include="ControlsAndPanels\Tracert\TracertDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Tracert\TracertDialog.Designer.cs">
+    <Compile Include="ControlsAndPanels\Tracert\TracertDialog.Designer.cs">
       <DependentUpon>TracertDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="WeightedRandom.cs" />
@@ -514,6 +528,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\ProcessorAffinityPanel.resx">
       <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\ProgressSpamming\ProgressSpammerPanel.resx">
+      <DependentUpon>ProgressSpammerPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.resx">
       <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>
@@ -579,10 +596,10 @@
     <EmbeddedResource Include="ControlsAndPanels\RemoteDesktopClient.resx">
       <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Tracert\TracertControl.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Tracert\TracertControl.resx">
       <DependentUpon>TracertControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Tracert\TracertDialog.resx">
+    <EmbeddedResource Include="ControlsAndPanels\Tracert\TracertDialog.resx">
       <DependentUpon>TracertDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>

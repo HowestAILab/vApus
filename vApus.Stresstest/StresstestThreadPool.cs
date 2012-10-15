@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
+using System.Threading.Tasks;
 using vApus.Util;
 
 namespace vApus.Stresstest
@@ -20,11 +21,6 @@ namespace vApus.Stresstest
         #endregion
 
         #region Fields
-        /// <summary>
-        /// Only for setting disposed
-        /// </summary>
-        private object _lock = new object();
-
         private Thread[] _threads;
 
         private int _waitingThreadCount, _busyThreadCount;
@@ -189,32 +185,35 @@ namespace vApus.Stresstest
         {
             if (!IsDisposed)
             {
-                lock (_lock)
-                    _isDisposed = 1;
+                Interlocked.Exchange(ref _isDisposed, 1);
 
                 _doWorkWaitHandle.Set();
                 _poolInitializedWaitHandle.Set();
                 if (_threads != null)
                 {
                     //Join
-                    foreach (Thread t in _threads)
+                    Parallel.ForEach(_threads, delegate(Thread t)
+                    {
                         try
                         {
                             if (t != null)
                                 t.Join(timeout);
                         }
                         catch { }
+                    });
 
                     _usedThreadCount = 0;
 
                     //Abort
-                    foreach (Thread t in _threads)
+                    Parallel.ForEach(_threads, delegate(Thread t)
+                    {
                         try
                         {
                             if (t != null)
                                 t.Abort();
                         }
                         catch { }
+                    });
 
                     _poolIdleWaitHandle.Set();
                 }

@@ -31,8 +31,8 @@ namespace vApus.SolutionTree
         //Can be sorted, kept here.
         private List<PropertyInfo> _properties;
 
-        //For restoring the parents --> temp solution.
-        // private Dictionary<Type, SolutionComponent> _parentCache = new Dictionary<Type, SolutionComponent>();
+        private LinkLabel _showHideAdvancedSettings = new LinkLabel();
+        private bool _showAdvancedSettings = false;
         #endregion
 
         [DefaultValue(true)]
@@ -56,7 +56,7 @@ namespace vApus.SolutionTree
 
                     _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
-                    SetGui(true);
+                    SetGui();
                     _solutionComponentTypeChanged = false;
 
                     this.ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
@@ -75,8 +75,14 @@ namespace vApus.SolutionTree
         public SolutionComponentPropertyPanel()
         {
             InitializeComponent();
+
+            _showHideAdvancedSettings.Text = "Show/Hide Advanced Settings";
+            _showHideAdvancedSettings.AutoSize = true;
+            _showHideAdvancedSettings.Click += new EventHandler(_showHideAdvancedSettings_Click);
+            _showHideAdvancedSettings.KeyUp += new KeyEventHandler(_showHideAdvancedSettings_KeyUp);
+
             if (this.IsHandleCreated)
-                SetGui(true);
+                SetGui();
             else
                 this.HandleCreated += new EventHandler(SolutionComponentPropertyPanel_HandleCreated);
 
@@ -86,6 +92,19 @@ namespace vApus.SolutionTree
         #endregion
 
         #region Functions
+        private void _showHideAdvancedSettings_Click(object sender, EventArgs e)
+        {
+            _showAdvancedSettings = !_showAdvancedSettings;
+            Refresh();
+        }
+        private void _showHideAdvancedSettings_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                _showAdvancedSettings = !_showAdvancedSettings;
+                Refresh();
+            }
+        }
         private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueControlPanel.ValueChangedEventArgs e)
         {
             if (Solution.ActiveSolution != null)
@@ -118,26 +137,34 @@ namespace vApus.SolutionTree
         }
         private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e)
         {
-            SetGui(true);
+            SetGui();
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="collapse">not on refresh</param>
-        private void SetGui(bool collapse)
+        private void SetGui()
         {
             if (_solutionComponent != null && IsHandleCreated)
             {
                 bool locked = _locked;
-                //if (_solutionComponentTypeChanged || _properties == null)
-                //{
+                bool showHideAdvancedSettingsControl = false;
                 _properties = new List<PropertyInfo>();
                 foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties())
                 {
                     object[] attributes = propertyInfo.GetCustomAttributes(typeof(PropertyControlAttribute), true);
                     PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
                     if (propertyControlAttribute != null)
-                        _properties.Add(propertyInfo);
+                        if (propertyControlAttribute.AdvancedProperty)
+                        {
+                            showHideAdvancedSettingsControl = true;
+                            if (_showAdvancedSettings) //Show advanced settings only if chosen to.
+                                _properties.Add(propertyInfo);
+                        }
+                        else
+                        {
+                            _properties.Add(propertyInfo);
+                        }
                 }
                 _properties.Sort(PropertyInfoComparer.GetInstance());
                 _properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
@@ -174,18 +201,9 @@ namespace vApus.SolutionTree
 
                 if (_locked)
                     base.Lock();
-                //}
-                //else //Recycle controls
-                //{
-                //    object[] values = new object[_properties.Count];
-                //    for (int i = 0; i != values.Length; i++)
-                //    {
-                //        values[i] = _properties[i].GetValue(_solutionComponent, null);
-                //        base.SetDescriptionAt(i, values[i].GetDescription());
-                //    }
 
-                //   base.Set__Values(collapse, values);
-                //}
+                if (showHideAdvancedSettingsControl)
+                    this.Controls.Add(_showHideAdvancedSettings);
             }
         }
         /// <summary>
@@ -194,7 +212,7 @@ namespace vApus.SolutionTree
         public override void Refresh()
         {
             base.Refresh();
-            SetGui(false);
+            SetGui();
         }
         #endregion
     }

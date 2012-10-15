@@ -66,21 +66,23 @@ namespace vApus.Stresstest
         /// <param name="endTokenDelimiter">Needed to dermine parameter tokens</param>
         /// <param name="chosenNextValueParametersForLScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
         /// <returns></returns>
-        internal IEnumerable<StringTree> GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter,
+        internal List<StringTree> GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter,
                                                                    HashSet<BaseParameter> chosenNextValueParametersForLScope)
         {
-            HashSet<BaseParameter> chosenNextValueParametersForUAScope = new HashSet<BaseParameter>(); 
-            
+            List<StringTree> parameterizedStructure = new List<StringTree>();
+            HashSet<BaseParameter> chosenNextValueParametersForUAScope = new HashSet<BaseParameter>();
+
             foreach (LogEntry logEntry in this)
-                yield return logEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter,
-                    chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
+                parameterizedStructure.Add(logEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter,
+                    chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope));
+            return parameterizedStructure;
         }
 
-        public UserAction Clone()
+        public UserAction Clone(bool setParent = true)
         {
             UserAction userAction = new UserAction(Label);
-            userAction.Parent = Parent;
-            userAction.Label = Label;
+            if (setParent)
+                userAction.Parent = Parent;
             userAction.Occurance = _occurance;
             userAction.Pinned = _pinned;
 

@@ -107,19 +107,19 @@ namespace vApus.Stresstest
         {
             SetConfigurationControls(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy, stresstest.Log, stresstest.LogRuleSet,
                 stresstest.Monitors, stresstest.ConcurrentUsers, stresstest.Precision, stresstest.DynamicRunMultiplier, stresstest.MinimumDelay,
-                stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute);
+                stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute, stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
         public void SetConfigurationControls(string stresstest, Connection connection, string connectionProxy,
                                               Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrentUsers,
                                               int precision, int dynamicRunMultiplier, int minimumDelay, int maximumDelay, bool shuffle,
-                                              ActionAndLogEntryDistribution distribute)
+                                              ActionAndLogEntryDistribution distribute, uint monitorBefore, uint monitorAfter)
         {
-            kvmStresstest.Key = stresstest;
-            kvmConnection.Key = connection.ToString();
-            kvmConnectionProxy.Key = connectionProxy;
+            kvpStresstest.Key = stresstest;
+            kvpConnection.Key = connection.ToString();
+            kvpConnectionProxy.Key = connectionProxy;
 
-            kvmLog.Key = log.ToString();
-            kvmLogRuleSet.Key = logRuleSet;
+            kvpLog.Key = log.ToString();
+            kvpLogRuleSet.Key = logRuleSet;
 
             if (monitors == null || monitors.Length == 0)
             {
@@ -132,14 +132,15 @@ namespace vApus.Stresstest
                 btnMonitor.BackColor = Color.LightBlue;
             }
 
-            kvmConcurrentUsers.Value = concurrentUsers.Combine(", ");
+            kvpConcurrentUsers.Value = concurrentUsers.Combine(", ");
 
-            kvmPrecision.Value = precision.ToString();
-            kvmDynamicRunMultiplier.Value = dynamicRunMultiplier.ToString();
-            kvmDelay.Value = (minimumDelay == maximumDelay ? minimumDelay.ToString() : minimumDelay + " - " + maximumDelay) + " ms";
-            kvmShuffle.Value = shuffle ? "Yes" : "No";
-            kvmDistribute.Value = distribute.ToString();
-
+            kvpPrecision.Value = precision.ToString();
+            kvpDynamicRunMultiplier.Value = dynamicRunMultiplier.ToString();
+            kvpDelay.Value = (minimumDelay == maximumDelay ? minimumDelay.ToString() : minimumDelay + " - " + maximumDelay) + " ms";
+            kvpShuffle.Value = shuffle ? "Yes" : "No";
+            kvpDistribute.Value = distribute.ToString();
+            kvpMonitorBefore.Value = monitorBefore +  (monitorBefore == 1 ? " minute" : " minutes");
+            kvpMonitorAfter.Value = monitorAfter + (monitorAfter == 1 ? " minute" : " minutes");
         }
         private void btnMonitor_Click(object sender, EventArgs e)
         {
@@ -533,7 +534,7 @@ namespace vApus.Stresstest
         }
         private void btnRerunning_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("The current run is rerunning until the slowest current run on another slave is finished (aka Break on Last Run Sync).\nNo further results will be added, only rerunning to keep load on the server and application.\nHowever the processed log entries value will increase.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("The current run is rerunning until the slowest current run on another slave is finished (aka Break on Last Run Sync).", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         /// <summary>
         /// label updates in visibility
@@ -722,7 +723,7 @@ namespace vApus.Stresstest
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Title = "Where do you want to save the displayed results?";
-            sfd.FileName = kvmStresstest.Key.ReplaceInvalidWindowsFilenameChars('_');
+            sfd.FileName = kvpStresstest.Key.ReplaceInvalidWindowsFilenameChars('_');
             sfd.Filter = "TXT|*.txt";
             if (sfd.ShowDialog() == DialogResult.OK)
                 try

@@ -8,6 +8,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using FastColoredTextBoxNS;
 
 namespace vApus.Stresstest
 {
@@ -16,7 +17,7 @@ namespace vApus.Stresstest
         public event EventHandler<FoundReplacedButtonClickedEventArgs> FoundReplacedButtonClicked;
 
         #region Fields
-        public CodeBlock Document;
+        public CodeTextBox CodeTextBox;
         #endregion
 
         public FindAndReplace()
@@ -58,9 +59,9 @@ namespace vApus.Stresstest
             chkWholeWords.Checked = wholeWords;
             chkMatchCase.Checked = matchCase;
 
-            var found = Document.Find(text, wholeWords, matchCase);
-            foreach (int absoluteLineNumber in found.Keys)
-                AddFoundReplacedButton(absoluteLineNumber, found[absoluteLineNumber]);
+            var found = CodeTextBox.Find(text, wholeWords, matchCase);
+            foreach (int replaceLineNumber in found.Keys)
+                AddFoundReplacedButton(replaceLineNumber, found[replaceLineNumber]);
 
             if (flpFoundReplaced.Controls.Count > 0)
                 SelectButton(flpFoundReplaced.Controls[0] as Button);
@@ -118,9 +119,9 @@ namespace vApus.Stresstest
             chkMatchCase.Checked = matchCase;
             chkReplaceAll.Checked = atLine == -1;
 
-            var replaced = Document.Replace(oldText, newText, atLine, wholeWords, matchCase);
-            foreach (int absoluteLineNumber in replaced.Keys)
-                AddFoundReplacedButton(absoluteLineNumber, replaced[absoluteLineNumber]);
+            var replaced = CodeTextBox.Replace(oldText, newText, atLine, wholeWords, matchCase);
+            foreach (int relativeLineNumber in replaced.Keys)
+                AddFoundReplacedButton(relativeLineNumber, replaced[relativeLineNumber]);
 
             if (flpFoundReplaced.Controls.Count > 0)
                 SelectButton(flpFoundReplaced.Controls[0] as Button);
@@ -147,7 +148,7 @@ namespace vApus.Stresstest
 
             btn.FlatStyle = FlatStyle.Flat;
 
-            btn.Text = lineNumber + ") " + foundReplaced;
+            btn.Text = (lineNumber + 1) + ") " + foundReplaced;
             btn.Tag = lineNumber;
             btn.Click += new EventHandler(btn_Click);
 
@@ -164,11 +165,8 @@ namespace vApus.Stresstest
         }
         private void GotoLine(int lineNumber)
         {
-            CodeBlock codeBlock = Document.ContainsLine(lineNumber);
-            while (codeBlock == null)
-                codeBlock = Document.ContainsLine(++lineNumber);
             if (FoundReplacedButtonClicked != null)
-                FoundReplacedButtonClicked(this, new FoundReplacedButtonClickedEventArgs(lineNumber, codeBlock));
+               FoundReplacedButtonClicked(this, new FoundReplacedButtonClickedEventArgs(lineNumber));
         }
         private void SelectButton(Button btn)
         {
@@ -212,12 +210,9 @@ namespace vApus.Stresstest
         public class FoundReplacedButtonClickedEventArgs : EventArgs
         {
             public readonly int LineNumber;
-            public readonly CodeBlock CodeBlock;
-
-            public FoundReplacedButtonClickedEventArgs(int lineNumber, CodeBlock codePart)
+            public FoundReplacedButtonClickedEventArgs(int lineNumber)
             {
                 LineNumber = lineNumber;
-                CodeBlock = codePart;
             }
         }
     }

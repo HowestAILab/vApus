@@ -68,7 +68,7 @@ namespace vApus.SolutionTree
         /// The count of the child items (where the parent of those items is null or not this).
         /// </summary>
         [Description("The count of the child items (where the parent of those items is null or not this).")]
-        public int CountOFParentLess
+        public int CountOfParentLess
         {
             get
             {

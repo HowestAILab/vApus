@@ -30,7 +30,6 @@ namespace vApus.Monitor
 
         private object[] _parameters = new object[0];
         private string[] _filter = new string[0];
-        private bool _batchResultSaving;
         #endregion
 
         #region Properties

@@ -365,7 +365,7 @@ namespace vApus.DistributedTesting
                 {
                     DisconnectMaster(socketWrapper);
                     SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));//The test cannot be valid without a master, stop the test if any.
-                    LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Error);
+                    LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Warning);
                     if (ListeningError != null)
                         ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
                 }
@@ -397,7 +397,7 @@ namespace vApus.DistributedTesting
             {
                 DisconnectMaster(socketWrapper);
                 SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));//The test cannot be valid without a master, stop the test if any.
-                LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Error);
+                LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Warning);
                 if (ListeningError != null)
                     ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
             }

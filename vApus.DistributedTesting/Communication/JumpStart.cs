@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using vApus.Util;
@@ -90,7 +91,32 @@ namespace vApus.DistributedTesting
         private static void RegisterForKill(Hashtable toKill, string ip)
         {
             if (!toKill.ContainsKey(ip))
-                toKill.Add(ip, SocketListener.GetInstance().IP == ip ? Process.GetCurrentProcess().Id : -1);
+            {
+                int exclude = -1;
+                bool alreadyExcludingMaster = false;
+                foreach (var value in toKill.Values)
+                    if (value != (object)-1)
+                    {
+                        alreadyExcludingMaster = true;
+                        break;
+                    }
+
+                if (!alreadyExcludingMaster)
+                    try
+                    {
+                        string masterHostName = Dns.GetHostByAddress(SocketListener.GetInstance().IP).HostName.Trim().Split('.')[0];
+                        string slaveHostName = Dns.GetHostByAddress(ip).HostName.Trim().Split('.')[0];
+
+                        if (masterHostName == slaveHostName)
+                            exclude = Process.GetCurrentProcess().Id;
+                    }
+                    catch
+                    {
+                        if (SocketListener.GetInstance().IP == ip)
+                            exclude = Process.GetCurrentProcess().Id;
+                    }
+                toKill.Add(ip, exclude);
+            }
         }
         /// <summary>
         /// Use only this Do.

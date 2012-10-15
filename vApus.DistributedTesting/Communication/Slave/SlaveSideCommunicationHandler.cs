@@ -27,6 +27,7 @@ namespace vApus.DistributedTesting
         public static event EventHandler<NewTestEventArgs> NewTest;
 
         private static object _lock = new object();
+        private static string _seededFile = null; //For deleting the slave side results after it is sent.
 
         #region Message Handling
         private static ManualResetEvent _handleMessageWaitHandle = new ManualResetEvent(true);
@@ -60,9 +61,8 @@ namespace vApus.DistributedTesting
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show(ex.ToString(), "Communication error");
+                LogWrapper.LogByLevel("Communication error:\n" + ex.ToString(), LogLevel.Error);
             }
-            //'Communication error' in here?
             return message;
         }
         private static Message<Key> HandlePoll(Message<Key> message)
@@ -174,6 +174,7 @@ namespace vApus.DistributedTesting
             message.Content = stopMessage;
             return message;
         }
+
         private static Message<Key> HandleResults(SocketWrapper receiver, Message<Key> message)
         {
             ResultsMessage resultsMessage = new ResultsMessage();
@@ -197,9 +198,13 @@ namespace vApus.DistributedTesting
                     }
 
                     resultsMessage.TorrentInfo = CreateTorrent(file, slaveSideResultsDir);
+
+                    //For cleanup afterwards.
+                    _seededFile = file;
                 }
                 catch (Exception ex)
                 {
+                    _seededFile = null;
                     resultsMessage.Exception = ex.ToString();
                 }
             }
@@ -216,6 +221,33 @@ namespace vApus.DistributedTesting
                 _torrentServer.CloseAllTorrents();
                 _torrentServer = null;
             }
+
+            //Cleaning up in another thread, this is not something that should slow down communication.
+            if (_seededFile != null && File.Exists(_seededFile))
+            {
+                Thread cleanupResults = new Thread(delegate()
+                {
+                    try
+                    {
+                        for (int i = 1; i != 4; i++)
+                            if (_seededFile != null && File.Exists(_seededFile))
+                                try
+                                {
+                                    File.Delete(_seededFile);
+                                    break;
+                                }
+                                catch
+                                {
+                                    Thread.Sleep(500 * i);
+                                }
+                    }
+                    catch { }
+                    _seededFile = null;
+                });
+                cleanupResults.IsBackground = true;
+                cleanupResults.Start();
+            }
+
             message.Content = null;
             return message;
         }

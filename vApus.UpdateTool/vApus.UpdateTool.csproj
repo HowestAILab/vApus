@@ -157,11 +157,13 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DiffieHellman">
-      <HintPath>..\Prerequisites\SharpSSH\DiffieHellman.dll</HintPath>
+    <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Prerequisites\SharpSSH\DiffieHellman.dll</HintPath>
     </Reference>
-    <Reference Include="Org.Mentalis.Security">
-      <HintPath>..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
+    <Reference Include="Org.Mentalis.Security, Version=1.0.13.715, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -176,8 +178,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Tamir.SharpSSH">
-      <HintPath>..\Prerequisites\SharpSSH\Tamir.SharpSSH.dll</HintPath>
+    <Reference Include="Tamir.SharpSSH, Version=1.1.1.13, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Prerequisites\SharpSSH\Tamir.SharpSSH.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

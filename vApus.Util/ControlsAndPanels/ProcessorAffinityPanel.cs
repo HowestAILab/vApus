@@ -8,12 +8,21 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace vApus.Util
 {
     public partial class ProcessorAffinityPanel : Panel
     {
+        /// <summary>
+        /// to know how much cores a group contains
+        /// </summary>
+        /// <param name="groupNumber">the group number if any, or ALL_PROCESSOR_GROUPS (0xffff) for every group</param>
+        /// <returns></returns>
+        [DllImport("kernel32.dll")]
+        public static extern uint GetActiveProcessorCount(ushort groupNumber);
+
         public ProcessorAffinityPanel()
         {
             InitializeComponent();
@@ -26,7 +35,7 @@ namespace vApus.Util
                 //Get the affinity from the current process in order to get the cpu's.
                 List<int> cpus = new List<int>(ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity));
                 //Add all cpu's to the listview and check them if they are in 'cpus'.
-                for (int i = 0; i < Environment.ProcessorCount; i++)
+                for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++)        //(0xFFFF) to include all processor groups
                 {
                     ListViewItem lvwi = null;
                     if (i < lvw.Items.Count)

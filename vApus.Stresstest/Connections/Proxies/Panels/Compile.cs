@@ -18,7 +18,6 @@ namespace vApus.Stresstest
         public event EventHandler<CompileErrorButtonClickedEventArgs> CompileErrorButtonClicked;
 
         #region Fields
-        public CodeBlock Document;
         public ConnectionProxyCode ConnectionProxyCode;
         #endregion
 
@@ -40,8 +39,6 @@ namespace vApus.Stresstest
             Connection connection = new Connection();
             Connection stub = new Connection();
             stub.ConnectionProxy = ConnectionProxyCode.Parent as ConnectionProxy;
-            if (!string.IsNullOrEmpty(ConnectionProxyCode.TestConnectionString))
-                stub.ConnectionString = ConnectionProxyCode.TestConnectionString;
             ConnectionProxyPool connectionProxyPool = new ConnectionProxyPool(stub);
             CompilerResults results = connectionProxyPool.CompileConnectionProxyClass(debug, deleteTempFiles);
 
@@ -148,7 +145,7 @@ namespace vApus.Stresstest
                 btn.FlatAppearance.BorderColor = Color.Red;
                 btn.Text = "Error at line " + errorOrWarning.Line + " column " + errorOrWarning.Column + ":\n" + errorOrWarning.ErrorText;
             }
-            btn.Tag = errorOrWarning.Line;
+            btn.Tag = errorOrWarning.Line - 1;
             btn.Click += new EventHandler(btn_Click);
             flpCompileLog.Controls.Add(btn);
 
@@ -160,11 +157,8 @@ namespace vApus.Stresstest
         private void btn_Click(object sender, EventArgs e)
         {
             int lineNumber = (int)(sender as Button).Tag;
-            CodeBlock codeBlock = Document.ContainsLine(lineNumber);
-            while (codeBlock == null)
-                codeBlock = Document.ContainsLine(++lineNumber);
             if (CompileErrorButtonClicked != null)
-                CompileErrorButtonClicked(this, new CompileErrorButtonClickedEventArgs(lineNumber, codeBlock));
+                CompileErrorButtonClicked(this, new CompileErrorButtonClickedEventArgs(lineNumber));
         }
         private void flpCompileLog_SizeChanged(object sender, EventArgs e)
         {
@@ -176,12 +170,10 @@ namespace vApus.Stresstest
         public class CompileErrorButtonClickedEventArgs : EventArgs
         {
             public readonly int LineNumber;
-            public readonly CodeBlock CodeBlock;
 
-            public CompileErrorButtonClickedEventArgs(int lineNumber, CodeBlock codePart)
+            public CompileErrorButtonClickedEventArgs(int lineNumber)
             {
                 LineNumber = lineNumber;
-                CodeBlock = codePart;
             }
         }
     }

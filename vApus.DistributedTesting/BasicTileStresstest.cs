@@ -38,8 +38,12 @@ namespace vApus.DistributedTesting
             get
             {
                 if (_connection != null)
-                    _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
+                {
+                    if (_connection.IsEmpty)
+                        Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
 
+                    _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
+                }
                 return _connection;
             }
             set
@@ -234,7 +238,8 @@ namespace vApus.DistributedTesting
         }
         private void _connection_ParentIsNull(object sender, EventArgs e)
         {
-            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
+            if (_connection == sender)
+                Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
         }
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
