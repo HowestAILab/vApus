@@ -71,8 +71,8 @@
             // 
             // btnSet
             // 
-            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSet.BackColor = System.Drawing.Color.White;
             this.btnSet.Enabled = false;
             this.btnSet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -104,9 +104,9 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.pnlRefresh);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
@@ -117,16 +117,17 @@
             // 
             // pnlRefresh
             // 
+            this.pnlRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlRefresh.BackColor = System.Drawing.Color.White;
             this.pnlRefresh.Controls.Add(this.btnRefresh);
             this.pnlRefresh.Controls.Add(this.lbl);
             this.pnlRefresh.Controls.Add(this.pic);
-            this.pnlRefresh.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlRefresh.Enabled = false;
-            this.pnlRefresh.Location = new System.Drawing.Point(0, 155);
+            this.pnlRefresh.Location = new System.Drawing.Point(1, 153);
             this.pnlRefresh.Name = "pnlRefresh";
             this.pnlRefresh.Padding = new System.Windows.Forms.Padding(3);
-            this.pnlRefresh.Size = new System.Drawing.Size(360, 33);
+            this.pnlRefresh.Size = new System.Drawing.Size(358, 33);
             this.pnlRefresh.TabIndex = 1;
             // 
             // btnRefresh
@@ -135,7 +136,7 @@
             this.btnRefresh.AutoSize = true;
             this.btnRefresh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
-            this.btnRefresh.Location = new System.Drawing.Point(332, 5);
+            this.btnRefresh.Location = new System.Drawing.Point(330, 5);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(22, 22);
             this.btnRefresh.TabIndex = 0;
@@ -166,18 +167,18 @@
             // 
             // flpConnectTo
             // 
-            this.flpConnectTo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpConnectTo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.flpConnectTo.Controls.Add(this.panel1);
             this.flpConnectTo.Controls.Add(this.panel2);
             this.flpConnectTo.Controls.Add(this.panel3);
             this.flpConnectTo.Controls.Add(this.panel4);
             this.flpConnectTo.Controls.Add(this.panel5);
-            this.flpConnectTo.Location = new System.Drawing.Point(12, 20);
+            this.flpConnectTo.Location = new System.Drawing.Point(13, 20);
             this.flpConnectTo.Name = "flpConnectTo";
             this.flpConnectTo.Padding = new System.Windows.Forms.Padding(3);
-            this.flpConnectTo.Size = new System.Drawing.Size(360, 146);
+            this.flpConnectTo.Size = new System.Drawing.Size(358, 146);
             this.flpConnectTo.TabIndex = 0;
             // 
             // panel1

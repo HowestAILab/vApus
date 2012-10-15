@@ -38,6 +38,8 @@ namespace vApus.Gui
         private CleanTempDataPanel _cleanTempDataPanel;
         private DisableFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
 
+        private ProgressSpammerPanel _progressSpammerPannel;
+
         private delegate void CloseDelayed();
         #endregion
 
@@ -108,6 +110,8 @@ namespace vApus.Gui
                     {
                         StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(CloseDelayedCallback));
                     }
+
+                _progressSpammerPannel = new ProgressSpammerPanel();
             }
             catch (Exception ex)
             {
@@ -470,6 +474,7 @@ namespace vApus.Gui
                 _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
+                //_optionsDialog.AddOptionsPanel(_progressSpammerPannel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.ShowDialog(this);

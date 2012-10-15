@@ -436,14 +436,14 @@ namespace vApus.DistributedTesting
             {
                 IPAddress address = null;
                 string ip = null, hostName = null;
-                if (IPAddress.TryParse(ipOrHostName, out address))
+                try
                 {
-                    ip = ipOrHostName;
-                    hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
-                }
-                else
-                {
-                    try
+                    if (IPAddress.TryParse(ipOrHostName, out address))
+                    {
+                        ip = ipOrHostName;
+                        hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
+                    }
+                    else
                     {
                         ipOrHostName = ipOrHostName.ToLower().Split('.')[0];
                         IPHostEntry hostEntry = Dns.GetHostByName(ipOrHostName);
@@ -457,18 +457,17 @@ namespace vApus.DistributedTesting
                         ip = address.ToString();
                         hostName = ipOrHostName != "localhost" ? hostEntry.HostName.ToLower() : "localhost";
                     }
-                    catch { }
-                }
 
-                try
-                {
                     lock (_lock)
                         if (wizard._ipsAndHostNames.ContainsKey(ip))
                             wizard._ipsAndHostNames[ip] = hostName.Split('.')[0];
                         else
                             wizard._ipsAndHostNames.Add(ip, hostName.Split('.')[0]);
                 }
-                catch { }
+                catch
+                {
+                    address = null;
+                }
 
                 if (address != null)
                 {

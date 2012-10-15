@@ -225,6 +225,12 @@
     <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.designer.cs">
       <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\ProgressSpamming\ProgressSpammerPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ProgressSpamming\ProgressSpammerPanel.Designer.cs">
+      <DependentUpon>ProgressSpammerPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsAndPanels\TabControlWithAdjustableBorders.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -522,6 +528,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\ProcessorAffinityPanel.resx">
       <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\ProgressSpamming\ProgressSpammerPanel.resx">
+      <DependentUpon>ProgressSpammerPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.resx">
       <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>

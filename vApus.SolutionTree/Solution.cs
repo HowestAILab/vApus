@@ -313,15 +313,18 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                     ActiveSolution.ResolveBranchedIndices();
                     return true;
                 }
-                else if (_ofd.ShowDialog() == DialogResult.OK)
+                else
                 {
-                    Solution sln = new Solution();
-                    sln.FileName = _ofd.FileName;
-                    sln.Load(out errorMessage);
-                    sln.FileName = null;
-                    ActiveSolution = sln;
-                    ActiveSolution.ResolveBranchedIndices();
-                    return true;
+                    if (_ofd.ShowDialog() == DialogResult.OK)
+                    {
+                        Solution sln = new Solution();
+                        sln.FileName = _ofd.FileName;
+                        sln.Load(out errorMessage);
+                        sln.FileName = null;
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                        return true;
+                    }
                 }
             }
             catch { throw; }
