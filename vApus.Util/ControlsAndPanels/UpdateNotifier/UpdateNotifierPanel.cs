@@ -77,14 +77,14 @@ namespace vApus.Util
                 int port, channel;
                 UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
 
-                pnlRefresh.Enabled = true;
+                pnlRefresh.Enabled = btnForceUpdate.Enabled = true;
                 btnSet.Enabled = (txtHost.Text != host || nudPort.Value != port ||
                 txtUsername.Text != username || txtPassword.Text != password ||
                 cboChannel.SelectedIndex != channel);
             }
             else
             {
-                pnlRefresh.Enabled = false;
+                pnlRefresh.Enabled = btnForceUpdate.Enabled = false;
                 btnSet.Enabled = false;
             }
             btnClear.Enabled = (txtHost.Text.Length != 0 ||
@@ -192,7 +192,7 @@ namespace vApus.Util
 
             UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text, cboChannel.SelectedIndex);
 
-            pnlRefresh.Enabled = false;
+            pnlRefresh.Enabled = btnForceUpdate.Enabled = false;
             btnSet.Enabled = false;
             btnClear.Enabled = false;
         }

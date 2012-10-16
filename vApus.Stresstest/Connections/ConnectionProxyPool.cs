@@ -113,9 +113,10 @@ namespace vApus.Stresstest
             System.IO.Directory.SetCurrentDirectory(Application.StartupPath);
 
             CompilerResults compilerResults = null;
-            _connectionProxyAssembly = _compilerUnit.Compile(_connection.BuildConnectionProxyClass(), debug, out compilerResults);
             if (deleteTempFiles)
                 _compilerUnit.DeleteTempFiles();
+
+            _connectionProxyAssembly = _compilerUnit.Compile(_connection.BuildConnectionProxyClass(), debug, out compilerResults);
             return compilerResults;
         }
         public void DeleteTempFiles()

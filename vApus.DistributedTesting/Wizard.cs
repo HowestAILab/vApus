@@ -85,7 +85,7 @@ namespace vApus.DistributedTesting
             {
                 string ipOrHostname = client.HostName.Length == 0 ? client.IP : client.HostName;
                 ipOrHostname = ipOrHostname.Trim();
-                if (ipOrHostname.Length != null)
+                if (ipOrHostname.Length != 0)
                     dgvClients.Rows.Add(ipOrHostname, client.UserName, client.Domain, client.Password, client.Count, 0);
             }
 
