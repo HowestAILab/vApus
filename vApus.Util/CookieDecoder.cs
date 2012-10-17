@@ -8,6 +8,7 @@
 
 /*
  * Thanks to Andy Taylor and Trustin Lee of the Netty Project http://www.jboss.org/netty/
+ * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/handler/codec/http/CookieDecoder.html
  */
 using System;
 using System.Collections.Generic;
