@@ -746,6 +746,7 @@ namespace vApus.Stresstest
         }
         private void chkReadeble_CheckedChanged(object sender, EventArgs e)
         {
+            //Single stresstest feature only atm.
             if (_stresstestResults != null)
                 RefreshFastResultsInGui();
         }

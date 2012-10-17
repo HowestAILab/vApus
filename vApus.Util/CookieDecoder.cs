@@ -28,9 +28,9 @@ namespace vApus.Util
         public List<Cookie> Decode(string header)
         {
             var cookies = new List<Cookie>();
-            List<string> names = new List<string>(8), values = new List<string>(8);
-            foreach (string unparsedCookie in SplitHeaderinUnparsedCookies(header))
+            foreach (string unparsedCookie in SplitHeaderInUnparsedCookies(header))
             {
+                List<string> names = new List<string>(8), values = new List<string>(8);
                 ExtractKeyValuePairs(unparsedCookie, names, values);
                 if (names.Count != 0)
                 {
@@ -126,7 +126,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="header"></param>
         /// <returns></returns>
-        private List<string> SplitHeaderinUnparsedCookies(string header)
+        private List<string> SplitHeaderInUnparsedCookies(string header)
         {
             var l = new List<string>();
             int indexOfComma = header.IndexOf(",");
