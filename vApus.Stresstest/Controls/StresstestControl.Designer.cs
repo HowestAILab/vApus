@@ -71,6 +71,8 @@
             this.kvpDelay = new vApus.Util.KeyValuePairControl();
             this.kvpShuffle = new vApus.Util.KeyValuePairControl();
             this.kvpDistribute = new vApus.Util.KeyValuePairControl();
+            this.kvpMonitorBefore = new vApus.Util.KeyValuePairControl();
+            this.kvpMonitorAfter = new vApus.Util.KeyValuePairControl();
             this.epnlMessages = new vApus.Util.EventPanel();
             this.flpMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -81,9 +83,8 @@
             this.kvmNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnExport = new System.Windows.Forms.Button();
-            this.kvpMonitorBefore = new vApus.Util.KeyValuePairControl();
-            this.kvpMonitorAfter = new vApus.Util.KeyValuePairControl();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.chkReadeble = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -154,6 +155,7 @@
             this.flpFastMetrics.Controls.Add(this.lblMeasuredRuntime);
             this.flpFastMetrics.Controls.Add(this.btnRerunning);
             this.flpFastMetrics.Controls.Add(this.lblStopped);
+            this.flpFastMetrics.Controls.Add(this.chkReadeble);
             this.flpFastMetrics.Controls.Add(this.btnSaveDisplayedResults);
             this.flpFastMetrics.Location = new System.Drawing.Point(-1, 37);
             this.flpFastMetrics.Name = "flpFastMetrics";
@@ -257,11 +259,11 @@
             this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(326, 3);
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(398, 3);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
-            this.btnSaveDisplayedResults.TabIndex = 3;
+            this.btnSaveDisplayedResults.TabIndex = 4;
             this.btnSaveDisplayedResults.Text = "Save Displayed Results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
@@ -583,6 +585,33 @@
     "ed X times the occurance.";
             this.kvpDistribute.Value = "";
             // 
+            // kvpMonitorBefore
+            // 
+            this.kvpMonitorBefore.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpMonitorBefore.Key = "Monitor Before";
+            this.kvpMonitorBefore.Location = new System.Drawing.Point(323, 39);
+            this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpMonitorBefore.Name = "kvpMonitorBefore";
+            this.kvpMonitorBefore.Size = new System.Drawing.Size(96, 24);
+            this.kvpMonitorBefore.TabIndex = 19;
+            this.kvpMonitorBefore.TabStop = false;
+            this.kvpMonitorBefore.Tooltip = "Start monitoring before the test starts, expressed in minutes with a max of 60.";
+            this.kvpMonitorBefore.Value = "";
+            // 
+            // kvpMonitorAfter
+            // 
+            this.kvpMonitorAfter.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpMonitorAfter.Key = "Monitor After";
+            this.kvpMonitorAfter.Location = new System.Drawing.Point(422, 39);
+            this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpMonitorAfter.Name = "kvpMonitorAfter";
+            this.kvpMonitorAfter.Size = new System.Drawing.Size(86, 24);
+            this.kvpMonitorAfter.TabIndex = 20;
+            this.kvpMonitorAfter.TabStop = false;
+            this.kvpMonitorAfter.Tooltip = "Continue monitoring after the test is finished, expressed in minutes with a max o" +
+    "f 60.";
+            this.kvpMonitorAfter.Value = "";
+            // 
             // epnlMessages
             // 
             this.epnlMessages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -732,32 +761,22 @@
             this.btnExport.UseVisualStyleBackColor = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
-            // kvpMonitorBefore
+            // chkReadeble
             // 
-            this.kvpMonitorBefore.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpMonitorBefore.Key = "Monitor Before";
-            this.kvpMonitorBefore.Location = new System.Drawing.Point(323, 39);
-            this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvpMonitorBefore.Name = "kvpMonitorBefore";
-            this.kvpMonitorBefore.Size = new System.Drawing.Size(96, 24);
-            this.kvpMonitorBefore.TabIndex = 19;
-            this.kvpMonitorBefore.TabStop = false;
-            this.kvpMonitorBefore.Tooltip = "Start monitoring before the test starts, expressed in minutes with a max of 60.";
-            this.kvpMonitorBefore.Value = "";
-            // 
-            // kvpMonitorAfter
-            // 
-            this.kvpMonitorAfter.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpMonitorAfter.Key = "Monitor After";
-            this.kvpMonitorAfter.Location = new System.Drawing.Point(422, 39);
-            this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvpMonitorAfter.Name = "kvpMonitorAfter";
-            this.kvpMonitorAfter.Size = new System.Drawing.Size(86, 24);
-            this.kvpMonitorAfter.TabIndex = 20;
-            this.kvpMonitorAfter.TabStop = false;
-            this.kvpMonitorAfter.Tooltip = "Continue monitoring after the test is finished, expressed in minutes with a max o" +
-    "f 60.";
-            this.kvpMonitorAfter.Value = "";
+            this.chkReadeble.AutoSize = true;
+            this.chkReadeble.Checked = true;
+            this.chkReadeble.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkReadeble.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chkReadeble.Location = new System.Drawing.Point(326, 7);
+            this.chkReadeble.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
+            this.chkReadeble.Name = "chkReadeble";
+            this.chkReadeble.Size = new System.Drawing.Size(69, 17);
+            this.chkReadeble.TabIndex = 3;
+            this.chkReadeble.Text = "Readable";
+            this.toolTip.SetToolTip(this.chkReadeble, "Uncheck this if you want results you can calculate with.");
+            this.chkReadeble.UseVisualStyleBackColor = true;
+            this.chkReadeble.Visible = false;
+            this.chkReadeble.CheckedChanged += new System.EventHandler(this.chkReadeble_CheckedChanged);
             // 
             // StresstestControl
             // 
@@ -842,5 +861,6 @@
         private Util.KeyValuePairControl kvpMonitorBefore;
         private Util.KeyValuePairControl kvpMonitorAfter;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.CheckBox chkReadeble;
     }
 }

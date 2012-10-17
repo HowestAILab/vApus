@@ -31,6 +31,7 @@ namespace vApus.DistributedTesting
         {
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.lvwFastResultsListing = new System.Windows.Forms.ListView();
+            this.clmTS = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLStartedAt = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLRuntimeLeft = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLMeasuredRuntime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -66,7 +67,6 @@ namespace vApus.DistributedTesting
             this.kvmMasterNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmMasterNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnMasterExportMessages = new System.Windows.Forms.Button();
-            this.clmTS = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -127,6 +127,11 @@ namespace vApus.DistributedTesting
             this.lvwFastResultsListing.TabIndex = 3;
             this.lvwFastResultsListing.UseCompatibleStateImageBehavior = false;
             this.lvwFastResultsListing.View = System.Windows.Forms.View.Details;
+            // 
+            // clmTS
+            // 
+            this.clmTS.Text = "";
+            this.clmTS.Width = 100;
             // 
             // clmFRLStartedAt
             // 
@@ -297,7 +302,7 @@ namespace vApus.DistributedTesting
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(183, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(183, 24);
-            this.btnSaveDisplayedResults.TabIndex = 1;
+            this.btnSaveDisplayedResults.TabIndex = 2;
             this.btnSaveDisplayedResults.Text = "Save All Displayed Results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
@@ -495,11 +500,6 @@ namespace vApus.DistributedTesting
             this.btnMasterExportMessages.Text = "Export Messages...";
             this.btnMasterExportMessages.UseVisualStyleBackColor = false;
             this.btnMasterExportMessages.Click += new System.EventHandler(this.btnExport_Click);
-            // 
-            // clmTS
-            // 
-            this.clmTS.Text = "";
-            this.clmTS.Width = 100;
             // 
             // DistributedStresstestControl
             // 

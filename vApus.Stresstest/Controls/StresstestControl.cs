@@ -139,7 +139,7 @@ namespace vApus.Stresstest
             kvpDelay.Value = (minimumDelay == maximumDelay ? minimumDelay.ToString() : minimumDelay + " - " + maximumDelay) + " ms";
             kvpShuffle.Value = shuffle ? "Yes" : "No";
             kvpDistribute.Value = distribute.ToString();
-            kvpMonitorBefore.Value = monitorBefore +  (monitorBefore == 1 ? " minute" : " minutes");
+            kvpMonitorBefore.Value = monitorBefore + (monitorBefore == 1 ? " minute" : " minutes");
             kvpMonitorAfter.Value = monitorAfter + (monitorAfter == 1 ? " minute" : " minutes");
         }
         private void btnMonitor_Click(object sender, EventArgs e)
@@ -311,7 +311,7 @@ namespace vApus.Stresstest
             btnRerunning.Visible = rerun;
         }
         /// <summary>
-        /// Sets the '; ran ...' label.
+        /// Sets the '; ran ...' label and the lvw entries.
         /// </summary>
         private void RefreshFastResultsInGui()
         {
@@ -320,6 +320,7 @@ namespace vApus.Stresstest
 
             SetMeasuredRunTime(metrics.MeasuredRunTime, _stresstestResults.EstimatedRuntimeLeft);
 
+            chkReadeble.Visible = true;
             foreach (ListViewItem lvwi in _fastResults)
             {
                 result = lvwi.Tag as IResult;
@@ -327,7 +328,18 @@ namespace vApus.Stresstest
                 {
                     metrics = result.Metrics;
                     int startIndex = lvwi.SubItems.Count - 6;
-                    string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
+
+                    string estimatedRuntimeLeft = null;
+                    if (chkReadeble.Checked)
+                    {
+                        clmFRLRuntimeLeft.Text = "Time Left";
+                        estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
+                    }
+                    else
+                    {
+                        clmFRLRuntimeLeft.Text = "Time Left in ms";
+                        estimatedRuntimeLeft = (((double)result.EstimatedRuntimeLeft.Ticks) / TimeSpan.TicksPerMillisecond).ToString();
+                    }
 
                     //Only update the ones needed to be updated
                     if (lvwi.SubItems[startIndex].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
@@ -335,7 +347,20 @@ namespace vApus.Stresstest
                         metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
                     {
                         lvwi.SubItems[1].Text = estimatedRuntimeLeft;
-                        lvwi.SubItems[2].Text = metrics.MeasuredRunTime.ToShortFormattedString();
+
+                        string measuredRunTime = null;
+                        if (chkReadeble.Checked)
+                        {
+                            clmFRLMeasuredRuntime.Text = "Measured Time";
+                            measuredRunTime = metrics.MeasuredRunTime.ToShortFormattedString();
+                        }
+                        else
+                        {
+                            clmFRLMeasuredRuntime.Text = "Measured Time in ms";
+                            measuredRunTime = (((double)metrics.MeasuredRunTime.Ticks) / TimeSpan.TicksPerMillisecond).ToString();
+                        }
+                        lvwi.SubItems[2].Text = measuredRunTime;
+
                         lvwi.SubItems[startIndex].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
                         lvwi.SubItems[startIndex + 1].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
                         lvwi.SubItems[startIndex + 2].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
@@ -718,6 +743,11 @@ namespace vApus.Stresstest
                     sub.Font = new Font(sub.Font, FontStyle.Regular);
             }
             lvwFastResultsListing.ResumeLayout();
+        }
+        private void chkReadeble_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_stresstestResults != null)
+                RefreshFastResultsInGui();
         }
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e)
         {
