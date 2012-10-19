@@ -180,7 +180,6 @@ namespace vApus.Stresstest
                 _stresstestCore = new StresstestCore(_stresstest, true);
                 _stresstestCore.StresstestStarted += new EventHandler<StresstestStartedEventArgs>(_stresstestCore_StresstestStarted);
                 _stresstestCore.ConcurrentUsersStarted += new EventHandler<ConcurrentUsersStartedEventArgs>(_stresstestCore_ConcurrentUsersStarted);
-                _stresstestCore.PrecisionStarted += new EventHandler<PrecisionStartedEventArgs>(_stresstestCore_PrecisionStarted);
                 _stresstestCore.RunInitializedFirstTime += new EventHandler<RunInitializedFirstTimeEventArgs>(_stresstestCore_RunInitializedFirstTime);
                 _stresstestCore.Message += new EventHandler<MessageEventArgs>(_stresstestCore_Message);
                 _stresstestCore.InitializeTest();
@@ -489,13 +488,6 @@ namespace vApus.Stresstest
             stresstestControl.SetStresstestResults(e.Result);
         }
         private void _stresstestCore_ConcurrentUsersStarted(object sender, ConcurrentUsersStartedEventArgs e)
-        {
-            _countDown = Stresstest.ProgressUpdateDelay;
-            StopProgressDelayCountDown();
-            tmrProgress.Stop();
-            stresstestControl.AddFastResult(e.Result);
-        }
-        private void _stresstestCore_PrecisionStarted(object sender, PrecisionStartedEventArgs e)
         {
             _countDown = Stresstest.ProgressUpdateDelay;
             StopProgressDelayCountDown();

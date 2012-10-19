@@ -19,7 +19,7 @@ namespace vApus.REST.Convert
         }
 
         public static void SetTestConfig(Hashtable testConfigCache, string distributedTest, string runSynchronization, string tileStresstest, Connection connection, string connectionProxy, Monitor.Monitor[] monitors, string slave,
-                                        Log log, string logRuleSet, int[] concurrentUsers, int precision, int dynamicRunMultiplier, int minimumDelay, int maximumDelay, bool shuffle,
+                                        Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay, int maximumDelay, bool shuffle,
                                         ActionAndLogEntryDistribution distribute, uint monitorBefore, uint monitorAfter)
         {
             var distributedTestCache = AddSubCache(distributedTest, testConfigCache);
@@ -38,9 +38,8 @@ namespace vApus.REST.Convert
                 Slave = slave,
                 Log = log.ToString(),
                 LogRuleSet = logRuleSet,
-                ConcurrentUsers = concurrentUsers,
-                Precision = precision,
-                DynamicRunMultiplier = dynamicRunMultiplier,
+                Concurrency = concurrency,
+                Run = run,
                 MinimumDelayInMS = minimumDelay,
                 MaximumDelayInMS = maximumDelay,
                 Shuffle = shuffle,
@@ -50,10 +49,10 @@ namespace vApus.REST.Convert
             };
             distributedTestCache.Add(tileStresstest, testConfig);
         }
-        public static void SetTestProgress(Hashtable testProgressCache, string distributedTest, string tileStresstest, int concurrentUsers, int precision, int run,
+        public static void SetTestProgress(Hashtable testProgressCache, string distributedTest, string tileStresstest, int concurrency, int run,
         Metrics metrics, TimeSpan estimatedRuntimeLeft, RunStateChange runStateChange, StresstestResult stresstestResult)
         {
-            var precisionCache = AddSubCache(precision, AddSubCache(concurrentUsers, AddSubCache(tileStresstest, AddSubCache(distributedTest, testProgressCache))));
+            var concurrencyCache = AddSubCache(concurrency, AddSubCache(tileStresstest, AddSubCache(distributedTest, testProgressCache)));
             var testProgress = new TestProgress
             {
                 StartMeasuringRuntime = metrics.StartMeasuringRuntime,
@@ -71,7 +70,7 @@ namespace vApus.REST.Convert
                 StresstestResult = stresstestResult.ToString()
             };
 
-            if (precisionCache.Contains(run)) precisionCache[run] = testProgress; else precisionCache.Add(run, testProgress);
+            if (concurrencyCache.Contains(run)) concurrencyCache[run] = testProgress; else concurrencyCache.Add(run, testProgress);
         }
         public static void SetMonitorConfig(Hashtable monitorConfigCache, string distributedTest, Monitor.Monitor monitor)
         {
@@ -138,8 +137,8 @@ namespace vApus.REST.Convert
             public string Connection, ConnectionProxy;
             public string[] Monitors;
             public string Slave, Log, LogRuleSet;
-            public int[] ConcurrentUsers;
-            public int Precision, DynamicRunMultiplier, MinimumDelayInMS, MaximumDelayInMS;
+            public int[] Concurrency;
+            public int Run, MinimumDelayInMS, MaximumDelayInMS;
             public bool Shuffle;
             public string Distribute;
             public uint MonitorBeforeInMinutes, MonitorAfterInMinutes;

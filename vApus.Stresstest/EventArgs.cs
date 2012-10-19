@@ -21,16 +21,8 @@ namespace vApus.Stresstest
     }
     public class ConcurrentUsersStartedEventArgs : EventArgs 
     {
-        public readonly ConcurrentUsersResult Result;
-        public ConcurrentUsersStartedEventArgs(ConcurrentUsersResult result)
-        {
-            Result = result;
-        }
-    }
-    public class PrecisionStartedEventArgs : EventArgs
-    {
-        public readonly PrecisionResult Result;
-        public PrecisionStartedEventArgs(PrecisionResult result)
+        public readonly ConcurrencyResult Result;
+        public ConcurrentUsersStartedEventArgs(ConcurrencyResult result)
         {
             Result = result;
         }

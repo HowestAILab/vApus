@@ -150,7 +150,7 @@ namespace vApus.DistributedTesting
             stresstest.ForDistributedTest = true;
             stresstest.ShowInGui = false;
             stresstest.Distribute = AdvancedTileStresstest.Distribute;
-            stresstest.ConcurrentUsers = AdvancedTileStresstest.ConcurrentUsers;
+            stresstest.Concurrency = AdvancedTileStresstest.Concurrency;
 
             Connections connections = new Connections();
             Connection connection = BasicTileStresstest._connection;
@@ -159,7 +159,6 @@ namespace vApus.DistributedTesting
             connection.ForceSettingChildsParent();
 
             stresstest.Connection = connection;
-            stresstest.DynamicRunMultiplier = AdvancedTileStresstest.DynamicRunMultiplier;
 
             stresstest.Label = this.ToString();
 
@@ -179,7 +178,7 @@ namespace vApus.DistributedTesting
 
             stresstest.MinimumDelayOverride = AdvancedTileStresstest.MinimumDelay;
             stresstest.MaximumDelayOverride = AdvancedTileStresstest.MaximumDelay;
-            stresstest.Precision = AdvancedTileStresstest.Precision;
+            stresstest.Runs = AdvancedTileStresstest.Runs;
             stresstest.Shuffle = AdvancedTileStresstest.Shuffle;
             stresstest.UseParallelExecutionOfLogEntries = false;// AdvancedTileStresstest.useParallelExecutionOfLogEntries;
 

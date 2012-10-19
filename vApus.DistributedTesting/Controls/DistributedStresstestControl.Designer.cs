@@ -35,8 +35,7 @@ namespace vApus.DistributedTesting
             this.clmFRLStartedAt = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLRuntimeLeft = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLMeasuredRuntime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLConcurrentUsers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLPrecision = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLConcurrenctUsers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLRun = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLLogEntriesProcessed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLThroughput = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -109,8 +108,7 @@ namespace vApus.DistributedTesting
             this.clmFRLStartedAt,
             this.clmFRLRuntimeLeft,
             this.clmFRLMeasuredRuntime,
-            this.clmFRLConcurrentUsers,
-            this.clmFRLPrecision,
+            this.clmFRLConcurrenctUsers,
             this.clmFRLRun,
             this.clmFRLLogEntriesProcessed,
             this.clmFRLThroughput,
@@ -148,15 +146,10 @@ namespace vApus.DistributedTesting
             this.clmFRLMeasuredRuntime.Text = "Measured Time";
             this.clmFRLMeasuredRuntime.Width = 140;
             // 
-            // clmFRLConcurrentUsers
+            // clmFRLConcurrenctUsers
             // 
-            this.clmFRLConcurrentUsers.Text = "Concurrent Users";
-            this.clmFRLConcurrentUsers.Width = 94;
-            // 
-            // clmFRLPrecision
-            // 
-            this.clmFRLPrecision.Text = "Precision";
-            this.clmFRLPrecision.Width = 55;
+            this.clmFRLConcurrenctUsers.Text = "Concurrenct Users";
+            this.clmFRLConcurrenctUsers.Width = 100;
             // 
             // clmFRLRun
             // 
@@ -248,9 +241,8 @@ namespace vApus.DistributedTesting
             this.cboDrillDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboDrillDown.FormattingEnabled = true;
             this.cboDrillDown.Items.AddRange(new object[] {
-            "Concurrent Users",
-            "Precision",
-            "Run"});
+            "Concurrency",
+            "Runs"});
             this.cboDrillDown.Location = new System.Drawing.Point(1, 1);
             this.cboDrillDown.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboDrillDown.Name = "cboDrillDown";
@@ -553,8 +545,7 @@ namespace vApus.DistributedTesting
         private System.Windows.Forms.ColumnHeader clmFRLStartedAt;
         private System.Windows.Forms.ColumnHeader clmFRLRuntimeLeft;
         private System.Windows.Forms.ColumnHeader clmFRLMeasuredRuntime;
-        private System.Windows.Forms.ColumnHeader clmFRLConcurrentUsers;
-        private System.Windows.Forms.ColumnHeader clmFRLPrecision;
+        private System.Windows.Forms.ColumnHeader clmFRLConcurrenctUsers;
         private System.Windows.Forms.ColumnHeader clmFRLRun;
         private System.Windows.Forms.ColumnHeader clmFRLLogEntriesProcessed;
         private System.Windows.Forms.ColumnHeader clmFRLThroughput;

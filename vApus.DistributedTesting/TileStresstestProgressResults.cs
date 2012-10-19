@@ -24,7 +24,7 @@ namespace vApus.DistributedTesting
         private TimeSpan _estimatedRuntimeLeft;
         [NonSerialized]
         private StresstestResults _stresstestResults;
-        private List<TileConcurrentUsersProgressResult> _tileConcurrentUsersProgressResults = new List<TileConcurrentUsersProgressResult>();
+        private List<TileConcurrencyProgressResult> _tileConcurrencyProgressResults = new List<TileConcurrencyProgressResult>();
         #endregion
 
         #region Properties
@@ -36,9 +36,9 @@ namespace vApus.DistributedTesting
         {
             get { return _estimatedRuntimeLeft; }
         }
-        public List<TileConcurrentUsersProgressResult> TileConcurrentUsersProgressResults
+        public List<TileConcurrencyProgressResult> TileConcurrencyProgressResults
         {
-            get { return _tileConcurrentUsersProgressResults; }
+            get { return _tileConcurrencyProgressResults; }
         }
         #endregion
 
@@ -61,75 +61,26 @@ namespace vApus.DistributedTesting
         {
             _metrics = _stresstestResults.Metrics;
             _estimatedRuntimeLeft = _stresstestResults.EstimatedRuntimeLeft;
-            foreach (TileConcurrentUsersProgressResult result in _tileConcurrentUsersProgressResults)
+            foreach (TileConcurrencyProgressResult result in _tileConcurrencyProgressResults)
                 result.Refresh();
         }
     }
     [Serializable]
-    public class TileConcurrentUsersProgressResult : ITileProgressResult
+    public class TileConcurrencyProgressResult : ITileProgressResult
     {
         #region Fields
         private int _concurrentUsers;
         private Metrics _metrics = new Metrics();
         private TimeSpan _estimatedRuntimeLeft;
         [NonSerialized]
-        private ConcurrentUsersResult _concurrentUsersResult;
-        private List<TilePrecisionProgressResult> _tilePrecisionProgressResults = new List<TilePrecisionProgressResult>();
+        private ConcurrencyResult _concurrentUsersResult;
+        private List<TileRunProgressResult> _tileRunProgressResults = new List<TileRunProgressResult>();
         #endregion
 
         #region Properties
         public int ConcurrentUsers
         {
             get { return _concurrentUsers; }
-        }
-        public Metrics Metrics
-        {
-            get { return _metrics; }
-        }
-        public TimeSpan EstimatedRuntimeLeft
-        {
-            get { return _estimatedRuntimeLeft; }
-        }
-        public List<TilePrecisionProgressResult> TilePrecisionProgressResults
-        {
-            get { return _tilePrecisionProgressResults; }
-        }
-        #endregion
-
-        #region Constructors
-        public TileConcurrentUsersProgressResult() { }
-        public TileConcurrentUsersProgressResult(ConcurrentUsersResult concurrentUsersResult)
-        {
-            _concurrentUsersResult = concurrentUsersResult;
-            _concurrentUsers = _concurrentUsersResult.ConcurrentUsers;
-            Refresh();
-        }
-        #endregion
-
-        public void Refresh()
-        {
-            _metrics = _concurrentUsersResult.Metrics;
-            _estimatedRuntimeLeft = _concurrentUsersResult.EstimatedRuntimeLeft;
-            foreach (TilePrecisionProgressResult result in _tilePrecisionProgressResults)
-                result.Refresh();
-        }
-    }
-    [Serializable]
-    public class TilePrecisionProgressResult : ITileProgressResult
-    {
-        #region Fields
-        private int _precision;
-        private Metrics _metrics = new Metrics();
-        private TimeSpan _estimatedRuntimeLeft;
-        [NonSerialized]
-        private PrecisionResult _precisionResult;
-        private List<TileRunProgressResult> _tileRunProgressResults = new List<TileRunProgressResult>();
-        #endregion
-
-        #region Properties
-        public int Precision
-        {
-            get { return _precision; }
         }
         public Metrics Metrics
         {
@@ -146,18 +97,19 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Constructors
-        public TilePrecisionProgressResult() { }
-        public TilePrecisionProgressResult(PrecisionResult precisionResult)
+        public TileConcurrencyProgressResult() { }
+        public TileConcurrencyProgressResult(ConcurrencyResult concurrentUsersResult)
         {
-            _precisionResult = precisionResult;
-            _precision = _precisionResult.Precision;
+            _concurrentUsersResult = concurrentUsersResult;
+            _concurrentUsers = _concurrentUsersResult.ConcurrentUsers;
+            Refresh();
         }
         #endregion
 
         public void Refresh()
         {
-            _metrics = _precisionResult.Metrics;
-            _estimatedRuntimeLeft = _precisionResult.EstimatedRuntimeLeft;
+            _metrics = _concurrentUsersResult.Metrics;
+            _estimatedRuntimeLeft = _concurrentUsersResult.EstimatedRuntimeLeft;
             foreach (TileRunProgressResult result in _tileRunProgressResults)
                 result.Refresh();
         }

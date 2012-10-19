@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StresstestControl));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnl = new System.Windows.Forms.Panel();
             this.pnlFastResultListing = new System.Windows.Forms.Panel();
@@ -41,6 +40,7 @@
             this.lblMeasuredRuntime = new System.Windows.Forms.Label();
             this.btnRerunning = new System.Windows.Forms.Button();
             this.lblStopped = new System.Windows.Forms.Label();
+            this.chkReadeble = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.lvwFastResultsListing = new System.Windows.Forms.ListView();
@@ -48,7 +48,6 @@
             this.clmFRLRuntimeLeft = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLMeasuredRuntime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLConcurrentUsers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLPrecision = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLRun = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLLogEntriesProcessed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLThroughput = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -65,9 +64,8 @@
             this.kvpLog = new vApus.Util.KeyValuePairControl();
             this.kvpLogRuleSet = new vApus.Util.KeyValuePairControl();
             this.btnMonitor = new System.Windows.Forms.Button();
-            this.kvpConcurrentUsers = new vApus.Util.KeyValuePairControl();
-            this.kvpPrecision = new vApus.Util.KeyValuePairControl();
-            this.kvpDynamicRunMultiplier = new vApus.Util.KeyValuePairControl();
+            this.kvpConcurrency = new vApus.Util.KeyValuePairControl();
+            this.kvpRuns = new vApus.Util.KeyValuePairControl();
             this.kvpDelay = new vApus.Util.KeyValuePairControl();
             this.kvpShuffle = new vApus.Util.KeyValuePairControl();
             this.kvpDistribute = new vApus.Util.KeyValuePairControl();
@@ -84,7 +82,6 @@
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnExport = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chkReadeble = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -190,9 +187,8 @@
             this.cboDrillDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboDrillDown.FormattingEnabled = true;
             this.cboDrillDown.Items.AddRange(new object[] {
-            "Concurrent Users",
-            "Precision",
-            "Run"});
+            "Concurrency",
+            "Runs"});
             this.cboDrillDown.Location = new System.Drawing.Point(1, 1);
             this.cboDrillDown.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboDrillDown.Name = "cboDrillDown";
@@ -250,6 +246,23 @@
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
             this.lblStopped.TabIndex = 0;
             // 
+            // chkReadeble
+            // 
+            this.chkReadeble.AutoSize = true;
+            this.chkReadeble.Checked = true;
+            this.chkReadeble.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkReadeble.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chkReadeble.Location = new System.Drawing.Point(326, 7);
+            this.chkReadeble.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
+            this.chkReadeble.Name = "chkReadeble";
+            this.chkReadeble.Size = new System.Drawing.Size(69, 17);
+            this.chkReadeble.TabIndex = 3;
+            this.chkReadeble.Text = "Readable";
+            this.toolTip.SetToolTip(this.chkReadeble, "Uncheck this if you want results you can calculate with.");
+            this.chkReadeble.UseVisualStyleBackColor = true;
+            this.chkReadeble.Visible = false;
+            this.chkReadeble.CheckedChanged += new System.EventHandler(this.chkReadeble_CheckedChanged);
+            // 
             // btnSaveDisplayedResults
             // 
             this.btnSaveDisplayedResults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -291,7 +304,6 @@
             this.clmFRLRuntimeLeft,
             this.clmFRLMeasuredRuntime,
             this.clmFRLConcurrentUsers,
-            this.clmFRLPrecision,
             this.clmFRLRun,
             this.clmFRLLogEntriesProcessed,
             this.clmFRLThroughput,
@@ -328,11 +340,6 @@
             // 
             this.clmFRLConcurrentUsers.Text = "Concurrent Users";
             this.clmFRLConcurrentUsers.Width = 94;
-            // 
-            // clmFRLPrecision
-            // 
-            this.clmFRLPrecision.Text = "Precision";
-            this.clmFRLPrecision.Width = 55;
             // 
             // clmFRLRun
             // 
@@ -392,9 +399,8 @@
             this.flpConfiguration.Controls.Add(this.kvpLog);
             this.flpConfiguration.Controls.Add(this.kvpLogRuleSet);
             this.flpConfiguration.Controls.Add(this.btnMonitor);
-            this.flpConfiguration.Controls.Add(this.kvpConcurrentUsers);
-            this.flpConfiguration.Controls.Add(this.kvpPrecision);
-            this.flpConfiguration.Controls.Add(this.kvpDynamicRunMultiplier);
+            this.flpConfiguration.Controls.Add(this.kvpConcurrency);
+            this.flpConfiguration.Controls.Add(this.kvpRuns);
             this.flpConfiguration.Controls.Add(this.kvpDelay);
             this.flpConfiguration.Controls.Add(this.kvpShuffle);
             this.flpConfiguration.Controls.Add(this.kvpDistribute);
@@ -501,52 +507,39 @@
             this.btnMonitor.UseVisualStyleBackColor = false;
             this.btnMonitor.Click += new System.EventHandler(this.btnMonitor_Click);
             // 
-            // kvpConcurrentUsers
+            // kvpConcurrency
             // 
-            this.kvpConcurrentUsers.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpConcurrentUsers.Key = "Concurrent Users";
-            this.kvpConcurrentUsers.Location = new System.Drawing.Point(595, 6);
-            this.kvpConcurrentUsers.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
-            this.kvpConcurrentUsers.Name = "kvpConcurrentUsers";
-            this.kvpConcurrentUsers.Size = new System.Drawing.Size(111, 24);
-            this.kvpConcurrentUsers.TabIndex = 8;
-            this.kvpConcurrentUsers.TabStop = false;
-            this.kvpConcurrentUsers.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
+            this.kvpConcurrency.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpConcurrency.Key = "Concurrency";
+            this.kvpConcurrency.Location = new System.Drawing.Point(595, 6);
+            this.kvpConcurrency.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
+            this.kvpConcurrency.Name = "kvpConcurrency";
+            this.kvpConcurrency.Size = new System.Drawing.Size(84, 24);
+            this.kvpConcurrency.TabIndex = 8;
+            this.kvpConcurrency.TabStop = false;
+            this.kvpConcurrency.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
     "e.";
-            this.kvpConcurrentUsers.Value = "";
+            this.kvpConcurrency.Value = "";
             // 
-            // kvpPrecision
+            // kvpRuns
             // 
-            this.kvpPrecision.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpPrecision.Key = "Precision";
-            this.kvpPrecision.Location = new System.Drawing.Point(709, 6);
-            this.kvpPrecision.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvpPrecision.Name = "kvpPrecision";
-            this.kvpPrecision.Size = new System.Drawing.Size(65, 24);
-            this.kvpPrecision.TabIndex = 8;
-            this.kvpPrecision.TabStop = false;
-            this.kvpPrecision.Tooltip = "A static multiplier of the runtime for each concurrency level. Must be greater th" +
+            this.kvpRuns.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpRuns.Key = "Runs";
+            this.kvpRuns.Location = new System.Drawing.Point(682, 6);
+            this.kvpRuns.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpRuns.Name = "kvpRuns";
+            this.kvpRuns.Size = new System.Drawing.Size(42, 24);
+            this.kvpRuns.TabIndex = 8;
+            this.kvpRuns.TabStop = false;
+            this.kvpRuns.Tooltip = "A static multiplier of the runtime for each concurrency level. Must be greater th" +
     "an zero.";
-            this.kvpPrecision.Value = "";
-            // 
-            // kvpDynamicRunMultiplier
-            // 
-            this.kvpDynamicRunMultiplier.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpDynamicRunMultiplier.Key = "Dynamic Run Multiplier";
-            this.kvpDynamicRunMultiplier.Location = new System.Drawing.Point(3, 39);
-            this.kvpDynamicRunMultiplier.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvpDynamicRunMultiplier.Name = "kvpDynamicRunMultiplier";
-            this.kvpDynamicRunMultiplier.Size = new System.Drawing.Size(143, 24);
-            this.kvpDynamicRunMultiplier.TabIndex = 8;
-            this.kvpDynamicRunMultiplier.TabStop = false;
-            this.kvpDynamicRunMultiplier.Tooltip = resources.GetString("kvpDynamicRunMultiplier.Tooltip");
-            this.kvpDynamicRunMultiplier.Value = "";
+            this.kvpRuns.Value = "";
             // 
             // kvpDelay
             // 
             this.kvpDelay.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpDelay.Key = "Delay";
-            this.kvpDelay.Location = new System.Drawing.Point(149, 39);
+            this.kvpDelay.Location = new System.Drawing.Point(727, 6);
             this.kvpDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpDelay.Name = "kvpDelay";
             this.kvpDelay.Size = new System.Drawing.Size(45, 24);
@@ -560,7 +553,7 @@
             // 
             this.kvpShuffle.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpShuffle.Key = "Shuffle";
-            this.kvpShuffle.Location = new System.Drawing.Point(197, 39);
+            this.kvpShuffle.Location = new System.Drawing.Point(775, 6);
             this.kvpShuffle.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpShuffle.Name = "kvpShuffle";
             this.kvpShuffle.Size = new System.Drawing.Size(53, 24);
@@ -574,7 +567,7 @@
             // 
             this.kvpDistribute.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpDistribute.Key = "Distribute";
-            this.kvpDistribute.Location = new System.Drawing.Point(253, 39);
+            this.kvpDistribute.Location = new System.Drawing.Point(3, 39);
             this.kvpDistribute.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpDistribute.Name = "kvpDistribute";
             this.kvpDistribute.Size = new System.Drawing.Size(67, 24);
@@ -589,7 +582,7 @@
             // 
             this.kvpMonitorBefore.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorBefore.Key = "Monitor Before";
-            this.kvpMonitorBefore.Location = new System.Drawing.Point(323, 39);
+            this.kvpMonitorBefore.Location = new System.Drawing.Point(73, 39);
             this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorBefore.Name = "kvpMonitorBefore";
             this.kvpMonitorBefore.Size = new System.Drawing.Size(96, 24);
@@ -602,7 +595,7 @@
             // 
             this.kvpMonitorAfter.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorAfter.Key = "Monitor After";
-            this.kvpMonitorAfter.Location = new System.Drawing.Point(422, 39);
+            this.kvpMonitorAfter.Location = new System.Drawing.Point(172, 39);
             this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorAfter.Name = "kvpMonitorAfter";
             this.kvpMonitorAfter.Size = new System.Drawing.Size(86, 24);
@@ -761,23 +754,6 @@
             this.btnExport.UseVisualStyleBackColor = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
-            // chkReadeble
-            // 
-            this.chkReadeble.AutoSize = true;
-            this.chkReadeble.Checked = true;
-            this.chkReadeble.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkReadeble.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkReadeble.Location = new System.Drawing.Point(326, 7);
-            this.chkReadeble.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
-            this.chkReadeble.Name = "chkReadeble";
-            this.chkReadeble.Size = new System.Drawing.Size(69, 17);
-            this.chkReadeble.TabIndex = 3;
-            this.chkReadeble.Text = "Readable";
-            this.toolTip.SetToolTip(this.chkReadeble, "Uncheck this if you want results you can calculate with.");
-            this.chkReadeble.UseVisualStyleBackColor = true;
-            this.chkReadeble.Visible = false;
-            this.chkReadeble.CheckedChanged += new System.EventHandler(this.chkReadeble_CheckedChanged);
-            // 
             // StresstestControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -815,9 +791,8 @@
         private vApus.Util.KeyValuePairControl kvpConnection;
         private vApus.Util.KeyValuePairControl kvpConnectionProxy;
         private vApus.Util.KeyValuePairControl kvpLog;
-        private vApus.Util.KeyValuePairControl kvpConcurrentUsers;
-        private vApus.Util.KeyValuePairControl kvpPrecision;
-        private vApus.Util.KeyValuePairControl kvpDynamicRunMultiplier;
+        private vApus.Util.KeyValuePairControl kvpConcurrency;
+        private vApus.Util.KeyValuePairControl kvpRuns;
         private vApus.Util.KeyValuePairControl kvpDelay;
         private vApus.Util.KeyValuePairControl kvpShuffle;
         private vApus.Util.KeyValuePairControl kvpDistribute;
@@ -834,7 +809,6 @@
         private System.Windows.Forms.ColumnHeader clmFRLRuntimeLeft;
         private System.Windows.Forms.ColumnHeader clmFRLMeasuredRuntime;
         private System.Windows.Forms.ColumnHeader clmFRLConcurrentUsers;
-        private System.Windows.Forms.ColumnHeader clmFRLPrecision;
         private System.Windows.Forms.ColumnHeader clmFRLRun;
         private System.Windows.Forms.ColumnHeader clmFRLLogEntriesProcessed;
         private System.Windows.Forms.ColumnHeader clmFRLThroughput;

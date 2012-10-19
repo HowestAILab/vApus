@@ -18,8 +18,8 @@ namespace vApus.DistributedTesting
         #region Fields
         private Stresstest.Stresstest _defaultSettingsTo;
 
-        private int _precision = 1, _dynamicRunMultiplier = 1, _minimumDelay = 900, _maximumDelay = 1100;
-        private int[] _concurrentUsers = { 5, 5, 10, 25, 50, 100 };
+        private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100;
+        private int[] _concurrency = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
         private ActionAndLogEntryDistribution _distribute;
         protected internal Log _log;
@@ -64,50 +64,37 @@ namespace vApus.DistributedTesting
             }
         }
 
-        [Description("The count(s) of the concurrent users generated, the minimum given value equals one."), DisplayName("Concurrent Users")]
+        [Description("The count(s) of the concurrent users generated, the minimum given value equals one.")]
         [SavableCloneable, PropertyControl(1)]
-        public int[] ConcurrentUsers
+        public int[] Concurrency
         {
-            get { return _concurrentUsers; }
+            get { return _concurrency; }
             set
             {
                 if (value.Length == 0)
                     throw new ArgumentException();
                 foreach (int i in value)
                     if (i < 1)
-                        throw new ArgumentOutOfRangeException("A value in Concurrent Users cannot be smaller than one.");
-                _concurrentUsers = value;
+                        throw new ArgumentOutOfRangeException("A value in Concurrency cannot be smaller than one.");
+                _concurrency = value;
             }
         }
 
         [Description("A static multiplier of the runtime for each concurrency level. Must be greater than zero.")]
         [SavableCloneable, PropertyControl(2)]
-        public int Precision
+        public int Runs
         {
-            get { return _precision; }
+            get { return _runs; }
             set
             {
                 if (value < 1)
                     throw new ArgumentOutOfRangeException("Cannot be smaller than 1.");
-                _precision = value;
-            }
-        }
-
-        [Description("Useful for tests with low or no delay. It appends the runtime for every concurrency level in a way they even out. For example: a minimum request of 10 with 5 concurrent users makes the runtime twice as long, of 15 three times."), DisplayName("Dynamic Run Multiplier")]
-        [SavableCloneable, PropertyControl(3)]
-        public int DynamicRunMultiplier
-        {
-            get { return _dynamicRunMultiplier; }
-            set
-            {
-                if (value < 1)
-                    throw new Exception("The multiplier cannot be smaller than one.");
-                _dynamicRunMultiplier = value;
+                _runs = value;
             }
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(4)]
+        [PropertyControl(3)]
         public int MinimumDelay
         {
             get { return _minimumDelay; }
@@ -132,7 +119,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(5)]
+        [PropertyControl(4)]
         public int MaximumDelay
         {
             get { return _maximumDelay; }
@@ -157,7 +144,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
-        [SavableCloneable, PropertyControl(6)]
+        [SavableCloneable, PropertyControl(5)]
         public bool Shuffle
         {
             get { return _shuffle; }
@@ -165,14 +152,14 @@ namespace vApus.DistributedTesting
         }
 
         [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance.")]
-        [SavableCloneable, PropertyControl(7)]
+        [SavableCloneable, PropertyControl(6)]
         public ActionAndLogEntryDistribution Distribute
         {
             get { return _distribute; }
             set { _distribute = value; }
         }
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(8)]
+        [SavableCloneable, PropertyControl(7)]
         public uint MonitorBefore
         {
             get { return _monitorBefore; }
@@ -185,7 +172,7 @@ namespace vApus.DistributedTesting
         }
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(9)]
+        [SavableCloneable, PropertyControl(8)]
         public uint MonitorAfter
         {
             get { return _monitorAfter; }
@@ -245,10 +232,9 @@ namespace vApus.DistributedTesting
         {
             _defaultSettingsTo = stresstest;
             Log = _defaultSettingsTo.Log;
-            _concurrentUsers = new int[_defaultSettingsTo.ConcurrentUsers.Length];
-            _defaultSettingsTo.ConcurrentUsers.CopyTo(_concurrentUsers, 0);
-            _precision = _defaultSettingsTo.Precision;
-            _dynamicRunMultiplier = _defaultSettingsTo.DynamicRunMultiplier;
+            _concurrency = new int[_defaultSettingsTo.Concurrency.Length];
+            _defaultSettingsTo.Concurrency.CopyTo(_concurrency, 0);
+            _runs = _defaultSettingsTo.Runs;
             _minimumDelay = _defaultSettingsTo.MinimumDelay;
             _maximumDelay = _defaultSettingsTo.MaximumDelay;
             _shuffle = _defaultSettingsTo.Shuffle;
@@ -267,10 +253,9 @@ namespace vApus.DistributedTesting
         {
             var clone = new AdvancedTileStresstest();
             clone.Log = _log;
-            clone._concurrentUsers = new int[_concurrentUsers.Length];
-            _concurrentUsers.CopyTo(clone._concurrentUsers, 0);
-            clone.Precision = _precision;
-            clone.DynamicRunMultiplier = _dynamicRunMultiplier;
+            clone._concurrency = new int[_concurrency.Length];
+            _concurrency.CopyTo(clone._concurrency, 0);
+            clone.Runs = _runs;
             clone.MinimumDelayOverride = _minimumDelay;
             clone.MaximumDelayOverride = _maximumDelay;
             clone.Shuffle = _shuffle;

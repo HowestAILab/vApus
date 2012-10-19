@@ -590,9 +590,8 @@ namespace vApus.DistributedTesting
                                                           tileStresstest.BasicTileStresstest.Slaves.Length == 0 ? string.Empty : tileStresstest.BasicTileStresstest.Slaves[0].ToString(),
                                                           tileStresstest.AdvancedTileStresstest.Log,
                                                           tileStresstest.AdvancedTileStresstest.LogRuleSet,
-                                                          tileStresstest.AdvancedTileStresstest.ConcurrentUsers,
-                                                          tileStresstest.AdvancedTileStresstest.Precision,
-                                                          tileStresstest.AdvancedTileStresstest.DynamicRunMultiplier,
+                                                          tileStresstest.AdvancedTileStresstest.Concurrency,
+                                                          tileStresstest.AdvancedTileStresstest.Runs,
                                                           tileStresstest.AdvancedTileStresstest.MinimumDelay,
                                                           tileStresstest.AdvancedTileStresstest.MaximumDelay,
                                                           tileStresstest.AdvancedTileStresstest.Shuffle,
@@ -609,17 +608,16 @@ namespace vApus.DistributedTesting
             try
             {
                 Hashtable testProgressCache = new Hashtable(1);
-                foreach (var tcu in testProgressMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
-                    foreach (var tpu in tcu.TilePrecisionProgressResults)
-                        foreach (var tru in tpu.TileRunProgressResults)
-                            vApus.REST.Convert.Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
-                                                         "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
-                                                         tileStresstest.BasicTileStresstest.Connection.Label,
-                                                         tcu.ConcurrentUsers, tpu.Precision + 1, tru.Run + 1,
-                                                         tru.Metrics,
-                                                         tru.EstimatedRuntimeLeft,
-                                                         testProgressMessage.RunStateChange,
-                                                         testProgressMessage.StresstestResult);
+                foreach (var tcu in testProgressMessage.TileStresstestProgressResults.TileConcurrencyProgressResults)
+                    foreach (var tru in tcu.TileRunProgressResults)
+                        vApus.REST.Convert.Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
+                                                     "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
+                                                     tileStresstest.BasicTileStresstest.Connection.Label,
+                                                     tcu.ConcurrentUsers, tru.Run + 1,
+                                                     tru.Metrics,
+                                                     tru.EstimatedRuntimeLeft,
+                                                     testProgressMessage.RunStateChange,
+                                                     testProgressMessage.StresstestResult);
 
                 vApus.REST.Convert.Converter.WriteToFile(testProgressCache, "TestProgress");
             }

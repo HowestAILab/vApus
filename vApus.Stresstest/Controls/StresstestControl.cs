@@ -106,12 +106,12 @@ namespace vApus.Stresstest
         public void SetConfigurationControls(Stresstest stresstest)
         {
             SetConfigurationControls(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy, stresstest.Log, stresstest.LogRuleSet,
-                stresstest.Monitors, stresstest.ConcurrentUsers, stresstest.Precision, stresstest.DynamicRunMultiplier, stresstest.MinimumDelay,
+                stresstest.Monitors, stresstest.Concurrency, stresstest.Runs, stresstest.MinimumDelay,
                 stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute, stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
         public void SetConfigurationControls(string stresstest, Connection connection, string connectionProxy,
-                                              Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrentUsers,
-                                              int precision, int dynamicRunMultiplier, int minimumDelay, int maximumDelay, bool shuffle,
+                                              Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrency,
+                                              int runs, int minimumDelay, int maximumDelay, bool shuffle,
                                               ActionAndLogEntryDistribution distribute, uint monitorBefore, uint monitorAfter)
         {
             kvpStresstest.Key = stresstest;
@@ -132,10 +132,9 @@ namespace vApus.Stresstest
                 btnMonitor.BackColor = Color.LightBlue;
             }
 
-            kvpConcurrentUsers.Value = concurrentUsers.Combine(", ");
+            kvpConcurrency.Value = concurrency.Combine(", ");
 
-            kvpPrecision.Value = precision.ToString();
-            kvpDynamicRunMultiplier.Value = dynamicRunMultiplier.ToString();
+            kvpRuns.Value = runs.ToString();
             kvpDelay.Value = (minimumDelay == maximumDelay ? minimumDelay.ToString() : minimumDelay + " - " + maximumDelay) + " ms";
             kvpShuffle.Value = shuffle ? "Yes" : "No";
             kvpDistribute.Value = distribute.ToString();
@@ -391,7 +390,7 @@ namespace vApus.Stresstest
             _fastResults.Clear();
             lvwFastResultsListing.Items.Clear();
         }
-        public void AddFastResult(ConcurrentUsersResult result)
+        public void AddFastResult(ConcurrencyResult result)
         {
             ListViewItem lvwi = new ListViewItem(result.Metrics.StartMeasuringRuntime.ToString());
             lvwi.UseItemStyleForSubItems = false;
@@ -434,11 +433,25 @@ namespace vApus.Stresstest
                     sub.Font = new Font(sub.Font, FontStyle.Regular);
             }
         }
-        public void AddFastResult(PrecisionResult result)
+        private ListViewItem GetParent(ListViewItem child)
+        {
+            int index = _fastResults.IndexOf(child) - 1;
+            if (index == -2)
+                index = _fastResults.Count - 1;
+
+            if (child.Tag is RunResult)
+                for (int i = index; i > -1; i--)
+                {
+                    ListViewItem item = _fastResults[i];
+                    if (item.Tag is ConcurrencyResult)
+                        return item;
+                }
+            return null;
+        }
+        public void AddFastResult(RunResult result)
         {
             ListViewItem lvwi = new ListViewItem(result.Metrics.StartMeasuringRuntime.ToString());
             lvwi.UseItemStyleForSubItems = false;
-
             Font font = new Font("Consolas", 10.25f);
 
             lvwi.Font = font;
@@ -447,9 +460,10 @@ namespace vApus.Stresstest
             lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
             lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
 
+            ListViewItem parent = GetParent(lvwi);
 
-            lvwi.SubItems.Add((GetParent(lvwi).Tag as ConcurrentUsersResult).ConcurrentUsers.ToString()).Font = font;
-            lvwi.SubItems.Add((result.Precision + 1).ToString()).Font = font;
+            lvwi.SubItems.Add((parent.Tag as ConcurrencyResult).ConcurrentUsers.ToString()).Font = font;
+            lvwi.SubItems.Add((result.Run + 1).ToString()).Font = font;
 
             ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());
             sub.Font = new Font(font, FontStyle.Bold);
@@ -477,80 +491,12 @@ namespace vApus.Stresstest
                 if (sub.Font.Bold)
                     sub.Font = new Font(sub.Font, FontStyle.Regular);
             }
-        }
-        private ListViewItem GetParent(ListViewItem child)
-        {
-            int index = _fastResults.IndexOf(child) - 1;
-            if (index == -2)
-                index = _fastResults.Count - 1;
-
-            if (child.Tag is PrecisionResult)
-                for (int i = index; i > -1; i--)
-                {
-                    ListViewItem item = _fastResults[i];
-                    if (item.Tag is ConcurrentUsersResult)
-                        return item;
-                }
-            else if (child.Tag is RunResult)
-                for (int i = index; i > -1; i--)
-                {
-                    ListViewItem item = _fastResults[i];
-                    if (item.Tag is PrecisionResult)
-                        return item;
-                }
-            return null;
-        }
-        public void AddFastResult(RunResult result)
-        {
-            ListViewItem lvwi = new ListViewItem(result.Metrics.StartMeasuringRuntime.ToString());
-            lvwi.UseItemStyleForSubItems = false;
-            Font font = new Font("Consolas", 10.25f);
-
-            lvwi.Font = font;
-            lvwi.Tag = result;
-
-            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
-
-            ListViewItem parent = GetParent(lvwi);
-            ListViewItem parentParent = GetParent(parent);
-
-            lvwi.SubItems.Add((parentParent.Tag as ConcurrentUsersResult).ConcurrentUsers.ToString()).Font = font;
-            lvwi.SubItems.Add((((parent.Tag as PrecisionResult)).Precision + 1).ToString()).Font = font;
-            lvwi.SubItems.Add((result.Run + 1).ToString()).Font = font;
-
-            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());
-            sub.Font = new Font(font, FontStyle.Bold);
-            sub.Name = "LogEntriesProcessed";
-            lvwi.SubItems.Add(Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
-
-            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
-            sub.Font = font;
-            sub.ForeColor = Color.Red;
-
-            _fastResults.Add(lvwi);
-
-            if (cboDrillDown.SelectedIndex == 2)
-            {
-                lvwFastResultsListing.Items.Add(lvwi);
-                UpdateFastResults();
-            }
-
-            for (int i = 0; i < lvwFastResultsListing.Items.Count - 1; i++)
-            {
-                sub = lvwFastResultsListing.Items[i].SubItems["LogEntriesProcessed"];
-                if (sub.Font.Bold)
-                    sub.Font = new Font(sub.Font, FontStyle.Regular);
-            }
 
             SetRerunning(result.RunDoneOnce);
         }
 
         /// <summary>
-        /// 0 = Concurrent Users, 1 = precision, 2 = run
+        /// 0 = Concurrency, 1 = runs
         /// </summary>
         /// <param name="level"></param>
         public void DrillDown(int level)
@@ -687,13 +633,11 @@ namespace vApus.Stresstest
                         lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
                         clmFRLConcurrentUsers.Width = -2;
                     }
-                    if (lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
-                        lvwFastResultsListing.Columns.Remove(clmFRLPrecision);
                     if (lvwFastResultsListing.Columns.Contains(clmFRLRun))
                         lvwFastResultsListing.Columns.Remove(clmFRLRun);
 
                     foreach (ListViewItem lvwi in _fastResults)
-                        if (lvwi.Tag is ConcurrentUsersResult)
+                        if (lvwi.Tag is ConcurrencyResult)
                             lvwFastResultsListing.Items.Add(lvwi);
                     break;
                 case 1:
@@ -702,32 +646,9 @@ namespace vApus.Stresstest
                         lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
                         clmFRLConcurrentUsers.Width = -2;
                     }
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
-                    {
-                        lvwFastResultsListing.Columns.Insert(4, clmFRLPrecision);
-                        clmFRLPrecision.Width = -2;
-                    }
-                    if (lvwFastResultsListing.Columns.Contains(clmFRLRun))
-                        lvwFastResultsListing.Columns.Remove(clmFRLRun);
-
-                    foreach (ListViewItem lvwi in _fastResults)
-                        if (lvwi.Tag is PrecisionResult)
-                            lvwFastResultsListing.Items.Add(lvwi);
-                    break;
-                case 2:
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
-                    {
-                        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
-                        clmFRLConcurrentUsers.Width = -2;
-                    }
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
-                    {
-                        lvwFastResultsListing.Columns.Insert(4, clmFRLPrecision);
-                        clmFRLPrecision.Width = -2;
-                    }
                     if (!lvwFastResultsListing.Columns.Contains(clmFRLRun))
                     {
-                        lvwFastResultsListing.Columns.Insert(5, clmFRLRun);
+                        lvwFastResultsListing.Columns.Insert(4, clmFRLRun);
                         clmFRLRun.Width = -2;
                     }
 

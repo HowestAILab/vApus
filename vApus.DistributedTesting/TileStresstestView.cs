@@ -31,8 +31,7 @@ namespace vApus.DistributedTesting
 
         //To report progress to the master.
         private TileStresstestProgressResults _tileStresstestProgressResults;
-        private TileConcurrentUsersProgressResult _lastAddedTileConcurrentUsersProgressResult;
-        private TilePrecisionProgressResult _lastTilePrecisionProgressResult;
+        private TileConcurrencyProgressResult _lastTileConcurrencyProgressResult;
 
         private Stresstest.Stresstest _stresstest;
         private Stresstest.StresstestCore _stresstestCore;
@@ -135,7 +134,6 @@ namespace vApus.DistributedTesting
                     _stresstestCore.RunSynchronization = this.RunSynchronization;
                     _stresstestCore.StresstestStarted += new EventHandler<Stresstest.StresstestStartedEventArgs>(_stresstestCore_StresstestStarted);
                     _stresstestCore.ConcurrentUsersStarted += new EventHandler<Stresstest.ConcurrentUsersStartedEventArgs>(_stresstestCore_ConcurrentUsersStarted);
-                    _stresstestCore.PrecisionStarted += new EventHandler<Stresstest.PrecisionStartedEventArgs>(_stresstestCore_PrecisionStarted);
                     _stresstestCore.RunInitializedFirstTime += new EventHandler<Stresstest.RunInitializedFirstTimeEventArgs>(_stresstestCore_RunInitializedFirstTime);
                     _stresstestCore.RunDoneOnce += new EventHandler(_stresstestCore_RunDoneOnce);
                     _stresstestCore.Message += new EventHandler<Stresstest.MessageEventArgs>(_stresstestCore_Message);
@@ -265,23 +263,8 @@ namespace vApus.DistributedTesting
             }
             catch { } //Exception on false WMI. 
 
-            _lastAddedTileConcurrentUsersProgressResult = new TileConcurrentUsersProgressResult(e.Result);
-            _tileStresstestProgressResults.TileConcurrentUsersProgressResults.Add(_lastAddedTileConcurrentUsersProgressResult);
-        }
-        private void _stresstestCore_PrecisionStarted(object sender, Stresstest.PrecisionStartedEventArgs e)
-        {
-            _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
-            StopProgressDelayCountDown();
-            tmrProgress.Stop();
-            stresstestControl.AddFastResult(e.Result);
-            try
-            {
-                stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
-            }
-            catch { } //Exception on false WMI. 
-
-            _lastTilePrecisionProgressResult = new TilePrecisionProgressResult(e.Result);
-            _lastAddedTileConcurrentUsersProgressResult.TilePrecisionProgressResults.Add(_lastTilePrecisionProgressResult);
+            _lastTileConcurrencyProgressResult = new TileConcurrencyProgressResult(e.Result);
+            _tileStresstestProgressResults.TileConcurrencyProgressResults.Add(_lastTileConcurrencyProgressResult);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, Stresstest.RunInitializedFirstTimeEventArgs e)
         {
@@ -295,7 +278,7 @@ namespace vApus.DistributedTesting
             }
             catch { } //Exception on false WMI. 
 
-            _lastTilePrecisionProgressResult.TileRunProgressResults.Add(new TileRunProgressResult(e.Result));
+            _lastTileConcurrencyProgressResult.TileRunProgressResults.Add(new TileRunProgressResult(e.Result));
 
             SendPushMessage(RunStateChange.ToRunInitializedFirstTime);
 

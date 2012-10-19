@@ -40,9 +40,8 @@
             this.kvpLog = new vApus.Util.KeyValuePairControl();
             this.kvpLogRuleSet = new vApus.Util.KeyValuePairControl();
             this.kvpMonitor = new vApus.Util.KeyValuePairControl();
-            this.kvpConcurrentUsers = new vApus.Util.KeyValuePairControl();
-            this.kvpPrecision = new vApus.Util.KeyValuePairControl();
-            this.kvpDynamicRunMultiplier = new vApus.Util.KeyValuePairControl();
+            this.kvpConcurrency = new vApus.Util.KeyValuePairControl();
+            this.kvpRuns = new vApus.Util.KeyValuePairControl();
             this.kvpDelay = new vApus.Util.KeyValuePairControl();
             this.kvpShuffle = new vApus.Util.KeyValuePairControl();
             this.kvpDistribute = new vApus.Util.KeyValuePairControl();
@@ -60,8 +59,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.rdbErrors = new System.Windows.Forms.RadioButton();
             this.label5 = new System.Windows.Forms.Label();
-            this.tbtnConcurrentUsers = new vApus.Util.ToggleButton();
-            this.tbtnPrecision = new vApus.Util.ToggleButton();
+            this.tbtnConcurrency = new vApus.Util.ToggleButton();
             this.tbtnRun = new vApus.Util.ToggleButton();
             this.tbtnUser = new vApus.Util.ToggleButton();
             this.tbtnUserAction = new vApus.Util.ToggleButton();
@@ -70,8 +68,7 @@
             this.dgvDetailedResultsListing = new System.Windows.Forms.DataGridView();
             this.clmDRLStartedAtSentAt = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDRLMeasuredTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmDRLConcurrentUsers = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmDRLPrecision = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmDRLConcurrency = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDRLRun = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDRLUser = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDRLUserAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -128,9 +125,8 @@
             this.flpSaveConfiguration.Controls.Add(this.kvpLog);
             this.flpSaveConfiguration.Controls.Add(this.kvpLogRuleSet);
             this.flpSaveConfiguration.Controls.Add(this.kvpMonitor);
-            this.flpSaveConfiguration.Controls.Add(this.kvpConcurrentUsers);
-            this.flpSaveConfiguration.Controls.Add(this.kvpPrecision);
-            this.flpSaveConfiguration.Controls.Add(this.kvpDynamicRunMultiplier);
+            this.flpSaveConfiguration.Controls.Add(this.kvpConcurrency);
+            this.flpSaveConfiguration.Controls.Add(this.kvpRuns);
             this.flpSaveConfiguration.Controls.Add(this.kvpDelay);
             this.flpSaveConfiguration.Controls.Add(this.kvpShuffle);
             this.flpSaveConfiguration.Controls.Add(this.kvpDistribute);
@@ -243,52 +239,39 @@
             this.kvpMonitor.Tooltip = "";
             this.kvpMonitor.Value = "";
             // 
-            // kvpConcurrentUsers
+            // kvpConcurrency
             // 
-            this.kvpConcurrentUsers.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpConcurrentUsers.Key = "Concurrent Users";
-            this.kvpConcurrentUsers.Location = new System.Drawing.Point(639, 6);
-            this.kvpConcurrentUsers.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
-            this.kvpConcurrentUsers.Name = "kvpConcurrentUsers";
-            this.kvpConcurrentUsers.Size = new System.Drawing.Size(111, 24);
-            this.kvpConcurrentUsers.TabIndex = 30;
-            this.kvpConcurrentUsers.TabStop = false;
-            this.kvpConcurrentUsers.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
+            this.kvpConcurrency.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpConcurrency.Key = "Concurrency";
+            this.kvpConcurrency.Location = new System.Drawing.Point(639, 6);
+            this.kvpConcurrency.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
+            this.kvpConcurrency.Name = "kvpConcurrency";
+            this.kvpConcurrency.Size = new System.Drawing.Size(84, 24);
+            this.kvpConcurrency.TabIndex = 30;
+            this.kvpConcurrency.TabStop = false;
+            this.kvpConcurrency.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
     "e.";
-            this.kvpConcurrentUsers.Value = "";
+            this.kvpConcurrency.Value = "";
             // 
-            // kvpPrecision
+            // kvpRuns
             // 
-            this.kvpPrecision.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpPrecision.Key = "Precision";
-            this.kvpPrecision.Location = new System.Drawing.Point(3, 39);
-            this.kvpPrecision.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvpPrecision.Name = "kvpPrecision";
-            this.kvpPrecision.Size = new System.Drawing.Size(65, 24);
-            this.kvpPrecision.TabIndex = 28;
-            this.kvpPrecision.TabStop = false;
-            this.kvpPrecision.Tooltip = "A static multiplier of the runtime for each concurrency level. Must be greater th" +
+            this.kvpRuns.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpRuns.Key = "Runs";
+            this.kvpRuns.Location = new System.Drawing.Point(726, 6);
+            this.kvpRuns.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpRuns.Name = "kvpRuns";
+            this.kvpRuns.Size = new System.Drawing.Size(42, 24);
+            this.kvpRuns.TabIndex = 28;
+            this.kvpRuns.TabStop = false;
+            this.kvpRuns.Tooltip = "A static multiplier of the runtime for each concurrency level. Must be greater th" +
     "an zero.";
-            this.kvpPrecision.Value = "";
-            // 
-            // kvpDynamicRunMultiplier
-            // 
-            this.kvpDynamicRunMultiplier.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpDynamicRunMultiplier.Key = "Dynamic Run Multiplier";
-            this.kvpDynamicRunMultiplier.Location = new System.Drawing.Point(71, 39);
-            this.kvpDynamicRunMultiplier.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvpDynamicRunMultiplier.Name = "kvpDynamicRunMultiplier";
-            this.kvpDynamicRunMultiplier.Size = new System.Drawing.Size(143, 24);
-            this.kvpDynamicRunMultiplier.TabIndex = 32;
-            this.kvpDynamicRunMultiplier.TabStop = false;
-            this.kvpDynamicRunMultiplier.Tooltip = resources.GetString("kvpDynamicRunMultiplier.Tooltip");
-            this.kvpDynamicRunMultiplier.Value = "";
+            this.kvpRuns.Value = "";
             // 
             // kvpDelay
             // 
             this.kvpDelay.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpDelay.Key = "Delay";
-            this.kvpDelay.Location = new System.Drawing.Point(217, 39);
+            this.kvpDelay.Location = new System.Drawing.Point(3, 39);
             this.kvpDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpDelay.Name = "kvpDelay";
             this.kvpDelay.Size = new System.Drawing.Size(45, 24);
@@ -302,7 +285,7 @@
             // 
             this.kvpShuffle.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpShuffle.Key = "Shuffle";
-            this.kvpShuffle.Location = new System.Drawing.Point(265, 39);
+            this.kvpShuffle.Location = new System.Drawing.Point(51, 39);
             this.kvpShuffle.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpShuffle.Name = "kvpShuffle";
             this.kvpShuffle.Size = new System.Drawing.Size(53, 24);
@@ -317,7 +300,7 @@
             // 
             this.kvpDistribute.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpDistribute.Key = "Distribute";
-            this.kvpDistribute.Location = new System.Drawing.Point(321, 39);
+            this.kvpDistribute.Location = new System.Drawing.Point(107, 39);
             this.kvpDistribute.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpDistribute.Name = "kvpDistribute";
             this.kvpDistribute.Size = new System.Drawing.Size(67, 24);
@@ -392,8 +375,7 @@
             this.flpDetailedResultsListing.Controls.Add(this.label9);
             this.flpDetailedResultsListing.Controls.Add(this.rdbErrors);
             this.flpDetailedResultsListing.Controls.Add(this.label5);
-            this.flpDetailedResultsListing.Controls.Add(this.tbtnConcurrentUsers);
-            this.flpDetailedResultsListing.Controls.Add(this.tbtnPrecision);
+            this.flpDetailedResultsListing.Controls.Add(this.tbtnConcurrency);
             this.flpDetailedResultsListing.Controls.Add(this.tbtnRun);
             this.flpDetailedResultsListing.Controls.Add(this.tbtnUser);
             this.flpDetailedResultsListing.Controls.Add(this.tbtnUserAction);
@@ -471,9 +453,8 @@
             this.cboPivotLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboPivotLevel.FormattingEnabled = true;
             this.cboPivotLevel.Items.AddRange(new object[] {
-            "Concurrent Users",
-            "Precision",
-            "Run"});
+            "Concurrency",
+            "Runs"});
             this.cboPivotLevel.Location = new System.Drawing.Point(1, 1);
             this.cboPivotLevel.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
             this.cboPivotLevel.Name = "cboPivotLevel";
@@ -528,42 +509,23 @@
             this.label5.TabIndex = 13;
             this.label5.Text = "filter level:";
             // 
-            // tbtnConcurrentUsers
+            // tbtnConcurrency
             // 
-            this.tbtnConcurrentUsers.Appearance = System.Windows.Forms.Appearance.Button;
-            this.tbtnConcurrentUsers.AutoSize = true;
-            this.tbtnConcurrentUsers.BackColor = System.Drawing.SystemColors.Control;
-            this.tbtnConcurrentUsers.Checked = true;
-            this.tbtnConcurrentUsers.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.tbtnConcurrentUsers.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbtnConcurrentUsers.Location = new System.Drawing.Point(3, 38);
-            this.tbtnConcurrentUsers.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
-            this.tbtnConcurrentUsers.Name = "tbtnConcurrentUsers";
-            this.tbtnConcurrentUsers.Size = new System.Drawing.Size(115, 23);
-            this.tbtnConcurrentUsers.TabIndex = 4;
-            this.tbtnConcurrentUsers.Text = "Concurrent Users";
-            this.tbtnConcurrentUsers.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.tbtnConcurrentUsers.UseVisualStyleBackColor = false;
-            this.tbtnConcurrentUsers.CheckedChanged += new System.EventHandler(this.filter_CheckedChanged);
-            // 
-            // tbtnPrecision
-            // 
-            this.tbtnPrecision.Appearance = System.Windows.Forms.Appearance.Button;
-            this.tbtnPrecision.AutoSize = true;
-            this.tbtnPrecision.BackColor = System.Drawing.SystemColors.Control;
-            this.tbtnPrecision.Checked = true;
-            this.tbtnPrecision.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.tbtnPrecision.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbtnPrecision.Location = new System.Drawing.Point(124, 38);
-            this.tbtnPrecision.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
-            this.tbtnPrecision.Name = "tbtnPrecision";
-            this.tbtnPrecision.Size = new System.Drawing.Size(69, 23);
-            this.tbtnPrecision.TabIndex = 5;
-            this.tbtnPrecision.Text = "Precision";
-            this.tbtnPrecision.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.tbtnPrecision.UseVisualStyleBackColor = false;
-            this.tbtnPrecision.Visible = false;
-            this.tbtnPrecision.CheckedChanged += new System.EventHandler(this.filter_CheckedChanged);
+            this.tbtnConcurrency.Appearance = System.Windows.Forms.Appearance.Button;
+            this.tbtnConcurrency.AutoSize = true;
+            this.tbtnConcurrency.BackColor = System.Drawing.SystemColors.Control;
+            this.tbtnConcurrency.Checked = true;
+            this.tbtnConcurrency.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.tbtnConcurrency.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbtnConcurrency.Location = new System.Drawing.Point(3, 38);
+            this.tbtnConcurrency.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
+            this.tbtnConcurrency.Name = "tbtnConcurrency";
+            this.tbtnConcurrency.Size = new System.Drawing.Size(88, 23);
+            this.tbtnConcurrency.TabIndex = 4;
+            this.tbtnConcurrency.Text = "Concurrency";
+            this.tbtnConcurrency.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.tbtnConcurrency.UseVisualStyleBackColor = false;
+            this.tbtnConcurrency.CheckedChanged += new System.EventHandler(this.filter_CheckedChanged);
             // 
             // tbtnRun
             // 
@@ -573,7 +535,7 @@
             this.tbtnRun.Checked = true;
             this.tbtnRun.CheckState = System.Windows.Forms.CheckState.Checked;
             this.tbtnRun.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbtnRun.Location = new System.Drawing.Point(199, 38);
+            this.tbtnRun.Location = new System.Drawing.Point(97, 38);
             this.tbtnRun.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
             this.tbtnRun.Name = "tbtnRun";
             this.tbtnRun.Size = new System.Drawing.Size(40, 23);
@@ -592,7 +554,7 @@
             this.tbtnUser.Checked = true;
             this.tbtnUser.CheckState = System.Windows.Forms.CheckState.Checked;
             this.tbtnUser.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbtnUser.Location = new System.Drawing.Point(245, 38);
+            this.tbtnUser.Location = new System.Drawing.Point(143, 38);
             this.tbtnUser.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
             this.tbtnUser.Name = "tbtnUser";
             this.tbtnUser.Size = new System.Drawing.Size(43, 23);
@@ -611,7 +573,7 @@
             this.tbtnUserAction.Checked = true;
             this.tbtnUserAction.CheckState = System.Windows.Forms.CheckState.Checked;
             this.tbtnUserAction.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbtnUserAction.Location = new System.Drawing.Point(303, 38);
+            this.tbtnUserAction.Location = new System.Drawing.Point(201, 38);
             this.tbtnUserAction.Margin = new System.Windows.Forms.Padding(12, 6, 3, 3);
             this.tbtnUserAction.Name = "tbtnUserAction";
             this.tbtnUserAction.Size = new System.Drawing.Size(83, 23);
@@ -627,7 +589,7 @@
             this.tbtnLogEntry.AutoSize = true;
             this.tbtnLogEntry.BackColor = System.Drawing.SystemColors.Control;
             this.tbtnLogEntry.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbtnLogEntry.Location = new System.Drawing.Point(392, 38);
+            this.tbtnLogEntry.Location = new System.Drawing.Point(290, 38);
             this.tbtnLogEntry.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
             this.tbtnLogEntry.Name = "tbtnLogEntry";
             this.tbtnLogEntry.Size = new System.Drawing.Size(71, 23);
@@ -647,7 +609,7 @@
             this.btnRefresh.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
             this.btnRefresh.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnRefresh.Location = new System.Drawing.Point(490, 36);
+            this.btnRefresh.Location = new System.Drawing.Point(388, 36);
             this.btnRefresh.Margin = new System.Windows.Forms.Padding(24, 4, 3, 3);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(83, 26);
@@ -673,8 +635,7 @@
             this.dgvDetailedResultsListing.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.clmDRLStartedAtSentAt,
             this.clmDRLMeasuredTime,
-            this.clmDRLConcurrentUsers,
-            this.clmDRLPrecision,
+            this.clmDRLConcurrency,
             this.clmDRLRun,
             this.clmDRLUser,
             this.clmDRLUserAction,
@@ -715,25 +676,16 @@
             this.clmDRLMeasuredTime.Name = "clmDRLMeasuredTime";
             this.clmDRLMeasuredTime.ReadOnly = true;
             this.clmDRLMeasuredTime.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.clmDRLMeasuredTime.Width = 68;
+            this.clmDRLMeasuredTime.Width = 93;
             // 
-            // clmDRLConcurrentUsers
+            // clmDRLConcurrency
             // 
-            this.clmDRLConcurrentUsers.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.clmDRLConcurrentUsers.HeaderText = "Concurrent Users";
-            this.clmDRLConcurrentUsers.Name = "clmDRLConcurrentUsers";
-            this.clmDRLConcurrentUsers.ReadOnly = true;
-            this.clmDRLConcurrentUsers.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.clmDRLConcurrentUsers.Width = 112;
-            // 
-            // clmDRLPrecision
-            // 
-            this.clmDRLPrecision.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.clmDRLPrecision.HeaderText = "Precision";
-            this.clmDRLPrecision.Name = "clmDRLPrecision";
-            this.clmDRLPrecision.ReadOnly = true;
-            this.clmDRLPrecision.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.clmDRLPrecision.Width = 75;
+            this.clmDRLConcurrency.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.clmDRLConcurrency.HeaderText = "Concurrency";
+            this.clmDRLConcurrency.Name = "clmDRLConcurrency";
+            this.clmDRLConcurrency.ReadOnly = true;
+            this.clmDRLConcurrency.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.clmDRLConcurrency.Width = 89;
             // 
             // clmDRLRun
             // 
@@ -881,8 +833,7 @@
         private System.Windows.Forms.FlowLayoutPanel flpDetailedResultsListing;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label5;
-        private Util.ToggleButton tbtnConcurrentUsers;
-        private Util.ToggleButton tbtnPrecision;
+        private Util.ToggleButton tbtnConcurrency;
         private Util.ToggleButton tbtnRun;
         private Util.ToggleButton tbtnUserAction;
         private Util.ToggleButton tbtnLogEntry;
@@ -905,9 +856,8 @@
         private Util.KeyValuePairControl kvpLog;
         private Util.KeyValuePairControl kvpLogRuleSet;
         private Util.KeyValuePairControl kvpMonitor;
-        private Util.KeyValuePairControl kvpConcurrentUsers;
-        private Util.KeyValuePairControl kvpPrecision;
-        private Util.KeyValuePairControl kvpDynamicRunMultiplier;
+        private Util.KeyValuePairControl kvpConcurrency;
+        private Util.KeyValuePairControl kvpRuns;
         private Util.KeyValuePairControl kvpDelay;
         private Util.KeyValuePairControl kvpShuffle;
         private Util.KeyValuePairControl kvpDistribute;
@@ -915,8 +865,7 @@
         private System.Windows.Forms.Panel pnlBorderPivotLevel;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmDRLStartedAtSentAt;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmDRLMeasuredTime;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmDRLConcurrentUsers;
-        private System.Windows.Forms.DataGridViewTextBoxColumn clmDRLPrecision;
+        private System.Windows.Forms.DataGridViewTextBoxColumn clmDRLConcurrency;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmDRLRun;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmDRLUser;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmDRLUserAction;

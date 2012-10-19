@@ -498,18 +498,9 @@ namespace vApus.DistributedTesting
                 foreach (TileStresstest ts in t)
                     if (ts.Use)
                     {
-                        //Get the amount of runs.  
-                        int runs = 0;
-                        foreach (int cu in ts.AdvancedTileStresstest.ConcurrentUsers)
-                        {
-                            int r = ts.AdvancedTileStresstest.DynamicRunMultiplier / cu;
-                            runs += (r == 0) ? 1 : r;
-                        }
-                        runs *= ts.AdvancedTileStresstest.Precision;
-
                         if (numberOfRuns == -1)
-                            numberOfRuns = runs;
-                        else if (numberOfRuns != runs)
+                            numberOfRuns = ts.AdvancedTileStresstest.Runs;
+                        else if (numberOfRuns != ts.AdvancedTileStresstest.Runs)
                             return false;
                     }
             return true;
@@ -688,31 +679,22 @@ namespace vApus.DistributedTesting
                 stresstestControl.ClearFastResults();
                 if (testProgressMessage.TileStresstestProgressResults != null)
                 {
-                    foreach (TileConcurrentUsersProgressResult tcr in testProgressMessage.TileStresstestProgressResults.TileConcurrentUsersProgressResults)
+                    foreach (TileConcurrencyProgressResult tcr in testProgressMessage.TileStresstestProgressResults.TileConcurrencyProgressResults)
                     {
-                        ConcurrentUsersResult cr = new ConcurrentUsersResult(tcr.ConcurrentUsers, tcr.Metrics.TotalLogEntries, tcr.Metrics.StartMeasuringRuntime);
+                        ConcurrencyResult cr = new ConcurrencyResult(tcr.ConcurrentUsers, tcr.Metrics.TotalLogEntries, tcr.Metrics.StartMeasuringRuntime);
                         cr.Metrics = tcr.Metrics;
                         if (tcr.EstimatedRuntimeLeft.Ticks == 0)
                             cr.StopTimeMeasurement();
                         stresstestControl.AddFastResult(cr);
 
-                        foreach (TilePrecisionProgressResult tpr in tcr.TilePrecisionProgressResults)
+                        foreach (TileRunProgressResult trr in tcr.TileRunProgressResults)
                         {
-                            PrecisionResult pr = new PrecisionResult(tpr.Precision, tpr.Metrics.TotalLogEntries, tpr.Metrics.StartMeasuringRuntime);
-                            pr.Metrics = tpr.Metrics;
-                            if (tpr.EstimatedRuntimeLeft.Ticks == 0)
-                                pr.StopTimeMeasurement();
-                            stresstestControl.AddFastResult(pr);
+                            RunResult rr = new RunResult(trr.Run, 1, trr.Metrics.TotalLogEntries, 1, trr.Metrics.StartMeasuringRuntime, trr.RunStartedAndStopped, trr.RunDoneOnce);
+                            rr.Metrics = trr.Metrics;
+                            if (trr.EstimatedRuntimeLeft.Ticks == 0)
+                                rr.StopTimeMeasurement();
 
-                            foreach (TileRunProgressResult trr in tpr.TileRunProgressResults)
-                            {
-                                RunResult rr = new RunResult(trr.Run, 1, trr.Metrics.TotalLogEntries, 1, trr.Metrics.StartMeasuringRuntime, trr.RunStartedAndStopped, trr.RunDoneOnce);
-                                rr.Metrics = trr.Metrics;
-                                if (trr.EstimatedRuntimeLeft.Ticks == 0)
-                                    rr.StopTimeMeasurement();
-
-                                stresstestControl.AddFastResult(rr);
-                            }
+                            stresstestControl.AddFastResult(rr);
                         }
                     }
                     stresstestControl.SetStresstestStarted(testProgressMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);
@@ -730,8 +712,8 @@ namespace vApus.DistributedTesting
                 stresstestControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage, testProgressMessage.ContextSwitchesPerSecond, (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
                 stresstestControl.SetConfigurationControls(tileStresstest.ToString(), tileStresstest.BasicTileStresstest.Connection,
                     tileStresstest.BasicTileStresstest.ConnectionProxy, tileStresstest.AdvancedTileStresstest.Log,
-                    tileStresstest.AdvancedTileStresstest.LogRuleSet, tileStresstest.BasicTileStresstest.Monitors, tileStresstest.AdvancedTileStresstest.ConcurrentUsers,
-                    tileStresstest.AdvancedTileStresstest.Precision, tileStresstest.AdvancedTileStresstest.DynamicRunMultiplier,
+                    tileStresstest.AdvancedTileStresstest.LogRuleSet, tileStresstest.BasicTileStresstest.Monitors, tileStresstest.AdvancedTileStresstest.Concurrency,
+                    tileStresstest.AdvancedTileStresstest.Runs,
                     tileStresstest.AdvancedTileStresstest.MinimumDelay, tileStresstest.AdvancedTileStresstest.MaximumDelay,
                     tileStresstest.AdvancedTileStresstest.Shuffle, tileStresstest.AdvancedTileStresstest.Distribute,
                     tileStresstest.AdvancedTileStresstest.MonitorBefore, tileStresstest.AdvancedTileStresstest.MonitorAfter);
@@ -1288,7 +1270,7 @@ namespace vApus.DistributedTesting
                         }
 
                 //remove the old ones.
-                while (oldMonitorReportControls.Count!= 0)
+                while (oldMonitorReportControls.Count != 0)
                     foreach (var mrc in oldMonitorReportControls)
                         if (tcTest.TabPages[3].Controls[0] == mrc)
                         {

@@ -120,9 +120,4 @@
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="kvpDynamicRunMultiplier.Tooltip" xml:space="preserve">
-    <value>Useful for tests with low or no delay.
-It appends the runtime for every concurrency level in a way they even out.
-For example: a minimum request of 10 with 5 concurrent users makes the runtime twice as long, of 15 three times.</value>
-  </data>
 </root>

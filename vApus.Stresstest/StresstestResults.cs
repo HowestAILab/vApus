@@ -38,8 +38,8 @@ namespace vApus.Stresstest
         /// Please use the constructor.
         /// </summary>
         public string Stresstest, Log, LogRuleSet, Connection, ConnectionProxy, ConnectionString, Monitors;
-        public int[] ConcurrentUsers;
-        public int Precision, DynamicRunMultiplier, MinimumDelay, MaximumDelay;
+        public int[] Concurrency;
+        public int Runs, MinimumDelay, MaximumDelay;
         public bool Shuffle;
         public int ProgressUpdateDelay;
         public ActionAndLogEntryDistribution Distribute;
@@ -47,7 +47,7 @@ namespace vApus.Stresstest
         private char _resultsDelimiter = '\0';
         private Metrics _metrics = new Metrics();
 
-        public List<ConcurrentUsersResult> ConcurrentUsersResults = new List<ConcurrentUsersResult>();
+        public List<ConcurrencyResult> ConcurrencyResults = new List<ConcurrencyResult>();
         #endregion
 
         #region Properties
@@ -60,10 +60,9 @@ namespace vApus.Stresstest
                 {
                     //If the run is broken it is visible in the run results, so we need to correct this here for calculating the runtime left.
                     ulong totalLogEntriesProcessedWorkAround = 0;
-                    foreach (var cur in ConcurrentUsersResults)
-                        foreach (var pr in cur.PrecisionResults)
-                            foreach (var rr in pr.RunResults)
-                                totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
+                    foreach (var cur in ConcurrencyResults)
+                        foreach (var rr in cur.RunResults)
+                            totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
 
                     estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) *
                         (_metrics.TotalLogEntries - totalLogEntriesProcessedWorkAround) * 10000);
@@ -86,18 +85,11 @@ namespace vApus.Stresstest
         {
             get
             {
-                if (ConcurrentUsersResults.Count != 0)
+                if (ConcurrencyResults.Count != 0)
                 {
-                    var c = ConcurrentUsersResults[ConcurrentUsersResults.Count - 1];
-                    if (c.PrecisionResults.Count != 0)
-                    {
-                        var p = c.PrecisionResults[c.PrecisionResults.Count - 1];
-                        if (p.RunResults.Count != 0)
-                        {
-                            var r = p.RunResults[p.RunResults.Count - 1];
-                            return r.RunDoneOnce;
-                        }
-                    }
+                    var c = ConcurrencyResults[ConcurrencyResults.Count - 1];
+                    if (c.RunResults.Count != 0)
+                        return c.RunResults[c.RunResults.Count - 1].RunDoneOnce;
                 }
                 return false;
             }
@@ -136,11 +128,10 @@ namespace vApus.Stresstest
                 Monitors = stresstest.Monitors.Combine(", ");
 
             Distribute = stresstest.Distribute;
-            ConcurrentUsers = stresstest.ConcurrentUsers;
-            DynamicRunMultiplier = stresstest.DynamicRunMultiplier;
+            Concurrency = stresstest.Concurrency;
             MinimumDelay = stresstest.MinimumDelay;
             MaximumDelay = stresstest.MaximumDelay;
-            Precision = stresstest.Precision;
+            Runs = stresstest.Runs;
             Shuffle = stresstest.Shuffle;
             ProgressUpdateDelay = vApus.Stresstest.Stresstest.ProgressUpdateDelay;
             BatchResultSaving = false;
@@ -162,9 +153,8 @@ namespace vApus.Stresstest
                 ConnectionProxy = sr.ReadString();
                 ConnectionString = sr.ReadString();
                 Monitors = sr.ReadString();
-                ConcurrentUsers = sr.ReadArray(typeof(int)) as int[];
-                Precision = sr.ReadInt32();
-                DynamicRunMultiplier = sr.ReadInt32();
+                Concurrency = sr.ReadArray(typeof(int)) as int[];
+                Runs = sr.ReadInt32();
                 MinimumDelay = sr.ReadInt32();
                 MaximumDelay = sr.ReadInt32();
                 Shuffle = sr.ReadBoolean();
@@ -173,7 +163,7 @@ namespace vApus.Stresstest
                 BatchResultSaving = sr.ReadBoolean();
                 _resultsDelimiter = sr.ReadChar();
                 _metrics = (Metrics)sr.ReadObject();
-                ConcurrentUsersResults = sr.ReadCollection<ConcurrentUsersResult>(ConcurrentUsersResults) as List<ConcurrentUsersResult>;
+                ConcurrencyResults = sr.ReadCollection<ConcurrencyResult>(ConcurrencyResults) as List<ConcurrencyResult>;
             }
             sr = null;
             //Not pretty, but helps against mem saturation.
@@ -188,9 +178,8 @@ namespace vApus.Stresstest
         /// <param name="logEntries"></param>
         public void IncreaseRunResults()
         {
-            var c = ConcurrentUsersResults[ConcurrentUsersResults.Count - 1];
-            var p = c.PrecisionResults[c.PrecisionResults.Count - 1];
-            var r = p.RunResults[p.RunResults.Count - 1];
+            var c = ConcurrencyResults[ConcurrencyResults.Count - 1];
+            var r = c.RunResults[c.RunResults.Count - 1];
 
             c.IncreaseRunResults();
             _metrics.TotalLogEntries += r.BaseLogEntryCount;
@@ -202,7 +191,7 @@ namespace vApus.Stresstest
         {
             if (_sw != null)
                 _sw.Stop();
-            foreach (ConcurrentUsersResult result in ConcurrentUsersResults)
+            foreach (ConcurrencyResult result in ConcurrencyResults)
                 result.StopTimeMeasurement();
         }
         /// <summary>
@@ -213,7 +202,7 @@ namespace vApus.Stresstest
             lock (_lock)
             {
                 _metrics.MeasuredRunTime = _sw.Elapsed;
-                if (ConcurrentUsersResults.Count == 0)
+                if (ConcurrencyResults.Count == 0)
                     return;
                 _metrics.AverageTimeToLastByte = new TimeSpan();
                 _metrics.MaxTimeToLastByte = new TimeSpan();
@@ -224,7 +213,7 @@ namespace vApus.Stresstest
 
                 ulong totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
 
-                foreach (ConcurrentUsersResult result in ConcurrentUsersResults)
+                foreach (ConcurrencyResult result in ConcurrencyResults)
                 {
                     result.RefreshLogEntryResultMetrics();
                     Metrics resultMetrics = result.Metrics;
@@ -242,9 +231,9 @@ namespace vApus.Stresstest
 
                 _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
 
-                _metrics.TotalLogEntriesProcessedPerTick /= ConcurrentUsersResults.Count;
-                _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / ConcurrentUsersResults.Count);
-                _metrics.AverageDelay = new TimeSpan(_metrics.AverageDelay.Ticks / ConcurrentUsersResults.Count);
+                _metrics.TotalLogEntriesProcessedPerTick /= ConcurrencyResults.Count;
+                _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / ConcurrencyResults.Count);
+                _metrics.AverageDelay = new TimeSpan(_metrics.AverageDelay.Ticks / ConcurrencyResults.Count);
             }
         }
 
@@ -265,28 +254,24 @@ namespace vApus.Stresstest
                 {
                     //unique until proven otherwise.
                     unique = true;
-                    foreach (var cur in ConcurrentUsersResults)
+                    foreach (var cur in ConcurrencyResults)
                     {
-                        foreach (var pr in cur.PrecisionResults)
+                        foreach (var rr in cur.RunResults)
                         {
-                            foreach (var rr in pr.RunResults)
+                            foreach (var ur in rr.UserResults)
                             {
-                                foreach (var ur in rr.UserResults)
-                                {
-                                    foreach (var uar in ur.UserActionResults.Values)
-                                        if (uar.UserAction.Contains(candidate))
-                                        {
-                                            unique = false;
-                                            break;
-                                        }
-                                    foreach (var ler in ur.LogEntryResults)
-                                        if (!ler.Empty && ler.LogEntryString.Contains(candidate))
-                                        {
-                                            unique = false;
-                                            break;
-                                        }
-                                    break;
-                                }
+                                foreach (var uar in ur.UserActionResults.Values)
+                                    if (uar.UserAction.Contains(candidate))
+                                    {
+                                        unique = false;
+                                        break;
+                                    }
+                                foreach (var ler in ur.LogEntryResults)
+                                    if (!ler.Empty && ler.LogEntryString.Contains(candidate))
+                                    {
+                                        unique = false;
+                                        break;
+                                    }
                                 break;
                             }
                             break;
@@ -316,9 +301,8 @@ namespace vApus.Stresstest
                 sw.Write(ConnectionProxy);
                 sw.Write(ConnectionString);
                 sw.Write(Monitors);
-                sw.Write(ConcurrentUsers);
-                sw.Write(Precision);
-                sw.Write(DynamicRunMultiplier);
+                sw.Write(Concurrency);
+                sw.Write(Runs);
                 sw.Write(MinimumDelay);
                 sw.Write(MaximumDelay);
                 sw.Write(Shuffle);
@@ -327,7 +311,7 @@ namespace vApus.Stresstest
                 sw.Write(BatchResultSaving);
                 sw.Write(_resultsDelimiter);
                 sw.WriteObject(_metrics);
-                sw.Write<ConcurrentUsersResult>(ConcurrentUsersResults);
+                sw.Write<ConcurrencyResult>(ConcurrencyResults);
                 sw.AddToInfo(info);
             }
             sw = null;
@@ -338,456 +322,20 @@ namespace vApus.Stresstest
         #endregion
     }
     [Serializable]
-    public class ConcurrentUsersResult : IResult, ISerializable
+    public class ConcurrencyResult : IResult, ISerializable
     {
         #region Fields
         private Stopwatch _sw;
         private int _concurrentUsers;
 
         internal Metrics _metrics = new Metrics();
-        public List<PrecisionResult> PrecisionResults = new List<PrecisionResult>();
+        public List<RunResult> RunResults = new List<RunResult>();
         #endregion
 
         #region Properties
         public int ConcurrentUsers
         {
             get { return _concurrentUsers; }
-        }
-        public TimeSpan EstimatedRuntimeLeft
-        {
-            get
-            {
-                long estimatedRuntimeLeft = 0;
-                if (IsMeasuringTime) //For run sync first this must be 0.
-                {
-                    //If the run is broken it is visible in the run results, so we need to correct this here for calculating the runtime left.
-                    ulong totalLogEntriesProcessedWorkAround = 0;
-                    foreach (var pr in PrecisionResults)
-                        foreach (var rr in pr.RunResults)
-                            totalLogEntriesProcessedWorkAround += rr.IsMeasuringTime ? rr.Metrics.TotalLogEntriesProcessed : rr.Metrics.TotalLogEntries;
-
-                    estimatedRuntimeLeft = (long)(((DateTime.Now - _metrics.StartMeasuringRuntime).TotalMilliseconds / _metrics.TotalLogEntriesProcessed) *
-                        (_metrics.TotalLogEntries - totalLogEntriesProcessedWorkAround) * 10000);
-                    if (estimatedRuntimeLeft < 0)
-                        estimatedRuntimeLeft = 0;
-                }
-                return new TimeSpan(estimatedRuntimeLeft);
-            }
-        }
-        /// <summary>
-        /// Used for calculating the estimated runtime left.
-        /// </summary>
-        public bool IsMeasuringTime
-        {
-            get { return _sw != null && _sw.IsRunning; }
-        }
-        public Metrics Metrics
-        {
-            get { return _metrics; }
-            //Manual override
-            set { _metrics = value; }
-        }
-        private ulong LogEntryResultsCount
-        {
-            get
-            {
-                ulong count = 0;
-                foreach (PrecisionResult pr in PrecisionResults)
-                    foreach (RunResult rr in pr.RunResults)
-                        foreach (UserResult ur in rr.UserResults)
-                            count += ur.LogEntriesProcessed;
-                return count;
-            }
-        }
-        private int UserActionResultsCount
-        {
-            get
-            {
-                int count = 0;
-                foreach (PrecisionResult pr in PrecisionResults)
-                    foreach (RunResult rr in pr.RunResults)
-                        foreach (UserResult ur in rr.UserResults)
-                            count += ur.UserActionResults.Count;
-                return count;
-            }
-        }
-        #endregion
-
-        #region Constructors
-        /// <summary>
-        /// This will start measuring time. Call StopTimeMeasurement() when the concurrent users finished.
-        /// </summary>
-        /// <param name="concurrentUsers"></param>
-        /// <param name="totalLogEntries"></param>
-        /// <param name="startOfConcurrentUsers"></param>
-        public ConcurrentUsersResult(int concurrentUsers, ulong totalLogEntries, DateTime startOfConcurrentUsers)
-        {
-            _concurrentUsers = concurrentUsers;
-            _metrics.TotalLogEntries = totalLogEntries;
-            _metrics.StartMeasuringRuntime = startOfConcurrentUsers;
-            _sw = Stopwatch.StartNew();
-        }
-        public ConcurrentUsersResult(SerializationInfo info, StreamingContext ctxt)
-        {
-            SerializationReader sr = SerializationReader.GetReader(info);
-            _concurrentUsers = sr.ReadInt32();
-            _metrics = (Metrics)sr.ReadObject();
-            PrecisionResults = sr.ReadCollection<PrecisionResult>(PrecisionResults) as List<PrecisionResult>;
-        }
-        #endregion
-
-        #region Functions
-        /// <summary>
-        /// Used when redoing the same run for for instance break on last run synchronization.
-        /// </summary>
-        /// <param name="logEntries"></param>
-        public void IncreaseRunResults()
-        {
-            var p = PrecisionResults[PrecisionResults.Count - 1];
-            var r = p.RunResults[p.RunResults.Count - 1];
-
-            p.IncreaseRunResults();
-            _metrics.TotalLogEntries += r.BaseLogEntryCount;
-        }
-        public void RefreshLogEntryResultMetrics()
-        {
-            _metrics.MeasuredRunTime = _sw.Elapsed;
-            if (PrecisionResults.Count == 0)
-                return;
-            _metrics.AverageTimeToLastByte = new TimeSpan();
-            _metrics.MaxTimeToLastByte = new TimeSpan();
-            //_metrics.Percentile90MaxTimeToLastByte = new TimeSpan();
-            _metrics.AverageDelay = new TimeSpan();
-            _metrics.TotalLogEntriesProcessed = 0;
-            _metrics.TotalLogEntriesProcessedPerTick = 0;
-            _metrics.Errors = 0;
-
-            ulong totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
-
-            foreach (PrecisionResult result in PrecisionResults)
-            {
-                result.RefreshLogEntryResultMetrics();
-                Metrics resultMetrics = result.Metrics;
-
-                _metrics.AverageTimeToLastByte = _metrics.AverageTimeToLastByte.Add(resultMetrics.AverageTimeToLastByte);
-                if (resultMetrics.MaxTimeToLastByte > _metrics.MaxTimeToLastByte)
-                    _metrics.MaxTimeToLastByte = resultMetrics.MaxTimeToLastByte;
-                _metrics.AverageDelay = _metrics.AverageDelay.Add(resultMetrics.AverageDelay);
-                totalAndExtraLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
-                _metrics.TotalLogEntriesProcessedPerTick += resultMetrics.TotalLogEntriesProcessedPerTick;
-                _metrics.Errors += resultMetrics.Errors;
-            }
-            if (_metrics.TotalLogEntries < totalAndExtraLogEntriesProcessed)
-                _metrics.TotalLogEntries = totalAndExtraLogEntriesProcessed;
-
-            _metrics.TotalLogEntriesProcessed = totalAndExtraLogEntriesProcessed;
-
-            _metrics.TotalLogEntriesProcessedPerTick /= PrecisionResults.Count;
-            _metrics.AverageTimeToLastByte = new TimeSpan(_metrics.AverageTimeToLastByte.Ticks / PrecisionResults.Count);
-            //_metrics.Percentile90MaxTimeToLastByte = new TimeSpan((long)((double)_metrics.MaxTimeToLastByte.Ticks * 0.9));
-            _metrics.AverageDelay = new TimeSpan(_metrics.AverageDelay.Ticks / PrecisionResults.Count);
-        }
-        public void StopTimeMeasurement()
-        {
-            if (_sw != null)
-                _sw.Stop();
-            foreach (PrecisionResult result in PrecisionResults)
-                result.StopTimeMeasurement();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lowestLevel">Only if it is the lowest visible level it will have the 5 last before last entries for avoiding confusion.</param>
-        /// <returns></returns>
-        public object[] DetailedLogEntryResultMetrics(bool lowestLevel)
-        {
-            RefreshPercentile90MaxTimeToLastByteForLogEntryResults();
-
-            if (lowestLevel)
-                return new object[] {_metrics.StartMeasuringRuntime
-                      ,_metrics.MeasuredRunTime.ToShortFormattedString()
-                      , ConcurrentUsers
-                      , string.Empty //Precision
-                      , string.Empty //Run
-                      , string.Empty //User
-                      , string.Empty //User Action
-                      , string.Empty //Log Entry
-                      , _metrics.TotalLogEntriesProcessed + " / " + _metrics.TotalLogEntries
-                      , (_metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond)
-                      , _metrics.AverageTimeToLastByte.TotalMilliseconds
-                      , _metrics.MaxTimeToLastByte.TotalMilliseconds
-                      , _metrics.Percentile95MaxTimeToLastByte.TotalMilliseconds
-                      , _metrics.AverageDelay.TotalMilliseconds
-                      , _metrics.Errors
-                    };
-
-            return new object[] {_metrics.StartMeasuringRuntime
-                      ,_metrics.MeasuredRunTime.ToShortFormattedString()
-                      , ConcurrentUsers
-                      , string.Empty //Precision
-                      , string.Empty //Run
-                      , string.Empty //User
-                      , string.Empty //User Action
-                      , string.Empty //Log Entry
-                      , _metrics.TotalLogEntriesProcessed + " / " + _metrics.TotalLogEntries
-                      , (_metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond)
-                      , string.Empty
-                      , string.Empty
-                      , string.Empty
-                      , string.Empty
-                      , _metrics.Errors
-                    };
-        }
-        private void RefreshPercentile90MaxTimeToLastByteForLogEntryResults()
-        {
-            int percent5 = (int)(LogEntryResultsCount * 0.05);
-            if (percent5 == 0)
-            {
-                if (_metrics.MaxTimeToLastByte == TimeSpan.MinValue)
-                    RefreshLogEntryResultMetrics();
-                _metrics.Percentile95MaxTimeToLastByte = _metrics.MaxTimeToLastByte;
-            }
-            else
-            {
-                List<TimeSpan> sorted = new List<TimeSpan>((int)LogEntryResultsCount);
-                foreach (PrecisionResult pr in PrecisionResults)
-                    foreach (RunResult rr in pr.RunResults)
-                        foreach (UserResult ur in rr.UserResults)
-                            foreach (var result in ur.LogEntryResults)
-                                if (!result.Empty)
-                                    sorted.Add(result.TimeToLastByte);
-
-                sorted.Sort();
-
-                _metrics.Percentile95MaxTimeToLastByte = sorted[sorted.Count - percent5 - 1];
-            }
-        }
-        public Dictionary<LogEntryResult, Metrics> GetPivotedLogEntryResults(string userAction)
-        {
-            var combinedResults = new Dictionary<LogEntryResult, Metrics>();
-            var pivotedPercentiles = GetPivotedPercentile95MaxTimeToLastByteForLogEntryResults(userAction);
-
-            int precisionCount = PrecisionResults.Count;
-
-            foreach (PrecisionResult precisionResult in PrecisionResults)
-            {
-                var combinedRunResults = precisionResult.GetPivotedLogEntryResults(userAction, false);
-                foreach (LogEntryResult logEntryResult in combinedRunResults.Keys)
-                    if (string.Equals(logEntryResult.UserAction, userAction, StringComparison.Ordinal))
-                    {
-                        bool found = false;
-                        Metrics runMetrics, newMetrics;
-
-                        if (precisionCount != 1)
-                            foreach (var result in combinedResults.Keys)
-                                if (string.Equals(result.LogEntryIndex, logEntryResult.LogEntryIndex, StringComparison.Ordinal))
-                                {
-                                    runMetrics = combinedRunResults[logEntryResult];
-                                    newMetrics = combinedResults[result];
-
-                                    newMetrics.AverageTimeToLastByte = newMetrics.AverageTimeToLastByte.Add(new TimeSpan(runMetrics.AverageTimeToLastByte.Ticks / PrecisionResults.Count));
-
-                                    if (runMetrics.MaxTimeToLastByte > newMetrics.MaxTimeToLastByte)
-                                        newMetrics.MaxTimeToLastByte = runMetrics.MaxTimeToLastByte;
-
-                                    newMetrics.AverageDelay = newMetrics.AverageDelay.Add(new TimeSpan(runMetrics.AverageDelay.Ticks / PrecisionResults.Count));
-                                    newMetrics.TotalLogEntries += runMetrics.TotalLogEntries;
-                                    newMetrics.TotalLogEntriesProcessed += runMetrics.TotalLogEntriesProcessed;
-                                    newMetrics.Errors += runMetrics.Errors;
-                                    combinedResults[result] = newMetrics;
-                                    found = true;
-                                    break;
-                                }
-
-                        if (!found)
-                        {
-                            runMetrics = combinedRunResults[logEntryResult];
-                            newMetrics = new Metrics();
-                            newMetrics.AverageTimeToLastByte = new TimeSpan(runMetrics.AverageTimeToLastByte.Ticks / PrecisionResults.Count);
-                            newMetrics.MaxTimeToLastByte = runMetrics.MaxTimeToLastByte;
-                            newMetrics.AverageDelay = new TimeSpan(runMetrics.AverageDelay.Ticks / PrecisionResults.Count);
-                            newMetrics.TotalLogEntries = runMetrics.TotalLogEntries;
-                            newMetrics.TotalLogEntriesProcessed = runMetrics.TotalLogEntriesProcessed;
-                            newMetrics.Errors = runMetrics.Errors;
-
-                            foreach (var ler in pivotedPercentiles.Keys)
-                                if (string.Equals(ler.LogEntryIndex, logEntryResult.LogEntryIndex, StringComparison.Ordinal))
-                                {
-                                    newMetrics.Percentile95MaxTimeToLastByte = pivotedPercentiles[ler];
-                                    break;
-                                }
-
-                            combinedResults.Add(logEntryResult, newMetrics);
-                        }
-                    }
-            }
-            return combinedResults;
-        }
-        private Dictionary<LogEntryResult, TimeSpan> GetPivotedPercentile95MaxTimeToLastByteForLogEntryResults(string userAction)
-        {
-            var tempTimeToLastByte = new Dictionary<LogEntryResult, List<TimeSpan>>();
-            foreach (var pr in PrecisionResults)
-                foreach (var rr in pr.RunResults)
-                    foreach (var ur in rr.UserResults)
-                        foreach (var ler in ur.LogEntryResults)
-                            if (!ler.Empty && string.Equals(ler.UserAction, userAction, StringComparison.Ordinal))
-                            {
-                                bool found = false;
-                                foreach (var result in tempTimeToLastByte.Keys)
-                                    if (string.Equals(result.LogEntryIndex, ler.LogEntryIndex, StringComparison.Ordinal))
-                                    {
-                                        tempTimeToLastByte[result].Add(ler.TimeToLastByte);
-                                        found = true;
-                                        break;
-                                    }
-                                if (!found)
-                                {
-                                    var l = new List<TimeSpan>();
-                                    l.Add(ler.TimeToLastByte);
-                                    tempTimeToLastByte.Add(ler, l);
-                                }
-                            }
-
-            var pivoted = new Dictionary<LogEntryResult, TimeSpan>(tempTimeToLastByte.Count);
-            foreach (var key in tempTimeToLastByte.Keys)
-                pivoted.Add(key, GetPercentile95MaxTimeToLastByte(tempTimeToLastByte[key]));
-
-            return pivoted;
-        }
-
-        public Dictionary<UserActionResult, Metrics> GetPivotedUserActionResults()
-        {
-            var combinedResults = new Dictionary<UserActionResult, Metrics>();
-            var pivotedPercentiles = GetPivotedPercentile95MaxTimeToLastByteForUserActionResults();
-
-            foreach (PrecisionResult precisionResult in PrecisionResults)
-            {
-                var combinedRunResults = precisionResult.GetPivotedUserActionResults();
-                foreach (UserActionResult userActionResult in combinedRunResults.Keys)
-                {
-                    bool found = false;
-                    Metrics precisionMetrics, newMetrics;
-                    foreach (var result in combinedResults.Keys)
-                    {
-                        if (string.Equals(result.UserAction, userActionResult.UserAction, StringComparison.Ordinal))
-                        {
-                            precisionMetrics = combinedRunResults[userActionResult];
-                            newMetrics = combinedResults[result];
-
-                            newMetrics.AverageTimeToLastByte = newMetrics.AverageTimeToLastByte.Add(new TimeSpan(precisionMetrics.AverageTimeToLastByte.Ticks / PrecisionResults.Count));
-
-                            if (precisionMetrics.MaxTimeToLastByte > newMetrics.MaxTimeToLastByte)
-                                newMetrics.MaxTimeToLastByte = precisionMetrics.MaxTimeToLastByte;
-
-                            newMetrics.AverageDelay = newMetrics.AverageDelay.Add(new TimeSpan(precisionMetrics.AverageDelay.Ticks / PrecisionResults.Count));
-                            newMetrics.TotalLogEntries += precisionMetrics.TotalLogEntries;
-                            newMetrics.TotalLogEntriesProcessed += precisionMetrics.TotalLogEntriesProcessed;
-                            newMetrics.Errors += precisionMetrics.Errors;
-                            combinedResults[result] = newMetrics;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        precisionMetrics = combinedRunResults[userActionResult];
-                        newMetrics = new Metrics();
-                        newMetrics.AverageTimeToLastByte = new TimeSpan(precisionMetrics.AverageTimeToLastByte.Ticks / PrecisionResults.Count);
-                        newMetrics.MaxTimeToLastByte = precisionMetrics.MaxTimeToLastByte;
-                        newMetrics.AverageDelay = new TimeSpan(precisionMetrics.AverageDelay.Ticks / PrecisionResults.Count);
-                        newMetrics.TotalLogEntries = precisionMetrics.TotalLogEntries;
-                        newMetrics.TotalLogEntriesProcessed = precisionMetrics.TotalLogEntriesProcessed;
-                        newMetrics.Errors = precisionMetrics.Errors;
-
-                        foreach (var uar in pivotedPercentiles.Keys)
-                            if (string.Equals(uar.UserAction, userActionResult.UserAction, StringComparison.Ordinal))
-                            {
-                                newMetrics.Percentile95MaxTimeToLastByte = pivotedPercentiles[uar];
-                                break;
-                            }
-
-                        combinedResults.Add(userActionResult, newMetrics);
-                    }
-                }
-            }
-            return combinedResults;
-        }
-        private Dictionary<UserActionResult, TimeSpan> GetPivotedPercentile95MaxTimeToLastByteForUserActionResults()
-        {
-            var tempTimeToLastByte = new Dictionary<UserActionResult, List<TimeSpan>>();
-
-            foreach (var pr in PrecisionResults)
-                foreach (var rr in pr.RunResults)
-                    foreach (var ur in rr.UserResults)
-                        foreach (var uar in ur.UserActionResults)
-                        {
-                            bool found = false;
-                            uar.Value.RefreshMetrics();
-
-                            foreach (var result in tempTimeToLastByte.Keys)
-                                if (result.UserActionIndex == uar.Key)
-                                {
-                                    tempTimeToLastByte[result].Add(uar.Value.TimeToLastByte);
-                                    found = true;
-                                    break;
-                                }
-                            if (!found)
-                            {
-                                var l = new List<TimeSpan>();
-                                l.Add(uar.Value.TimeToLastByte);
-                                tempTimeToLastByte.Add(uar.Value, l);
-                            }
-                        }
-
-            var pivoted = new Dictionary<UserActionResult, TimeSpan>(tempTimeToLastByte.Count);
-            foreach (var key in tempTimeToLastByte.Keys)
-                pivoted.Add(key, GetPercentile95MaxTimeToLastByte(tempTimeToLastByte[key]));
-
-            return pivoted;
-        }
-
-        private TimeSpan GetPercentile95MaxTimeToLastByte(List<TimeSpan> timeToLastBytes)
-        {
-            int timeToLastBytesCount = timeToLastBytes.Count;
-            int percent5 = (int)(timeToLastBytesCount * 0.05);
-
-            timeToLastBytes.Sort();
-
-            return timeToLastBytes[timeToLastBytesCount - percent5 - 1];
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            SerializationWriter sw;
-            using (sw = SerializationWriter.GetWriter())
-            {
-                sw.Write(_concurrentUsers);
-                sw.WriteObject(_metrics);
-                sw.Write<PrecisionResult>(PrecisionResults);
-                sw.AddToInfo(info);
-            }
-            sw = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
-        }
-        #endregion
-    }
-    [Serializable]
-    public class PrecisionResult : IResult, ISerializable
-    {
-        #region Fields
-        private Stopwatch _sw;
-        private int _precision;
-
-        internal Metrics _metrics = new Metrics();
-        public List<RunResult> RunResults = new List<RunResult>();
-        #endregion
-
-        #region Properties
-        public int Precision
-        {
-            get { return _precision; }
         }
         public TimeSpan EstimatedRuntimeLeft
         {
@@ -822,7 +370,6 @@ namespace vApus.Stresstest
             //Manual override
             set { _metrics = value; }
         }
-
         private ulong LogEntryResultsCount
         {
             get
@@ -849,30 +396,24 @@ namespace vApus.Stresstest
 
         #region Constructors
         /// <summary>
-        /// This will start measuring time. Call StopTimeMeasurement() when the precision finished.
+        /// This will start measuring time. Call StopTimeMeasurement() when the concurrent users finished.
         /// </summary>
-        /// <param name="precision"></param>
+        /// <param name="concurrentUsers"></param>
         /// <param name="totalLogEntries"></param>
-        /// <param name="startOfPrecision"></param>
-        public PrecisionResult(int precision, ulong totalLogEntries, DateTime startOfPrecision)
+        /// <param name="startOfConcurrentUsers"></param>
+        public ConcurrencyResult(int concurrentUsers, ulong totalLogEntries, DateTime startOfConcurrentUsers)
         {
-            _precision = precision;
+            _concurrentUsers = concurrentUsers;
             _metrics.TotalLogEntries = totalLogEntries;
-            _metrics.StartMeasuringRuntime = startOfPrecision;
-            _sw = Stopwatch.StartNew(); ;
+            _metrics.StartMeasuringRuntime = startOfConcurrentUsers;
+            _sw = Stopwatch.StartNew();
         }
-        public PrecisionResult(SerializationInfo info, StreamingContext ctxt)
+        public ConcurrencyResult(SerializationInfo info, StreamingContext ctxt)
         {
-            SerializationReader sr;
-            using (sr = SerializationReader.GetReader(info))
-            {
-                _precision = sr.ReadInt32();
-                _metrics = (Metrics)sr.ReadObject();
-                RunResults = sr.ReadCollection<RunResult>(RunResults) as List<RunResult>;
-            }
-            sr = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
+            SerializationReader sr = SerializationReader.GetReader(info);
+            _concurrentUsers = sr.ReadInt32();
+            _metrics = (Metrics)sr.ReadObject();
+            RunResults = sr.ReadCollection<RunResult>(RunResults) as List<RunResult>;
         }
         #endregion
 
@@ -884,8 +425,6 @@ namespace vApus.Stresstest
         public void IncreaseRunResults()
         {
             var r = RunResults[RunResults.Count - 1];
-
-            r.IncreaseRunResults();
             _metrics.TotalLogEntries += r.BaseLogEntryCount;
         }
         public void RefreshLogEntryResultMetrics()
@@ -895,12 +434,13 @@ namespace vApus.Stresstest
                 return;
             _metrics.AverageTimeToLastByte = new TimeSpan();
             _metrics.MaxTimeToLastByte = new TimeSpan();
+            //_metrics.Percentile90MaxTimeToLastByte = new TimeSpan();
             _metrics.AverageDelay = new TimeSpan();
             _metrics.TotalLogEntriesProcessed = 0;
             _metrics.TotalLogEntriesProcessedPerTick = 0;
             _metrics.Errors = 0;
 
-            ulong totalAndExtraLogEntriesProcessed = 0; //For run sync break on last.
+            ulong totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
 
             foreach (RunResult result in RunResults)
             {
@@ -911,7 +451,6 @@ namespace vApus.Stresstest
                 if (resultMetrics.MaxTimeToLastByte > _metrics.MaxTimeToLastByte)
                     _metrics.MaxTimeToLastByte = resultMetrics.MaxTimeToLastByte;
                 _metrics.AverageDelay = _metrics.AverageDelay.Add(resultMetrics.AverageDelay);
-
                 totalAndExtraLogEntriesProcessed += resultMetrics.TotalLogEntriesProcessed;
                 _metrics.TotalLogEntriesProcessedPerTick += resultMetrics.TotalLogEntriesProcessedPerTick;
                 _metrics.Errors += resultMetrics.Errors;
@@ -935,20 +474,18 @@ namespace vApus.Stresstest
         }
 
         /// <summary>
-        /// Returns the results formatted, this will fill in Percentile90MaxTimeToLastByte.
+        /// 
         /// </summary>
-        /// <param name="concurrentUsers"></param>
         /// <param name="lowestLevel">Only if it is the lowest visible level it will have the 5 last before last entries for avoiding confusion.</param>
         /// <returns></returns>
-        public object[] DetailedLogEntryResultMetrics(string concurrentUsers, bool lowestLevel)
+        public object[] DetailedLogEntryResultMetrics(bool lowestLevel)
         {
             RefreshPercentile90MaxTimeToLastByteForLogEntryResults();
 
             if (lowestLevel)
                 return new object[] {_metrics.StartMeasuringRuntime
                       ,_metrics.MeasuredRunTime.ToShortFormattedString()
-                      ,  concurrentUsers
-                      , (Precision + 1)
+                      , ConcurrentUsers
                       , string.Empty //Run
                       , string.Empty //User
                       , string.Empty //User Action
@@ -960,12 +497,11 @@ namespace vApus.Stresstest
                       , _metrics.Percentile95MaxTimeToLastByte.TotalMilliseconds
                       , _metrics.AverageDelay.TotalMilliseconds
                       , _metrics.Errors
-                  };
+                    };
 
             return new object[] {_metrics.StartMeasuringRuntime
                       ,_metrics.MeasuredRunTime.ToShortFormattedString()
-                      ,  concurrentUsers
-                      , (Precision + 1)
+                      , ConcurrentUsers
                       , string.Empty //Run
                       , string.Empty //User
                       , string.Empty //User Action
@@ -977,7 +513,7 @@ namespace vApus.Stresstest
                       , string.Empty
                       , string.Empty
                       , _metrics.Errors
-                  };
+                    };
         }
         private void RefreshPercentile90MaxTimeToLastByteForLogEntryResults()
         {
@@ -1002,18 +538,11 @@ namespace vApus.Stresstest
                 _metrics.Percentile95MaxTimeToLastByte = sorted[sorted.Count - percent5 - 1];
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="userAction"></param>
-        /// <param name="directCall">Direct called function --> set to true</param>
-        /// <returns></returns>
-        public Dictionary<LogEntryResult, Metrics> GetPivotedLogEntryResults(string userAction, bool directCall = true)
+        public Dictionary<LogEntryResult, Metrics> GetPivotedLogEntryResults(string userAction)
         {
-            var pivotedResults = new Dictionary<LogEntryResult, Metrics>();
-            var pivotedPercentiles = directCall ? GetPivotedPercentile95MaxTimeToLastByteForLogEntryResults(userAction) : new Dictionary<LogEntryResult, TimeSpan>();
+            var combinedResults = new Dictionary<LogEntryResult, Metrics>();
+            var pivotedPercentiles = GetPivotedPercentile95MaxTimeToLastByteForLogEntryResults(userAction);
 
-            int runCount = RunResults.Count;
 
             foreach (RunResult runResult in RunResults)
             {
@@ -1024,36 +553,32 @@ namespace vApus.Stresstest
                         bool found = false;
                         Metrics runMetrics, newMetrics;
 
-                        if (runCount != 1)
-                            foreach (var result in pivotedResults.Keys)
+                        foreach (var result in combinedResults.Keys)
+                            if (string.Equals(result.LogEntryIndex, logEntryResult.LogEntryIndex, StringComparison.Ordinal))
                             {
-                                if (string.Equals(result.LogEntryIndex, logEntryResult.LogEntryIndex, StringComparison.Ordinal))
-                                {
-                                    runMetrics = combinedRunResults[logEntryResult];
-                                    newMetrics = pivotedResults[result];
+                                runMetrics = combinedRunResults[logEntryResult];
+                                newMetrics = combinedResults[result];
 
-                                    newMetrics.AverageTimeToLastByte = newMetrics.AverageTimeToLastByte.Add(new TimeSpan(runMetrics.AverageTimeToLastByte.Ticks / RunResults.Count));
+                                newMetrics.AverageTimeToLastByte = newMetrics.AverageTimeToLastByte.Add(new TimeSpan(runMetrics.AverageTimeToLastByte.Ticks / RunResults.Count));
 
-                                    if (runMetrics.MaxTimeToLastByte > newMetrics.MaxTimeToLastByte)
-                                        newMetrics.MaxTimeToLastByte = runMetrics.MaxTimeToLastByte;
+                                if (runMetrics.MaxTimeToLastByte > newMetrics.MaxTimeToLastByte)
+                                    newMetrics.MaxTimeToLastByte = runMetrics.MaxTimeToLastByte;
 
-                                    newMetrics.AverageDelay = newMetrics.AverageDelay.Add(new TimeSpan(runMetrics.AverageDelay.Ticks / RunResults.Count));
-                                    newMetrics.TotalLogEntries += runMetrics.TotalLogEntries;
-                                    newMetrics.TotalLogEntriesProcessed += runMetrics.TotalLogEntriesProcessed;
-                                    newMetrics.Errors += runMetrics.Errors;
-                                    pivotedResults[result] = newMetrics;
-
-                                    found = true;
-                                    break;
-                                }
+                                newMetrics.AverageDelay = newMetrics.AverageDelay.Add(new TimeSpan(runMetrics.AverageDelay.Ticks / RunResults.Count));
+                                newMetrics.TotalLogEntries += runMetrics.TotalLogEntries;
+                                newMetrics.TotalLogEntriesProcessed += runMetrics.TotalLogEntriesProcessed;
+                                newMetrics.Errors += runMetrics.Errors;
+                                combinedResults[result] = newMetrics;
+                                found = true;
+                                break;
                             }
+
                         if (!found)
                         {
                             runMetrics = combinedRunResults[logEntryResult];
                             newMetrics = new Metrics();
                             newMetrics.AverageTimeToLastByte = new TimeSpan(runMetrics.AverageTimeToLastByte.Ticks / RunResults.Count);
                             newMetrics.MaxTimeToLastByte = runMetrics.MaxTimeToLastByte;
-                            newMetrics.Percentile95MaxTimeToLastByte = runMetrics.Percentile95MaxTimeToLastByte;
                             newMetrics.AverageDelay = new TimeSpan(runMetrics.AverageDelay.Ticks / RunResults.Count);
                             newMetrics.TotalLogEntries = runMetrics.TotalLogEntries;
                             newMetrics.TotalLogEntriesProcessed = runMetrics.TotalLogEntriesProcessed;
@@ -1066,16 +591,15 @@ namespace vApus.Stresstest
                                     break;
                                 }
 
-                            pivotedResults.Add(logEntryResult, newMetrics);
+                            combinedResults.Add(logEntryResult, newMetrics);
                         }
                     }
             }
-            return pivotedResults;
+            return combinedResults;
         }
         private Dictionary<LogEntryResult, TimeSpan> GetPivotedPercentile95MaxTimeToLastByteForLogEntryResults(string userAction)
         {
             var tempTimeToLastByte = new Dictionary<LogEntryResult, List<TimeSpan>>();
-
             foreach (var rr in RunResults)
                 foreach (var ur in rr.UserResults)
                     foreach (var ler in ur.LogEntryResults)
@@ -1106,9 +630,8 @@ namespace vApus.Stresstest
 
         public Dictionary<UserActionResult, Metrics> GetPivotedUserActionResults()
         {
-            var pivotedResults = new Dictionary<UserActionResult, Metrics>();
+            var combinedResults = new Dictionary<UserActionResult, Metrics>();
             var pivotedPercentiles = GetPivotedPercentile95MaxTimeToLastByteForUserActionResults();
-            int runCount = RunResults.Count;
 
             foreach (RunResult runResult in RunResults)
             {
@@ -1117,29 +640,27 @@ namespace vApus.Stresstest
                 {
                     bool found = false;
                     Metrics runMetrics, newMetrics;
-                    if (runCount != 1)
-                        foreach (var result in pivotedResults.Keys)
+                    foreach (var result in combinedResults.Keys)
+                    {
+                        if (string.Equals(result.UserAction, userActionResult.UserAction, StringComparison.Ordinal))
                         {
-                            if (string.Equals(result.UserAction, userActionResult.UserAction, StringComparison.Ordinal))
-                            {
-                                runMetrics = combinedRunResults[userActionResult];
-                                newMetrics = pivotedResults[result];
+                            runMetrics = combinedRunResults[userActionResult];
+                            newMetrics = combinedResults[result];
 
-                                newMetrics.AverageTimeToLastByte = newMetrics.AverageTimeToLastByte.Add(new TimeSpan(runMetrics.AverageTimeToLastByte.Ticks / RunResults.Count));
+                            newMetrics.AverageTimeToLastByte = newMetrics.AverageTimeToLastByte.Add(new TimeSpan(runMetrics.AverageTimeToLastByte.Ticks / RunResults.Count));
 
-                                if (runMetrics.MaxTimeToLastByte > newMetrics.MaxTimeToLastByte)
-                                    newMetrics.MaxTimeToLastByte = runMetrics.MaxTimeToLastByte;
+                            if (runMetrics.MaxTimeToLastByte > newMetrics.MaxTimeToLastByte)
+                                newMetrics.MaxTimeToLastByte = runMetrics.MaxTimeToLastByte;
 
-                                newMetrics.AverageDelay = newMetrics.AverageDelay.Add(new TimeSpan(runMetrics.AverageDelay.Ticks / RunResults.Count));
-                                newMetrics.TotalLogEntries += runMetrics.TotalLogEntries;
-                                newMetrics.TotalLogEntriesProcessed += runMetrics.TotalLogEntriesProcessed;
-                                newMetrics.Errors += runMetrics.Errors;
-                                pivotedResults[result] = newMetrics;
-
-                                found = true;
-                                break;
-                            }
+                            newMetrics.AverageDelay = newMetrics.AverageDelay.Add(new TimeSpan(runMetrics.AverageDelay.Ticks / RunResults.Count));
+                            newMetrics.TotalLogEntries += runMetrics.TotalLogEntries;
+                            newMetrics.TotalLogEntriesProcessed += runMetrics.TotalLogEntriesProcessed;
+                            newMetrics.Errors += runMetrics.Errors;
+                            combinedResults[result] = newMetrics;
+                            found = true;
+                            break;
                         }
+                    }
                     if (!found)
                     {
                         runMetrics = combinedRunResults[userActionResult];
@@ -1158,11 +679,11 @@ namespace vApus.Stresstest
                                 break;
                             }
 
-                        pivotedResults.Add(userActionResult, newMetrics);
+                        combinedResults.Add(userActionResult, newMetrics);
                     }
                 }
             }
-            return pivotedResults;
+            return combinedResults;
         }
         private Dictionary<UserActionResult, TimeSpan> GetPivotedPercentile95MaxTimeToLastByteForUserActionResults()
         {
@@ -1212,7 +733,7 @@ namespace vApus.Stresstest
             SerializationWriter sw;
             using (sw = SerializationWriter.GetWriter())
             {
-                sw.Write(_precision);
+                sw.Write(_concurrentUsers);
                 sw.WriteObject(_metrics);
                 sw.Write<RunResult>(RunResults);
                 sw.AddToInfo(info);
@@ -1221,7 +742,6 @@ namespace vApus.Stresstest
             //Not pretty, but helps against mem saturation.
             GC.Collect();
         }
-
         #endregion
     }
     [Serializable]
@@ -1454,9 +974,9 @@ namespace vApus.Stresstest
         /// Returns the results formatted, this will fill in Percentile90MaxTimeToLastByte.
         /// </summary>
         /// <param name="concurrentUsers"></param>
-        /// <param name="precision"></param>
+        /// <param name="lowestLevel"></param>
         /// <returns></returns>
-        public object[] DetailedLogEntryResultMetrics(string concurrentUsers, string precision, bool lowestLevel)
+        public object[] DetailedLogEntryResultMetrics(string concurrentUsers, bool lowestLevel)
         {
             RefreshPercentile95MaxTimeToLastByteForLogEntryResults();
 
@@ -1464,7 +984,6 @@ namespace vApus.Stresstest
                 return new object[] {_metrics.StartMeasuringRuntime
                       ,_metrics.MeasuredRunTime.ToShortFormattedString()
                       , concurrentUsers
-                      , precision 
                       , (Run + 1)
                       , string.Empty //User
                       , string.Empty //User Action
@@ -1481,7 +1000,6 @@ namespace vApus.Stresstest
             return new object[] {_metrics.StartMeasuringRuntime
                       ,_metrics.MeasuredRunTime.ToShortFormattedString()
                       , concurrentUsers
-                      , precision 
                       , (Run + 1)
                       , string.Empty //User
                       , string.Empty //User Action

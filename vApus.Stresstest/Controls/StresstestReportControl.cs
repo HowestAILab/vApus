@@ -194,10 +194,9 @@ namespace vApus.Stresstest
 
                     kvpMonitor.Key = StresstestResults.Monitors;
 
-                    kvpConcurrentUsers.Value = StresstestResults.ConcurrentUsers.Combine(", ");
+                    kvpConcurrency.Value = StresstestResults.Concurrency.Combine(", ");
 
-                    kvpPrecision.Value = StresstestResults.Precision.ToString();
-                    kvpDynamicRunMultiplier.Value = StresstestResults.DynamicRunMultiplier.ToString();
+                    kvpRuns.Value = StresstestResults.Runs.ToString();
                     kvpDelay.Value = (StresstestResults.MinimumDelay == StresstestResults.MaximumDelay ? StresstestResults.MinimumDelay.ToString() : StresstestResults.MinimumDelay + " - " + StresstestResults.MaximumDelay) + " ms";
                     kvpShuffle.Value = StresstestResults.Shuffle ? "Yes" : "No";
                     kvpDistribute.Value = StresstestResults.Distribute.ToString();
@@ -485,9 +484,6 @@ namespace vApus.Stresstest
                     MakeReportForAveragesPivotConcurrentUsers();
                     break;
                 case 1:
-                    MakeReportForAveragesPivotPrecision();
-                    break;
-                case 2:
                     MakeReportForAveragesPivotRun();
                     break;
             }
@@ -502,10 +498,10 @@ namespace vApus.Stresstest
                 clmDRLStartedAtSentAt.Visible = true;
                 clmDRLMeasuredTime.Visible = true;
 
-                tbtnConcurrentUsers.Visible = true;
+                tbtnConcurrency.Visible = true;
                 tbtnUser.Visible = false;
 
-                clmDRLConcurrentUsers.Visible = true;
+                clmDRLConcurrency.Visible = true;
 
                 clmDRLUser.Visible = false;
                 clmDRLUserAction.Visible = true;
@@ -528,11 +524,11 @@ namespace vApus.Stresstest
             InitMakeReportForAveragesPivotConcurrentUsers();
             if (StresstestResults == null || _cancel) return;
 
-            foreach (ConcurrentUsersResult cr in StresstestResults.ConcurrentUsersResults)
+            foreach (ConcurrencyResult cr in StresstestResults.ConcurrencyResults)
             {
                 if (_cancel) return;
-                if (tbtnConcurrentUsers.Checked)
-                    MakeReportForAveragesPivotConcurrentUsersCR(cr, false, false);
+                if (tbtnConcurrency.Checked)
+                    MakeReportForAveragesPivotConcurrentUsersCR(cr, false);
 
                 Dictionary<UserActionResult, Metrics> combinedUserActionResults = cr.GetPivotedUserActionResults();
                 foreach (UserActionResult uar in combinedUserActionResults.Keys)
@@ -558,28 +554,25 @@ namespace vApus.Stresstest
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 if (_cancel) return;
-
-                tbtnPrecision.Visible = false;
                 tbtnRun.Visible = false;
 
-                clmDRLPrecision.Visible = false;
                 clmDRLRun.Visible = false;
             }, null);
         }
-        private void MakeReportForAveragesPivotConcurrentUsersCR(ConcurrentUsersResult cr, bool precisionChecked, bool runChecked)
+        private void MakeReportForAveragesPivotConcurrentUsersCR(ConcurrencyResult cr, bool runChecked)
         {
-            bool lowestLevel = !precisionChecked && !runChecked && !tbtnUserAction.Checked && !tbtnLogEntry.Checked;
+            bool lowestLevel = !runChecked && !tbtnUserAction.Checked && !tbtnLogEntry.Checked;
             object[] row = cr.DetailedLogEntryResultMetrics(lowestLevel);
 
             AddToCache(row);
         }
-        private void MakeReportForAveragesPivotConcurrentUsersUAR(ConcurrentUsersResult cr, UserActionResult uar, Metrics metrics)
+        private void MakeReportForAveragesPivotConcurrentUsersUAR(ConcurrencyResult cr, UserActionResult uar, Metrics metrics)
         {
             object[] row = null;
             if (tbtnLogEntry.Checked)
                 row = new object[] { string.Empty, 
                              string.Empty, 
-                             (tbtnConcurrentUsers.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
+                             (tbtnConcurrency.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
                              string.Empty,
                              string.Empty,
                              string.Empty,
@@ -596,7 +589,7 @@ namespace vApus.Stresstest
             else
                 row = new object[] { string.Empty, 
                              string.Empty, 
-                             (tbtnConcurrentUsers.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
+                             (tbtnConcurrency.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
                              string.Empty,
                              string.Empty,
                              string.Empty,
@@ -612,141 +605,15 @@ namespace vApus.Stresstest
                            };
             AddToCache(row);
         }
-        private void MakeReportForAveragesPivotConcurrentUsersLER(ConcurrentUsersResult cr, LogEntryResult ler, Metrics metrics)
+        private void MakeReportForAveragesPivotConcurrentUsersLER(ConcurrencyResult cr, LogEntryResult ler, Metrics metrics)
         {
             if (!ler.Empty)
             {
                 object[] row = {
                            string.Empty,
                            string.Empty,
-                           (tbtnConcurrentUsers.Checked || tbtnUserAction.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
+                           (tbtnConcurrency.Checked || tbtnUserAction.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
                            string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           (tbtnUserAction.Checked ? string.Empty : ler.UserAction),
-                           ler.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr),
-                           metrics.TotalLogEntriesProcessed,
-                           string.Empty,
-                           metrics.AverageTimeToLastByte.TotalMilliseconds,
-                           metrics.MaxTimeToLastByte.TotalMilliseconds,
-                           metrics.Percentile95MaxTimeToLastByte.TotalMilliseconds,
-                           metrics.AverageDelay.TotalMilliseconds,
-                           metrics.Errors
-                           };
-
-                AddToCache(row);
-            }
-        }
-
-        private void MakeReportForAveragesPivotPrecision()
-        {
-            InitMakeReportForAveragesPivotPrecision();
-            if (StresstestResults == null || _cancel) return;
-
-            foreach (ConcurrentUsersResult cr in StresstestResults.ConcurrentUsersResults)
-            {
-                if (_cancel) return;
-                if (tbtnConcurrentUsers.Checked)
-                    MakeReportForAveragesPivotConcurrentUsersCR(cr, tbtnPrecision.Checked, false);
-
-                foreach (PrecisionResult pr in cr.PrecisionResults)
-                {
-                    if (_cancel) return;
-                    if (tbtnPrecision.Checked && tbtnPrecision.Visible)
-                        MakeReportForAveragesPivotPrecisionPR(cr, pr, tbtnConcurrentUsers.Checked, false);
-
-                    Dictionary<UserActionResult, Metrics> combinedUserActionResults = pr.GetPivotedUserActionResults();
-                    foreach (UserActionResult uar in combinedUserActionResults.Keys)
-                    {
-                        if (_cancel) return;
-                        if (tbtnUserAction.Checked)
-                            MakeReportForAveragesPivotPrecisionUAR(cr, pr, uar, combinedUserActionResults[uar]);
-
-                        if (tbtnLogEntry.Checked)
-                        {
-                            Dictionary<LogEntryResult, Metrics> combinedLogEntryResults = pr.GetPivotedLogEntryResults(uar.UserAction);
-                            foreach (LogEntryResult ler in combinedLogEntryResults.Keys)
-                            {
-                                if (_cancel) return;
-                                MakeReportForAveragesPivotPrecisionLER(cr, pr, ler, combinedLogEntryResults[ler]);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        private void InitMakeReportForAveragesPivotPrecision()
-        {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-            {
-                if (_cancel) return;
-
-                tbtnPrecision.Visible = true;
-                tbtnRun.Visible = false;
-
-                clmDRLPrecision.Visible = true;
-                clmDRLRun.Visible = false;
-
-            }, null);
-        }
-        private void MakeReportForAveragesPivotPrecisionPR(ConcurrentUsersResult cr, PrecisionResult pr, bool ConcurrentUsersChecked, bool runChecked)
-        {
-            bool lowestLevel = !runChecked && !tbtnUserAction.Checked && !tbtnLogEntry.Checked;
-            object[] row = pr.DetailedLogEntryResultMetrics(ConcurrentUsersChecked ? string.Empty : cr.ConcurrentUsers.ToString(), lowestLevel);
-
-            //Show on gui
-            AddToCache(row);
-        }
-        private void MakeReportForAveragesPivotPrecisionUAR(ConcurrentUsersResult cr, PrecisionResult pr, UserActionResult uar, Metrics metrics)
-        {
-            object[] row = null;
-            if (tbtnLogEntry.Checked)
-                row = new object[] {
-                                   string.Empty,
-                                   string.Empty,
-                                   (tbtnConcurrentUsers.Checked || tbtnPrecision.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
-                                   (tbtnPrecision.Checked ? string.Empty : (pr.Precision + 1).ToString()),
-                                   string.Empty,
-                                   string.Empty,
-                                   uar.UserAction,
-                                   string.Empty,
-                                   metrics.TotalLogEntriesProcessed,
-                                   string.Empty,
-                                   string.Empty,
-                                   string.Empty,
-                                   string.Empty,
-                                   string.Empty,
-                                   metrics.Errors
-                                   };
-            else
-                row = new object[] {
-                                   string.Empty,
-                                   string.Empty,
-                                   (tbtnConcurrentUsers.Checked || tbtnPrecision.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
-                                   (tbtnPrecision.Checked ? string.Empty : (pr.Precision + 1).ToString()),
-                                   string.Empty,
-                                   string.Empty,
-                                   uar.UserAction,
-                                   string.Empty,
-                                   metrics.TotalLogEntriesProcessed,
-                                   string.Empty,
-                                   metrics.AverageTimeToLastByte.TotalMilliseconds,
-                                   metrics.MaxTimeToLastByte.TotalMilliseconds,
-                                   metrics.Percentile95MaxTimeToLastByte.TotalMilliseconds,
-                                   metrics.AverageDelay.TotalMilliseconds,
-                                   metrics.Errors
-                                   };
-            AddToCache(row);
-        }
-        private void MakeReportForAveragesPivotPrecisionLER(ConcurrentUsersResult cr, PrecisionResult pr, LogEntryResult ler, Metrics metrics)
-        {
-            if (!ler.Empty)
-            {
-                object[] row = { 
-                           string.Empty,
-                           string.Empty,
-                           (tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnUserAction.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
-                           (tbtnPrecision.Checked || tbtnUserAction.Checked ? string.Empty : (pr.Precision + 1).ToString()),
                            string.Empty,
                            string.Empty,
                            (tbtnUserAction.Checked ? string.Empty : ler.UserAction),
@@ -769,39 +636,32 @@ namespace vApus.Stresstest
             InitMakeReportForAveragesPivotRun();
             if (StresstestResults == null || _cancel) return;
 
-            foreach (ConcurrentUsersResult cr in StresstestResults.ConcurrentUsersResults)
+            foreach (ConcurrencyResult cr in StresstestResults.ConcurrencyResults)
             {
                 if (_cancel) return;
-                if (tbtnConcurrentUsers.Checked)
-                    MakeReportForAveragesPivotConcurrentUsersCR(cr, tbtnPrecision.Checked, tbtnRun.Checked);
+                if (tbtnConcurrency.Checked)
+                    MakeReportForAveragesPivotConcurrentUsersCR(cr, tbtnRun.Checked);
 
-                foreach (PrecisionResult pr in cr.PrecisionResults)
+                foreach (RunResult rr in cr.RunResults)
                 {
                     if (_cancel) return;
-                    if (tbtnPrecision.Checked)
-                        MakeReportForAveragesPivotPrecisionPR(cr, pr, tbtnConcurrentUsers.Checked, tbtnRun.Checked);
+                    if (tbtnRun.Checked)
+                        MakeReportForAveragesPivotRunRR(cr, rr, tbtnConcurrency.Checked);
 
-                    foreach (RunResult rr in pr.RunResults)
+                    Dictionary<UserActionResult, Metrics> combinedUserActionResults = rr.GetPivotedUserActionResults();
+                    foreach (UserActionResult uar in combinedUserActionResults.Keys)
                     {
                         if (_cancel) return;
-                        if (tbtnRun.Checked)
-                            MakeReportForAveragesPivotRunRR(cr, pr, rr, tbtnConcurrentUsers.Checked, tbtnPrecision.Checked);
+                        if (tbtnUserAction.Checked)
+                            MakeReportForAveragesPivotRunUAR(cr, rr, uar, combinedUserActionResults[uar]);
 
-                        Dictionary<UserActionResult, Metrics> combinedUserActionResults = rr.GetPivotedUserActionResults();
-                        foreach (UserActionResult uar in combinedUserActionResults.Keys)
+                        if (tbtnLogEntry.Checked)
                         {
-                            if (_cancel) return;
-                            if (tbtnUserAction.Checked)
-                                MakeReportForAveragesPivotRunUAR(cr, pr, rr, uar, combinedUserActionResults[uar]);
-
-                            if (tbtnLogEntry.Checked)
+                            Dictionary<LogEntryResult, Metrics> combinedLogEntryResults = rr.GetPivotedLogEntryResults(uar.UserAction);
+                            foreach (LogEntryResult ler in combinedLogEntryResults.Keys)
                             {
-                                Dictionary<LogEntryResult, Metrics> combinedLogEntryResults = rr.GetPivotedLogEntryResults(uar.UserAction);
-                                foreach (LogEntryResult ler in combinedLogEntryResults.Keys)
-                                {
-                                    if (_cancel) return;
-                                    MakeReportForAveragesPivotRunLER(cr, pr, rr, ler, combinedLogEntryResults[ler]);
-                                }
+                                if (_cancel) return;
+                                MakeReportForAveragesPivotRunLER(cr, rr, ler, combinedLogEntryResults[ler]);
                             }
                         }
                     }
@@ -813,30 +673,27 @@ namespace vApus.Stresstest
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 if (_cancel) return;
-                tbtnPrecision.Visible = true;
                 tbtnRun.Visible = true;
 
-                clmDRLPrecision.Visible = true;
                 clmDRLRun.Visible = true;
             }, null);
         }
-        private void MakeReportForAveragesPivotRunRR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, bool concurrentUsersChecked, bool precisionChecked)
+        private void MakeReportForAveragesPivotRunRR(ConcurrencyResult cr, RunResult rr, bool concurrentUsersChecked)
         {
-            object[] row = rr.DetailedLogEntryResultMetrics(concurrentUsersChecked || precisionChecked ? string.Empty : cr.ConcurrentUsers.ToString(),
-                precisionChecked ? string.Empty : (pr.Precision + 1).ToString(), !tbtnUserAction.Checked && !tbtnLogEntry.Checked);
+            object[] row = rr.DetailedLogEntryResultMetrics(concurrentUsersChecked ? string.Empty : cr.ConcurrentUsers.ToString(),
+                 !tbtnUserAction.Checked && !tbtnLogEntry.Checked);
 
             //Show on gui
             AddToCache(row);
         }
-        private void MakeReportForAveragesPivotRunUAR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserActionResult uar, Metrics metrics)
+        private void MakeReportForAveragesPivotRunUAR(ConcurrencyResult cr, RunResult rr, UserActionResult uar, Metrics metrics)
         {
             object[] row = null;
             if (tbtnLogEntry.Checked)
                 row = new object[] { 
                                    string.Empty,
                                    string.Empty,
-                                   (tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnRun.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
-                                   (tbtnPrecision.Checked || tbtnRun.Checked ? string.Empty : (pr.Precision + 1).ToString()),
+                                   (tbtnConcurrency.Checked || tbtnRun.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
                                    (tbtnRun.Checked ? string.Empty : (rr.Run + 1).ToString()),
                                    string.Empty,
                                    uar.UserAction,
@@ -853,8 +710,7 @@ namespace vApus.Stresstest
                 row = new object[] { 
                                    string.Empty,
                                    string.Empty,
-                                   (tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnRun.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
-                                   (tbtnPrecision.Checked || tbtnRun.Checked ? string.Empty : (pr.Precision + 1).ToString()),
+                                   (tbtnConcurrency.Checked || tbtnRun.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
                                    (tbtnRun.Checked ? string.Empty : (rr.Run + 1).ToString()),
                                    string.Empty,
                                    uar.UserAction,
@@ -870,15 +726,14 @@ namespace vApus.Stresstest
 
             AddToCache(row);
         }
-        private void MakeReportForAveragesPivotRunLER(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, LogEntryResult ler, Metrics metrics)
+        private void MakeReportForAveragesPivotRunLER(ConcurrencyResult cr, RunResult rr, LogEntryResult ler, Metrics metrics)
         {
             if (!ler.Empty)
             {
                 object[] row = { 
                            string.Empty,
                            string.Empty,
-                           (tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnRun.Checked || tbtnUserAction.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
-                           (tbtnPrecision.Checked || tbtnRun.Checked || tbtnUserAction.Checked ? string.Empty : (pr.Precision + 1).ToString()),
+                           (tbtnConcurrency.Checked || tbtnRun.Checked || tbtnUserAction.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
                            (tbtnRun.Checked || tbtnUserAction.Checked ? string.Empty : (rr.Run + 1).ToString()),
                            string.Empty,
                            (tbtnUserAction.Checked ? string.Empty : ler.UserAction),
@@ -903,50 +758,46 @@ namespace vApus.Stresstest
             InitMakeReportForUsers();
             if (StresstestResults == null || _cancel) return;
 
-            foreach (ConcurrentUsersResult cr in StresstestResults.ConcurrentUsersResults)
+            foreach (ConcurrencyResult cr in StresstestResults.ConcurrencyResults)
             {
                 if (_cancel) return;
-                foreach (PrecisionResult pr in cr.PrecisionResults)
+                foreach (RunResult rr in cr.RunResults)
                 {
                     if (_cancel) return;
-                    foreach (RunResult rr in pr.RunResults)
+
+                    foreach (UserResult userResult in rr.UserResults)
                     {
                         if (_cancel) return;
+                        if (tbtnUser.Checked)
+                            MakeReportForUsersUR(cr, rr, userResult);
 
-                        foreach (UserResult userResult in rr.UserResults)
+                        if (tbtnUserAction.Checked)
                         {
-                            if (_cancel) return;
-                            if (tbtnUser.Checked)
-                                MakeReportForUsersUR(cr, pr, rr, userResult);
-
-                            if (tbtnUserAction.Checked)
+                            foreach (UserActionResult userActionResult in userResult.UserActionResults.Values)
                             {
-                                foreach (UserActionResult userActionResult in userResult.UserActionResults.Values)
-                                {
-                                    if (_cancel) return;
-                                    MakeReportForUsersUAR(cr, pr, rr, userResult, userActionResult);
+                                if (_cancel) return;
+                                MakeReportForUsersUAR(cr, rr, userResult, userActionResult);
 
-                                    if (tbtnLogEntry.Checked)
+                                if (tbtnLogEntry.Checked)
+                                {
+                                    var logEntryResults = userActionResult.LogEntryResults;
+                                    foreach (LogEntryResult logEntryResult in logEntryResults)
                                     {
-                                        var logEntryResults = userActionResult.LogEntryResults;
-                                        foreach (LogEntryResult logEntryResult in logEntryResults)
-                                        {
-                                            if (_cancel) return;
-                                            MakeReportForUsersUARLER(cr, pr, rr, userResult, userActionResult, logEntryResult);
-                                        }
+                                        if (_cancel) return;
+                                        MakeReportForUsersUARLER(cr, rr, userResult, userActionResult, logEntryResult);
                                     }
                                 }
                             }
-                            else if (tbtnLogEntry.Checked)
+                        }
+                        else if (tbtnLogEntry.Checked)
+                        {
+                            var logEntryResults = userResult.LogEntryResults;
+                            foreach (LogEntryResult logEntryResult in logEntryResults)
                             {
-                                var logEntryResults = userResult.LogEntryResults;
-                                foreach (LogEntryResult logEntryResult in logEntryResults)
-                                {
-                                    if (_cancel) return;
-                                    MakeReportForUsersLER(cr, pr, rr, userResult, logEntryResult);
-                                }
-
+                                if (_cancel) return;
+                                MakeReportForUsersLER(cr, rr, userResult, logEntryResult);
                             }
+
                         }
                     }
                 }
@@ -962,13 +813,11 @@ namespace vApus.Stresstest
                 clmDRLStartedAtSentAt.Visible = true;
                 clmDRLMeasuredTime.Visible = false;
 
-                tbtnConcurrentUsers.Visible = false;
-                tbtnPrecision.Visible = false;
+                tbtnConcurrency.Visible = false;
                 tbtnRun.Visible = false;
                 tbtnUser.Visible = true;
 
-                clmDRLConcurrentUsers.Visible = true;
-                clmDRLPrecision.Visible = true;
+                clmDRLConcurrency.Visible = true;
                 clmDRLRun.Visible = true;
 
                 clmDRLUser.Visible = true;
@@ -986,7 +835,7 @@ namespace vApus.Stresstest
                 lblPivotLevel.Visible = false;
             }, null);
         }
-        private void MakeReportForUsersUR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur)
+        private void MakeReportForUsersUR(ConcurrencyResult cr, RunResult rr, UserResult ur)
         {
             TimeSpan averageTimeToLastByte, maxTimeToLastByte, totalDelay, averageDelay;
             ulong logEntriesProcessed, errors;
@@ -1004,7 +853,6 @@ namespace vApus.Stresstest
                            string.Empty,
                            string.Empty,
                            cr.ConcurrentUsers,
-                           (pr.Precision + 1),
                            (rr.Run + 1),
                            ur.User,
                            string.Empty,
@@ -1020,7 +868,7 @@ namespace vApus.Stresstest
 
             AddToCache(row);
         }
-        private void MakeReportForUsersUAR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur, UserActionResult userActionResult)
+        private void MakeReportForUsersUAR(ConcurrencyResult cr, RunResult rr, UserResult ur, UserActionResult userActionResult)
         {
             userActionResult.RefreshMetrics();
             object[] row = null;
@@ -1047,7 +895,6 @@ namespace vApus.Stresstest
                                    userActionResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                                    string.Empty,
                                    cr.ConcurrentUsers,
-                                   (pr.Precision + 1),
                                    (rr.Run + 1),
                                    ur.User,
                                    userActionResult.UserAction,
@@ -1062,7 +909,7 @@ namespace vApus.Stresstest
                                    };
             AddToCache(row);
         }
-        private void MakeReportForUsersUARLER(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur, UserActionResult userActionResult, LogEntryResult logEntryResult)
+        private void MakeReportForUsersUARLER(ConcurrencyResult cr, RunResult rr, UserResult ur, UserActionResult userActionResult, LogEntryResult logEntryResult)
         {
             if (!logEntryResult.Empty)
             {
@@ -1087,7 +934,7 @@ namespace vApus.Stresstest
                 AddToCache(row);
             }
         }
-        private void MakeReportForUsersLER(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur, LogEntryResult logEntryResult)
+        private void MakeReportForUsersLER(ConcurrencyResult cr, RunResult rr, UserResult ur, LogEntryResult logEntryResult)
         {
             if (!logEntryResult.Empty)
             {
@@ -1097,7 +944,6 @@ namespace vApus.Stresstest
                                    logEntryResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                                    string.Empty,
                                    cr.ConcurrentUsers,
-                                   (pr.Precision + 1),
                                    (rr.Run + 1),
                                    ur.User,
                                    logEntryResult.UserAction,
@@ -1115,7 +961,6 @@ namespace vApus.Stresstest
                                    logEntryResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                                    string.Empty,
                                    cr.ConcurrentUsers,
-                                   (pr.Precision + 1),
                                    (rr.Run + 1),
                                    ur.User,
                                    logEntryResult.UserAction,
@@ -1139,54 +984,47 @@ namespace vApus.Stresstest
             InitMakeReportForErrors();
             if (StresstestResults == null || _cancel) return;
 
-            foreach (ConcurrentUsersResult cr in StresstestResults.ConcurrentUsersResults)
+            foreach (ConcurrencyResult cr in StresstestResults.ConcurrencyResults)
             {
                 if (_cancel) return;
                 if (!MakeReportForErrorsCU(cr)) continue;
 
-                foreach (PrecisionResult pr in cr.PrecisionResults)
+                foreach (RunResult rr in cr.RunResults)
                 {
                     if (_cancel) return;
-                    if (tbtnPrecision.Checked)
-                        if (!MakeReportForErrorsPR(cr, pr)) continue;
+                    if (tbtnRun.Checked)
+                        if (!MakeReportForErrorsRR(cr, rr)) continue;
 
-                    foreach (RunResult rr in pr.RunResults)
+                    foreach (UserResult userResult in rr.UserResults)
                     {
                         if (_cancel) return;
-                        if (tbtnRun.Checked)
-                            if (!MakeReportForErrorsRR(cr, pr, rr)) continue;
+                        if (tbtnUser.Checked)
+                            if (!MakeReportForErrorsUR(cr, rr, userResult)) continue;
 
-                        foreach (UserResult userResult in rr.UserResults)
+                        if (tbtnUserAction.Checked)
                         {
-                            if (_cancel) return;
-                            if (tbtnUser.Checked)
-                                if (!MakeReportForErrorsUR(cr, pr, rr, userResult)) continue;
-
-                            if (tbtnUserAction.Checked)
+                            foreach (UserActionResult userActionResult in userResult.UserActionResults.Values)
                             {
-                                foreach (UserActionResult userActionResult in userResult.UserActionResults.Values)
+                                if (_cancel) return;
+                                if (!MakeReportForErrorsUAR(cr, rr, userResult, userActionResult)) continue;
+                                if (tbtnLogEntry.Checked)
                                 {
-                                    if (_cancel) return;
-                                    if (!MakeReportForErrorsUAR(cr, pr, rr, userResult, userActionResult)) continue;
-                                    if (tbtnLogEntry.Checked)
+                                    var logEntryResults = userActionResult.LogEntryResults;
+                                    foreach (LogEntryResult logEntryResult in logEntryResults)
                                     {
-                                        var logEntryResults = userActionResult.LogEntryResults;
-                                        foreach (LogEntryResult logEntryResult in logEntryResults)
-                                        {
-                                            if (_cancel) return;
-                                            if (!MakeReportForErrorsUARLER(cr, pr, rr, userResult, userActionResult, logEntryResult)) continue;
-                                        }
+                                        if (_cancel) return;
+                                        if (!MakeReportForErrorsUARLER(cr, rr, userResult, userActionResult, logEntryResult)) continue;
                                     }
                                 }
                             }
-                            else if (tbtnLogEntry.Checked)
+                        }
+                        else if (tbtnLogEntry.Checked)
+                        {
+                            var logEntryResults = userResult.LogEntryResults;
+                            foreach (LogEntryResult logEntryResult in logEntryResults)
                             {
-                                var logEntryResults = userResult.LogEntryResults;
-                                foreach (LogEntryResult logEntryResult in logEntryResults)
-                                {
-                                    if (_cancel) return;
-                                    if (!MakeReportForErrorsLER(cr, pr, rr, userResult, logEntryResult)) continue;
-                                }
+                                if (_cancel) return;
+                                if (!MakeReportForErrorsLER(cr, rr, userResult, logEntryResult)) continue;
                             }
                         }
                     }
@@ -1203,13 +1041,11 @@ namespace vApus.Stresstest
                 clmDRLStartedAtSentAt.Visible = true;
                 clmDRLMeasuredTime.Visible = true;
 
-                tbtnConcurrentUsers.Visible = true;
-                tbtnPrecision.Visible = true;
+                tbtnConcurrency.Visible = true;
                 tbtnRun.Visible = true;
                 tbtnUser.Visible = true;
 
-                clmDRLConcurrentUsers.Visible = true;
-                clmDRLPrecision.Visible = true;
+                clmDRLConcurrency.Visible = true;
                 clmDRLRun.Visible = true;
 
                 clmDRLUser.Visible = true;
@@ -1232,12 +1068,12 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="cr"></param>
         /// <returns>true for errors</returns>
-        private bool MakeReportForErrorsCU(ConcurrentUsersResult cr)
+        private bool MakeReportForErrorsCU(ConcurrencyResult cr)
         {
             if (cr.Metrics.Errors == 0)
                 return false;
 
-            if (tbtnConcurrentUsers.Checked)
+            if (tbtnConcurrency.Checked)
             {
                 object[] row = { 
                                string.Empty, 
@@ -1266,41 +1102,9 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="cr"></param>
         /// <param name="pr"></param>
-        /// <returns>true for errors</returns>
-        private bool MakeReportForErrorsPR(ConcurrentUsersResult cr, PrecisionResult pr)
-        {
-            if (pr.Metrics.Errors == 0)
-                return false;
-
-            object[] row = { 
-                           string.Empty,
-                           string.Empty,
-                           ((tbtnConcurrentUsers.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
-                           (pr.Precision + 1),
-                           string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           string.Empty,
-                           pr.Metrics.Errors
-                           };
-            //Show on gui
-            AddToCache(row);
-            return true;
-        }
-        /// <summary>
-        /// Returns true for errors
-        /// </summary>
-        /// <param name="cr"></param>
-        /// <param name="pr"></param>
         /// <param name="rr"></param>
         /// <returns>true for errors</returns>
-        private bool MakeReportForErrorsRR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr)
+        private bool MakeReportForErrorsRR(ConcurrencyResult cr, RunResult rr)
         {
             if (rr.Metrics.Errors == 0)
                 return false;
@@ -1308,8 +1112,7 @@ namespace vApus.Stresstest
             object[] row = { 
                            string.Empty,
                            string.Empty,
-                           ((tbtnConcurrentUsers.Checked || tbtnPrecision.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
-                           (tbtnPrecision.Checked ? string.Empty : (pr.Precision + 1).ToString()),
+                           (tbtnConcurrency.Checked ? string.Empty : cr.ConcurrentUsers.ToString()),
                            (rr.Run + 1),
                            string.Empty,
                            string.Empty,
@@ -1335,7 +1138,7 @@ namespace vApus.Stresstest
         /// <param name="ur"></param>
         /// <param name="showOnGui"></param>
         /// <returns>true for errors</returns>
-        private bool MakeReportForErrorsUR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur)
+        private bool MakeReportForErrorsUR(ConcurrencyResult cr, RunResult rr, UserResult ur)
         {
             TimeSpan averageTimeToLastByte, maxTimeToLastByte, totalDelay, averageDelay;
             ulong logEntriesProcessed, errors;
@@ -1355,8 +1158,7 @@ namespace vApus.Stresstest
             object[] row = { 
                            string.Empty,
                            string.Empty,
-                           ((tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnRun.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
-                           ((tbtnPrecision.Checked || tbtnRun.Checked) ? string.Empty : (pr.Precision + 1).ToString()),
+                           ((tbtnConcurrency.Checked || tbtnRun.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
                            (tbtnRun.Checked ? string.Empty : (rr.Run + 1).ToString()),
                            ur.User,
                            string.Empty,
@@ -1384,7 +1186,7 @@ namespace vApus.Stresstest
         /// <param name="userActionResult"></param>
         /// <param name="showOnGui"></param>
         /// <returns>true on error</returns>
-        private bool MakeReportForErrorsUAR(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur, UserActionResult userActionResult)
+        private bool MakeReportForErrorsUAR(ConcurrencyResult cr, RunResult rr, UserResult ur, UserActionResult userActionResult)
         {
             userActionResult.RefreshMetrics();
             if (userActionResult.Errors == 0)
@@ -1393,8 +1195,7 @@ namespace vApus.Stresstest
             object[] row = { 
                            userActionResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                            string.Empty,
-                           ((tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnRun.Checked || tbtnUser.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
-                           ((tbtnPrecision.Checked || tbtnRun.Checked || tbtnUser.Checked) ? string.Empty : (pr.Precision + 1).ToString()),
+                           ((tbtnConcurrency.Checked || tbtnRun.Checked || tbtnUser.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
                            ((tbtnRun.Checked || tbtnUser.Checked) ? string.Empty : (rr.Run + 1).ToString()).ToString(),
                            (tbtnUser.Checked ? string.Empty : ur.User),
                            userActionResult.UserAction,
@@ -1421,15 +1222,14 @@ namespace vApus.Stresstest
         /// <param name="userActionResult"></param>
         /// <param name="showOnGui"></param>
         /// <returns>true on error</returns>
-        private bool MakeReportForErrorsUARLER(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur, UserActionResult userActionResult, LogEntryResult logEntryResult)
+        private bool MakeReportForErrorsUARLER(ConcurrencyResult cr, RunResult rr, UserResult ur, UserActionResult userActionResult, LogEntryResult logEntryResult)
         {
             if (logEntryResult.Exception == null) return false;
 
             object[] row = { 
                            logEntryResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                            string.Empty,
-                           ((tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnRun.Checked || tbtnUser.Checked || tbtnUserAction.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
-                           ((tbtnPrecision.Checked || tbtnRun.Checked || tbtnUser.Checked || tbtnUserAction.Checked) ? string.Empty : (pr.Precision + 1).ToString()),
+                           ((tbtnConcurrency.Checked || tbtnRun.Checked || tbtnUser.Checked || tbtnUserAction.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
                            ((tbtnRun.Checked || tbtnUser.Checked || tbtnUserAction.Checked) ? string.Empty : (rr.Run + 1).ToString()),
                            ((tbtnUser.Checked || tbtnUserAction.Checked) ? string.Empty : ur.User),
                            (tbtnUserAction.Checked ? string.Empty : userActionResult.UserAction),
@@ -1456,15 +1256,14 @@ namespace vApus.Stresstest
         /// <param name="logEntryResult"></param>
         /// <param name="showOnGui"></param>
         /// <returns>true on error</returns>
-        private bool MakeReportForErrorsLER(ConcurrentUsersResult cr, PrecisionResult pr, RunResult rr, UserResult ur, LogEntryResult logEntryResult)
+        private bool MakeReportForErrorsLER(ConcurrencyResult cr, RunResult rr, UserResult ur, LogEntryResult logEntryResult)
         {
             if (logEntryResult.Exception == null) return false;
 
             object[] row = { 
                            logEntryResult.SentAt.ToString("dd/MM/yyyy HH:mm:ss.fff"),
                            string.Empty,
-                           ((tbtnConcurrentUsers.Checked || tbtnPrecision.Checked || tbtnRun.Checked || tbtnUser.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
-                           ((tbtnPrecision.Checked || tbtnRun.Checked || tbtnUser.Checked) ? string.Empty : (pr.Precision + 1).ToString()),
+                           ((tbtnConcurrency.Checked || tbtnRun.Checked || tbtnUser.Checked) ? string.Empty : cr.ConcurrentUsers.ToString()),
                            ((tbtnRun.Checked || tbtnUser.Checked) ? string.Empty : (rr.Run + 1).ToString()),
                            (tbtnUser.Checked ? string.Empty : ur.User),
                            logEntryResult.UserAction,

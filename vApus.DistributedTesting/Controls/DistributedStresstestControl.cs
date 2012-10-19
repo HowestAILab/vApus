@@ -189,8 +189,6 @@ namespace vApus.DistributedTesting
                 {
                     if (cboDrillDown.SelectedIndex == 0)
                         SetConcurrentUsersProgress();
-                    else if (cboDrillDown.SelectedIndex == 1)
-                        SetPrecisionProgress();
                     else
                         SetRunProgress();
                 }
@@ -201,13 +199,11 @@ namespace vApus.DistributedTesting
 
         private void SetConcurrentUsersProgress()
         {
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrenctUsers))
             {
-                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
-                clmFRLConcurrentUsers.Width = -2;
+                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrenctUsers);
+                clmFRLConcurrenctUsers.Width = -2;
             }
-            if (lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
-                lvwFastResultsListing.Columns.Remove(clmFRLPrecision);
             if (lvwFastResultsListing.Columns.Contains(clmFRLRun))
                 lvwFastResultsListing.Columns.Remove(clmFRLRun);
 
@@ -215,7 +211,7 @@ namespace vApus.DistributedTesting
             int count = 0;
             foreach (TileStresstest key in _progress.Keys)
                 if (_progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult result in _progress[key].TileConcurrentUsersProgressResults)
+                    foreach (TileConcurrencyProgressResult result in _progress[key].TileConcurrencyProgressResults)
                         ++count;
 
             while (lvwFastResultsListing.Items.Count > count)
@@ -225,7 +221,7 @@ namespace vApus.DistributedTesting
             int index = 0;
             foreach (TileStresstest key in _progress.Keys)
                 if (_progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult result in _progress[key].TileConcurrentUsersProgressResults)
+                    foreach (TileConcurrencyProgressResult result in _progress[key].TileConcurrencyProgressResults)
                     {
                         if (index < lvwFastResultsListing.Items.Count)
                             RefreshConcurrentUsersLVWI(key, result, lvwFastResultsListing.Items[index]);
@@ -240,7 +236,7 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="result"></param>
         /// <param name="lvwi"></param>
-        private void RefreshConcurrentUsersLVWI(TileStresstest ts, TileConcurrentUsersProgressResult result, ListViewItem lvwi)
+        private void RefreshConcurrentUsersLVWI(TileStresstest ts, TileConcurrencyProgressResult result, ListViewItem lvwi)
         {
             lvwi.Tag = result;
             var metrics = result.Metrics;
@@ -270,7 +266,7 @@ namespace vApus.DistributedTesting
                     lvwi.SubItems.RemoveAt(11);
             }
         }
-        private ListViewItem NewConcurrentUsersLVWI(TileStresstest ts, TileConcurrentUsersProgressResult result)
+        private ListViewItem NewConcurrentUsersLVWI(TileStresstest ts, TileConcurrencyProgressResult result)
         {
             var metrics = result.Metrics;
 
@@ -304,26 +300,24 @@ namespace vApus.DistributedTesting
 
             return lvwi;
         }
-        private void SetPrecisionProgress()
+        private void SetRunProgress()
         {
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrenctUsers))
             {
-                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
-                clmFRLConcurrentUsers.Width = -2;
+                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrenctUsers);
+                clmFRLConcurrenctUsers.Width = -2;
             }
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLRun))
             {
-                lvwFastResultsListing.Columns.Insert(4, clmFRLPrecision);
-                clmFRLPrecision.Width = -2;
+                lvwFastResultsListing.Columns.Insert(4, clmFRLRun);
+                clmFRLRun.Width = -2;
             }
-            if (lvwFastResultsListing.Columns.Contains(clmFRLRun))
-                lvwFastResultsListing.Columns.Remove(clmFRLRun);
 
             int count = 0;
             foreach (TileStresstest key in _progress.Keys)
                 if (_progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
-                        foreach (TilePrecisionProgressResult result in cu.TilePrecisionProgressResults)
+                    foreach (TileConcurrencyProgressResult cu in _progress[key].TileConcurrencyProgressResults)
+                        foreach (TileRunProgressResult result in cu.TileRunProgressResults)
                             ++count;
 
             while (lvwFastResultsListing.Items.Count > count)
@@ -332,139 +326,13 @@ namespace vApus.DistributedTesting
             int index = 0;
             foreach (TileStresstest key in _progress.Keys)
                 if (_progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
-                        foreach (TilePrecisionProgressResult result in cu.TilePrecisionProgressResults)
-                        {
-                            if (index < lvwFastResultsListing.Items.Count)
-                                RefreshPrecisionLVWI(key, cu, result, lvwFastResultsListing.Items[index]);
-                            else
-                                lvwFastResultsListing.Items.Add(NewPrecisionLVWI(key, cu, result));
-
-                            ++index;
-                        }
-        }
-        /// <summary>
-        /// Recycles list view items.
-        /// </summary>
-        /// <param name="result"></param>
-        /// <param name="lvwi"></param>
-        private void RefreshPrecisionLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult result, ListViewItem lvwi)
-        {
-            lvwi.Tag = result;
-            var metrics = result.Metrics;
-
-            string tilestresstest = ts.ToString();
-            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
-
-            //Only update the ones needed to be updated
-            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
-                lvwi.SubItems[6].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
-                metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
-            {
-                lvwi.SubItems[0].Text = tilestresstest;
-                lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
-                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
-                lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
-                lvwi.SubItems[4].Text = cu.ConcurrentUsers.ToString();
-                lvwi.SubItems[5].Text = (result.Precision + 1).ToString();
-                lvwi.SubItems[6].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
-                lvwi.SubItems[7].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
-                lvwi.SubItems[8].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[9].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
-                lvwi.SubItems[10].ForeColor = Color.Black;
-
-                if (lvwi.SubItems.Count == 13) //Remove last cell, not needed.
-                    lvwi.SubItems.RemoveAt(12);
-
-                if (lvwi.SubItems.Count == 12) //Add errors if not available.
-                {
-                    lvwi.SubItems[11].Text = metrics.Errors.ToString();
-                    lvwi.SubItems[11].ForeColor = Color.Red;
-                }
-                else
-                {
-                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
-                    sub.Font = lvwi.Font;
-                    sub.ForeColor = Color.Red;
-                }
-            }
-        }
-        private ListViewItem NewPrecisionLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult result)
-        {
-            string tilestresstest = ts.ToString();
-
-            var metrics = result.Metrics;
-            ListViewItem lvwi = new ListViewItem(tilestresstest);
-            lvwi.UseItemStyleForSubItems = false;
-
-            Font font = new Font("Consolas", 10.25f);
-
-            lvwi.Font = font;
-            lvwi.Tag = result;
-
-            lvwi.SubItems.Add(result.Metrics.StartMeasuringRuntime.ToString()).Font = font;
-            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
-
-
-            lvwi.SubItems.Add(cu.ConcurrentUsers.ToString()).Font = font;
-            lvwi.SubItems.Add((result.Precision + 1).ToString()).Font = font;
-
-            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());
-            sub.Font = font;
-            sub.Name = "LogEntriesProcessed";
-            lvwi.SubItems.Add(Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
-
-            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
-            sub.Font = font;
-            sub.ForeColor = Color.Red;
-
-            return lvwi;
-        }
-        private void SetRunProgress()
-        {
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
-            {
-                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
-                clmFRLConcurrentUsers.Width = -2;
-            }
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLPrecision))
-            {
-                lvwFastResultsListing.Columns.Insert(4, clmFRLPrecision);
-                clmFRLPrecision.Width = -2;
-            }
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLRun))
-            {
-                lvwFastResultsListing.Columns.Insert(5, clmFRLRun);
-                clmFRLRun.Width = -2;
-            }
-
-            int count = 0;
-            foreach (TileStresstest key in _progress.Keys)
-                if (_progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
-                        foreach (TilePrecisionProgressResult p in cu.TilePrecisionProgressResults)
-                            foreach (TileRunProgressResult result in p.TileRunProgressResults)
-                                ++count;
-
-            while (lvwFastResultsListing.Items.Count > count)
-                lvwFastResultsListing.Items.RemoveAt(count);
-
-            int index = 0;
-            foreach (TileStresstest key in _progress.Keys)
-                if (_progress[key] != null)
-                    foreach (TileConcurrentUsersProgressResult cu in _progress[key].TileConcurrentUsersProgressResults)
-                        foreach (TilePrecisionProgressResult p in cu.TilePrecisionProgressResults)
-                            foreach (TileRunProgressResult result in p.TileRunProgressResults)
+                    foreach (TileConcurrencyProgressResult cu in _progress[key].TileConcurrencyProgressResults)
+                            foreach (TileRunProgressResult result in cu.TileRunProgressResults)
                             {
                                 if (index < lvwFastResultsListing.Items.Count)
-                                    RefreshRunLVWI(key, cu, p, result, lvwFastResultsListing.Items[index]);
+                                    RefreshRunLVWI(key, cu, result, lvwFastResultsListing.Items[index]);
                                 else
-                                    lvwFastResultsListing.Items.Add(NewRunLVWI(key, cu, p, result));
+                                    lvwFastResultsListing.Items.Add(NewRunLVWI(key, cu, result));
 
                                 ++index;
                             }
@@ -475,7 +343,7 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="result"></param>
         /// <param name="lvwi"></param>
-        private void RefreshRunLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult p, TileRunProgressResult result, ListViewItem lvwi)
+        private void RefreshRunLVWI(TileStresstest ts, TileConcurrencyProgressResult cu, TileRunProgressResult result, ListViewItem lvwi)
         {
             lvwi.Tag = result;
             var metrics = result.Metrics;
@@ -493,41 +361,40 @@ namespace vApus.DistributedTesting
                 lvwi.SubItems[2].Text = estimatedRuntimeLeft;
                 lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
                 lvwi.SubItems[4].Text = cu.ConcurrentUsers.ToString();
-                lvwi.SubItems[5].Text = (p.Precision + 1).ToString();
-                lvwi.SubItems[6].Text = (result.Run + 1).ToString();
-                lvwi.SubItems[7].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
-                lvwi.SubItems[8].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
-                lvwi.SubItems[9].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[10].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[10].ForeColor = Color.Black;
+                lvwi.SubItems[5].Text = (result.Run + 1).ToString();
+                lvwi.SubItems[6].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
+                lvwi.SubItems[7].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
+                lvwi.SubItems[8].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
+                lvwi.SubItems[9].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
+                lvwi.SubItems[9].ForeColor = Color.Black;
 
-                if (lvwi.SubItems.Count == 11) //Add if not available.
+                if (lvwi.SubItems.Count == 10) //Add if not available.
                 {
                     lvwi.SubItems.Add(metrics.AverageDelay.TotalMilliseconds.ToString()).Font = lvwi.Font;
-                    
+
+                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+                    sub.Font = lvwi.Font;
+                    sub.ForeColor = Color.Red;
+                }
+                else if (lvwi.SubItems.Count == 11)
+                {
+                    lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+
                     var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
                     sub.Font = lvwi.Font;
                     sub.ForeColor = Color.Red;
                 }
                 else if (lvwi.SubItems.Count == 12)
                 {
-                    lvwi.SubItems[11].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+                    lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+                    lvwi.SubItems[10].ForeColor = Color.Black;
 
-                    var sub = lvwi.SubItems.Add(metrics.Errors.ToString());
-                    sub.Font = lvwi.Font;
-                    sub.ForeColor = Color.Red;
-                }
-                else if (lvwi.SubItems.Count == 13)
-                {
-                    lvwi.SubItems[11].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
-                    lvwi.SubItems[11].ForeColor = Color.Black;
-
-                    lvwi.SubItems[12].Text = metrics.Errors.ToString();
-                    lvwi.SubItems[12].ForeColor = Color.Red;
+                    lvwi.SubItems[11].Text = metrics.Errors.ToString();
+                    lvwi.SubItems[11].ForeColor = Color.Red;
                 }
             }
         }
-        private ListViewItem NewRunLVWI(TileStresstest ts, TileConcurrentUsersProgressResult cu, TilePrecisionProgressResult p, TileRunProgressResult result)
+        private ListViewItem NewRunLVWI(TileStresstest ts, TileConcurrencyProgressResult cu, TileRunProgressResult result)
         {
             string tilestresstest = ts.ToString();
             var metrics = result.Metrics;
@@ -545,7 +412,6 @@ namespace vApus.DistributedTesting
 
 
             lvwi.SubItems.Add(cu.ConcurrentUsers.ToString()).Font = font;
-            lvwi.SubItems.Add((p.Precision + 1).ToString()).Font = font;
             lvwi.SubItems.Add((result.Run + 1).ToString()).Font = font;
 
             ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());

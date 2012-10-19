@@ -51,16 +51,13 @@ namespace vApus.Stresstest
 
         /// <summary> Store the current run for run synchronization. </summary>
         private int _continueCounter;
-        /// <summary> To be able to loop the runs in the stresstest. </summary>
-        private int[] _runsConcurrentUsers;
 
         private volatile bool _failed, _cancel, _completed, _break, _isDisposed;
         /// <summary> Needed for break on last. </summary>
         private volatile bool _runDoneOnce;
 
         private StresstestResults _stresstestResults;
-        private ConcurrentUsersResult _concurrentUsersResult;
-        private PrecisionResult _precisionResult;
+        private ConcurrencyResult _concurrentUsersResult;
         private RunResult _runResult;
         #endregion
 
@@ -118,7 +115,6 @@ namespace vApus.Stresstest
                 InvokeMessage("Initializing the Test.");
                 InitializeLog();
                 InitializeConnectionProxyPool();
-                DetermineRuns();
             }
             catch
             {
@@ -273,128 +269,99 @@ namespace vApus.Stresstest
             InvokeMessage(string.Format(" ...Connection Proxy Pool Inititialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
         }
-        private void DetermineRuns()
-        {
-            if (_cancel)
-                return;
-
-            InvokeMessage("Determining Runs...");
-            _sw.Start();
-            _runsConcurrentUsers = new int[_stresstest.ConcurrentUsers.Length];
-            for (int i = 0; i != _stresstest.ConcurrentUsers.Length; i++)
-            {
-                //Precision not taken into account, the concurrent users index is used to select the right run length.
-                int runs = _stresstest.DynamicRunMultiplier / _stresstest.ConcurrentUsers[i];
-                if (runs == 0)
-                    runs = 1;
-
-                _runsConcurrentUsers[i] = runs;
-            }
-            _sw.Stop();
-            InvokeMessage(string.Format(" ...Runs Determined in {0}.", _sw.Elapsed.ToLongFormattedString()));
-            _sw.Reset();
-        }
         public StresstestResult ExecuteStresstest()
         {
             //No run started yet.
             _continueCounter = -1;
             SetStresstestStarted();
             //Loop all concurrent users
-            for (int concurrentUsersIndex = 0; concurrentUsersIndex != _stresstest.ConcurrentUsers.Length; concurrentUsersIndex++)
+            for (int concurrentUsersIndex = 0; concurrentUsersIndex != _stresstest.Concurrency.Length; concurrentUsersIndex++)
             {
-                int concurrentUsers = _stresstest.ConcurrentUsers[concurrentUsersIndex];
+                int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
                 if (_cancel) break;
 
                 SetConcurrentUsersStarted(concurrentUsersIndex);
-                //Loop 'precision' times for the concurrent users.
-                for (int precision = 0; precision != _stresstest.Precision; precision++)
+                //Loop 'run' times for the concurrent users.
+                for (int run = 0; run != _stresstest.Runs; run++)
                 {
                     if (_cancel) break;
+                    _runDoneOnce = false;
 
-                    SetPrecisionStarted(concurrentUsersIndex, precision);
-                    //Loop 'runs' times for the predetermined runs.
-                    for (int run = 0; run != _runsConcurrentUsers[concurrentUsersIndex]; run++)
+                Rerun:
+                    //Initialize all for a new test.
+                    if (_cancel) break;
+                    //Initialize the log entries and delays (every time so the tests for different runs are not the same)
+                    DetermineTestableLogEntriessAndDelays(concurrentUsers);
+                    if (_cancel) break;
+                    SetThreadPool(concurrentUsers);
+                    if (_cancel) break;
+                    //Initialize the connection proxy pool (every time, so dead or locked connections can't be used anymore)
+                    SetConnectionProxyPool(concurrentUsers);
+                    if (_cancel) break;
+
+                    if (_runDoneOnce)
                     {
-                        _runDoneOnce = false;
+                        InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.White);
+                    }
+                    else
+                    {
+                        ++_continueCounter;
 
-                    Rerun:
-                        //Initialize all for a new test.
-                        if (_cancel) break;
-                        //Initialize the log entries and delays (every time so the tests for different runs are not the same)
-                        DetermineTestableLogEntriessAndDelays(concurrentUsers);
-                        if (_cancel) break;
-                        SetThreadPool(concurrentUsers);
-                        if (_cancel) break;
-                        //Initialize the connection proxy pool (every time, so dead or locked connections can't be used anymore)
-                        SetConnectionProxyPool(concurrentUsers);
-                        if (_cancel) break;
-
-                        if (_runDoneOnce)
+                        InvokeMessage(string.Format("|----> |Run {0}...", run + 1), Color.LightGreen);
+                        SetRunInitializedFirstTime(concurrentUsersIndex, run);
+                        //Wait here untill the master sends continue when using run sync.
+                        if (_runSynchronization != RunSynchronization.None)
                         {
-                            InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.White);
-                        }
-                        else
-                        {
-                            ++_continueCounter;
-
-                            InvokeMessage(string.Format("|----> |Run {0}...", run + 1), Color.LightGreen);
-                            SetRunInitializedFirstTime(concurrentUsersIndex, run);
-                            //Wait here untill the master sends continue when using run sync.
-                            if (_runSynchronization != RunSynchronization.None)
-                            {
-                                InvokeMessage("Waiting for Continue Message from Master...");
-                                _runSynchronizationContinueWaitHandle.WaitOne();
-                                InvokeMessage("Continuing...");
-                            }
-                        }
-
-                        if (_cancel) break;
-
-                        //Set this run started, used for for instance monitoring --> the range for this run can be determined this way.
-                        SetRunStarted();
-
-                        //Do the actual work and invoke when the run is finished.
-                        try
-                        {
-                            _threadPool.DoWorkAndWaitForIdle();
-                        }
-                        catch (Exception ex)
-                        {
-                            if (!_isDisposed)
-                                InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, LogLevel.Error);
-                        }
-                        finally
-                        {
-                            _runResult.StopTimeMeasurement();
-                            InvokeMessage("|----> |Run Finished in " + _runResult.Metrics.MeasuredRunTime + "!", Color.LightGreen);
-                        }
-
-                        //For monitoring.
-                        SetRunStopped();
-
-                        //Wait here when the run is broken untill the master sends continue when using run sync.
-                        if (_runSynchronization == RunSynchronization.BreakOnFirstFinished)
-                        {
-                            ++_continueCounter;
-                            SetRunDoneOnce();
-
                             InvokeMessage("Waiting for Continue Message from Master...");
                             _runSynchronizationContinueWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
                         }
-                        //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
-                        else if (_runSynchronization == RunSynchronization.BreakOnLastFinished && !_break)
-                        {
-                            SetRunDoneOnce();
-
-                            InvokeMessage("Initializing Rerun...");
-                            //Increase resultset
-                            _stresstestResults.IncreaseRunResults();
-                            goto Rerun;
-                        }
-
                     }
-                    _precisionResult.StopTimeMeasurement();
+
+                    if (_cancel) break;
+
+                    //Set this run started, used for for instance monitoring --> the range for this run can be determined this way.
+                    SetRunStarted();
+
+                    //Do the actual work and invoke when the run is finished.
+                    try
+                    {
+                        _threadPool.DoWorkAndWaitForIdle();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!_isDisposed)
+                            InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, LogLevel.Error);
+                    }
+                    finally
+                    {
+                        _runResult.StopTimeMeasurement();
+                        InvokeMessage("|----> |Run Finished in " + _runResult.Metrics.MeasuredRunTime + "!", Color.LightGreen);
+                    }
+
+                    //For monitoring.
+                    SetRunStopped();
+
+                    //Wait here when the run is broken untill the master sends continue when using run sync.
+                    if (_runSynchronization == RunSynchronization.BreakOnFirstFinished)
+                    {
+                        ++_continueCounter;
+                        SetRunDoneOnce();
+
+                        InvokeMessage("Waiting for Continue Message from Master...");
+                        _runSynchronizationContinueWaitHandle.WaitOne();
+                        InvokeMessage("Continuing...");
+                    }
+                    //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
+                    else if (_runSynchronization == RunSynchronization.BreakOnLastFinished && !_break)
+                    {
+                        SetRunDoneOnce();
+
+                        InvokeMessage("Initializing Rerun...");
+                        //Increase resultset
+                        _stresstestResults.IncreaseRunResults();
+                        goto Rerun;
+                    }
                 }
                 _concurrentUsersResult.StopTimeMeasurement();
             }
@@ -869,7 +836,6 @@ namespace vApus.Stresstest
         #region Events
         public event EventHandler<StresstestStartedEventArgs> StresstestStarted;
         public event EventHandler<ConcurrentUsersStartedEventArgs> ConcurrentUsersStarted;
-        public event EventHandler<PrecisionStartedEventArgs> PrecisionStarted;
         public event EventHandler<RunStartedEventArgs> RunStarted;
         public event EventHandler<RunStoppedEventArgs> RunStopped;
         public event EventHandler<RunInitializedFirstTimeEventArgs> RunInitializedFirstTime;
@@ -879,11 +845,10 @@ namespace vApus.Stresstest
         private void SetStresstestStarted()
         {
             ulong totalLogEntries = 0;
-            for (int c = 0; c != _stresstest.ConcurrentUsers.Length; c++)
-                for (int concurrency = 0; concurrency != _stresstest.ConcurrentUsers[c]; concurrency++)
-                    for (int p = 0; p != _stresstest.Precision; p++)
-                        for (int r = 0; r != _runsConcurrentUsers[c]; r++)
-                            totalLogEntries += (ulong)_testPatternsAndDelaysGenerator.PatternLength;
+            for (int c = 0; c != _stresstest.Concurrency.Length; c++)
+                for (int concurrency = 0; concurrency != _stresstest.Concurrency[c]; concurrency++)
+                    for (int r = 0; r != _stresstest.Runs; r++)
+                        totalLogEntries += (ulong)_testPatternsAndDelaysGenerator.PatternLength;
 
             _stresstestResults = new StresstestResults(_stresstest, totalLogEntries, DateTime.Now);
             InvokeMessage("Starting the Stresstest...");
@@ -894,42 +859,23 @@ namespace vApus.Stresstest
         private void SetConcurrentUsersStarted(int concurrentUsersIndex)
         {
             ulong totalLogEntries = 0;
-            int concurrentUsers = _stresstest.ConcurrentUsers[concurrentUsersIndex];
-            for (int c = 0; c != _stresstest.ConcurrentUsers[concurrentUsersIndex]; c++)
-                for (int p = 0; p != _stresstest.Precision; p++)
-                    for (int r = 0; r != _runsConcurrentUsers[concurrentUsersIndex]; r++)
-                        for (int t = 0; t != _testPatternsAndDelaysGenerator.PatternLength; t++)
-                            ++totalLogEntries;
+            int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
+            for (int c = 0; c != _stresstest.Concurrency[concurrentUsersIndex]; c++)
+                for (int r = 0; r != _stresstest.Runs; r++)
+                    for (int t = 0; t != _testPatternsAndDelaysGenerator.PatternLength; t++)
+                        ++totalLogEntries;
 
-            _concurrentUsersResult = new ConcurrentUsersResult(concurrentUsers, totalLogEntries, DateTime.Now);
-            _stresstestResults.ConcurrentUsersResults.Add(_concurrentUsersResult);
-            InvokeMessage(string.Format("|-> {0} Concurrent Users...", concurrentUsers), Color.LightGreen);
+            _concurrentUsersResult = new ConcurrencyResult(concurrentUsers, totalLogEntries, DateTime.Now);
+            _stresstestResults.ConcurrencyResults.Add(_concurrentUsersResult);
+            InvokeMessage(string.Format("|-> {0} Concurrent Users... (Initializing the First Run, be Patient)", concurrentUsers), Color.LightGreen);
 
             if (!_cancel && ConcurrentUsersStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { ConcurrentUsersStarted(this, new ConcurrentUsersStartedEventArgs(_concurrentUsersResult)); }, null);
-        }
-        private void SetPrecisionStarted(int concurrentUsersIndex, int precision)
-        {
-            ulong totalLogEntries = 0;
-            int concurrentUsers = _stresstest.ConcurrentUsers[concurrentUsersIndex];
-            for (int c = 0; c != concurrentUsers; c++)
-                for (int r = 0; r != _runsConcurrentUsers[concurrentUsersIndex]; r++)
-                    totalLogEntries += (ulong)_testPatternsAndDelaysGenerator.PatternLength;
-
-            _precisionResult = new PrecisionResult(precision, totalLogEntries, DateTime.Now);
-            _concurrentUsersResult.PrecisionResults.Add(_precisionResult);
-            InvokeMessage(string.Format("|---> Precision {0}... (Initializing the First Run, be Patient)", precision + 1), Color.LightGreen);
-
-            if (!_cancel && PrecisionStarted != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { PrecisionStarted(this, new PrecisionStartedEventArgs(_precisionResult)); }, null);
         }
         /// <summary>
         /// For monitoring --> to know the time offset of the counters so a range can be linked to a run.
         /// The current run result (_runResult) is also given with in the event's event args.
         /// </summary>
-        /// <param name="concurrentUsersIndex"></param>
-        /// <param name="precision"></param>
-        /// <param name="run"></param>
         private void SetRunStarted()
         {
             DateTime at = DateTime.Now;
@@ -940,9 +886,6 @@ namespace vApus.Stresstest
         /// <summary>
         /// For monitoring --> to know the time offset of the counters so a range can be linked to a run.
         /// </summary>
-        /// <param name="concurrentUsersIndex"></param>
-        /// <param name="precision"></param>
-        /// <param name="run"></param>
         private void SetRunStopped()
         {
             DateTime at = DateTime.Now;
@@ -959,7 +902,7 @@ namespace vApus.Stresstest
         {
             ulong totalLogEntries = 0;
             int singleUserLogEntryCount = 0;
-            int concurrentUsers = _stresstest.ConcurrentUsers[concurrentUsersIndex];
+            int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
             for (int c = 0; c != concurrentUsers; c++)
             {
                 if (singleUserLogEntryCount == 0)
@@ -969,7 +912,7 @@ namespace vApus.Stresstest
             }
 
             _runResult = new RunResult(run, concurrentUsers, totalLogEntries, singleUserLogEntryCount, DateTime.Now);
-            _precisionResult.RunResults.Add(_runResult);
+            _concurrentUsersResult.RunResults.Add(_runResult);
 
             if (!_cancel && RunInitializedFirstTime != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunInitializedFirstTime(this, new RunInitializedFirstTimeEventArgs(_runResult)); }, null);
