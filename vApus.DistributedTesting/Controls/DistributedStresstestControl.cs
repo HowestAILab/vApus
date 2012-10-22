@@ -199,13 +199,13 @@ namespace vApus.DistributedTesting
 
         private void SetConcurrentUsersProgress()
         {
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrenctUsers))
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
             {
-                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrenctUsers);
-                clmFRLConcurrenctUsers.Width = -2;
+                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
+                clmFRLConcurrency.Width = -2;
             }
-            if (lvwFastResultsListing.Columns.Contains(clmFRLRun))
-                lvwFastResultsListing.Columns.Remove(clmFRLRun);
+            if (lvwFastResultsListing.Columns.Contains(clmFRLRuns))
+                lvwFastResultsListing.Columns.Remove(clmFRLRuns);
 
             //Remove the ListViewItems we don't need.
             int count = 0;
@@ -302,15 +302,15 @@ namespace vApus.DistributedTesting
         }
         private void SetRunProgress()
         {
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrenctUsers))
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
             {
-                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrenctUsers);
-                clmFRLConcurrenctUsers.Width = -2;
+                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
+                clmFRLConcurrency.Width = -2;
             }
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLRun))
+            if (!lvwFastResultsListing.Columns.Contains(clmFRLRuns))
             {
-                lvwFastResultsListing.Columns.Insert(4, clmFRLRun);
-                clmFRLRun.Width = -2;
+                lvwFastResultsListing.Columns.Insert(4, clmFRLRuns);
+                clmFRLRuns.Width = -2;
             }
 
             int count = 0;

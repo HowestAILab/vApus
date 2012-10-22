@@ -35,8 +35,8 @@ namespace vApus.DistributedTesting
             this.clmFRLStartedAt = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLRuntimeLeft = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLMeasuredRuntime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLConcurrenctUsers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLRun = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLConcurrency = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLRuns = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLLogEntriesProcessed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLThroughput = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLResponseTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -108,8 +108,8 @@ namespace vApus.DistributedTesting
             this.clmFRLStartedAt,
             this.clmFRLRuntimeLeft,
             this.clmFRLMeasuredRuntime,
-            this.clmFRLConcurrenctUsers,
-            this.clmFRLRun,
+            this.clmFRLConcurrency,
+            this.clmFRLRuns,
             this.clmFRLLogEntriesProcessed,
             this.clmFRLThroughput,
             this.clmFRLResponseTime,
@@ -146,15 +146,15 @@ namespace vApus.DistributedTesting
             this.clmFRLMeasuredRuntime.Text = "Measured Time";
             this.clmFRLMeasuredRuntime.Width = 140;
             // 
-            // clmFRLConcurrenctUsers
+            // clmFRLConcurrency
             // 
-            this.clmFRLConcurrenctUsers.Text = "Concurrenct Users";
-            this.clmFRLConcurrenctUsers.Width = 100;
+            this.clmFRLConcurrency.Text = "Concurrency";
+            this.clmFRLConcurrency.Width = 72;
             // 
-            // clmFRLRun
+            // clmFRLRuns
             // 
-            this.clmFRLRun.Text = "Run";
-            this.clmFRLRun.Width = 32;
+            this.clmFRLRuns.Text = "Runs";
+            this.clmFRLRuns.Width = 37;
             // 
             // clmFRLLogEntriesProcessed
             // 
@@ -163,23 +163,23 @@ namespace vApus.DistributedTesting
             // 
             // clmFRLThroughput
             // 
-            this.clmFRLThroughput.Text = "Throughput / s";
-            this.clmFRLThroughput.Width = 91;
+            this.clmFRLThroughput.Text = "Throughput (responses / s)";
+            this.clmFRLThroughput.Width = 140;
             // 
             // clmFRLResponseTime
             // 
-            this.clmFRLResponseTime.Text = "Response Time in ms";
-            this.clmFRLResponseTime.Width = 113;
+            this.clmFRLResponseTime.Text = "Response Time (ms)";
+            this.clmFRLResponseTime.Width = 108;
             // 
             // clmFRLMaxResponseTime
             // 
-            this.clmFRLMaxResponseTime.Text = "Max. Response Time";
-            this.clmFRLMaxResponseTime.Width = 112;
+            this.clmFRLMaxResponseTime.Text = "Max. Response Time (ms)";
+            this.clmFRLMaxResponseTime.Width = 134;
             // 
             // clmFRLDelay
             // 
-            this.clmFRLDelay.Text = "Delay in ms";
-            this.clmFRLDelay.Width = 80;
+            this.clmFRLDelay.Text = "Delay (ms)";
+            this.clmFRLDelay.Width = 61;
             // 
             // clmFRLErrors
             // 
@@ -545,8 +545,8 @@ namespace vApus.DistributedTesting
         private System.Windows.Forms.ColumnHeader clmFRLStartedAt;
         private System.Windows.Forms.ColumnHeader clmFRLRuntimeLeft;
         private System.Windows.Forms.ColumnHeader clmFRLMeasuredRuntime;
-        private System.Windows.Forms.ColumnHeader clmFRLConcurrenctUsers;
-        private System.Windows.Forms.ColumnHeader clmFRLRun;
+        private System.Windows.Forms.ColumnHeader clmFRLConcurrency;
+        private System.Windows.Forms.ColumnHeader clmFRLRuns;
         private System.Windows.Forms.ColumnHeader clmFRLLogEntriesProcessed;
         private System.Windows.Forms.ColumnHeader clmFRLThroughput;
         private System.Windows.Forms.ColumnHeader clmFRLResponseTime;

@@ -336,7 +336,7 @@ namespace vApus.Stresstest
                     }
                     else
                     {
-                        clmFRLRuntimeLeft.Text = "Time Left in ms";
+                        clmFRLRuntimeLeft.Text = "Time Left (ms)";
                         estimatedRuntimeLeft = (((double)result.EstimatedRuntimeLeft.Ticks) / TimeSpan.TicksPerMillisecond).ToString();
                     }
 
@@ -355,7 +355,7 @@ namespace vApus.Stresstest
                         }
                         else
                         {
-                            clmFRLMeasuredRuntime.Text = "Measured Time in ms";
+                            clmFRLMeasuredRuntime.Text = "Measured Time (ms)";
                             measuredRunTime = (((double)metrics.MeasuredRunTime.Ticks) / TimeSpan.TicksPerMillisecond).ToString();
                         }
                         lvwi.SubItems[2].Text = measuredRunTime;
@@ -628,28 +628,28 @@ namespace vApus.Stresstest
             switch (cboDrillDown.SelectedIndex)
             {
                 case 0:
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
+                    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
                     {
-                        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
-                        clmFRLConcurrentUsers.Width = -2;
+                        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
+                        clmFRLConcurrency.Width = -2;
                     }
-                    if (lvwFastResultsListing.Columns.Contains(clmFRLRun))
-                        lvwFastResultsListing.Columns.Remove(clmFRLRun);
+                    if (lvwFastResultsListing.Columns.Contains(clmFRLRuns))
+                        lvwFastResultsListing.Columns.Remove(clmFRLRuns);
 
                     foreach (ListViewItem lvwi in _fastResults)
                         if (lvwi.Tag is ConcurrencyResult)
                             lvwFastResultsListing.Items.Add(lvwi);
                     break;
                 case 1:
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrentUsers))
+                    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
                     {
-                        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrentUsers);
-                        clmFRLConcurrentUsers.Width = -2;
+                        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
+                        clmFRLConcurrency.Width = -2;
                     }
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLRun))
+                    if (!lvwFastResultsListing.Columns.Contains(clmFRLRuns))
                     {
-                        lvwFastResultsListing.Columns.Insert(4, clmFRLRun);
-                        clmFRLRun.Width = -2;
+                        lvwFastResultsListing.Columns.Insert(4, clmFRLRuns);
+                        clmFRLRuns.Width = -2;
                     }
 
                     foreach (ListViewItem lvwi in _fastResults)

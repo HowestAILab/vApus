@@ -47,8 +47,8 @@
             this.clmFRLStartedAt = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLRuntimeLeft = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLMeasuredRuntime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLConcurrentUsers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLRun = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLConcurrency = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmFRLRuns = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLLogEntriesProcessed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLThroughput = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFRLResponseTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -303,8 +303,8 @@
             this.clmFRLStartedAt,
             this.clmFRLRuntimeLeft,
             this.clmFRLMeasuredRuntime,
-            this.clmFRLConcurrentUsers,
-            this.clmFRLRun,
+            this.clmFRLConcurrency,
+            this.clmFRLRuns,
             this.clmFRLLogEntriesProcessed,
             this.clmFRLThroughput,
             this.clmFRLResponseTime,
@@ -336,15 +336,15 @@
             this.clmFRLMeasuredRuntime.Text = "Measured Time";
             this.clmFRLMeasuredRuntime.Width = 140;
             // 
-            // clmFRLConcurrentUsers
+            // clmFRLConcurrency
             // 
-            this.clmFRLConcurrentUsers.Text = "Concurrent Users";
-            this.clmFRLConcurrentUsers.Width = 94;
+            this.clmFRLConcurrency.Text = "Concurrency";
+            this.clmFRLConcurrency.Width = 72;
             // 
-            // clmFRLRun
+            // clmFRLRuns
             // 
-            this.clmFRLRun.Text = "Run";
-            this.clmFRLRun.Width = 32;
+            this.clmFRLRuns.Text = "Runs";
+            this.clmFRLRuns.Width = 37;
             // 
             // clmFRLLogEntriesProcessed
             // 
@@ -353,22 +353,22 @@
             // 
             // clmFRLThroughput
             // 
-            this.clmFRLThroughput.Text = "Throughput / s";
-            this.clmFRLThroughput.Width = 91;
+            this.clmFRLThroughput.Text = "Throughput (responses / s)";
+            this.clmFRLThroughput.Width = 140;
             // 
             // clmFRLResponseTime
             // 
-            this.clmFRLResponseTime.Text = "Response Time in ms";
-            this.clmFRLResponseTime.Width = 113;
+            this.clmFRLResponseTime.Text = "Response Time (ms)";
+            this.clmFRLResponseTime.Width = 108;
             // 
             // clmFRLMaxResponseTime
             // 
-            this.clmFRLMaxResponseTime.Text = "Max. Response Time";
+            this.clmFRLMaxResponseTime.Text = "Max. Response Time (ms)";
             this.clmFRLMaxResponseTime.Width = 112;
             // 
             // clmFRLDelay
             // 
-            this.clmFRLDelay.Text = "Delay in ms";
+            this.clmFRLDelay.Text = "Delay (ms)";
             this.clmFRLDelay.Width = 80;
             // 
             // clmFRLErrors
@@ -808,8 +808,8 @@
         private System.Windows.Forms.ColumnHeader clmFRLStartedAt;
         private System.Windows.Forms.ColumnHeader clmFRLRuntimeLeft;
         private System.Windows.Forms.ColumnHeader clmFRLMeasuredRuntime;
-        private System.Windows.Forms.ColumnHeader clmFRLConcurrentUsers;
-        private System.Windows.Forms.ColumnHeader clmFRLRun;
+        private System.Windows.Forms.ColumnHeader clmFRLConcurrency;
+        private System.Windows.Forms.ColumnHeader clmFRLRuns;
         private System.Windows.Forms.ColumnHeader clmFRLLogEntriesProcessed;
         private System.Windows.Forms.ColumnHeader clmFRLThroughput;
         private System.Windows.Forms.ColumnHeader clmFRLResponseTime;

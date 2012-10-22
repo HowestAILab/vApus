@@ -66,6 +66,9 @@
             this.tbtnLogEntry = new vApus.Util.ToggleButton();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.dgvDetailedResultsListing = new System.Windows.Forms.DataGridView();
+            this.lblWait = new System.Windows.Forms.Label();
+            this.sfd = new System.Windows.Forms.SaveFileDialog();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.clmDRLStartedAtSentAt = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDRLMeasuredTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDRLConcurrency = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -80,9 +83,6 @@
             this.clmDRLPercentileMaxResponseTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDRLDelay = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDRLErrors = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lblWait = new System.Windows.Forms.Label();
-            this.sfd = new System.Windows.Forms.SaveFileDialog();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.split2)).BeginInit();
             this.split2.Panel1.SuspendLayout();
             this.split2.Panel2.SuspendLayout();
@@ -660,6 +660,19 @@
             this.dgvDetailedResultsListing.VirtualMode = true;
             this.dgvDetailedResultsListing.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvDetailedResultsListing_CellValueNeeded);
             // 
+            // lblWait
+            // 
+            this.lblWait.AutoSize = true;
+            this.lblWait.BackColor = System.Drawing.Color.Orange;
+            this.lblWait.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblWait.ForeColor = System.Drawing.Color.Black;
+            this.lblWait.Location = new System.Drawing.Point(448, 98);
+            this.lblWait.Name = "lblWait";
+            this.lblWait.Size = new System.Drawing.Size(308, 16);
+            this.lblWait.TabIndex = 15;
+            this.lblWait.Text = "[Please wait, loading file (can take a while)]";
+            this.lblWait.Visible = false;
+            // 
             // clmDRLStartedAtSentAt
             // 
             this.clmDRLStartedAtSentAt.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
@@ -667,7 +680,7 @@
             this.clmDRLStartedAtSentAt.Name = "clmDRLStartedAtSentAt";
             this.clmDRLStartedAtSentAt.ReadOnly = true;
             this.clmDRLStartedAtSentAt.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.clmDRLStartedAtSentAt.Width = 61;
+            this.clmDRLStartedAtSentAt.Width = 82;
             // 
             // clmDRLMeasuredTime
             // 
@@ -690,11 +703,11 @@
             // clmDRLRun
             // 
             this.clmDRLRun.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.clmDRLRun.HeaderText = "Run";
+            this.clmDRLRun.HeaderText = "Runs";
             this.clmDRLRun.Name = "clmDRLRun";
             this.clmDRLRun.ReadOnly = true;
             this.clmDRLRun.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.clmDRLRun.Width = 33;
+            this.clmDRLRun.Width = 40;
             // 
             // clmDRLUser
             // 
@@ -734,20 +747,20 @@
             // clmDRLThroughput
             // 
             this.clmDRLThroughput.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.clmDRLThroughput.HeaderText = "Throughput / s";
+            this.clmDRLThroughput.HeaderText = "Throughput (responses / s)";
             this.clmDRLThroughput.Name = "clmDRLThroughput";
             this.clmDRLThroughput.ReadOnly = true;
             this.clmDRLThroughput.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.clmDRLThroughput.Width = 86;
+            this.clmDRLThroughput.Width = 156;
             // 
             // clmDRLResponseTime
             // 
             this.clmDRLResponseTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.clmDRLResponseTime.HeaderText = "Response Time in ms";
+            this.clmDRLResponseTime.HeaderText = "Avg. Response Time (ms)";
             this.clmDRLResponseTime.Name = "clmDRLResponseTime";
             this.clmDRLResponseTime.ReadOnly = true;
             this.clmDRLResponseTime.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.clmDRLResponseTime.Width = 99;
+            this.clmDRLResponseTime.Width = 130;
             // 
             // clmDRLMaxResponseTime
             // 
@@ -761,16 +774,16 @@
             // clmDRLPercentileMaxResponseTime
             // 
             this.clmDRLPercentileMaxResponseTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.clmDRLPercentileMaxResponseTime.HeaderText = "95 % Percentile (Max. Response Time)";
+            this.clmDRLPercentileMaxResponseTime.HeaderText = "Max. Response Time (95th Percentile)";
             this.clmDRLPercentileMaxResponseTime.Name = "clmDRLPercentileMaxResponseTime";
             this.clmDRLPercentileMaxResponseTime.ReadOnly = true;
             this.clmDRLPercentileMaxResponseTime.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.clmDRLPercentileMaxResponseTime.Width = 206;
+            this.clmDRLPercentileMaxResponseTime.Width = 168;
             // 
             // clmDRLDelay
             // 
             this.clmDRLDelay.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.clmDRLDelay.HeaderText = "Delay in ms";
+            this.clmDRLDelay.HeaderText = "Delay (ms)";
             this.clmDRLDelay.Name = "clmDRLDelay";
             this.clmDRLDelay.ReadOnly = true;
             this.clmDRLDelay.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
@@ -784,19 +797,6 @@
             this.clmDRLErrors.ReadOnly = true;
             this.clmDRLErrors.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.clmDRLErrors.Width = 68;
-            // 
-            // lblWait
-            // 
-            this.lblWait.AutoSize = true;
-            this.lblWait.BackColor = System.Drawing.Color.Orange;
-            this.lblWait.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblWait.ForeColor = System.Drawing.Color.Black;
-            this.lblWait.Location = new System.Drawing.Point(448, 98);
-            this.lblWait.Name = "lblWait";
-            this.lblWait.Size = new System.Drawing.Size(308, 16);
-            this.lblWait.TabIndex = 15;
-            this.lblWait.Text = "[Please wait, loading file (can take a while)]";
-            this.lblWait.Visible = false;
             // 
             // StresstestReportControl
             // 
