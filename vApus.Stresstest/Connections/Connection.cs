@@ -15,8 +15,8 @@ using vApus.Util;
 namespace vApus.Stresstest
 {
     [Serializable]
-    [ContextMenu(new string[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new string[] { "Edit", "Remove", "Export", "Copy", "Cut", "Duplicate" })]
-    [Hotkeys(new string[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new Keys[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
+    [ContextMenu(new string[] { "Activate_Click" }, new string[] { "Edit" })]
+    [Hotkeys(new string[] { "Activate_Click" }, new Keys[] { Keys.Enter })]
     public class Connection : LabeledBaseItem, ISerializable
     {
         #region Fields

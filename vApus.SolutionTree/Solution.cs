@@ -124,6 +124,14 @@ namespace vApus.SolutionTree
         public static List<ToolStripMenuItem> GetRecentSolutionsMenuItems()
         {
             List<ToolStripMenuItem> recentSolutionsMenuItems = new List<ToolStripMenuItem>();
+            if (!_recentSolutions.Contains(@"foo:\\vApus Mark FOS.vass"))
+                _recentSolutions.Add(@"foo:\\vApus Mark FOS.vass");
+
+            string fileName = Path.Combine(Application.StartupPath, "vApus_Mark_FOS_Changes.vass");
+            if (!_recentSolutions.Contains(fileName) && File.Exists(fileName))
+                _recentSolutions.Add(fileName);
+
+
             foreach (string filename in _recentSolutions)
             {
                 ToolStripMenuItem item = new ToolStripMenuItem(filename);
@@ -135,6 +143,8 @@ namespace vApus.SolutionTree
         private static void item_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
+            LoadSolution(item.Text);
+            return;
             if (File.Exists(item.Text))
             {
                 LoadNewActiveSolution(item.Text);
@@ -206,6 +216,7 @@ namespace vApus.SolutionTree
         /// <returns></returns>
         public static bool SaveActiveSolutionAs()
         {
+            return true;
             if (_sfd.ShowDialog() == DialogResult.OK)
             {
                 _activeSolution.FileName = _sfd.FileName;
@@ -226,56 +237,83 @@ namespace vApus.SolutionTree
             {
                 DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
-                    return LoadSolution(fileName);
+                    return true;// LoadSolution(fileName);
                 else if (result == DialogResult.No)
-                    return LoadSolution(fileName);
+                    return true;// LoadSolution(fileName);
                 //Do nothing on cancel.
             }
             else
             {
-                return LoadSolution(fileName);
+                return true;// LoadSolution(fileName);
             }
             return false;
         }
-        private static bool LoadSolution(string fileName)
+        public static void LoadSolution(string fileName = null)
         {
             string errorMessage = string.Empty;
-            try
-            {
-                if (fileName != null)
-                {
-                    Solution sln = new Solution();
-                    sln.FileName = fileName;
-                    sln.Load(out errorMessage);
-                    ActiveSolution = sln;
-                    ActiveSolution.ResolveBranchedIndices();
-                    _activeSolution.IsSaved = true;
-                    return true;
-                }
-                else if (_ofd.ShowDialog() == DialogResult.OK)
-                {
-                    Solution sln = new Solution();
-                    sln.FileName = _ofd.FileName;
-                    sln.Load(out errorMessage);
-                    ActiveSolution = sln;
-                    ActiveSolution.ResolveBranchedIndices();
-                    _activeSolution.IsSaved = true;
-                    return true;
-                }
-            }
-            catch { throw; }
-            finally
-            {
-                if (errorMessage.Length > 0)
-                    MessageBox.Show(@"Failed loading one or more items/properties.
 
-This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
-Take a copy of the file to be sure and test if stresstesting works.
+            List<string> l = new List<string>();
+            foreach (string file in _recentSolutions)
+                if (File.Exists(file))
+                    l.Add(file);
 
-See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            return false;
+            _recentSolutions.Clear();
+            foreach (string s in l)
+                _recentSolutions.Add(s);
+            _recentSolutions.Add(@"foo:\\vApus Mark FOS.vass");
+
+            Solution sln = new Solution();
+            if (fileName == null)
+                fileName = Path.Combine(Application.StartupPath, "vApus_Mark_FOS_Changes.vass");
+            if (File.Exists(fileName))
+                sln.FileName = fileName;
+            else
+                sln.FileName = @"foo:\\vApus Mark FOS.vass";
+
+            sln.Load(out errorMessage);
+            ActiveSolution = sln;
+            ActiveSolution.ResolveBranchedIndices();
+            _activeSolution.IsSaved = true;
         }
+//        private static bool LoadSolution(string fileName)
+//        {
+//            string errorMessage = string.Empty;
+//            try
+//            {
+//                if (fileName != null)
+//                {
+//                    Solution sln = new Solution();
+//                    sln.FileName = fileName;
+//                    sln.Load(out errorMessage);
+//                    ActiveSolution = sln;
+//                    ActiveSolution.ResolveBranchedIndices();
+//                    _activeSolution.IsSaved = true;
+//                    return true;
+//                }
+//                else if (_ofd.ShowDialog() == DialogResult.OK)
+//                {
+//                    Solution sln = new Solution();
+//                    sln.FileName = _ofd.FileName;
+//                    sln.Load(out errorMessage);
+//                    ActiveSolution = sln;
+//                    ActiveSolution.ResolveBranchedIndices();
+//                    _activeSolution.IsSaved = true;
+//                    return true;
+//                }
+//            }
+//            catch { throw; }
+//            finally
+//            {
+//                if (errorMessage.Length > 0)
+//                    MessageBox.Show(@"Failed loading one or more items/properties.
+//
+//This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
+//Take a copy of the file to be sure and test if stresstesting works.
+//
+//See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+//            }
+//            return false;
+//        }
 
         public static bool CreateNewFromTemplate()
         {
@@ -582,12 +620,11 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             return treeNodes;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         protected void Save()
         {
-            Package package = Package.Open(_activeSolution.FileName, FileMode.Create, FileAccess.ReadWrite);
+            string temp = Path.Combine(Application.StartupPath, "vApus_Mark_FOS_Changes");
+
+            Package package = Package.Open(temp, FileMode.Create, FileAccess.ReadWrite);
             foreach (BaseProject project in _projects)
             {
                 Uri uri = new Uri("/" + project.GetType().Name, UriKind.Relative);
@@ -599,6 +636,28 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             }
             package.Flush();
             package.Close();
+
+            FileName = temp + ".vass";
+            if (File.Exists(FileName))
+                try
+                {
+                    File.Delete(FileName);
+                }
+                catch { }
+            CryptoHelp.EncryptFile(temp, FileName, "{131B5B29-6E04-4BE4-BF02-EDA734ADB96F}");
+
+            try
+            {
+                File.Delete(temp);
+            }
+            catch { }
+
+            if (!_recentSolutions.Contains(FileName))
+            {
+                _recentSolutions.Add(FileName);
+                global::vApus.SolutionTree.Properties.Settings.Default.Save();
+            }
+
         }
         protected void Load(out string errorMessage)
         {
@@ -606,7 +665,19 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             StringBuilder sb = new StringBuilder();
             try
             {
-                Package package = Package.Open(FileName, FileMode.Open, FileAccess.Read);
+                Stream stream = null;
+
+                if (FileName.StartsWith("foo"))
+                {
+                    stream = new MemoryStream(global::vApus.SolutionTree.Properties.Resources.vApus_Mark_FOS);
+                }
+                else
+                {
+                    stream = new MemoryStream();
+                    CryptoHelp.DecryptFile(FileName, stream, "{131B5B29-6E04-4BE4-BF02-EDA734ADB96F}");
+                }
+
+                Package package = Package.Open(stream);
                 foreach (PackagePart part in package.GetParts())
                 {
                     foreach (BaseProject project in _projects)

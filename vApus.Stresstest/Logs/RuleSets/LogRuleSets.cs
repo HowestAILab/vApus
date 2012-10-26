@@ -11,8 +11,8 @@ using System.IO;
 
 namespace vApus.Stresstest
 {
-    [ContextMenu(new string[] { "Import_Click", "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" }, new string[] { "Import Log Rule Set(s)", "Add Log Rule Set", "Sort", "Clear", "Paste" })]
-    [Hotkeys(new string[] { "Paste_Click" }, new Keys[] { (Keys.Control | Keys.V) })]
+    //[ContextMenu(new string[] { "Import_Click", "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" }, new string[] { "Import Log Rule Set(s)", "Add Log Rule Set", "Sort", "Clear", "Paste" })]
+    //[Hotkeys(new string[] { "Paste_Click" }, new Keys[] { (Keys.Control | Keys.V) })]
     [DisplayName("Log Rule Sets"), Serializable]
     public class LogRuleSets : BaseRuleSets
     {

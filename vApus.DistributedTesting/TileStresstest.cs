@@ -47,8 +47,8 @@ namespace vApus.DistributedTesting
         [SavableCloneable]
         public bool AutomaticDefaultAdvancedSettings
         {
-            get { return _automaticDefaultAdvancedSettings; }
-            set { _automaticDefaultAdvancedSettings = value; }
+            get { return true; }
+            set { _automaticDefaultAdvancedSettings = true; }
         }
         [SavableCloneable]
         public bool Use
@@ -134,7 +134,7 @@ namespace vApus.DistributedTesting
             var clone = new TileStresstest();
             clone.Use = _use;
             clone.DefaultAdvancedSettingsTo = _defaultAdvancedSettingsTo;
-            clone.AutomaticDefaultAdvancedSettings = _automaticDefaultAdvancedSettings;
+            clone.AutomaticDefaultAdvancedSettings = true;
 
             clone.ClearWithoutInvokingEvent();
             clone.AddWithoutInvokingEvent(BasicTileStresstest.Clone());

@@ -14,8 +14,8 @@ using vApus.Util;
 
 namespace vApus.Stresstest
 {
-    [ContextMenu(new string[] { "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new string[] { "Remove", "Export", "Copy", "Cut", "Duplicate" })]
-    [Hotkeys(new string[] { "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new Keys[] { Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
+    //[ContextMenu(new string[] { "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new string[] { "Remove", "Export", "Copy", "Cut", "Duplicate" })]
+    //[Hotkeys(new string[] { "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new Keys[] { Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [DisplayName("Connection Proxy"), Serializable]
     public class ConnectionProxy : LabeledBaseItem, ISerializable
     {

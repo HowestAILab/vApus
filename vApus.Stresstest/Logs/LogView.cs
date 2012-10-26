@@ -165,16 +165,12 @@ namespace vApus.Stresstest
             }
             else
             {
-                toolStripImport.Enabled = true;
                 toolStripEdit.Enabled = true;
                 largelist.Enabled = true;
             }
         }
         private void ApplyLogRuleSet(BaseItem item)
         {
-            //Will clear the error selector, eventing will make sure new errors are added tot the selector if needed.
-            if (item is Log)
-                errorAndFindSelector.ClearErrors();
             if (item is LogEntry)
                 (item as LogEntry).ApplyLogRuleSet();
             foreach (BaseItem child in item)
@@ -248,10 +244,6 @@ namespace vApus.Stresstest
         private void logEntryControl_LexicalResultChanged(object sender, EventArgs e)
         {
             LogEntryControl logEntryControl = sender as LogEntryControl;
-            if (logEntryControl.LexicalResult == LexicalResult.Error && largelist.Contains(logEntryControl))
-                errorAndFindSelector.AddError(logEntryControl);
-            else
-                errorAndFindSelector.RemoveError(logEntryControl);
         }
         #endregion
 
@@ -756,15 +748,6 @@ namespace vApus.Stresstest
             LogEntryControl logEntryControl;
             UserActionControl userActionControl;
 
-            btnLevelDown.Enabled = false;
-            btnLevelUp.Enabled = false;
-            btnUp.Enabled = false;
-            btnDown.Enabled = false;
-            btnActionizeUnactionize.Enabled = false;
-            btnRemove.Enabled = false;
-            btnCopy.Enabled = false;
-            btnPaste.Enabled = false;
-
             logEntryControl = largelist.LastClickedControl as LogEntryControl;
             userActionControl = largelist.LastClickedControl as UserActionControl;
             if (logEntryControl != null && logEntryControl.UserActionControl != null)
@@ -774,14 +757,6 @@ namespace vApus.Stresstest
 
             if (largelist.ActiveControl != null && largelist.Selection.Count > 0)
             {
-                btnLevelDown.Enabled = true;
-                btnLevelUp.Enabled = true;
-                btnUp.Enabled = true;
-                btnDown.Enabled = true;
-                btnActionizeUnactionize.Enabled = true;
-                btnRemove.Enabled = true;
-                btnCopy.Enabled = true;
-
                 largelist.OrderSelection();
                 largelist.ScrollIntoView(largelist.ActiveControl);
 
@@ -793,16 +768,11 @@ namespace vApus.Stresstest
 
                 if (largelist.BeginOfSelection.Key == 0 && largelist.BeginOfSelection.Value == 0)
                 {
-                    btnLevelUp.Enabled = false;
-                    btnLevelDown.Enabled = false;
-                    btnUp.Enabled = false;
                 }
                 else if (largelist.BeginOfSelection.Key > 0 || (largelist.BeginOfSelection.Key == 0 && largelist.BeginOfSelection.Value > 0))
                 {
                     if (userActionControl != null)
                     {
-                        btnLevelUp.Enabled = false;
-                        btnLevelDown.Enabled = false;
                     }
                     else if (logEntryControl != null)
                     {
@@ -810,53 +780,24 @@ namespace vApus.Stresstest
                         {
                             LogEntryControl previousLogEntryControl = PreviousControl() as LogEntryControl;
                             bool previousControlIsChild = previousLogEntryControl == null ? false : previousLogEntryControl.UserActionControl != null;
-
-                            if (!previousControlIsChild)
-                                btnLevelUp.Enabled = false;
-                            btnLevelDown.Enabled = false;
                         }
                         else
                         {
                             LogEntryControl nextLogEntryControl = GetClosestNextSibling(logEntryControl) as LogEntryControl;
-
-                            btnLevelUp.Enabled = false;
-                            if (nextLogEntryControl != null && nextLogEntryControl.Parent == logEntryControl.Parent)
-                                btnLevelDown.Enabled = false;
-                        }
-                    }
-
-                    if (GetClosestNextSibling(beginControl) == null)
-                        btnDown.Enabled = false;
-                    if (GetClosestPreviousSibling(largelist.Selection[0]) == null)
-                    {
-                        btnUp.Enabled = false;
-                        if (logEntryControl != null && logEntryControl.UserActionControl != null && logEntryControl.UserActionControl.LogChild.Count < 2)
-                        {
-                            btnRemove.Enabled = false;
-                            btnCopy.Enabled = false;
                         }
                     }
                 }
 
-                if (largelist.EndOfSelection.Key == largelist.ViewCount - 1 && largelist.EndOfSelection.Value == largelist[largelist.EndOfSelection.Key].Count - 1)
-                    btnDown.Enabled = false;
 
                 //Actionize
                 if (userActionControl != null)
                 {
-                    btnActionizeUnactionize.Image = global::vApus.Stresstest.Properties.Resources.Unactionize;
-                    btnActionizeUnactionize.Text = "Unactionize Selected Log Entries";
-                    btnActionizeUnactionize.ToolTipText = btnActionizeUnactionize.Text;
                 }
                 else if (logEntryControl.UserActionControl == null && !selectionHasAction && !selectionHasHoles)
                 {
-                    btnActionizeUnactionize.Image = global::vApus.Stresstest.Properties.Resources.Actionize;
-                    btnActionizeUnactionize.Text = "Actionize Selected Log Entries";
-                    btnActionizeUnactionize.ToolTipText = btnActionizeUnactionize.Text;
                 }
                 else
                 {
-                    btnActionizeUnactionize.Enabled = false;
                 }
             }
 
@@ -875,7 +816,6 @@ namespace vApus.Stresstest
             if (logEntryControl != null)
                 logEntryControl.Select();
 
-            btnPaste.Enabled = true;
 
             this.Cursor = Cursors.Default;
         }
@@ -1220,71 +1160,6 @@ namespace vApus.Stresstest
             ApplyChanges();
         }
 
-        private void btnActionizeUnactionize_Click(object sender, EventArgs e)
-        {
-            if (largelist.Selection.Count != 0)
-            {
-                this.Cursor = Cursors.WaitCursor;
-                if (btnActionizeUnactionize.Text.Contains("Unactionize"))
-                {
-                    List<UserActionControl> userActionControls = new List<UserActionControl>();
-
-                    largelist.OrderSelection();
-                    foreach (Control control in largelist.Selection)
-                        if (control is UserActionControl)
-                            userActionControls.Add(control as UserActionControl);
-
-                    foreach (var uac in userActionControls)
-                    {
-                        LockWindowUpdate(this.Handle.ToInt32());
-
-                        uac.Collapsed = false;
-                        foreach (LogEntryControl logEntryControl in uac.LogEntryControls)
-                        {
-                            (logEntryControl.LogChild as LogEntry).Pinned = false;
-                            logEntryControl.RemoveUserActionControl();
-
-                            logEntryControl.CheckedChanged -= logChildControlBase_CheckedChanged;
-                            logEntryControl.Checked = false;
-                            largelist.Selection.Remove(logEntryControl);
-                            logEntryControl.CheckedChanged += logChildControlBase_CheckedChanged;
-                        }
-                        uac.LogEntryControls.Clear();
-
-                        LockWindowUpdate(0);
-                        largelist.Remove(uac);
-                    }
-                    if (largelist.ActiveControl != null)
-                        largelist.ScrollIntoView(largelist.ActiveControl);
-                }
-                else
-                {
-                    UserAction userAction = new UserAction();
-                    userAction.Parent = _log;
-                    UserActionControl userActionControl = new UserActionControl(userAction);
-                    userActionControl.Collapsed = false;
-                    userActionControl.Checked = true;
-                    largelist.Insert(userActionControl, largelist.IndexOf(largelist.Selection[0]));
-                    largelist.Select(userActionControl, Hotkeys.Ctrl);
-                    userActionControl.CheckedChanged += new EventHandler(logChildControlBase_CheckedChanged);
-                    userActionControl.CollapsedChanged += new EventHandler(userActionControl_CollapsedChanged);
-                    foreach (Control control in largelist.Selection)
-                        if (control is LogEntryControl)
-                        {
-                            LogEntryControl logEntryControl = control as LogEntryControl;
-                            (logEntryControl.LogChild as LogEntry).Pinned = true;
-                            logEntryControl.SetUserActionControl(userActionControl);
-                            userActionControl.LogEntryControls.Add(logEntryControl);
-                        }
-
-                    if (largelist.ActiveControl != null)
-                        largelist.ScrollIntoView(largelist.ActiveControl);
-                }
-                ApplyChanges();
-                this.Cursor = Cursors.Default;
-            }
-        }
-
         private void userActionControl_CollapsedChanged(object sender, EventArgs e)
         {
             UserActionControl userActionControl = sender as UserActionControl;
@@ -1305,45 +1180,6 @@ namespace vApus.Stresstest
         private void errorAndFindSelector_SelectError(object sender, SelectErrorEventArgs e)
         {
             SelectLogChildControlBase(e.Error);
-        }
-        private void errorAndFindSelector_Find(object sender, FindEventArgs e)
-        {
-            if (e.Find == string.Empty && largelist.ControlCount > 0)
-            {
-                SelectLogChildControlBase(largelist[0][0] as LogChildControlBase);
-            }
-            else
-            {
-                LogChildControlBase firstFound = null;
-                bool startingPointFound = errorAndFindSelector.Found == null;
-                foreach (List<Control> controls in largelist)
-                    foreach (Control control in controls)
-                    {
-                        LogChildControlBase logChildControlBase = control as LogChildControlBase;
-                        if (logChildControlBase.LogChild.ToString().ToLower().Contains(e.Find.ToLower()))
-                        {
-                            if (firstFound == null)
-                                firstFound = logChildControlBase;
-                            if (startingPointFound)
-                            {
-                                errorAndFindSelector.Found = logChildControlBase;
-                                SelectLogChildControlBase(logChildControlBase);
-                                return;
-                            }
-                            else
-                            {
-                                startingPointFound = errorAndFindSelector.Found == control;
-                            }
-                        }
-                    }
-                if (firstFound != null)
-                {
-                    errorAndFindSelector.Found = firstFound;
-                    SelectLogChildControlBase(firstFound);
-                    return;
-                }
-            }
-            errorAndFindSelector.Found = null;
         }
         private void SelectLogChildControlBase(LogChildControlBase logChildControlBase)
         {

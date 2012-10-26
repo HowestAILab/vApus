@@ -12,8 +12,8 @@ using vApus.SolutionTree;
 
 namespace vApus.Stresstest
 {
-    [ContextMenu(new string[] { "Add_Click", "Import_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" }, new string[] { "Add Log", "Import Log Data Structure(s)", "Sort", "Clear", "Paste" })]
-    [Hotkeys(new string[] { "Add_Click", "Paste_Click" }, new Keys[] { Keys.Insert, (Keys.Control | Keys.V) })]
+    //[ContextMenu(new string[] { "Add_Click", "Import_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" }, new string[] { "Add Log", "Import Log Data Structure(s)", "Sort", "Clear", "Paste" })]
+    //[Hotkeys(new string[] { "Add_Click", "Paste_Click" }, new Keys[] { Keys.Insert, (Keys.Control | Keys.V) })]
     public class Logs : BaseItem
     {
         public Logs()

@@ -157,7 +157,7 @@
     <value>True</value>
   </metadata>
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
+    <value>17, 3</value>
   </metadata>
   <data name="llblResultPath.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -174,17 +174,8 @@
         tnmsuPdinzp6SzmwicYymGwJGXokzLdMa5hPHg8ZE01lUPJv/ANNEvGPadEv9gAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="cboRunSync.ToolTip" xml:space="preserve">
-    <value>Run Synchronization exists to keep all the tests equal in duration.
-That way the tested applications are never idle and results can be matched/compared.
-
-Break on First: If a run from a test is finished the other runs will break.
-Break on Last: Runs will re-run untill the longest one is finished for the first time.
-                      Note that the vApus think time is included in the test duration of a run.  
-</value>
-  </data>
   <metadata name="folderBrowserDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>107, 17</value>
+    <value>107, 3</value>
   </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

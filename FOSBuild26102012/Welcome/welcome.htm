@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- 
+/ Created by Glenn Desmadryl for vApus
+/ Copyright Sizing Servers Lab
+/ www.sizingservers.be
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>vApus</title>
+  <link rel="stylesheet" href="screen.css"/>
+</head>
+
+<body>
+
+<div id="all">
+
+<div id="header">
+<img id="vApusLogo" alt="" src="./images/vApus.PNG" width="140" height="75" />
+<div id="headerTitle">Virtualized Application Unique Stresstesting</div>
+</div>
+
+<div id="content">
+<div id="contentHeader">Features</div>
+<div id="menu">
+<ul>
+	<!-- Test the stability and speed of your own applications from a single PC or notebook -->
+  <li><a href="#"><img alt="" src="./images/Link1.PNG" width="545" height="100"/>
+  <span class="tooltip"><span class="tooltipHeader">The power of vApus</span><br /><br />When clients come to us, they generally have two questions: <br />
+	<span class="indent">How will our specific application scale?</span> <br />
+	<span class="indent">How will our hardware perform under increasing load?</span> <br /><br />
+We can actually offer an answer to those questions. Not by setting up a complicated standardized infrastructure like that of TPC (Transaction Processing Performance Council), but by using our unique software: vApus.<br /><br />
+Setting up a test requires only one PC or notebook. What vApus does is simulating a configurable number of users and letting them test with real data from an imported log of the application.<br /><br /><br />
+This way, it is easy to see how the application performs, and bottlenecks can be easily detected. Because it is possible to set the number of user to test with, future scaling can also be determined. <br /><br />
+How the hardware reacts and performs under a specific load can be monitored using vApus in combination with  our server monitoring toolset.<br />
+These tools will log their counters to vApus, which can link them to the number of users being tested with. These counters can be anything, ranging from CPU or memory usage to power usage.</span></a></li>
+  
+  <!-- Supports all common databases, webservers and socketservers -->
+  <li><a href="#"><img alt="" src="./images/Link2.PNG" width="539" height="90"/>
+   <span class="tooltip">
+   <span class="tooltipHeader">What can be tested?</span><br /><br />
+   Databases:<br/>
+When something is wrong with the communication flow between the application and the database server, that will mostly result in a performance issue. Since vApus is able to test all common databases (MySql, SqlServer, Oracle, ...) and communication with these servers can easily be logged and imported into vApus, bottlenecks can easily be determined.<br /><br />
+Webservers:<br />
+Webdriven applications (for example: a portal site), can behave strangely if too many users are connecting to it. Before launching the application, it is vital to be sure whether it will withstand heavy stress.<br /><br />
+Socketservers:<br />
+Definition: Every server that communicates over a socket, even when not using a standard defined protocol like HTTP or OLEDB. Contact Sizing Servers for more information about the creation of custom connection proxies for your socket-based communication.
+   </span>  
+  </a></li>
+  <li><a href="#"><img alt="" src="./images/Link3.PNG" width="532" height="90" />
+  <span class="tooltip">
+<span class="tooltipHeader">vApus: A virtualized stresstest tool!</span><br /><br />
+Available soon! Contact Sizing Servers for access to our nightly builds to get early access!<br /><br />
+Using a sophisticated master/slave mechanism, virtual servers can be tested as well, putting every virtual machine under stress at the same time.<br /><br />
+The impact the different virtual machines have on each other, and the difference between native and virtual servers on the same hardware can easily be determined.<br /><br />
+The basic principle behind this method is actually using multiple instances of vApus (slaves), and letting them run on different clients, making sure they will not interrupt each other. These slaves are managed by a master instance of vApus.<br /><br />
+During the test, results are collected from the slaves and interpreted by the master.
+  </span></a></li>
+</ul>
+</div>
+</div>
+<div id="footer">
+	<p>Copyright 2007-
+<script type="text/javascript">
+<!--
+document.write(new Date().getFullYear())
+//-->
+</script>	&copy; Sizing Servers Lab at HoWest, the university-college of West-Flanders. <a href="mailto:info@sizingservers.be">Contact</a>.</p>
+</div>
+</div>
+</body>
+</html>

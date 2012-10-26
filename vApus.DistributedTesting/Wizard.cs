@@ -70,7 +70,6 @@ namespace vApus.DistributedTesting
         private void SetDefaultTestSettings()
         {
             chkUseRDP.Checked = _distributedTest.UseRDP;
-            cboRunSync.SelectedIndex = (int)_distributedTest.RunSynchronization;
             lblResultPath.Text = _distributedTest.ResultPath;
         }
         private void SetGenerateTiles()
@@ -621,7 +620,6 @@ namespace vApus.DistributedTesting
         private void SetDefaultTestSettingToDistributedTest()
         {
             _distributedTest.UseRDP = chkUseRDP.Checked;
-            _distributedTest.RunSynchronization = (RunSynchronization)cboRunSync.SelectedIndex;
             _distributedTest.ResultPath = lblResultPath.Text;
         }
         /// <summary></summary>

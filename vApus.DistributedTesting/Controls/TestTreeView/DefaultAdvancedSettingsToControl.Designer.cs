@@ -34,9 +34,10 @@
             // 
             // chkDefaultTo
             // 
-            this.chkDefaultTo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkDefaultTo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.chkDefaultTo.AutoSize = true;
+            this.chkDefaultTo.Enabled = false;
             this.chkDefaultTo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkDefaultTo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
             this.chkDefaultTo.ForeColor = System.Drawing.Color.Blue;
@@ -51,8 +52,8 @@
             // 
             // cboStresstests
             // 
-            this.cboStresstests.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboStresstests.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cboStresstests.BackColor = System.Drawing.Color.White;
             this.cboStresstests.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboStresstests.FlatStyle = System.Windows.Forms.FlatStyle.Flat;

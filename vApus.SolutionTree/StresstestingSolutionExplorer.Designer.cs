@@ -41,7 +41,6 @@
             this.tvw.HideSelection = false;
             this.tvw.ImageIndex = 0;
             this.tvw.ImageList = this.imageList;
-            this.tvw.LabelEdit = true;
             this.tvw.Location = new System.Drawing.Point(0, 0);
             this.tvw.Name = "tvw";
             this.tvw.SelectedImageIndex = 0;

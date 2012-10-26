@@ -78,6 +78,7 @@
             this.llblEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.llblEdit.BackColor = System.Drawing.Color.White;
             this.llblEdit.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.llblEdit.Enabled = false;
             this.llblEdit.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.llblEdit.Location = new System.Drawing.Point(583, 4);
             this.llblEdit.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
@@ -93,6 +94,7 @@
             // 
             this.nudOccurance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.nudOccurance.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.nudOccurance.Enabled = false;
             this.nudOccurance.Location = new System.Drawing.Point(460, 6);
             this.nudOccurance.Maximum = new decimal(new int[] {
             0,
@@ -134,6 +136,7 @@
             // 
             this.picParallel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picParallel.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picParallel.Enabled = false;
             this.picParallel.Image = ((System.Drawing.Image)(resources.GetObject("picParallel.Image")));
             this.picParallel.Location = new System.Drawing.Point(517, 5);
             this.picParallel.Name = "picParallel";
@@ -164,6 +167,7 @@
             // 
             this.picIgnoreDelay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picIgnoreDelay.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picIgnoreDelay.Enabled = false;
             this.picIgnoreDelay.Image = global::vApus.Stresstest.Properties.Resources.Delay;
             this.picIgnoreDelay.Location = new System.Drawing.Point(539, 5);
             this.picIgnoreDelay.Name = "picIgnoreDelay";

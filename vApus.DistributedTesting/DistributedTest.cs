@@ -14,8 +14,8 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting
 {
-    [ContextMenu(new string[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new string[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
-    [Hotkeys(new string[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new Keys[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
+    [ContextMenu(new string[] { "Activate_Click" }, new string[] { "Edit" })]
+    [Hotkeys(new string[] { "Activate_Click" }, new Keys[] { Keys.Enter })]
     [DisplayName("Distributed Test")]
     public class DistributedTest : LabeledBaseItem
     {
@@ -49,8 +49,8 @@ namespace vApus.DistributedTesting
         [DisplayName("Run Synchronization")]
         public RunSynchronization RunSynchronization
         {
-            get { return _runSynchronization; }
-            set { _runSynchronization = value; }
+            get { return RunSynchronization.None; }
+            set { _runSynchronization = RunSynchronization.None; }
         }
         /// <summary>
         /// The path where to the results are saved.

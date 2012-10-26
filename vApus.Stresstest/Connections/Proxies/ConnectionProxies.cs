@@ -16,8 +16,8 @@ using vApus.Util;
 
 namespace vApus.Stresstest
 {
-    [ContextMenu(new string[] { "Import_Click", "Add_Click", "Import_Prerequisites_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" }, new string[] { "Import One or More Connection Proxies", "Add Connection Proxy", "Import Connection Proxy Prerequisite(s)", "Sort", "Clear", "Paste" })]
-    [Hotkeys(new string[] { "Add_Click", "Paste_Click" }, new Keys[] { Keys.Enter, (Keys.Control | Keys.V) })]
+    //[ContextMenu(new string[] { "Import_Click", "Add_Click", "Import_Prerequisites_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" }, new string[] { "Import One or More Connection Proxies", "Add Connection Proxy", "Import Connection Proxy Prerequisite(s)", "Sort", "Clear", "Paste" })]
+    //[Hotkeys(new string[] { "Add_Click", "Paste_Click" }, new Keys[] { Keys.Enter, (Keys.Control | Keys.V) })]
     [DisplayName("Connection Proxies"), Serializable]
     public class ConnectionProxies : BaseItem
     {

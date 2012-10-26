@@ -191,6 +191,12 @@
   <ItemGroup>
     <Compile Include="Attributes.cs" />
     <Compile Include="BaseItem.cs" />
+    <Compile Include="CryptoHelp.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="SolutionComponentView\BaseSolutionComponentView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -219,6 +225,10 @@
       <DependentUpon>StresstestingSolutionExplorer.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="SolutionComponentView\PropertyManagement\SolutionComponentPropertyView.resx">
       <DependentUpon>SolutionComponentPropertyView.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -237,6 +247,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\vApus_Mark_FOS.vass" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">

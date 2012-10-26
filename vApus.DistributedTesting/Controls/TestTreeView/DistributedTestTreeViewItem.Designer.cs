@@ -30,54 +30,18 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DistributedTestTreeViewItem));
-            this.pnlRunSync = new System.Windows.Forms.Panel();
-            this.cboRunSync = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picAddTile = new System.Windows.Forms.PictureBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.picResultPath = new System.Windows.Forms.PictureBox();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
             this.chkUseRDP = new System.Windows.Forms.CheckBox();
-            this.pnlRunSync.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picResultPath)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
             this.SuspendLayout();
-            // 
-            // pnlRunSync
-            // 
-            this.pnlRunSync.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlRunSync.BackColor = System.Drawing.Color.Silver;
-            this.pnlRunSync.Controls.Add(this.cboRunSync);
-            this.pnlRunSync.Location = new System.Drawing.Point(358, 6);
-            this.pnlRunSync.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.pnlRunSync.Name = "pnlRunSync";
-            this.pnlRunSync.Size = new System.Drawing.Size(127, 23);
-            this.pnlRunSync.TabIndex = 1;
-            // 
-            // cboRunSync
-            // 
-            this.cboRunSync.BackColor = System.Drawing.Color.White;
-            this.cboRunSync.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboRunSync.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboRunSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboRunSync.FormattingEnabled = true;
-            this.cboRunSync.Items.AddRange(new object[] {
-            "None",
-            "Break on First",
-            "Break on Last"});
-            this.cboRunSync.Location = new System.Drawing.Point(1, 1);
-            this.cboRunSync.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.cboRunSync.Name = "cboRunSync";
-            this.cboRunSync.Size = new System.Drawing.Size(125, 21);
-            this.cboRunSync.TabIndex = 0;
-            this.cboRunSync.Click += new System.EventHandler(this._Enter);
-            this.cboRunSync.Enter += new System.EventHandler(this._Enter);
-            this.cboRunSync.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
-            this.cboRunSync.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             // 
             // label1
             // 
@@ -113,17 +77,6 @@
             this.picAddTile.TabStop = false;
             this.toolTip.SetToolTip(this.picAddTile, "Add Tile <ctrl+i>");
             this.picAddTile.Click += new System.EventHandler(this.picAddTile_Click);
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(299, 11);
-            this.label2.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(57, 13);
-            this.label2.TabIndex = 22;
-            this.label2.Text = "Run Sync:";
             // 
             // panel1
             // 
@@ -165,7 +118,7 @@
             this.chkUseRDP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkUseRDP.AutoSize = true;
             this.chkUseRDP.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkUseRDP.Location = new System.Drawing.Point(228, 9);
+            this.chkUseRDP.Location = new System.Drawing.Point(420, 9);
             this.chkUseRDP.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.chkUseRDP.Name = "chkUseRDP";
             this.chkUseRDP.Size = new System.Drawing.Size(68, 17);
@@ -181,8 +134,6 @@
             this.Controls.Add(this.picResultPath);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.pnlRunSync);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.picAddTile);
             this.Controls.Add(this.picStresstestStatus);
             this.Margin = new System.Windows.Forms.Padding(0);
@@ -191,7 +142,6 @@
             this.Enter += new System.EventHandler(this._Enter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            this.pnlRunSync.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picResultPath)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).EndInit();
@@ -202,12 +152,9 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel pnlRunSync;
-        private System.Windows.Forms.ComboBox cboRunSync;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picAddTile;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox picResultPath;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;

@@ -57,8 +57,6 @@ namespace vApus.DistributedTesting
             chkUseRDP.Checked = _distributedTest.UseRDP;
             chkUseRDP.CheckedChanged += new EventHandler(chkUseRDP_CheckedChanged);
 
-            cboRunSync.SelectedIndex = (int)distributedTest.RunSynchronization;
-            cboRunSync.SelectedIndexChanged += new EventHandler(cboRunSync_SelectedIndexChanged);
             toolTip.SetToolTip(picResultPath, "Result Path: " + _distributedTest.ResultPath);
         }
         #endregion
@@ -67,11 +65,6 @@ namespace vApus.DistributedTesting
         private void chkUseRDP_CheckedChanged(object sender, EventArgs e)
         {
             _distributedTest.UseRDP = chkUseRDP.Checked;
-            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-        private void cboRunSync_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            _distributedTest.RunSynchronization = (Stresstest.RunSynchronization)cboRunSync.SelectedIndex;
             _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         private void _Enter(object sender, EventArgs e)
@@ -151,7 +144,6 @@ namespace vApus.DistributedTesting
             if (_distributedTestMode == DistributedTestMode.Edit)
             {
                 chkUseRDP.Enabled =
-                pnlRunSync.Enabled =
                 picAddTile.Visible = true;
 
                 picStresstestStatus.Visible = false;
@@ -159,7 +151,6 @@ namespace vApus.DistributedTesting
             else
             {
                 chkUseRDP.Enabled =
-                pnlRunSync.Enabled =
                 picAddTile.Visible = false;
 
                 _testStarted = false;

@@ -16,8 +16,8 @@ using vApus.Util;
 
 namespace vApus.Stresstest
 {
-    [ContextMenu(new string[] { "Activate_Click" }, new string[] { "Edit" })]
-    [Hotkeys(new string[] { "Activate_Click" }, new Keys[] { Keys.Enter })]
+    //[ContextMenu(new string[] { "Activate_Click" }, new string[] { "Edit" })]
+    //[Hotkeys(new string[] { "Activate_Click" }, new Keys[] { Keys.Enter })]
     [DisplayName("Connection Proxy Code"), Serializable]
     public class ConnectionProxyCode : BaseItem, ISerializable
     {

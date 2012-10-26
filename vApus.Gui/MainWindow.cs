@@ -30,7 +30,6 @@ namespace vApus.Gui
         private Welcome _welcome = new Welcome();
         private About _about = new About();
         private OptionsDialog _optionsDialog;
-        private UpdateNotifierPanel _updateNotifierPanel;
         private LogPanel _logPanel;
         private LogErrorToolTip _logErrorToolTip;
         private ProcessorAffinityPanel _processorAffinityPanel;
@@ -83,7 +82,6 @@ namespace vApus.Gui
                 if (error.Length != 0)
                     LogWrapper.LogByLevel("Argument Analyzer " + error, LogLevel.Error);
 
-                _updateNotifierPanel = new UpdateNotifierPanel();
                 _logPanel = new LogPanel();
                 _logPanel.LogErrorCountChanged += new EventHandler<LogPanel.LogErrorCountChangedEventArgs>(_logPanel_LogErrorCountChanged);
                 _logErrorToolTip = new LogErrorToolTip();
@@ -185,7 +183,6 @@ namespace vApus.Gui
             else
             {
                 saveToolStripMenuItem.Enabled = true;
-                saveAsToolStripMenuItem.Enabled = true;
                 distributedToolStripMenuItem.Visible = true;
                 singleTestToolStripMenuItem.Visible = true;
 
@@ -278,41 +275,10 @@ namespace vApus.Gui
         {
             this.Cursor = Cursors.WaitCursor;
             List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
-            ToolStripItem[] defaultItems = new ToolStripItem[2];
-            for (int i = 0; i < 2; i++)
-                defaultItems[i] = openRecentToolStripMenuItem.DropDownItems[i];
             openRecentToolStripMenuItem.DropDownItems.Clear();
-            openRecentToolStripMenuItem.DropDownItems.AddRange(defaultItems);
             if (recentSolutions.Count > 0)
             {
-                clearToolStripMenuItem.Enabled = true;
                 openRecentToolStripMenuItem.DropDownItems.AddRange(recentSolutions.ToArray());
-            }
-            else
-            {
-                clearToolStripMenuItem.Enabled = false;
-                ToolStripMenuItem emptyItem = new ToolStripMenuItem("<empty>");
-                emptyItem.Enabled = false;
-                openRecentToolStripMenuItem.DropDownItems.Add(emptyItem);
-            }
-            this.Cursor = Cursors.Default;
-        }
-        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Cursor = Cursors.WaitCursor;
-            if (MessageBox.Show("Are you sure you want to clear this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-            {
-                clearToolStripMenuItem.Enabled = false;
-                List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
-                if (recentSolutions.Count > 0)
-                {
-                    Solution.ClearRecentSolutions();
-                    while (openRecentToolStripMenuItem.DropDownItems.Count > 2)
-                        openRecentToolStripMenuItem.DropDownItems.RemoveAt(2);
-                    ToolStripMenuItem emptyItem = new ToolStripMenuItem("<empty>");
-                    emptyItem.Enabled = false;
-                    openRecentToolStripMenuItem.DropDownItems.Add(emptyItem);
-                }
             }
             this.Cursor = Cursors.Default;
         }
@@ -467,7 +433,6 @@ namespace vApus.Gui
             if (_optionsDialog == null)
             {
                 _optionsDialog = new OptionsDialog();
-                _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
@@ -546,18 +511,6 @@ namespace vApus.Gui
         }
         private void SetStatusStrip()
         {
-            DescriptionAttribute[] attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
-            lblUpdateNotifier.Text = attr[0].Description;
-
-            if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.Disabled ||
-                UpdateNotifier.UpdateNotifierState == UpdateNotifierState.FailedConnectingToTheUpdateServer)
-                lblUpdateNotifier.Image = vApus.Gui.Properties.Resources.Error;
-            else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.PleaseRefresh ||
-                UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound)
-                lblUpdateNotifier.Image = vApus.Gui.Properties.Resources.Warning;
-            else
-                lblUpdateNotifier.Image = vApus.Gui.Properties.Resources.OK;
-
             lblLogLevel.Text = LogWrapper.LogLevel.ToString();
             lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
             SetProcessorAffinityLabel();
@@ -611,35 +564,30 @@ namespace vApus.Gui
             }
 
         }
-        private void lblUpdateNotifier_Click(object sender, EventArgs e)
+        private void lblLogLevel_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(0);
         }
-        private void lblLogLevel_Click(object sender, EventArgs e)
+        private void lblLocalization_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(1);
         }
-        private void lblLocalization_Click(object sender, EventArgs e)
+        private void lblSocketListener_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(2);
         }
-        private void lblSocketListener_Click(object sender, EventArgs e)
+        private void lblProcessorAffinity_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(3);
         }
-        private void lblProcessorAffinity_Click(object sender, EventArgs e)
+        private void lblCleanTempData_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(4);
         }
-        private void lblCleanTempData_Click(object sender, EventArgs e)
+        private void lblMicrosoftFirewallAutoUpdateEnabled_Click(object sender, EventArgs e)
         {
             ShowOptionsDialog(5);
         }
-        private void lblMicrosoftFirewallAutoUpdateEnabled_Click(object sender, EventArgs e)
-        {
-            ShowOptionsDialog(6);
-        }
         #endregion
-
     }
 }

@@ -1,0 +1,190 @@
+/*
+/ Created by Glenn Desmadryl for vApus
+/ Copyright Sizing Servers Lab
+/ www.sizingservers.be
+*/
+
+body 
+{
+font-family: Georgia, "Times New Roman", serif;
+color:#000000;
+background-color: #E6E6E6;
+}
+
+/* no borders for all images */
+img
+{  
+border-style: none;
+}
+        
+/******************/
+/***   Header  ****/  
+/******************/
+
+#header
+{
+color:#FFFFFF;
+background-color:#727272;
+border-radius: 10px;
+border-style:solid;
+border-width:1px;
+border-color:#000000;
+margin-bottom: 30px;
+height: 80px;
+
+/* Dropshadow */
+-moz-box-shadow: 5px 5px 5px #888;
+-webkit-box-shadow: 5px 5px 5px #888;
+box-shadow: 5px 5px 5px #888;
+}
+
+#headerTitle
+{
+font-size: 20px;
+font-weight: bold;
+width:500px;
+padding-top: 30px;
+padding-left: 50px;	
+margin-left: auto;
+margin-right: auto;
+}
+
+#vApusLogo 
+{
+	 position:absolute;
+}
+
+/******************/
+/***   Content ****/  
+/******************/
+          
+#content
+{
+background-color:#FFFFFF;
+border-radius: 10px;
+border-style:solid;
+border-width:1px;
+border-color:#000000;
+
+/* Dropshadow */
+-moz-box-shadow: 5px 5px 5px #888;
+-webkit-box-shadow: 5px 5px 5px #888;
+box-shadow: 5px 5px 5px #888;
+}
+
+#contentHeader
+{
+background-color:#727272;
+font-size:14px;
+font-weight: bold;
+height: 20px;
+padding-left: 15px;	
+color:#FFFFFF;
+
+border-top-right-radius: 10px;
+border-top-left-radius: 10px;
+}
+
+/******************/
+/***   Menu    ****/  
+/******************/
+#menu
+{
+width:600px;
+margin-left: auto;
+margin-right: auto;
+}
+
+ul 
+{
+list-style-type:none;
+}
+
+li
+{
+margin-bottom:10px;
+}
+
+span .indent
+{
+padding-left: 20px;
+}
+
+/******************/
+/***CSS Tooltips***/  
+/******************/
+a:active {
+position: relative;
+text-decoration: none;
+}
+
+a:focus {
+position: relative;
+text-decoration: none;
+}
+
+a .tooltip {
+display: none;
+width:520px;
+}
+
+a:active .tooltip {
+display: block;
+position: absolute; 
+left: 0px;
+top: -40px;
+color:#000000;
+padding:5px;
+background-color: #F7EFB6;
+font-size:13px;
+
+border-radius: 10px;
+border-style:solid;
+border-width:1px;
+border-color:#000000;
+
+/* Dropshadow */
+-moz-box-shadow: 5px 5px 5px #888;
+-webkit-box-shadow: 5px 5px 5px #888;
+box-shadow: 5px 5px 5px #888;
+}
+
+a:focus .tooltip {
+display: block;
+position: absolute; 
+left: 0px;
+top: -40px;
+color:#000000;
+padding:5px;
+background-color: #F7EFB6;
+font-size:13px;
+
+border-radius: 10px;
+border-style:solid;
+border-width:1px;
+border-color:#000000;
+
+/* Dropshadow */
+-moz-box-shadow: 5px 5px 5px #888;
+-webkit-box-shadow: 5px 5px 5px #888;
+box-shadow: 5px 5px 5px #888;
+}
+
+.tooltipHeader {
+font-weight: bold;
+font-size:14px;
+}
+
+/******************/
+/****  Footer *****/  
+/******************/
+
+#footer {
+width:650px;
+margin-top:20px;
+margin-left:auto;
+margin-right:auto;
+color:#525252;
+font-size:12px;
+}
+

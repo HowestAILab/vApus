@@ -89,15 +89,15 @@ namespace vApus.SolutionTree
                             childNode.ExpandAll();
                             RefreshTreeNode(node);
                             tvw.SelectedNode = childNode;
-                            if (childNode.Tag is LabeledBaseItem && (childNode.Tag as LabeledBaseItem).Label.Length == 0)
-                                try
-                                {
-                                    childNode.BeginEdit();
-                                }
-                                catch
-                                {
-                                    //ignore
-                                }
+                            //if (childNode.Tag is LabeledBaseItem && (childNode.Tag as LabeledBaseItem).Label.Length == 0)
+                            //    try
+                            //    {
+                            //        childNode.BeginEdit();
+                            //    }
+                            //    catch
+                            //    {
+                            //        //ignore
+                            //    }
                         }
                         else
                         {
@@ -270,7 +270,7 @@ namespace vApus.SolutionTree
 
         private void tvw_Enter(object sender, EventArgs e)
         {
-            tvw.LabelEdit = true;
+            //tvw.LabelEdit = true;
         }
         #endregion
 
@@ -296,7 +296,7 @@ namespace vApus.SolutionTree
                 }
                 //Handle rename immediatly
                 if (_hotkey == Keys.F2)
-                    tvw.SelectedNode.BeginEdit();
+                { }//tvw.SelectedNode.BeginEdit();
                 else
                     (tvw.SelectedNode.Tag as SolutionComponent).HandleHotkey(_hotkey);
             }

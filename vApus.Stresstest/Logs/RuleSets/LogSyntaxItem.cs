@@ -12,8 +12,8 @@ using vApus.SolutionTree;
 
 namespace vApus.Stresstest
 {
-    [ContextMenu(new string[] { "Activate_Click", "AddSyntaxItem_Click", "AddRule_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }, new string[] { "Edit", "Add Syntax Item", "Add Rule", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
-    [Hotkeys(new string[] { "Activate_Click", "AddSyntaxItem_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }, new Keys[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
+    //[ContextMenu(new string[] { "Activate_Click", "AddSyntaxItem_Click", "AddRule_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }, new string[] { "Edit", "Add Syntax Item", "Add Rule", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
+    //[Hotkeys(new string[] { "Activate_Click", "AddSyntaxItem_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }, new Keys[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
     [DisplayName("Syntax Item"), Serializable]
     public class LogSyntaxItem : SyntaxItem
     {
