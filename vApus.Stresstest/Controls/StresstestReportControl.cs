@@ -29,7 +29,6 @@ namespace vApus.Stresstest
         private const string VBLRn = "<16 0C 02 12n>";
         private const string VBLRr = "<16 0C 02 12r>";
 
-        private RFileHandler _rFileHandler = new RFileHandler();
         private LoadRFileDel _loadRFile;
         private ActiveObject _activeObject = new ActiveObject();
 
@@ -40,7 +39,7 @@ namespace vApus.Stresstest
 
         //Can be null, but then StresstestResults needs to be filled in.
         public Stresstest Stresstest;
-        public StresstestResults StresstestResults;
+        public vApus.Results.Model.StresstestResult StresstestResult;
 
         private bool _canSaveRFile = true;
 
@@ -135,7 +134,7 @@ namespace vApus.Stresstest
         Retry:
             try
             {
-                StresstestResults = _rFileHandler.Load(_rFileName);
+                StresstestResult = _rFileHandler.Load(_rFileName);
             }
             catch
             {
@@ -184,22 +183,22 @@ namespace vApus.Stresstest
             {
                 try
                 {
-                    kvpSolution.Value = StresstestResults.Solution;
-                    kvpStresstest.Key = StresstestResults.Stresstest;
-                    kvpConnection.Key = StresstestResults.Connection;
-                    kvpConnectionProxy.Key = StresstestResults.ConnectionProxy;
+                    kvpSolution.Value = StresstestResult.Solution;
+                    kvpStresstest.Key = StresstestResult.Stresstest;
+                    kvpConnection.Key = StresstestResult.Connection;
+                    kvpConnectionProxy.Key = StresstestResult.ConnectionProxy;
 
-                    kvpLog.Key = StresstestResults.Log;
-                    kvpLogRuleSet.Key = StresstestResults.LogRuleSet;
+                    kvpLog.Key = StresstestResult.Log;
+                    kvpLogRuleSet.Key = StresstestResult.LogRuleSet;
 
-                    kvpMonitor.Key = StresstestResults.Monitors;
+                    kvpMonitor.Key = StresstestResult.Monitors;
 
-                    kvpConcurrency.Value = StresstestResults.Concurrency.Combine(", ");
+                    kvpConcurrency.Value = StresstestResult.Concurrency.Combine(", ");
 
-                    kvpRuns.Value = StresstestResults.Runs.ToString();
-                    kvpDelay.Value = (StresstestResults.MinimumDelay == StresstestResults.MaximumDelay ? StresstestResults.MinimumDelay.ToString() : StresstestResults.MinimumDelay + " - " + StresstestResults.MaximumDelay) + " ms";
-                    kvpShuffle.Value = StresstestResults.Shuffle ? "Yes" : "No";
-                    kvpDistribute.Value = StresstestResults.Distribute.ToString();
+                    kvpRuns.Value = StresstestResult.Runs.ToString();
+                    kvpDelay.Value = (StresstestResult.MinimumDelay == StresstestResult.MaximumDelay ? StresstestResult.MinimumDelay.ToString() : StresstestResult.MinimumDelay + " - " + StresstestResult.MaximumDelay) + " ms";
+                    kvpShuffle.Value = StresstestResult.Shuffle ? "Yes" : "No";
+                    kvpDistribute.Value = StresstestResult.Distribute.ToString();
                 }
                 catch (Exception ex)
                 {
@@ -243,7 +242,7 @@ namespace vApus.Stresstest
                             if (clm.Visible)
                             {
                                 l.Add(clmIndex);
-                                headers += clm.HeaderText + StresstestResults.UniqueResultsDelimiter();
+                                headers += clm.HeaderText + StresstestResult.UniqueResultsDelimiter();
                             }
                         }
                         int[] columnIndices = l.ToArray();
@@ -259,7 +258,7 @@ namespace vApus.Stresstest
                             for (int i = 0; i != columnIndices.Length - 1; i++)
                             {
                                 sb.Append(row[columnIndices[i]]);
-                                sb.Append(StresstestResults.UniqueResultsDelimiter());
+                                sb.Append(StresstestResult.UniqueResultsDelimiter());
                             }
 
                             sb.Append(row[columnIndices[columnIndices.Length - 1]]);
@@ -289,7 +288,7 @@ namespace vApus.Stresstest
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 this.Cursor = Cursors.WaitCursor;
-                _rFileHandler.SetStresstestResults(StresstestResults, sfd.FileName);
+                _rFileHandler.SetStresstestResults(StresstestResult, sfd.FileName);
                 string fileName = _rFileHandler.Save();
                 if (fileName != sfd.FileName)
                     MessageBox.Show("The R-file could not be saved to '" + sfd.FileName + "' therefore it is saved to '" + fileName + "'.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -371,7 +370,7 @@ namespace vApus.Stresstest
         {
             CancelMakeReport();
 
-            StresstestResults = null;
+            StresstestResult = null;
 
             dgvDetailedResultsListing.Rows.Clear();
             _cache.Clear();
@@ -392,7 +391,7 @@ namespace vApus.Stresstest
                     btnSaveTheConfigurationAndTheChosenResultSet.Enabled = false;
                     btnSaveTheRFile.Enabled = false;
                     lblWait.Text = "[Please wait, calculating]";
-                    if (StresstestResults != null)
+                    if (StresstestResult != null)
                     {
                         lblWait.Visible = true;
                         btnRefresh.Enabled = false;
@@ -444,7 +443,7 @@ namespace vApus.Stresstest
                         }
                         catch { }
 
-                        if (StresstestResults != null)
+                        if (StresstestResult != null)
                         {
                             btnSaveTheConfigurationAndTheChosenResultSet.Enabled = true;
                             btnSaveTheRFile.Enabled = true;
@@ -522,9 +521,9 @@ namespace vApus.Stresstest
         private void MakeReportForAveragesPivotConcurrentUsers()
         {
             InitMakeReportForAveragesPivotConcurrentUsers();
-            if (StresstestResults == null || _cancel) return;
+            if (StresstestResult == null || _cancel) return;
 
-            foreach (ConcurrencyResult cr in StresstestResults.ConcurrencyResults)
+            foreach (ConcurrencyResult cr in StresstestResult.ConcurrencyResults)
             {
                 if (_cancel) return;
                 if (tbtnConcurrency.Checked)
@@ -634,9 +633,9 @@ namespace vApus.Stresstest
         private void MakeReportForAveragesPivotRun()
         {
             InitMakeReportForAveragesPivotRun();
-            if (StresstestResults == null || _cancel) return;
+            if (StresstestResult == null || _cancel) return;
 
-            foreach (ConcurrencyResult cr in StresstestResults.ConcurrencyResults)
+            foreach (ConcurrencyResult cr in StresstestResult.ConcurrencyResults)
             {
                 if (_cancel) return;
                 if (tbtnConcurrency.Checked)
@@ -756,9 +755,9 @@ namespace vApus.Stresstest
         private void MakeReportForUsers()
         {
             InitMakeReportForUsers();
-            if (StresstestResults == null || _cancel) return;
+            if (StresstestResult == null || _cancel) return;
 
-            foreach (ConcurrencyResult cr in StresstestResults.ConcurrencyResults)
+            foreach (ConcurrencyResult cr in StresstestResult.ConcurrencyResults)
             {
                 if (_cancel) return;
                 foreach (RunResult rr in cr.RunResults)
@@ -982,9 +981,9 @@ namespace vApus.Stresstest
         private void MakeReportForErrors()
         {
             InitMakeReportForErrors();
-            if (StresstestResults == null || _cancel) return;
+            if (StresstestResult == null || _cancel) return;
 
-            foreach (ConcurrencyResult cr in StresstestResults.ConcurrencyResults)
+            foreach (ConcurrencyResult cr in StresstestResult.ConcurrencyResults)
             {
                 if (_cancel) return;
                 if (!MakeReportForErrorsCU(cr)) continue;
@@ -1200,7 +1199,7 @@ namespace vApus.Stresstest
                            (tbtnUser.Checked ? string.Empty : ur.User),
                            userActionResult.UserAction,
                            string.Empty,
-                           userActionResult.LogEntryResults.Count + StresstestResults.UniqueResultsDelimiter(),
+                           userActionResult.LogEntryResults.Count + StresstestResult.UniqueResultsDelimiter(),
                            string.Empty,
                            string.Empty,
                            string.Empty,

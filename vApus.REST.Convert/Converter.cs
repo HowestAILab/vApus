@@ -50,7 +50,7 @@ namespace vApus.REST.Convert
             distributedTestCache.Add(tileStresstest, testConfig);
         }
         public static void SetTestProgress(Hashtable testProgressCache, string distributedTest, string tileStresstest, int concurrency, int run,
-        Metrics metrics, TimeSpan estimatedRuntimeLeft, RunStateChange runStateChange, StresstestResult stresstestResult)
+        Metrics metrics, TimeSpan estimatedRuntimeLeft, RunStateChange runStateChange, StresstestStatus stresstestStatus)
         {
             var concurrencyCache = AddSubCache(concurrency, AddSubCache(tileStresstest, AddSubCache(distributedTest, testProgressCache)));
             var testProgress = new TestProgress
@@ -67,7 +67,7 @@ namespace vApus.REST.Convert
                 TotalLogEntriesProcessedPerTick = metrics.TotalLogEntriesProcessedPerTick,
                 Errors = metrics.Errors,
                 RunStateChange = runStateChange.ToString(),
-                StresstestResult = stresstestResult.ToString()
+                StresstestResult = stresstestStatus.ToString()
             };
 
             if (concurrencyCache.Contains(run)) concurrencyCache[run] = testProgress; else concurrencyCache.Add(run, testProgress);

@@ -12,7 +12,7 @@ namespace vApus.Stresstest
 {
     /// <summary></summary>
     [Serializable]
-    public enum StresstestResult
+    public enum StresstestStatus
     {
         Busy = 0,
         Ok,

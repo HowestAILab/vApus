@@ -36,8 +36,8 @@ namespace vApus.DistributedTesting
         private Stresstest.Stresstest _stresstest;
         private Stresstest.StresstestCore _stresstestCore;
 
-        private Stresstest.StresstestResult _stresstestResult;
-        private Stresstest.StresstestResults _stresstestResults;
+        private Stresstest.StresstestStatus _stresstestStatus;
+        private vApus.Results.Model.StresstestResult _stresstestResult;
         private HashSet<ListViewItem> _resultListViewItems = new HashSet<ListViewItem>();
 
         /// <summary>
@@ -65,9 +65,9 @@ namespace vApus.DistributedTesting
             get { return _runSynchronization; }
             set { _runSynchronization = value; }
         }
-        public Stresstest.StresstestResults StresstestResults
+        public vApus.Results.Model.StresstestResult StresstestResult
         {
-            get { return _stresstestResults; }
+            get { return _stresstestResult; }
         }
         #endregion
 
@@ -132,9 +132,9 @@ namespace vApus.DistributedTesting
                 {
                     _stresstestCore = new Stresstest.StresstestCore(_stresstest, false);
                     _stresstestCore.RunSynchronization = this.RunSynchronization;
-                    _stresstestCore.StresstestStarted += new EventHandler<Stresstest.StresstestStartedEventArgs>(_stresstestCore_StresstestStarted);
-                    _stresstestCore.ConcurrentUsersStarted += new EventHandler<Stresstest.ConcurrentUsersStartedEventArgs>(_stresstestCore_ConcurrentUsersStarted);
-                    _stresstestCore.RunInitializedFirstTime += new EventHandler<Stresstest.RunInitializedFirstTimeEventArgs>(_stresstestCore_RunInitializedFirstTime);
+                    _stresstestCore.StresstestStarted += new EventHandler<Stresstest.StresstestResultEventArgs>(_stresstestCore_StresstestStarted);
+                    _stresstestCore.ConcurrentUsersStarted += new EventHandler<Stresstest.ConcurrencyResultEventArgs>(_stresstestCore_ConcurrentUsersStarted);
+                    _stresstestCore.RunInitializedFirstTime += new EventHandler<Stresstest.RunResultEventArgs>(_stresstestCore_RunInitializedFirstTime);
                     _stresstestCore.RunDoneOnce += new EventHandler(_stresstestCore_RunDoneOnce);
                     _stresstestCore.Message += new EventHandler<Stresstest.MessageEventArgs>(_stresstestCore_Message);
                     _stresstestCore.InitializeTest();
@@ -163,7 +163,7 @@ namespace vApus.DistributedTesting
                 if (_stresstestCore == null)
                     return;
 
-                _stresstestResult = Stresstest.StresstestResult.Busy;
+                _stresstestStatus = Stresstest.StresstestStatus.Busy;
 
                 tmrProgress.Start();
 
@@ -178,13 +178,14 @@ namespace vApus.DistributedTesting
             Exception ex = null;
             try
             {
-                _stresstestResult = _stresstestCore.ExecuteStresstest();
-                _stresstestResults = _stresstestCore.StresstestResults;
+                _stresstestStatus = _stresstestCore.ExecuteStresstest();
+                _stresstestResult = _stresstestCore.StresstestResult;
             }
             catch (Exception e)
             {
                 ex = e;
             }
+                /*
             finally
             {
                 if (_stresstestCore != null && !_stresstestCore.IsDisposed)
@@ -192,25 +193,26 @@ namespace vApus.DistributedTesting
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                     {
                         string message = null;
-                        switch (_stresstestResult)
+                        switch (_stresstestStatus)
                         {
-                            case StresstestResult.Ok:
+                            case StresstestStatus.Ok:
                                 message = string.Format("The test completed succesfully in {0}.", _stresstestResults.Metrics.MeasuredRunTime.ToLongFormattedString());
-                                stresstestControl.SetStresstestStopped(_stresstestResult, message);
+                                stresstestControl.SetStresstestStopped(_stresstestStatus, message);
                                 break;
-                            case StresstestResult.Cancelled:
+                            case StresstestStatus.Cancelled:
                                 message = "The stresstest was cancelled.";
-                                stresstestControl.SetStresstestStopped(_stresstestResult, message);
+                                stresstestControl.SetStresstestStopped(_stresstestStatus, message);
                                 break;
-                            case StresstestResult.Error:
+                            case StresstestStatus.Error:
                                 message = "The stresstest failed!";
-                                stresstestControl.SetStresstestStopped(_stresstestResult, message);
+                                stresstestControl.SetStresstestStopped(_stresstestStatus, message);
                                 break;
                         }
                         Stop(ex);
                     }, null);
                 }
             }
+                 */
         }
         #endregion
 
@@ -220,7 +222,7 @@ namespace vApus.DistributedTesting
         public void Break()
         {
             lock (_lock)
-                if (_stresstestResult == StresstestResult.Busy)
+                if (_stresstestStatus == StresstestStatus.Busy)
                 {
                     tmrProgress.Stop();
                     _stresstestCore.Break();
@@ -233,7 +235,7 @@ namespace vApus.DistributedTesting
         public void Continue(int continueCounter)
         {
             lock (_lock)
-                if (_stresstestResult == StresstestResult.Busy)
+                if (_stresstestStatus == StresstestStatus.Busy)
                 {
                     tmrProgress.Start();
                     _stresstestCore.Continue(continueCounter);
@@ -241,44 +243,44 @@ namespace vApus.DistributedTesting
         }
 
         #region Progress
-        private void _stresstestCore_StresstestStarted(object sender, Stresstest.StresstestStartedEventArgs e)
+        private void _stresstestCore_StresstestStarted(object sender, Stresstest.StresstestResultEventArgs e)
         {
-            stresstestControl.SetStresstestResults(e.Result);
+           // stresstestControl.SetStresstestResults(e.Result);
 
             if (_stresstestCore != null && !_stresstestCore.IsDisposed)
             {
-                _stresstestResults = _stresstestCore.StresstestResults;
-                _tileStresstestProgressResults = new TileStresstestProgressResults(_stresstestResults);
+                _stresstestResult = _stresstestCore.StresstestResult;
+             //   _tileStresstestProgressResults = new TileStresstestProgressResults(_stresstestResults);
             }
         }
-        private void _stresstestCore_ConcurrentUsersStarted(object sender, Stresstest.ConcurrentUsersStartedEventArgs e)
+        private void _stresstestCore_ConcurrentUsersStarted(object sender, Stresstest.ConcurrencyResultEventArgs e)
         {
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
-            stresstestControl.AddFastResult(e.Result);
+           // stresstestControl.AddFastResult(e.Result);
             try
             {
                 stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
             }
             catch { } //Exception on false WMI. 
 
-            _lastTileConcurrencyProgressResult = new TileConcurrencyProgressResult(e.Result);
+          //  _lastTileConcurrencyProgressResult = new TileConcurrencyProgressResult(e.Result);
             _tileStresstestProgressResults.TileConcurrencyProgressResults.Add(_lastTileConcurrencyProgressResult);
         }
-        private void _stresstestCore_RunInitializedFirstTime(object sender, Stresstest.RunInitializedFirstTimeEventArgs e)
+        private void _stresstestCore_RunInitializedFirstTime(object sender, Stresstest.RunResultEventArgs e)
         {
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
-            stresstestControl.AddFastResult(e.Result);
+          //  stresstestControl.AddFastResult(e.Result);
             try
             {
                 stresstestControl.SetClientMonitoring(_stresstestCore.UsedThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
             }
             catch { } //Exception on false WMI. 
 
-            _lastTileConcurrencyProgressResult.TileRunProgressResults.Add(new TileRunProgressResult(e.Result));
+           // _lastTileConcurrencyProgressResult.TileRunProgressResults.Add(new TileRunProgressResult(e.Result));
 
             SendPushMessage(RunStateChange.ToRunInitializedFirstTime);
 
@@ -321,12 +323,12 @@ namespace vApus.DistributedTesting
             {
                 SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex,
                     _tileStresstestProgressResults,
-                    _stresstestResult,
+                    _stresstestStatus,
                     _stresstestCore,
                     stresstestControl.GetEvents(),
                     concurrentUsersStateChange);
 
-                if (_stresstestResult != StresstestResult.Busy)
+                if (_stresstestStatus != StresstestStatus.Busy)
                     _finishedSent = true;
             }
         }
@@ -383,9 +385,9 @@ namespace vApus.DistributedTesting
 
             if (ex != null)
             {
-                _stresstestResult = StresstestResult.Error;
+                _stresstestStatus = StresstestStatus.Error;
                 string message = "The stresstest threw an exception:\n" + ex.Message + "\n\nSee " + Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                stresstestControl.SetStresstestStopped(_stresstestResult, message);
+                stresstestControl.SetStresstestStopped(_stresstestStatus, message);
             }
 
             if (_stresstestCore != null && !_stresstestCore.IsDisposed)

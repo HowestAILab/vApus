@@ -209,12 +209,6 @@
     <Compile Include="Connections\TestAllConnections.Designer.cs">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\MonitorReportControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\MonitorReportControl.Designer.cs">
-      <DependentUpon>MonitorReportControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">
@@ -268,7 +262,6 @@
     <Compile Include="Parameters\ParameterTokenSynchronization.Designer.cs">
       <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>
     </Compile>
-    <Compile Include="RFileHandler.cs" />
     <Compile Include="Connections\ConnectionView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -315,12 +308,6 @@
       <DependentUpon>References.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
-    <Compile Include="Controls\StresstestReportControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\StresstestReportControl.Designer.cs">
-      <DependentUpon>StresstestReportControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\StresstestControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -471,12 +458,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\TestAllConnections.resx">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\MonitorReportControl.resx">
-      <DependentUpon>MonitorReportControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\StresstestReportControl.resx">
-      <DependentUpon>StresstestReportControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\StresstestControl.resx">
       <DependentUpon>StresstestControl.cs</DependentUpon>

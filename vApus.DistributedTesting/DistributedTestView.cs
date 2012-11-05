@@ -528,7 +528,7 @@ namespace vApus.DistributedTesting
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     stresstestControl.SetStresstestInitialized();
-                    stresstestReportControl.ClearReport();
+                   // stresstestReportControl.ClearReport();
 
                     //Initialize the monitors.
                     _monitorViews.Clear();
@@ -822,7 +822,7 @@ namespace vApus.DistributedTesting
                         if (_distributedTestCore.TestProgressMessages.ContainsKey(tileStresstest))
                         {
                             var testProgressMessage = _distributedTestCore.TestProgressMessages[tileStresstest];
-                            testProgressMessage.StresstestResult = StresstestResult.Error;
+                            testProgressMessage.StresstestResult = StresstestStatus.Error;
                             _distributedTestCore.TestProgressMessages[tileStresstest] = testProgressMessage;
 
                             Handle_distributedTestCore_TestProgressMessageReceivedEventArgs(tileStresstest, testProgressMessage);
@@ -863,7 +863,7 @@ namespace vApus.DistributedTesting
                     TileStresstestTreeViewItem tstvi = _selectedTestItem as TileStresstestTreeViewItem;
                     if (tstvi.TileStresstest == e.TileStresstest)
                     {
-                        stresstestReportControl.Tag = null;
+                        //stresstestReportControl.Tag = null;
                         SetSlaveReport(e.TileStresstest, e.ResultPath);
                     }
                 }, null);
@@ -881,14 +881,14 @@ namespace vApus.DistributedTesting
         }
         private void SetSlaveReport(TileStresstest tileStresstest, string resultPath)
         {
-            if (stresstestReportControl.Tag != tileStresstest)
-            {
-                stresstestReportControl.Tag = tileStresstest;
+            //if (stresstestReportControl.Tag != tileStresstest)
+            //{
+            //    stresstestReportControl.Tag = tileStresstest;
 
-                // Show this, it will be filled in afterwards.
-                ShowMonitorReportViews(tileStresstest);
-                stresstestReportControl.LoadRFile(resultPath);
-            }
+            //    // Show this, it will be filled in afterwards.
+            //    ShowMonitorReportViews(tileStresstest);
+            //    stresstestReportControl.LoadRFile(resultPath);
+            //}
         }
         private void _distributedTestCore_OnFinished(object sender, FinishedEventArgs e)
         {
@@ -1056,6 +1056,7 @@ namespace vApus.DistributedTesting
         #region Monitors
         private void ShowAndInitMonitorView(TileStresstest tileStresstest, Monitor.Monitor monitor)
         {
+            /*
             //show the monitorview
             MonitorView monitorView;
             if (!MonitorViewAlreadyInited(monitor, out monitorView))
@@ -1084,6 +1085,7 @@ namespace vApus.DistributedTesting
 #if EnableBetaFeature
             WriteMonitorRestConfig();
 #endif
+             */
         }
         /// <summary>
         /// To init it only once.
@@ -1231,6 +1233,7 @@ namespace vApus.DistributedTesting
         }
         private void ShowMonitorReportViews_CallBack(TileStresstest tileStresstest)
         {
+            /*
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
             {
                 if (this.IsDisposed)
@@ -1292,22 +1295,23 @@ namespace vApus.DistributedTesting
 
                 LockWindowUpdate(0);
             }, null);
+             */
         }
 
         private void stresstestReportControl_ReportMade(object sender, EventArgs e)
         {
-            if (_selectedTestItem != null && _selectedTestItem is TileStresstestTreeViewItem)
-            {
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    TileStresstestTreeViewItem tstvi = _selectedTestItem as TileStresstestTreeViewItem;
-                    //Keep it in memory
-                    if (!_results.ContainsKey(tstvi.TileStresstest))
-                        _results.Add(tstvi.TileStresstest, stresstestReportControl.StresstestResults);
+            //if (_selectedTestItem != null && _selectedTestItem is TileStresstestTreeViewItem)
+            //{
+            //    SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+            //    {
+            //        TileStresstestTreeViewItem tstvi = _selectedTestItem as TileStresstestTreeViewItem;
+            //        //Keep it in memory
+            //        if (!_results.ContainsKey(tstvi.TileStresstest))
+            //            _results.Add(tstvi.TileStresstest, stresstestReportControl.StresstestResult);
 
-                    SetMonitorReports(tstvi.TileStresstest, _results[tstvi.TileStresstest]);
-                }, null);
-            }
+            //        SetMonitorReports(tstvi.TileStresstest, _results[tstvi.TileStresstest]);
+            //    }, null);
+            //}
         }
         private void SetMonitorReports(TileStresstest tileStresstest, StresstestResults stresstestResults)
         {
@@ -1319,8 +1323,8 @@ namespace vApus.DistributedTesting
                             if (view != null && view.Tag != null)
                                 try
                                 {
-                                    var monitorReportControl = view.Tag as MonitorReportControl;
-                                    monitorReportControl.SetConfig_Headers_MonitorValuesAndStresstestResults(view.Configuration, view.GetHeaders(), view.GetMonitorValues(), stresstestResults);
+                                    //var monitorReportControl = view.Tag as MonitorReportControl;
+                                    //monitorReportControl.SetConfig_Headers_MonitorValuesAndStresstestResults(view.Configuration, view.GetHeaders(), view.GetMonitorValues(), stresstestResults);
                                 }
                                 catch (Exception e)
                                 {

@@ -30,7 +30,6 @@ namespace vApus.Stresstest
         #region Fields
         private StresstestResults _stresstestResults;
         private List<ListViewItem> _fastResults = new List<ListViewItem>();
-        private RFileHandler _slaveSideStresstestResultSaver = new RFileHandler();
         private bool _slaveSideSaveResultsTouched;
 
         private bool _monitorConfigurationControlVisible;
@@ -257,17 +256,7 @@ namespace vApus.Stresstest
         }
         public void SlaveSideSaveResults()
         {
-            if (_stresstestResults != null)
-            {
-                if (!_slaveSideSaveResultsTouched)
-                {
-                    _slaveSideStresstestResultSaver.SetStresstestResults(_stresstestResults);
-                    _slaveSideSaveResultsTouched = true;
-                }
-                _slaveSideStresstestResultSaver.Save();
-
-                AppendMessages("Slave-side saved results.");
-            }
+           
         }
 
         /// <summary>
@@ -520,13 +509,13 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        public void SetStresstestStopped(StresstestResult stresstestResult, string message = null)
+        public void SetStresstestStopped(StresstestStatus stresstestResult, string message = null)
         {
             try
             {
                 switch (stresstestResult)
                 {
-                    case StresstestResult.Ok:
+                    case StresstestStatus.Ok:
                         lblStopped.ForeColor = Color.Green;
                         lblStopped.Text = "and finished at " + DateTime.Now;
                         if (message != null)
@@ -540,7 +529,7 @@ namespace vApus.Stresstest
 
                         SetStresstestStopped();
                         break;
-                    case StresstestResult.Error:
+                    case StresstestStatus.Error:
                         lblStopped.ForeColor = Color.Red;
                         lblStopped.Text = " failed at " + DateTime.Now;
                         if (message != null)
@@ -550,7 +539,7 @@ namespace vApus.Stresstest
                         }
                         SetStresstestStopped();
                         break;
-                    case StresstestResult.Cancelled:
+                    case StresstestStatus.Cancelled:
                         lblStopped.ForeColor = Color.Orange;
                         lblStopped.Text = "and cancelled at " + DateTime.Now;
                         if (message != null)

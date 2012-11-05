@@ -179,28 +179,29 @@ namespace vApus.DistributedTesting
         {
             ResultsMessage resultsMessage = new ResultsMessage();
 
-            if (_tileStresstestView != null && _tileStresstestView.StresstestResults != null)
+            if (_tileStresstestView != null && _tileStresstestView.StresstestResult != null)
             {
                 resultsMessage.TileStresstestIndex = _tileStresstestView.TileStresstestIndex;
 
                 try
-                {
+                {/*
                     string slaveSideResultsDir = Path.Combine(Application.StartupPath, "SlaveSideResults");
                     string file = Path.Combine(slaveSideResultsDir,
-                        _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".r");
+                        _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".r");
 
                     int j = 0;
                     while (File.Exists(Path.Combine(slaveSideResultsDir,
-                        _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', ++j) + ".r")))
+                        _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', ++j) + ".r")))
                     {
                         file = Path.Combine(slaveSideResultsDir,
-                            _tileStresstestView.StresstestResults.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', j) + ".r");
+                            _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', j) + ".r");
                     }
 
                     resultsMessage.TorrentInfo = CreateTorrent(file, slaveSideResultsDir);
 
                     //For cleanup afterwards.
                     _seededFile = file;
+                  */
                 }
                 catch (Exception ex)
                 {
@@ -274,7 +275,7 @@ namespace vApus.DistributedTesting
         #region Message Sending
         private delegate void SendPushMessageDelegate(string tileStresstestIndex,
                 TileStresstestProgressResults tileStresstestProgressResults,
-                StresstestResult stresstestResult,
+                StresstestStatus stresstestResult,
                 StresstestCore stresstestCore,
                 List<EventPanelEvent> events,
                 RunStateChange concurrentUsersStateChange);
@@ -296,7 +297,7 @@ namespace vApus.DistributedTesting
         /// <param name="concurrentUsersStateChange"></param>
         public static void SendPushMessage(string tileStresstestIndex,
                 TileStresstestProgressResults tileStresstestProgressResults,
-                StresstestResult stresstestResult,
+                StresstestStatus stresstestResult,
                 StresstestCore stresstestCore,
                 List<EventPanelEvent> events,
                 RunStateChange concurrentUsersStateChange)
@@ -309,7 +310,7 @@ namespace vApus.DistributedTesting
 
         private static void SendQueuedPushMessage(string tileStresstestIndex,
             TileStresstestProgressResults tileStresstestProgressResults,
-            StresstestResult stresstestResult,
+            StresstestStatus stresstestResult,
             StresstestCore stresstestCore,
             List<EventPanelEvent> events,
             RunStateChange concurrentUsersStateChange)

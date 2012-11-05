@@ -77,7 +77,7 @@ namespace vApus.DistributedTesting
     public struct TestProgressMessage
     {
         public string TileStresstestIndex;
-        public StresstestResult StresstestResult;
+        public StresstestStatus StresstestResult;
         public TileStresstestProgressResults TileStresstestProgressResults;
         public List<EventPanelEvent> Events;
 

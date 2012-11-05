@@ -347,16 +347,16 @@ namespace vApus.DistributedTesting
                     bool okCancelError = true;
                     switch (tpm.StresstestResult)
                     {
-                        case StresstestResult.Busy:
+                        case StresstestStatus.Busy:
                             okCancelError = false;
                             break;
-                        case StresstestResult.Ok:
+                        case StresstestStatus.Ok:
                             _ok = AddUniqueToStringArray(_ok, tpm.TileStresstestIndex);
                             break;
-                        case StresstestResult.Cancelled:
+                        case StresstestStatus.Cancelled:
                             _cancelled = AddUniqueToStringArray(_cancelled, tpm.TileStresstestIndex);
                             break;
-                        case StresstestResult.Error:
+                        case StresstestStatus.Error:
                             _failed = AddUniqueToStringArray(_failed, tpm.TileStresstestIndex);
                             break;
                     }

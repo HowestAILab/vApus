@@ -38,7 +38,6 @@
             this.tpStresstest = new System.Windows.Forms.TabPage();
             this.stresstestControl = new vApus.Stresstest.StresstestControl();
             this.tpReport = new System.Windows.Forms.TabPage();
-            this.stresstestReportControl = new vApus.Stresstest.StresstestReportControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
@@ -118,23 +117,12 @@
             // tpReport
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
-            this.tpReport.Controls.Add(this.stresstestReportControl);
             this.tpReport.Location = new System.Drawing.Point(0, 22);
             this.tpReport.Name = "tpReport";
             this.tpReport.Padding = new System.Windows.Forms.Padding(3);
             this.tpReport.Size = new System.Drawing.Size(790, 494);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
-            // 
-            // stresstestReportControl
-            // 
-            this.stresstestReportControl.BackColor = System.Drawing.SystemColors.Control;
-            this.stresstestReportControl.CanSaveRFile = true;
-            this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(784, 488);
-            this.stresstestReportControl.TabIndex = 0;
             // 
             // toolStrip
             // 
@@ -236,7 +224,6 @@
         private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.TabPage tpReport;
         private System.Windows.Forms.SaveFileDialog sfd;
-        private StresstestReportControl stresstestReportControl;
         private StresstestControl stresstestControl;
 
     }

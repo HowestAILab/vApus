@@ -8,17 +8,28 @@ namespace vApus.Results.Model
         public virtual int Id { get; set; }
         public virtual StresstestConfiguration StresstestConfiguration { get; set; }
         /// <summary>
-        /// Set to DateTime.Now by the contructor.
+        /// If this is not set, it is set to DateTime.Now in the constructor.
         /// </summary>
-        public virtual DateTime StresstestStartedAt { get; set; }
-        public virtual string Status { get; set; }                  // OK, Cancelled, Failed
-        public virtual string StatusMessage { get; set; }           // Exception on failure for example
+        public virtual DateTime StartedAt { get; set; }
+        /// <summary>
+        /// If this is not set, it is set to DateTime.MinValue in the constructor.
+        /// </summary>
+        public virtual DateTime StoppedAt { get; set; }
+        /// <summary>
+        /// OK, Cancelled, Failed
+        /// </summary>
+        public virtual string Status { get; set; }
+        /// <summary>
+        /// Exception on failure for example
+        /// </summary>
+        public virtual string StatusMessage { get; set; }
 
         public List<ConcurrencyResult> ConcurrencyResults { get; set; }
 
         public StresstestResult()
         {
-            StresstestStartedAt = DateTime.Now;
+            StartedAt = DateTime.Now;
+            StoppedAt = DateTime.MinValue;
             ConcurrencyResults = new List<ConcurrencyResult>();
         }
     }

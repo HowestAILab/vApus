@@ -11,44 +11,27 @@ using vApus.Util;
 
 namespace vApus.Stresstest
 {
-    public class StresstestStartedEventArgs : EventArgs 
+    public class StresstestResultEventArgs : EventArgs 
     {
-        public readonly StresstestResults Result;
-        public StresstestStartedEventArgs(StresstestResults results)
+        public readonly vApus.Results.Model.StresstestResult Result;
+        public StresstestResultEventArgs(vApus.Results.Model.StresstestResult results)
         {
             Result = results;
         }
+
     }
-    public class ConcurrentUsersStartedEventArgs : EventArgs 
+    public class ConcurrencyResultEventArgs : EventArgs 
     {
-        public readonly ConcurrencyResult Result;
-        public ConcurrentUsersStartedEventArgs(ConcurrencyResult result)
+        public readonly vApus.Results.Model.ConcurrencyResult Result;
+        public ConcurrencyResultEventArgs(vApus.Results.Model.ConcurrencyResult result)
         {
             Result = result;
         }
     }
-    public class RunStartedEventArgs : EventArgs
+    public class RunResultEventArgs : EventArgs
     {
-        public readonly DateTime At;
-        public readonly RunResult Result;
-        public RunStartedEventArgs(DateTime at, RunResult result)
-        {
-            At = at;
-            Result = result;
-        }
-    }
-    public class RunStoppedEventArgs : EventArgs
-    {
-        public readonly DateTime At;
-        public RunStoppedEventArgs(DateTime at)
-        {
-            At = at;
-        }
-    }
-    public class RunInitializedFirstTimeEventArgs : EventArgs 
-    {
-        public readonly RunResult Result;
-        public RunInitializedFirstTimeEventArgs(RunResult result)
+        public readonly vApus.Results.Model.RunResult Result;
+        public RunResultEventArgs(vApus.Results.Model.RunResult result)
         {
             Result = result;
         }

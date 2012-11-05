@@ -43,7 +43,7 @@ namespace vApus.DistributedTesting
 
         private DistributedTestMode _distributedTestMode;
 
-        private StresstestResult _stresstestResult;
+        private StresstestStatus _stresstestResult;
         private bool _downloadResultsFinished;
 
         private bool _exclamation;
@@ -54,7 +54,7 @@ namespace vApus.DistributedTesting
         {
             get { return _tileStresstest; }
         }
-        public StresstestResult StresstestResult
+        public StresstestStatus StresstestResult
         {
             get { return _stresstestResult; }
         }
@@ -271,7 +271,7 @@ namespace vApus.DistributedTesting
             eventProgressBar.SetProgressBarToNow();
         }
 
-        public void SetStresstestResult(StresstestResult stresstestResult, int downloadResultsProgress)
+        public void SetStresstestResult(StresstestStatus stresstestResult, int downloadResultsProgress)
         {
             _stresstestResult = stresstestResult;
             SetStresstestResult(downloadResultsProgress);
@@ -289,15 +289,15 @@ namespace vApus.DistributedTesting
             {
                 switch (_stresstestResult)
                 {
-                    case StresstestResult.Ok:
+                    case StresstestStatus.Ok:
                         picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
                         toolTip.SetToolTip(picStresstestStatus, "Finished");
                         break;
-                    case StresstestResult.Cancelled:
+                    case StresstestStatus.Cancelled:
                         picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
                         toolTip.SetToolTip(picStresstestStatus, "Cancelled");
                         break;
-                    case StresstestResult.Error:
+                    case StresstestStatus.Error:
                         picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Error;
                         toolTip.SetToolTip(picStresstestStatus, "Failed");
                         break;

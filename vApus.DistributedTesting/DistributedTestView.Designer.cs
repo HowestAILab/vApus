@@ -53,7 +53,6 @@
             this.stresstestControl = new vApus.Stresstest.StresstestControl();
             this.distributedStresstestControl = new vApus.DistributedTesting.DistributedStresstestControl();
             this.tpReport = new System.Windows.Forms.TabPage();
-            this.stresstestReportControl = new vApus.Stresstest.StresstestReportControl();
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
@@ -302,24 +301,12 @@
             // tpReport
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
-            this.tpReport.Controls.Add(this.stresstestReportControl);
             this.tpReport.Location = new System.Drawing.Point(4, 19);
             this.tpReport.Name = "tpReport";
             this.tpReport.Padding = new System.Windows.Forms.Padding(3);
             this.tpReport.Size = new System.Drawing.Size(601, 628);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
-            // 
-            // stresstestReportControl
-            // 
-            this.stresstestReportControl.BackColor = System.Drawing.SystemColors.Control;
-            this.stresstestReportControl.CanSaveRFile = true;
-            this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(595, 622);
-            this.stresstestReportControl.TabIndex = 0;
-            this.stresstestReportControl.ReportMade += new System.EventHandler(this.stresstestReportControl_ReportMade);
             // 
             // tmrSchedule
             // 
@@ -384,7 +371,6 @@
         private System.Windows.Forms.Timer tmrSetGui;
         private vApus.DistributedTesting.ConfigureSlaves configureSlaves;
         private DistributedStresstestControl distributedStresstestControl;
-        private Stresstest.StresstestReportControl stresstestReportControl;
         private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
         private System.Windows.Forms.Timer tmrProgress;

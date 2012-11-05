@@ -5,9 +5,18 @@ namespace vApus.Results
 {
     public static class MetricsHelper
     {
-        //public const string[] METRICSHEADERSCONCURRENCY = new string[] { "Started At", "Time Left", "Measured Time", "Concurrency", "Throughput (responses / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        //public const string[] METRICSHEADERSRUN = new string[] { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Throughput (responses / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        /// <summary>
+        private static string[] _metricsHeadersConcurrency = { "Started At", "Time Left", "Measured Time", "Concurrency", "Throughput (responses / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _metricsHeadersRun = { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Throughput (responses / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+
+        public static string[] MetricsHeadersConcurrency
+        {
+            get { return _metricsHeadersConcurrency; }
+        }
+        public static string[] MetricsHeadersRun
+        {
+            get { return _metricsHeadersRun; }
+        }
+
         /// Get metrics for a concurrency result.
         /// </summary>
         /// <param name="concurrencyResult"></param>
@@ -15,7 +24,7 @@ namespace vApus.Results
         public static Metrics GetMetrics(ConcurrencyResult concurrencyResult)
         {
             Metrics metrics = new Metrics();
-            metrics.StartMeasuringRuntime = concurrencyResult.ConcurrencyStartedAt;
+            metrics.StartMeasuringRuntime = concurrencyResult.StartedAt;
             metrics.MeasuredRunTime = DateTime.Now - metrics.StartMeasuringRuntime;
             metrics.AverageResponseTime = new TimeSpan();
             metrics.MaxResponseTime = TimeSpan.MinValue;
@@ -43,6 +52,8 @@ namespace vApus.Results
             metrics.Throughput /= concurrencyResult.RunResults.Count;
             metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks / concurrencyResult.RunResults.Count);
             metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / concurrencyResult.RunResults.Count);
+
+            metrics.EstimatedTimeLeft = GetEstimatedRuntimeLeft(metrics);
             return metrics;
         }
         /// <summary>
@@ -53,7 +64,7 @@ namespace vApus.Results
         public static Metrics GetMetrics(RunResult runResult)
         {
             Metrics metrics = new Metrics();
-            metrics.StartMeasuringRuntime = runResult.RunStartedAt;
+            metrics.StartMeasuringRuntime = runResult.StartedAt;
             metrics.MeasuredRunTime = DateTime.Now - metrics.StartMeasuringRuntime;
             metrics.AverageResponseTime = new TimeSpan();
             metrics.MaxResponseTime = TimeSpan.MinValue;
@@ -81,6 +92,8 @@ namespace vApus.Results
                 metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks / enteredUserResultsCount);
                 metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / enteredUserResultsCount);
             }
+
+            metrics.EstimatedTimeLeft = GetEstimatedRuntimeLeft(metrics);
             return metrics;
         }
         private static Metrics GetMetrics(VirtualUserResult virtualUserResult)
@@ -126,7 +139,7 @@ namespace vApus.Results
         /// <returns></returns>
         public static object[] MetricsToRow(Metrics metrics, bool addRunMetric)
         {
-            if(addRunMetric)
+            if (addRunMetric)
                 return new object[]{
                     metrics.StartMeasuringRuntime,
                     metrics.EstimatedTimeLeft,
@@ -155,5 +168,19 @@ namespace vApus.Results
                 metrics.Errors
             };
         }
+
+
+        private static TimeSpan GetEstimatedRuntimeLeft(Metrics metrics)
+        {
+            long estimatedRuntimeLeft = 0;
+            //if (IsMeasuringTime) //For run sync first this must be 0.
+            //{
+                estimatedRuntimeLeft = (long)(((DateTime.Now - metrics.StartMeasuringRuntime).TotalMilliseconds / metrics.LogEntriesProcessed) * (metrics.LogEntries - metrics.LogEntriesProcessed) * 10000);
+                if (estimatedRuntimeLeft < 0)
+                    estimatedRuntimeLeft = 0;
+            //}
+            return new TimeSpan(estimatedRuntimeLeft);
+        }
+
     }
 }

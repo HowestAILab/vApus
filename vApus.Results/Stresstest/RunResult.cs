@@ -7,18 +7,22 @@ namespace vApus.Results.Model
     {
         public virtual int Id { get; set; }
         public virtual int Run { get; set; }
-        public virtual StresstestConfiguration StresstestConfiguration { get; set; }
         /// <summary>
-        /// Set to DateTime.Now by the contructor 
+        /// If this is not set, it is set to DateTime.Now in the constructor.
         /// </summary>
-        public virtual DateTime RunStartedAt { get; set; }
+        public virtual DateTime StartedAt { get; set; }
+        /// <summary>
+        /// If this is not set, it is set to DateTime.MinValue in the constructor.
+        /// </summary>
+        public virtual DateTime StoppedAt { get; set; }
 
-        public virtual List<VirtualUserResult> VirtualUserResults { get; set; }
+        public virtual VirtualUserResult[] VirtualUserResults { get; set; }
 
         public RunResult()
         {
-            RunStartedAt = DateTime.Now;
-            VirtualUserResults = new List<VirtualUserResult>();
+            StartedAt = DateTime.Now;
+            StoppedAt = DateTime.MinValue;
+            VirtualUserResults = new VirtualUserResult[0];
         }
     }
 }
