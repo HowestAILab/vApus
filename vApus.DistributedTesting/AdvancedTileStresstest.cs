@@ -23,7 +23,7 @@ namespace vApus.DistributedTesting
         private bool _shuffle = true;
         private ActionAndLogEntryDistribution _distribute;
         protected internal Log _log;
-        private uint _monitorBefore, _monitorAfter;
+        private int _monitorBefore, _monitorAfter;
         #endregion
 
         #region Properties
@@ -160,11 +160,13 @@ namespace vApus.DistributedTesting
         }
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
         [SavableCloneable, PropertyControl(7)]
-        public uint MonitorBefore
+        public int MonitorBefore
         {
             get { return _monitorBefore; }
             set
             {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > 60)
                     value = 60;
                 _monitorBefore = value;
@@ -173,11 +175,13 @@ namespace vApus.DistributedTesting
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
         [SavableCloneable, PropertyControl(8)]
-        public uint MonitorAfter
+        public int MonitorAfter
         {
             get { return _monitorAfter; }
             set
             {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > 60)
                     value = 60;
                 _monitorAfter = value;

@@ -40,8 +40,8 @@ namespace vApus.Stresstest
         private int[] _monitorIndices = { };
         [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
-        private uint _monitorBefore;
-        private uint _monitorAfter;
+        private int _monitorBefore;
+        private int _monitorAfter;
 
         private bool _useParallelExecutionOfLogEntries;
 
@@ -284,11 +284,13 @@ namespace vApus.Stresstest
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."), DisplayName("Monitor Before")]
         [SavableCloneable, PropertyControl(9, true)]
-        public uint MonitorBefore
+        public int MonitorBefore
         {
             get { return _monitorBefore; }
             set
             {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > 60)
                     value = 60;
                 _monitorBefore = value;
@@ -297,11 +299,13 @@ namespace vApus.Stresstest
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."), DisplayName("Monitor After")]
         [SavableCloneable, PropertyControl(10, true)]
-        public uint MonitorAfter
+        public int MonitorAfter
         {
             get { return _monitorAfter; }
             set
             {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > 60)
                     value = 60;
                 _monitorAfter = value;

@@ -32,6 +32,7 @@
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnl = new System.Windows.Forms.Panel();
             this.pnlFastResultListing = new System.Windows.Forms.Panel();
+            this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.flpFastMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorderDrillDown = new System.Windows.Forms.Panel();
@@ -43,18 +44,6 @@
             this.chkReadeble = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
-            this.lvwFastResultsListing = new System.Windows.Forms.ListView();
-            this.clmFRLStartedAt = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLRuntimeLeft = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLMeasuredRuntime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLConcurrency = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLRuns = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLLogEntriesProcessed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLThroughput = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLResponseTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLMaxResponseTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLDelay = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmFRLErrors = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lblUpdatesIn = new System.Windows.Forms.Label();
             this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
@@ -88,6 +77,7 @@
             this.splitContainer.SuspendLayout();
             this.pnl.SuspendLayout();
             this.pnlFastResultListing.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvFastResults)).BeginInit();
             this.flpFastMetrics.SuspendLayout();
             this.pnlBorderDrillDown.SuspendLayout();
             this.flpConfiguration.SuspendLayout();
@@ -132,15 +122,31 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlFastResultListing.BackColor = System.Drawing.Color.White;
+            this.pnlFastResultListing.Controls.Add(this.dgvFastResults);
             this.pnlFastResultListing.Controls.Add(this.flpFastMetrics);
             this.pnlFastResultListing.Controls.Add(this.label4);
-            this.pnlFastResultListing.Controls.Add(this.lvwFastResultsListing);
             this.pnlFastResultListing.Controls.Add(this.lblUpdatesIn);
             this.pnlFastResultListing.Location = new System.Drawing.Point(0, 104);
             this.pnlFastResultListing.Name = "pnlFastResultListing";
             this.pnlFastResultListing.Size = new System.Drawing.Size(897, 280);
             this.pnlFastResultListing.TabIndex = 1;
             this.pnlFastResultListing.Text = "Fast Results";
+            // 
+            // dgvFastResults
+            // 
+            this.dgvFastResults.AllowUserToAddRows = false;
+            this.dgvFastResults.AllowUserToDeleteRows = false;
+            this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvFastResults.Location = new System.Drawing.Point(0, 96);
+            this.dgvFastResults.Name = "dgvFastResults";
+            this.dgvFastResults.ReadOnly = true;
+            this.dgvFastResults.Size = new System.Drawing.Size(897, 184);
+            this.dgvFastResults.TabIndex = 18;
+            this.dgvFastResults.VirtualMode = true;
+            this.dgvFastResults.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvFastResults_CellValueNeeded);
             // 
             // flpFastMetrics
             // 
@@ -292,88 +298,6 @@
             this.label4.Size = new System.Drawing.Size(149, 20);
             this.label4.TabIndex = 17;
             this.label4.Text = "Fast Results Listing";
-            // 
-            // lvwFastResultsListing
-            // 
-            this.lvwFastResultsListing.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lvwFastResultsListing.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lvwFastResultsListing.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.clmFRLStartedAt,
-            this.clmFRLRuntimeLeft,
-            this.clmFRLMeasuredRuntime,
-            this.clmFRLConcurrency,
-            this.clmFRLRuns,
-            this.clmFRLLogEntriesProcessed,
-            this.clmFRLThroughput,
-            this.clmFRLResponseTime,
-            this.clmFRLMaxResponseTime,
-            this.clmFRLDelay,
-            this.clmFRLErrors});
-            this.lvwFastResultsListing.FullRowSelect = true;
-            this.lvwFastResultsListing.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.lvwFastResultsListing.Location = new System.Drawing.Point(-1, 97);
-            this.lvwFastResultsListing.MultiSelect = false;
-            this.lvwFastResultsListing.Name = "lvwFastResultsListing";
-            this.lvwFastResultsListing.Size = new System.Drawing.Size(899, 184);
-            this.lvwFastResultsListing.TabIndex = 2;
-            this.lvwFastResultsListing.UseCompatibleStateImageBehavior = false;
-            this.lvwFastResultsListing.View = System.Windows.Forms.View.Details;
-            // 
-            // clmFRLStartedAt
-            // 
-            this.clmFRLStartedAt.Text = "Started At";
-            this.clmFRLStartedAt.Width = 165;
-            // 
-            // clmFRLRuntimeLeft
-            // 
-            this.clmFRLRuntimeLeft.Text = "Time Left";
-            this.clmFRLRuntimeLeft.Width = 140;
-            // 
-            // clmFRLMeasuredRuntime
-            // 
-            this.clmFRLMeasuredRuntime.Text = "Measured Time";
-            this.clmFRLMeasuredRuntime.Width = 140;
-            // 
-            // clmFRLConcurrency
-            // 
-            this.clmFRLConcurrency.Text = "Concurrency";
-            this.clmFRLConcurrency.Width = 72;
-            // 
-            // clmFRLRuns
-            // 
-            this.clmFRLRuns.Text = "Runs";
-            this.clmFRLRuns.Width = 37;
-            // 
-            // clmFRLLogEntriesProcessed
-            // 
-            this.clmFRLLogEntriesProcessed.Text = "Log Entries Processed";
-            this.clmFRLLogEntriesProcessed.Width = 130;
-            // 
-            // clmFRLThroughput
-            // 
-            this.clmFRLThroughput.Text = "Throughput (responses / s)";
-            this.clmFRLThroughput.Width = 140;
-            // 
-            // clmFRLResponseTime
-            // 
-            this.clmFRLResponseTime.Text = "Response Time (ms)";
-            this.clmFRLResponseTime.Width = 108;
-            // 
-            // clmFRLMaxResponseTime
-            // 
-            this.clmFRLMaxResponseTime.Text = "Max. Response Time (ms)";
-            this.clmFRLMaxResponseTime.Width = 112;
-            // 
-            // clmFRLDelay
-            // 
-            this.clmFRLDelay.Text = "Delay (ms)";
-            this.clmFRLDelay.Width = 80;
-            // 
-            // clmFRLErrors
-            // 
-            this.clmFRLErrors.Text = "Errors";
             // 
             // lblUpdatesIn
             // 
@@ -770,6 +694,7 @@
             this.pnl.ResumeLayout(false);
             this.pnlFastResultListing.ResumeLayout(false);
             this.pnlFastResultListing.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvFastResults)).EndInit();
             this.flpFastMetrics.ResumeLayout(false);
             this.flpFastMetrics.PerformLayout();
             this.pnlBorderDrillDown.ResumeLayout(false);
@@ -804,18 +729,6 @@
         private System.Windows.Forms.Label lblMeasuredRuntime;
         private System.Windows.Forms.Label lblStopped;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ListView lvwFastResultsListing;
-        private System.Windows.Forms.ColumnHeader clmFRLStartedAt;
-        private System.Windows.Forms.ColumnHeader clmFRLRuntimeLeft;
-        private System.Windows.Forms.ColumnHeader clmFRLMeasuredRuntime;
-        private System.Windows.Forms.ColumnHeader clmFRLConcurrency;
-        private System.Windows.Forms.ColumnHeader clmFRLRuns;
-        private System.Windows.Forms.ColumnHeader clmFRLLogEntriesProcessed;
-        private System.Windows.Forms.ColumnHeader clmFRLThroughput;
-        private System.Windows.Forms.ColumnHeader clmFRLResponseTime;
-        private System.Windows.Forms.ColumnHeader clmFRLMaxResponseTime;
-        private System.Windows.Forms.ColumnHeader clmFRLDelay;
-        private System.Windows.Forms.ColumnHeader clmFRLErrors;
         private System.Windows.Forms.Button btnSaveDisplayedResults;
         private System.Windows.Forms.Label lblUpdatesIn;
         private System.Windows.Forms.FlowLayoutPanel flpMetrics;
@@ -836,5 +749,6 @@
         private Util.KeyValuePairControl kvpMonitorAfter;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkReadeble;
+        private System.Windows.Forms.DataGridView dgvFastResults;
     }
 }

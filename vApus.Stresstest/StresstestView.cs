@@ -237,17 +237,17 @@ namespace vApus.Stresstest
             try
             {
                 stresstestStatus = _stresstestCore.ExecuteStresstest();
-                _stresstestResult = _stresstestCore.StresstestResult;
             }
             catch (Exception e)
             {
                 ex = e;
-            }/*
+            }
             finally
             {
                 if (_stresstestCore != null && !_stresstestCore.IsDisposed)
                 {
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+                    /*
+                   SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                    {
                        Stop(ex, stresstestStatus == StresstestStatus.Ok && ex == null);
                        try
@@ -291,9 +291,9 @@ namespace vApus.Stresstest
                                break;
                        }
                    }, null);
+                     */
                 }
             }
-              */
         }
         /// <summary>
         /// Will lock the Gui and start the stresstest at the scheduled time.
@@ -435,7 +435,7 @@ namespace vApus.Stresstest
 
                 if (runningMonitors != 0 && _stresstest.MonitorBefore != 0)
                 {
-                    uint countdownTime = _stresstest.MonitorBefore * 60000;
+                    int countdownTime = _stresstest.MonitorBefore * 60000;
                     _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
                     _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                     _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
@@ -486,21 +486,24 @@ namespace vApus.Stresstest
         #region Progress
         private void _stresstestCore_StresstestStarted(object sender, StresstestResultEventArgs e)
         {
-            //stresstestControl.SetStresstestResults(e.Result);
+            _stresstestResult = e.StresstestResult;
+            stresstestControl.SetStresstestStarted(e.StresstestResult.StartedAt);
         }
         private void _stresstestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e)
         {
             _countDown = Stresstest.ProgressUpdateDelay;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
-            //stresstestControl.AddFastResult(e.Result);
+            var row = vApus.Results.MetricsHelper.MetricsToRow(vApus.Results.MetricsHelper.GetMetrics( e.Result), false);
+            stresstestControl.AddConcurrencyFastResults(row);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e)
         {
             _countDown = Stresstest.ProgressUpdateDelay;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
-            //stresstestControl.AddFastResult(e.Result);
+            var row = vApus.Results.MetricsHelper.MetricsToRow(vApus.Results.MetricsHelper.GetMetrics(e.Result), false);
+            stresstestControl.AddRunFastResults(row);
 
             stresstestControl.SetCountDownProgressDelay(_countDown--);
             tmrProgressDelayCountDown.Start();
@@ -613,7 +616,7 @@ namespace vApus.Stresstest
 
                 if (runningMonitors != 0)
                 {
-                    uint countdownTime = _stresstest.MonitorAfter * 60000;
+                    int countdownTime = _stresstest.MonitorAfter * 60000;
                     Countdown monitorAfterCountdown = new Countdown(countdownTime, 5000);
                     monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
                     monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;

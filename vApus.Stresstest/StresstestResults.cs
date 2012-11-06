@@ -14,7 +14,7 @@ using System.Text;
 using vApus.Util;
 using System.Threading;
 
-namespace vApus.Stresstest
+namespace vApus.Stresstest.Old
 {
     public interface IResult
     {

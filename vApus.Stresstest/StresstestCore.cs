@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Threading;
+using vApus.Results.Model;
 using vApus.Util;
 
 namespace vApus.Stresstest
@@ -56,9 +57,9 @@ namespace vApus.Stresstest
         /// <summary> Needed for break on last. </summary>
         private volatile bool _runDoneOnce;
 
-        private vApus.Results.Model.StresstestResult _stresstestResult;
-        private vApus.Results.Model.ConcurrencyResult _concurrentUsersResult;
-        private vApus.Results.Model.RunResult _runResult;
+        private StresstestResult _stresstestResult;
+        private ConcurrencyResult _concurrentUsersResult;
+        private RunResult _runResult;
         #endregion
 
         #region Properties
@@ -67,7 +68,7 @@ namespace vApus.Stresstest
             get { return _runSynchronization; }
             set { _runSynchronization = value; }
         }
-        public vApus.Results.Model.StresstestResult StresstestResult
+        public StresstestResult StresstestResult
         {
             get { return _stresstestResult; }
         }
@@ -280,7 +281,7 @@ namespace vApus.Stresstest
                 int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
                 if (_cancel) break;
 
-                SetConcurrentUsersStarted(concurrentUsersIndex);
+                SetConcurrencyStarted(concurrentUsersIndex);
                 //Loop 'run' times for the concurrent users.
                 for (int run = 0; run != _stresstest.Runs; run++)
                 {
@@ -307,8 +308,7 @@ namespace vApus.Stresstest
                     {
                         ++_continueCounter;
 
-                        InvokeMessage(string.Format("|----> |Run {0}...", run + 1), Color.LightGreen);
-                        SetRunInitializedFirstTime(concurrentUsersIndex, run);
+                        SetRunInitializedFirstTime(concurrentUsersIndex, run + 1);
                         //Wait here untill the master sends continue when using run sync.
                         if (_runSynchronization != RunSynchronization.None)
                         {
@@ -335,13 +335,8 @@ namespace vApus.Stresstest
                     }
                     finally
                     {
-                        //_runResult.StopTimeMeasurement();
-                        vApus.Results.Metrics metrics = vApus.Results.MetricsHelper.GetMetrics(_runResult);
-                        InvokeMessage("|----> |Run Finished in " + metrics.MeasuredRunTime + "!", Color.LightGreen);
+                        SetRunStopped();
                     }
-
-                    //For monitoring.
-                    SetRunStopped();
 
                     //Wait here when the run is broken untill the master sends continue when using run sync.
                     if (_runSynchronization == RunSynchronization.BreakOnFirstFinished)
@@ -360,7 +355,7 @@ namespace vApus.Stresstest
 
                         InvokeMessage("Initializing Rerun...");
                         //Increase resultset
-                        //_stresstestResult.IncreaseRunResults();
+                        _runResult.PrepareForRerun();
                         goto Rerun;
                     }
                 }
@@ -682,7 +677,7 @@ namespace vApus.Stresstest
                 (
                     StresstestCore stresstestCore,
                     AutoResetEvent sleepWaitHandle,
-                    vApus.Results.Model.RunResult runResult,
+                    RunResult runResult,
                     int threadIndex,
                     int testableLogEntryIndex,
                     TestableLogEntry testableLogEntry,
@@ -748,10 +743,10 @@ namespace vApus.Stresstest
                 }
                 finally
                 {
-                    vApus.Results.Model.VirtualUserResult result = runResult.VirtualUserResults[threadIndex];
+                    var result = runResult.VirtualUserResults[threadIndex];
                     result.VirtualUser = Thread.CurrentThread.Name;
 
-                    vApus.Results.Model.LogEntryResult logEntryResult = new Results.Model.LogEntryResult()
+                    var logEntryResult = new LogEntryResult()
                     {
                         LogEntryIndex = testableLogEntry.LogEntryIndex,
                         LogEntryString = testableLogEntry.ParameterizedLogEntryString,
@@ -781,9 +776,15 @@ namespace vApus.Stresstest
 
             _stresstestResult.StoppedAt = DateTime.Now;
             if (_cancel)
+            {
+                _stresstestResult.Status = "Cancelled";
                 return StresstestStatus.Cancelled;
+            }
             if (_failed)
+            {
+                _stresstestResult.Status = "Failed";
                 return StresstestStatus.Error;
+            }
             return StresstestStatus.Ok;
         }
 
@@ -857,31 +858,38 @@ namespace vApus.Stresstest
 
         private void SetStresstestStarted()
         {
-            //ulong totalLogEntries = 0;
-            //for (int c = 0; c != _stresstest.Concurrency.Length; c++)
-            //    for (int concurrency = 0; concurrency != _stresstest.Concurrency[c]; concurrency++)
-            //        for (int r = 0; r != _stresstest.Runs; r++)
-            //            totalLogEntries += (ulong)_testPatternsAndDelaysGenerator.PatternLength;
+            var stresstestConfiguration = new StresstestConfiguration()
+            {
+                Stresstest = _stresstest.ToString(),
+                RunSynchronization = _runSynchronization.ToString(),
+                Connection = _stresstest.Connection.ToString(),
+                ConnectionProxy = _stresstest.ConnectionProxy.ToString(),
+                ConnectionString = _stresstest.Connection.ConnectionString,
+                Log = _stresstest.Log.ToString(),
+                LogRuleSet = _stresstest.LogRuleSet.ToString(),
+                //Monitors
+                Concurrency = _stresstest.Concurrency.Combine(", "),
+                Runs = _stresstest.Runs,
+                MinimumDelay = _stresstest.MinimumDelay,
+                MaximumDelay = _stresstest.MaximumDelay,
+                Shuffle = _stresstest.Shuffle,
+                Distribute = _stresstest.Distribute.ToString(),
+                MonitorBefore = _stresstest.MonitorBefore,
+                MonitorAfter = _stresstest.MonitorAfter
+            };
+            _stresstestResult = new StresstestResult() { StartedAt = DateTime.Now, StresstestConfiguration = stresstestConfiguration };
 
-            _stresstestResult = new Results.Model.StresstestResult() { StartedAt = DateTime.Now };
-
-            InvokeMessage("Starting the Stresstest...");
+            InvokeMessage("Starting the stresstest...");
 
             if (!_cancel && StresstestStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StresstestStarted(this, new StresstestResultEventArgs(_stresstestResult)); }, null);
         }
-        private void SetConcurrentUsersStarted(int concurrentUsersIndex)
+        private void SetConcurrencyStarted(int concurrentUsersIndex)
         {
-            //ulong totalLogEntries = 0;
             int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
-            //for (int c = 0; c != _stresstest.Concurrency[concurrentUsersIndex]; c++)
-            //    for (int r = 0; r != _stresstest.Runs; r++)
-            //        for (int t = 0; t != _testPatternsAndDelaysGenerator.PatternLength; t++)
-            //            ++totalLogEntries;
-
-            _concurrentUsersResult = new Results.Model.ConcurrencyResult() { ConcurrentUsers = concurrentUsers, StartedAt = DateTime.Now };
+            _concurrentUsersResult = new ConcurrencyResult() { ConcurrentUsers = concurrentUsers, StartedAt = DateTime.Now };
             _stresstestResult.ConcurrencyResults.Add(_concurrentUsersResult);
-            InvokeMessage(string.Format("|-> {0} Concurrent Users... (Initializing the First Run, be Patient)", concurrentUsers), Color.LightGreen);
+            InvokeMessage(string.Format("|-> {0} Concurrent Users... (Initializing the first run, be patient)", concurrentUsers), Color.LightGreen);
 
             if (!_cancel && ConcurrentUsersStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { ConcurrentUsersStarted(this, new ConcurrencyResultEventArgs(_concurrentUsersResult)); }, null);
@@ -902,6 +910,9 @@ namespace vApus.Stresstest
         private void SetRunStopped()
         {
             _runResult.StoppedAt = DateTime.Now;
+            vApus.Results.Metrics metrics = vApus.Results.MetricsHelper.GetMetrics(_runResult);
+            InvokeMessage("|----> |Run Finished in " + metrics.MeasuredRunTime + "!", Color.LightGreen);
+
             if (_cancel && RunStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunStopped(this, new RunResultEventArgs(_runResult)); }, null);
         }
@@ -912,20 +923,14 @@ namespace vApus.Stresstest
         /// <param name="run"></param>
         private void SetRunInitializedFirstTime(int concurrentUsersIndex, int run)
         {
-            ulong totalLogEntries = 0;
-            int singleUserLogEntryCount = 0;
+            InvokeMessage(string.Format("|----> |Run {0}...", run), Color.LightGreen);
+
+            int singleUserLogEntryCount = _testPatternsAndDelaysGenerator.PatternLength;
             int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
-            for (int c = 0; c != concurrentUsers; c++)
-            {
-                if (singleUserLogEntryCount == 0)
-                    singleUserLogEntryCount = _testPatternsAndDelaysGenerator.PatternLength;
 
-                totalLogEntries += (ulong)singleUserLogEntryCount;
-            }
-
-            _runResult = new vApus.Results.Model.RunResult() { Run = run, VirtualUserResults = new Results.Model.VirtualUserResult[concurrentUsers] };
+            _runResult = new RunResult() { Run = run, VirtualUserResults = new VirtualUserResult[concurrentUsers] };
             for (int i = 0; i < concurrentUsers; i++)
-                _runResult.VirtualUserResults[i] = new Results.Model.VirtualUserResult() { LogEntryResults = new Results.Model.LogEntryResult[singleUserLogEntryCount] };// (singleUserLogEntryCount);
+                _runResult.VirtualUserResults[i] = new VirtualUserResult() { LogEntryResults = new LogEntryResult[singleUserLogEntryCount] };
 
             _concurrentUsersResult.RunResults.Add(_runResult);
 

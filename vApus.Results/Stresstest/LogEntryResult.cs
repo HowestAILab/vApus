@@ -4,8 +4,6 @@ namespace vApus.Results.Model
 {
     public class LogEntryResult
     {
-        public bool Empty;
-
         public virtual int Id { get; set; }
         /// <summary>
         /// Index in Log
@@ -18,6 +16,5 @@ namespace vApus.Results.Model
         public virtual TimeSpan TimeToLastByte { get; set; }
         public virtual int DelayInMilliseconds { get; set; }
         public virtual Exception Exception { get; set; }
-
     }
 }

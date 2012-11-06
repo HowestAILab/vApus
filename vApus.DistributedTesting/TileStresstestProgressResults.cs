@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using vApus.Stresstest;
+using vApus.Stresstest.Old;
 
 namespace vApus.DistributedTesting
 {

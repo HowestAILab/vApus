@@ -13,6 +13,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using vApus.Stresstest.Old;
 using vApus.Util;
 
 namespace vApus.Stresstest
@@ -28,8 +29,10 @@ namespace vApus.Stresstest
         public event EventHandler MonitorClicked;
 
         #region Fields
-        private StresstestResults _stresstestResults;
         private List<ListViewItem> _fastResults = new List<ListViewItem>();
+        private List<object[]> _concurrencyMetricsCache = new List<object[]>();
+        private List<object[]> _runMetricsCache = new List<object[]>();
+
         private bool _slaveSideSaveResultsTouched;
 
         private bool _monitorConfigurationControlVisible;
@@ -39,13 +42,6 @@ namespace vApus.Stresstest
         public int FastResultsCount
         {
             get { return _fastResults.Count; }
-        }
-        /// <summary>
-        /// Use the SetStresstestResults function to set (overloading).
-        /// </summary>
-        public StresstestResults StresstestResults
-        {
-            get { return _stresstestResults; }
         }
 
         [Description("The visibility of this control.")]
@@ -111,7 +107,7 @@ namespace vApus.Stresstest
         public void SetConfigurationControls(string stresstest, Connection connection, string connectionProxy,
                                               Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrency,
                                               int runs, int minimumDelay, int maximumDelay, bool shuffle,
-                                              ActionAndLogEntryDistribution distribute, uint monitorBefore, uint monitorAfter)
+                                              ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter)
         {
             kvpStresstest.Key = stresstest;
             kvpConnection.Key = connection.ToString();
@@ -256,43 +252,32 @@ namespace vApus.Stresstest
         }
         public void SlaveSideSaveResults()
         {
-           
+
         }
 
-        /// <summary>
-        /// Calls SetStresstestStarted(DateTime start)
-        /// </summary>
-        /// <param name="stresstestResults"></param>
-        public void SetStresstestResults(StresstestResults stresstestResults)
-        {
-            _stresstestResults = stresstestResults;
-            SetStresstestStarted(_stresstestResults.Metrics.StartMeasuringRuntime);
-        }
+
         /// <summary>
         /// Sets the label.
         /// </summary>
         /// <param name="start"></param>
-        public void SetStresstestStarted(DateTime start)
+        public void SetStresstestStarted(DateTime at)
         {
-            lblStarted.Text = "Test started at " + start;
-            epnlMessages.BeginOfTimeFrame = start;
+            lblStarted.Text = "Test started at " + at;
+            epnlMessages.BeginOfTimeFrame = at;
         }
         public void UpdateFastResults()
         {
-            if (_stresstestResults != null)
+        Retry:
+            try
             {
-            Retry:
-                try
-                {
-                    _stresstestResults.RefreshLogEntryResultMetrics();
-                }
-                catch
-                {
-                    goto Retry;
-                }
-                SetRerunning(_stresstestResults.CurrentRunDoneOnce);
-                RefreshFastResultsInGui();
+                //_stresstestResult.RefreshLogEntryResultMetrics();
             }
+            catch
+            {
+                goto Retry;
+            }
+            //SetRerunning(_stresstestResult.CurrentRunDoneOnce);
+            RefreshFastResultsInGui();
         }
         public void SetRerunning(bool rerun)
         {
@@ -303,6 +288,7 @@ namespace vApus.Stresstest
         /// </summary>
         private void RefreshFastResultsInGui()
         {
+            /*
             IResult result;
             Metrics metrics = _stresstestResults.Metrics;
 
@@ -358,6 +344,7 @@ namespace vApus.Stresstest
                     }
                 }
             }
+             */
         }
         /// <summary>
         /// Sets the '; ran ...' label.
@@ -377,10 +364,23 @@ namespace vApus.Stresstest
         public void ClearFastResults()
         {
             _fastResults.Clear();
-            lvwFastResultsListing.Items.Clear();
+            dgvFastResults.Rows.Clear();
+        }
+        public void AddConcurrencyFastResults(object[] row)
+        {
+            _concurrencyMetricsCache.Add(row);
+            if (cboDrillDown.SelectedIndex == 0)
+                dgvFastResults.RowCount = _concurrencyMetricsCache.Count;
+        }
+        public void AddRunFastResults(object[] row)
+        {
+            _runMetricsCache.Add(row);
+            if (cboDrillDown.SelectedIndex == 1)
+                dgvFastResults.RowCount = _runMetricsCache.Count;
         }
         public void AddFastResult(ConcurrencyResult result)
         {
+            /*
             ListViewItem lvwi = new ListViewItem(result.Metrics.StartMeasuringRuntime.ToString());
             lvwi.UseItemStyleForSubItems = false;
 
@@ -421,6 +421,7 @@ namespace vApus.Stresstest
                 if (sub.Font.Bold)
                     sub.Font = new Font(sub.Font, FontStyle.Regular);
             }
+             */
         }
         private ListViewItem GetParent(ListViewItem child)
         {
@@ -439,6 +440,7 @@ namespace vApus.Stresstest
         }
         public void AddFastResult(RunResult result)
         {
+            /*
             ListViewItem lvwi = new ListViewItem(result.Metrics.StartMeasuringRuntime.ToString());
             lvwi.UseItemStyleForSubItems = false;
             Font font = new Font("Consolas", 10.25f);
@@ -482,6 +484,7 @@ namespace vApus.Stresstest
             }
 
             SetRerunning(result.RunDoneOnce);
+             */
         }
 
         /// <summary>
@@ -612,6 +615,30 @@ namespace vApus.Stresstest
         }
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e)
         {
+            dgvFastResults.RowCount = 0;
+            dgvFastResults.Columns.Clear();
+
+            string[] columnHeaders = cboDrillDown.SelectedIndex == 0 ? vApus.Results.MetricsHelper.MetricsHeadersConcurrency : vApus.Results.MetricsHelper.MetricsHeadersRun;
+
+            DataGridViewColumn[] clms = new DataGridViewColumn[columnHeaders.Length];
+            string clmPrefix = this.ToString() + "clm";
+            for (int headerIndex = 0; headerIndex != columnHeaders.Length; headerIndex++)
+            {
+                string header = columnHeaders[headerIndex];
+                DataGridViewColumn clm = new DataGridViewTextBoxColumn();
+                clm.Name = clmPrefix + header;
+                clm.HeaderText = header;
+
+                clm.SortMode = DataGridViewColumnSortMode.NotSortable;
+                clm.FillWeight = 1;
+
+                clms[headerIndex] = clm;
+            }
+
+            dgvFastResults.Columns.AddRange(clms);
+            dgvFastResults.RowCount = cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache.Count : _runMetricsCache.Count;
+
+            /*
             lvwFastResultsListing.SuspendLayout();
             lvwFastResultsListing.Items.Clear();
             switch (cboDrillDown.SelectedIndex)
@@ -653,12 +680,13 @@ namespace vApus.Stresstest
                     sub.Font = new Font(sub.Font, FontStyle.Regular);
             }
             lvwFastResultsListing.ResumeLayout();
+             */
         }
         private void chkReadeble_CheckedChanged(object sender, EventArgs e)
         {
             //Single stresstest feature only atm.
-            if (_stresstestResults != null)
-                RefreshFastResultsInGui();
+            //if (_stresstestResult != null)
+            //    RefreshFastResultsInGui();
         }
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e)
         {
@@ -689,6 +717,7 @@ namespace vApus.Stresstest
         private string GetDisplayedResults()
         {
             StringBuilder sb = new StringBuilder();
+            /*
             foreach (ColumnHeader clm in lvwFastResultsListing.Columns)
             {
                 sb.Append(clm.Text);
@@ -705,6 +734,7 @@ namespace vApus.Stresstest
                 }
                 sb.AppendLine();
             }
+             */
             return sb.ToString();
         }
         private void btnExport_Click(object sender, EventArgs e)
@@ -738,5 +768,16 @@ namespace vApus.Stresstest
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }
         #endregion
+
+
+        private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        {
+            try
+            {
+                List<object[]> cache = cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache : _runMetricsCache;
+                e.Value = cache[e.RowIndex][e.ColumnIndex];
+            }
+            catch { }
+        }
     }
 }

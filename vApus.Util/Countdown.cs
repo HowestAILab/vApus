@@ -34,14 +34,14 @@ namespace vApus.Util
 
         private bool _isdisposed;
 
-        public uint CountdownTime
+        public int CountdownTime
         {
-            get { return (uint)_countdownTime; }
+            get { return _countdownTime; }
         }
 
-        public uint ToCountdownTime
+        public int ToCountdownTime
         {
-            get { return (uint)_toCountdownTime; }
+            get { return _toCountdownTime; }
         }
 
         /// <summary>
@@ -49,10 +49,10 @@ namespace vApus.Util
         /// </summary>
         /// <param name="countdownTime">In ms.</param>
         /// <param name="reportProgressTime">In ms. Min 100</param>
-        public Countdown(uint countdownTime, uint reportProgressTime = 1000)
+        public Countdown(int countdownTime, int reportProgressTime = 1000)
         {
-            _countdownTime = (int)countdownTime;
-            _toCountdownTime = (int)countdownTime;
+            _countdownTime = countdownTime;
+            _toCountdownTime = countdownTime;
 
             _tmr = new System.Timers.Timer(reportProgressTime);
             _tmr.Elapsed += _tmr_Elapsed;

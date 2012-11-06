@@ -20,7 +20,7 @@ namespace vApus.REST.Convert
 
         public static void SetTestConfig(Hashtable testConfigCache, string distributedTest, string runSynchronization, string tileStresstest, Connection connection, string connectionProxy, Monitor.Monitor[] monitors, string slave,
                                         Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay, int maximumDelay, bool shuffle,
-                                        ActionAndLogEntryDistribution distribute, uint monitorBefore, uint monitorAfter)
+                                        ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter)
         {
             var distributedTestCache = AddSubCache(distributedTest, testConfigCache);
             if (distributedTestCache.Count == 0)
@@ -138,10 +138,9 @@ namespace vApus.REST.Convert
             public string[] Monitors;
             public string Slave, Log, LogRuleSet;
             public int[] Concurrency;
-            public int Run, MinimumDelayInMS, MaximumDelayInMS;
+            public int Run, MinimumDelayInMS, MaximumDelayInMS, MonitorBeforeInMinutes, MonitorAfterInMinutes;
             public bool Shuffle;
             public string Distribute;
-            public uint MonitorBeforeInMinutes, MonitorAfterInMinutes;
         }
         public struct MonitorConfig
         {

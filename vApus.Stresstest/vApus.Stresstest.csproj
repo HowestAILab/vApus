@@ -209,6 +209,9 @@
     <Compile Include="Connections\TestAllConnections.Designer.cs">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </Compile>
+    <Compile Include="StresstestResults.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">
@@ -401,7 +404,6 @@
     <Compile Include="Stresstest.cs" />
     <Compile Include="StresstestProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StresstestResults.cs" />
     <Compile Include="StresstestView.cs">
       <SubType>Form</SubType>
     </Compile>

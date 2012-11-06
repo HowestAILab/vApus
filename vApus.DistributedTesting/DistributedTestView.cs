@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Stresstest;
+using vApus.Stresstest.Old;
 using vApus.Util;
 
 namespace vApus.DistributedTesting
@@ -992,7 +993,7 @@ namespace vApus.DistributedTesting
             this.Cursor = Cursors.Default;
 
             int runningMonitors = 0;
-            uint monitorAfterTime = 0;
+            int monitorAfterTime = 0;
             foreach (TileStresstest ts in _monitorViews.Keys)
             {
                 if (ts.AdvancedTileStresstest.MonitorAfter > monitorAfterTime && ts.BasicTileStresstest.Monitors.Length != 0)
@@ -1004,7 +1005,7 @@ namespace vApus.DistributedTesting
             }
             if (monitorAfter && monitorAfterTime != 0 && runningMonitors != 0)
             {
-                uint countdownTime = monitorAfterTime * 60000;
+                int countdownTime = monitorAfterTime * 60000;
                 Countdown monitorAfterCountdown = new Countdown(countdownTime, 5000);
                 monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
                 monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
@@ -1128,7 +1129,7 @@ namespace vApus.DistributedTesting
             if (_monitorViews != null)
             {
                 int runningMonitors = 0;
-                uint monitorBefore = 0;
+                int monitorBefore = 0;
                 foreach (TileStresstest ts in _monitorViews.Keys)
                 {
                     if (ts.AdvancedTileStresstest.MonitorBefore > monitorBefore && ts.BasicTileStresstest.Monitors.Length != 0)
@@ -1153,7 +1154,7 @@ namespace vApus.DistributedTesting
                 }
                 if (runningMonitors != 0 && monitorBefore != 0)
                 {
-                    uint countdownTime = monitorBefore * 60000;
+                    int countdownTime = monitorBefore * 60000;
                     _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
                     _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                     _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;

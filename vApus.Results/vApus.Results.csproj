@@ -61,7 +61,6 @@
     <Compile Include="MetricsHelper.cs" />
     <Compile Include="Monitor\MonitorConfiguration.cs" />
     <Compile Include="Monitor\MonitorResult.cs" />
-    <Compile Include="ResultsHelper.cs" />
     <Compile Include="SessionFactoryHelper.cs" />
     <Compile Include="Stresstest\ConcurrencyResult.cs" />
     <Compile Include="Stresstest\LogEntryResult.cs" />

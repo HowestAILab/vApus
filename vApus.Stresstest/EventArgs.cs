@@ -7,39 +7,38 @@
  */
 using System;
 using System.Drawing;
+using vApus.Results.Model;
 using vApus.Util;
 
 namespace vApus.Stresstest
 {
-    public class StresstestResultEventArgs : EventArgs 
+    public class StresstestResultEventArgs : EventArgs
     {
-        public readonly vApus.Results.Model.StresstestResult Result;
-        public StresstestResultEventArgs(vApus.Results.Model.StresstestResult results)
+        public StresstestResult StresstestResult { private set; get; }
+        public StresstestResultEventArgs(StresstestResult stresstestResult)
         {
-            Result = results;
+            StresstestResult = stresstestResult;
         }
-
     }
-    public class ConcurrencyResultEventArgs : EventArgs 
+    public class ConcurrencyResultEventArgs : EventArgs
     {
-        public readonly vApus.Results.Model.ConcurrencyResult Result;
-        public ConcurrencyResultEventArgs(vApus.Results.Model.ConcurrencyResult result)
+        public ConcurrencyResult Result { private set; get; }
+        public ConcurrencyResultEventArgs(ConcurrencyResult result)
         {
             Result = result;
         }
     }
     public class RunResultEventArgs : EventArgs
     {
-        public readonly vApus.Results.Model.RunResult Result;
-        public RunResultEventArgs(vApus.Results.Model.RunResult result)
+        public RunResult Result { private set; get; }
+        public RunResultEventArgs(RunResult result)
         {
             Result = result;
         }
     }
     public class IntValueEventArgs : EventArgs
     {
-        public readonly int Value;
-
+        public int Value { private set; get; }
         public IntValueEventArgs(int value)
         {
             Value = value;
@@ -47,16 +46,16 @@ namespace vApus.Stresstest
     }
     public class MessageEventArgs : EventArgs
     {
-        public readonly string Message;
-        public readonly Color Color;
-        public readonly LogLevel LogLevel;
+        public string Message { private set; get; }
+        public Color Color { private set; get; }
+        public LogLevel LogLevel { private set; get; }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="logLevel"></param>
         /// <param name="color">Can be null</param>
-        public MessageEventArgs(string message,  Color color, LogLevel logLevel)
+        public MessageEventArgs(string message, Color color, LogLevel logLevel)
         {
             Message = message;
             Color = color;
