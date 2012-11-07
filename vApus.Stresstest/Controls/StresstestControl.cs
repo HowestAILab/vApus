@@ -29,7 +29,6 @@ namespace vApus.Stresstest
         public event EventHandler MonitorClicked;
 
         #region Fields
-        private List<ListViewItem> _fastResults = new List<ListViewItem>();
         private List<object[]> _concurrencyMetricsCache = new List<object[]>();
         private List<object[]> _runMetricsCache = new List<object[]>();
 
@@ -41,7 +40,7 @@ namespace vApus.Stresstest
         #region Properties
         public int FastResultsCount
         {
-            get { return _fastResults.Count; }
+            get { return dgvFastResults.RowCount; }
         }
 
         [Description("The visibility of this control.")]
@@ -265,86 +264,9 @@ namespace vApus.Stresstest
             lblStarted.Text = "Test started at " + at;
             epnlMessages.BeginOfTimeFrame = at;
         }
-        public void UpdateFastResults()
-        {
-        Retry:
-            try
-            {
-                //_stresstestResult.RefreshLogEntryResultMetrics();
-            }
-            catch
-            {
-                goto Retry;
-            }
-            //SetRerunning(_stresstestResult.CurrentRunDoneOnce);
-            RefreshFastResultsInGui();
-        }
         public void SetRerunning(bool rerun)
         {
             btnRerunning.Visible = rerun;
-        }
-        /// <summary>
-        /// Sets the '; ran ...' label and the lvw entries.
-        /// </summary>
-        private void RefreshFastResultsInGui()
-        {
-            /*
-            IResult result;
-            Metrics metrics = _stresstestResults.Metrics;
-
-            SetMeasuredRunTime(metrics.MeasuredRunTime, _stresstestResults.EstimatedRuntimeLeft);
-
-            chkReadeble.Visible = true;
-            foreach (ListViewItem lvwi in _fastResults)
-            {
-                result = lvwi.Tag as IResult;
-                if (result != null)
-                {
-                    metrics = result.Metrics;
-                    int startIndex = lvwi.SubItems.Count - 6;
-
-                    string estimatedRuntimeLeft = null;
-                    if (chkReadeble.Checked)
-                    {
-                        clmFRLRuntimeLeft.Text = "Time Left";
-                        estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
-                    }
-                    else
-                    {
-                        clmFRLRuntimeLeft.Text = "Time Left (ms)";
-                        estimatedRuntimeLeft = (((double)result.EstimatedRuntimeLeft.Ticks) / TimeSpan.TicksPerMillisecond).ToString();
-                    }
-
-                    //Only update the ones needed to be updated
-                    if (lvwi.SubItems[startIndex].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
-                        lvwi.SubItems[1].Text != estimatedRuntimeLeft ||
-                        metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
-                    {
-                        lvwi.SubItems[1].Text = estimatedRuntimeLeft;
-
-                        string measuredRunTime = null;
-                        if (chkReadeble.Checked)
-                        {
-                            clmFRLMeasuredRuntime.Text = "Measured Time";
-                            measuredRunTime = metrics.MeasuredRunTime.ToShortFormattedString();
-                        }
-                        else
-                        {
-                            clmFRLMeasuredRuntime.Text = "Measured Time (ms)";
-                            measuredRunTime = (((double)metrics.MeasuredRunTime.Ticks) / TimeSpan.TicksPerMillisecond).ToString();
-                        }
-                        lvwi.SubItems[2].Text = measuredRunTime;
-
-                        lvwi.SubItems[startIndex].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
-                        lvwi.SubItems[startIndex + 1].Text = Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
-                        lvwi.SubItems[startIndex + 2].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
-                        lvwi.SubItems[startIndex + 3].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
-                        lvwi.SubItems[startIndex + 4].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
-                        lvwi.SubItems[startIndex + 5].Text = metrics.Errors.ToString();
-                    }
-                }
-            }
-             */
         }
         /// <summary>
         /// Sets the '; ran ...' label.
@@ -363,128 +285,27 @@ namespace vApus.Stresstest
         }
         public void ClearFastResults()
         {
-            _fastResults.Clear();
-            dgvFastResults.Rows.Clear();
+            dgvFastResults.RowCount = 0;
+            _concurrencyMetricsCache = null;
+            _runMetricsCache = null;
         }
-        public void AddConcurrencyFastResults(object[] row)
+        public void UpdateConcurrencyFastResults(List<object[]> newConcurrencyMetricsCache)
         {
-            _concurrencyMetricsCache.Add(row);
+            _concurrencyMetricsCache = newConcurrencyMetricsCache;
             if (cboDrillDown.SelectedIndex == 0)
+            {
+                dgvFastResults.RowCount = 0;
                 dgvFastResults.RowCount = _concurrencyMetricsCache.Count;
+            }
         }
-        public void AddRunFastResults(object[] row)
+        public void UpdateRunFastResults(List<object[]> newRunMetricsCache)
         {
-            _runMetricsCache.Add(row);
+            _runMetricsCache = newRunMetricsCache;
             if (cboDrillDown.SelectedIndex == 1)
+            {
+                dgvFastResults.RowCount = 0;
                 dgvFastResults.RowCount = _runMetricsCache.Count;
-        }
-        public void AddFastResult(ConcurrencyResult result)
-        {
-            /*
-            ListViewItem lvwi = new ListViewItem(result.Metrics.StartMeasuringRuntime.ToString());
-            lvwi.UseItemStyleForSubItems = false;
-
-            Font font = new Font("Consolas", 10.25f);
-
-            lvwi.Font = font;
-            lvwi.Tag = result;
-
-
-            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
-
-            lvwi.SubItems.Add(result.ConcurrentUsers.ToString()).Font = font;
-
-            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());
-            sub.Font = new Font(font, FontStyle.Bold);
-            sub.Name = "LogEntriesProcessed";
-            lvwi.SubItems.Add(Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
-
-            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
-            sub.Font = font;
-            sub.ForeColor = Color.Red;
-
-            _fastResults.Add(lvwi);
-
-            if (cboDrillDown.SelectedIndex == 0)
-            {
-                lvwFastResultsListing.Items.Add(lvwi);
-                UpdateFastResults();
             }
-
-            for (int i = 0; i < lvwFastResultsListing.Items.Count - 1; i++)
-            {
-                sub = lvwFastResultsListing.Items[i].SubItems["LogEntriesProcessed"];
-                if (sub.Font.Bold)
-                    sub.Font = new Font(sub.Font, FontStyle.Regular);
-            }
-             */
-        }
-        private ListViewItem GetParent(ListViewItem child)
-        {
-            int index = _fastResults.IndexOf(child) - 1;
-            if (index == -2)
-                index = _fastResults.Count - 1;
-
-            if (child.Tag is RunResult)
-                for (int i = index; i > -1; i--)
-                {
-                    ListViewItem item = _fastResults[i];
-                    if (item.Tag is ConcurrencyResult)
-                        return item;
-                }
-            return null;
-        }
-        public void AddFastResult(RunResult result)
-        {
-            /*
-            ListViewItem lvwi = new ListViewItem(result.Metrics.StartMeasuringRuntime.ToString());
-            lvwi.UseItemStyleForSubItems = false;
-            Font font = new Font("Consolas", 10.25f);
-
-            lvwi.Font = font;
-            lvwi.Tag = result;
-
-            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
-
-            ListViewItem parent = GetParent(lvwi);
-
-            lvwi.SubItems.Add((parent.Tag as ConcurrencyResult).ConcurrentUsers.ToString()).Font = font;
-            lvwi.SubItems.Add((result.Run + 1).ToString()).Font = font;
-
-            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " + result.Metrics.TotalLogEntries.ToString());
-            sub.Font = new Font(font, FontStyle.Bold);
-            sub.Name = "LogEntriesProcessed";
-            lvwi.SubItems.Add(Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
-
-            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
-            sub.Font = font;
-            sub.ForeColor = Color.Red;
-
-            _fastResults.Add(lvwi);
-
-            if (cboDrillDown.SelectedIndex == 1)
-            {
-                lvwFastResultsListing.Items.Add(lvwi);
-                UpdateFastResults();
-            }
-
-            for (int i = 0; i < lvwFastResultsListing.Items.Count - 1; i++)
-            {
-                sub = lvwFastResultsListing.Items[i].SubItems["LogEntriesProcessed"];
-                if (sub.Font.Bold)
-                    sub.Font = new Font(sub.Font, FontStyle.Regular);
-            }
-
-            SetRerunning(result.RunDoneOnce);
-             */
         }
 
         /// <summary>
@@ -637,50 +458,6 @@ namespace vApus.Stresstest
 
             dgvFastResults.Columns.AddRange(clms);
             dgvFastResults.RowCount = cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache.Count : _runMetricsCache.Count;
-
-            /*
-            lvwFastResultsListing.SuspendLayout();
-            lvwFastResultsListing.Items.Clear();
-            switch (cboDrillDown.SelectedIndex)
-            {
-                case 0:
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
-                    {
-                        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
-                        clmFRLConcurrency.Width = -2;
-                    }
-                    if (lvwFastResultsListing.Columns.Contains(clmFRLRuns))
-                        lvwFastResultsListing.Columns.Remove(clmFRLRuns);
-
-                    foreach (ListViewItem lvwi in _fastResults)
-                        if (lvwi.Tag is ConcurrencyResult)
-                            lvwFastResultsListing.Items.Add(lvwi);
-                    break;
-                case 1:
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
-                    {
-                        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
-                        clmFRLConcurrency.Width = -2;
-                    }
-                    if (!lvwFastResultsListing.Columns.Contains(clmFRLRuns))
-                    {
-                        lvwFastResultsListing.Columns.Insert(4, clmFRLRuns);
-                        clmFRLRuns.Width = -2;
-                    }
-
-                    foreach (ListViewItem lvwi in _fastResults)
-                        if (lvwi.Tag is RunResult)
-                            lvwFastResultsListing.Items.Add(lvwi);
-                    break;
-            }
-            for (int i = 0; i < lvwFastResultsListing.Items.Count - 1; i++)
-            {
-                ListViewItem.ListViewSubItem sub = lvwFastResultsListing.Items[i].SubItems["LogEntriesProcessed"];
-                if (sub.Font.Bold)
-                    sub.Font = new Font(sub.Font, FontStyle.Regular);
-            }
-            lvwFastResultsListing.ResumeLayout();
-             */
         }
         private void chkReadeble_CheckedChanged(object sender, EventArgs e)
         {
@@ -717,24 +494,19 @@ namespace vApus.Stresstest
         private string GetDisplayedResults()
         {
             StringBuilder sb = new StringBuilder();
-            /*
-            foreach (ColumnHeader clm in lvwFastResultsListing.Columns)
+            foreach (DataGridViewColumn clm in dgvFastResults.Columns)
             {
-                sb.Append(clm.Text);
+                sb.Append(clm.HeaderText);
                 sb.Append("\t");
             }
             sb.AppendLine();
-
-            foreach (ListViewItem lvwi in lvwFastResultsListing.Items)
+            List<object[]> cache = cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache : _runMetricsCache;
+            foreach (var row in cache)
             {
-                foreach (ListViewItem.ListViewSubItem subItem in lvwi.SubItems)
-                {
-                    sb.Append(subItem.Text);
-                    sb.Append("\t");
-                }
+                sb.Append(row.Combine("\t"));
                 sb.AppendLine();
             }
-             */
+
             return sb.ToString();
         }
         private void btnExport_Click(object sender, EventArgs e)
@@ -768,7 +540,6 @@ namespace vApus.Stresstest
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }
         #endregion
-
 
         private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {

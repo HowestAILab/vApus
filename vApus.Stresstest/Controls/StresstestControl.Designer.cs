@@ -139,6 +139,9 @@
             this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvFastResults.BackgroundColor = System.Drawing.Color.White;
+            this.dgvFastResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvFastResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvFastResults.Location = new System.Drawing.Point(0, 96);
             this.dgvFastResults.Name = "dgvFastResults";
@@ -193,7 +196,7 @@
             this.cboDrillDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboDrillDown.FormattingEnabled = true;
             this.cboDrillDown.Items.AddRange(new object[] {
-            "Concurrency",
+            "Concurrencies",
             "Runs"});
             this.cboDrillDown.Location = new System.Drawing.Point(1, 1);
             this.cboDrillDown.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);

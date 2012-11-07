@@ -32,6 +32,10 @@ namespace vApus.Stresstest
         {
             get { return _logEntries.Length; }
         }
+        public int UserActionsInPattern
+        {
+            get { return _actions.Count; }
+        }
         public bool IsDisposed
         {
             get { return _isDisposed; }

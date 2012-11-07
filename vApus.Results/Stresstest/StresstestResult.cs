@@ -36,5 +36,20 @@ namespace vApus.Results.Model
             Status = "OK";
             ConcurrencyResults = new List<ConcurrencyResult>();
         }
+        //public ConcurrencyResult GetLatConcurrencyResult()
+        //{
+        //    if (ConcurrencyResults.Count == 0)
+        //        return null;
+
+        //    return ConcurrencyResults[ConcurrencyResults.Count - 1];
+        //}
+        //public RunResult GetLastRunResult()
+        //{
+        //    var lastConcurrencyResult = GetLatConcurrencyResult();
+        //    if (lastConcurrencyResult == null || lastConcurrencyResult.RunResults.Count == 0)
+        //        return null;
+
+        //    return lastConcurrencyResult.RunResults[lastConcurrencyResult.RunResults.Count - 1];
+        //}
     }
 }

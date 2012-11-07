@@ -686,7 +686,7 @@ namespace vApus.DistributedTesting
                         cr.Metrics = tcr.Metrics;
                         if (tcr.EstimatedRuntimeLeft.Ticks == 0)
                             cr.StopTimeMeasurement();
-                        stresstestControl.AddFastResult(cr);
+                        //stresstestControl.AddFastResult(cr);
 
                         foreach (TileRunProgressResult trr in tcr.TileRunProgressResults)
                         {
@@ -695,7 +695,7 @@ namespace vApus.DistributedTesting
                             if (trr.EstimatedRuntimeLeft.Ticks == 0)
                                 rr.StopTimeMeasurement();
 
-                            stresstestControl.AddFastResult(rr);
+                           // stresstestControl.AddFastResult(rr);
                         }
                     }
                     stresstestControl.SetStresstestStarted(testProgressMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);

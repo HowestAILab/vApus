@@ -12,23 +12,34 @@ using System.Runtime.Serialization;
 namespace vApus.Results
 {
     [Serializable]
-    public struct Metrics : ISerializable
+    public class Metrics : ISerializable
     {
-        public DateTime StartMeasuringRuntime;
-        public TimeSpan EstimatedTimeLeft;
-        public TimeSpan MeasuredRunTime;
-        public int ConcurrentUsers;
-        public int Run;
-        public long LogEntries;
+        public DateTime StartMeasuringRuntime { get; set; }
+        public TimeSpan EstimatedTimeLeft { get; set; }
+        public TimeSpan MeasuredRunTime { get; set; }
+        public int ConcurrentUsers { get; set; }
+        /// <summary>
+        /// Stays 0 for concurrency level metrics.
+        /// </summary>
+        public int Run { get; set; }
+        /// <summary>
+        /// Stays 0 for concurrency level metrics.
+        /// </summary>
+        public int RerunCount { get; set; }
+        public long LogEntries { get; set; }
         private long _logEntriesProcessed;
         /// <summary>
-        /// Expressed in responses per second.
+        /// Throughput.
         /// </summary>
-        public double Throughput;
-        public TimeSpan AverageResponseTime;
-        public TimeSpan MaxResponseTime;
-        public TimeSpan AverageDelay;
-        public long Errors;
+        public double LogEntriesPerSecond { get; set; }
+        /// <summary>
+        /// Throughput.
+        /// </summary>
+        public double UserActionsPerSecond { get; set; }
+        public TimeSpan AverageResponseTime { get; set; }
+        public TimeSpan MaxResponseTime { get; set; }
+        public TimeSpan AverageDelay { get; set; }
+        public long Errors { get; set; }
 
         /// <summary>
         /// The setter makes sure this cannot exceed the log entries count.
@@ -44,6 +55,7 @@ namespace vApus.Results
             }
         }
 
+        public Metrics() { }
         public Metrics(SerializationInfo info, StreamingContext ctxt)
         {
             SerializationReader sr = SerializationReader.GetReader(info);
@@ -54,7 +66,7 @@ namespace vApus.Results
             Run = sr.ReadInt32();
             LogEntries = sr.ReadInt64();
             _logEntriesProcessed = sr.ReadInt64();
-            Throughput = sr.ReadDouble();
+            LogEntriesPerSecond = sr.ReadDouble();
             AverageResponseTime = sr.ReadTimeSpan();
             MaxResponseTime = sr.ReadTimeSpan();
             AverageDelay = sr.ReadTimeSpan();
@@ -71,7 +83,7 @@ namespace vApus.Results
             sw.Write(Run);
             sw.Write(LogEntries);
             sw.Write(_logEntriesProcessed);
-            sw.Write(Throughput);
+            sw.Write(LogEntriesPerSecond);
             sw.Write(AverageResponseTime);
             sw.Write(MaxResponseTime);
             sw.Write(AverageDelay);

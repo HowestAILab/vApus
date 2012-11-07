@@ -15,6 +15,8 @@ namespace vApus.Results.Model
         /// </summary>
         public virtual string VirtualUser { get; set; }
 
+        public virtual int UserActionCount { get; set; }
+
         /// <summary>
         /// Use the SetLogEntryResultAt function to add an item to this. (this fixes the index when using break on last run sync.)
         /// Don't forget to initialize this the first time.

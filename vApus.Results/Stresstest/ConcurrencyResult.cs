@@ -7,6 +7,7 @@ namespace vApus.Results.Model
     {
         public virtual int Id { get; set; }
         public virtual int ConcurrentUsers { get; set; }
+        public virtual int RunCount { get; set; }
         /// <summary>
         /// If this is not set, it is set to DateTime.Now in the constructor.
         /// </summary>
@@ -20,6 +21,7 @@ namespace vApus.Results.Model
 
         public ConcurrencyResult()
         {
+            RunCount = 1;
             StartedAt = DateTime.Now;
             StoppedAt = DateTime.MinValue;
             RunResults = new List<RunResult>();

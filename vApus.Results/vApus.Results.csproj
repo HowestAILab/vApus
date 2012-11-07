@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Metrics.cs" />
+    <Compile Include="MetricsCache.cs" />
     <Compile Include="MetricsHelper.cs" />
     <Compile Include="Monitor\MonitorConfiguration.cs" />
     <Compile Include="Monitor\MonitorResult.cs" />

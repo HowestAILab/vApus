@@ -144,7 +144,7 @@ namespace vApus.DistributedTesting
                         stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                     }
                     catch { } //Exception on false WMI. 
-                    stresstestControl.UpdateFastResults();
+                    //stresstestControl.UpdateFastResults();
                 }
                 catch (Exception ex)
                 {
@@ -306,7 +306,7 @@ namespace vApus.DistributedTesting
                     stresstestControl.SetClientMonitoring(_stresstestCore == null ? 0 : _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                 }
                 catch { } //Exception on false WMI. 
-                stresstestControl.UpdateFastResults();
+                //stresstestControl.UpdateFastResults();
             }, null);
 
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
@@ -412,7 +412,7 @@ namespace vApus.DistributedTesting
                     stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                 }
                 catch { } //Exception on false WMI. 
-                stresstestControl.UpdateFastResults();
+                //stresstestControl.UpdateFastResults();
                 stresstestControl.SlaveSideSaveResults();
 
                 // Can only be cancelled once, calling multiple times is not a problem.
