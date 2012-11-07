@@ -669,10 +669,6 @@ namespace vApus.DistributedTesting
 
                     distributedStresstestControl.SetOverallFastResults(ttvi.Tile.Name + " " + ttvi.Tile.Index, progress);
                 }
-
-#if EnableBetaFeature
-            WriteMonitorRestProgress();
-#endif
         }
         /// <summary>
         /// 
@@ -926,6 +922,10 @@ namespace vApus.DistributedTesting
         {
             if (--_countDown > 0)
                 stresstestControl.SetCountDownProgressDelay(_countDown);
+
+#if EnableBetaFeature
+            WriteMonitorRestProgress();
+#endif
         }
         private void tmrProgress_Tick(object sender, EventArgs e)
         {
@@ -1288,7 +1288,7 @@ namespace vApus.DistributedTesting
                         }
 
                 //remove the old ones.
-                while (oldMonitorReportControls.Count!= 0)
+                while (oldMonitorReportControls.Count != 0)
                     foreach (var mrc in oldMonitorReportControls)
                         if (tcTest.TabPages[3].Controls[0] == mrc)
                         {
@@ -1370,12 +1370,13 @@ namespace vApus.DistributedTesting
             {
                 Hashtable monitorProgressCache = new Hashtable(1);
                 int monitorCount = 0;
-                foreach (var key in _monitorViews.Keys)
-                    foreach (MonitorView view in _monitorViews[key])
-                    {
-                        ++monitorCount;
-                        vApus.REST.Convert.Converter.SetMonitorProgress(monitorProgressCache, _distributedTest.ToString(), view.Monitor, view.GetHeaders(), view.GetMonitorValues());
-                    }
+                if (_monitorViews != null)
+                    foreach (var key in _monitorViews.Keys)
+                        foreach (MonitorView view in _monitorViews[key])
+                        {
+                            ++monitorCount;
+                            vApus.REST.Convert.Converter.SetMonitorProgress(monitorProgressCache, _distributedTest.ToString(), view.Monitor, view.GetHeaders(), view.GetMonitorValues());
+                        }
                 if (monitorCount != 0)
                     vApus.REST.Convert.Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
             }

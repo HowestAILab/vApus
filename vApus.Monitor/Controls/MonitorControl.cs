@@ -389,6 +389,9 @@ namespace vApus.Monitor
         /// <returns></returns>
         public string GetHeaders(string separator)
         {
+            if (_headers == null)
+                return string.Empty;
+
             return _headers.Combine(separator);
         }
         /// <summary>
@@ -408,19 +411,20 @@ namespace vApus.Monitor
         public Dictionary<DateTime, float[]> GetMonitorValues(DateTime from, DateTime to)
         {
             var monitorValues = new Dictionary<DateTime, float[]>();
-            foreach (object[] row in _cache)
-            {
-                DateTime timestamp = (DateTime)row[0];
-                if (timestamp >= from && timestamp <= to)
+            if (_cache != null)
+                foreach (object[] row in _cache)
                 {
-                    float[] values = new float[row.Length - 1];
-                    for (int i = 0; i != values.Length; i++)
-                        values[i] = (float)row[i + 1];
+                    DateTime timestamp = (DateTime)row[0];
+                    if (timestamp >= from && timestamp <= to)
+                    {
+                        float[] values = new float[row.Length - 1];
+                        for (int i = 0; i != values.Length; i++)
+                            values[i] = (float)row[i + 1];
 
-                    if (!monitorValues.ContainsKey(timestamp))
-                        monitorValues.Add(timestamp, values);
+                        if (!monitorValues.ContainsKey(timestamp))
+                            monitorValues.Add(timestamp, values);
+                    }
                 }
-            }
             return monitorValues;
         }
         /// <summary>
