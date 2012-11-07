@@ -1051,6 +1051,7 @@ namespace vApus.DistributedTesting
 
 #if EnableBetaFeature
                 WriteMonitorRestConfig();
+                WriteMonitorRestProgress();
 #endif
             }, null);
         }
@@ -1067,6 +1068,7 @@ namespace vApus.DistributedTesting
 
 #if EnableBetaFeature
             WriteMonitorRestConfig();
+            WriteMonitorRestProgress();
 #endif
         }
         #endregion
@@ -1206,6 +1208,7 @@ namespace vApus.DistributedTesting
 
 #if EnableBetaFeature
                 WriteMonitorRestConfig();
+                WriteMonitorRestProgress();
 #endif
 
             }, null);
@@ -1220,6 +1223,7 @@ namespace vApus.DistributedTesting
 
 #if EnableBetaFeature
             WriteMonitorRestConfig();
+            WriteMonitorRestProgress();
 #endif
 
             MonitorBeforeDone();
