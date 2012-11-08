@@ -10,10 +10,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using vApus.Stresstest.Old;
 using vApus.Util;
 
 namespace vApus.Stresstest
@@ -29,12 +29,18 @@ namespace vApus.Stresstest
         public event EventHandler MonitorClicked;
 
         #region Fields
+        private List<vApus.Results.Metrics> _concurrencyMetrics = new List<vApus.Results.Metrics>();
         private List<object[]> _concurrencyMetricsCache = new List<object[]>();
+        private List<vApus.Results.Metrics> _runMetrics = new List<vApus.Results.Metrics>();
         private List<object[]> _runMetricsCache = new List<object[]>();
 
-        private bool _slaveSideSaveResultsTouched;
-
         private bool _monitorConfigurationControlVisible;
+
+        /// <summary>
+        /// Enables Auto scroll to end of fast results when appropriate.
+        /// </summary>
+        private bool _keepFastResultsAtEnd = true;
+
         #endregion
 
         #region Properties
@@ -92,10 +98,6 @@ namespace vApus.Stresstest
             lblStopped.Text = string.Empty;
 
             ClearFastResults();
-
-            _slaveSideSaveResultsTouched = false;
-
-            epnlMessages.EndOfTimeFrame = DateTime.MaxValue;
         }
         public void SetConfigurationControls(Stresstest stresstest)
         {
@@ -268,46 +270,82 @@ namespace vApus.Stresstest
         {
             btnRerunning.Visible = rerun;
         }
-        /// <summary>
-        /// Sets the '; ran ...' label.
-        /// </summary>
-        /// <param name="metrics"></param>
-        public void SetMeasuredRunTime(TimeSpan measuredRunTime, TimeSpan estimatedRuntimeLeft)
-        {
-            lblMeasuredRuntime.Text = "; ran " + measuredRunTime.ToShortFormattedString();
-
-            if (lblStopped.Text.StartsWith("and finished at "))
-                epnlMessages.EndOfTimeFrame = DateTime.Now;
-            else
-                epnlMessages.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
-
-            epnlMessages.SetProgressBarToNow();
-        }
         public void ClearFastResults()
         {
             dgvFastResults.RowCount = 0;
-            _concurrencyMetricsCache = null;
-            _runMetricsCache = null;
+            _concurrencyMetrics = new List<vApus.Results.Metrics>();
+            _concurrencyMetricsCache = new List<object[]>();
+            _runMetrics = new List<vApus.Results.Metrics>();
+            _runMetricsCache = new List<object[]>();
+            _keepFastResultsAtEnd = true;
         }
-        public void UpdateConcurrencyFastResults(List<object[]> newConcurrencyMetricsCache)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metrics"></param>
+        /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
+        public void UpdateConcurrencyFastResults(List<vApus.Results.Metrics> metrics, bool setMeasuredRunTime = true)
         {
-            _concurrencyMetricsCache = newConcurrencyMetricsCache;
+            _concurrencyMetrics = metrics;
+            _concurrencyMetricsCache = vApus.Results.MetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
             if (cboDrillDown.SelectedIndex == 0)
             {
                 dgvFastResults.RowCount = 0;
                 dgvFastResults.RowCount = _concurrencyMetricsCache.Count;
+                KeepFastResultsAtEnd();
             }
+            if (setMeasuredRunTime)
+                SetMeasuredRunTime();
         }
-        public void UpdateRunFastResults(List<object[]> newRunMetricsCache)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metrics"></param>
+        /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
+        public void UpdateRunFastResults(List<vApus.Results.Metrics> metrics, bool setMeasuredRunTime = true)
         {
-            _runMetricsCache = newRunMetricsCache;
+            _runMetrics = metrics;
+            _runMetricsCache = vApus.Results.MetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
             if (cboDrillDown.SelectedIndex == 1)
             {
                 dgvFastResults.RowCount = 0;
                 dgvFastResults.RowCount = _runMetricsCache.Count;
+                KeepFastResultsAtEnd();
+            }
+            if (setMeasuredRunTime)
+                SetMeasuredRunTime();
+        }
+        private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        {
+            try
+            {
+                List<object[]> cache = cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache : _runMetricsCache;
+                e.Value = cache[e.RowIndex][e.ColumnIndex];
+            }
+            catch { }
+        }
+        /// <summary>
+        /// When the row count changes.
+        /// </summary>
+        private void KeepFastResultsAtEnd()
+        {
+            if (_keepFastResultsAtEnd && dgvFastResults.RowCount != 0)
+            {
+                dgvFastResults.Scroll -= dgvFastResults_Scroll;
+                dgvFastResults.FirstDisplayedScrollingRowIndex = dgvFastResults.RowCount - 1;
+                dgvFastResults.Scroll += dgvFastResults_Scroll;
             }
         }
+        /// <summary>
+        /// Sets the '; ran ...' label.
+        /// </summary>
+        /// <param name="metrics"></param>
+        private void SetMeasuredRunTime()
+        {
+            epnlMessages.SetEndOfTimeFrameToNow();
 
+            lblMeasuredRuntime.Text = "; ran " + (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString();
+        }
         /// <summary>
         /// 0 = Concurrency, 1 = runs
         /// </summary>
@@ -333,44 +371,44 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        public void SetStresstestStopped(StresstestStatus stresstestResult, string message = null)
+        public void SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null)
         {
             try
             {
+                SetMeasuredRunTime();
+
+                string message = null;
+                if (exception != null)
+                {
+                    message = "The stresstest threw an exception:\n" + exception.Message + "\n\nSee " + Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
+                    LogWrapper.LogByLevel(message, LogLevel.Error);
+                    AppendMessages(message, Color.Red);
+                }
                 switch (stresstestResult)
                 {
                     case StresstestStatus.Ok:
                         lblStopped.ForeColor = Color.Green;
-                        lblStopped.Text = "and finished at " + DateTime.Now;
-                        if (message != null)
-                        {
-                            AppendMessages(message, Color.LightGreen);
-                            LogWrapper.LogByLevel(message, LogLevel.Info);
-                        }
+                        lblStopped.Text = "and finished at " + epnlMessages.EndOfTimeFrame;
 
-                        epnlMessages.EndOfTimeFrame = DateTime.Now;
-                        epnlMessages.SetProgressBarToNow();
+                        message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString());
+                        LogWrapper.LogByLevel(message, LogLevel.Info);
+                        AppendMessages(message, Color.GreenYellow);
 
                         SetStresstestStopped();
                         break;
                     case StresstestStatus.Error:
                         lblStopped.ForeColor = Color.Red;
-                        lblStopped.Text = " failed at " + DateTime.Now;
-                        if (message != null)
-                        {
-                            AppendMessages(message, LogLevel.Error);
-                            LogWrapper.LogByLevel(message, LogLevel.Error);
-                        }
+                        lblStopped.Text = " failed at " + epnlMessages.EndOfTimeFrame;
+
                         SetStresstestStopped();
                         break;
                     case StresstestStatus.Cancelled:
                         lblStopped.ForeColor = Color.Orange;
-                        lblStopped.Text = "and cancelled at " + DateTime.Now;
-                        if (message != null)
-                        {
-                            AppendMessages(message, LogLevel.Warning);
-                            LogWrapper.LogByLevel(message, LogLevel.Warning);
-                        }
+                        lblStopped.Text = "and cancelled at " + epnlMessages.EndOfTimeFrame;
+
+                        message = "The stresstest was cancelled.";
+                        LogWrapper.LogByLevel(message, LogLevel.Info);
+                        AppendMessages(message, Color.Orange);
 
                         SetStresstestStopped();
                         break;
@@ -379,6 +417,7 @@ namespace vApus.Stresstest
                         lblUpdatesIn.Visible = true;
                         break;
                 }
+
             }
             catch { }
         }
@@ -436,10 +475,20 @@ namespace vApus.Stresstest
         }
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e)
         {
+            SetFastResultsOnGuiInteraction();
+        }
+        private void chkReadable_CheckedChanged(object sender, EventArgs e)
+        {
+            SetFastResultsOnGuiInteraction();
+            toolTip.SetToolTip(chkReadable, chkReadable.Checked ? "Uncheck this if you want results you can calculate with." : "Check this if you want readable results.");
+        }
+        private void SetFastResultsOnGuiInteraction()
+        {
             dgvFastResults.RowCount = 0;
             dgvFastResults.Columns.Clear();
 
-            string[] columnHeaders = cboDrillDown.SelectedIndex == 0 ? vApus.Results.MetricsHelper.MetricsHeadersConcurrency : vApus.Results.MetricsHelper.MetricsHeadersRun;
+            string[] columnHeaders = cboDrillDown.SelectedIndex == 0 ? (chkReadable.Checked ? vApus.Results.MetricsHelper.ReadableMetricsHeadersConcurrency : vApus.Results.MetricsHelper.CalculatableMetricsHeadersConcurrency)
+                : (chkReadable.Checked ? vApus.Results.MetricsHelper.ReadableMetricsHeadersRun : vApus.Results.MetricsHelper.CalculatableMetricsHeadersRun);
 
             DataGridViewColumn[] clms = new DataGridViewColumn[columnHeaders.Length];
             string clmPrefix = this.ToString() + "clm";
@@ -457,13 +506,9 @@ namespace vApus.Stresstest
             }
 
             dgvFastResults.Columns.AddRange(clms);
-            dgvFastResults.RowCount = cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache.Count : _runMetricsCache.Count;
-        }
-        private void chkReadeble_CheckedChanged(object sender, EventArgs e)
-        {
-            //Single stresstest feature only atm.
-            //if (_stresstestResult != null)
-            //    RefreshFastResultsInGui();
+
+            UpdateConcurrencyFastResults(_concurrencyMetrics, false);
+            UpdateRunFastResults(_runMetrics, false);
         }
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e)
         {
@@ -541,14 +586,10 @@ namespace vApus.Stresstest
         }
         #endregion
 
-        private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        private void dgvFastResults_Scroll(object sender, ScrollEventArgs e)
         {
-            try
-            {
-                List<object[]> cache = cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache : _runMetricsCache;
-                e.Value = cache[e.RowIndex][e.ColumnIndex];
-            }
-            catch { }
+            ScrollBar verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static ).GetValue(dgvFastResults) as ScrollBar;
+            _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >= verticalScrollBar.Maximum;
         }
     }
 }

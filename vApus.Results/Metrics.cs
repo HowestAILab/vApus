@@ -1,13 +1,13 @@
 ﻿/*
- * Copyright 2010 (c) Sizing Servers Lab
+ * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
 using System;
-using vApus.Util;
 using System.Runtime.Serialization;
+using vApus.Util;
 
 namespace vApus.Results
 {

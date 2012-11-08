@@ -31,7 +31,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// Event of the test clicked.
         /// </summary>
-        public event EventHandler<EventProgressBar.ProgressEventEventArgs> EventClicked;
+        public event EventHandler<EventProgressChart.ProgressEventEventArgs> EventClicked;
         #endregion
 
         #region Fields
@@ -87,7 +87,6 @@ namespace vApus.DistributedTesting
             SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
 
             eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
-            eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
 
             CheckIfTestCanStart();
         }
@@ -231,7 +230,6 @@ namespace vApus.DistributedTesting
                     picDuplicate.Visible = false;
 
                     eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
-                    eventProgressBar.EndOfTimeFrame = DateTime.MaxValue;
 
                     picStresstestStatus.Image = null;
                     toolTip.SetToolTip(picStresstestStatus, string.Empty);
@@ -245,7 +243,7 @@ namespace vApus.DistributedTesting
             }
         }
 
-        private void eventProgressBar_EventClick(object sender, EventProgressBar.ProgressEventEventArgs e)
+        private void eventProgressBar_EventClick(object sender, EventProgressChart.ProgressEventEventArgs e)
         {
             _Enter(this, e);
             if (EventClicked != null)
@@ -267,8 +265,8 @@ namespace vApus.DistributedTesting
         }
         public void SetMeasuredRunTime(TimeSpan estimatedRuntimeLeft)
         {
-            eventProgressBar.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
-            eventProgressBar.SetProgressBarToNow();
+            //eventProgressBar.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
+            eventProgressBar.SetEndOfTimeFrameNow();
         }
 
         public void SetStresstestResult(StresstestStatus stresstestResult, int downloadResultsProgress)
@@ -281,8 +279,7 @@ namespace vApus.DistributedTesting
             if (downloadResultsProgress == 100)
             {
                 _downloadResultsFinished = true;
-                eventProgressBar.EndOfTimeFrame = DateTime.Now;
-                eventProgressBar.SetProgressBarToNow();
+                eventProgressBar.SetEndOfTimeFrameNow();
             }
 
             if (downloadResultsProgress == 0 || downloadResultsProgress == 100)

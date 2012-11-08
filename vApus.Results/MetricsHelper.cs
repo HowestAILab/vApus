@@ -1,21 +1,40 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
 using vApus.Results.Model;
+using vApus.Util;
 
 namespace vApus.Results
 {
     public static class MetricsHelper
     {
-        private static string[] _metricsHeadersConcurrency = { "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        private static string[] _metricsHeadersRun = { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _readableMetricsHeadersConcurrency = { "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _readableMetricsHeadersRun = { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _calculatableMetricsHeadersConcurrency = { "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed", "Log Entries", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _calculatableMetricsHeadersRun = { "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed", "Log Entries", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
 
-        public static string[] MetricsHeadersConcurrency
+        public static string[] ReadableMetricsHeadersConcurrency
         {
-            get { return _metricsHeadersConcurrency; }
+            get { return _readableMetricsHeadersConcurrency; }
         }
-        public static string[] MetricsHeadersRun
+        public static string[] ReadableMetricsHeadersRun
         {
-            get { return _metricsHeadersRun; }
+            get { return _readableMetricsHeadersRun; }
+        }
+
+        public static string[] CalculatableMetricsHeadersConcurrency
+        {
+            get { return _calculatableMetricsHeadersConcurrency; }
+        }
+        public static string[] CalculatableMetricsHeadersRun
+        {
+            get { return _calculatableMetricsHeadersRun; }
         }
 
         /// Get metrics for a concurrency result.
@@ -158,6 +177,96 @@ namespace vApus.Results
             }
             return new TimeSpan(estimatedRuntimeLeft);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metrics"></param>
+        /// <param name="readable">If it is notreadable it is calculatable.</param>
+        /// <returns></returns>
+        public static object[] MetricsToRow(Metrics metrics, bool readable)
+        {
+            return readable ? ReadableMetricsToRow(metrics) : CalculatableMetricsToRow(metrics);
+        }
+        private static object[] ReadableMetricsToRow(Metrics metrics)
+        {
+            if (metrics.Run != 0)
+                return new object[]
+                {
+                    metrics.StartMeasuringRuntime.ToString(),
+                    metrics.EstimatedTimeLeft.ToShortFormattedString(),
+                    metrics.MeasuredRunTime.ToShortFormattedString(),
+                    metrics.ConcurrentUsers,
+                    metrics.Run,
+                    metrics.LogEntriesProcessed + " / " + (metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString()),
+                    Math.Round(metrics.LogEntriesPerSecond, 2),
+                    Math.Round(metrics.UserActionsPerSecond, 2),
+                    Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
+                    Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
+                    metrics.Errors
+                };
+            return new object[]
+            {
+                metrics.StartMeasuringRuntime.ToString(),
+                metrics.EstimatedTimeLeft.ToShortFormattedString(),
+                metrics.MeasuredRunTime.ToShortFormattedString(),
+                metrics.ConcurrentUsers,
+                metrics.LogEntriesProcessed + " / " + (metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString()),
+                Math.Round(metrics.LogEntriesPerSecond, 2),
+                Math.Round(metrics.UserActionsPerSecond, 2),
+                Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
+                Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
+                metrics.Errors
+            };
+        }
+        private static object[] CalculatableMetricsToRow(Metrics metrics)
+        {
+            if (metrics.Run != 0)
+                return new object[]
+                {
+                    metrics.StartMeasuringRuntime.ToString(),
+                    Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
+                    Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
+                    metrics.ConcurrentUsers,
+                    metrics.Run,
+                    metrics.LogEntriesProcessed,
+                    metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString(),
+                    Math.Round(metrics.LogEntriesPerSecond, 2),
+                    Math.Round(metrics.UserActionsPerSecond, 2),
+                    Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
+                    Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
+                    metrics.Errors
+                };
+            return new object[]
+            {
+                metrics.StartMeasuringRuntime.ToString(),
+                Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
+                Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
+                metrics.ConcurrentUsers,
+                metrics.LogEntriesProcessed,
+                metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString(),
+                Math.Round(metrics.LogEntriesPerSecond, 2),
+                Math.Round(metrics.UserActionsPerSecond, 2),
+                Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
+                Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
+                metrics.Errors
+            };
+        }
+        /// <summary>
+        /// Will only work if you input the output of a Get...Metrics function.
+        /// This is because the rows are cached too.
+        /// </summary>
+        /// <param name="metrics"></param>
+        /// <returns></returns>
+        public static List<object[]> MetricsToRows(List<Metrics> metrics, bool readable)
+        {
+            var rows = new List<object[]>(metrics.Count);
+            foreach (var m in metrics)
+                rows.Add(MetricsToRow(m, readable));
+            return rows;
+        }
     }
 }

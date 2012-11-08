@@ -16,9 +16,9 @@ using System.Windows.Forms;
 namespace vApus.Util
 {
     /// <summary>
-    /// Makes it able to show events in time while changing the value of the progress bar.
+    /// Makes it able to show events in time while changing the value of the progress chart.
     /// </summary>
-    public class EventProgressBar : Panel
+    public class EventProgressChart : Panel
     {
         [Description("Occurs when the cursor enters a progress event.")]
         public event EventHandler<ProgressEventEventArgs> EventMouseEnter;
@@ -68,14 +68,17 @@ namespace vApus.Util
             }
             get { return _beginOfTimeFrame; }
         }
+        /// <summary>
+        /// It is set through SetProgressBarToNow().
+        /// </summary>
         [Description("The end of the time frame.")]
         public DateTime EndOfTimeFrame
         {
-            set
-            {
-                _endOfTimeFrame = value;
-                this.Invalidate();
-            }
+            //private set
+            //{
+            //    _endOfTimeFrame = value;
+            //    this.Invalidate();
+            //}
             get { return _endOfTimeFrame; }
         }
 
@@ -93,9 +96,9 @@ namespace vApus.Util
         #endregion
 
         /// <summary>
-        /// Makes it able to show events in time while changing the value of the progress bar.
+        /// Makes it able to show events in time while changing the value of the progress chart.
         /// </summary>
-        public EventProgressBar()
+        public EventProgressChart()
         {
             this.Height = 15;
 
@@ -334,12 +337,10 @@ namespace vApus.Util
                 this.Invalidate();
         }
 
-        /// <summary>
-        /// Set the progress bar without adding an event.
-        /// </summary>
-        public void SetProgressBarToNow()
+        public void SetEndOfTimeFrameNow()
         {
-            _nowProgressEvent = new ProgressEvent(this, Color.Transparent, string.Empty, DateTime.Now);
+            _endOfTimeFrame = DateTime.Now;
+            _nowProgressEvent = new ProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
             this.Invalidate();
         }
 

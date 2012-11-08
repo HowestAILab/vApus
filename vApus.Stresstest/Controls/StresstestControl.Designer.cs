@@ -41,7 +41,7 @@
             this.lblMeasuredRuntime = new System.Windows.Forms.Label();
             this.btnRerunning = new System.Windows.Forms.Button();
             this.lblStopped = new System.Windows.Forms.Label();
-            this.chkReadeble = new System.Windows.Forms.CheckBox();
+            this.chkReadable = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.lblUpdatesIn = new System.Windows.Forms.Label();
@@ -139,17 +139,24 @@
             this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvFastResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvFastResults.BackgroundColor = System.Drawing.Color.White;
             this.dgvFastResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvFastResults.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.dgvFastResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvFastResults.EnableHeadersVisualStyles = false;
+            this.dgvFastResults.Font = new System.Drawing.Font("Consolas", 9.75F);
             this.dgvFastResults.Location = new System.Drawing.Point(0, 96);
             this.dgvFastResults.Name = "dgvFastResults";
             this.dgvFastResults.ReadOnly = true;
+            this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvFastResults.Size = new System.Drawing.Size(897, 184);
-            this.dgvFastResults.TabIndex = 18;
+            this.dgvFastResults.TabIndex = 1;
             this.dgvFastResults.VirtualMode = true;
             this.dgvFastResults.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvFastResults_CellValueNeeded);
+            this.dgvFastResults.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dgvFastResults_Scroll);
             // 
             // flpFastMetrics
             // 
@@ -161,7 +168,7 @@
             this.flpFastMetrics.Controls.Add(this.lblMeasuredRuntime);
             this.flpFastMetrics.Controls.Add(this.btnRerunning);
             this.flpFastMetrics.Controls.Add(this.lblStopped);
-            this.flpFastMetrics.Controls.Add(this.chkReadeble);
+            this.flpFastMetrics.Controls.Add(this.chkReadable);
             this.flpFastMetrics.Controls.Add(this.btnSaveDisplayedResults);
             this.flpFastMetrics.Location = new System.Drawing.Point(-1, 37);
             this.flpFastMetrics.Name = "flpFastMetrics";
@@ -255,22 +262,21 @@
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
             this.lblStopped.TabIndex = 0;
             // 
-            // chkReadeble
+            // chkReadable
             // 
-            this.chkReadeble.AutoSize = true;
-            this.chkReadeble.Checked = true;
-            this.chkReadeble.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkReadeble.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkReadeble.Location = new System.Drawing.Point(326, 7);
-            this.chkReadeble.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
-            this.chkReadeble.Name = "chkReadeble";
-            this.chkReadeble.Size = new System.Drawing.Size(69, 17);
-            this.chkReadeble.TabIndex = 3;
-            this.chkReadeble.Text = "Readable";
-            this.toolTip.SetToolTip(this.chkReadeble, "Uncheck this if you want results you can calculate with.");
-            this.chkReadeble.UseVisualStyleBackColor = true;
-            this.chkReadeble.Visible = false;
-            this.chkReadeble.CheckedChanged += new System.EventHandler(this.chkReadeble_CheckedChanged);
+            this.chkReadable.AutoSize = true;
+            this.chkReadable.Checked = true;
+            this.chkReadable.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkReadable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chkReadable.Location = new System.Drawing.Point(326, 7);
+            this.chkReadable.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
+            this.chkReadable.Name = "chkReadable";
+            this.chkReadable.Size = new System.Drawing.Size(69, 17);
+            this.chkReadable.TabIndex = 3;
+            this.chkReadable.Text = "Readable";
+            this.toolTip.SetToolTip(this.chkReadable, "Uncheck this if you want results you can calculate with.");
+            this.chkReadable.UseVisualStyleBackColor = true;
+            this.chkReadable.CheckedChanged += new System.EventHandler(this.chkReadable_CheckedChanged);
             // 
             // btnSaveDisplayedResults
             // 
@@ -541,7 +547,6 @@
             this.epnlMessages.BeginOfTimeFrame = new System.DateTime(((long)(0)));
             this.epnlMessages.Collapsed = false;
             this.epnlMessages.Cursor = System.Windows.Forms.Cursors.Default;
-            this.epnlMessages.EndOfTimeFrame = new System.DateTime(9999, 12, 31, 23, 59, 59, 999);
             this.epnlMessages.ExpandOnErrorEvent = true;
             this.epnlMessages.Location = new System.Drawing.Point(0, 61);
             this.epnlMessages.Margin = new System.Windows.Forms.Padding(0);
@@ -751,7 +756,7 @@
         private Util.KeyValuePairControl kvpMonitorBefore;
         private Util.KeyValuePairControl kvpMonitorAfter;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.CheckBox chkReadeble;
+        private System.Windows.Forms.CheckBox chkReadable;
         private System.Windows.Forms.DataGridView dgvFastResults;
     }
 }

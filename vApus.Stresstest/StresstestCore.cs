@@ -889,7 +889,7 @@ namespace vApus.Stresstest
             int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
             _concurrentUsersResult = new ConcurrencyResult() { ConcurrentUsers = concurrentUsers, RunCount = _stresstest.Runs, StartedAt = DateTime.Now };
             _stresstestResult.ConcurrencyResults.Add(_concurrentUsersResult);
-            InvokeMessage(string.Format("|-> {0} Concurrent Users... (Initializing the first run, be patient)", concurrentUsers), Color.LightGreen);
+            InvokeMessage(string.Format("|-> {0} Concurrent Users... (Initializing the first run, be patient)", concurrentUsers), Color.MediumPurple);
 
             if (!_cancel && ConcurrentUsersStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { ConcurrentUsersStarted(this, new ConcurrencyResultEventArgs(_concurrentUsersResult)); }, null);
@@ -911,7 +911,7 @@ namespace vApus.Stresstest
         {
             _runResult.StoppedAt = DateTime.Now;
             vApus.Results.Metrics metrics = vApus.Results.MetricsHelper.GetMetrics(_runResult);
-            InvokeMessage("|----> |Run Finished in " + metrics.MeasuredRunTime + "!", Color.LightGreen);
+            InvokeMessage("|----> |Run Finished in " + metrics.MeasuredRunTime + "!", Color.MediumPurple);
 
             if (_cancel && RunStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunStopped(this, new RunResultEventArgs(_runResult)); }, null);
@@ -923,7 +923,7 @@ namespace vApus.Stresstest
         /// <param name="run"></param>
         private void SetRunInitializedFirstTime(int concurrentUsersIndex, int run)
         {
-            InvokeMessage(string.Format("|----> |Run {0}...", run), Color.LightGreen);
+            InvokeMessage(string.Format("|----> |Run {0}...", run), Color.MediumPurple);
 
             int singleUserLogEntryCount = _testPatternsAndDelaysGenerator.PatternLength;
             int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];

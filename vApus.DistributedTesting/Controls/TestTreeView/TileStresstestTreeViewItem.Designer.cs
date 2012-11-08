@@ -36,7 +36,7 @@
             this.chk = new System.Windows.Forms.CheckBox();
             this.lblTileStresstest = new System.Windows.Forms.Label();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
-            this.eventProgressBar = new vApus.Util.EventProgressBar();
+            this.eventProgressBar = new vApus.Util.EventProgressChart();
             this.lblExclamation = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
@@ -126,7 +126,6 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.eventProgressBar.BeginOfTimeFrame = new System.DateTime(((long)(0)));
             this.eventProgressBar.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.eventProgressBar.EndOfTimeFrame = new System.DateTime(9999, 12, 31, 23, 59, 59, 999);
             this.eventProgressBar.EventToolTip = true;
             this.eventProgressBar.Location = new System.Drawing.Point(42, 25);
             this.eventProgressBar.Margin = new System.Windows.Forms.Padding(0);
@@ -134,7 +133,7 @@
             this.eventProgressBar.ProgressBarColor = System.Drawing.Color.SteelBlue;
             this.eventProgressBar.Size = new System.Drawing.Size(552, 5);
             this.eventProgressBar.TabIndex = 21;
-            this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressBar.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
+            this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
             this.eventProgressBar.Enter += new System.EventHandler(this._Enter);
             // 
             // lblExclamation
@@ -184,7 +183,7 @@
         private System.Windows.Forms.CheckBox chk;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblTileStresstest;
-        private Util.EventProgressBar eventProgressBar;
+        private Util.EventProgressChart eventProgressBar;
         private System.Windows.Forms.PictureBox picStresstestStatus;
         private System.Windows.Forms.Label lblExclamation;
     }

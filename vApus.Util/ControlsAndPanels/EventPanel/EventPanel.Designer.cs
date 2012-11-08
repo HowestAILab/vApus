@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.eventProgressBar = new vApus.Util.EventProgressBar();
+            this.eventProgressBar = new vApus.Util.EventProgressChart();
             this.cboFilter = new System.Windows.Forms.ComboBox();
             this.eventView = new vApus.Util.EventView();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -89,7 +89,6 @@
             this.eventProgressBar.BackColor = System.Drawing.SystemColors.ControlDark;
             this.eventProgressBar.BeginOfTimeFrame = new System.DateTime(((long)(0)));
             this.eventProgressBar.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.eventProgressBar.EndOfTimeFrame = new System.DateTime(9999, 12, 31, 23, 59, 59, 999);
             this.eventProgressBar.EventToolTip = true;
             this.eventProgressBar.Location = new System.Drawing.Point(3, 2);
             this.eventProgressBar.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
@@ -97,7 +96,7 @@
             this.eventProgressBar.ProgressBarColor = System.Drawing.Color.SteelBlue;
             this.eventProgressBar.Size = new System.Drawing.Size(398, 21);
             this.eventProgressBar.TabIndex = 1;
-            this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressBar.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
+            this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
             // 
             // cboFilter
             // 
@@ -147,7 +146,7 @@
 
         #endregion
 
-        private EventProgressBar eventProgressBar;
+        private EventProgressChart eventProgressBar;
         private EventView eventView;
         private System.Windows.Forms.Button btnCollapseExpand;
         private System.Windows.Forms.SplitContainer splitContainer;

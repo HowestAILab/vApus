@@ -19,7 +19,7 @@ namespace vApus.Util
         #region Fields
         public const int WIDTH = 2;
 
-        private EventProgressBar _parent;
+        private EventProgressChart _parent;
         private Pen _pen;
         private Pen _selectedPen = new Pen(Color.Yellow, WIDTH);
         private bool _entered;
@@ -108,7 +108,7 @@ namespace vApus.Util
         /// <param name="color"></param>
         /// <param name="message"></param>
         /// <param name="at">The occured event at a certain date/time.</param>
-        public ProgressEvent(EventProgressBar parent, Color color, string message, DateTime at)
+        public ProgressEvent(EventProgressChart parent, Color color, string message, DateTime at)
         {
             _parent = parent;
             Color = color;

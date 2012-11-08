@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -13,7 +14,6 @@ using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Util;
-using System.Collections.Generic;
 
 namespace vApus.Stresstest
 {
@@ -251,50 +251,35 @@ namespace vApus.Stresstest
             {
                 if (_stresstestCore != null && !_stresstestCore.IsDisposed)
                 {
-                   SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                   {
-                       Stop(ex, stresstestStatus == StresstestStatus.Ok && ex == null);
-                       try
-                       {
-                           //stresstestReportControl.StresstestResult = _stresstestResult;
-                           //stresstestReportControl.SetConfigurationLabels();
-                           //stresstestReportControl.MakeReport();
-                       }
-                       catch (Exception e)
-                       {
-                           LogWrapper.LogByLevel(this.Text + ": Failed making a stresstest report.\n" + e.ToString(), LogLevel.Error);
-                       }
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+                    {
+                        Stop(ex, stresstestStatus == StresstestStatus.Ok && ex == null);
+                        try
+                        {
+                            //stresstestReportControl.StresstestResult = _stresstestResult;
+                            //stresstestReportControl.SetConfigurationLabels();
+                            //stresstestReportControl.MakeReport();
+                        }
+                        catch (Exception e)
+                        {
+                            LogWrapper.LogByLevel(this.Text + ": Failed making a stresstest report.\n" + e.ToString(), LogLevel.Error);
+                        }
 
-                       //if (_monitorViews != null)
-                       //    foreach (var view in _monitorViews)
-                       //        if (view != null && view.Tag != null)
-                       //            try
-                       //            {
-                       //                var monitorReportControl = view.Tag as MonitorReportControl;
-                       //                monitorReportControl.SetConfig_Headers_MonitorValuesAndStresstestResults(view.Configuration, view.GetHeaders(), view.GetMonitorValues(), _stresstestResult);
-                       //            }
-                       //            catch (Exception e)
-                       //            {
-                       //                LogWrapper.LogByLevel(view.Text + ": Failed making a monitor report.\n" + e.ToString(), LogLevel.Error);
-                       //            }
+                        //if (_monitorViews != null)
+                        //    foreach (var view in _monitorViews)
+                        //        if (view != null && view.Tag != null)
+                        //            try
+                        //            {
+                        //                var monitorReportControl = view.Tag as MonitorReportControl;
+                        //                monitorReportControl.SetConfig_Headers_MonitorValuesAndStresstestResults(view.Configuration, view.GetHeaders(), view.GetMonitorValues(), _stresstestResult);
+                        //            }
+                        //            catch (Exception e)
+                        //            {
+                        //                LogWrapper.LogByLevel(view.Text + ": Failed making a monitor report.\n" + e.ToString(), LogLevel.Error);
+                        //            }
 
-                       string message = null;
-                       switch (stresstestStatus)
-                       {
-                           case StresstestStatus.Ok:
-                               //message = string.Format("The test completed succesfully in {0}.", _stresstestResult.Metrics.MeasuredRunTime.ToLongFormattedString());
-                               stresstestControl.SetStresstestStopped(stresstestStatus, message);
-                               break;
-                           case StresstestStatus.Cancelled:
-                               message = "The stresstest was cancelled.";
-                               stresstestControl.SetStresstestStopped(stresstestStatus, message);
-                               break;
-                           case StresstestStatus.Error:
-                               message = "The stresstest failed!";
-                               stresstestControl.SetStresstestStopped(stresstestStatus, message);
-                               break;
-                       }
-                   }, null);
+                        stresstestControl.SetStresstestStopped(stresstestStatus);
+                    }, null);
                 }
             }
         }
@@ -499,7 +484,7 @@ namespace vApus.Stresstest
             tmrProgress.Stop();
 
             _metricsCache.AddOrUpdate(vApus.Results.MetricsHelper.GetMetrics(e.Result), e.Result);
-            stresstestControl.UpdateConcurrencyFastResults(_metricsCache.MetricsToRows(_metricsCache.GetConcurrencyMetrics()));
+            stresstestControl.UpdateConcurrencyFastResults(_metricsCache.GetConcurrencyMetrics());
             stresstestControl.SetRerunning(false);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e)
@@ -509,8 +494,8 @@ namespace vApus.Stresstest
             tmrProgress.Stop();
 
             _metricsCache.AddOrUpdate(vApus.Results.MetricsHelper.GetMetrics(e.Result), e.Result);
-            stresstestControl.UpdateConcurrencyFastResults(_metricsCache.MetricsToRows(_metricsCache.GetConcurrencyMetrics()));
-            stresstestControl.UpdateRunFastResults(_metricsCache.MetricsToRows(_metricsCache.GetRunMetrics()));
+            stresstestControl.UpdateConcurrencyFastResults(_metricsCache.GetConcurrencyMetrics());
+            stresstestControl.UpdateRunFastResults(_metricsCache.GetRunMetrics());
             stresstestControl.SetRerunning(false);
 
             stresstestControl.SetCountDownProgressDelay(_countDown--);
@@ -532,9 +517,9 @@ namespace vApus.Stresstest
                 }
                 catch { } //Exception on false WMI. 
 
-                stresstestControl.UpdateConcurrencyFastResults(_metricsCache.MetricsToRows(_metricsCache.GetConcurrencyMetrics()));
+                stresstestControl.UpdateConcurrencyFastResults(_metricsCache.GetConcurrencyMetrics());
                 var runMetrics = _metricsCache.GetRunMetrics();
-                stresstestControl.UpdateRunFastResults(_metricsCache.MetricsToRows(runMetrics));
+                stresstestControl.UpdateRunFastResults(runMetrics);
 
                 //Set rerunning
                 stresstestControl.SetRerunning(runMetrics.Count == 0 ? false : runMetrics[runMetrics.Count - 1].RerunCount != 0);
@@ -607,10 +592,7 @@ namespace vApus.Stresstest
             tmrSchedule.Stop();
 
             if (ex != null)
-            {
-                string message = "The stresstest threw an exception:\n" + ex.Message + "\n\nSee " + Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                stresstestControl.SetStresstestStopped(StresstestStatus.Error, message);
-            }
+                stresstestControl.SetStresstestStopped(StresstestStatus.Error, ex);
 
             if (_stresstestCore != null && !_stresstestCore.IsDisposed)
             {
@@ -688,8 +670,8 @@ namespace vApus.Stresstest
                     stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                 }
                 catch { } //Exception on false WMI. 
-                stresstestControl.UpdateConcurrencyFastResults(_metricsCache.MetricsToRows(_metricsCache.GetConcurrencyMetrics()));
-                stresstestControl.UpdateRunFastResults(_metricsCache.MetricsToRows(_metricsCache.GetRunMetrics()));
+                stresstestControl.UpdateConcurrencyFastResults(_metricsCache.GetConcurrencyMetrics());
+                stresstestControl.UpdateRunFastResults(_metricsCache.GetRunMetrics());
                 stresstestControl.SetRerunning(false);
 
                 // Can only be cancelled once, calling multiple times is not a problem.

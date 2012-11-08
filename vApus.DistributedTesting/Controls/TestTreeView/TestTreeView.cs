@@ -26,7 +26,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// Event of the test clicked.
         /// </summary>
-        public event EventHandler<EventProgressBar.ProgressEventEventArgs> EventClicked;
+        public event EventHandler<EventProgressChart.ProgressEventEventArgs> EventClicked;
 
         #region Fields
         private DistributedTestMode _distributedTestMode;
@@ -284,7 +284,7 @@ namespace vApus.DistributedTesting
             tsvi.DuplicateClicked += new EventHandler(tsvi_DuplicateClicked);
             tsvi.DeleteClicked += new EventHandler(tsvi_DeleteClicked);
 
-            tsvi.EventClicked += new EventHandler<EventProgressBar.ProgressEventEventArgs>(tsvi_EventClicked);
+            tsvi.EventClicked += new EventHandler<EventProgressChart.ProgressEventEventArgs>(tsvi_EventClicked);
             return tsvi;
         }
         private void tsvi_DeleteClicked(object sender, EventArgs e)
@@ -334,7 +334,7 @@ namespace vApus.DistributedTesting
 
             LockWindowUpdate(0);
         }
-        private void tsvi_EventClicked(object sender, EventProgressBar.ProgressEventEventArgs e)
+        private void tsvi_EventClicked(object sender, EventProgressChart.ProgressEventEventArgs e)
         {
             if (EventClicked != null)
                 EventClicked(sender, e);

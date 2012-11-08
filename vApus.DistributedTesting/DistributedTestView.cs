@@ -699,7 +699,7 @@ namespace vApus.DistributedTesting
                         }
                     }
                     stresstestControl.SetStresstestStarted(testProgressMessage.TileStresstestProgressResults.Metrics.StartMeasuringRuntime);
-                    stresstestControl.SetMeasuredRunTime(testProgressMessage.TileStresstestProgressResults.Metrics.MeasuredRunTime, testProgressMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
+                    //stresstestControl.SetMeasuredRunTime(testProgressMessage.TileStresstestProgressResults.Metrics.MeasuredRunTime, testProgressMessage.TileStresstestProgressResults.EstimatedRuntimeLeft);
                 }
 
 
@@ -764,7 +764,7 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        private void testTreeView_EventClicked(object sender, EventProgressBar.ProgressEventEventArgs e)
+        private void testTreeView_EventClicked(object sender, EventProgressChart.ProgressEventEventArgs e)
         {
             if (sender == _selectedTestItem && _selectedTestItem is TileStresstestTreeViewItem)
             {

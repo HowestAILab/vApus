@@ -196,7 +196,7 @@
             this.testTreeView.Size = new System.Drawing.Size(294, 619);
             this.testTreeView.TabIndex = 0;
             this.testTreeView.AfterSelect += new System.EventHandler(this.testTreeView_AfterSelect);
-            this.testTreeView.EventClicked += new System.EventHandler<vApus.Util.EventProgressBar.ProgressEventEventArgs>(this.testTreeView_EventClicked);
+            this.testTreeView.EventClicked += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.testTreeView_EventClicked);
             // 
             // tpSlaves
             // 

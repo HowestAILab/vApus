@@ -40,10 +40,12 @@ namespace vApus.Util
             set { eventProgressBar.BeginOfTimeFrame = value; }
             get { return eventProgressBar.BeginOfTimeFrame; }
         }
+        /// <summary>
+        /// It is set through SetProgressBarToNow().
+        /// </summary>
         [Description("The end of the time frame.")]
         public DateTime EndOfTimeFrame
         {
-            set { eventProgressBar.EndOfTimeFrame = value; }
             get { return eventProgressBar.EndOfTimeFrame; }
         }
 
@@ -147,9 +149,9 @@ namespace vApus.Util
 
             LockWindowUpdate(0);
         }
-        public void SetProgressBarToNow()
+        public void SetEndOfTimeFrameToNow()
         {
-            eventProgressBar.SetProgressBarToNow();
+            eventProgressBar.SetEndOfTimeFrameNow();
         }
         public void ClearEvents()
         {
@@ -160,7 +162,7 @@ namespace vApus.Util
         {
             eventView.Export();
         }
-        private void eventProgressBar_EventClick(object sender, EventProgressBar.ProgressEventEventArgs e)
+        private void eventProgressBar_EventClick(object sender, EventProgressChart.ProgressEventEventArgs e)
         {
             ShowEvent(e.ProgressEvent.At);
         }

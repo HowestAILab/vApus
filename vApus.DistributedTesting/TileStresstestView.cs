@@ -386,8 +386,7 @@ namespace vApus.DistributedTesting
             if (ex != null)
             {
                 _stresstestStatus = StresstestStatus.Error;
-                string message = "The stresstest threw an exception:\n" + ex.Message + "\n\nSee " + Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                stresstestControl.SetStresstestStopped(_stresstestStatus, message);
+                stresstestControl.SetStresstestStopped(_stresstestStatus, ex);
             }
 
             if (_stresstestCore != null && !_stresstestCore.IsDisposed)
