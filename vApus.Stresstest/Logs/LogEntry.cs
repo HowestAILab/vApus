@@ -291,16 +291,16 @@ namespace vApus.Stresstest
                 chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
         }
 
-        public LogEntry Clone(bool setParent = true)
+        public LogEntry Clone()
         {
             LogEntry logEntry = new LogEntry();
-            if (setParent)
-                logEntry.Parent = Parent;
+            logEntry.SetParent(Parent, false);
             logEntry.Occurance = _occurance;
             logEntry.LogEntryString = _logEntryString;
             logEntry.LogEntryStringAsImported = _logEntryStringAsImported;
             logEntry.Pinned = _pinned;
             logEntry.IgnoreDelay = _ignoreDelay;
+            logEntry._parameters = _parameters;
 
             logEntry.ApplyLogRuleSet();
 

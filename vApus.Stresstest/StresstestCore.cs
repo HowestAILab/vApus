@@ -148,7 +148,6 @@ namespace vApus.Stresstest
             }
 
             _log = LogTimesOccurancies(_stresstest.Log, _stresstest.Distribute);
-            _log.ApplyLogRuleSet();
 
             //Parallel connections, check per user aciotn
             _parallelConnectionsModifier = 0;
@@ -185,12 +184,15 @@ namespace vApus.Stresstest
         /// <summary>
         /// Expands the log (into a new one) times the occurance, this is only done if the Action Distribution is not equal to none.
         /// Otherwise the original on is returned.
+        /// 
+        /// This also applies the log ruleset.
         /// </summary>
         /// <returns></returns>
         private Log LogTimesOccurancies(Log log, ActionAndLogEntryDistribution distribute)
         {
             if (distribute == ActionAndLogEntryDistribution.None)
             {
+                log.ApplyLogRuleSet();
                 return log;
             }
             else
@@ -209,7 +211,7 @@ namespace vApus.Stresstest
                             foreach (LogEntry child in action)
                                 for (int j = 0; j != child.Occurance; j++)
                                 {
-                                    var childClone = child.Clone(false);
+                                    var childClone = child.Clone();
                                     childClone.Occurance = 1;
                                     actionClone.AddWithoutInvokingEvent(childClone, false);
                                 }
@@ -222,7 +224,7 @@ namespace vApus.Stresstest
                         LogEntry entry = item as LogEntry;
                         for (int i = 0; i != entry.Occurance; i++)
                         {
-                            var entryClone = entry.Clone(false);
+                            var entryClone = entry.Clone();
                             entryClone.Occurance = 1;
                             newLog.AddWithoutInvokingEvent(entryClone, false);
                         }
