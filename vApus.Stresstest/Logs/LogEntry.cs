@@ -18,9 +18,9 @@ namespace vApus.Stresstest
     {
         #region Events
         /// <summary>
-        /// This event is used in a control, this makes sure that trying to serialize the control where this event is used will not happen.
+        /// This event is used in a control.
         /// </summary>
-        [field: NonSerialized]
+        [field: NonSerialized] //This makes sure that trying to serialize the control where this event is used will not happen.
         internal event EventHandler LexicalResultChanged;
         #endregion
 
@@ -290,17 +290,17 @@ namespace vApus.Stresstest
             return _lexedLogEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter,
                 chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
         }
-
-        public LogEntry Clone(bool setParent = true)
+        //Clones and applies the log rule set.
+        public LogEntry Clone()
         {
             LogEntry logEntry = new LogEntry();
-            if (setParent)
-                logEntry.Parent = Parent;
+            logEntry.SetParent(Parent, false);
             logEntry.Occurance = _occurance;
             logEntry.LogEntryString = _logEntryString;
             logEntry.LogEntryStringAsImported = _logEntryStringAsImported;
             logEntry.Pinned = _pinned;
             logEntry.IgnoreDelay = _ignoreDelay;
+            logEntry._parameters = _parameters;
 
             logEntry.ApplyLogRuleSet();
 

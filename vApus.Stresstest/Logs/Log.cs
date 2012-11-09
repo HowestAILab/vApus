@@ -309,7 +309,7 @@ namespace vApus.Stresstest
         public Log Clone(bool cloneChildren = true)
         {
             Log log = new Log();
-            log.Parent = Parent;
+            log.SetParent(Parent, false);
             log.Label = Label;
             log.LogRuleSet = _logRuleSet;
             log._lexicalResult = _lexicalResult;
