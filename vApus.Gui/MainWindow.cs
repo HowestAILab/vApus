@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Link;
+using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -37,6 +38,7 @@ namespace vApus.Gui
         private LocalizationPanel _localizationPanel;
         private CleanTempDataPanel _cleanTempDataPanel;
         private DisableFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
+        private SavingResultsPanel _savingResultsPanel;
 
         private ProgressSpammerPanel _progressSpammerPannel;
 
@@ -112,6 +114,7 @@ namespace vApus.Gui
                     }
 
                 _progressSpammerPannel = new ProgressSpammerPanel();
+                _savingResultsPanel = new SavingResultsPanel();
             }
             catch (Exception ex)
             {
@@ -475,6 +478,7 @@ namespace vApus.Gui
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
                 //_optionsDialog.AddOptionsPanel(_progressSpammerPannel);
+                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.ShowDialog(this);

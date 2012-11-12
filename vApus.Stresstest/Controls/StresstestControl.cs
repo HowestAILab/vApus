@@ -336,6 +336,11 @@ namespace vApus.Stresstest
                 dgvFastResults.Scroll += dgvFastResults_Scroll;
             }
         }
+        private void dgvFastResults_Scroll(object sender, ScrollEventArgs e)
+        {
+            ScrollBar verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static).GetValue(dgvFastResults) as ScrollBar;
+            _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >= verticalScrollBar.Maximum;
+        }
         /// <summary>
         /// Sets the '; ran ...' label.
         /// </summary>
@@ -345,14 +350,6 @@ namespace vApus.Stresstest
             epnlMessages.SetEndOfTimeFrameToNow();
 
             lblMeasuredRuntime.Text = "; ran " + (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString();
-        }
-        /// <summary>
-        /// 0 = Concurrency, 1 = runs
-        /// </summary>
-        /// <param name="level"></param>
-        public void DrillDown(int level)
-        {
-            cboDrillDown.SelectedIndex = level;
         }
         private void btnRerunning_Click(object sender, EventArgs e)
         {
@@ -585,11 +582,5 @@ namespace vApus.Stresstest
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }
         #endregion
-
-        private void dgvFastResults_Scroll(object sender, ScrollEventArgs e)
-        {
-            ScrollBar verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static ).GetValue(dgvFastResults) as ScrollBar;
-            _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >= verticalScrollBar.Maximum;
-        }
     }
 }
