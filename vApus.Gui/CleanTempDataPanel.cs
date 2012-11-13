@@ -39,7 +39,6 @@ namespace vApus.Gui
         {
             InitializeComponent();
 
-            _d.Add("SlaveSideResults", 0);
             _d.Add("ConnectionProxyTempFiles", 0);
             _d.Add("Logs", 0);
             _d.Add("UpdateTempFiles", 0);
@@ -77,9 +76,6 @@ namespace vApus.Gui
 
             if (this.IsHandleCreated)
             {
-                btnOpenSlaveSideResults.Text = string.Format("     SlaveSideResults... [{0}MB]", _d["SlaveSideResults"]);
-                btnOpenSlaveSideResults.Enabled = btnDeleteSlaveSideResults.Enabled = (_d["SlaveSideResults"] != 0);
-
                 btnOpenConnectionProxyTempFiles.Text = string.Format("     ConnectionProxyTempFiles... [{0}MB]", _d["ConnectionProxyTempFiles"]);
                 btnOpenConnectionProxyTempFiles.Enabled = btnDeleteConnectionProxyTempFiles.Enabled = (_d["ConnectionProxyTempFiles"] != 0);
 
@@ -142,14 +138,7 @@ namespace vApus.Gui
         private void Delete(string d)
         {
             d = Path.Combine(Application.StartupPath, d);
-
             if (Directory.Exists(d))
-            {
-                //Give a warning for 
-                if (d.EndsWith("SlaveSideResults") &&
-                    MessageBox.Show("Are you really sure you want to delete the slave-side results?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                    return;
-
                 try
                 {
                     string[] files = Directory.GetFiles(d);
@@ -163,8 +152,6 @@ namespace vApus.Gui
                     Directory.Delete(d, true);
                 }
                 catch { }
-
-            }
         }
         private void btnDeleteAll_Click(object sender, EventArgs e)
         {

@@ -475,10 +475,10 @@ namespace vApus.Gui
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
                 _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
+                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
                 //_optionsDialog.AddOptionsPanel(_progressSpammerPannel);
-                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.ShowDialog(this);

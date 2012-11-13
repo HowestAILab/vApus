@@ -37,7 +37,7 @@ namespace vApus.Results
                 cboConnectionString.Items.Add(connectionString);
 
             cboConnectionString.Items.Add("<New>");
-            cboConnectionString.SelectedIndex = vApus.Results.Properties.Settings.Default.ConnectionStringIndex;
+            cboConnectionString.SelectedIndex = global::vApus.Results.Properties.Settings.Default.ConnectionStringIndex;
         }
         private void txt_Enter(object sender, EventArgs e)
         {
@@ -106,7 +106,6 @@ namespace vApus.Results
         private void AddCredentials(string user, string host, int port, string password)
         {
             EditCredentials(-1, user, host, port, password);
-            SetGui();
         }
         private void EditCredentials(int connectionStringIndex, string user, string host, int port, string password)
         {
@@ -130,6 +129,9 @@ namespace vApus.Results
 
             vApus.Results.Properties.Settings.Default.ConnectionStrings = connectionStrings;
             vApus.Results.Properties.Settings.Default.Passwords = passwords;
+            vApus.Results.Properties.Settings.Default.Save();
+
+            SetGui();
         }
         private void GetCredentials(int connectionStringIndex, out string user, out string host, out int port, out string password)
         {
@@ -152,6 +154,8 @@ namespace vApus.Results
             vApus.Results.Properties.Settings.Default.Passwords = passwords;
 
             vApus.Results.Properties.Settings.Default.Save();
+
+            SetGui();
         }
         #endregion
 
@@ -170,6 +174,8 @@ namespace vApus.Results
                 txtUser_Leave(null, null);
                 txtHost_Leave(null, null);
                 txtPassword_Leave(null, null);
+
+                btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = false; 
             }
             else
             {
@@ -184,11 +190,14 @@ namespace vApus.Results
                 txtHost.Text = host;
                 nudPort.Value = port;
                 txtPassword.Text = password;
+
+                btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = true;
             }
         }
 
         private void btnTest_Click(object sender, EventArgs e)
         {
+            bool succes = true;
             var dba = new DatabaseActions
             {
                 ConnectionString =
@@ -200,23 +209,36 @@ namespace vApus.Results
             }
             catch
             {
-                MessageBox.Show("Could not connect to the database server", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                succes = false;
             }
             dba.ReleaseConnection();
             dba = null;
+
+            if (succes)
+                MessageBox.Show("The connection has been established! and closed again successfully.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+            else
+                MessageBox.Show("Could not connect to the database server", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (cboConnectionString.SelectedIndex == cboConnectionString.Items.Count - 1)
                 AddCredentials(txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
-            else 
+            else
                 EditCredentials(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
             DeleteCredentials(cboConnectionString.SelectedIndex);
+        }
+
+        private void txt_TextChanged(object sender, EventArgs e)
+        {
+            btnTest.Enabled = btnSave.Enabled =
+             (txtUser.ForeColor != Color.DimGray && txtUser.Text.Trim().Length != 0) &&
+             (txtHost.ForeColor != Color.DimGray && txtHost.Text.Trim().Length != 0) &&
+             (txtPassword.ForeColor != Color.DimGray && txtPassword.Text.Trim().Length != 0);
         }
     }
 }
