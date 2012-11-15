@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Threading;
-using vApus.Results.Model;
+using vApus.Results;
 using vApus.Util;
 
 namespace vApus.Stresstest
@@ -860,26 +860,31 @@ namespace vApus.Stresstest
 
         private void SetStresstestStarted()
         {
-            var stresstestConfiguration = new StresstestConfiguration()
-            {
-                Stresstest = _stresstest.ToString(),
-                RunSynchronization = _runSynchronization.ToString(),
-                Connection = _stresstest.Connection.ToString(),
-                ConnectionProxy = _stresstest.ConnectionProxy.ToString(),
-                ConnectionString = _stresstest.Connection.ConnectionString,
-                Log = _stresstest.Log.ToString(),
-                LogRuleSet = _stresstest.LogRuleSet.ToString(),
-                //Monitors
-                Concurrency = _stresstest.Concurrency.Combine(", "),
-                Runs = _stresstest.Runs,
-                MinimumDelay = _stresstest.MinimumDelay,
-                MaximumDelay = _stresstest.MaximumDelay,
-                Shuffle = _stresstest.Shuffle,
-                Distribute = _stresstest.Distribute.ToString(),
-                MonitorBefore = _stresstest.MonitorBefore,
-                MonitorAfter = _stresstest.MonitorAfter
-            };
-            _stresstestResult = new StresstestResult() { StartedAt = DateTime.Now, StresstestConfiguration = stresstestConfiguration };
+            Test test;
+             vApus.Results.ResultsHelper.TryGetNewTest(out test);
+
+            _stresstestResult = new StresstestResult() { StartedAt = DateTime.Now };
+
+            //var stresstestConfiguration = new StresstestConfiguration()
+            //{
+            //    Stresstest = _stresstest.ToString(),
+            //    RunSynchronization = _runSynchronization.ToString(),
+            //    Connection = _stresstest.Connection.ToString(),
+            //    ConnectionProxy = _stresstest.ConnectionProxy.ToString(),
+            //    ConnectionString = _stresstest.Connection.ConnectionString,
+            //    Log = _stresstest.Log.ToString(),
+            //    LogRuleSet = _stresstest.LogRuleSet.ToString(),
+            //    //Monitors
+            //    Concurrency = _stresstest.Concurrency.Combine(", "),
+            //    Runs = _stresstest.Runs,
+            //    MinimumDelay = _stresstest.MinimumDelay,
+            //    MaximumDelay = _stresstest.MaximumDelay,
+            //    Shuffle = _stresstest.Shuffle,
+            //    Distribute = _stresstest.Distribute.ToString(),
+            //    MonitorBefore = _stresstest.MonitorBefore,
+            //    MonitorAfter = _stresstest.MonitorAfter,
+            //    StresstestResult = _stresstestResult
+            //};
 
             InvokeMessage("Starting the stresstest...");
 

@@ -31,10 +31,7 @@ namespace vApus.Results
         /// <summary>
         /// Throughput.
         /// </summary>
-        public double LogEntriesPerSecond { get; set; }
-        /// <summary>
-        /// Throughput.
-        /// </summary>
+        public double ResponsesPerSecond { get; set; }
         public double UserActionsPerSecond { get; set; }
         public TimeSpan AverageResponseTime { get; set; }
         public TimeSpan MaxResponseTime { get; set; }
@@ -66,7 +63,7 @@ namespace vApus.Results
             Run = sr.ReadInt32();
             LogEntries = sr.ReadInt64();
             _logEntriesProcessed = sr.ReadInt64();
-            LogEntriesPerSecond = sr.ReadDouble();
+            ResponsesPerSecond = sr.ReadDouble();
             AverageResponseTime = sr.ReadTimeSpan();
             MaxResponseTime = sr.ReadTimeSpan();
             AverageDelay = sr.ReadTimeSpan();
@@ -83,7 +80,7 @@ namespace vApus.Results
             sw.Write(Run);
             sw.Write(LogEntries);
             sw.Write(_logEntriesProcessed);
-            sw.Write(LogEntriesPerSecond);
+            sw.Write(ResponsesPerSecond);
             sw.Write(AverageResponseTime);
             sw.Write(MaxResponseTime);
             sw.Write(AverageDelay);

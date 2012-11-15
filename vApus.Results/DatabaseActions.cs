@@ -163,7 +163,7 @@ public class DatabaseActions
     /// <param name="commandText">The SQL string or stored procedure name.</param>
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
-    public void ExecuteSQL(string commandText, CommandType commandType, params IDbDataParameter[] parameters)
+    public void ExecuteSQL(string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand oCommand = BuildCommand(commandText, commandType, parameters);
         oCommand.ExecuteNonQuery();
@@ -176,7 +176,7 @@ public class DatabaseActions
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public DataTable GetDataTable(string commandText, CommandType commandType, params IDbDataParameter[] parameters)
+    public DataTable GetDataTable(string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         IDbDataAdapter dataAdapter = GetNewDataAdapter();
@@ -195,7 +195,7 @@ public class DatabaseActions
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public IDataReader GetDataReader(string commandText, CommandType commandType, params IDbDataParameter[] parameters)
+    public IDataReader GetDataReader(string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         IDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);
@@ -210,7 +210,7 @@ public class DatabaseActions
     /// <param name="commandType"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public object ExecuteScalar(string commandText, CommandType commandType, params IDbDataParameter[] parameters)
+    public object ExecuteScalar(string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         return command.ExecuteScalar();
@@ -238,7 +238,7 @@ public class DatabaseActions
     /// <param name="commandText">The SQL string or stored procedure name.</param>
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
-    public void ExecuteSQL(IDbTransaction transaction, string commandText, CommandType commandType, params IDbDataParameter[] parameters)
+    public void ExecuteSQL(IDbTransaction transaction, string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(transaction, commandText, commandType, parameters);
         command.Transaction = transaction;
@@ -253,7 +253,7 @@ public class DatabaseActions
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public  DataTable GetDataTable(IDbTransaction transaction, string commandText, CommandType commandType, params IDbDataParameter[] parameters)
+    public DataTable GetDataTable(IDbTransaction transaction, string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(transaction, commandText, commandType, parameters);
         command.Transaction = transaction;
@@ -275,7 +275,7 @@ public class DatabaseActions
     /// <param name="commandType"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public object ExecuteScalar(IDbTransaction transaction, string commandText, CommandType commandType, params IDbDataParameter[] parameters)
+    public object ExecuteScalar(IDbTransaction transaction, string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         command.Transaction = transaction;

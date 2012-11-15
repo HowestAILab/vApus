@@ -7,7 +7,6 @@
  */
 using System;
 using System.Collections.Generic;
-using vApus.Results.Model;
 
 namespace vApus.Results
 {

@@ -7,29 +7,29 @@
  */
 using System;
 
-namespace vApus.Results.Model
+namespace vApus.Results
 {
     public class RunResult
     {
-        public virtual int Id { get; set; }
-        public virtual int Run { get; set; }
+        public int Id { get; set; }
+        public int Run { get; set; }
         /// <summary>
         /// For break on last run sync.
         /// </summary>
-        public virtual int RerunCount { get; set; }
+        public int RerunCount { get; set; }
         /// <summary>
         /// If this is not set, it is set to DateTime.Now in the constructor.
         /// </summary>
-        public virtual DateTime StartedAt { get; set; }
+        public DateTime StartedAt { get; set; }
         /// <summary>
         /// If this is not set, it is set to DateTime.MinValue in the constructor.
         /// </summary>
-        public virtual DateTime StoppedAt { get; set; }
+        public DateTime StoppedAt { get; set; }
 
         /// <summary>
         /// Dont forget to set this.
         /// </summary>
-        public virtual VirtualUserResult[] VirtualUserResults { get; set; }
+        public VirtualUserResult[] VirtualUserResults { get; set; }
 
         public RunResult()
         {

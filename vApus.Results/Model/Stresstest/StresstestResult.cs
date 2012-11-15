@@ -8,31 +8,34 @@
 using System;
 using System.Collections.Generic;
 
-namespace vApus.Results.Model
+namespace vApus.Results
 {
     public class StresstestResult
     {
-        public virtual int Id { get; set; }
         /// <summary>
-        /// Don't forget to set this.
+        /// PK
         /// </summary>
-        public virtual StresstestConfiguration StresstestConfiguration { get; set; }
+        public int Id { get; set; }
+        /// <summary>
+        /// FK
+        /// </summary>
+        public int StresstestID { get; set; }
         /// <summary>
         /// If this is not set, it is set to DateTime.Now in the constructor.
         /// </summary>
-        public virtual DateTime StartedAt { get; set; }
+        public DateTime StartedAt { get; set; }
         /// <summary>
         /// If this is not set, it is set to DateTime.MinValue in the constructor.
         /// </summary>
-        public virtual DateTime StoppedAt { get; set; }
+        public DateTime StoppedAt { get; set; }
         /// <summary>
         /// OK (default), Cancelled, Failed
         /// </summary>
-        public virtual string Status { get; set; }
+        public string Status { get; set; }
         /// <summary>
         /// Exception on failure for example
         /// </summary>
-        public virtual string StatusMessage { get; set; }
+        public string StatusMessage { get; set; }
 
         public List<ConcurrencyResult> ConcurrencyResults { get; set; }
 
@@ -43,20 +46,5 @@ namespace vApus.Results.Model
             Status = "OK";
             ConcurrencyResults = new List<ConcurrencyResult>();
         }
-        //public ConcurrencyResult GetLatConcurrencyResult()
-        //{
-        //    if (ConcurrencyResults.Count == 0)
-        //        return null;
-
-        //    return ConcurrencyResults[ConcurrencyResults.Count - 1];
-        //}
-        //public RunResult GetLastRunResult()
-        //{
-        //    var lastConcurrencyResult = GetLatConcurrencyResult();
-        //    if (lastConcurrencyResult == null || lastConcurrencyResult.RunResults.Count == 0)
-        //        return null;
-
-        //    return lastConcurrencyResult.RunResults[lastConcurrencyResult.RunResults.Count - 1];
-        //}
     }
 }

@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -14,9 +21,6 @@ namespace vApus.Results
 {
     public partial class SavingResultsPanel : Panel
     {
-        private string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private byte[] _passwordSalt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
-
         public SavingResultsPanel()
         {
             InitializeComponent();
@@ -26,6 +30,7 @@ namespace vApus.Results
                 this.HandleCreated += SavingResultsPanel_HandleCreated;
         }
 
+        #region Functions
         private void SavingResultsPanel_HandleCreated(object sender, EventArgs e)
         {
             SetGui();
@@ -33,11 +38,42 @@ namespace vApus.Results
         private void SetGui()
         {
             cboConnectionString.Items.Clear();
-            foreach (string connectionString in GetConnectionStrings())
+            foreach (string connectionString in SettingsManager.GetConnectionStrings())
                 cboConnectionString.Items.Add(connectionString);
 
             cboConnectionString.Items.Add("<New>");
             cboConnectionString.SelectedIndex = global::vApus.Results.Properties.Settings.Default.ConnectionStringIndex;
+        }
+        private void cboConnectionStrings_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnSave.Enabled = false;
+            if (cboConnectionString.SelectedIndex == cboConnectionString.Items.Count - 1)
+            {
+                txtUser.Text = txtHost.Text = txtPassword.Text = string.Empty;
+                nudPort.Value = 3306;
+
+                txtUser_Leave(null, null);
+                txtHost_Leave(null, null);
+                txtPassword_Leave(null, null);
+
+                btnTest.Enabled = btnDelete.Enabled = false;
+            }
+            else
+            {
+                txtUser.ForeColor = txtHost.ForeColor = txtPassword.ForeColor = Color.Black;
+                txtPassword.UseSystemPasswordChar = true;
+
+                string user, host, password;
+                int port;
+                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
+
+                txtUser.Text = user;
+                txtHost.Text = host;
+                nudPort.Value = port;
+                txtPassword.Text = password;
+
+                btnTest.Enabled = btnDelete.Enabled = true;
+            }
         }
         private void txt_Enter(object sender, EventArgs e)
         {
@@ -85,116 +121,26 @@ namespace vApus.Results
                 txtPassword.Text = "Password";
             }
         }
-
-        #region Settings
-        private StringCollection GetConnectionStrings()
+        private void txt_TextChanged(object sender, EventArgs e)
         {
-            var connectionStrings = vApus.Results.Properties.Settings.Default.ConnectionStrings;
-            if (connectionStrings == null)
-                connectionStrings = new StringCollection();
+            btnTest.Enabled = btnSave.Enabled =
+             (txtUser.ForeColor != Color.DimGray && txtUser.Text.Trim().Length != 0) &&
+             (txtHost.ForeColor != Color.DimGray && txtHost.Text.Trim().Length != 0) &&
+             (txtPassword.ForeColor != Color.DimGray && txtPassword.Text.Trim().Length != 0);
 
-            return connectionStrings;
-        }
-        private StringCollection GetPasswords()
-        {
-            var passwords = vApus.Results.Properties.Settings.Default.Passwords;
-            if (passwords == null)
-                passwords = new StringCollection();
-
-            return passwords;
-        }
-        private void AddCredentials(string user, string host, int port, string password)
-        {
-            EditCredentials(-1, user, host, port, password);
-        }
-        private void EditCredentials(int connectionStringIndex, string user, string host, int port, string password)
-        {
-            string connectionString = user + "@" + host + ":" + port;
-            password = password.Encrypt(_passwordGUID, _passwordSalt);
-
-            var connectionStrings = GetConnectionStrings();
-            var passwords = GetPasswords();
-
-            if (connectionStringIndex == -1)
+            if (cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1)
             {
-                connectionStrings.Add(connectionString);
-                passwords.Add(password);
-                vApus.Results.Properties.Settings.Default.ConnectionStringIndex = connectionStrings.IndexOf(connectionString);
-            }
-            else
-            {
-                connectionStrings[connectionStringIndex] = connectionString;
-                passwords[connectionStringIndex] = password;
-            }
-
-            vApus.Results.Properties.Settings.Default.ConnectionStrings = connectionStrings;
-            vApus.Results.Properties.Settings.Default.Passwords = passwords;
-            vApus.Results.Properties.Settings.Default.Save();
-
-            SetGui();
-        }
-        private void GetCredentials(int connectionStringIndex, out string user, out string host, out int port, out string password)
-        {
-            string connectionString = GetConnectionStrings()[connectionStringIndex];
-            user = connectionString.Split('@')[0];
-            connectionString = connectionString.Substring(user.Length + 1);
-            host = connectionString.Split(':')[0];
-            port = int.Parse(connectionString.Substring(host.Length + 1));
-
-            password = GetPasswords()[connectionStringIndex].Decrypt(_passwordGUID, _passwordSalt);
-        }
-        private void DeleteCredentials(int connectionStringIndex)
-        {
-            var connectionStrings = GetConnectionStrings();
-            connectionStrings.RemoveAt(connectionStringIndex);
-            vApus.Results.Properties.Settings.Default.ConnectionStrings = connectionStrings;
-
-            var passwords = GetPasswords();
-            passwords.RemoveAt(connectionStringIndex);
-            vApus.Results.Properties.Settings.Default.Passwords = passwords;
-
-            vApus.Results.Properties.Settings.Default.Save();
-
-            SetGui();
-        }
-        #endregion
-
-        public override string ToString()
-        {
-            return "Saving Test Results";
-        }
-
-        private void cboConnectionStrings_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cboConnectionString.SelectedIndex == cboConnectionString.Items.Count - 1)
-            {
-                txtUser.Text = txtHost.Text = txtPassword.Text = string.Empty;
-                nudPort.Value = 3306;
-
-                txtUser_Leave(null, null);
-                txtHost_Leave(null, null);
-                txtPassword_Leave(null, null);
-
-                btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = false; 
-            }
-            else
-            {
-                txtUser.ForeColor = txtHost.ForeColor = txtPassword.ForeColor = Color.Black;
-                txtPassword.UseSystemPasswordChar = true;
 
                 string user, host, password;
                 int port;
-                GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
+                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
 
-                txtUser.Text = user;
-                txtHost.Text = host;
-                nudPort.Value = port;
-                txtPassword.Text = password;
-
-                btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = true;
+                btnSave.Enabled = txtUser.Text != user ||
+                                  txtHost.Text != host ||
+                                  (int)nudPort.Value != port ||
+                                  txtPassword.Text != password;
             }
         }
-
         private void btnTest_Click(object sender, EventArgs e)
         {
             bool succes = true;
@@ -219,26 +165,23 @@ namespace vApus.Results
             else
                 MessageBox.Show("Could not connect to the database server", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (cboConnectionString.SelectedIndex == cboConnectionString.Items.Count - 1)
-                AddCredentials(txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
+                SettingsManager.AddCredentials(txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
             else
-                EditCredentials(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
+                SettingsManager.EditCredentials(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
+            SetGui();
         }
-
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            DeleteCredentials(cboConnectionString.SelectedIndex);
+            SettingsManager.DeleteCredentials(cboConnectionString.SelectedIndex);
+            SetGui();
         }
-
-        private void txt_TextChanged(object sender, EventArgs e)
+        public override string ToString()
         {
-            btnTest.Enabled = btnSave.Enabled =
-             (txtUser.ForeColor != Color.DimGray && txtUser.Text.Trim().Length != 0) &&
-             (txtHost.ForeColor != Color.DimGray && txtHost.Text.Trim().Length != 0) &&
-             (txtPassword.ForeColor != Color.DimGray && txtPassword.Text.Trim().Length != 0);
+            return "Saving Test Results";
         }
+        #endregion
     }
 }

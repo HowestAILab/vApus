@@ -6,7 +6,7 @@
  *    Dieter Vandroemme
  */
 
-namespace vApus.Results.Model
+namespace vApus.Results
 {
     public class VirtualUserResult
     {
@@ -15,20 +15,20 @@ namespace vApus.Results.Model
         /// </summary>
         private long _runOffset, _baseLogEntryCount;
 
-        public virtual int Id { get; set; }
+        public int Id { get; set; }
         /// <summary>
         /// When not entered in the test this remains null.
         /// </summary>
-        public virtual string VirtualUser { get; set; }
+        public string VirtualUser { get; set; }
 
-        public virtual int UserActionCount { get; set; }
+        public int UserActionCount { get; set; }
 
         /// <summary>
         /// Use the SetLogEntryResultAt function to add an item to this. (this fixes the index when using break on last run sync.)
         /// Don't forget to initialize this the first time.
         /// Can contain null!
         /// </summary>
-        public virtual LogEntryResult[] LogEntryResults { get; set; }
+        public LogEntryResult[] LogEntryResults { get; set; }
 
         public VirtualUserResult()
         {

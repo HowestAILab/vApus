@@ -7,7 +7,7 @@
  */
 using System;
 using System.Drawing;
-using vApus.Results.Model;
+using vApus.Results;
 using vApus.Util;
 
 namespace vApus.Stresstest

@@ -7,17 +7,16 @@
  */
 using System;
 using System.Collections.Generic;
-using vApus.Results.Model;
 using vApus.Util;
 
 namespace vApus.Results
 {
     public static class MetricsHelper
     {
-        private static string[] _readableMetricsHeadersConcurrency = { "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        private static string[] _readableMetricsHeadersRun = { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        private static string[] _calculatableMetricsHeadersConcurrency = { "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed", "Log Entries", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        private static string[] _calculatableMetricsHeadersRun = { "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed", "Log Entries", "Throughput (log entries / s)", "Throughput (user actions / s)", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _readableMetricsHeadersConcurrency = { "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed", "Throughput (responses / s)", "User Actions / s", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _readableMetricsHeadersRun = { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed", "Throughput (responses / s)", "User Actions / s", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _calculatableMetricsHeadersConcurrency = { "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _calculatableMetricsHeadersRun = { "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
 
         public static string[] ReadableMetricsHeadersConcurrency
         {
@@ -68,7 +67,7 @@ namespace vApus.Results
                         baseLogEntryCount = metrics.LogEntries;
 
                     totalAndExtraLogEntriesProcessed += runResultMetrics.LogEntriesProcessed;
-                    metrics.LogEntriesPerSecond += runResultMetrics.LogEntriesPerSecond;
+                    metrics.ResponsesPerSecond += runResultMetrics.ResponsesPerSecond;
                     metrics.UserActionsPerSecond += runResultMetrics.UserActionsPerSecond;
                     metrics.Errors += runResultMetrics.Errors;
                 }
@@ -80,7 +79,7 @@ namespace vApus.Results
 
                 metrics.LogEntriesProcessed = totalAndExtraLogEntriesProcessed;
 
-                metrics.LogEntriesPerSecond /= result.RunResults.Count;
+                metrics.ResponsesPerSecond /= result.RunResults.Count;
                 metrics.UserActionsPerSecond /= result.RunResults.Count;
                 metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks / result.RunResults.Count);
                 metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / result.RunResults.Count);
@@ -120,7 +119,7 @@ namespace vApus.Results
                 metrics.AverageDelay = metrics.AverageDelay.Add(virtualUserMetrics.AverageDelay);
                 metrics.LogEntries += virtualUserMetrics.LogEntries;
                 metrics.LogEntriesProcessed += virtualUserMetrics.LogEntriesProcessed;
-                metrics.LogEntriesPerSecond += virtualUserMetrics.LogEntriesPerSecond;
+                metrics.ResponsesPerSecond += virtualUserMetrics.ResponsesPerSecond;
                 metrics.UserActionsPerSecond += virtualUserMetrics.UserActionsPerSecond;
                 metrics.Errors += virtualUserMetrics.Errors;
             }
@@ -159,7 +158,7 @@ namespace vApus.Results
             {
                 metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.LogEntriesProcessed);
                 metrics.AverageDelay = new TimeSpan(totalDelay.Ticks / metrics.LogEntriesProcessed);
-                metrics.LogEntriesPerSecond = (double)metrics.LogEntriesProcessed / ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
+                metrics.ResponsesPerSecond = (double)metrics.LogEntriesProcessed / ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
                 metrics.UserActionsPerSecond = (double)userActionIndices.Count / ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
             }
 
@@ -198,7 +197,7 @@ namespace vApus.Results
                     metrics.ConcurrentUsers,
                     metrics.Run,
                     metrics.LogEntriesProcessed + " / " + (metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString()),
-                    Math.Round(metrics.LogEntriesPerSecond, 2),
+                    Math.Round(metrics.ResponsesPerSecond, 2),
                     Math.Round(metrics.UserActionsPerSecond, 2),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
@@ -212,7 +211,7 @@ namespace vApus.Results
                 metrics.MeasuredRunTime.ToShortFormattedString(),
                 metrics.ConcurrentUsers,
                 metrics.LogEntriesProcessed + " / " + (metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString()),
-                Math.Round(metrics.LogEntriesPerSecond, 2),
+                Math.Round(metrics.ResponsesPerSecond, 2),
                 Math.Round(metrics.UserActionsPerSecond, 2),
                 Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                 Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
@@ -232,7 +231,7 @@ namespace vApus.Results
                     metrics.Run,
                     metrics.LogEntriesProcessed,
                     metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString(),
-                    Math.Round(metrics.LogEntriesPerSecond, 2),
+                    Math.Round(metrics.ResponsesPerSecond, 2),
                     Math.Round(metrics.UserActionsPerSecond, 2),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
@@ -247,7 +246,7 @@ namespace vApus.Results
                 metrics.ConcurrentUsers,
                 metrics.LogEntriesProcessed,
                 metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString(),
-                Math.Round(metrics.LogEntriesPerSecond, 2),
+                Math.Round(metrics.ResponsesPerSecond, 2),
                 Math.Round(metrics.UserActionsPerSecond, 2),
                 Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                 Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),

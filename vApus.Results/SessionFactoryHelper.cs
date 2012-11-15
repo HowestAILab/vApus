@@ -24,10 +24,22 @@ namespace vApus.Results
         /// <param name="username">The given user must have elevated rights.</param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public static ISessionFactory BuildSessionFactory(string server, string database, string username, string password)
+        public static ISessionFactory BuildSessionFactory(string server, string database, string username, string password, bool createDB)
         {
             var model = CreateMappings();
 
+            if (createDB)
+                return Fluently.Configure()
+                    .Database(MySQLConfiguration.Standard
+                    .ConnectionString(c => c
+                        .Server(server)
+                        .Database(database)
+                        .Username(username)
+                        .Password(password)))
+                    .Mappings(m => m
+                        .AutoMappings.Add(model))
+                    .ExposeConfiguration(BuildSchema)
+                    .BuildSessionFactory();
             return Fluently.Configure()
                 .Database(MySQLConfiguration.Standard
                 .ConnectionString(c => c
@@ -37,7 +49,6 @@ namespace vApus.Results
                     .Password(password)))
                 .Mappings(m => m
                     .AutoMappings.Add(model))
-                .ExposeConfiguration(BuildSchema)
                 .BuildSessionFactory();
         }
         private static AutoPersistenceModel CreateMappings()
@@ -50,7 +61,6 @@ namespace vApus.Results
         }
         private static void BuildSchema(Configuration config)
         {
-            //Create Schema 'Name'; --> Not automatically done DIY
             new SchemaExport(config).Create(false, true);
         }
     }

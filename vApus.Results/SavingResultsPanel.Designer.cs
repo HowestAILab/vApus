@@ -197,9 +197,9 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.nudPort);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(12, 77);
+            this.groupBox1.Location = new System.Drawing.Point(12, 63);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(444, 261);
+            this.groupBox1.Size = new System.Drawing.Size(444, 275);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             // 
@@ -209,7 +209,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.Location = new System.Drawing.Point(13, 13);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(443, 61);
+            this.label4.Size = new System.Drawing.Size(443, 47);
             this.label4.TabIndex = 10;
             this.label4.Text = resources.GetString("label4.Text");
             // 

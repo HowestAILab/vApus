@@ -12,6 +12,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Monitor;
+using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -37,7 +38,7 @@ namespace vApus.DistributedTesting
         private Stresstest.StresstestCore _stresstestCore;
 
         private Stresstest.StresstestStatus _stresstestStatus;
-        private vApus.Results.Model.StresstestResult _stresstestResult;
+        private StresstestResult _stresstestResult;
         private HashSet<ListViewItem> _resultListViewItems = new HashSet<ListViewItem>();
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace vApus.DistributedTesting
             get { return _runSynchronization; }
             set { _runSynchronization = value; }
         }
-        public vApus.Results.Model.StresstestResult StresstestResult
+        public StresstestResult StresstestResult
         {
             get { return _stresstestResult; }
         }

@@ -12,6 +12,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Monitor;
+using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -22,7 +23,7 @@ namespace vApus.Stresstest
         #region Fields
         private Stresstest _stresstest;
         private StresstestCore _stresstestCore;
-        private vApus.Results.Model.StresstestResult _stresstestResult;
+        private StresstestResult _stresstestResult;
         /// <summary>
         /// Caching the results to visualize in the stresstestcontrol.
         /// </summary>
