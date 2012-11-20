@@ -12,7 +12,7 @@ namespace vApus.Results
     {
         #region Fields
         private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private static byte[] _passwordSalt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
+        private static byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
         #endregion
 
         public static StringCollection GetConnectionStrings()
@@ -38,7 +38,7 @@ namespace vApus.Results
         public static void EditCredentials(int connectionStringIndex, string user, string host, int port, string password)
         {
             string connectionString = user + "@" + host + ":" + port;
-            password = password.Encrypt(_passwordGUID, _passwordSalt);
+            password = password.Encrypt(_passwordGUID, _salt);
 
             var connectionStrings = GetConnectionStrings();
             var passwords = GetPasswords();
@@ -71,7 +71,7 @@ namespace vApus.Results
             host = connectionString.Split(':')[0];
             port = int.Parse(connectionString.Substring(host.Length + 1));
 
-            password = GetPasswords()[connectionStringIndex].Decrypt(_passwordGUID, _passwordSalt);
+            password = GetPasswords()[connectionStringIndex].Decrypt(_passwordGUID, _salt);
         }
         public static void DeleteCredentials(int connectionStringIndex)
         {

@@ -377,7 +377,7 @@ namespace vApus.Stresstest
                 string message = null;
                 if (exception != null)
                 {
-                    message = "The stresstest threw an exception:\n" + exception.Message + "\n\nSee " + Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
+                    message = "The stresstest threw an exception:\n" + exception.ToString() + "\n\nSee " + Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     LogWrapper.LogByLevel(message, LogLevel.Error);
                     AppendMessages(message, Color.Red);
                 }

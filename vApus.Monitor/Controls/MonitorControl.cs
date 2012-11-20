@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using vApus.Util;
 using vApusSMT.Base;
 using System.Threading;
+using vApus.Results;
 
 namespace vApus.Monitor
 {
@@ -23,12 +24,17 @@ namespace vApus.Monitor
         private object _lock = new object();
 
         private string[] _headers = new string[0];
-        private List<object[]> _cache = new List<object[]>();
+        private MonitorResultCache _monitorResultCache = new MonitorResultCache();
 
         private string[] _filter = new string[0];
         private List<int> _filteredColumnIndices = new List<int>();
 
         private bool _keepAtEnd = true;
+
+        public MonitorResultCache MonitorResultCache
+        {
+            get { return _monitorResultCache; }
+        }
 
         public MonitorControl()
         {
@@ -50,7 +56,7 @@ namespace vApus.Monitor
             {
                 object value = null;
                 lock (_lock)
-                    value = _cache[e.RowIndex][e.ColumnIndex];
+                    value = _monitorResultCache.Rows[e.RowIndex][e.ColumnIndex];
 
                 if (value is float)
                 {
@@ -131,7 +137,7 @@ namespace vApus.Monitor
             this.Rows.Clear();
             this.Columns.Clear();
 
-            _cache.Clear();
+            _monitorResultCache = new MonitorResultCache();
             _headers = new string[0];
 
             _filteredColumnIndices.Clear();
@@ -236,7 +242,7 @@ namespace vApus.Monitor
             if (this.ColumnCount != 0)
                 lock (_lock)
                 {
-                    _cache.Add(monitorValues);
+                    _monitorResultCache.Rows.Add(monitorValues);
                     ++this.RowCount;
 
                     if (monitorValues.Length != _headers.Length)
@@ -294,8 +300,8 @@ namespace vApus.Monitor
         {
             lock (_lock)
             {
-                var newCache = new List<string[]>(_cache.Count);
-                foreach (object[] row in _cache)
+                var newCache = new List<string[]>(_monitorResultCache.Rows.Count);
+                foreach (object[] row in _monitorResultCache.Rows)
                 {
                     string[] newRow = new string[row.Length];
                     for (int i = 0; i != row.Length; i++)
@@ -408,7 +414,7 @@ namespace vApus.Monitor
         public Dictionary<DateTime, float[]> GetMonitorValues(DateTime from, DateTime to)
         {
             var monitorValues = new Dictionary<DateTime, float[]>();
-            foreach (object[] row in _cache)
+            foreach (object[] row in _monitorResultCache.Rows)
             {
                 DateTime timestamp = (DateTime)row[0];
                 if (timestamp >= from && timestamp <= to)

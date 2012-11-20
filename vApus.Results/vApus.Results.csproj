@@ -54,20 +54,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataAccess\SchemaBuilder.cs" />
-    <Compile Include="DatabaseActions.cs" />
+    <Compile Include="DataAccess\Schema.cs" />
+    <Compile Include="DataAccess\DatabaseActions.cs" />
+    <Compile Include="DescriptioAndTagsInputDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DescriptioAndTagsInputDialog.Designer.cs">
+      <DependentUpon>DescriptioAndTagsInputDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Metrics.cs" />
     <Compile Include="MetricsCache.cs" />
     <Compile Include="MetricsHelper.cs" />
-    <Compile Include="Model\Monitor\MonitorConfiguration.cs" />
-    <Compile Include="Model\Monitor\MonitorResult.cs" />
-    <Compile Include="Model\Monitor\vApusInstancesMonitors.cs" />
+    <Compile Include="Cache\Monitor\MonitorResultCache.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="ResultsHelper.cs" />
+    <Compile Include="DataAccess\ResultsHelper.cs" />
     <Compile Include="SavingResultsPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -75,16 +79,12 @@
       <DependentUpon>SavingResultsPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="SettingsManager.cs" />
-    <Compile Include="Model\Stresstest\ConcurrencyResult.cs" />
-    <Compile Include="Model\Stresstest\LogEntryResult.cs" />
-    <Compile Include="Model\Stresstest\RunResult.cs" />
-    <Compile Include="Model\Stresstest\StresstestConfiguration.cs" />
-    <Compile Include="Model\Stresstest\StresstestResult.cs" />
+    <Compile Include="Cache\Stresstest\ConcurrencyResult.cs" />
+    <Compile Include="Cache\Stresstest\LogEntryResult.cs" />
+    <Compile Include="Cache\Stresstest\RunResult.cs" />
+    <Compile Include="Cache\Stresstest\StresstestResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Model\Stresstest\VirtualUserResult.cs" />
-    <Compile Include="Model\Test.cs" />
-    <Compile Include="Model\vApusInstance\vApusInstance.cs" />
-    <Compile Include="Model\RequiredVersion.cs" />
+    <Compile Include="Cache\Stresstest\VirtualUserResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
@@ -100,6 +100,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="DescriptioAndTagsInputDialog.resx">
+      <DependentUpon>DescriptioAndTagsInputDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SavingResultsPanel.resx">
       <DependentUpon>SavingResultsPanel.cs</DependentUpon>
     </EmbeddedResource>

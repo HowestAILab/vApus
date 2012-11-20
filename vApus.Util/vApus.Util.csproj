@@ -219,6 +219,9 @@
     <Compile Include="ControlsAndPanels\KeyValuePairControl.Designer.cs">
       <DependentUpon>KeyValuePairControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\LabeledTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.cs">
       <SubType>Component</SubType>
     </Compile>

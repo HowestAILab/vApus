@@ -11,17 +11,16 @@ namespace vApus.Results
 {
     public class LogEntryResult
     {
-        public int Id { get; set; }
+        public string VirtualUser { get; set; }
+        public string UserAction { get; set; }
         /// <summary>
         /// Index in Log
         /// </summary>
         public string LogEntryIndex { get; set; }
-        public string LogEntryString { get; set; }
-        public string UserAction { get; set; }
-        public int UserActionIndex { get; set; }
+        public string LogEntry { get; set; }
         public DateTime SentAt { get; set; }
-        public TimeSpan TimeToLastByte { get; set; }
+        public long TimeToLastByteInTicks { get; set; }
         public int DelayInMilliseconds { get; set; }
-        public Exception Exception { get; set; }
+        public string Exception { get; set; }
     }
 }

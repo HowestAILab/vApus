@@ -52,9 +52,9 @@ namespace vApus.Results
                 txtUser.Text = txtHost.Text = txtPassword.Text = string.Empty;
                 nudPort.Value = 3306;
 
-                txtUser_Leave(null, null);
-                txtHost_Leave(null, null);
-                txtPassword_Leave(null, null);
+                txtUser.InvokeOnLeave();
+                txtHost.InvokeOnLeave();
+                txtPassword.InvokeOnLeave();
 
                 btnTest.Enabled = btnDelete.Enabled = false;
             }
@@ -75,51 +75,15 @@ namespace vApus.Results
                 btnTest.Enabled = btnDelete.Enabled = true;
             }
         }
-        private void txt_Enter(object sender, EventArgs e)
-        {
-            var txt = sender as TextBox;
-            if (txt.ForeColor == Color.DimGray)
-            {
-                txt.Text = string.Empty;
-                txt.ForeColor = Color.Black;
-            }
-        }
-        private void txtUser_Leave(object sender, EventArgs e)
-        {
-            txtUser.Text = txtUser.Text.Trim();
-            if (txtUser.Text.Length == 0)
-            {
-                txtUser.ForeColor = Color.DimGray;
-                txtUser.Text = "User";
-            }
-        }
-        private void txtHost_Leave(object sender, EventArgs e)
-        {
-            txtHost.Text = txtHost.Text.Trim();
-            if (txtHost.Text.Length == 0)
-            {
-                txtHost.ForeColor = Color.DimGray;
-                txtHost.Text = "Host";
-            }
-        }
         private void txtPassword_Enter(object sender, EventArgs e)
         {
-            if (txtPassword.ForeColor == Color.DimGray)
-            {
-                txtPassword.Text = string.Empty;
-                txtPassword.ForeColor = Color.Black;
+            if (txtPassword.Text.Length == 0)
                 txtPassword.UseSystemPasswordChar = true;
-            }
         }
         private void txtPassword_Leave(object sender, EventArgs e)
         {
-            txtPassword.Text = txtPassword.Text.Trim();
-            if (txtPassword.Text.Length == 0)
-            {
-                txtPassword.ForeColor = Color.DimGray;
+            if (txtPassword.ForeColor == Color.DimGray)
                 txtPassword.UseSystemPasswordChar = false;
-                txtPassword.Text = "Password";
-            }
         }
         private void txt_TextChanged(object sender, EventArgs e)
         {

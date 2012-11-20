@@ -11,31 +11,25 @@ namespace vApus.Results
 {
     public class RunResult
     {
-        public int Id { get; set; }
-        public int Run { get; set; }
+        public int Run { get; private set; }
         /// <summary>
         /// For break on last run sync.
         /// </summary>
-        public int RerunCount { get; set; }
-        /// <summary>
-        /// If this is not set, it is set to DateTime.Now in the constructor.
-        /// </summary>
-        public DateTime StartedAt { get; set; }
-        /// <summary>
-        /// If this is not set, it is set to DateTime.MinValue in the constructor.
-        /// </summary>
-        public DateTime StoppedAt { get; set; }
+        public int RerunCount { get; private set; }
+        public DateTime StartedAt { get; private set; }
+        public DateTime StoppedAt { get; internal set; }
 
         /// <summary>
         /// Dont forget to set this.
         /// </summary>
-        public VirtualUserResult[] VirtualUserResults { get; set; }
+        public VirtualUserResult[] VirtualUserResults { get; private set; }
 
-        public RunResult()
+        public RunResult(int run, int concurrentUsers)
         {
             StartedAt = DateTime.Now;
             StoppedAt = DateTime.MinValue;
-            VirtualUserResults = new VirtualUserResult[0];
+            Run = run;
+            VirtualUserResults = new VirtualUserResult[concurrentUsers];
         }
         /// <summary>
         /// Only used for break on last run ync.
@@ -43,7 +37,6 @@ namespace vApus.Results
         public void PrepareForRerun()
         {
             ++RerunCount;
-
             foreach (VirtualUserResult result in VirtualUserResults)
                 result.PrepareForRerun();
         }

@@ -146,9 +146,10 @@ namespace vApus.Results
                     ++metrics.LogEntriesProcessed;
                     if (!userActionIndices.Contains(logEntryResult.UserAction))
                         userActionIndices.Add(logEntryResult.UserAction);
-                    totalTimeToLastByte = totalTimeToLastByte.Add(logEntryResult.TimeToLastByte);
-                    if (logEntryResult.TimeToLastByte > metrics.MaxResponseTime)
-                        metrics.MaxResponseTime = logEntryResult.TimeToLastByte;
+                    var ttlb = new TimeSpan(logEntryResult.TimeToLastByteInTicks);
+                    totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
+                    if (ttlb > metrics.MaxResponseTime)
+                        metrics.MaxResponseTime = ttlb;
                     totalDelay = totalDelay.Add(new TimeSpan(logEntryResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
                     if (logEntryResult.Exception != null)
                         ++metrics.Errors;

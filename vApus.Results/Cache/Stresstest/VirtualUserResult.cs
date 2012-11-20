@@ -14,25 +14,22 @@ namespace vApus.Results
         /// For break on last runsync.
         /// </summary>
         private long _runOffset, _baseLogEntryCount;
-
-        public int Id { get; set; }
         /// <summary>
         /// When not entered in the test this remains null.
         /// </summary>
         public string VirtualUser { get; set; }
-
-        public int UserActionCount { get; set; }
 
         /// <summary>
         /// Use the SetLogEntryResultAt function to add an item to this. (this fixes the index when using break on last run sync.)
         /// Don't forget to initialize this the first time.
         /// Can contain null!
         /// </summary>
-        public LogEntryResult[] LogEntryResults { get; set; }
+        public LogEntryResult[] LogEntryResults { get; private set; }
 
-        public VirtualUserResult()
+        public VirtualUserResult(int logLength)
         {
-            LogEntryResults = new LogEntryResult[0];
+            LogEntryResults = new LogEntryResult[logLength];
+            _baseLogEntryCount = LogEntryResults.LongLength;
         }
 
         public void SetLogEntryResultAt(int index, LogEntryResult result)
@@ -44,8 +41,6 @@ namespace vApus.Results
         /// </summary>
         public void PrepareForRerun()
         {
-            if (_baseLogEntryCount == 0)
-                _baseLogEntryCount = LogEntryResults.LongLength;
             _runOffset += _baseLogEntryCount;
 
             LogEntryResult[] increasedLogEntryResults = new LogEntryResult[LogEntryResults.LongLength + _baseLogEntryCount];

@@ -130,13 +130,23 @@ namespace vApus.Stresstest
         {
             if (stresstestControl.FastResultsCount > 0 && MessageBox.Show("Do you want to start the test and clear the previous results?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 return;
-
+            InitDatabase();
             SetGuiForStart();
 
             if (_stresstest.Monitors.Length != 0)
                 InitializeMonitors();
             else
                 Start();
+        }
+        private void InitDatabase()
+        {
+            ResultsHelper.BuildSchemaAndConnect();
+            //InsertDescriptionAndTags
+            ResultsHelper.SetvApusInstance("foo", "bar", 1234, "haha", false);
+            ResultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(),
+                _stresstest.ConnectionProxy.ToString(), _stresstest.Connection.ConnectionString, _stresstest.Log.ToString(),
+                _stresstest.LogRuleSet, _stresstest.Concurrency, _stresstest.Runs, _stresstest.MinimumDelay, _stresstest.MaximumDelay,
+                _stresstest.Shuffle, _stresstest.Distribute.ToString(), _stresstest.MonitorBefore, _stresstest.MonitorAfter);
         }
         private void SetGuiForStart()
         {
