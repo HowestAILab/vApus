@@ -72,7 +72,7 @@ HostName varchar(255) NOT NULL, IP varchar(255) NOT NULL, Port int NOT NULL, Ver
             if (!TableExists("Stresstests", databaseActions))
                 databaseActions.ExecuteSQL(@"Create Table Stresstests(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), vApusInstanceId int NOT NULL, 
 FOREIGN KEY(vApusInstanceId) REFERENCES vApusInstances(Id), Stresstest varchar(255) NOT NULL, RunSynchronization varchar(20) NOT NULL, Connection varchar(255) NOT NULL,
-ConnectionProxy varchar(255) NOT NULL, ConnectionString text NOT NULL, Log varchar(255) NOT NULL, LogRuleSet varchar(255) NOT NULL, Concurrency varchar(255) NOT NULL,
+ConnectionProxy varchar(255) NOT NULL, ConnectionString text NOT NULL, Log varchar(255) NOT NULL, LogRuleSet varchar(255) NOT NULL, Concurrencies varchar(255) NOT NULL,
 Runs int NOT NULL, MinimumDelayInMilliseconds int NOT NULL, MaximumDelayInMilliseconds int NOT NULL, Shuffle bool NOT NULL, Distribute char(4) NOT NULL, MonitorBeforeInMinutes int NOT NULL, MonitorAfterInMinutes int NOT NULL)");
         }
         private static void CreateStresstestResultsTable(DatabaseActions databaseActions)

@@ -16,19 +16,37 @@ namespace vApus.Util
     /// </summary>
     public class LabeledTextBox : TextBox
     {
-        private bool _canInvokeTextChanged = true;
+        private bool _canInvokeTextChanged = true, _settingLabel = false;
         private string _emptyTextBoxLabel = "Label";
+        private ToolTip _toolTip = new ToolTip();
+
         public string EmptyTextBoxLabel
         {
             get { return _emptyTextBoxLabel; }
             set
             {
+                _settingLabel = true;
                 _emptyTextBoxLabel = value;
+                _toolTip.SetToolTip(this, _emptyTextBoxLabel);
                 if (Text.Length == 0)
                 {
                     ForeColor = Color.DimGray;
                     Text = EmptyTextBoxLabel;
                 }
+                _settingLabel = false;
+            }
+        }
+        public override string Text
+        {
+            get
+            {
+                return base.Text;
+            }
+            set
+            {
+                if (!_settingLabel)
+                    ForeColor = Color.Black;
+                base.Text = value;
             }
         }
         public LabeledTextBox()
@@ -39,10 +57,8 @@ namespace vApus.Util
         {
             _canInvokeTextChanged = false;
             if (ForeColor == Color.DimGray)
-            {
                 Text = string.Empty;
-                ForeColor = Color.Black;
-            }
+
             base.OnEnter(e);
             _canInvokeTextChanged = true;
         }

@@ -278,9 +278,9 @@ namespace vApus.Stresstest
             _continueCounter = -1;
             SetStresstestStarted();
             //Loop all concurrent users
-            for (int concurrentUsersIndex = 0; concurrentUsersIndex != _stresstest.Concurrency.Length; concurrentUsersIndex++)
+            for (int concurrentUsersIndex = 0; concurrentUsersIndex != _stresstest.Concurrencies.Length; concurrentUsersIndex++)
             {
-                int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
+                int concurrentUsers = _stresstest.Concurrencies[concurrentUsersIndex];
                 if (_cancel) break;
 
                 SetConcurrencyStarted(concurrentUsersIndex);
@@ -868,7 +868,7 @@ namespace vApus.Stresstest
         }
         private void SetConcurrencyStarted(int concurrentUsersIndex)
         {
-            int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
+            int concurrentUsers = _stresstest.Concurrencies[concurrentUsersIndex];
             _concurrencyResult = new ConcurrencyResult(concurrentUsers, _stresstest.Runs);
             _stresstestResult.ConcurrencyResults.Add(_concurrencyResult);
             ResultsHelper.SetConcurrencyStarted(_concurrencyResult);
@@ -909,7 +909,7 @@ namespace vApus.Stresstest
             InvokeMessage(string.Format("|----> |Run {0}...", run), Color.MediumPurple);
 
             int singleUserLogEntryCount = _testPatternsAndDelaysGenerator.PatternLength;
-            int concurrentUsers = _stresstest.Concurrency[concurrentUsersIndex];
+            int concurrentUsers = _stresstest.Concurrencies[concurrentUsersIndex];
 
             _runResult = new RunResult(run, concurrentUsers);
             for (int i = 0; i < concurrentUsers; i++)

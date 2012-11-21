@@ -128,7 +128,7 @@ namespace vApus.Stresstest.Old
                 Monitors = stresstest.Monitors.Combine(", ");
 
             Distribute = stresstest.Distribute;
-            Concurrency = stresstest.Concurrency;
+            Concurrency = stresstest.Concurrencies;
             MinimumDelay = stresstest.MinimumDelay;
             MaximumDelay = stresstest.MaximumDelay;
             Runs = stresstest.Runs;

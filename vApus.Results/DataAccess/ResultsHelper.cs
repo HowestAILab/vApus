@@ -89,7 +89,7 @@ namespace vApus.Results
         /// <param name="connectionString">Will be encrypted.</param>
         /// <param name="log"></param>
         /// <param name="logRuleSet"></param>
-        /// <param name="concurrency"></param>
+        /// <param name="concurrencies"></param>
         /// <param name="runs"></param>
         /// <param name="minimumDelayInMilliseconds"></param>
         /// <param name="maximumDelayInMilliseconds"></param>
@@ -99,17 +99,17 @@ namespace vApus.Results
         /// <param name="monitorAfterInMinutes"></param>
         /// <returns>Id of the stresstest.</returns>
         public static void SetStresstest(string stresstest, string runSynchronization, string connection, string connectionProxy, string connectionString,
-            string log, string logRuleSet, int[] concurrency, int runs, int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle, string distribute,
+            string log, string logRuleSet, int[] concurrencies, int runs, int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle, string distribute,
             int monitorBeforeInMinutes, int monitorAfterInMinutes)
         {
             if (_databaseActions != null)
             {
                 _databaseActions.ExecuteSQL(
                                 string.Format(@"INSERT INTO Stresstests(
-vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrency, Runs,
+vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
 MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribute, MonitorBeforeInMinutes, MonitorAfterInMinutes)
 VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}')",
-                _vApusInstanceId, stresstest, runSynchronization, connection, connectionProxy, connectionString.Encrypt(_passwordGUID, _salt), log, logRuleSet, concurrency.Combine(", "), runs,
+                _vApusInstanceId, stresstest, runSynchronization, connection, connectionProxy, connectionString.Encrypt(_passwordGUID, _salt), log, logRuleSet, concurrencies.Combine(", "), runs,
                 minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, distribute, monitorBeforeInMinutes, monitorAfterInMinutes)
                                 );
                 _stresstestId = GetLastInsertId();

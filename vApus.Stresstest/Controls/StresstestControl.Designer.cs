@@ -53,7 +53,7 @@
             this.kvpLog = new vApus.Util.KeyValuePairControl();
             this.kvpLogRuleSet = new vApus.Util.KeyValuePairControl();
             this.btnMonitor = new System.Windows.Forms.Button();
-            this.kvpConcurrency = new vApus.Util.KeyValuePairControl();
+            this.kvpConcurrencies = new vApus.Util.KeyValuePairControl();
             this.kvpRuns = new vApus.Util.KeyValuePairControl();
             this.kvpDelay = new vApus.Util.KeyValuePairControl();
             this.kvpShuffle = new vApus.Util.KeyValuePairControl();
@@ -332,7 +332,7 @@
             this.flpConfiguration.Controls.Add(this.kvpLog);
             this.flpConfiguration.Controls.Add(this.kvpLogRuleSet);
             this.flpConfiguration.Controls.Add(this.btnMonitor);
-            this.flpConfiguration.Controls.Add(this.kvpConcurrency);
+            this.flpConfiguration.Controls.Add(this.kvpConcurrencies);
             this.flpConfiguration.Controls.Add(this.kvpRuns);
             this.flpConfiguration.Controls.Add(this.kvpDelay);
             this.flpConfiguration.Controls.Add(this.kvpShuffle);
@@ -440,25 +440,25 @@
             this.btnMonitor.UseVisualStyleBackColor = false;
             this.btnMonitor.Click += new System.EventHandler(this.btnMonitor_Click);
             // 
-            // kvpConcurrency
+            // kvpConcurrencies
             // 
-            this.kvpConcurrency.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpConcurrency.Key = "Concurrency";
-            this.kvpConcurrency.Location = new System.Drawing.Point(595, 6);
-            this.kvpConcurrency.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
-            this.kvpConcurrency.Name = "kvpConcurrency";
-            this.kvpConcurrency.Size = new System.Drawing.Size(84, 24);
-            this.kvpConcurrency.TabIndex = 8;
-            this.kvpConcurrency.TabStop = false;
-            this.kvpConcurrency.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
+            this.kvpConcurrencies.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpConcurrencies.Key = "Concurrencies";
+            this.kvpConcurrencies.Location = new System.Drawing.Point(595, 6);
+            this.kvpConcurrencies.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
+            this.kvpConcurrencies.Name = "kvpConcurrencies";
+            this.kvpConcurrencies.Size = new System.Drawing.Size(94, 24);
+            this.kvpConcurrencies.TabIndex = 8;
+            this.kvpConcurrencies.TabStop = false;
+            this.kvpConcurrencies.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
     "e.";
-            this.kvpConcurrency.Value = "";
+            this.kvpConcurrencies.Value = "";
             // 
             // kvpRuns
             // 
             this.kvpRuns.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpRuns.Key = "Runs";
-            this.kvpRuns.Location = new System.Drawing.Point(682, 6);
+            this.kvpRuns.Location = new System.Drawing.Point(692, 6);
             this.kvpRuns.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpRuns.Name = "kvpRuns";
             this.kvpRuns.Size = new System.Drawing.Size(42, 24);
@@ -472,7 +472,7 @@
             // 
             this.kvpDelay.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpDelay.Key = "Delay";
-            this.kvpDelay.Location = new System.Drawing.Point(727, 6);
+            this.kvpDelay.Location = new System.Drawing.Point(737, 6);
             this.kvpDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpDelay.Name = "kvpDelay";
             this.kvpDelay.Size = new System.Drawing.Size(45, 24);
@@ -486,7 +486,7 @@
             // 
             this.kvpShuffle.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpShuffle.Key = "Shuffle";
-            this.kvpShuffle.Location = new System.Drawing.Point(775, 6);
+            this.kvpShuffle.Location = new System.Drawing.Point(785, 6);
             this.kvpShuffle.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpShuffle.Name = "kvpShuffle";
             this.kvpShuffle.Size = new System.Drawing.Size(53, 24);
@@ -724,7 +724,7 @@
         private vApus.Util.KeyValuePairControl kvpConnection;
         private vApus.Util.KeyValuePairControl kvpConnectionProxy;
         private vApus.Util.KeyValuePairControl kvpLog;
-        private vApus.Util.KeyValuePairControl kvpConcurrency;
+        private vApus.Util.KeyValuePairControl kvpConcurrencies;
         private vApus.Util.KeyValuePairControl kvpRuns;
         private vApus.Util.KeyValuePairControl kvpDelay;
         private vApus.Util.KeyValuePairControl kvpShuffle;

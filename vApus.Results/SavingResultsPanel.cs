@@ -60,7 +60,6 @@ namespace vApus.Results
             }
             else
             {
-                txtUser.ForeColor = txtHost.ForeColor = txtPassword.ForeColor = Color.Black;
                 txtPassword.UseSystemPasswordChar = true;
 
                 string user, host, password;

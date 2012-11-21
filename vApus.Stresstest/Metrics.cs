@@ -6,8 +6,8 @@
  *    Dieter Vandroemme
  */
 using System;
-using vApus.Util;
 using System.Runtime.Serialization;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {

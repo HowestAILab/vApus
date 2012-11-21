@@ -236,8 +236,8 @@ namespace vApus.DistributedTesting
         {
             _defaultSettingsTo = stresstest;
             Log = _defaultSettingsTo.Log;
-            _concurrency = new int[_defaultSettingsTo.Concurrency.Length];
-            _defaultSettingsTo.Concurrency.CopyTo(_concurrency, 0);
+            _concurrency = new int[_defaultSettingsTo.Concurrencies.Length];
+            _defaultSettingsTo.Concurrencies.CopyTo(_concurrency, 0);
             _runs = _defaultSettingsTo.Runs;
             _minimumDelay = _defaultSettingsTo.MinimumDelay;
             _maximumDelay = _defaultSettingsTo.MaximumDelay;

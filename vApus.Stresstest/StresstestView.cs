@@ -128,25 +128,61 @@ namespace vApus.Stresstest
         /// <param name="e"></param>
         private void btnStart_Click(object sender, System.EventArgs e)
         {
-            if (stresstestControl.FastResultsCount > 0 && MessageBox.Show("Do you want to start the test and clear the previous results?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+            if (stresstestControl.FastResultsCount > 0 &&
+                MessageBox.Show("Do you want to start the test and clear the previous results?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 return;
-            InitDatabase();
-            SetGuiForStart();
+            if (InitDatabase())
+            {
+                SetGuiForStart();
 
-            if (_stresstest.Monitors.Length != 0)
-                InitializeMonitors();
-            else
-                Start();
+                if (_stresstest.Monitors.Length != 0)
+                    InitializeMonitors();
+                else
+                    Start();
+            }
         }
-        private void InitDatabase()
+        /// <summary>
+        /// True on succes
+        /// </summary>
+        /// <returns></returns>
+        private bool InitDatabase()
         {
-            ResultsHelper.BuildSchemaAndConnect();
-            //InsertDescriptionAndTags
-            ResultsHelper.SetvApusInstance("foo", "bar", 1234, "haha", false);
-            ResultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(),
-                _stresstest.ConnectionProxy.ToString(), _stresstest.Connection.ConnectionString, _stresstest.Log.ToString(),
-                _stresstest.LogRuleSet, _stresstest.Concurrency, _stresstest.Runs, _stresstest.MinimumDelay, _stresstest.MaximumDelay,
-                _stresstest.Shuffle, _stresstest.Distribute.ToString(), _stresstest.MonitorBefore, _stresstest.MonitorAfter);
+            var ex = ResultsHelper.BuildSchemaAndConnect();
+            if (ex == null)
+            {
+                var dialog = new DescriptionAndTagsInputDialog() { Description = _stresstest.Description, Tags = _stresstest.Tags };
+                dialog.ShowDialog();
+
+                bool edited = false;
+                if (_stresstest.Description != dialog.Description)
+                {
+                    _stresstest.Description = dialog.Description;
+                    edited = true;
+                }
+                if (_stresstest.Tags.Combine(",") != dialog.Tags.Combine(", "))
+                {
+                    _stresstest.Tags = dialog.Tags;
+                    edited = true;
+                }
+                if (edited)
+                    _stresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+
+                ResultsHelper.SetvApusInstance("foo", "bar", 1234, "haha", false);
+                ResultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(),
+                    _stresstest.ConnectionProxy.ToString(), _stresstest.Connection.ConnectionString, _stresstest.Log.ToString(),
+                    _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay, _stresstest.MaximumDelay,
+                    _stresstest.Shuffle, _stresstest.Distribute.ToString(), _stresstest.MonitorBefore, _stresstest.MonitorAfter);
+
+                return true;
+            }
+            else
+            {
+                LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
+                if (MessageBox.Show(
+                "Could not connect to MySQL!\nDo you want to proceed anyway? No report will be made.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    return true;
+            }
+            return false;
         }
         private void SetGuiForStart()
         {

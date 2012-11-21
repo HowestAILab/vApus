@@ -13,10 +13,14 @@ namespace vApus.Results
 {
     public static class MetricsHelper
     {
-        private static string[] _readableMetricsHeadersConcurrency = { "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed", "Throughput (responses / s)", "User Actions / s", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        private static string[] _readableMetricsHeadersRun = { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed", "Throughput (responses / s)", "User Actions / s", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        private static string[] _calculatableMetricsHeadersConcurrency = { "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
-        private static string[] _calculatableMetricsHeadersRun = { "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Response Time (ms)", "Max. Response Time (ms)", "Delay (ms)", "Errors" };
+        private static string[] _readableMetricsHeadersConcurrency = { "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed",
+                                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)", "Avg. Delay (ms)", "Errors" };
+        private static string[] _readableMetricsHeadersRun = { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed",
+                                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)", "Avg. Delay (ms)", "Errors" };
+        private static string[] _calculatableMetricsHeadersConcurrency = { "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed", "Log Entries",
+                                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)", "Avg. Delay (ms)", "Errors" };
+        private static string[] _calculatableMetricsHeadersRun = { "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed", "Log Entries",
+                                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)", " Avg. Delay (ms)", "Errors" };
 
         public static string[] ReadableMetricsHeadersConcurrency
         {

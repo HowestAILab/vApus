@@ -102,11 +102,11 @@ namespace vApus.Stresstest
         public void SetConfigurationControls(Stresstest stresstest)
         {
             SetConfigurationControls(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy, stresstest.Log, stresstest.LogRuleSet,
-                stresstest.Monitors, stresstest.Concurrency, stresstest.Runs, stresstest.MinimumDelay,
+                stresstest.Monitors, stresstest.Concurrencies, stresstest.Runs, stresstest.MinimumDelay,
                 stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute, stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
         public void SetConfigurationControls(string stresstest, Connection connection, string connectionProxy,
-                                              Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrency,
+                                              Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
                                               int runs, int minimumDelay, int maximumDelay, bool shuffle,
                                               ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter)
         {
@@ -128,7 +128,7 @@ namespace vApus.Stresstest
                 btnMonitor.BackColor = Color.LightBlue;
             }
 
-            kvpConcurrency.Value = concurrency.Combine(", ");
+            kvpConcurrencies.Value = concurrencies.Combine(", ");
 
             kvpRuns.Value = runs.ToString();
             kvpDelay.Value = (minimumDelay == maximumDelay ? minimumDelay.ToString() : minimumDelay + " - " + maximumDelay) + " ms";

@@ -28,7 +28,7 @@ namespace vApus.Stresstest
         public const int ProgressUpdateDelay = 5;
         private string _solution; //For the results.
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100;
-        private int[] _concurrency = { 5, 5, 10, 25, 50, 100 };
+        private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
         private ActionAndLogEntryDistribution _distribute;
         private Connection _connection;
@@ -44,6 +44,10 @@ namespace vApus.Stresstest
         private int _monitorAfter;
 
         private bool _useParallelExecutionOfLogEntries;
+
+        //For in the results database
+        private string _description = string.Empty;
+        private string[] _tags = new string[0];
 
         /// <summary>
         /// Let for instance the gui behave differently if this is true.
@@ -189,21 +193,21 @@ namespace vApus.Stresstest
 
         [Description("The count(s) of the concurrent users generated, the minimum given value equals one.")]
         [SavableCloneable, PropertyControl(3)]
-        public int[] Concurrency
+        public int[] Concurrencies
         {
-            get { return _concurrency; }
+            get { return _concurrencies; }
             set
             {
                 if (value.Length == 0)
                     throw new ArgumentException();
                 foreach (int i in value)
                     if (i < 1)
-                        throw new ArgumentOutOfRangeException("A value in Concurrency cannot be smaller then one.");
-                _concurrency = value;
+                        throw new ArgumentOutOfRangeException("A concurrency in cannot be smaller then one.");
+                _concurrencies = value;
             }
         }
 
-        [Description("A static multiplier of the runtime for each concurrency level. Must be greater than zero.")]
+        [Description("A static multiplier of the runtime for each concurrency. Must be greater than zero.")]
         [SavableCloneable, PropertyControl(4)]
         public int Runs
         {
@@ -310,6 +314,19 @@ namespace vApus.Stresstest
                     value = 60;
                 _monitorAfter = value;
             }
+        }
+
+        [SavableCloneable]
+        public string Description
+        {
+            get { return _description; }
+            set { _description = value; }
+        }
+        [SavableCloneable]
+        public string[] Tags
+        {
+            get { return _tags; }
+            set { _tags = value; }
         }
 
 

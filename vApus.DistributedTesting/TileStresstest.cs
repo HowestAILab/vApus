@@ -150,7 +150,7 @@ namespace vApus.DistributedTesting
             stresstest.ForDistributedTest = true;
             stresstest.ShowInGui = false;
             stresstest.Distribute = AdvancedTileStresstest.Distribute;
-            stresstest.Concurrency = AdvancedTileStresstest.Concurrency;
+            stresstest.Concurrencies = AdvancedTileStresstest.Concurrency;
 
             Connections connections = new Connections();
             Connection connection = BasicTileStresstest._connection;
