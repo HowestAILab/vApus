@@ -11,9 +11,12 @@ namespace vApus.Results
     public class MonitorResultCache
     {
         /// <summary>
-        /// Set this when stresstesting.
+        /// For linking the right results to the right configuration.
         /// </summary>
         public int MonitorConfigurationId { get; set; }
+        /// <summary>
+        /// Set this when stresstesting.
+        /// </summary>
         public List<object[]> Rows { get; private set; }
         public MonitorResultCache()
         {

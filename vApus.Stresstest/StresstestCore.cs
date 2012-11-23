@@ -893,7 +893,7 @@ namespace vApus.Stresstest
         private void SetRunStopped()
         {
             ResultsHelper.SetRunStopped(_runResult);
-            vApus.Results.Metrics metrics = vApus.Results.MetricsHelper.GetMetrics(_runResult);
+            vApus.Results.StresstestMetrics metrics = vApus.Results.StresstestMetricsHelper.GetMetrics(_runResult);
             InvokeMessage("|----> |Run Finished in " + metrics.MeasuredRunTime + "!", Color.MediumPurple);
 
             if (_cancel && RunStopped != null)

@@ -12,7 +12,7 @@ using vApus.Util;
 namespace vApus.Results
 {
     [Serializable]
-    public class Metrics : ISerializable
+    public class StresstestMetrics : ISerializable
     {
         public DateTime StartMeasuringRuntime { get; set; }
         public TimeSpan EstimatedTimeLeft { get; set; }
@@ -52,8 +52,8 @@ namespace vApus.Results
             }
         }
 
-        public Metrics() { }
-        public Metrics(SerializationInfo info, StreamingContext ctxt)
+        public StresstestMetrics() { }
+        public StresstestMetrics(SerializationInfo info, StreamingContext ctxt)
         {
             SerializationReader sr = SerializationReader.GetReader(info);
             StartMeasuringRuntime = sr.ReadDateTime();

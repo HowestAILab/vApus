@@ -31,6 +31,10 @@ namespace vApus.Monitor
 
         private bool _keepAtEnd = true;
 
+        public string[] Headers
+        {
+            get { return _headers; }
+        }
         public MonitorResultCache MonitorResultCache
         {
             get { return _monitorResultCache; }
@@ -267,7 +271,7 @@ namespace vApus.Monitor
                 List<string[]> newCache = GetSaveableCache();
                 using (StreamWriter sw = new StreamWriter(fileName, false))
                 {
-                    sw.WriteLine(GetHeaders().Combine("\t"));
+                    sw.WriteLine(_headers.Combine("\t"));
                     foreach (string[] row in newCache)
                         sw.WriteLine(row.Combine("\t"));
                     sw.Flush();
@@ -285,7 +289,7 @@ namespace vApus.Monitor
                 List<string[]> newCache = GetSaveableCache();
                 using (StreamWriter sw = new StreamWriter(fileName, false))
                 {
-                    sw.WriteLine(FilterArray(GetHeaders()).Combine("\t"));
+                    sw.WriteLine(FilterArray(_headers).Combine("\t"));
                     foreach (string[] row in newCache)
                         sw.WriteLine(FilterArray(row).Combine("\t"));
                     sw.Flush();
@@ -384,54 +388,5 @@ namespace vApus.Monitor
                 if (Regex.IsMatch(clm.HeaderText, text, options))
                     yield return clm;
         }
-
-        public string[] GetHeaders()
-        {
-            return _headers;
-        }
-        /// <summary>
-        /// Returns the header of all monitor values.
-        /// </summary>
-        /// <returns></returns>
-        public string GetHeaders(string separator)
-        {
-            return _headers.Combine(separator);
-        }
-        /// <summary>
-        /// Returns all monitor values.
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<DateTime, float[]> GetMonitorValues()
-        {
-            return GetMonitorValues(DateTime.MinValue, DateTime.MaxValue);
-        }
-        /// <summary>
-        /// Returns monitor values filtered.
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <returns></returns>
-        public Dictionary<DateTime, float[]> GetMonitorValues(DateTime from, DateTime to)
-        {
-            var monitorValues = new Dictionary<DateTime, float[]>();
-            foreach (object[] row in _monitorResultCache.Rows)
-            {
-                DateTime timestamp = (DateTime)row[0];
-                if (timestamp >= from && timestamp <= to)
-                {
-                    float[] values = new float[row.Length - 1];
-                    for (int i = 0; i != values.Length; i++)
-                        values[i] = (float)row[i + 1];
-
-                    if (!monitorValues.ContainsKey(timestamp))
-                        monitorValues.Add(timestamp, values);
-                }
-            }
-            return monitorValues;
-        }
-        /// <summary>
-        /// Returns all monitor values.
-        /// </summary>
-        /// <returns></returns>
     }
 }

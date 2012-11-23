@@ -29,9 +29,9 @@ namespace vApus.Stresstest
         public event EventHandler MonitorClicked;
 
         #region Fields
-        private List<vApus.Results.Metrics> _concurrencyMetrics = new List<vApus.Results.Metrics>();
+        private List<vApus.Results.StresstestMetrics> _concurrencyMetrics = new List<vApus.Results.StresstestMetrics>();
         private List<object[]> _concurrencyMetricsCache = new List<object[]>();
-        private List<vApus.Results.Metrics> _runMetrics = new List<vApus.Results.Metrics>();
+        private List<vApus.Results.StresstestMetrics> _runMetrics = new List<vApus.Results.StresstestMetrics>();
         private List<object[]> _runMetricsCache = new List<object[]>();
 
         private bool _monitorConfigurationControlVisible;
@@ -273,9 +273,9 @@ namespace vApus.Stresstest
         public void ClearFastResults()
         {
             dgvFastResults.RowCount = 0;
-            _concurrencyMetrics = new List<vApus.Results.Metrics>();
+            _concurrencyMetrics = new List<vApus.Results.StresstestMetrics>();
             _concurrencyMetricsCache = new List<object[]>();
-            _runMetrics = new List<vApus.Results.Metrics>();
+            _runMetrics = new List<vApus.Results.StresstestMetrics>();
             _runMetricsCache = new List<object[]>();
             _keepFastResultsAtEnd = true;
         }
@@ -284,10 +284,10 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateConcurrencyFastResults(List<vApus.Results.Metrics> metrics, bool setMeasuredRunTime = true)
+        public void UpdateConcurrencyFastResults(List<vApus.Results.StresstestMetrics> metrics, bool setMeasuredRunTime = true)
         {
             _concurrencyMetrics = metrics;
-            _concurrencyMetricsCache = vApus.Results.MetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
+            _concurrencyMetricsCache = vApus.Results.StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
             if (cboDrillDown.SelectedIndex == 0)
             {
                 dgvFastResults.RowCount = 0;
@@ -302,10 +302,10 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateRunFastResults(List<vApus.Results.Metrics> metrics, bool setMeasuredRunTime = true)
+        public void UpdateRunFastResults(List<vApus.Results.StresstestMetrics> metrics, bool setMeasuredRunTime = true)
         {
             _runMetrics = metrics;
-            _runMetricsCache = vApus.Results.MetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
+            _runMetricsCache = vApus.Results.StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
             if (cboDrillDown.SelectedIndex == 1)
             {
                 dgvFastResults.RowCount = 0;
@@ -484,8 +484,8 @@ namespace vApus.Stresstest
             dgvFastResults.RowCount = 0;
             dgvFastResults.Columns.Clear();
 
-            string[] columnHeaders = cboDrillDown.SelectedIndex == 0 ? (chkReadable.Checked ? vApus.Results.MetricsHelper.ReadableMetricsHeadersConcurrency : vApus.Results.MetricsHelper.CalculatableMetricsHeadersConcurrency)
-                : (chkReadable.Checked ? vApus.Results.MetricsHelper.ReadableMetricsHeadersRun : vApus.Results.MetricsHelper.CalculatableMetricsHeadersRun);
+            string[] columnHeaders = cboDrillDown.SelectedIndex == 0 ? (chkReadable.Checked ? vApus.Results.StresstestMetricsHelper.ReadableMetricsHeadersConcurrency : vApus.Results.StresstestMetricsHelper.CalculatableMetricsHeadersConcurrency)
+                : (chkReadable.Checked ? vApus.Results.StresstestMetricsHelper.ReadableMetricsHeadersRun : vApus.Results.StresstestMetricsHelper.CalculatableMetricsHeadersRun);
 
             DataGridViewColumn[] clms = new DataGridViewColumn[columnHeaders.Length];
             string clmPrefix = this.ToString() + "clm";

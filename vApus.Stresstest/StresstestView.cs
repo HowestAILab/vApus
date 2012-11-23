@@ -27,7 +27,7 @@ namespace vApus.Stresstest
         /// <summary>
         /// Caching the results to visualize in the stresstestcontrol.
         /// </summary>
-        private vApus.Results.MetricsCache _metricsCache;
+        private vApus.Results.StresstestMetricsCache _metricsCache;
         /// <summary>
         /// Countdown for the update.
         /// </summary>
@@ -129,10 +129,16 @@ namespace vApus.Stresstest
         private void btnStart_Click(object sender, System.EventArgs e)
         {
             if (stresstestControl.FastResultsCount > 0 &&
-                MessageBox.Show("Do you want to start the test and clear the previous results?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                MessageBox.Show("Starting the test will clear the previous fast results.\nDo you want to continue?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 return;
             if (InitDatabase())
             {
+                ResultsHelper.SetvApusInstance("foo", "bar", 1234, "haha", false);
+                ResultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(),
+                    _stresstest.ConnectionProxy.ToString(), _stresstest.Connection.ConnectionString, _stresstest.Log.ToString(),
+                    _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay, _stresstest.MaximumDelay,
+                    _stresstest.Shuffle, _stresstest.Distribute.ToString(), _stresstest.MonitorBefore, _stresstest.MonitorAfter);
+
                 SetGuiForStart();
 
                 if (_stresstest.Monitors.Length != 0)
@@ -159,19 +165,13 @@ namespace vApus.Stresstest
                     _stresstest.Description = dialog.Description;
                     edited = true;
                 }
-                if (_stresstest.Tags.Combine(",") != dialog.Tags.Combine(", "))
+                if (_stresstest.Tags.Combine(", ") != dialog.Tags.Combine(", "))
                 {
                     _stresstest.Tags = dialog.Tags;
                     edited = true;
                 }
                 if (edited)
                     _stresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-
-                ResultsHelper.SetvApusInstance("foo", "bar", 1234, "haha", false);
-                ResultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(),
-                    _stresstest.ConnectionProxy.ToString(), _stresstest.Connection.ConnectionString, _stresstest.Log.ToString(),
-                    _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay, _stresstest.MaximumDelay,
-                    _stresstest.Shuffle, _stresstest.Distribute.ToString(), _stresstest.MonitorBefore, _stresstest.MonitorAfter);
 
                 return true;
             }
@@ -194,7 +194,7 @@ namespace vApus.Stresstest
             stresstestControl.SetStresstestInitialized();
 
             _stresstestResult = null;
-            _metricsCache = new Results.MetricsCache();
+            _metricsCache = new Results.StresstestMetricsCache();
             //stresstestReportControl.ClearReport();
 
             stresstestControl.SetConfigurationControls(_stresstest);
@@ -300,7 +300,7 @@ namespace vApus.Stresstest
                 {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                     {
-                        Stop(ex, stresstestStatus == StresstestStatus.Ok && ex == null);
+                        Stop(ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
                         try
                         {
                             //stresstestReportControl.StresstestResult = _stresstestResult;
@@ -379,35 +379,20 @@ namespace vApus.Stresstest
             }
             _monitorViews.Clear();
 
-            //Also remove the tab pages.
-            while (tc.TabCount != 3)
-                tc.TabPages.RemoveAt(3);
+            foreach (var monitor in _stresstest.Monitors)
+            {
+                var monitorView = SolutionComponentViewManager.Show(monitor) as Monitor.MonitorView;
+                this.Show();
 
-            //foreach (var monitor in _stresstest.Monitors)
-            //{
-            //    var monitorView = SolutionComponentViewManager.Show(monitor) as Monitor.MonitorView;
-            //    this.Show();
+                stresstestControl.AppendMessages("Initializing " + monitorView.Text + "...");
+                _monitorViews.Add(monitorView);
 
-            //    stresstestControl.AppendMessages("Initializing " + monitorView.Text + "...");
-            //    _monitorViews.Add(monitorView);
-
-            //    //Add a new tab page.
-            //    var monitorTabPage = new TabPage("Report " + monitorView.Text);
-            //    var monitorReportControl = new MonitorReportControl();
-            //    monitorReportControl.Dock = DockStyle.Fill;
-
-            //    monitorTabPage.Controls.Add(monitorReportControl);
-            //    tc.TabPages.Add(monitorTabPage);
-
-            //    //For easy reporting
-            //    monitorView.Tag = monitorReportControl;
-
-            //    //Initialize
-            //    monitorView.MonitorInitialized += new EventHandler<MonitorView.MonitorInitializedEventArgs>(monitorView_MonitorInitialized);
-            //    monitorView.OnHandledException += new EventHandler<ErrorEventArgs>(monitorView_OnHandledException);
-            //    monitorView.OnUnhandledException += new EventHandler<ErrorEventArgs>(monitorView_OnUnhandledException);
-            //    monitorView.InitializeForStresstest();
-            //}
+                //Initialize
+                monitorView.MonitorInitialized += new EventHandler<MonitorView.MonitorInitializedEventArgs>(monitorView_MonitorInitialized);
+                monitorView.OnHandledException += new EventHandler<ErrorEventArgs>(monitorView_OnHandledException);
+                monitorView.OnUnhandledException += new EventHandler<ErrorEventArgs>(monitorView_OnUnhandledException);
+                monitorView.InitializeForStresstest();
+            }
         }
         private void monitorView_MonitorInitialized(object sender, MonitorView.MonitorInitializedEventArgs e)
         {
@@ -447,22 +432,27 @@ namespace vApus.Stresstest
             if (_monitorViews != null && _stresstest.Monitors.Length != 0)
             {
                 int runningMonitors = 0;
-                foreach (var view in _monitorViews)
-                    if (view != null && !view.IsDisposed)
+                foreach (var monitorView in _monitorViews)
+                    if (monitorView != null && !monitorView.IsDisposed)
                         try
                         {
-                            view.Start();
-                            stresstestControl.AppendMessages(view.Text + " is started.");
+                            monitorView.Start();
+
+                            monitorView.GetMonitorResults().MonitorConfigurationId =
+                                ResultsHelper.SetMonitor(monitorView.Monitor.ToString(),
+                                monitorView.Monitor.Parameters.Combine(", "), monitorView.Configuration, monitorView.GetHeaders());
+
+                            stresstestControl.AppendMessages(monitorView.Text + " is started.");
                             ++runningMonitors;
                         }
                         catch (Exception e)
                         {
                             try
                             {
-                                LogWrapper.LogByLevel(view.Text + " is not started.\n" + e.ToString(), LogLevel.Error);
-                                stresstestControl.AppendMessages(view.Text + " is not started.");
+                                LogWrapper.LogByLevel(monitorView.Text + " is not started.\n" + e.ToString(), LogLevel.Error);
+                                stresstestControl.AppendMessages(monitorView.Text + " is not started.");
 
-                                try { view.Stop(); }
+                                try { monitorView.Stop(); }
                                 catch { }
                             }
                             catch { }
@@ -477,14 +467,10 @@ namespace vApus.Stresstest
                     _monitorBeforeCountDown.Start();
                 }
                 else
-                {
                     MonitorBeforeDone();
-                }
             }
             else
-            {
                 MonitorBeforeDone();
-            }
         }
         private void monitorBeforeCountDown_Tick(object sender, EventArgs e)
         {
@@ -522,6 +508,7 @@ namespace vApus.Stresstest
         private void _stresstestCore_StresstestStarted(object sender, StresstestResultEventArgs e)
         {
             _stresstestResult = e.StresstestResult;
+            _metricsCache.StresstestResult = _stresstestResult;
             stresstestControl.SetStresstestStarted(e.StresstestResult.StartedAt);
         }
         private void _stresstestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e)
@@ -530,7 +517,7 @@ namespace vApus.Stresstest
             StopProgressDelayCountDown();
             tmrProgress.Stop();
 
-            _metricsCache.AddOrUpdate(vApus.Results.MetricsHelper.GetMetrics(e.Result), e.Result);
+            _metricsCache.AddOrUpdate(vApus.Results.StresstestMetricsHelper.GetMetrics(e.Result), e.Result);
             stresstestControl.UpdateConcurrencyFastResults(_metricsCache.GetConcurrencyMetrics());
             stresstestControl.SetRerunning(false);
         }
@@ -540,7 +527,7 @@ namespace vApus.Stresstest
             StopProgressDelayCountDown();
             tmrProgress.Stop();
 
-            _metricsCache.AddOrUpdate(vApus.Results.MetricsHelper.GetMetrics(e.Result), e.Result);
+            _metricsCache.AddOrUpdate(vApus.Results.StresstestMetricsHelper.GetMetrics(e.Result), e.Result);
             stresstestControl.UpdateConcurrencyFastResults(_metricsCache.GetConcurrencyMetrics());
             stresstestControl.UpdateRunFastResults(_metricsCache.GetRunMetrics());
             stresstestControl.SetRerunning(false);
@@ -726,6 +713,8 @@ namespace vApus.Stresstest
             }
 
             stresstestControl.SetStresstestStopped();
+
+            _stresstestResult = null;
         }
         /// <summary>
         /// Only used in stop

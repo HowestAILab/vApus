@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
 using vApusSMT.Base;
@@ -52,7 +53,7 @@ namespace vApus.Monitor
 
         private bool _forStresstest = false;
 
-        private string _configuration;
+        private string _configuration = string.Empty;
         #endregion
 
         #region Properties
@@ -63,6 +64,10 @@ namespace vApus.Monitor
         public string Configuration
         {
             get { return _configuration; }
+        }
+        public Dictionary<Parameter, object> ParametersWithValues
+        {
+            get { return _parametersWithValues; }
         }
         #endregion
 
@@ -1084,7 +1089,7 @@ namespace vApus.Monitor
 
         private void btnConfiguration_Click(object sender, EventArgs e)
         {
-            if (_configuration != null)
+            if (_configuration != string.Empty)
                 (new ConfigurationDialog(_configuration)).ShowDialog();
         }
 
@@ -1152,7 +1157,7 @@ namespace vApus.Monitor
         }
         private void btnSaveAllMonitorCounters_Click(object sender, EventArgs e)
         {
-            if (monitorControl.GetHeaders() != null && monitorControl.GetHeaders().Length != 0)
+            if (monitorControl.Headers != null && monitorControl.Headers.Length != 0)
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     this.Cursor = Cursors.WaitCursor;
@@ -1163,7 +1168,7 @@ namespace vApus.Monitor
         }
         private void btnSaveFilteredMonitoredCounters_Click(object sender, EventArgs e)
         {
-            if (monitorControl.GetHeaders() != null && monitorControl.GetHeaders().Length != 0)
+            if (monitorControl.Headers != null && monitorControl.Headers.Length != 0)
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     this.Cursor = Cursors.WaitCursor;
@@ -1428,11 +1433,16 @@ namespace vApus.Monitor
         /// <returns></returns>
         public string[] GetHeaders()
         {
-            return monitorControl.GetHeaders();
+            return monitorControl.Headers;
+        }
+        public MonitorResultCache GetMonitorResults()
+        {
+            return monitorControl.MonitorResultCache;
         }
         public Dictionary<DateTime, float[]> GetMonitorValues()
         {
-            return monitorControl.GetMonitorValues();
+            return null;
+            //return monitorControl.GetMonitorValues();
         }
         #endregion
 

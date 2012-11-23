@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="label4.Text" xml:space="preserve">
-    <value>You must have access to a MySql server to be able to save test results!
+    <value>You must have access to a MySQL server to be able to save test results!
 You can use vApus without it, but then you will only get the result metrics for the test.
 You will not be able to view the full results and generate reports out of them.</value>
   </data>

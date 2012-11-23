@@ -62,9 +62,11 @@
     <Compile Include="DescriptionAndTagsInputDialog.Designer.cs">
       <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Metrics.cs" />
-    <Compile Include="MetricsCache.cs" />
-    <Compile Include="MetricsHelper.cs" />
+    <Compile Include="Metrics\Monitor\MonitorMetrics.cs" />
+    <Compile Include="Metrics\Monitor\MonitorMetricsHelper.cs" />
+    <Compile Include="Metrics\Stresstest\StresstestMetrics.cs" />
+    <Compile Include="Metrics\Stresstest\StresstestMetricsCache.cs" />
+    <Compile Include="Metrics\Stresstest\StresstestMetricsHelper.cs" />
     <Compile Include="Cache\Monitor\MonitorResultCache.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

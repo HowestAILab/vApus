@@ -63,29 +63,35 @@
             // 
             // txtUser
             // 
+            this.txtUser.EmptyTextBoxLabel = "User";
+            this.txtUser.ForeColor = System.Drawing.Color.DimGray;
             this.txtUser.Location = new System.Drawing.Point(6, 68);
             this.txtUser.Name = "txtUser";
             this.txtUser.Size = new System.Drawing.Size(120, 20);
             this.txtUser.TabIndex = 1;
-            this.txtUser.EmptyTextBoxLabel = "User";
+            this.txtUser.Text = "User";
             this.txtUser.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtHost
             // 
+            this.txtHost.EmptyTextBoxLabel = "Host";
+            this.txtHost.ForeColor = System.Drawing.Color.DimGray;
             this.txtHost.Location = new System.Drawing.Point(156, 68);
             this.txtHost.Name = "txtHost";
             this.txtHost.Size = new System.Drawing.Size(120, 20);
             this.txtHost.TabIndex = 2;
-            this.txtHost.EmptyTextBoxLabel = "Host";
+            this.txtHost.Text = "Host";
             this.txtHost.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtPassword
             // 
+            this.txtPassword.EmptyTextBoxLabel = "Password";
+            this.txtPassword.ForeColor = System.Drawing.Color.DimGray;
             this.txtPassword.Location = new System.Drawing.Point(6, 94);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
             this.txtPassword.TabIndex = 3;
-            this.txtPassword.EmptyTextBoxLabel = "Password";
+            this.txtPassword.Text = "Password";
             this.txtPassword.TextChanged += new System.EventHandler(this.txt_TextChanged);
             this.txtPassword.Enter += new System.EventHandler(this.txtPassword_Enter);
             this.txtPassword.Leave += new System.EventHandler(this.txtPassword_Leave);
