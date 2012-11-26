@@ -48,7 +48,7 @@ namespace vApus.Monitor
 
         private Dictionary<Parameter, object> _parametersWithValues = new Dictionary<Parameter, object>();
 
-        //The refresht ime of the counter pushing In ms 
+        //The refresht time of the counter pushing In ms 
         private int _refreshTimeInMS;
 
         private bool _forStresstest = false;
@@ -64,10 +64,6 @@ namespace vApus.Monitor
         public string Configuration
         {
             get { return _configuration; }
-        }
-        public Dictionary<Parameter, object> ParametersWithValues
-        {
-            get { return _parametersWithValues; }
         }
         #endregion
 
@@ -1443,6 +1439,17 @@ namespace vApus.Monitor
         {
             return null;
             //return monitorControl.GetMonitorValues();
+        }
+        /// <summary>
+        /// Get the connection parameters comma-separated.
+        /// </summary>
+        /// <returns></returns>
+        public string GetConnectionString()
+        {
+            List<string> connectionString = new List<string>();
+            foreach (Parameter key in _parametersWithValues.Keys)
+                connectionString.Add(key.Name + "=" + _parametersWithValues[key]);
+            return connectionString.ToArray().Combine(", ");
         }
         #endregion
 

@@ -127,14 +127,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="resultHeaders"></param>
         /// <returns>The monitor configuration id in the database, set this in the proper monitor result cache.
         /// -1 if not connected.</returns>
-        public static int SetMonitor(string monitor, Dictionary<object, object> parametersWithValues, string machineConfiguration, string[] resultHeaders)
+        public static int SetMonitor(string monitor, string connectionString, string machineConfiguration, string[] resultHeaders)
         {
             if (_databaseActions != null)
             {
-                string connectionString = string.Empty;
                 _databaseActions.ExecuteSQL(
                                 string.Format("INSERT INTO Monitors(StresstestId, Monitor, ConnectionString, MachineConfiguration, ResultHeaders) VALUES('{0}', '{1}', '{2}', '{3}', '{4}')",
-                                _stresstestId, monitor, connectionString.Encrypt(_passwordGUID, _salt), machineConfiguration, resultHeaders.Combine("\t"))
+                                _stresstestId, monitor, connectionString.Encrypt(_passwordGUID, _salt), machineConfiguration, resultHeaders.Combine("; ", string.Empty))
                                 );
                 return GetLastInsertId();
             }
@@ -269,26 +268,28 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')",
         }
         #endregion
 
-        //#region Monitor results
-        ///// <summary>
-        ///// Do this at the end of the test.
-        ///// </summary>
-        ///// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
-        //public static void SaveMonitorResults(MonitorResultCache monitorResultCache)
-        //{
-        //    if (_databaseActions != null)
-        //        foreach (object[] row in monitorResultCache.Rows)
-        //        {
-        //            var timeStamp = (DateTime)row[0];
-        //            string value = row.Combine("\t");
-        //            value = value.Split('\t')[1];
-        //            _databaseActions.ExecuteSQL(
-        //                string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES('{0}', '{1}', '{2}')",
-        //                monitorResultCache.MonitorConfigurationId, Parse(timeStamp), value)
-        //                );
-        //        }
-        //}
-        //#endregion
+        #region Monitor results
+        /// <summary>
+        /// Do this at the end of the test.
+        /// </summary>
+        /// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
+        public static void SetMonitorResults(MonitorResultCache monitorResultCache)
+        {
+            if (_databaseActions != null)
+                foreach (object[] row in monitorResultCache.Rows)
+                {
+                    var timeStamp = (DateTime)row[0];
+
+                    var value = new List<float>();
+                    for (int i = 1; i < row.Length; i++) value.Add((float)row[i]);
+
+                    _databaseActions.ExecuteSQL(
+                        string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES('{0}', '{1}', '{2}')",
+                        monitorResultCache.MonitorConfigurationId, Parse(timeStamp), value.ToArray().Combine("; "))
+                        );
+                }
+        }
+        #endregion
 
         /// <summary>
         /// Works with a data reader, releases the connection.

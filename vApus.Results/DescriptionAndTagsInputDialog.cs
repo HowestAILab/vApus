@@ -63,12 +63,10 @@ namespace vApus.Results
             _tags = tags.ToArray();
 
             try { ResultsHelper.SetDescriptionAndTags(Description, Tags); }
-            catch (Exception ex) { throw new Exception("The schema must be build first.", ex); }
-            finally
-            {
-                try { this.Close(); }
-                catch { }
-            }
+            catch (Exception ex) { LogWrapper.LogByLevel("Could not add the description and tags to the database.\n" + ex, LogLevel.Error); }
+
+            try { this.Close(); }
+            catch { }
         }
     }
 }

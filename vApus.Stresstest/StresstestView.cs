@@ -301,29 +301,14 @@ namespace vApus.Stresstest
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                     {
                         Stop(ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
-                        try
-                        {
-                            //stresstestReportControl.StresstestResult = _stresstestResult;
-                            //stresstestReportControl.SetConfigurationLabels();
-                            //stresstestReportControl.MakeReport();
-                        }
-                        catch (Exception e)
-                        {
-                            LogWrapper.LogByLevel(this.Text + ": Failed making a stresstest report.\n" + e.ToString(), LogLevel.Error);
-                        }
 
-                        //if (_monitorViews != null)
-                        //    foreach (var view in _monitorViews)
-                        //        if (view != null && view.Tag != null)
-                        //            try
-                        //            {
-                        //                var monitorReportControl = view.Tag as MonitorReportControl;
-                        //                monitorReportControl.SetConfig_Headers_MonitorValuesAndStresstestResults(view.Configuration, view.GetHeaders(), view.GetMonitorValues(), _stresstestResult);
-                        //            }
-                        //            catch (Exception e)
-                        //            {
-                        //                LogWrapper.LogByLevel(view.Text + ": Failed making a monitor report.\n" + e.ToString(), LogLevel.Error);
-                        //            }
+#warning Make report here
+
+                        if (_monitorViews != null)
+                            foreach (var view in _monitorViews)
+                                if (view != null)
+                                    try { ResultsHelper.SetMonitorResults(view.GetMonitorResults()); }
+                                    catch (Exception e) { LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e.ToString(), LogLevel.Error); }
 
                         stresstestControl.SetStresstestStopped(stresstestStatus);
                     }, null);
@@ -440,7 +425,7 @@ namespace vApus.Stresstest
 
                             monitorView.GetMonitorResults().MonitorConfigurationId =
                                 ResultsHelper.SetMonitor(monitorView.Monitor.ToString(),
-                                monitorView.Monitor.Parameters.Combine(", "), monitorView.Configuration, monitorView.GetHeaders());
+                                monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetHeaders());
 
                             stresstestControl.AppendMessages(monitorView.Text + " is started.");
                             ++runningMonitors;
@@ -701,7 +686,8 @@ namespace vApus.Stresstest
             {
                 try
                 {
-                    stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                    stresstestControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage,
+                        (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                 }
                 catch { } //Exception on false WMI. 
                 stresstestControl.UpdateConcurrencyFastResults(_metricsCache.GetConcurrencyMetrics());

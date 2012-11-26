@@ -32,6 +32,8 @@
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnl = new System.Windows.Forms.Panel();
             this.pnlFastResultListing = new System.Windows.Forms.Panel();
+            this.toggleButton2 = new vApus.Util.ToggleButton();
+            this.toggleButton1 = new vApus.Util.ToggleButton();
             this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.flpFastMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
@@ -122,6 +124,8 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlFastResultListing.BackColor = System.Drawing.Color.White;
+            this.pnlFastResultListing.Controls.Add(this.toggleButton2);
+            this.pnlFastResultListing.Controls.Add(this.toggleButton1);
             this.pnlFastResultListing.Controls.Add(this.dgvFastResults);
             this.pnlFastResultListing.Controls.Add(this.flpFastMetrics);
             this.pnlFastResultListing.Controls.Add(this.label4);
@@ -131,6 +135,42 @@
             this.pnlFastResultListing.Size = new System.Drawing.Size(897, 280);
             this.pnlFastResultListing.TabIndex = 1;
             this.pnlFastResultListing.Text = "Fast Results";
+            // 
+            // toggleButton2
+            // 
+            this.toggleButton2.Appearance = System.Windows.Forms.Appearance.Button;
+            this.toggleButton2.AutoSize = true;
+            this.toggleButton2.BackColor = System.Drawing.Color.White;
+            this.toggleButton2.FlatAppearance.BorderSize = 0;
+            this.toggleButton2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.toggleButton2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline);
+            this.toggleButton2.ForeColor = System.Drawing.Color.Blue;
+            this.toggleButton2.Location = new System.Drawing.Point(365, 3);
+            this.toggleButton2.Name = "toggleButton2";
+            this.toggleButton2.Size = new System.Drawing.Size(52, 23);
+            this.toggleButton2.TabIndex = 19;
+            this.toggleButton2.Text = "Monitor";
+            this.toggleButton2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.toggleButton2.UseVisualStyleBackColor = false;
+            // 
+            // toggleButton1
+            // 
+            this.toggleButton1.Appearance = System.Windows.Forms.Appearance.Button;
+            this.toggleButton1.AutoSize = true;
+            this.toggleButton1.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.toggleButton1.Checked = true;
+            this.toggleButton1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.toggleButton1.FlatAppearance.BorderSize = 0;
+            this.toggleButton1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.toggleButton1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.toggleButton1.ForeColor = System.Drawing.Color.Black;
+            this.toggleButton1.Location = new System.Drawing.Point(285, 3);
+            this.toggleButton1.Name = "toggleButton1";
+            this.toggleButton1.Size = new System.Drawing.Size(73, 23);
+            this.toggleButton1.TabIndex = 18;
+            this.toggleButton1.Text = "Stresstest";
+            this.toggleButton1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.toggleButton1.UseVisualStyleBackColor = false;
             // 
             // dgvFastResults
             // 
@@ -758,5 +798,7 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkReadable;
         private System.Windows.Forms.DataGridView dgvFastResults;
+        private Util.ToggleButton toggleButton1;
+        private Util.ToggleButton toggleButton2;
     }
 }
