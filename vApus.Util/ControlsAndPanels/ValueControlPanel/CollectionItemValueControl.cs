@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -21,7 +22,7 @@ namespace vApus.Util
             InitializeComponent();
         }
 
-        public void Init(BaseValueControl.Value value)
+        public void Init(Value value)
         {
             base.__Value = value;
 
@@ -37,10 +38,10 @@ namespace vApus.Util
 
                 cbo.Dock = DockStyle.Fill;
 
-                cbo.DropDown += new EventHandler(cbo_DropDown);
-                cbo.SelectedIndexChanged += new EventHandler(cbo_SelectedIndexChanged);
-                cbo.Leave += new EventHandler(cbo_Leave);
-                cbo.KeyUp += new KeyEventHandler(cbo_KeyUp);
+                cbo.DropDown += cbo_DropDown;
+                cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
+                cbo.Leave += cbo_Leave;
+                cbo.KeyUp += cbo_KeyUp;
             }
             else
             {
@@ -51,6 +52,7 @@ namespace vApus.Util
 
             base.ValueControl = cbo;
         }
+
         private void SetCBO(ComboBox cbo)
         {
             cbo.SelectedIndexChanged -= cbo_SelectedIndexChanged;
@@ -70,32 +72,38 @@ namespace vApus.Util
             if (cbo.Items.Count != 0 && cbo.SelectedIndex == -1)
                 cbo.SelectedIndex = 0;
         }
+
         private void cbo_DropDown(object sender, EventArgs e)
         {
             SetCBO(ValueControl as ComboBox);
         }
+
         private void cbo_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Use sender here, it can change before the ValueControlisknown(see SetCBO).
-            ComboBox cbo = sender as ComboBox;
+            var cbo = sender as ComboBox;
             if (cbo.SelectedIndex != -1)
                 base.HandleValueChanged(cbo.SelectedItem);
         }
+
         private void cbo_KeyUp(object sender, KeyEventArgs e)
         {
-            ComboBox cbo = ValueControl as ComboBox;
+            var cbo = ValueControl as ComboBox;
             if (cbo.SelectedIndex != -1)
                 base.HandleKeyUp(e.KeyCode, cbo.SelectedItem);
         }
+
         private void cbo_Leave(object sender, EventArgs e)
         {
             try
             {
-                ComboBox cbo = ValueControl as ComboBox;
+                var cbo = ValueControl as ComboBox;
                 if (cbo.SelectedIndex != -1)
                     base.HandleValueChanged(cbo.SelectedItem);
             }
-            catch { }
+            catch
+            {
+            }
         }
     }
 }

@@ -5,7 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using System;
+
 using System.Drawing;
 using FastColoredTextBoxNS;
 
@@ -13,14 +13,25 @@ namespace vApus.LogFixer
 {
     public class VisualizeWhiteSpaceTextStyle
     {
-        private FastColoredTextBox _fastColoredTextBox;
+        private readonly MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
+        private readonly FastColoredTextBox _fastColoredTextBox;
 
+        private readonly TextStyle _whiteSpaceStyle = new TextStyle(Brushes.Black, Brushes.DarkGray, FontStyle.Regular);
         private bool _visualizeWhiteSpace;
 
-        private TextStyle _whiteSpaceStyle = new TextStyle(Brushes.Black, Brushes.DarkGray, FontStyle.Regular);
+        public VisualizeWhiteSpaceTextStyle(FastColoredTextBox fastColoredTextBox,
+                                            bool visualizeWhiteSpace)
+        {
+            _fastColoredTextBox = fastColoredTextBox;
+            _visualizeWhiteSpace = visualizeWhiteSpace;
 
-        private MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
+            _fastColoredTextBox.ClearStylesBuffer();
 
+            //add this style explicitly for drawing under other styles
+            _fastColoredTextBox.AddStyle(SameWordsStyle);
+
+            _fastColoredTextBox.TextChanged += _fastColoredTextBox_TextChanged;
+        }
 
         public bool VisualizeWhiteSpace
         {
@@ -35,24 +46,11 @@ namespace vApus.LogFixer
             }
         }
 
-        public VisualizeWhiteSpaceTextStyle(FastColoredTextBox fastColoredTextBox,
-            bool visualizeWhiteSpace)
-        {
-            _fastColoredTextBox = fastColoredTextBox;
-            _visualizeWhiteSpace = visualizeWhiteSpace;
-
-            _fastColoredTextBox.ClearStylesBuffer();
-
-            //add this style explicitly for drawing under other styles
-            _fastColoredTextBox.AddStyle(SameWordsStyle);
-
-            _fastColoredTextBox.TextChanged += new EventHandler<TextChangedEventArgs>(_fastColoredTextBox_TextChanged);
-        }
-
         private void _fastColoredTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             SetStyle(e.ChangedRange);
         }
+
         private void SetStyle(Range changedRange)
         {
             _fastColoredTextBox.LeftBracket = '\x0';

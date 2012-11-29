@@ -7,22 +7,19 @@
  *    
  * Thx 'NanoWizard' from stackoverflow
  */
+
 using System;
 using System.Windows.Forms;
 
 namespace vApus.Util
 {
     /// <summary>
-    /// Fixes the wrong increment/decrement of 3 (to 1) when using the mouse wheel. 
+    ///     Fixes the wrong increment/decrement of 3 (to 1) when using the mouse wheel.
     /// </summary>
     public class FixedNumericUpDown : NumericUpDown
     {
         protected const String UpKey = "{UP}";
         protected const String DownKey = "{DOWN}";
-        /// <summary>
-        /// Fixes the wrong increment/decrement of 3 (to 1) when using the mouse wheel. 
-        /// </summary>
-        public FixedNumericUpDown() { }
 
         protected override void OnMouseWheel(MouseEventArgs e_)
         {

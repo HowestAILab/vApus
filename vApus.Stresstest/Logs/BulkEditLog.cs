@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -13,6 +14,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using FastColoredTextBoxNS;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -24,33 +26,38 @@ namespace vApus.Stresstest
         private static extern int LockWindowUpdate(int hWnd);
 
         #region Fields
+
         private const int MAXSHOWNLOGENTRIES = int.MaxValue;
 
+        private readonly Parameters _parameters;
+        private ParameterTokenTextStyle _asImportedParameterTokenTextStyle;
+
+        private string _beginTokenDelimiter;
+        private ParameterTokenTextStyle _editParameterTokenTextStyle;
+        private string _endTokenDelimiter;
         private Log _log;
 
-        private Parameters _parameters;
-
-        private string _beginTokenDelimiter, _endTokenDelimiter;
-
         private string[] _logEntryStrings;
-
-        private ParameterTokenTextStyle _editParameterTokenTextStyle, _asImportedParameterTokenTextStyle;
 
         #endregion
 
         #region Properties
+
         public Log Log
         {
             get { return _log; }
         }
+
         #endregion
 
         #region Constructors
+
         public BulkEditLog()
         {
             InitializeComponent();
             cboParameterScope.SelectedIndex = 0;
         }
+
         public BulkEditLog(Log log)
         {
             InitializeComponent();
@@ -58,9 +65,10 @@ namespace vApus.Stresstest
             _log = log.Clone();
             bool warning;
             bool error;
-            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning, out error);
+            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
+                                                   out error);
 
-            List<string> logEntryStrings = new List<string>();
+            var logEntryStrings = new List<string>();
             foreach (LogEntry entry in _log.GetAllLogEntries())
             {
                 string index = string.Empty;
@@ -74,19 +82,21 @@ namespace vApus.Stresstest
 
             _logEntryStrings = logEntryStrings.ToArray();
 
-            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof (Parameters)) as Parameters;
 
             cboParameterScope.SelectedIndex = 0;
 
-            if (this.IsHandleCreated)
+            if (IsHandleCreated)
                 SetTextAndValidation();
             else
-                this.HandleCreated += new System.EventHandler(BulkEditLog_HandleCreated);
+                HandleCreated += BulkEditLog_HandleCreated;
         }
+
         #endregion
 
         #region Functions
-        private void BulkEditLog_HandleCreated(object sender, System.EventArgs e)
+
+        private void BulkEditLog_HandleCreated(object sender, EventArgs e)
         {
             SetCodeStyle();
             SetTextAndValidation();
@@ -94,23 +104,26 @@ namespace vApus.Stresstest
 
         private void SetCodeStyle()
         {
-            var customListParameters = _parameters[0];
-            var numericParameters = _parameters[1];
-            var textParameters = _parameters[2];
-            var customRandomParameters = _parameters[3];
+            BaseItem customListParameters = _parameters[0];
+            BaseItem numericParameters = _parameters[1];
+            BaseItem textParameters = _parameters[2];
+            BaseItem customRandomParameters = _parameters[3];
 
-            string[] scopeIdentifiers = new string[] 
-            {
-                ASTNode.ALWAYS_PARAMETER_SCOPE,
-                ASTNode.LEAF_NODE_PARAMETER_SCOPE,
-                ASTNode.LOG_ENTRY_PARAMETER_SCOPE,
-                ASTNode.USER_ACTION_PARAMETER_SCOPE,
-                ASTNode.LOG_PARAMETER_SCOPE 
-            };
+            var scopeIdentifiers = new[]
+                {
+                    ASTNode.ALWAYS_PARAMETER_SCOPE,
+                    ASTNode.LEAF_NODE_PARAMETER_SCOPE,
+                    ASTNode.LOG_ENTRY_PARAMETER_SCOPE,
+                    ASTNode.USER_ACTION_PARAMETER_SCOPE,
+                    ASTNode.LOG_PARAMETER_SCOPE
+                };
 
 
             int index;
-            List<string> clp = new List<string>(), np = new List<string>(), tp = new List<string>(), crp = new List<string>();
+            List<string> clp = new List<string>(),
+                         np = new List<string>(),
+                         tp = new List<string>(),
+                         crp = new List<string>();
             foreach (string scopeIdentifier in scopeIdentifiers)
             {
                 index = 1;
@@ -135,8 +148,12 @@ namespace vApus.Stresstest
                     crp.Add(token);
                 }
             }
-            _editParameterTokenTextStyle = new ParameterTokenTextStyle(fastColoredTextBoxView, GetDelimiters(_log.LogRuleSet), clp, np, tp, crp, false);
-            _asImportedParameterTokenTextStyle = new ParameterTokenTextStyle(fastColoredTextBoxApplyFilter, GetDelimiters(_log.LogRuleSet), clp, np, tp, crp, false);
+            _editParameterTokenTextStyle = new ParameterTokenTextStyle(fastColoredTextBoxView,
+                                                                       GetDelimiters(_log.LogRuleSet), clp, np, tp, crp,
+                                                                       false);
+            _asImportedParameterTokenTextStyle = new ParameterTokenTextStyle(fastColoredTextBoxApplyFilter,
+                                                                             GetDelimiters(_log.LogRuleSet), clp, np, tp,
+                                                                             crp, false);
         }
 
         private string[] GetDelimiters(LogRuleSet logRuleSet)
@@ -150,12 +167,13 @@ namespace vApus.Stresstest
                     foreach (string delimiter in GetDelimiters(item as LogSyntaxItem))
                         hs.Add(delimiter);
 
-            string[] delimiters = new string[hs.Count];
+            var delimiters = new string[hs.Count];
             hs.CopyTo(delimiters);
             hs = null;
 
             return delimiters;
         }
+
         private IEnumerable<string> GetDelimiters(LogSyntaxItem logSyntaxItem)
         {
             if (logSyntaxItem.ChildDelimiter.Length != 0)
@@ -166,10 +184,11 @@ namespace vApus.Stresstest
                         yield return delimiter;
         }
 
-        private void cboParameterScope_SelectedIndexChanged(object sender, System.EventArgs e)
+        private void cboParameterScope_SelectedIndexChanged(object sender, EventArgs e)
         {
             SetParameterTokensFlps();
         }
+
         private void SetParameterTokensFlps()
         {
             string scopeIdentifier = null;
@@ -209,23 +228,29 @@ namespace vApus.Stresstest
                 AddKvpsToFlps(scopeIdentifier);
             }
         }
+
         private void AddKvpsToFlps(string scopeIdentifier)
         {
-            var customListParameters = _parameters[0];
-            var numericParameters = _parameters[1];
-            var textParameters = _parameters[2];
-            var customRandomParameters = _parameters[3];
+            BaseItem customListParameters = _parameters[0];
+            BaseItem numericParameters = _parameters[1];
+            BaseItem textParameters = _parameters[2];
+            BaseItem customRandomParameters = _parameters[3];
 
             int j = 1;
             for (int i = 0; i < customListParameters.Count; i++)
-                AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter, customListParameters[i].ToString(), Color.LightPink);
+                AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter,
+                             customListParameters[i].ToString(), Color.LightPink);
             for (int i = 0; i < numericParameters.Count; i++)
-                AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter, numericParameters[i].ToString(), Color.LightGreen);
+                AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter,
+                             numericParameters[i].ToString(), Color.LightGreen);
             for (int i = 0; i < textParameters.Count; i++)
-                AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter, textParameters[i].ToString(), Color.LightBlue);
+                AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter,
+                             textParameters[i].ToString(), Color.LightBlue);
             for (int i = 0; i < customRandomParameters.Count; i++)
-                AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter, customRandomParameters[i].ToString(), Color.Yellow);
+                AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter,
+                             customRandomParameters[i].ToString(), Color.Yellow);
         }
+
         private void AddKvpToFlps(string key, string value, Color backColor)
         {
             var kvp = new KeyValuePairControl(key, value);
@@ -248,46 +273,56 @@ namespace vApus.Stresstest
                     return true;
             return false;
         }
-        private void btnOK_Click(object sender, System.EventArgs e)
+
+        private void btnOK_Click(object sender, EventArgs e)
         {
             bool close = _log.LexicalResult == LexicalResult.OK;
 
-            if (!close && MessageBox.Show("Are you sure you want to apply the made changes? There are errors!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            if (!close &&
+                MessageBox.Show("Are you sure you want to apply the made changes? There are errors!", string.Empty,
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) ==
+                DialogResult.Yes)
                 close = true;
 
             if (close)
             {
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                DialogResult = DialogResult.OK;
+                Close();
             }
         }
 
         #region Filter
-        private void fastColoredTextBoxApplyFilter_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
+
+        private void fastColoredTextBoxApplyFilter_TextChangedDelayed(object sender, TextChangedEventArgs e)
         {
             SetTextAndValidation();
         }
+
         private void chkFilterWholeWords_CheckedChanged(object sender, EventArgs e)
         {
             SetTextAndValidation();
         }
+
         private void chkFilterMatchCase_CheckedChanged(object sender, EventArgs e)
         {
             SetTextAndValidation();
         }
+
         private void rdbANDWise_CheckedChanged(object sender, EventArgs e)
         {
             SetTextAndValidation();
         }
+
         private void SetTextAndValidation()
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
-            string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] {'\n'},
+                                                                       StringSplitOptions.RemoveEmptyEntries);
 
             int i = 0;
             int count = 0;
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.AppendLine();
 
             if (filter.Length == 0)
@@ -302,11 +337,15 @@ namespace vApus.Stresstest
                     ++count;
                 }
 
-                rtxtDescription.Text = count <= MAXSHOWNLOGENTRIES ? "All " + count + " log entries..." : "The first " + i + " of " + count + " log entries...";
+                rtxtDescription.Text = count <= MAXSHOWNLOGENTRIES
+                                           ? "All " + count + " log entries..."
+                                           : "The first " + i + " of " + count + " log entries...";
             }
             else
             {
-                RegexOptions options = chkFilterMatchCase.Checked ? RegexOptions.Singleline : RegexOptions.Singleline | RegexOptions.IgnoreCase;
+                RegexOptions options = chkFilterMatchCase.Checked
+                                           ? RegexOptions.Singleline
+                                           : RegexOptions.Singleline | RegexOptions.IgnoreCase;
 
                 if (chkFilterWholeWords.Checked)
                     for (int k = 0; k < filter.Length; k++)
@@ -328,13 +367,16 @@ namespace vApus.Stresstest
                     ++count;
                 }
 
-                rtxtDescription.Text = count <= MAXSHOWNLOGENTRIES ? "FILTERED " + i + " of " + count + " log entries..." : "The first " + i + " of " + j + " FILTERED on a total of " + count + " log entries...";
+                rtxtDescription.Text = count <= MAXSHOWNLOGENTRIES
+                                           ? "FILTERED " + i + " of " + count + " log entries..."
+                                           : "The first " + i + " of " + j + " FILTERED on a total of " + count +
+                                             " log entries...";
             }
             fastColoredTextBoxView.Text = sb.ToString();
 
             SetValidation();
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
 
         private bool RegexIsMatch(string input, string[] patterns, bool andWise, RegexOptions options)
@@ -357,7 +399,8 @@ namespace vApus.Stresstest
 
         private void chkFilterOnUsedTokens_CheckedChanged(object sender, EventArgs e)
         {
-            string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] {'\n'},
+                                                                       StringSplitOptions.RemoveEmptyEntries);
             StringBuilder sb = null;
 
             if (chkFilterOnUsedTokens.Checked)
@@ -386,45 +429,52 @@ namespace vApus.Stresstest
             }
             fastColoredTextBoxApplyFilter.Text = sb.ToString().Trim();
         }
+
         private IEnumerable<string> GetParameterTokens()
         {
-            string[] scopeIdentifiers = new string[] 
-            {
-                ASTNode.LOG_PARAMETER_SCOPE,
-                ASTNode.USER_ACTION_PARAMETER_SCOPE,
-                ASTNode.LOG_ENTRY_PARAMETER_SCOPE,
-                ASTNode.LEAF_NODE_PARAMETER_SCOPE,
-                ASTNode.ALWAYS_PARAMETER_SCOPE
-            };
+            var scopeIdentifiers = new[]
+                {
+                    ASTNode.LOG_PARAMETER_SCOPE,
+                    ASTNode.USER_ACTION_PARAMETER_SCOPE,
+                    ASTNode.LOG_ENTRY_PARAMETER_SCOPE,
+                    ASTNode.LEAF_NODE_PARAMETER_SCOPE,
+                    ASTNode.ALWAYS_PARAMETER_SCOPE
+                };
 
             int i;
             foreach (string scopeIdentifier in scopeIdentifiers)
             {
                 i = 1;
-                foreach (var parameter in _parameters.GetAllParameters())
+                foreach (BaseParameter parameter in _parameters.GetAllParameters())
                     yield return (_beginTokenDelimiter + scopeIdentifier + (i++) + _endTokenDelimiter);
             }
         }
+
         private void tcTools_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (tcTools.SelectedTab == tpApplyFilter)
                 fastColoredTextBoxApplyFilter.Select();
         }
+
         #endregion
 
         #region Replace
+
         private void txtFind_TextChanged(object sender, EventArgs e)
         {
             btnReplaceWith.Enabled = txtFind.Text.Length != 0;
         }
+
         private void btnReplaceWith_Click(object sender, EventArgs e)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
             txtFind.SelectAll();
             txtReplace.SelectAll();
 
-            RegexOptions options = chkReplaceMatchCase.Checked ? RegexOptions.Singleline : RegexOptions.Singleline | RegexOptions.IgnoreCase;
+            RegexOptions options = chkReplaceMatchCase.Checked
+                                       ? RegexOptions.Singleline
+                                       : RegexOptions.Singleline | RegexOptions.IgnoreCase;
 
             string oldText = Regex.Escape(txtFind.Text);
             if (chkReplaceWholeWords.Checked)
@@ -451,7 +501,8 @@ namespace vApus.Stresstest
             }
             else
             {
-                string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] {'\n'},
+                                                                           StringSplitOptions.RemoveEmptyEntries);
 
                 if (chkFilterWholeWords.Checked)
                     for (int k = 0; k < filter.Length; k++)
@@ -480,9 +531,10 @@ namespace vApus.Stresstest
             {
                 _log.ApplyLogRuleSet();
                 bool warning, error;
-                _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning, out error);
+                _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
+                                                       out error);
 
-                List<string> logEntryStrings = new List<string>();
+                var logEntryStrings = new List<string>();
                 foreach (LogEntry entry in _log.GetAllLogEntries())
                 {
                     string index = string.Empty;
@@ -506,10 +558,13 @@ namespace vApus.Stresstest
                 btnOK.Enabled = true;
             }
 
-            MessageBox.Show("Replaced '" + txtFind.Text + "' with '" + txtReplace.Text + "' in " + replacedCounter + " log entries.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(
+                "Replaced '" + txtFind.Text + "' with '" + txtReplace.Text + "' in " + replacedCounter + " log entries.",
+                string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         private void btnSwitchValues_Click(object sender, EventArgs e)
         {
             if (txtReplace.Text == string.Empty)
@@ -518,9 +573,10 @@ namespace vApus.Stresstest
             txtFind.Text = txtReplace.Text;
             txtReplace.Text = find;
         }
+
         private void btnUndoRedo_Click(object sender, EventArgs e)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
             Log undoRedoLog = _log.Clone();
 
@@ -528,9 +584,10 @@ namespace vApus.Stresstest
 
             _log.ApplyLogRuleSet();
             bool warning, error;
-            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning, out error);
+            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
+                                                   out error);
 
-            List<string> logEntryStrings = new List<string>();
+            var logEntryStrings = new List<string>();
             foreach (LogEntry entry in _log.GetAllLogEntries())
             {
                 string index = string.Empty;
@@ -552,11 +609,13 @@ namespace vApus.Stresstest
             btnUndoRedo.Tag = undoRedoLog;
             btnUndoRedo.Text = btnUndoRedo.Text == "Undo" ? "Redo" : "Undo";
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         #endregion
 
         #region Errors
+
         private void SetValidation()
         {
             if (_log.LexicalResult == LexicalResult.OK)
@@ -582,9 +641,10 @@ namespace vApus.Stresstest
                 tcTools.SelectedTab = tpErrors;
             }
         }
+
         private void AddErrorNode(int line, LogEntry entry)
         {
-            TreeNode node = new TreeNode(line + ") " + entry.LogEntryString);
+            var node = new TreeNode(line + ") " + entry.LogEntryString);
             node.Tag = entry;
 
             string index = string.Empty;
@@ -593,11 +653,11 @@ namespace vApus.Stresstest
             else
                 index = (entry.Parent as UserAction) + " Log Entry " + entry.Index;
 
-            TreeNode indexNode = new TreeNode(index);
+            var indexNode = new TreeNode(index);
             indexNode.Tag = entry;
             node.Nodes.Add(indexNode);
 
-            TreeNode errorNode = new TreeNode(entry.LexedLogEntry.Error);
+            var errorNode = new TreeNode(entry.LexedLogEntry.Error);
             errorNode.Tag = entry;
             errorNode.ForeColor = Color.DarkRed;
             node.Nodes.Add(errorNode);
@@ -612,18 +672,19 @@ namespace vApus.Stresstest
         private void btnEditSelectedLogEntry_Click(object sender, EventArgs e)
         {
             TreeNode node = tvw.SelectedNode;
-            LogEntry logEntry = node.Tag as LogEntry;
+            var logEntry = node.Tag as LogEntry;
 
-            AddEditLogEntry addEditLogEntry = new AddEditLogEntry(logEntry);
+            var addEditLogEntry = new AddEditLogEntry(logEntry);
             if (addEditLogEntry.ShowDialog() == DialogResult.OK)
             {
                 logEntry.LogEntryString = addEditLogEntry.LogEntry.LogEntryString;
 
                 _log.ApplyLogRuleSet();
                 bool warning, error;
-                _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning, out error);
+                _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
+                                                       out error);
 
-                List<string> logEntryStrings = new List<string>();
+                var logEntryStrings = new List<string>();
                 foreach (LogEntry entry in _log.GetAllLogEntries())
                 {
                     string index = string.Empty;

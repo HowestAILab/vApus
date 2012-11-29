@@ -5,13 +5,13 @@
  * Author(s):
  *    Vandroemme Dieter
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Stresstest;
@@ -21,15 +21,11 @@ namespace vApus.DistributedTesting
 {
     public static class SlaveSideCommunicationHandler
     {
-        /// <summary>
-        /// Use this for instance to show the test name in the title bar of the main window.
-        /// </summary>
-        public static event EventHandler<NewTestEventArgs> NewTest;
-
-        private static object _lock = new object();
-        private static string _seededFile = null; //For deleting the slave side results after it is sent.
+        private static readonly object _lock = new object();
+        private static string _seededFile; //For deleting the slave side results after it is sent.
 
         #region Message Handling
+
         private static ManualResetEvent _handleMessageWaitHandle = new ManualResetEvent(true);
         private static TileStresstestView _tileStresstestView;
         //Get the right socket wrapper to push progress to.
@@ -61,46 +57,57 @@ namespace vApus.DistributedTesting
             }
             catch (Exception ex)
             {
-                LogWrapper.LogByLevel("Communication error:\n" + ex.ToString(), LogLevel.Error);
+                LogWrapper.LogByLevel("Communication error:\n" + ex, LogLevel.Error);
             }
             return message;
         }
+
         private static Message<Key> HandlePoll(Message<Key> message)
         {
             message.Content = new PollMessage { ProcessID = Process.GetCurrentProcess().Id };
             return message;
         }
+
         private static Message<Key> HandleInitializeTest(Message<Key> message)
         {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-            {
-                Solution.HideStresstestingSolutionExplorer();
-            }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(
+                delegate { Solution.HideStresstestingSolutionExplorer(); }, null);
             //init the send queue for push messages.
             _sendQueue = new ActiveObject();
 
-            InitializeTestMessage initializeTestMessage = (InitializeTestMessage)message.Content;
+            var initializeTestMessage = (InitializeTestMessage)message.Content;
             StresstestWrapper stresstestWrapper = initializeTestMessage.StresstestWrapper;
 
             try
             {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    SolutionComponentViewManager.DisposeViews();
+                    {
+                        SolutionComponentViewManager.DisposeViews();
 
-                    if (_tileStresstestView != null)
-                        try { _tileStresstestView.Close(); }
-                        catch { }
-                    try { _tileStresstestView.Dispose(); }
-                    catch { }
-                    _tileStresstestView = null;
-                }, null);
+                        if (_tileStresstestView != null)
+                            try
+                            {
+                                _tileStresstestView.Close();
+                            }
+                            catch
+                            {
+                            }
+                        try
+                        {
+                            _tileStresstestView.Dispose();
+                        }
+                        catch
+                        {
+                        }
+                        _tileStresstestView = null;
+                    }, null);
 
                 if (_masterSocketWrapper == null)
                 {
-                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-                    _masterSocketWrapper = new SocketWrapper(initializeTestMessage.PushIP, initializeTestMessage.PushPort, socket);
+                    _masterSocketWrapper = new SocketWrapper(initializeTestMessage.PushIP,
+                                                             initializeTestMessage.PushPort, socket);
                     _masterSocketWrapper.Connect(1000, 3);
                 }
 
@@ -109,16 +116,17 @@ namespace vApus.DistributedTesting
                         del.BeginInvoke(null, new NewTestEventArgs(stresstestWrapper.Stresstest.ToString()), null, null);
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
-                    _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
-                    _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
-                }, null);
+                    {
+                        _tileStresstestView =
+                            SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView))
+                            as TileStresstestView;
+                        _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
+                        _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
+                    }, null);
 
 
                 //This is threadsafe
                 _tileStresstestView.InitializeTest();
-
             }
             catch (Exception ex)
             {
@@ -130,9 +138,10 @@ namespace vApus.DistributedTesting
 
             return message;
         }
+
         private static Message<Key> HandleStartTest(Message<Key> message)
         {
-            StartAndStopMessage startMessage = new StartAndStopMessage();
+            var startMessage = new StartAndStopMessage();
             if (_tileStresstestView == null)
                 startMessage.Exception = "No Tile Stresstest View found!";
             else
@@ -149,19 +158,22 @@ namespace vApus.DistributedTesting
             message.Content = startMessage;
             return message;
         }
+
         private static Message<Key> HandleBreak(Message<Key> message)
         {
             _tileStresstestView.Break();
             return message;
         }
+
         private static Message<Key> HandleContinue(Message<Key> message)
         {
             _tileStresstestView.Continue(((ContinueMessage)message.Content).ContinueCounter);
             return message;
         }
+
         private static Message<Key> HandleStopTest(Message<Key> message)
         {
-            StartAndStopMessage stopMessage = new StartAndStopMessage();
+            var stopMessage = new StartAndStopMessage();
             if (_tileStresstestView == null)
             {
                 stopMessage.Exception = "No Tile Stresstest View found!";
@@ -177,31 +189,32 @@ namespace vApus.DistributedTesting
 
         private static Message<Key> HandleResults(SocketWrapper receiver, Message<Key> message)
         {
-            ResultsMessage resultsMessage = new ResultsMessage();
+            var resultsMessage = new ResultsMessage();
 
             if (_tileStresstestView != null && _tileStresstestView.StresstestResult != null)
             {
                 resultsMessage.TileStresstestIndex = _tileStresstestView.TileStresstestIndex;
 
                 try
-                {/*
-                    string slaveSideResultsDir = Path.Combine(Application.StartupPath, "SlaveSideResults");
-                    string file = Path.Combine(slaveSideResultsDir,
-                        _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".r");
+                {
+                    /*
+                                        string slaveSideResultsDir = Path.Combine(Application.StartupPath, "SlaveSideResults");
+                                        string file = Path.Combine(slaveSideResultsDir,
+                                            _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".r");
 
-                    int j = 0;
-                    while (File.Exists(Path.Combine(slaveSideResultsDir,
-                        _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', ++j) + ".r")))
-                    {
-                        file = Path.Combine(slaveSideResultsDir,
-                            _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', j) + ".r");
-                    }
+                                        int j = 0;
+                                        while (File.Exists(Path.Combine(slaveSideResultsDir,
+                                            _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', ++j) + ".r")))
+                                        {
+                                            file = Path.Combine(slaveSideResultsDir,
+                                                _tileStresstestView.StresstestResult.Stresstest.Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + new string('_', j) + ".r");
+                                        }
 
-                    resultsMessage.TorrentInfo = CreateTorrent(file, slaveSideResultsDir);
+                                        resultsMessage.TorrentInfo = CreateTorrent(file, slaveSideResultsDir);
 
-                    //For cleanup afterwards.
-                    _seededFile = file;
-                  */
+                                        //For cleanup afterwards.
+                                        _seededFile = file;
+                                      */
                 }
                 catch (Exception ex)
                 {
@@ -215,6 +228,7 @@ namespace vApus.DistributedTesting
 
             return message;
         }
+
         private static Message<Key> HandleStopSeedingResults(Message<Key> message)
         {
             if (_torrentServer != null)
@@ -226,25 +240,22 @@ namespace vApus.DistributedTesting
             //Cleaning up in another thread, this is not something that should slow down communication.
             if (_seededFile != null && File.Exists(_seededFile))
             {
-                Thread cleanupResults = new Thread(delegate()
-                {
-                    try
+                var cleanupResults = new Thread(delegate()
                     {
-                        for (int i = 1; i != 4; i++)
-                            if (_seededFile != null && File.Exists(_seededFile))
-                                try
-                                {
-                                    File.Delete(_seededFile);
-                                    break;
-                                }
-                                catch
-                                {
-                                    Thread.Sleep(500 * i);
-                                }
-                    }
-                    catch { }
-                    _seededFile = null;
-                });
+                        try
+                        {
+                            for (int i = 1; i != 4; i++)
+                                if (_seededFile != null && File.Exists(_seededFile))
+                                    try
+                                    {
+                                        File.Delete(_seededFile);
+                                        break;
+                                    }
+                                    catch { Thread.Sleep(500 * i); }
+                        }
+                        catch { }
+                        _seededFile = null;
+                    });
                 cleanupResults.IsBackground = true;
                 cleanupResults.Start();
             }
@@ -252,7 +263,13 @@ namespace vApus.DistributedTesting
             message.Content = null;
             return message;
         }
+
         #endregion
+
+        /// <summary>
+        ///     Use this for instance to show the test name in the title bar of the main window.
+        /// </summary>
+        public static event EventHandler<NewTestEventArgs> NewTest;
 
         private static void SynchronizeBuffers(object toSend)
         {
@@ -262,10 +279,10 @@ namespace vApus.DistributedTesting
             {
                 _masterSocketWrapper.SendBufferSize = bufferSize;
                 _masterSocketWrapper.ReceiveBufferSize = _masterSocketWrapper.SendBufferSize;
-                SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
+                var synchronizeBuffersMessage = new SynchronizeBuffersMessage();
                 synchronizeBuffersMessage.BufferSize = _masterSocketWrapper.SendBufferSize;
 
-                Message<Key> message = new Message<Key>();
+                var message = new Message<Key>();
                 message.Key = Key.SynchronizeBuffers;
                 message.Content = synchronizeBuffersMessage;
                 _masterSocketWrapper.Send(message, SendType.Binary);
@@ -273,20 +290,14 @@ namespace vApus.DistributedTesting
         }
 
         #region Message Sending
-        private delegate void SendPushMessageDelegate(string tileStresstestIndex,
-                TileStresstestProgressResults tileStresstestProgressResults,
-                StresstestStatus stresstestResult,
-                StresstestCore stresstestCore,
-                List<EventPanelEvent> events,
-                RunStateChange concurrentUsersStateChange);
 
-        private static SendPushMessageDelegate _sendPushMessageDelegate = new SendPushMessageDelegate(SendQueuedPushMessage);
+        private static readonly SendPushMessageDelegate _sendPushMessageDelegate = SendQueuedPushMessage;
         private static ActiveObject _sendQueue;
 
 
         /// <summary>
-        /// Queues the messages to send in queues per stresstest (vApus.Util.ActiveObject), thread safe.
-        /// Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
+        ///     Queues the messages to send in queues per stresstest (vApus.Util.ActiveObject), thread safe.
+        ///     Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
         /// </summary>
         /// <param name="socketWrapper"></param>
         /// <param name="tileStresstest"></param>
@@ -296,31 +307,34 @@ namespace vApus.DistributedTesting
         /// <param name="events"></param>
         /// <param name="concurrentUsersStateChange"></param>
         public static void SendPushMessage(string tileStresstestIndex,
-                TileStresstestProgressResults tileStresstestProgressResults,
-                StresstestStatus stresstestResult,
-                StresstestCore stresstestCore,
-                List<EventPanelEvent> events,
-                RunStateChange concurrentUsersStateChange)
+                                           TileStresstestProgressResults tileStresstestProgressResults,
+                                           StresstestStatus stresstestResult,
+                                           StresstestCore stresstestCore,
+                                           List<EventPanelEvent> events,
+                                           RunStateChange concurrentUsersStateChange)
         {
             lock (_lock)
             {
-                _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, tileStresstestProgressResults, stresstestResult, stresstestCore, events, concurrentUsersStateChange);
+                _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, tileStresstestProgressResults,
+                                stresstestResult, stresstestCore, events, concurrentUsersStateChange);
             }
         }
 
         private static void SendQueuedPushMessage(string tileStresstestIndex,
-            TileStresstestProgressResults tileStresstestProgressResults,
-            StresstestStatus stresstestResult,
-            StresstestCore stresstestCore,
-            List<EventPanelEvent> events,
-            RunStateChange concurrentUsersStateChange)
+                                                  TileStresstestProgressResults tileStresstestProgressResults,
+                                                  StresstestStatus stresstestResult,
+                                                  StresstestCore stresstestCore,
+                                                  List<EventPanelEvent> events,
+                                                  RunStateChange concurrentUsersStateChange)
         {
             try
             {
-                TestProgressMessage tpm = new TestProgressMessage();
+                var tpm = new TestProgressMessage();
                 tpm.TileStresstestIndex = tileStresstestIndex;
 
-                tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed ? stresstestCore.BusyThreadCount : 0;
+                tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed
+                                       ? stresstestCore.BusyThreadCount
+                                       : 0;
                 try
                 {
                     tpm.CPUUsage = LocalMonitor.CPUUsage;
@@ -330,7 +344,9 @@ namespace vApus.DistributedTesting
                     tpm.NicsSent = LocalMonitor.NicsSent;
                     tpm.NicsReceived = LocalMonitor.NicsReceived;
                 }
-                catch { } //Exception on false WMI. 
+                catch
+                {
+                } //Exception on false WMI. 
 
                 if (tileStresstestProgressResults != null)
                     tileStresstestProgressResults.Refresh();
@@ -346,9 +362,11 @@ namespace vApus.DistributedTesting
                         if (_masterSocketWrapper.Socket != null)
                             _masterSocketWrapper.Socket.Dispose();
                     }
-                    catch { }
+                    catch
+                    {
+                    }
 
-                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                     _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
 
@@ -356,7 +374,9 @@ namespace vApus.DistributedTesting
                     {
                         _masterSocketWrapper.Connect(1000, 3);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
 
                 if (_masterSocketWrapper.Connected)
@@ -367,16 +387,29 @@ namespace vApus.DistributedTesting
                         SynchronizeBuffers(message);
                         _masterSocketWrapper.Send(message, SendType.Binary);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
             }
-            catch { }
+            catch
+            {
+            }
         }
+
+        private delegate void SendPushMessageDelegate(string tileStresstestIndex,
+                                                      TileStresstestProgressResults tileStresstestProgressResults,
+                                                      StresstestStatus stresstestResult,
+                                                      StresstestCore stresstestCore,
+                                                      List<EventPanelEvent> events,
+                                                      RunStateChange concurrentUsersStateChange);
+
         #endregion
 
         #region Torrent (Result Sending)
+
         private static TorrentServer _torrentServer;
-        private static AutoResetEvent _torrentSeededWaitHandle = new AutoResetEvent(false);
+        private static readonly AutoResetEvent _torrentSeededWaitHandle = new AutoResetEvent(false);
 
         private static byte[] CreateTorrent(string file, string parentFolder)
         {
@@ -385,7 +418,8 @@ namespace vApus.DistributedTesting
                 SocketListener socketListener = SocketListener.GetInstance();
 
                 //Set up and seed the torrent
-                if (_torrentServer != null && _torrentServer.IP != socketListener.IP && _torrentServer.Port != socketListener.Port + 1000)
+                if (_torrentServer != null && _torrentServer.IP != socketListener.IP &&
+                    _torrentServer.Port != socketListener.Port + 1000)
                 {
                     _torrentServer.CloseAllTorrents();
                     _torrentServer = null;
@@ -406,7 +440,7 @@ namespace vApus.DistributedTesting
                             if (i == max)
                                 throw;
                         }
-                    _torrentServer.TorrentSeeded += new TorrentSeededEventHandler(_torrentServer_TorrentSeeded);
+                    _torrentServer.TorrentSeeded += _torrentServer_TorrentSeeded;
                 }
 
                 //we start seeding this torrent (given through the bytes again) with given inputlocation.
@@ -418,19 +452,22 @@ namespace vApus.DistributedTesting
             }
             catch (Exception ex)
             {
-                LogWrapper.LogByLevel("Failed seeding torrent.\n" + ex.ToString(), LogLevel.Error);
+                LogWrapper.LogByLevel("Failed seeding torrent.\n" + ex, LogLevel.Error);
             }
             return null;
         }
+
         private static void _torrentServer_TorrentSeeded(object source, TorrentServerEventArgs e)
         {
             _torrentSeededWaitHandle.Set();
         }
+
         #endregion
 
         public class NewTestEventArgs : EventArgs
         {
             public readonly string Test;
+
             public NewTestEventArgs(string test)
             {
                 Test = test;

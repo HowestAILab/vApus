@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,12 +15,17 @@ using vApus.Util;
 namespace vApus.Results
 {
     /// <summary>
-    /// Adds description and tags to the results database.
+    ///     Adds description and tags to the results database.
     /// </summary>
     public partial class DescriptionAndTagsInputDialog : Form
     {
         private string _description;
         private string[] _tags;
+
+        public DescriptionAndTagsInputDialog()
+        {
+            InitializeComponent();
+        }
 
         public string Description
         {
@@ -33,6 +39,7 @@ namespace vApus.Results
                 }
             }
         }
+
         public string[] Tags
         {
             get { return _tags; }
@@ -45,15 +52,12 @@ namespace vApus.Results
                 }
             }
         }
-        public DescriptionAndTagsInputDialog()
-        {
-            InitializeComponent();
-        }
+
         private void btnOK_Click(object sender, EventArgs e)
         {
             _description = txtDescription.ForeColor == Color.DimGray ? string.Empty : txtDescription.Text.Trim();
             string tagstring = txtTags.ForeColor == Color.DimGray ? string.Empty : txtTags.Text.Trim();
-            List<string> tags = new List<string>();
+            var tags = new List<string>();
             foreach (string tag in tagstring.Split(','))
             {
                 string t = tag.Trim();
@@ -62,11 +66,22 @@ namespace vApus.Results
 
             _tags = tags.ToArray();
 
-            try { ResultsHelper.SetDescriptionAndTags(Description, Tags); }
-            catch (Exception ex) { LogWrapper.LogByLevel("Could not add the description and tags to the database.\n" + ex, LogLevel.Error); }
+            try
+            {
+                ResultsHelper.SetDescriptionAndTags(Description, Tags);
+            }
+            catch (Exception ex)
+            {
+                LogWrapper.LogByLevel("Could not add the description and tags to the database.\n" + ex, LogLevel.Error);
+            }
 
-            try { this.Close(); }
-            catch { }
+            try
+            {
+                Close();
+            }
+            catch
+            {
+            }
         }
     }
 }

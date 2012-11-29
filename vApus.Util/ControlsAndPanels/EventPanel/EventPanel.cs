@@ -17,15 +17,10 @@ namespace vApus.Util
 {
     public partial class EventPanel : UserControl
     {
-        public event EventHandler CollapsedChanged;
-
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
-        private object _lock = new object();
-        private int _preferredHeight = 300;
+        private readonly object _lock = new object();
 
         private bool _expandOnErrorEvent;
+        private int _preferredHeight = 300;
 
         public EventPanel()
         {
@@ -40,8 +35,9 @@ namespace vApus.Util
             set { eventProgressBar.BeginOfTimeFrame = value; }
             get { return eventProgressBar.BeginOfTimeFrame; }
         }
+
         /// <summary>
-        /// It is set through SetProgressBarToNow().
+        ///     It is set through SetProgressBarToNow().
         /// </summary>
         [Description("The end of the time frame.")]
         public DateTime EndOfTimeFrame
@@ -54,10 +50,12 @@ namespace vApus.Util
             get { return eventProgressBar.ProgressBarColor; }
             set { eventProgressBar.ProgressBarColor = value; }
         }
+
         public int EventCount
         {
             get { return eventProgressBar.EventCount; }
         }
+
         [Description("Collapse or Expand.")]
         public bool Collapsed
         {
@@ -70,10 +68,10 @@ namespace vApus.Util
                     if (splitContainer.Panel2Collapsed)
                     {
                         btnCollapseExpand.Text = "+";
-                        this.Height = 25;
+                        Height = 25;
 
-                        this.MinimumSize = new Size(0, this.Height);
-                        this.MaximumSize = new Size(int.MaxValue, this.Height);
+                        MinimumSize = new Size(0, Height);
+                        MaximumSize = new Size(int.MaxValue, Height);
 
                         eventProgressBar.Width += (cboFilter.Margin.Left + cboFilter.Width);
                         cboFilter.Visible = false;
@@ -81,10 +79,10 @@ namespace vApus.Util
                     else
                     {
                         btnCollapseExpand.Text = "-";
-                        this.MinimumSize = this.DefaultMinimumSize;
-                        this.MaximumSize = this.DefaultMaximumSize;
+                        MinimumSize = DefaultMinimumSize;
+                        MaximumSize = DefaultMaximumSize;
 
-                        this.Height = _preferredHeight;
+                        Height = _preferredHeight;
 
                         eventProgressBar.Width -= (cboFilter.Margin.Left + cboFilter.Width);
                         cboFilter.Visible = true;
@@ -95,49 +93,58 @@ namespace vApus.Util
                 }
             }
         }
+
         public bool ExpandOnErrorEvent
         {
             get { return _expandOnErrorEvent; }
             set { _expandOnErrorEvent = value; }
         }
 
-        [DefaultValue(typeof(EventViewEventType), "Info")]
+        [DefaultValue(typeof (EventViewEventType), "Info")]
         public EventViewEventType Filter
         {
-            get { return (EventViewEventType)cboFilter.SelectedIndex; }
-            set { cboFilter.SelectedIndex = (int)value; }
+            get { return (EventViewEventType) cboFilter.SelectedIndex; }
+            set { cboFilter.SelectedIndex = (int) value; }
         }
+
+        public event EventHandler CollapsedChanged;
+
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
         /// <summary>
-        /// Thread safe.
+        ///     Thread safe.
         /// </summary>
         /// <returns></returns>
         public List<EventPanelEvent> GetEvents()
         {
             lock (_lock)
             {
-                List<EventPanelEvent> l = new List<EventPanelEvent>(eventProgressBar.EventCount);
+                var l = new List<EventPanelEvent>(eventProgressBar.EventCount);
 
-                var evEvents = eventView.GetEvents();
-                var epbEvents = eventProgressBar.GetEvents();
+                List<EventViewItem> evEvents = eventView.GetEvents();
+                List<ProgressEvent> epbEvents = eventProgressBar.GetEvents();
                 for (int i = 0; i != eventProgressBar.EventCount; i++)
                 {
-                    var type = evEvents[i].EventType;
-                    var pe = epbEvents[i];
+                    EventViewEventType type = evEvents[i].EventType;
+                    ProgressEvent pe = epbEvents[i];
                     l.Add(new EventPanelEvent(type, pe.Color, pe.Message, pe.At));
                 }
                 return l;
             }
         }
+
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message)
         {
             AddEvent(eventType, eventPrograssBarEventColor, message, DateTime.Now);
         }
+
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at)
         {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(Handle.ToInt32());
 
-            var pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
-            var evi = eventView.AddEvent(eventType, message, at, eventType >= Filter);
+            ProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
+            EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter);
 
             if (eventType == EventViewEventType.Error && eventView.UserEntered == null)
             {
@@ -149,25 +156,30 @@ namespace vApus.Util
 
             LockWindowUpdate(0);
         }
+
         public void SetEndOfTimeFrameToNow()
         {
             eventProgressBar.SetEndOfTimeFrameNow();
         }
+
         public void ClearEvents()
         {
             eventProgressBar.ClearEvents();
             eventView.ClearEvents();
         }
+
         public void Export()
         {
             eventView.Export();
         }
+
         private void eventProgressBar_EventClick(object sender, EventProgressChart.ProgressEventEventArgs e)
         {
             ShowEvent(e.ProgressEvent.At);
         }
+
         /// <summary>
-        /// Show event message at the right date time, use this if you have an external event progress bar.
+        ///     Show event message at the right date time, use this if you have an external event progress bar.
         /// </summary>
         /// <param name="at"></param>
         public void ShowEvent(DateTime at)
@@ -175,6 +187,7 @@ namespace vApus.Util
             Collapsed = false;
             eventView.PerformMouseEnter(at);
         }
+
         private void eventView_EventViewItemMouseEnter(object sender, EventView.EventViewItemEventArgs e)
         {
             eventProgressBar.PerformMouseEnter(e.EventViewItem.At, false);
@@ -193,23 +206,23 @@ namespace vApus.Util
         private void EventPanel_Resize(object sender, EventArgs e)
         {
             if (!Collapsed)
-                _preferredHeight = this.Height;
+                _preferredHeight = Height;
         }
 
         private void cboFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(Handle.ToInt32());
 
-            foreach (var evi in eventView.GetEvents())
+            foreach (EventViewItem evi in eventView.GetEvents())
                 evi.Visible = evi.EventType >= Filter;
 
             eventView.PerformLargeListResize();
 
             LockWindowUpdate(0);
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
     }
 }

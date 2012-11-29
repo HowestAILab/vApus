@@ -5,15 +5,17 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Text;
 using System.Windows.Forms;
+using vApus.DistributedTesting.Properties;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
-using System.Text;
 
 namespace vApus.DistributedTesting
 {
@@ -21,53 +23,64 @@ namespace vApus.DistributedTesting
     public partial class TileStresstestTreeViewItem : UserControl, ITreeViewItem
     {
         #region Events
+
         /// <summary>
-        /// Call unfocus for the other items in the panel.
+        ///     Call unfocus for the other items in the panel.
         /// </summary>
         public event EventHandler AfterSelect;
+
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
 
         /// <summary>
-        /// Event of the test clicked.
+        ///     Event of the test clicked.
         /// </summary>
         public event EventHandler<EventProgressChart.ProgressEventEventArgs> EventClicked;
+
         #endregion
 
         #region Fields
-        private TileStresstest _tileStresstest = new TileStresstest();
+
+        private readonly TileStresstest _tileStresstest = new TileStresstest();
+
         /// <summary>
-        /// Check if the ctrl key is pressed.
+        ///     Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
 
         private DistributedTestMode _distributedTestMode;
 
-        private StresstestStatus _stresstestResult;
         private bool _downloadResultsFinished;
 
         private bool _exclamation;
+        private StresstestStatus _stresstestResult;
+
         #endregion
 
         #region Properties
+
         public TileStresstest TileStresstest
         {
             get { return _tileStresstest; }
         }
+
         public StresstestStatus StresstestResult
         {
             get { return _stresstestResult; }
         }
+
         /// <summary>
-        /// true if the test can't start.
+        ///     true if the test can't start.
         /// </summary>
         public bool Exclamation
         {
             get { return _exclamation; }
         }
+
         #endregion
 
         #region Constructors
+
         public TileStresstestTreeViewItem()
         {
             InitializeComponent();
@@ -84,20 +97,93 @@ namespace vApus.DistributedTesting
             chk.CheckedChanged += chk_CheckedChanged;
 
             //Use if the parent is used explicitely.
-            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
             eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
 
             CheckIfTestCanStart();
         }
+
         #endregion
 
         #region Functions
+
+        public void Unfocus()
+        {
+            BackColor = Color.Transparent;
+            SetVisibleControls();
+        }
+
+        public void SetVisibleControls(bool visible)
+        {
+            if (_distributedTestMode == DistributedTestMode.Edit)
+            {
+                picDuplicate.Visible = picDelete.Visible = visible;
+                CheckIfTestCanStart();
+            }
+        }
+
+        public void SetVisibleControls()
+        {
+            if (IsDisposed)
+                return;
+
+            if (BackColor == SystemColors.Control)
+                SetVisibleControls(true);
+            else
+                SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
+        }
+
+        public void RefreshGui()
+        {
+            string label = _tileStresstest.Index + ") " +
+                           ((_tileStresstest.BasicTileStresstest.Connection == null ||
+                             _tileStresstest.BasicTileStresstest.Connection.IsEmpty)
+                                ? string.Empty
+                                : _tileStresstest.BasicTileStresstest.Connection.ToString());
+
+            if (lblTileStresstest.Text != label)
+                lblTileStresstest.Text = label;
+        }
+
+        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
+        {
+            _distributedTestMode = distributedTestMode;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+            {
+                if (_tileStresstest.Use)
+                    chk.Visible = true;
+                else
+                    Visible = true;
+            }
+            else
+            {
+                if (_tileStresstest.Use)
+                {
+                    chk.Visible =
+                        picDelete.Visible =
+                        picDuplicate.Visible = false;
+
+                    eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
+
+                    picStresstestStatus.Image = null;
+                    toolTip.SetToolTip(picStresstestStatus, string.Empty);
+
+                    _downloadResultsFinished = false;
+                }
+                else
+                {
+                    Visible = false;
+                }
+            }
+        }
+
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender == _tileStresstest.Parent && e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Edited)
+            if (sender == _tileStresstest.Parent &&
+                e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Edited)
             {
-                Tile parent = sender as Tile;
+                var parent = sender as Tile;
                 _tileStresstest.Use = parent.Use;
                 if (chk.Checked != _tileStresstest.Use)
                 {
@@ -116,54 +202,21 @@ namespace vApus.DistributedTesting
 
         private void _Enter(object sender, EventArgs e)
         {
-            this.BackColor = SystemColors.Control;
+            BackColor = SystemColors.Control;
             SetVisibleControls();
 
             if (AfterSelect != null)
                 AfterSelect(this, null);
-        }
-        public void Unfocus()
-        {
-            this.BackColor = Color.Transparent;
-            SetVisibleControls();
         }
 
         private void _MouseEnter(object sender, EventArgs e)
         {
             SetVisibleControls();
         }
+
         private void _MouseLeave(object sender, EventArgs e)
         {
             SetVisibleControls();
-        }
-        public void SetVisibleControls(bool visible)
-        {
-            if (_distributedTestMode == DistributedTestMode.Edit)
-            {
-                picDuplicate.Visible = picDelete.Visible = visible;
-                CheckIfTestCanStart();
-            }
-        }
-
-        public void SetVisibleControls()
-        {
-            if (this.IsDisposed)
-                return;
-
-            if (this.BackColor == SystemColors.Control)
-                SetVisibleControls(true);
-            else
-                SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
-        }
-
-        public void RefreshGui()
-        {
-            string label = _tileStresstest.Index + ") " +
-                ((_tileStresstest.BasicTileStresstest.Connection == null || _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
-                    string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString());
-
-            if (lblTileStresstest.Text != label)
-                lblTileStresstest.Text = label;
         }
 
         private void _KeyUp(object sender, KeyEventArgs e)
@@ -184,6 +237,7 @@ namespace vApus.DistributedTesting
                 else if (e.KeyCode == Keys.U)
                     chk.Checked = !chk.Checked;
         }
+
         private void _KeyDown(object sender, KeyEventArgs e)
         {
             if (_distributedTestMode == DistributedTestMode.TestAndReport)
@@ -192,16 +246,19 @@ namespace vApus.DistributedTesting
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
         }
+
         private void picDuplicate_Click(object sender, EventArgs e)
         {
             if (DuplicateClicked != null)
                 DuplicateClicked(this, null);
         }
+
         private void picDelete_Click(object sender, EventArgs e)
         {
             if (DeleteClicked != null)
                 DeleteClicked(this, null);
         }
+
         private void chk_CheckedChanged(object sender, EventArgs e)
         {
             _tileStresstest._canDefaultAdvancedSettingsTo = false;
@@ -211,58 +268,30 @@ namespace vApus.DistributedTesting
             _tileStresstest._canDefaultAdvancedSettingsTo = false;
         }
 
-        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
-        {
-            _distributedTestMode = distributedTestMode;
-            if (_distributedTestMode == DistributedTestMode.Edit)
-            {
-                if (_tileStresstest.Use)
-                    chk.Visible = true;
-                else
-                    this.Visible = true;
-            }
-            else
-            {
-                if (_tileStresstest.Use)
-                {
-                    chk.Visible =
-                    picDelete.Visible =
-                    picDuplicate.Visible = false;
-
-                    eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
-
-                    picStresstestStatus.Image = null;
-                    toolTip.SetToolTip(picStresstestStatus, string.Empty);
-
-                    _downloadResultsFinished = false;
-                }
-                else
-                {
-                    this.Visible = false;
-                }
-            }
-        }
-
         private void eventProgressBar_EventClick(object sender, EventProgressChart.ProgressEventEventArgs e)
         {
             _Enter(this, e);
             if (EventClicked != null)
                 EventClicked(this, e);
         }
+
         public void ClearEvents()
         {
             eventProgressBar.ClearEvents();
         }
+
         public void SetEvents(List<EventPanelEvent> events)
         {
             ClearEvents();
-            foreach (var epe in events)
+            foreach (EventPanelEvent epe in events)
                 eventProgressBar.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
         }
+
         public void SetStresstestStarted(DateTime start)
         {
             eventProgressBar.BeginOfTimeFrame = start;
         }
+
         public void SetMeasuredRunTime(TimeSpan estimatedRuntimeLeft)
         {
             //eventProgressBar.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
@@ -274,6 +303,7 @@ namespace vApus.DistributedTesting
             _stresstestResult = stresstestResult;
             SetStresstestResult(downloadResultsProgress);
         }
+
         public void SetStresstestResult(int downloadResultsProgress)
         {
             if (downloadResultsProgress == 100)
@@ -287,29 +317,29 @@ namespace vApus.DistributedTesting
                 switch (_stresstestResult)
                 {
                     case StresstestStatus.Ok:
-                        picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.OK;
+                        picStresstestStatus.Image = Resources.OK;
                         toolTip.SetToolTip(picStresstestStatus, "Finished");
                         break;
                     case StresstestStatus.Cancelled:
-                        picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Cancelled;
+                        picStresstestStatus.Image = Resources.Cancelled;
                         toolTip.SetToolTip(picStresstestStatus, "Cancelled");
                         break;
                     case StresstestStatus.Error:
-                        picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Error;
+                        picStresstestStatus.Image = Resources.Error;
                         toolTip.SetToolTip(picStresstestStatus, "Failed");
                         break;
                 }
             }
             else if (!_downloadResultsFinished)
             {
-                picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
+                picStresstestStatus.Image = Resources.Busy;
                 toolTip.SetToolTip(picStresstestStatus, "Downloading Results " + downloadResultsProgress + "%");
             }
         }
 
         private void CheckIfTestCanStart()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             if (_tileStresstest.Use)
             {
                 if (_tileStresstest.BasicTileStresstest.Connection.IsEmpty)
@@ -333,6 +363,7 @@ namespace vApus.DistributedTesting
                 _exclamation = lblExclamation.Visible = false;
             }
         }
+
         #endregion
     }
 }

@@ -10,6 +10,7 @@
  * Thanks to Andy Taylor and Trustin Lee of the Netty Project http://www.jboss.org/netty/
  * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/handler/codec/http/CookieDecoder.html
  */
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -19,9 +20,11 @@ namespace vApus.Util
 {
     public class CookieDecoder
     {
-        private const string PATTERN = "(?:\\s|[;])*\\$*([^;=]+)(?:=(?:[\"']((?:\\\\.|[^\"])*)[\"']|([^;]*)))?(\\s*(?:[;]+\\s*|$))";
+        private const string PATTERN =
+            "(?:\\s|[;])*\\$*([^;=]+)(?:=(?:[\"']((?:\\\\.|[^\"])*)[\"']|([^;]*)))?(\\s*(?:[;]+\\s*|$))";
+
         /// <summary>
-        /// Parse cookies from a header starting with Set-Cookie.
+        ///     Parse cookies from a header starting with Set-Cookie.
         /// </summary>
         /// <param name="header"></param>
         /// <returns></returns>
@@ -81,7 +84,9 @@ namespace vApus.Util
                                     {
                                         commentUri = new Uri(value);
                                     }
-                                    catch { }
+                                    catch
+                                    {
+                                    }
                                 else if (lowerCaseName == "domain")
                                     domain = value;
                                 else if (lowerCaseName == "path")
@@ -121,8 +126,9 @@ namespace vApus.Util
             }
             return cookies;
         }
+
         /// <summary>
-        /// Takes values with comma's into account.
+        ///     Takes values with comma's into account.
         /// </summary>
         /// <param name="header"></param>
         /// <returns></returns>
@@ -154,6 +160,7 @@ namespace vApus.Util
                 l.Add(spacedSubSection + header);
             return l;
         }
+
         private void ExtractKeyValuePairs(string header, List<string> names, List<string> values)
         {
             string name = null, value = null, separator = null;
@@ -199,6 +206,7 @@ namespace vApus.Util
                 values.Add(value);
             }
         }
+
         private string DecodeValue(string value)
         {
             if (value == null)

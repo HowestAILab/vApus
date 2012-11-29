@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System.Collections.Generic;
 
 namespace vApus.LogFixer
@@ -14,23 +15,19 @@ namespace vApus.LogFixer
         Added = 0,
         Removed
     }
+
     /// <summary>
-    /// Use Track to track changes between the original and the new text.
+    ///     Use Track to track changes between the original and the new text.
     /// </summary>
     public class Changes
     {
         /// <summary>
-        /// Use Track to track changes between the original and the new text.
-        /// </summary>
-        public Changes()
-        { }
-        /// <summary>
-        /// Find the changes from the original to the new text. For this the TrackedChanges property is not used.
+        ///     Find the changes from the original to the new text. For this the TrackedChanges property is not used.
         /// </summary>
         /// <param name="originalText"></param>
         /// <param name="newText"></param>
         /// <returns></returns>
-        public TrackedChanges Track (string originalText, string newText)
+        public TrackedChanges Track(string originalText, string newText)
         {
             string match;
             string difference;
@@ -41,7 +38,9 @@ namespace vApus.LogFixer
         }
 
         #region DetermineMatchDifferenceAndMissing
-        private void DetermineMatchDifferenceAndMissing(string originalText, string newText, out string match, out string difference, out string missing)
+
+        private void DetermineMatchDifferenceAndMissing(string originalText, string newText, out string match,
+                                                        out string difference, out string missing)
         {
             match = null;
             difference = null;
@@ -60,14 +59,15 @@ namespace vApus.LogFixer
 
             TrimLeadingAndTrailingNULChars(match, difference, missing, out match, out difference, out missing);
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="originalText"></param>
         /// <param name="newText"></param>
         /// <param name="bestMatchIndex">Will be 0 even if there is no match.</param>
         /// <param name="bestMatchLength">Will be 0 if there is no match, not really usable.</param>
-        private void BestMatchOfOriginalInNew(string originalText, string newText, out int bestMatchIndex, out int bestMatchLength)
+        private void BestMatchOfOriginalInNew(string originalText, string newText, out int bestMatchIndex,
+                                              out int bestMatchLength)
         {
             bestMatchIndex = 0;
             bestMatchLength = 0;
@@ -84,7 +84,7 @@ namespace vApus.LogFixer
                 int windowsModifier = 0;
                 //Don't go out of bounds
                 if (i < 0)
-                    windowsModifier += (i * -1);
+                    windowsModifier += (i*-1);
 
                 //Add \0 chars if left out of bounds
                 possibleMatch = new string('\0', windowsModifier);
@@ -114,15 +114,17 @@ namespace vApus.LogFixer
                     break;
             }
         }
+
         /// <summary>
-        /// Add '\0' chars to match the starting indices of the best match with the new text.
+        ///     Add '\0' chars to match the starting indices of the best match with the new text.
         /// </summary>
         /// <param name="originalText"></param>
         /// <param name="newText"></param>
         /// <param name="bestMatchIndex"></param>
         /// <param name="preptOriginalText"></param>
         /// <param name="preptNewText"></param>
-        private void PreProcessOriginalAndNew(string originalText, string newText, int bestMatchIndex, out string preptOriginalText, out string preptNewText)
+        private void PreProcessOriginalAndNew(string originalText, string newText, int bestMatchIndex,
+                                              out string preptOriginalText, out string preptNewText)
         {
             preptOriginalText = originalText;
             preptNewText = newText;
@@ -130,22 +132,24 @@ namespace vApus.LogFixer
             if (bestMatchIndex > 0)
                 preptOriginalText = new string('\0', bestMatchIndex) + originalText;
             else if (bestMatchIndex < 0)
-                preptNewText = new string('\0', (bestMatchIndex * -1)) + newText;
+                preptNewText = new string('\0', (bestMatchIndex*-1)) + newText;
 
             if (preptOriginalText.Length < preptNewText.Length)
                 preptOriginalText += new string('\0', preptNewText.Length - preptOriginalText.Length);
             else if (preptOriginalText.Length > newText.Length)
                 preptNewText += new string('\0', preptOriginalText.Length - preptNewText.Length);
         }
+
         /// <summary>
-        /// Sequential Determine Matches, Differences and Missing
+        ///     Sequential Determine Matches, Differences and Missing
         /// </summary>
         /// <param name="preptOriginalText"></param>
         /// <param name="preptNewText"></param>
         /// <param name="match"></param>
         /// <param name="difference"></param>
         /// <param name="missing"></param>
-        private void SequentialDetermineMDaM(string preptOriginalText, string preptNewText, out string match, out string difference, out string missing)
+        private void SequentialDetermineMDaM(string preptOriginalText, string preptNewText, out string match,
+                                             out string difference, out string missing)
         {
             match = difference = missing = null;
 
@@ -179,7 +183,9 @@ namespace vApus.LogFixer
                 missing = missing2;
             }
         }
-        private void DetermineMDAMLogic(string preptOriginalText, string preptNewText, string s1, string s2, out string match, out string difference, out string missing)
+
+        private void DetermineMDAMLogic(string preptOriginalText, string preptNewText, string s1, string s2,
+                                        out string match, out string difference, out string missing)
         {
             match = missing = difference = string.Empty;
 
@@ -227,6 +233,7 @@ namespace vApus.LogFixer
                 }
             }
         }
+
         private int FindNext(char c, int fromIndex, string inText)
         {
             if (c != '\0')
@@ -237,6 +244,7 @@ namespace vApus.LogFixer
 
             return -1;
         }
+
         private string BiggestChunk(char delimiter, string inText)
         {
             string chunk = string.Empty;
@@ -246,8 +254,9 @@ namespace vApus.LogFixer
                     chunk = s;
             return chunk;
         }
+
         /// <summary>
-        /// Trim leading and trailing '\0' but keeping the lenth the same
+        ///     Trim leading and trailing '\0' but keeping the lenth the same
         /// </summary>
         /// <param name="match"></param>
         /// <param name="difference"></param>
@@ -255,7 +264,8 @@ namespace vApus.LogFixer
         /// <param name="match2"></param>
         /// <param name="difference2"></param>
         /// <param name="missing2"></param>
-        private void TrimLeadingAndTrailingNULChars(string match, string difference, string missing, out string match2, out string difference2, out string missing2)
+        private void TrimLeadingAndTrailingNULChars(string match, string difference, string missing, out string match2,
+                                                    out string difference2, out string missing2)
         {
             //Any length will do, they are all the same
             int length = match.Length;
@@ -280,18 +290,20 @@ namespace vApus.LogFixer
             difference2 = difference2.Substring(0, length - trailing);
             missing2 = missing2.Substring(0, length - trailing);
         }
+
         #endregion
 
         #region TranslateMatchDifferenceAndMissingToChanges
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="match"></param>
         /// <param name="difference"></param>
         /// <param name="missing"></param>
         /// <param name="newTextLength">The right boundary of the scan.</param>
         /// <returns></returns>
-        private TrackedChanges TranslateMatchDifferenceAndMissingToChanges(string match, string difference, string missing, int newTextLength)
+        private TrackedChanges TranslateMatchDifferenceAndMissingToChanges(string match, string difference,
+                                                                           string missing, int newTextLength)
         {
             /* EXAMPLE
              * -----------------------------
@@ -322,7 +334,7 @@ namespace vApus.LogFixer
                 //Scan for stuff to remove at the current i.
                 string remove = string.Empty;
                 char missingChar = missing[i];
-                TrackedChange removedTracked = new TrackedChange();
+                var removedTracked = new TrackedChange();
 
                 //check if there are further differences, otherwise there are only missings.
                 bool hasDifferences = difference.Substring(i).Trim('\0').Length != 0;
@@ -396,24 +408,28 @@ namespace vApus.LogFixer
             trackedChanges.AddRange(keepAtEnd);
             return trackedChanges;
         }
+
         #endregion
     }
+
     public class TrackedChanges : List<TrackedChange>
     {
-        public string OriginalText, NewText;
+        public string NewText;
+        public string OriginalText;
+
         public void Add(Action action, string text, int at)
         {
             Add(new TrackedChange(action, text, at));
         }
     }
+
     public struct TrackedChange
     {
         public Action Action;
-        public string What;
         public int At;
+        public string What;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="action"></param>
         /// <param name="text"></param>

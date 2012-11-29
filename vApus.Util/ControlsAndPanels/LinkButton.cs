@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +16,15 @@ namespace vApus.Util
 {
     public class LinkButton : LinkLabel
     {
-        private bool _active = false;
+        private bool _active;
+
+        public LinkButton()
+        {
+            Padding = new Padding(3);
+            TextAlign = ContentAlignment.MiddleCenter;
+            SetStateInGui();
+        }
+
         public bool Active
         {
             get { return _active; }
@@ -28,14 +37,12 @@ namespace vApus.Util
                 }
             }
         }
-        [Description("Must be set to true or false for all LinkButtons in the Parent. This behaviour is only applied when clicking or pushing the enter key on the control.")]
+
+        [Description(
+            "Must be set to true or false for all LinkButtons in the Parent. This behaviour is only applied when clicking or pushing the enter key on the control."
+            )]
         public bool RadioButtonBehavior { get; set; }
-        public LinkButton()
-        {
-            Padding = new Padding(3);
-            TextAlign = ContentAlignment.MiddleCenter;
-            SetStateInGui();
-        }
+
         private void SetStateInGui()
         {
             if (_active)
@@ -53,17 +60,20 @@ namespace vApus.Util
                 LinkBehavior = LinkBehavior.AlwaysUnderline;
             }
         }
+
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
             Activate();
         }
+
         protected override void OnKeyUp(KeyEventArgs e)
         {
             base.OnKeyUp(e);
             if (e.KeyCode == Keys.Enter)
                 Activate();
         }
+
         private void Activate()
         {
             if (RadioButtonBehavior)
@@ -87,7 +97,7 @@ namespace vApus.Util
                     else
                     {
                         Active = true;
-                        foreach (var lbtn in otherActiveLinkButtons)
+                        foreach (LinkButton lbtn in otherActiveLinkButtons)
                             lbtn.Active = false;
                     }
                 }

@@ -5,7 +5,9 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
+using System.Windows.Forms;
 using vApus.SolutionTree;
 
 namespace vApus.Stresstest
@@ -16,18 +18,20 @@ namespace vApus.Stresstest
         {
             InitializeComponent();
         }
+
         public CustomRandomParameterView(SolutionComponent solutionComponent, params object[] args)
             : base(solutionComponent, args)
         {
             InitializeComponent();
 
-            this.HandleCreated += new EventHandler(CustomRandomParameterView_HandleCreated);
+            HandleCreated += CustomRandomParameterView_HandleCreated;
         }
+
         private void CustomRandomParameterView_HandleCreated(object sender, EventArgs e)
         {
-            CustomRandomParameterPanel customRandomParameterPanel = new CustomRandomParameterPanel();
-            this.Controls.Add(customRandomParameterPanel);
-            customRandomParameterPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            var customRandomParameterPanel = new CustomRandomParameterPanel();
+            Controls.Add(customRandomParameterPanel);
+            customRandomParameterPanel.Dock = DockStyle.Fill;
             customRandomParameterPanel.Init(SolutionComponent);
         }
     }

@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.CodeDom.Compiler;
 using System.Drawing;
@@ -14,32 +15,25 @@ namespace vApus.Stresstest
 {
     public partial class Compile : UserControl
     {
-        public event EventHandler CompileError;
-        public event EventHandler<CompileErrorButtonClickedEventArgs> CompileErrorButtonClicked;
-
-        #region Fields
-        public ConnectionProxyCode ConnectionProxyCode;
-        #endregion
-
         public Compile()
         {
             InitializeComponent();
         }
 
         #region Functions
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="deleteTempFiles"></param>
         /// <returns>bull if fails</returns>
         public ConnectionProxyPool TryCompile(bool debug, bool deleteTempFiles)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
-            Connection connection = new Connection();
-            Connection stub = new Connection();
+            var connection = new Connection();
+            var stub = new Connection();
             stub.ConnectionProxy = ConnectionProxyCode.Parent as ConnectionProxy;
-            ConnectionProxyPool connectionProxyPool = new ConnectionProxyPool(stub);
+            var connectionProxyPool = new ConnectionProxyPool(stub);
             CompilerResults results = connectionProxyPool.CompileConnectionProxyClass(debug, deleteTempFiles);
 
 
@@ -97,7 +91,7 @@ namespace vApus.Stresstest
             else if (CompileError != null)
                 CompileError(this, null);
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
 
             return connectionProxyPool;
         }
@@ -106,9 +100,10 @@ namespace vApus.Stresstest
         {
             TryCompile(false, true);
         }
+
         private void AddSuccessButton()
         {
-            Button btn = new Button();
+            var btn = new Button();
             btn.AutoSize = true;
             btn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             btn.Font = new Font(flpCompileLog.Font, FontStyle.Bold);
@@ -125,9 +120,10 @@ namespace vApus.Stresstest
             btn.AutoSize = false;
             btn.Height = height;
         }
+
         private void AddErrorOrWarningButton(CompilerError errorOrWarning)
         {
-            Button btn = new Button();
+            var btn = new Button();
             btn.AutoSize = true;
             btn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             btn.Font = flpCompileLog.Font;
@@ -138,15 +134,17 @@ namespace vApus.Stresstest
             if (errorOrWarning.IsWarning)
             {
                 btn.FlatAppearance.BorderColor = Color.DarkOrange;
-                btn.Text = "Warning at line " + errorOrWarning.Line + " column " + errorOrWarning.Column + ":\n" + errorOrWarning.ErrorText;
+                btn.Text = "Warning at line " + errorOrWarning.Line + " column " + errorOrWarning.Column + ":\n" +
+                           errorOrWarning.ErrorText;
             }
             else
             {
                 btn.FlatAppearance.BorderColor = Color.Red;
-                btn.Text = "Error at line " + errorOrWarning.Line + " column " + errorOrWarning.Column + ":\n" + errorOrWarning.ErrorText;
+                btn.Text = "Error at line " + errorOrWarning.Line + " column " + errorOrWarning.Column + ":\n" +
+                           errorOrWarning.ErrorText;
             }
             btn.Tag = errorOrWarning.Line - 1;
-            btn.Click += new EventHandler(btn_Click);
+            btn.Click += btn_Click;
             flpCompileLog.Controls.Add(btn);
 
             btn.Width = flpCompileLog.ClientSize.Width - 18;
@@ -154,17 +152,29 @@ namespace vApus.Stresstest
             btn.AutoSize = false;
             btn.Height = height;
         }
+
         private void btn_Click(object sender, EventArgs e)
         {
-            int lineNumber = (int)(sender as Button).Tag;
+            var lineNumber = (int) (sender as Button).Tag;
             if (CompileErrorButtonClicked != null)
                 CompileErrorButtonClicked(this, new CompileErrorButtonClickedEventArgs(lineNumber));
         }
+
         private void flpCompileLog_SizeChanged(object sender, EventArgs e)
         {
             foreach (Control control in flpCompileLog.Controls)
                 control.Width = flpCompileLog.ClientSize.Width - 18;
         }
+
+        #endregion
+
+        public event EventHandler CompileError;
+        public event EventHandler<CompileErrorButtonClickedEventArgs> CompileErrorButtonClicked;
+
+        #region Fields
+
+        public ConnectionProxyCode ConnectionProxyCode;
+
         #endregion
 
         public class CompileErrorButtonClickedEventArgs : EventArgs

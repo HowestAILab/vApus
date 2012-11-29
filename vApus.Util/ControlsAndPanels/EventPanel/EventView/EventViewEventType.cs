@@ -7,6 +7,7 @@
  */
 
 using System;
+
 namespace vApus.Util
 {
     [Serializable]

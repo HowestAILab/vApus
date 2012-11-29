@@ -5,6 +5,7 @@
  * Author(s):
  *    Vandroemme Dieter
  */
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -18,8 +19,7 @@ namespace vApus.JumpStart
 {
     public static class CommunicationHandler
     {
-        [ThreadStatic]
-        private static HandleJumpStartWorkItem _handleJumpStartWorkItem;
+        [ThreadStatic] private static HandleJumpStartWorkItem _handleJumpStartWorkItem;
 
         #region Message Handling
 
@@ -37,26 +37,30 @@ namespace vApus.JumpStart
                         return HandleCpuCoreCount(message);
                 }
             }
-            catch { }
+            catch
+            {
+            }
             return message;
         }
+
         private static Message<Key> HandleJumpStart(Message<Key> message)
         {
-            JumpStartMessage jumpStartMessage = (JumpStartMessage)message.Content;
+            var jumpStartMessage = (JumpStartMessage) message.Content;
             string[] ports = jumpStartMessage.Port.Split(',');
             string[] processorAffinity = jumpStartMessage.ProcessorAffinity.Split(',');
 
-            AutoResetEvent waithandle = new AutoResetEvent(false);
+            var waithandle = new AutoResetEvent(false);
             int j = 0;
             for (int i = 0; i != ports.Length; i++)
             {
-                Thread t = new Thread(delegate(object state)
-                {
-                    _handleJumpStartWorkItem = new HandleJumpStartWorkItem();
-                    _handleJumpStartWorkItem.HandleJumpStart(jumpStartMessage.IP, int.Parse(ports[(int)state]), processorAffinity[(int)state]);
-                    if (Interlocked.Increment(ref j) == ports.Length)
-                        waithandle.Set();
-                });
+                var t = new Thread(delegate(object state)
+                    {
+                        _handleJumpStartWorkItem = new HandleJumpStartWorkItem();
+                        _handleJumpStartWorkItem.HandleJumpStart(jumpStartMessage.IP, int.Parse(ports[(int) state]),
+                                                                 processorAffinity[(int) state]);
+                        if (Interlocked.Increment(ref j) == ports.Length)
+                            waithandle.Set();
+                    });
                 t.IsBackground = true;
                 t.Start(i);
             }
@@ -65,21 +69,24 @@ namespace vApus.JumpStart
 
             return message;
         }
+
         private static Message<Key> HandleKill(Message<Key> message)
         {
-            KillMessage killMessage = (KillMessage)message.Content;
+            var killMessage = (KillMessage) message.Content;
             Kill(killMessage.ExcludeProcessID);
             return message;
         }
+
         private static void Kill(int excludeProcessID)
         {
             Process[] processes = Process.GetProcessesByName("vApus");
             Parallel.ForEach(processes, delegate(Process p)
-            {
-                if (excludeProcessID == -1 || p.Id != excludeProcessID)
-                    KillProcess(p);
-            });
+                {
+                    if (excludeProcessID == -1 || p.Id != excludeProcessID)
+                        KillProcess(p);
+                });
         }
+
         private static void KillProcess(Process p)
         {
             try
@@ -90,21 +97,25 @@ namespace vApus.JumpStart
                     p.WaitForExit(10000);
                 }
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         private static Message<Key> HandleCpuCoreCount(Message<Key> message)
         {
-            CpuCoreCountMessage cpuCoreCountMessage = new CpuCoreCountMessage(Environment.ProcessorCount);
+            var cpuCoreCountMessage = new CpuCoreCountMessage(Environment.ProcessorCount);
             message.Content = cpuCoreCountMessage;
             return message;
         }
+
         #endregion
 
         private class HandleJumpStartWorkItem
         {
             public void HandleJumpStart(string ip, int port, string processorAffinity)
             {
-                Process p = new Process();
+                var p = new Process();
                 try
                 {
                     string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
@@ -112,7 +123,8 @@ namespace vApus.JumpStart
                     if (processorAffinity.Length == 0)
                         p.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port);
                     else
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
+                        p.StartInfo = new ProcessStartInfo(vApusLocation,
+                                                           "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
 
                     p.Start();
                     if (!p.WaitForInputIdle(10000))
@@ -128,11 +140,12 @@ namespace vApus.JumpStart
                             p.WaitForExit(10000);
                         }
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                     p = null;
                 }
             }
-
         }
     }
 }

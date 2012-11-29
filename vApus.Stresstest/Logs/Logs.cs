@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -12,26 +13,27 @@ using vApus.SolutionTree;
 
 namespace vApus.Stresstest
 {
-    [ContextMenu(new string[] { "Add_Click", "Import_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" }, new string[] { "Add Log", "Import Log Data Structure(s)", "Sort", "Clear", "Paste" })]
-    [Hotkeys(new string[] { "Add_Click", "Paste_Click" }, new Keys[] { Keys.Insert, (Keys.Control | Keys.V) })]
+    [ContextMenu(new[] {"Add_Click", "Import_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click"},
+        new[] {"Add Log", "Import Log Data Structure(s)", "Sort", "Clear", "Paste"})]
+    [Hotkeys(new[] {"Add_Click", "Paste_Click"}, new[] {Keys.Insert, (Keys.Control | Keys.V)})]
     public class Logs : BaseItem
     {
         public Logs()
-            : base()
         {
             AddAsDefaultItem(new LogRuleSets());
 
             //To synchronize the tokens with the changed tokens in all log entries.
-            SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(Parameters_SolutionComponentChanged);
+            SolutionComponentChanged += Parameters_SolutionComponentChanged;
         }
+
         private void Parameters_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
             //Added while loading, so check if it has a parent
-            if (Solution.ActiveSolution != null && Parent != null && 
-                (sender is BaseParameter || sender is CustomListParameters || 
-                sender is CustomRandomParameters || sender is NumericParameters || sender is TextParameters))
+            if (Solution.ActiveSolution != null && Parent != null &&
+                (sender is BaseParameter || sender is CustomListParameters ||
+                 sender is CustomRandomParameters || sender is NumericParameters || sender is TextParameters))
             {
-                var parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+                var parameters = Solution.ActiveSolution.GetSolutionComponent(typeof (Parameters)) as Parameters;
                 if (parameters != null && parameters.Contains(sender as BaseItem))
                 {
                     Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices;
@@ -55,24 +57,30 @@ namespace vApus.Stresstest
                     foreach (BaseItem item in this)
                         if (item is Log)
                         {
-                            Log log = item as Log;
+                            var log = item as Log;
                             log.ApplyLogRuleSet();
                             string beginTokenDelimiter = null, endTokenDelimiter = null;
                             bool warning, error;
-                            log.GetUniqueParameterTokenDelimiters(out beginTokenDelimiter, out endTokenDelimiter, out warning, out error);
+                            log.GetUniqueParameterTokenDelimiters(out beginTokenDelimiter, out endTokenDelimiter,
+                                                                  out warning, out error);
 
-                            log.SynchronizeTokens(oldAndNewIndices, new KeyValuePair<string, string>(beginTokenDelimiter, beginTokenDelimiter), new KeyValuePair<string, string>(endTokenDelimiter, endTokenDelimiter));
+                            log.SynchronizeTokens(oldAndNewIndices,
+                                                  new KeyValuePair<string, string>(beginTokenDelimiter,
+                                                                                   beginTokenDelimiter),
+                                                  new KeyValuePair<string, string>(endTokenDelimiter, endTokenDelimiter));
                         }
                 }
             }
         }
+
         private void Add_Click(object sender, EventArgs e)
         {
             Add(new Log());
         }
+
         public override void Clear()
         {
-            List<BaseItem> itemsCopy = new List<BaseItem>();
+            var itemsCopy = new List<BaseItem>();
             foreach (BaseItem item in this)
                 if (!(item is Log))
                     itemsCopy.Add(item);

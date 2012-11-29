@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 
@@ -16,8 +17,9 @@ namespace vApus.Results.Metrics.Monitor
         public TimeSpan EstimatedTimeLeft { get; set; }
         public TimeSpan MeasuredRunTime { get; set; }
         public int ConcurrentUsers { get; set; }
+
         /// <summary>
-        /// Stays 0 for concurrency level metrics.
+        ///     Stays 0 for concurrency level metrics.
         /// </summary>
         public int Run { get; set; }
 

@@ -5,21 +5,40 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Timers;
 using System.Windows.Forms;
 using vApus.Util;
+using Timer = System.Timers.Timer;
 
 namespace vApus.Gui
 {
     public partial class CleanTempDataPanel : Panel
     {
-        private static object _lock = new object();
+        private static readonly object _lock = new object();
         //Every 10 minutes
-        private System.Timers.Timer _tmr = new System.Timers.Timer(600000);
-        private Dictionary<string, double> _d = new Dictionary<string, double>(4);
+        private readonly Dictionary<string, double> _d = new Dictionary<string, double>(4);
+        private readonly Timer _tmr = new Timer(600000);
+
+        public CleanTempDataPanel()
+        {
+            InitializeComponent();
+
+            _d.Add("ConnectionProxyTempFiles", 0);
+            _d.Add("Logs", 0);
+            _d.Add("UpdateTempFiles", 0);
+
+            GetAndStoreAllSizes();
+
+            _tmr.Elapsed += _tmr_Elapsed;
+            _tmr.Start();
+
+            HandleCreated += CleanTempDataPanel_HandleCreated;
+        }
 
         public double TempDataSizeInMB
         {
@@ -35,49 +54,36 @@ namespace vApus.Gui
             }
         }
 
-        public CleanTempDataPanel()
-        {
-            InitializeComponent();
-
-            _d.Add("ConnectionProxyTempFiles", 0);
-            _d.Add("Logs", 0);
-            _d.Add("UpdateTempFiles", 0);
-
-            GetAndStoreAllSizes();
-
-            _tmr.Elapsed += new System.Timers.ElapsedEventHandler(_tmr_Elapsed);
-            _tmr.Start();
-
-            this.HandleCreated += new EventHandler(CleanTempDataPanel_HandleCreated);
-        }
-
-        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void _tmr_Elapsed(object sender, ElapsedEventArgs e)
         {
             try
             {
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    GetAndStoreAllSizes();
-                }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { GetAndStoreAllSizes(); }, null);
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         private void CleanTempDataPanel_HandleCreated(object sender, EventArgs e)
         {
-            this.HandleCreated -= CleanTempDataPanel_HandleCreated;
+            HandleCreated -= CleanTempDataPanel_HandleCreated;
             GetAndStoreAllSizes();
         }
+
         private void GetAndStoreAllSizes()
         {
-            string[] keys = new string[_d.Keys.Count];
+            var keys = new string[_d.Keys.Count];
             _d.Keys.CopyTo(keys, 0);
             foreach (string d in keys)
                 GetAndStoreSize(d);
 
-            if (this.IsHandleCreated)
+            if (IsHandleCreated)
             {
-                btnOpenConnectionProxyTempFiles.Text = string.Format("     ConnectionProxyTempFiles... [{0}MB]", _d["ConnectionProxyTempFiles"]);
-                btnOpenConnectionProxyTempFiles.Enabled = btnDeleteConnectionProxyTempFiles.Enabled = (_d["ConnectionProxyTempFiles"] != 0);
+                btnOpenConnectionProxyTempFiles.Text = string.Format("     ConnectionProxyTempFiles... [{0}MB]",
+                                                                     _d["ConnectionProxyTempFiles"]);
+                btnOpenConnectionProxyTempFiles.Enabled =
+                    btnDeleteConnectionProxyTempFiles.Enabled = (_d["ConnectionProxyTempFiles"] != 0);
 
                 btnOpenLogs.Text = string.Format("     Logs... [{0}MB]", _d["Logs"]);
                 btnOpenLogs.Enabled = btnDeleteLogs.Enabled = (_d["Logs"] != 0);
@@ -90,8 +96,8 @@ namespace vApus.Gui
                 btnDeleteAll.Enabled = (tempDataSizeInMB != 0);
             }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="d"></param>
         private void GetAndStoreSize(string d)
@@ -103,11 +109,14 @@ namespace vApus.Gui
             {
                 sizeInMB = Directory.Exists(d2) ? DirSize(new DirectoryInfo(d2)) : 0;
             }
-            catch { }
+            catch
+            {
+            }
 
-            sizeInMB /= (1024 * 1024);
+            sizeInMB /= (1024*1024);
             _d[d] = Math.Round(sizeInMB, 0);
         }
+
         private double DirSize(DirectoryInfo d)
         {
             double size = 0;
@@ -121,6 +130,7 @@ namespace vApus.Gui
 
             return size;
         }
+
         private void btnOpen_Click(object sender, EventArgs e)
         {
             var btn = sender as Button;
@@ -135,6 +145,7 @@ namespace vApus.Gui
             Delete((sender as Button).Tag.ToString());
             GetAndStoreAllSizes();
         }
+
         private void Delete(string d)
         {
             d = Path.Combine(Application.StartupPath, d);
@@ -147,12 +158,17 @@ namespace vApus.Gui
                         {
                             File.Delete(f);
                         }
-                        catch { }
+                        catch
+                        {
+                        }
 
                     Directory.Delete(d, true);
                 }
-                catch { }
+                catch
+                {
+                }
         }
+
         private void btnDeleteAll_Click(object sender, EventArgs e)
         {
             foreach (string d in _d.Keys)

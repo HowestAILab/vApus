@@ -5,102 +5,20 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using FastColoredTextBoxNS;
 using vApus.Util;
-using System.Drawing;
 
 namespace vApus.Stresstest
 {
     public partial class CodeBlockTextBox : UserControl
     {
-        public new event EventHandler TextChanged;
-        /// <summary>
-        /// TextChangedDelayed event. It occurs after insert, delete, clear, undo and redo operations. This event occurs with a delay relative to TextChanged, and fires only once.
-        /// </summary>
-        public event EventHandler TextChangedDelayed;
-
-        /// <summary>
-        /// Use this event to decide when to set the line numbers.
-        /// </summary>
-        public event EventHandler LineCountChanged;
-        /// <summary>
-        /// Only occurs when focussed and the left, right, up, down, home or end was last pressed.
-        /// </summary>
-        public event EventHandler CaretPositionChangedUsingKeyboard;
-
-        public event EventHandler EnterTextBox, LeaveTextBox;
-
-        #region Fields
-        private CSharpTextStyle _csharpTextStyle;
-
-        private int _previousLineCount;
-        private Keys _lastPressedKeys = Keys.None;
-
-        //Workaround for when we don't want this event launched.
-        private bool _canFireTextChangeDelayed = true;
-        #endregion
-
-        #region Properties
-        public bool ShowLineNumbers
-        {
-            get { return fastColoredTextBox.ShowLineNumbers; }
-            set 
-            {
-                fastColoredTextBox.ShowLineNumbers = value;
-                fastColoredTextBox.ServiceLinesColor = fastColoredTextBox.ShowLineNumbers ? Color.Silver : fastColoredTextBox.BackColor;
-            }
-        }
-        public int LineNumberOffset
-        {
-            get { return (int)fastColoredTextBox.LineNumberStartValue; }
-        }
-        public int CodeLineCount
-        {
-            get { return fastColoredTextBox.LinesCount; }
-        }
-        public bool ReadOnly
-        {
-            get { return fastColoredTextBox.ReadOnly; }
-            set
-            {
-                if (fastColoredTextBox.ReadOnly != value)
-                {
-                    fastColoredTextBox.ReadOnly = value;
-                    fastColoredTextBox.BackColor = fastColoredTextBox.ReadOnly ? Color.FromArgb(0xFFFFFE) : Color.White;
-                }
-            }
-        }
-        public override string Text
-        {
-            get { return fastColoredTextBox.Text; }
-            set
-            {
-                if (fastColoredTextBox.Text != value)
-                {
-                    _canFireTextChangeDelayed = false;
-                    fastColoredTextBox.TextChangedDelayed -= fastColoredTextBox_TextChangedDelayed;
-                    fastColoredTextBox.SelectionChanged -= fastColoredTextBox_SelectionChanged;
-
-                    fastColoredTextBox.Text = value;
-                    fastColoredTextBox.SelectAll();
-                    fastColoredTextBox.DoAutoIndent();
-                    fastColoredTextBox.Selection.Start = Place.Empty;
-                    fastColoredTextBox.Selection.End = Place.Empty;
-
-                    fastColoredTextBox.SelectionChanged += fastColoredTextBox_SelectionChanged;
-                    fastColoredTextBox.TextChangedDelayed += fastColoredTextBox_TextChangedDelayed;
-
-                    fastColoredTextBox_SelectionChanged(this, null);
-                }
-            }
-        }
-        #endregion
-
         public CodeBlockTextBox()
         {
             InitializeComponent();
@@ -108,6 +26,7 @@ namespace vApus.Stresstest
         }
 
         #region Functions
+
         private void fastColoredTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (_previousLineCount != CodeLineCount)
@@ -120,6 +39,7 @@ namespace vApus.Stresstest
             if (TextChanged != null)
                 TextChanged(this, e);
         }
+
         private void fastColoredTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e)
         {
             if (_canFireTextChangeDelayed && TextChangedDelayed != null)
@@ -127,15 +47,18 @@ namespace vApus.Stresstest
 
             _canFireTextChangeDelayed = true;
         }
+
         private void fastColoredTextBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             _lastPressedKeys = e.KeyCode;
         }
+
         //The only event fired before the selection changed
         private void fastColoredTextBox_MouseDown(object sender, MouseEventArgs e)
         {
             _lastPressedKeys = Keys.None;
         }
+
         private void fastColoredTextBox_SelectionChanged(object sender, EventArgs e)
         {
             if (fastColoredTextBox.Focused && _lastPressedKeys != Keys.None && CaretPositionChangedUsingKeyboard != null)
@@ -143,8 +66,8 @@ namespace vApus.Stresstest
             else
                 _lastPressedKeys = Keys.None;
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="lineNumberOffset">Cannot be smaller than 1.</param>
         public void SetLineNumbers(int lineNumberOffset = 1)
@@ -152,14 +75,16 @@ namespace vApus.Stresstest
             if (lineNumberOffset < 1)
                 throw new ArgumentOutOfRangeException("lineNumberOffset cannot be smaller than 1.");
             _previousLineCount = CodeLineCount;
-            fastColoredTextBox.LineNumberStartValue = (uint)lineNumberOffset;
+            fastColoredTextBox.LineNumberStartValue = (uint) lineNumberOffset;
         }
+
         public bool ContainsLine(int absoluteLineNumber)
         {
             return (absoluteLineNumber >= LineNumberOffset && absoluteLineNumber <= CodeLineCount + LineNumberOffset);
         }
+
         /// <summary>
-        /// Will select the line if it has it.
+        ///     Will select the line if it has it.
         /// </summary>
         /// <param name="absoluteLineNumber"></param>
         public void SelectLine(int absoluteLineNumber)
@@ -179,11 +104,12 @@ namespace vApus.Stresstest
 
                 fastColoredTextBox.SelectionStart = start;
                 fastColoredTextBox.SelectionLength = stop - start;
-                
+
                 fastColoredTextBox.DoSelectionVisible();
                 fastColoredTextBox.ForceCreateCaret();
             }
         }
+
         public void ClearSelection()
         {
             fastColoredTextBox.Selection.Start = Place.Empty;
@@ -191,8 +117,8 @@ namespace vApus.Stresstest
         }
 
         /// <summary>
-        /// Returns the lines of text where the given string was found and the absolute line numbers.
-        /// If it cannot be editted "[READ ONLY]\0" is added.
+        ///     Returns the lines of text where the given string was found and the absolute line numbers.
+        ///     If it cannot be editted "[READ ONLY]\0" is added.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="wholeWords"></param>
@@ -205,7 +131,9 @@ namespace vApus.Stresstest
             text = Regex.Escape(text);
             if (wholeWords)
                 text = "\\b" + text + "\\b";
-            RegexOptions options = matchCase ? RegexOptions.Singleline : RegexOptions.Singleline | RegexOptions.IgnoreCase;
+            RegexOptions options = matchCase
+                                       ? RegexOptions.Singleline
+                                       : RegexOptions.Singleline | RegexOptions.IgnoreCase;
 
             string[] arr = fastColoredTextBox.Text.Split('\n');
             for (int i = 0; i != arr.Length; i++)
@@ -216,13 +144,13 @@ namespace vApus.Stresstest
                         found.Add(LineNumberOffset + i, line + " [READ ONLY]\0");
                     else
                         found.Add(LineNumberOffset + i, line);
-
             }
             return found;
         }
+
         /// <summary>
-        /// Returns the replaced lines (formatted) and the absolute line numbers.
-        /// The found lines are also returned.
+        ///     Returns the replaced lines (formatted) and the absolute line numbers.
+        ///     The found lines are also returned.
         /// </summary>
         /// <param name="oldText"></param>
         /// <param name="newText"></param>
@@ -230,18 +158,21 @@ namespace vApus.Stresstest
         /// <param name="wholeWords"></param>
         /// <param name="matchCase"></param>
         /// <returns></returns>
-        public Dictionary<int, string> Replace(string oldText, string newText, int atLine, bool wholeWords = false, bool matchCase = false)
+        public Dictionary<int, string> Replace(string oldText, string newText, int atLine, bool wholeWords = false,
+                                               bool matchCase = false)
         {
             var replacedOrFound = new Dictionary<int, string>();
-            var found = Find(oldText, wholeWords, matchCase);
+            Dictionary<int, string> found = Find(oldText, wholeWords, matchCase);
 
             oldText = Regex.Escape(oldText);
             if (wholeWords)
                 oldText = "\\b" + oldText + "\\b";
-            RegexOptions options = matchCase ? RegexOptions.Singleline : RegexOptions.Singleline | RegexOptions.IgnoreCase;
+            RegexOptions options = matchCase
+                                       ? RegexOptions.Singleline
+                                       : RegexOptions.Singleline | RegexOptions.IgnoreCase;
 
             bool didReplace = false;
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             string[] arr = fastColoredTextBox.Text.Split('\n');
             for (int i = 0; i != arr.Length; i++)
             {
@@ -287,22 +218,120 @@ namespace vApus.Stresstest
                 }
             }
             if (didReplace)
-                this.Text = sb.ToString();
+                Text = sb.ToString();
 
             return replacedOrFound;
         }
+
         private void fastColoredTextBox_Enter(object sender, EventArgs e)
         {
             _lastPressedKeys = Keys.None;
             if (EnterTextBox != null)
                 EnterTextBox(this, e);
         }
+
         private void fastColoredTextBox_Leave(object sender, EventArgs e)
         {
             _lastPressedKeys = Keys.None;
             if (LeaveTextBox != null)
                 LeaveTextBox(this, e);
         }
+
+        #endregion
+
+        public new event EventHandler TextChanged;
+
+        /// <summary>
+        ///     TextChangedDelayed event. It occurs after insert, delete, clear, undo and redo operations. This event occurs with a delay relative to TextChanged, and fires only once.
+        /// </summary>
+        public event EventHandler TextChangedDelayed;
+
+        /// <summary>
+        ///     Use this event to decide when to set the line numbers.
+        /// </summary>
+        public event EventHandler LineCountChanged;
+
+        /// <summary>
+        ///     Only occurs when focussed and the left, right, up, down, home or end was last pressed.
+        /// </summary>
+        public event EventHandler CaretPositionChangedUsingKeyboard;
+
+        public event EventHandler EnterTextBox , LeaveTextBox;
+
+        #region Fields
+
+        private bool _canFireTextChangeDelayed = true;
+        private CSharpTextStyle _csharpTextStyle;
+
+        private Keys _lastPressedKeys = Keys.None;
+        private int _previousLineCount;
+
+        //Workaround for when we don't want this event launched.
+
+        #endregion
+
+        #region Properties
+
+        public bool ShowLineNumbers
+        {
+            get { return fastColoredTextBox.ShowLineNumbers; }
+            set
+            {
+                fastColoredTextBox.ShowLineNumbers = value;
+                fastColoredTextBox.ServiceLinesColor = fastColoredTextBox.ShowLineNumbers
+                                                           ? Color.Silver
+                                                           : fastColoredTextBox.BackColor;
+            }
+        }
+
+        public int LineNumberOffset
+        {
+            get { return (int) fastColoredTextBox.LineNumberStartValue; }
+        }
+
+        public int CodeLineCount
+        {
+            get { return fastColoredTextBox.LinesCount; }
+        }
+
+        public bool ReadOnly
+        {
+            get { return fastColoredTextBox.ReadOnly; }
+            set
+            {
+                if (fastColoredTextBox.ReadOnly != value)
+                {
+                    fastColoredTextBox.ReadOnly = value;
+                    fastColoredTextBox.BackColor = fastColoredTextBox.ReadOnly ? Color.FromArgb(0xFFFFFE) : Color.White;
+                }
+            }
+        }
+
+        public override string Text
+        {
+            get { return fastColoredTextBox.Text; }
+            set
+            {
+                if (fastColoredTextBox.Text != value)
+                {
+                    _canFireTextChangeDelayed = false;
+                    fastColoredTextBox.TextChangedDelayed -= fastColoredTextBox_TextChangedDelayed;
+                    fastColoredTextBox.SelectionChanged -= fastColoredTextBox_SelectionChanged;
+
+                    fastColoredTextBox.Text = value;
+                    fastColoredTextBox.SelectAll();
+                    fastColoredTextBox.DoAutoIndent();
+                    fastColoredTextBox.Selection.Start = Place.Empty;
+                    fastColoredTextBox.Selection.End = Place.Empty;
+
+                    fastColoredTextBox.SelectionChanged += fastColoredTextBox_SelectionChanged;
+                    fastColoredTextBox.TextChangedDelayed += fastColoredTextBox_TextChangedDelayed;
+
+                    fastColoredTextBox_SelectionChanged(this, null);
+                }
+            }
+        }
+
         #endregion
     }
 }

@@ -36,16 +36,18 @@ using MySql.Data.MySqlClient;
 public class DatabaseActions
 {
     #region Fields
+
     /// <summary>
-    /// The connection.
+    ///     The connection.
     /// </summary>
     private IDbConnection _connection;
+
     #endregion
 
     #region Properties
 
     /// <summary>
-    /// Gets the connectionstring.
+    ///     Gets the connectionstring.
     /// </summary>
     public string ConnectionString { get; set; }
 
@@ -61,25 +63,35 @@ public class DatabaseActions
     #region Connection management
 
     /// <summary>
-    /// Gets the connection.
+    ///     Gets the connection.
     /// </summary>
     private void GetNewConnection()
     {
-        _connection = new  MySqlConnection(ConnectionString);
+        _connection = new MySqlConnection(ConnectionString);
         _connection.Open();
     }
 
     /// <summary>
-    /// Releases the connection.
+    ///     Releases the connection.
     /// </summary>
     public void ReleaseConnection()
     {
         if (_connection != null)
         {
-            try { _connection.Close(); }
-            catch { }
-            try { _connection.Dispose(); }
-            catch { }
+            try
+            {
+                _connection.Close();
+            }
+            catch
+            {
+            }
+            try
+            {
+                _connection.Dispose();
+            }
+            catch
+            {
+            }
             _connection = null;
         }
     }
@@ -89,14 +101,15 @@ public class DatabaseActions
     #region Command management
 
     /// <summary>
-    /// Called by every other buildCommand function.
+    ///     Called by every other buildCommand function.
     /// </summary>
     /// <param name="connection"></param>
     /// <param name="commandText"></param>
     /// <param name="commandType"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    private IDbCommand BuildCommand(IDbConnection connection, string commandText, CommandType commandType, IDbDataParameter[] parameters)
+    private IDbCommand BuildCommand(IDbConnection connection, string commandText, CommandType commandType,
+                                    IDbDataParameter[] parameters)
     {
         IDbCommand command = connection.CreateCommand();
 
@@ -111,7 +124,7 @@ public class DatabaseActions
     }
 
     /// <summary>
-    /// For use without transactions.
+    ///     For use without transactions.
     /// </summary>
     /// <param name="commandText"></param>
     /// <param name="commandType"></param>
@@ -126,14 +139,15 @@ public class DatabaseActions
     }
 
     /// <summary>
-    /// With transactions. It takes the connection from the transaction.
+    ///     With transactions. It takes the connection from the transaction.
     /// </summary>
     /// <param name="transaction"></param>
     /// <param name="commandText"></param>
     /// <param name="commandType"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    private IDbCommand BuildCommand(IDbTransaction transaction, string commandText, CommandType commandType, IDbDataParameter[] parameters)
+    private IDbCommand BuildCommand(IDbTransaction transaction, string commandText, CommandType commandType,
+                                    IDbDataParameter[] parameters)
     {
         IDbConnection connection = transaction.Connection;
         IDbCommand command = BuildCommand(connection, commandText, commandType, parameters);
@@ -145,7 +159,7 @@ public class DatabaseActions
     #region DataAdapter
 
     /// <summary>
-    /// Gets the according DataAdapter.
+    ///     Gets the according DataAdapter.
     /// </summary>
     /// <returns></returns>
     private IDbDataAdapter GetNewDataAdapter()
@@ -158,44 +172,48 @@ public class DatabaseActions
     #region Without transactions
 
     /// <summary>
-    /// Executes an SQL string or stored procedure.
+    ///     Executes an SQL string or stored procedure.
     /// </summary>
     /// <param name="commandText">The SQL string or stored procedure name.</param>
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
-    public void ExecuteSQL(string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
+    public void ExecuteSQL(string commandText, CommandType commandType = CommandType.Text,
+                           params IDbDataParameter[] parameters)
     {
         IDbCommand oCommand = BuildCommand(commandText, commandType, parameters);
         oCommand.ExecuteNonQuery();
     }
 
     /// <summary>
-    /// Gets data in a dataTable, recommended for windows apps.
+    ///     Gets data in a dataTable, recommended for windows apps.
     /// </summary>
     /// <param name="commandText">The SQL string or stored procedure name.</param>
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public DataTable GetDataTable(string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
+    public DataTable GetDataTable(string commandText, CommandType commandType = CommandType.Text,
+                                  params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         IDbDataAdapter dataAdapter = GetNewDataAdapter();
         dataAdapter.SelectCommand = command;
 
-        DataSet dataSet = new DataSet();
+        var dataSet = new DataSet();
         dataAdapter.Fill(dataSet);
 
-        return dataSet.Tables[0]; ;
+        return dataSet.Tables[0];
+        ;
     }
 
     /// <summary>
-    /// Gets data in a dataReader, to execute it requires to close the connection, recommended for web apps.
+    ///     Gets data in a dataReader, to execute it requires to close the connection, recommended for web apps.
     /// </summary>
     /// <param name="commandText">The SQL string or stored procedure name.</param>
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public IDataReader GetDataReader(string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
+    public IDataReader GetDataReader(string commandText, CommandType commandType = CommandType.Text,
+                                     params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         IDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);
@@ -204,13 +222,14 @@ public class DatabaseActions
     }
 
     /// <summary>
-    /// Execute a SELECT with only one result (single cell)
+    ///     Execute a SELECT with only one result (single cell)
     /// </summary>
     /// <param name="commandText"></param>
     /// <param name="commandType"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public object ExecuteScalar(string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
+    public object ExecuteScalar(string commandText, CommandType commandType = CommandType.Text,
+                                params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         return command.ExecuteScalar();
@@ -221,7 +240,7 @@ public class DatabaseActions
     #region With transactions
 
     /// <summary>
-    /// Begins the transaction.
+    ///     Begins the transaction.
     /// </summary>
     /// <returns></returns>
     public IDbTransaction BeginTransaction()
@@ -232,13 +251,14 @@ public class DatabaseActions
     }
 
     /// <summary>
-    /// Executes an SQL string or stored procedure in a transaction.
+    ///     Executes an SQL string or stored procedure in a transaction.
     /// </summary>
     /// <param name="transaction"></param>
     /// <param name="commandText">The SQL string or stored procedure name.</param>
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
-    public void ExecuteSQL(IDbTransaction transaction, string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
+    public void ExecuteSQL(IDbTransaction transaction, string commandText, CommandType commandType = CommandType.Text,
+                           params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(transaction, commandText, commandType, parameters);
         command.Transaction = transaction;
@@ -246,14 +266,15 @@ public class DatabaseActions
     }
 
     /// <summary>
-    /// Gets data in a DataTable in a transaction.
+    ///     Gets data in a DataTable in a transaction.
     /// </summary>
     /// <param name="transaction"></param>
     /// <param name="commandText">The SQL string or stored procedure name.</param>
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public DataTable GetDataTable(IDbTransaction transaction, string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
+    public DataTable GetDataTable(IDbTransaction transaction, string commandText,
+                                  CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(transaction, commandText, commandType, parameters);
         command.Transaction = transaction;
@@ -261,21 +282,22 @@ public class DatabaseActions
         IDbDataAdapter dataAdapter = GetNewDataAdapter();
         dataAdapter.SelectCommand = command;
 
-        DataSet dataSet = new DataSet();
+        var dataSet = new DataSet();
         dataAdapter.Fill(dataSet);
 
         return dataSet.Tables[0];
     }
 
     /// <summary>
-    /// Execute a SELECT with only one result (single cell) in a transaction.
+    ///     Execute a SELECT with only one result (single cell) in a transaction.
     /// </summary>
     /// <param name="transaction"></param>
     /// <param name="commandText"></param>
     /// <param name="commandType"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    public object ExecuteScalar(IDbTransaction transaction, string commandText, CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
+    public object ExecuteScalar(IDbTransaction transaction, string commandText,
+                                CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
     {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         command.Transaction = transaction;

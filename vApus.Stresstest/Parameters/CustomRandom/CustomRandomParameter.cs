@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.CodeDom.Compiler;
 using System.ComponentModel;
@@ -38,9 +39,11 @@ namespace vApus.Stresstest
             get { return _unique; }
             set { _unique = value; }
         }
+
         public override void Next()
         {
-            lock (_lock)//For thread safety, only here, because only for this type of parameter this function can be used while testing.
+            lock (_lock)
+                //For thread safety, only here, because only for this type of parameter this function can be used while testing.
             {
                 try
                 {
@@ -74,17 +77,20 @@ namespace vApus.Stresstest
                 }
             }
         }
+
         internal CompilerResults CreateInstance()
         {
-            CompilerUnit cu = new CompilerUnit();
+            var cu = new CompilerUnit();
             CompilerResults results;
             Assembly assembly = cu.Compile(BuildCode(), false, out results);
 
             if (assembly != null)
-                _customRandomParameter = assembly.CreateInstance("vApus.Stresstest.CustomRandomParameter") as ICustomRandomParameter;
+                _customRandomParameter =
+                    assembly.CreateInstance("vApus.Stresstest.CustomRandomParameter") as ICustomRandomParameter;
 
             return results;
         }
+
         internal string BuildCode()
         {
             return @"// dllreferences:System.dll;vApus.Stresstest.dll
@@ -94,8 +100,9 @@ namespace vApus.Stresstest
 public class CustomRandomParameter : ICustomRandomParameter
 {
 public CustomRandomParameter() {}"
-+ _generateFunction + "}}";
+                   + _generateFunction + "}}";
         }
+
         public override void ResetValue()
         {
             _customRandomParameter = null;

@@ -16,7 +16,9 @@ using MonoTorrent.Common;
 namespace vApus.DistributedTesting
 {
     public delegate void ProgressUpdatedEventHandler(TorrentClient source, TorrentEventArgs e);
+
     public delegate void DownloadCompletedEventHandler(TorrentClient source, TorrentEventArgs e);
+
     public delegate void StatusChangedEventHandler(TorrentClient source, string status);
 
     public class TorrentEventArgs : EventArgs
@@ -32,41 +34,47 @@ namespace vApus.DistributedTesting
     public class TorrentClient
     {
         #region Fields
+
+        public bool ReplaceExistingFile = true;
         protected ClientEngine _engine;
         protected TorrentManager _manager;
         protected int _port = 52138; //Default by MonoTorrent
-        public bool ReplaceExistingFile = true;
+
         #endregion
 
         #region Events
+
         public event ProgressUpdatedEventHandler ProgressUpdated;
         public event DownloadCompletedEventHandler DownloadCompleted;
         public event StatusChangedEventHandler StatusChanged;
+
         #endregion
 
         #region Properties
+
         public string CurrentStatus
         {
             get { return _manager.State.ToString(); }
         }
+
         /// <summary>
-        /// The name of the torrent if any.
+        ///     The name of the torrent if any.
         /// </summary>
         public string Name
         {
             get
             {
-
                 if (_manager != null)
                     return _manager.Torrent.Name;
                 else
                     return "Not found";
             }
         }
+
         #endregion
 
         /// <summary>
-        /// Constructor
+        ///     Constructor
         /// </summary>
         public TorrentClient()
         {
@@ -79,8 +87,9 @@ namespace vApus.DistributedTesting
         #region Logic
 
         #region Download Torrent
+
         /// <summary>
-        /// Downloads the torrent that can be composed from torrentInfo to given location
+        ///     Downloads the torrent that can be composed from torrentInfo to given location
         /// </summary>
         /// <param name="torrentInfo"></param>
         /// <param name="saveFolder"></param>
@@ -91,39 +100,40 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Downloads the given torrent to given physical location.
+        ///     Downloads the given torrent to given physical location.
         /// </summary>
         /// <param name="torrent"></param>
         /// <param name="location"></param>
         public string DownloadTorrent(Torrent torrent, string location)
         {
-
             // Create the manager which will download the torrent to savePath
             // using the default settings.
             _manager = new TorrentManager(torrent, location, new TorrentSettings());
-            _manager.TorrentStateChanged += new EventHandler<TorrentStateChangedEventArgs>(manager_TorrentStateChanged);
+            _manager.TorrentStateChanged += manager_TorrentStateChanged;
 
             _manager.PieceHashed += delegate(object o, PieceHashedEventArgs e)
-            {
-                #region PieceInformation
-                //int pieceIndex = e.PieceIndex;
-                //int totalPieces = e.TorrentManager.Torrent.Pieces.Count;
-                //double progress = (double)pieceIndex / totalPieces * 100.0;
-                //if (e.HashPassed)
-                //Console.WriteLine("Piece {0} of {1} is complete ", pieceIndex, totalPieces);
-                //else
-                //{
-                //    Console.WriteLine("Piece {0} of {1} is corrupt or incomplete ", pieceIndex, totalPieces);
-                //}
+                {
+                    #region PieceInformation
 
-                //// This shows how complete the hashing is.
-                //Console.WriteLine("Total progress is: {0}%", progress);
-                #endregion
+                    //int pieceIndex = e.PieceIndex;
+                    //int totalPieces = e.TorrentManager.Torrent.Pieces.Count;
+                    //double progress = (double)pieceIndex / totalPieces * 100.0;
+                    //if (e.HashPassed)
+                    //Console.WriteLine("Piece {0} of {1} is complete ", pieceIndex, totalPieces);
+                    //else
+                    //{
+                    //    Console.WriteLine("Piece {0} of {1} is corrupt or incomplete ", pieceIndex, totalPieces);
+                    //}
 
-                if (ProgressUpdated != null && e.TorrentManager.State == TorrentState.Downloading && e.HashPassed)
-                    foreach (ProgressUpdatedEventHandler del in ProgressUpdated.GetInvocationList())
-                        del.BeginInvoke(this, new TorrentEventArgs(e.TorrentManager.Progress), null, null);
-            };
+                    //// This shows how complete the hashing is.
+                    //Console.WriteLine("Total progress is: {0}%", progress);
+
+                    #endregion
+
+                    if (ProgressUpdated != null && e.TorrentManager.State == TorrentState.Downloading && e.HashPassed)
+                        foreach (ProgressUpdatedEventHandler del in ProgressUpdated.GetInvocationList())
+                            del.BeginInvoke(this, new TorrentEventArgs(e.TorrentManager.Progress), null, null);
+                };
 
             // Register the manager with the engine
             _engine.Register(_manager);
@@ -134,12 +144,15 @@ namespace vApus.DistributedTesting
 
             return torrent.Name;
         }
+
         #endregion
 
         #region TorrentStateChanged
+
         protected void manager_TorrentStateChanged(object sender, TorrentStateChangedEventArgs e)
         {
-            Console.WriteLine("CLIENT: " + e.TorrentManager.Torrent + " has changed state: " + e.OldState + " --> " + e.NewState);
+            Console.WriteLine("CLIENT: " + e.TorrentManager.Torrent + " has changed state: " + e.OldState + " --> " +
+                              e.NewState);
             if (StatusChanged != null)
                 foreach (StatusChangedEventHandler del in StatusChanged.GetInvocationList())
                     del.BeginInvoke(this, CurrentStatus, null, null);
@@ -180,10 +193,11 @@ namespace vApus.DistributedTesting
                 Console.WriteLine("Torrent {0} has stopped", e.TorrentManager.Torrent.Name);
             }
         }
+
         #endregion
 
         /// <summary>
-        /// Stops the current torrent.
+        ///     Stops the current torrent.
         /// </summary>
         public void StopTorrent()
         {
@@ -198,6 +212,7 @@ namespace vApus.DistributedTesting
         }
 
         #region FastResume
+
         public byte[] SaveFastResume(byte[] torrentBytes)
         {
             Torrent torrent = null;
@@ -209,7 +224,7 @@ namespace vApus.DistributedTesting
             // Get the fast resume data for the torrent
             FastResume data = _manager.SaveFastResume();
 
-            MemoryStream memStream = new MemoryStream();
+            var memStream = new MemoryStream();
             // Encode the FastResume data to a stream.
             data.Encode(memStream);
             memStream.Close();
@@ -219,18 +234,18 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// This will load a FastResume for the torrent.
+        ///     This will load a FastResume for the torrent.
         /// </summary>
         /// <param name="fastResumeData"></param>
         public void LoadFastResume(byte[] fastResumeData)
         {
             // Read the main dictionary from disk and iterate through
             // all the fast resume items
-            BEncodedList list = (BEncodedList)BEncodedValue.Decode(fastResumeData);
+            var list = (BEncodedList) BEncodedValue.Decode(fastResumeData);
             foreach (BEncodedDictionary fastResume in list)
             {
                 // Decode the FastResume data from the BEncodedDictionary
-                FastResume data = new FastResume(fastResume);
+                var data = new FastResume(fastResume);
 
                 // Find the torrentmanager that the fastresume belongs to
                 // and then load it
@@ -243,6 +258,7 @@ namespace vApus.DistributedTesting
                     throw new ArgumentException("FastResumeData is not intended for this client", "fastResumeData");
             }
         }
+
         #endregion
 
         #endregion

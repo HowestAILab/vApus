@@ -5,27 +5,26 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
-using System.Reflection;
-using System.Threading;
+using System.IO;
 using System.Windows.Forms;
-using vApus.Util;
 
 namespace vApus.Report
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             //Otherwise probing privatePath will not work --> ConnectionProxyPrerequisites sub folder.
-            System.IO.Directory.SetCurrentDirectory(Application.StartupPath);
+            Directory.SetCurrentDirectory(Application.StartupPath);
 
             if (args != null && args.Length != 0)
                 Application.Run(new Report(args[0]));

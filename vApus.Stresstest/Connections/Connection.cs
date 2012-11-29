@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -15,18 +16,23 @@ using vApus.Util;
 namespace vApus.Stresstest
 {
     [Serializable]
-    [ContextMenu(new string[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new string[] { "Edit", "Remove", "Export", "Copy", "Cut", "Duplicate" })]
-    [Hotkeys(new string[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new Keys[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
+    [ContextMenu(new[] {"Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
+        new[] {"Edit", "Remove", "Export", "Copy", "Cut", "Duplicate"})]
+    [Hotkeys(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
+        new[] {Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D)})]
     public class Connection : LabeledBaseItem, ISerializable
     {
         #region Fields
+
         private ConnectionProxy _connectionProxy;
         private string _connectionString = string.Empty;
 
         private Parameters _parameters;
+
         #endregion
 
         #region Properties
+
         [SavableCloneable, PropertyControl(1)]
         [Description("To be able to connect to the application-to-test."), DisplayName("Connection Proxy")]
         public ConnectionProxy ConnectionProxy
@@ -34,7 +40,10 @@ namespace vApus.Stresstest
             get
             {
                 if (_connectionProxy.IsEmpty)
-                    ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+                    ConnectionProxy =
+                        GetNextOrEmptyChild(typeof (ConnectionProxy),
+                                            Solution.ActiveSolution.GetSolutionComponent(typeof (ConnectionProxies))) as
+                        ConnectionProxy;
 
                 return _connectionProxy;
             }
@@ -57,10 +66,12 @@ namespace vApus.Stresstest
             set
             {
                 value = value.Trim();
-                LexicalResult lexicalResult = LexicalResult.OK;
+                var lexicalResult = LexicalResult.OK;
                 ASTNode output = null;
-                if (_connectionProxy != null && !_connectionProxy.IsEmpty && !_connectionProxy.ConnectionProxyRuleSet.IsEmpty)
-                    lexicalResult = _connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters, out output);
+                if (_connectionProxy != null && !_connectionProxy.IsEmpty &&
+                    !_connectionProxy.ConnectionProxyRuleSet.IsEmpty)
+                    lexicalResult = _connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters,
+                                                                                               out output);
 
                 if (lexicalResult == LexicalResult.OK)
                     _connectionString = value;
@@ -68,35 +79,30 @@ namespace vApus.Stresstest
                     throw new Exception(output.Error);
             }
         }
+
         #endregion
 
         #region Constructors
+
         public Connection()
         {
             if (Solution.ActiveSolution != null)
             {
-                ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+                ConnectionProxy =
+                    GetNextOrEmptyChild(typeof (ConnectionProxy),
+                                        Solution.ActiveSolution.GetSolutionComponent(typeof (ConnectionProxies))) as
+                    ConnectionProxy;
                 if (_parameters == null)
-                    _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+                    _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof (Parameters)) as Parameters;
             }
             else
             {
-                Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             }
         }
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
-            if (_parameters == null)
-                _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-        }
-        public override void Activate()
-        {
-            SolutionComponentViewManager.Show(this);
-        }
+
         /// <summary>
-        /// Only for sending from master to slave.
+        ///     Only for sending from master to slave.
         /// </summary>
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
@@ -114,26 +120,29 @@ namespace vApus.Stresstest
             //Not pretty, but helps against mem saturation.
             GC.Collect();
         }
+
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
+        {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            ConnectionProxy =
+                GetNextOrEmptyChild(typeof (ConnectionProxy),
+                                    Solution.ActiveSolution.GetSolutionComponent(typeof (ConnectionProxies))) as
+                ConnectionProxy;
+            if (_parameters == null)
+                _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof (Parameters)) as Parameters;
+        }
+
+        public override void Activate()
+        {
+            SolutionComponentViewManager.Show(this);
+        }
+
         #endregion
 
         #region Functions
-        private void _connectionProxy_ParentIsNull(object sender, EventArgs e)
-        {
-            if (_connectionProxy == sender)
-                ConnectionProxy = SolutionComponent.GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
-        }
 
         /// <summary>
-        /// Build and returns a new connection proxy class. 
-        /// </summary>
-        /// <returns></returns>
-        public string BuildConnectionProxyClass()
-        {
-            return _connectionProxy.BuildConnectionProxyClass(_connectionString);
-        }
-
-        /// <summary>
-        /// Only for sending from master to slave.
+        ///     Only for sending from master to slave.
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
@@ -152,6 +161,25 @@ namespace vApus.Stresstest
             //Not pretty, but helps against mem saturation.
             GC.Collect();
         }
+
+        private void _connectionProxy_ParentIsNull(object sender, EventArgs e)
+        {
+            if (_connectionProxy == sender)
+                ConnectionProxy =
+                    GetNextOrEmptyChild(typeof (ConnectionProxy),
+                                        Solution.ActiveSolution.GetSolutionComponent(typeof (ConnectionProxies))) as
+                    ConnectionProxy;
+        }
+
+        /// <summary>
+        ///     Build and returns a new connection proxy class.
+        /// </summary>
+        /// <returns></returns>
+        public string BuildConnectionProxyClass()
+        {
+            return _connectionProxy.BuildConnectionProxyClass(_connectionString);
+        }
+
         #endregion
     }
 }

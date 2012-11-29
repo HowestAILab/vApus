@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 
 namespace vApus.JumpStart
@@ -14,6 +15,7 @@ namespace vApus.JumpStart
     public class IPChangedEventArgs : EventArgs
     {
         public readonly string IP;
+
         /// <summary>
         /// </summary>
         /// <param name="ip"></param>
@@ -22,6 +24,7 @@ namespace vApus.JumpStart
             IP = ip;
         }
     }
+
     public class ListeningErrorEventArgs : EventArgs
     {
         public readonly Exception Exception;

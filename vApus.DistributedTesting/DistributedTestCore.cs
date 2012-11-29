@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Threading;
+using vApus.REST.Convert;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -21,45 +23,51 @@ namespace vApus.DistributedTesting
     public class DistributedTestCore : IDisposable
     {
         #region Fields
-        private object _lock = new object();
-        private object _communicationLock = new object(),
-            _testProgressMessagesLock = new object(),
-            _usedTileStresstestsLock = new object(),
-            _resultsLock = new object();
 
-        private Stopwatch _sw = new Stopwatch();
+        private readonly DistributedTest _distributedTest;
+        private readonly object _lock = new object();
 
-        private DistributedTest _distributedTest;
-        private List<TileStresstest> _usedTileStresstests = new List<TileStresstest>();
         /// <summary>
-        /// The messages pusht from the slaves.
+        ///     The full result path where results are saved.
         /// </summary>
-        private Dictionary<TileStresstest, TestProgressMessage> _testProgressMessages = new Dictionary<TileStresstest, TestProgressMessage>();
-        /// <summary>
-        /// The paths to the results.
-        /// </summary>
-        private Dictionary<TileStresstest, string> _results = new Dictionary<TileStresstest, string>();
-        private bool _isDisposed;
+        private readonly string _resultPath;
 
-        private volatile string[] _ok = new string[] { };
-        private volatile string[] _cancelled = new string[] { };
-        private volatile string[] _failed = new string[] { };
+        private volatile string[] _cancelled = new string[] {};
+        private object _communicationLock = new object();
+        private volatile string[] _failed = new string[] {};
 
-        private volatile string[] _runInitialized = new string[] { };
-        private volatile string[] _runDoneOnce = new string[] { };
-
-        private int _resultsReceived;
         //Invoke only once
         private bool _finishedHandled;
         private bool _hasResults;
+        private bool _isDisposed;
+
+        private volatile string[] _ok = new string[] {};
 
         /// <summary>
-        /// The full result path where results are saved.
+        ///     The paths to the results.
         /// </summary>
-        private string _resultPath;
+        private Dictionary<TileStresstest, string> _results = new Dictionary<TileStresstest, string>();
+
+        private object _resultsLock = new object();
+        private int _resultsReceived;
+        private volatile string[] _runDoneOnce = new string[] {};
+        private volatile string[] _runInitialized = new string[] {};
+        private Stopwatch _sw = new Stopwatch();
+
+        /// <summary>
+        ///     The messages pusht from the slaves.
+        /// </summary>
+        private Dictionary<TileStresstest, TestProgressMessage> _testProgressMessages =
+            new Dictionary<TileStresstest, TestProgressMessage>();
+
+        private object _testProgressMessagesLock = new object();
+        private List<TileStresstest> _usedTileStresstests = new List<TileStresstest>();
+        private object _usedTileStresstestsLock = new object();
+
         #endregion
 
         #region Properties
+
         public IEnumerable<TileStresstest> UsedTileStresstests
         {
             get
@@ -68,8 +76,9 @@ namespace vApus.DistributedTesting
                     yield return tileStresstest;
             }
         }
+
         /// <summary>
-        /// Key= index of the tile stresstest. Value = pusht progress message from slave.
+        ///     Key= index of the tile stresstest. Value = pusht progress message from slave.
         /// </summary>
         public Dictionary<TileStresstest, TestProgressMessage> TestProgressMessages
         {
@@ -79,8 +88,9 @@ namespace vApus.DistributedTesting
                     return _testProgressMessages;
             }
         }
+
         /// <summary>
-        /// The paths to the results.
+        ///     The paths to the results.
         /// </summary>
         public Dictionary<TileStresstest, string> Results
         {
@@ -90,6 +100,7 @@ namespace vApus.DistributedTesting
                     return _results;
             }
         }
+
         public bool IsDisposed
         {
             get { return _isDisposed; }
@@ -99,10 +110,12 @@ namespace vApus.DistributedTesting
         {
             get { return _ok.Length; }
         }
+
         public int Cancelled
         {
             get { return _cancelled.Length; }
         }
+
         public int Failed
         {
             get { return _failed.Length; }
@@ -112,42 +125,48 @@ namespace vApus.DistributedTesting
         {
             get { return _runInitialized.Length; }
         }
+
         public int RunDoneOnceCount
         {
             get { return _runDoneOnce.Length; }
         }
+
         /// <summary>
-        /// The stresstests that are not finished.
+        ///     The stresstests that are not finished.
         /// </summary>
         public int Running
         {
             get { return _usedTileStresstests.Count - Finished; }
         }
+
         public int Finished
         {
             get { return OK + Cancelled + Failed; }
         }
 
         /// <summary>
-        /// To check wheter you can close the distributed test view without a warning or not.
+        ///     To check wheter you can close the distributed test view without a warning or not.
         /// </summary>
         public bool HasResults
         {
             get { return _hasResults; }
         }
+
         #endregion
 
         #region Con-/Destructor
+
         //Only one test can run at the same time, if this is called and another test (stresstest core or distributed test core) exists (not disposed) an argument out of range exception will be thrown.
         public DistributedTestCore(DistributedTest distributedTest)
         {
-            StaticObjectServiceWrapper.ObjectService.MaxSuscribers = 1;
-            StaticObjectServiceWrapper.ObjectService.Suscribe(this);
+            ObjectRegistrar.MaxRegistered = 1;
+            ObjectRegistrar.Register(this);
 
             _distributedTest = distributedTest;
-            MasterSideCommunicationHandler.ListeningError += new EventHandler<ListeningErrorEventArgs>(_masterCommunication_ListeningError);
-            MasterSideCommunicationHandler.TestInitialized += new EventHandler<TestInitializedEventArgs>(MasterSideCommunicationHandler_TestInitialized);
-            MasterSideCommunicationHandler.OnTestProgressMessageReceived += new EventHandler<TestProgressMessageReceivedEventArgs>(_masterCommunication_OnTestProgressMessageReceived);
+            MasterSideCommunicationHandler.ListeningError += _masterCommunication_ListeningError;
+            MasterSideCommunicationHandler.TestInitialized += MasterSideCommunicationHandler_TestInitialized;
+            MasterSideCommunicationHandler.OnTestProgressMessageReceived +=
+                _masterCommunication_OnTestProgressMessageReceived;
 
             //The path where results are stored.
             string subResultDir = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
@@ -163,11 +182,52 @@ namespace vApus.DistributedTesting
             Dispose();
             GC.Collect();
         }
+
         #endregion
 
         #region Functions
+
+        public void Dispose()
+        {
+            if (!_isDisposed)
+            {
+                try
+                {
+                    _isDisposed = true;
+
+                    MasterSideCommunicationHandler.ListeningError -= _masterCommunication_ListeningError;
+                    MasterSideCommunicationHandler.TestInitialized -= MasterSideCommunicationHandler_TestInitialized;
+                    MasterSideCommunicationHandler.OnTestProgressMessageReceived -=
+                        _masterCommunication_OnTestProgressMessageReceived;
+
+                    _communicationLock = null;
+                    _testProgressMessagesLock = null;
+                    _usedTileStresstestsLock = null;
+                    _resultsLock = null;
+
+                    _hasResults = false;
+                    _usedTileStresstests = null;
+                    _testProgressMessages = null;
+                    _results = null;
+                    _sw = null;
+
+                    _ok = null;
+                    _cancelled = null;
+                    _failed = null;
+
+                    _runInitialized = null;
+                    _runDoneOnce = null;
+                }
+                catch
+                {
+                }
+
+                ObjectRegistrar.Unregister(this);
+            }
+        }
+
         /// <summary>
-        /// Connects + sends tests
+        ///     Connects + sends tests
         /// </summary>
         public void Initialize()
         {
@@ -185,6 +245,7 @@ namespace vApus.DistributedTesting
             Connect();
             SendAndReceiveInitializeTest();
         }
+
         private void Connect()
         {
             InvokeMessage("Connecting slaves...");
@@ -194,28 +255,35 @@ namespace vApus.DistributedTesting
 
             foreach (BaseItem item in _distributedTest.Tiles)
             {
-                Tile tile = item as Tile;
+                var tile = item as Tile;
                 if (tile.Use)
                     foreach (BaseItem childItem in tile)
                     {
-                        TileStresstest tileStresstest = childItem as TileStresstest;
+                        var tileStresstest = childItem as TileStresstest;
                         if (tileStresstest.Use)
                         {
                             Exception exception;
 #warning Allow multiple slaves to be able to distribute work.
                             int processID;
-                            MasterSideCommunicationHandler.ConnectSlave(tileStresstest.BasicTileStresstest.Slaves[0].IP, tileStresstest.BasicTileStresstest.Slaves[0].Port, out processID, out exception);
+                            MasterSideCommunicationHandler.ConnectSlave(
+                                tileStresstest.BasicTileStresstest.Slaves[0].IP,
+                                tileStresstest.BasicTileStresstest.Slaves[0].Port, out processID, out exception);
                             if (exception == null)
                             {
                                 _usedTileStresstests.Add(tileStresstest);
                                 lock (_testProgressMessagesLock)
                                     _testProgressMessages.Add(tileStresstest, new TestProgressMessage());
-                                InvokeMessage(string.Format("|->Connected {0} - {1}", tileStresstest.Parent, tileStresstest));
+                                InvokeMessage(string.Format("|->Connected {0} - {1}", tileStresstest.Parent,
+                                                            tileStresstest));
                             }
                             else
                             {
                                 Dispose();
-                                Exception ex = new Exception(string.Format("Could not connect to one of the slaves ({0} - {1})!{2}{3}", tileStresstest.Parent, tileStresstest, Environment.NewLine, exception.ToString()));
+                                var ex =
+                                    new Exception(
+                                        string.Format("Could not connect to one of the slaves ({0} - {1})!{2}{3}",
+                                                      tileStresstest.Parent, tileStresstest, Environment.NewLine,
+                                                      exception));
                                 InvokeMessage(ex.ToString(), LogLevel.Error);
                                 throw ex;
                             }
@@ -224,7 +292,7 @@ namespace vApus.DistributedTesting
             }
             if (_usedTileStresstests.Count == 0)
             {
-                Exception ex = new Exception("Please use at least one test!");
+                var ex = new Exception("Please use at least one test!");
                 InvokeMessage(ex.ToString(), LogLevel.Warning);
                 throw ex;
             }
@@ -232,14 +300,16 @@ namespace vApus.DistributedTesting
             InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
         }
+
         private void SendAndReceiveInitializeTest()
         {
             InvokeMessage("Initializing tests on slaves [Please, be patient]...");
             _sw.Start();
-            Exception[] exceptions = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests.ToArray(), _distributedTest.RunSynchronization);
+            Exception[] exceptions = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests.ToArray(),
+                                                                                    _distributedTest.RunSynchronization);
             if (exceptions.Length != 0)
             {
-                Exception ex = new Exception("Could not initialize one or more tests!\n" + exceptions.Combine("\n"));
+                var ex = new Exception("Could not initialize one or more tests!\n" + exceptions.Combine("\n"));
                 InvokeMessage(ex.ToString(), LogLevel.Error);
                 throw ex;
             }
@@ -248,6 +318,7 @@ namespace vApus.DistributedTesting
             InvokeMessage(string.Format(" ...Test initialized in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
         }
+
         private void MasterSideCommunicationHandler_TestInitialized(object sender, TestInitializedEventArgs e)
         {
             lock (_lock)
@@ -257,7 +328,9 @@ namespace vApus.DistributedTesting
                 }
                 else
                 {
-                    Exception ex = new Exception(string.Format("Could not initialize {0} - {1}.{2}{3}", e.TileStresstest.Parent, e.TileStresstest, Environment.NewLine, e.Exception.ToString()));
+                    var ex =
+                        new Exception(string.Format("Could not initialize {0} - {1}.{2}{3}", e.TileStresstest.Parent,
+                                                    e.TileStresstest, Environment.NewLine, e.Exception));
                     InvokeMessage(ex.ToString(), LogLevel.Error);
                 }
         }
@@ -282,7 +355,9 @@ namespace vApus.DistributedTesting
             if (exception != null)
             {
                 Dispose();
-                Exception ex = new Exception(string.Format("Could not start the Distributed Test.{0}{1}", Environment.NewLine, exception.ToString()));
+                var ex =
+                    new Exception(string.Format("Could not start the Distributed Test.{0}{1}", Environment.NewLine,
+                                                exception.ToString()));
                 InvokeMessage(ex.ToString(), LogLevel.Error);
                 throw ex;
             }
@@ -301,34 +376,41 @@ namespace vApus.DistributedTesting
                     {
 #warning Allow multiple slaves for work distribution
                         foreach (TileStresstest tileStresstest in _usedTileStresstests)
-                            if (tileStresstest.BasicTileStresstest.Slaves[0].IP == e.SlaveIP && tileStresstest.BasicTileStresstest.Slaves[0].Port == e.SlavePort)
+                            if (tileStresstest.BasicTileStresstest.Slaves[0].IP == e.SlaveIP &&
+                                tileStresstest.BasicTileStresstest.Slaves[0].Port == e.SlavePort)
                                 _failed = AddUniqueToStringArray(_failed, tileStresstest.TileStresstestIndex);
 
                         InvokeOnListeningError(e);
 
-                        Stop(); //The test cannot be valid, therefore stop testing. It is stopped in the gui also, but stop it here explicitely for when the gui fails.
+                        Stop();
+                            //The test cannot be valid, therefore stop testing. It is stopped in the gui also, but stop it here explicitely for when the gui fails.
 
                         if (Finished == _usedTileStresstests.Count)
                             HandleFinished();
                     }
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
+
         private string[] AddUniqueToStringArray(string[] arr, string item)
         {
             foreach (string s in arr)
                 if (s == item)
                     return arr;
 
-            string[] newArr = new string[arr.Length + 1];
+            var newArr = new string[arr.Length + 1];
             for (int index = 0; index != arr.Length; index++)
                 newArr[index] = arr[index];
             newArr[arr.Length] = item;
 
             return newArr;
         }
-        private void _masterCommunication_OnTestProgressMessageReceived(object sender, TestProgressMessageReceivedEventArgs e)
+
+        private void _masterCommunication_OnTestProgressMessageReceived(object sender,
+                                                                        TestProgressMessageReceivedEventArgs e)
         {
             if (_isDisposed)
                 return;
@@ -339,7 +421,7 @@ namespace vApus.DistributedTesting
                 {
                     _hasResults = true;
 
-                    var tpm = e.TestProgressMessage;
+                    TestProgressMessage tpm = e.TestProgressMessage;
                     TileStresstest ts = GetTileStresstest(e.TestProgressMessage.TileStresstestIndex);
                     lock (_testProgressMessagesLock)
                         _testProgressMessages[ts] = tpm;
@@ -373,14 +455,14 @@ namespace vApus.DistributedTesting
                             case RunSynchronization.None:
                                 break;
 
-                            //Send Break, wait for all stopped, send continue, wait for all started, send continue
+                                //Send Break, wait for all stopped, send continue, wait for all started, send continue
                             case RunSynchronization.BreakOnFirstFinished:
                                 if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime)
                                 {
                                     _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
                                     if (RunInitializedCount == Running)
                                     {
-                                        _runInitialized = new string[] { };
+                                        _runInitialized = new string[] {};
                                         MasterSideCommunicationHandler.SendContinue();
                                     }
                                 }
@@ -389,7 +471,7 @@ namespace vApus.DistributedTesting
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
                                     if (RunDoneOnceCount == _usedTileStresstests.Count)
                                     {
-                                        _runDoneOnce = new string[] { };
+                                        _runDoneOnce = new string[] {};
                                         //Increment the index here to be able to continue to the next run.
                                         MasterSideCommunicationHandler.SendContinue();
                                     }
@@ -401,14 +483,14 @@ namespace vApus.DistributedTesting
                                 }
                                 break;
 
-                            //Wait for all stopped, send continue, wait for all started, send continue
+                                //Wait for all stopped, send continue, wait for all started, send continue
                             case RunSynchronization.BreakOnLastFinished:
                                 if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime)
                                 {
                                     _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
                                     if (RunInitializedCount == Running)
                                     {
-                                        _runInitialized = new string[] { };
+                                        _runInitialized = new string[] {};
                                         MasterSideCommunicationHandler.SendContinue();
                                     }
                                 }
@@ -417,7 +499,7 @@ namespace vApus.DistributedTesting
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
                                     if (RunDoneOnceCount == Running)
                                     {
-                                        _runDoneOnce = new string[] { };
+                                        _runDoneOnce = new string[] {};
                                         MasterSideCommunicationHandler.SendBreak();
                                     }
                                 }
@@ -436,9 +518,12 @@ namespace vApus.DistributedTesting
                     if (Finished == _usedTileStresstests.Count)
                         HandleFinished();
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
+
         private TileStresstest GetTileStresstest(string tileStresstestIndex)
         {
             lock (_usedTileStresstestsLock)
@@ -449,8 +534,9 @@ namespace vApus.DistributedTesting
                 return null;
             }
         }
+
         /// <summary>
-        /// Stop the distributed test.
+        ///     Stop the distributed test.
         /// </summary>
         public void Stop()
         {
@@ -463,7 +549,7 @@ namespace vApus.DistributedTesting
             {
                 _finishedHandled = true;
 
-                StaticObjectServiceWrapper.ObjectService.Unsuscribe(this);
+                ObjectRegistrar.Unregister(this);
 
                 InvokeMessage("Getting results (it can take a minute or two until transmission begins)...");
                 Exception exception = null;
@@ -475,7 +561,10 @@ namespace vApus.DistributedTesting
                     if (!Directory.Exists(_resultPath))
                         Directory.CreateDirectory(_resultPath);
                 }
-                catch (Exception ex) { exception = ex; }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
 
                 if (exception == null)
                 {
@@ -483,16 +572,19 @@ namespace vApus.DistributedTesting
                     foreach (ResultsMessage rm in MasterSideCommunicationHandler.GetResults(out exceptions))
                         try
                         {
-                            TorrentClient torrentClient = new TorrentClient();
+                            var torrentClient = new TorrentClient();
                             torrentClient.SetTag(rm.TileStresstestIndex);
-                            torrentClient.ProgressUpdated += new ProgressUpdatedEventHandler(torrentClient_ProgressUpdated);
-                            torrentClient.DownloadCompleted += new DownloadCompletedEventHandler(torrentClient_DownloadCompleted);
+                            torrentClient.ProgressUpdated += torrentClient_ProgressUpdated;
+                            torrentClient.DownloadCompleted += torrentClient_DownloadCompleted;
 
                             InvokeResultsDownloadProgressUpdated(rm.TileStresstestIndex, 1);
 
                             torrentClient.DownloadTorrentFromBytes(rm.TorrentInfo, _resultPath);
                         }
-                        catch (Exception ex) { exception = ex; }
+                        catch (Exception ex)
+                        {
+                            exception = ex;
+                        }
 
                     if (exceptions.Length != 0)
                         exception = new Exception(exceptions.Combine("\n"));
@@ -501,7 +593,7 @@ namespace vApus.DistributedTesting
                 if (exception != null)
                 {
                     Interlocked.Increment(ref _resultsReceived);
-                    InvokeMessage("Could not receive one or more resuls!\n" + exception.ToString(), LogLevel.Error);
+                    InvokeMessage("Could not receive one or more resuls!\n" + exception, LogLevel.Error);
                 }
                 if (_resultsReceived == Finished)
                     InvokeOnFinished();
@@ -512,7 +604,7 @@ namespace vApus.DistributedTesting
         {
             if (_resultsReceived != Finished && e.PercentCompleted != 100)
             {
-                string tileStresstestIndex = source.GetTag() as string;
+                var tileStresstestIndex = source.GetTag() as string;
                 InvokeResultsDownloadProgressUpdated(tileStresstestIndex, e.PercentCompleted);
             }
         }
@@ -522,7 +614,7 @@ namespace vApus.DistributedTesting
             source.ProgressUpdated -= torrentClient_ProgressUpdated;
             source.DownloadCompleted -= torrentClient_DownloadCompleted;
             source.StopTorrent();
-            string tileStresstestIndex = source.GetTag() as string;
+            var tileStresstestIndex = source.GetTag() as string;
             source.RemoveTag();
 
             InvokeResultsDownloadCompleted(tileStresstestIndex, source.Name);
@@ -533,103 +625,84 @@ namespace vApus.DistributedTesting
                 InvokeOnFinished();
         }
 
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
-                try
-                {
-                    _isDisposed = true;
-
-                    MasterSideCommunicationHandler.ListeningError -= _masterCommunication_ListeningError;
-                    MasterSideCommunicationHandler.TestInitialized -= MasterSideCommunicationHandler_TestInitialized;
-                    MasterSideCommunicationHandler.OnTestProgressMessageReceived -= _masterCommunication_OnTestProgressMessageReceived;
-
-                    _communicationLock = null;
-                    _testProgressMessagesLock = null;
-                    _usedTileStresstestsLock = null;
-                    _resultsLock = null;
-
-                    _hasResults = false;
-                    _usedTileStresstests = null;
-                    _testProgressMessages = null;
-                    _results = null;
-                    _sw = null;
-
-                    _ok = null;
-                    _cancelled = null;
-                    _failed = null;
-
-                    _runInitialized = null;
-                    _runDoneOnce = null;
-                }
-                catch { }
-
-                StaticObjectServiceWrapper.ObjectService.Unsuscribe(this);
-            }
-        }
         #endregion
 
         #region REST
+
         private void WriteRestConfig()
         {
             try
             {
-                vApus.REST.Convert.Converter.ClearWrittenFiles();
+                Converter.ClearWrittenFiles();
 
-                Hashtable testConfigCache = new Hashtable(1);
+                var testConfigCache = new Hashtable(1);
                 foreach (Tile tile in _distributedTest.Tiles)
                     foreach (TileStresstest tileStresstest in tile)
                         if (tileStresstest.Use)
-                            vApus.REST.Convert.Converter.SetTestConfig(testConfigCache, _distributedTest.ToString(), _distributedTest.RunSynchronization.ToString(),
-                                                         "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
-                                                          tileStresstest.BasicTileStresstest.Connection.Label,
-                                                          tileStresstest.BasicTileStresstest.Connection,
-                                                          tileStresstest.BasicTileStresstest.ConnectionProxy,
-                                                          tileStresstest.BasicTileStresstest.Monitors,
-                                                          tileStresstest.BasicTileStresstest.Slaves.Length == 0 ? string.Empty : tileStresstest.BasicTileStresstest.Slaves[0].ToString(),
-                                                          tileStresstest.AdvancedTileStresstest.Log,
-                                                          tileStresstest.AdvancedTileStresstest.LogRuleSet,
-                                                          tileStresstest.AdvancedTileStresstest.Concurrency,
-                                                          tileStresstest.AdvancedTileStresstest.Runs,
-                                                          tileStresstest.AdvancedTileStresstest.MinimumDelay,
-                                                          tileStresstest.AdvancedTileStresstest.MaximumDelay,
-                                                          tileStresstest.AdvancedTileStresstest.Shuffle,
-                                                          tileStresstest.AdvancedTileStresstest.Distribute,
-                                                          tileStresstest.AdvancedTileStresstest.MonitorBefore,
-                                                          tileStresstest.AdvancedTileStresstest.MonitorAfter);
+                            Converter.SetTestConfig(testConfigCache, _distributedTest.ToString(),
+                                                    _distributedTest.RunSynchronization.ToString(),
+                                                    "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
+                                                    tileStresstest.Index + " " +
+                                                    tileStresstest.BasicTileStresstest.Connection.Label,
+                                                    tileStresstest.BasicTileStresstest.Connection,
+                                                    tileStresstest.BasicTileStresstest.ConnectionProxy,
+                                                    tileStresstest.BasicTileStresstest.Monitors,
+                                                    tileStresstest.BasicTileStresstest.Slaves.Length == 0
+                                                        ? string.Empty
+                                                        : tileStresstest.BasicTileStresstest.Slaves[0].ToString(),
+                                                    tileStresstest.AdvancedTileStresstest.Log,
+                                                    tileStresstest.AdvancedTileStresstest.LogRuleSet,
+                                                    tileStresstest.AdvancedTileStresstest.Concurrency,
+                                                    tileStresstest.AdvancedTileStresstest.Runs,
+                                                    tileStresstest.AdvancedTileStresstest.MinimumDelay,
+                                                    tileStresstest.AdvancedTileStresstest.MaximumDelay,
+                                                    tileStresstest.AdvancedTileStresstest.Shuffle,
+                                                    tileStresstest.AdvancedTileStresstest.Distribute,
+                                                    tileStresstest.AdvancedTileStresstest.MonitorBefore,
+                                                    tileStresstest.AdvancedTileStresstest.MonitorAfter);
 
-                vApus.REST.Convert.Converter.WriteToFile(testConfigCache, "TestConfig");
+                Converter.WriteToFile(testConfigCache, "TestConfig");
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         private void WriteRestProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
         {
             try
             {
-                Hashtable testProgressCache = new Hashtable(1);
-                foreach (var tcu in testProgressMessage.TileStresstestProgressResults.TileConcurrencyProgressResults)
-                    foreach (var tru in tcu.TileRunProgressResults)
-                        vApus.REST.Convert.Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
-                                                     "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " + tileStresstest.Index + " " +
-                                                     tileStresstest.BasicTileStresstest.Connection.Label,
-                                                     tcu.ConcurrentUsers, tru.Run + 1,
-                                                     tru.Metrics,
-                                                     tru.EstimatedRuntimeLeft,
-                                                     testProgressMessage.RunStateChange,
-                                                     testProgressMessage.StresstestResult);
+                var testProgressCache = new Hashtable(1);
+                foreach (
+                    TileConcurrencyProgressResult tcu in
+                        testProgressMessage.TileStresstestProgressResults.TileConcurrencyProgressResults)
+                    foreach (TileRunProgressResult tru in tcu.TileRunProgressResults)
+                        Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
+                                                  "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
+                                                  tileStresstest.Index + " " +
+                                                  tileStresstest.BasicTileStresstest.Connection.Label,
+                                                  tcu.ConcurrentUsers, tru.Run + 1,
+                                                  tru.Metrics,
+                                                  tru.EstimatedRuntimeLeft,
+                                                  testProgressMessage.RunStateChange,
+                                                  testProgressMessage.StresstestResult);
 
-                vApus.REST.Convert.Converter.WriteToFile(testProgressCache, "TestProgress");
+                Converter.WriteToFile(testProgressCache, "TestProgress");
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         #endregion
 
         #region Events
+
         /// <summary>
-        /// Messages to the user on the message textbox
+        ///     Messages to the user on the message textbox
         /// </summary>
         public event EventHandler<MessageEventArgs> Message;
+
         public event EventHandler<TestProgressMessageReceivedEventArgs> OnTestProgressMessageReceived;
         public event EventHandler<ListeningErrorEventArgs> OnListeningError;
         public event EventHandler<ResultsDownloadProgressUpdatedEventArgs> ResultsDownloadProgressUpdated;
@@ -640,6 +713,7 @@ namespace vApus.DistributedTesting
         {
             InvokeMessage(message, Color.Empty, logLevel);
         }
+
         private void InvokeMessage(string message, Color color, LogLevel logLevel = LogLevel.Info)
         {
             LogWrapper.LogByLevel(message, logLevel);
@@ -647,22 +721,33 @@ namespace vApus.DistributedTesting
             {
                 if (logLevel == LogLevel.Error)
                 {
-                    string[] split = message.Split(new char[] { '\n', '\r' }, StringSplitOptions.None);
+                    string[] split = message.Split(new[] {'\n', '\r'}, StringSplitOptions.None);
                     message = split[0] + "\n See " + Logger.DEFAULT_LOCATION + " for the stack trace.";
                 }
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(
+                    delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
             }
         }
-        private void InvokeOnTestProgressMessageReceived(TileStresstest tileStresstest, TestProgressMessage testProgressMessage)
+
+        private void InvokeOnTestProgressMessageReceived(TileStresstest tileStresstest,
+                                                         TestProgressMessage testProgressMessage)
         {
             if (OnTestProgressMessageReceived != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnTestProgressMessageReceived(this, new TestProgressMessageReceivedEventArgs(tileStresstest, testProgressMessage)); }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(
+                    delegate
+                        {
+                            OnTestProgressMessageReceived(this,
+                                                          new TestProgressMessageReceivedEventArgs(tileStresstest,
+                                                                                                   testProgressMessage));
+                        }, null);
         }
+
         private void InvokeOnListeningError(ListeningErrorEventArgs listeningErrorEventArgs)
         {
             LogWrapper.LogByLevel(listeningErrorEventArgs, LogLevel.Error);
             if (OnListeningError != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnListeningError(this, listeningErrorEventArgs); }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(
+                    delegate { OnListeningError(this, listeningErrorEventArgs); }, null);
         }
 
         private void InvokeResultsDownloadProgressUpdated(string tileStresstestIndex, double percentCompleted)
@@ -672,10 +757,14 @@ namespace vApus.DistributedTesting
                 TileStresstest ts = GetTileStresstest(tileStresstestIndex);
 
                 if (ResultsDownloadProgressUpdated != null)
-                    foreach (EventHandler<ResultsDownloadProgressUpdatedEventArgs> del in ResultsDownloadProgressUpdated.GetInvocationList())
-                        del.BeginInvoke(this, new ResultsDownloadProgressUpdatedEventArgs(ts, (int)percentCompleted), null, null);
+                    foreach (
+                        EventHandler<ResultsDownloadProgressUpdatedEventArgs> del in
+                            ResultsDownloadProgressUpdated.GetInvocationList())
+                        del.BeginInvoke(this, new ResultsDownloadProgressUpdatedEventArgs(ts, (int) percentCompleted),
+                                        null, null);
             }
         }
+
         private void InvokeResultsDownloadCompleted(string tileStresstestIndex, string subResultDir)
         {
             lock (this)
@@ -692,12 +781,15 @@ namespace vApus.DistributedTesting
                 lock (_resultsLock)
                     _results.Add(ts, resultPath);
                 if (ResultsDownloadCompleted != null)
-                    foreach (EventHandler<ResultsDownloadCompletedEventArgs> del in ResultsDownloadCompleted.GetInvocationList())
+                    foreach (
+                        EventHandler<ResultsDownloadCompletedEventArgs> del in
+                            ResultsDownloadCompleted.GetInvocationList())
                         del.BeginInvoke(this, new ResultsDownloadCompletedEventArgs(ts, resultPath), null, null);
             }
         }
+
         /// <summary>
-        /// Stops the seeding at the torrent server. (slave side)
+        ///     Stops the seeding at the torrent server. (slave side)
         /// </summary>
         private void StopSeedingResults(TileStresstest tileStresstest)
         {
@@ -713,8 +805,10 @@ namespace vApus.DistributedTesting
         {
             InvokeMessage("Test finished!");
             if (OnFinished != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnFinished(this, new FinishedEventArgs(OK, Cancelled, Failed)); }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(
+                    delegate { OnFinished(this, new FinishedEventArgs(OK, Cancelled, Failed)); }, null);
         }
+
         #endregion
     }
 }

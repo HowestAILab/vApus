@@ -5,27 +5,35 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
 using System.Net.NetworkInformation;
+using System.Timers;
 
 namespace vApus.Monitor
 {
     public static class LocalMonitor
     {
         private static object _lock = new object();
-        private static System.Timers.Timer _tmr = new System.Timers.Timer();
+        private static readonly Timer _tmr = new Timer();
 
-        private static PerformanceCounter _cpuUsage = new PerformanceCounter("Processor", "% Processor Time", "_Total", true);
-        private static PerformanceCounter _contextSwitchesPerSecond = new PerformanceCounter("System", "Context Switches/sec", true);
-        private static ManagementObjectSearcher _availableMemory = new ManagementObjectSearcher("SELECT AvailableMBytes FROM Win32_PerfFormattedData_PerfOS_Memory");
+        private static readonly PerformanceCounter _cpuUsage = new PerformanceCounter("Processor", "% Processor Time",
+                                                                                      "_Total", true);
 
-        private static PerformanceCounterCategory _nicsCat = new PerformanceCounterCategory("Network Interface");
+        private static readonly PerformanceCounter _contextSwitchesPerSecond = new PerformanceCounter("System",
+                                                                                                      "Context Switches/sec",
+                                                                                                      true);
+
+        private static readonly ManagementObjectSearcher _availableMemory =
+            new ManagementObjectSearcher("SELECT AvailableMBytes FROM Win32_PerfFormattedData_PerfOS_Memory");
+
+        private static readonly PerformanceCounterCategory _nicsCat = new PerformanceCounterCategory("Network Interface");
 
         private static int _nicsDifference;
-        private static List<object> _nics = new List<object>();
+        private static readonly List<object> _nics = new List<object>();
 
         public static float CPUUsage, ContextSwitchesPerSecond;
         public static uint MemoryUsage, TotalVisibleMemory;
@@ -33,19 +41,21 @@ namespace vApus.Monitor
 
         static LocalMonitor()
         {
-            _tmr.Elapsed += new System.Timers.ElapsedEventHandler(_tmr_Elapsed);
+            _tmr.Elapsed += _tmr_Elapsed;
 
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT TotalVisibleMemorySize FROM Win32_OperatingSystem");
+            var searcher = new ManagementObjectSearcher("SELECT TotalVisibleMemorySize FROM Win32_OperatingSystem");
             foreach (ManagementObject queryObj in searcher.Get())
-                TotalVisibleMemory = Convert.ToUInt32(queryObj.Properties["TotalVisibleMemorySize"].Value) / 1024;
+                TotalVisibleMemory = Convert.ToUInt32(queryObj.Properties["TotalVisibleMemorySize"].Value)/1024;
         }
+
         public static void StartMonitoring(int refreshInterval)
         {
             _tmr.Stop();
             _tmr.Interval = refreshInterval;
             _tmr.Start();
         }
-        private static void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+
+        private static void _tmr_Elapsed(object sender, ElapsedEventArgs e)
         {
             try
             {
@@ -64,7 +74,7 @@ namespace vApus.Monitor
                 float bandWidth;
                 int instancesCount = instances.Length - _nicsDifference;
 
-                if (_nics.Count != instancesCount * 3)
+                if (_nics.Count != instancesCount*3)
                 {
                     _nics.Clear();
                     _nicsDifference = 0;
@@ -91,7 +101,8 @@ namespace vApus.Monitor
 
                         sent = new PerformanceCounter("Network Interface", "Bytes Sent/sec", instance);
                         received = new PerformanceCounter("Network Interface", "Bytes Received/sec", instance);
-                        bandWidth = (new PerformanceCounter("Network Interface", "Current Bandwidth", instance)).NextValue() / 800;
+                        bandWidth =
+                            (new PerformanceCounter("Network Interface", "Current Bandwidth", instance)).NextValue()/800;
 
                         if (bandWidth == 0f)
                         {
@@ -116,10 +127,10 @@ namespace vApus.Monitor
                     ++i;
                     received = _nics[i] as PerformanceCounter;
                     ++i;
-                    bandWidth = (float)_nics[i];
+                    bandWidth = (float) _nics[i];
 
-                    float s = ((sent.NextValue() / bandWidth) / instancesCount);
-                    float r = ((received.NextValue() / bandWidth) / instancesCount);
+                    float s = ((sent.NextValue()/bandWidth)/instancesCount);
+                    float r = ((received.NextValue()/bandWidth)/instancesCount);
 
                     if (s > NicsSent || r > NicsReceived)
                     {
@@ -128,7 +139,9 @@ namespace vApus.Monitor
                     }
                 }
             }
-            catch { }
+            catch
+            {
+            }
         }
     }
 }

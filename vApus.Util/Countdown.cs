@@ -5,34 +5,52 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
+using System.Timers;
 
 namespace vApus.Util
 {
     public class Countdown : IDisposable
     {
         #region Events
+
         /// <summary>
-        /// Occurs when started;
+        ///     Occurs when started;
         /// </summary>
         public event EventHandler Started;
 
         /// <summary>
-        /// Occurs when stopped;
+        ///     Occurs when stopped;
         /// </summary>
         public event EventHandler Stopped;
 
         /// <summary>
-        /// Occurs when the time period has elapsed.
+        ///     Occurs when the time period has elapsed.
         /// </summary>
         public event EventHandler Tick;
+
         #endregion
 
-        private System.Timers.Timer _tmr;
-        //Use this to stop the timer.
-        private int _countdownTime, _toCountdownTime;
+        private readonly int _toCountdownTime;
+        private int _countdownTime;
 
         private bool _isdisposed;
+        private Timer _tmr;
+
+        /// <summary>
+        ///     Inits and starts the countdown.
+        /// </summary>
+        /// <param name="countdownTime">In ms.</param>
+        /// <param name="reportProgressTime">In ms. Min 100</param>
+        public Countdown(int countdownTime, int reportProgressTime = 1000)
+        {
+            _countdownTime = countdownTime;
+            _toCountdownTime = countdownTime;
+
+            _tmr = new Timer(reportProgressTime);
+            _tmr.Elapsed += _tmr_Elapsed;
+        }
 
         public int CountdownTime
         {
@@ -44,18 +62,14 @@ namespace vApus.Util
             get { return _toCountdownTime; }
         }
 
-        /// <summary>
-        /// Inits and starts the countdown.
-        /// </summary>
-        /// <param name="countdownTime">In ms.</param>
-        /// <param name="reportProgressTime">In ms. Min 100</param>
-        public Countdown(int countdownTime, int reportProgressTime = 1000)
+        public void Dispose()
         {
-            _countdownTime = countdownTime;
-            _toCountdownTime = countdownTime;
-
-            _tmr = new System.Timers.Timer(reportProgressTime);
-            _tmr.Elapsed += _tmr_Elapsed;
+            if (!_isdisposed)
+            {
+                _isdisposed = true;
+                _tmr.Dispose();
+                _tmr = null;
+            }
         }
 
         public void Start()
@@ -66,6 +80,7 @@ namespace vApus.Util
                 foreach (EventHandler del in Started.GetInvocationList())
                     del.BeginInvoke(this, null, null, null);
         }
+
         public void Stop()
         {
             _tmr.Stop();
@@ -75,9 +90,10 @@ namespace vApus.Util
                 foreach (EventHandler del in Stopped.GetInvocationList())
                     del.BeginInvoke(this, null, null, null);
         }
-        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+
+        private void _tmr_Elapsed(object sender, ElapsedEventArgs e)
         {
-            _countdownTime -= (int)_tmr.Interval;
+            _countdownTime -= (int) _tmr.Interval;
             if (_countdownTime <= 0)
             {
                 _tmr.Stop();
@@ -90,15 +106,6 @@ namespace vApus.Util
 
             if (_countdownTime == 0)
                 Stop();
-        }
-        public void Dispose()
-        {
-            if (!_isdisposed)
-            {
-                _isdisposed = true;
-                _tmr.Dispose();
-                _tmr = null;
-            }
         }
     }
 }

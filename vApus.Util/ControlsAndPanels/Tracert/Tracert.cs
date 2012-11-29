@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -14,20 +15,6 @@ namespace vApus.Util
 {
     public class Tracert : IDisposable
     {
-        public event EventHandler<HopEventArgs> Hop;
-        public event EventHandler Done;
-
-        #region Fields
-        private IPAddress _ip;
-        private int _hops, _maxHops, _timeout;
-
-        private Ping _ping;
-        private PingOptions _options;
-        private static byte[] _buffer;
-
-        private bool _isDone = false;
-        #endregion
-
         private static byte[] Buffer
         {
             get
@@ -43,6 +30,7 @@ namespace vApus.Util
         }
 
         #region Functions
+
         /// <summary>
         /// </summary>
         /// <param name="hostNameOrIP"></param>
@@ -71,9 +59,9 @@ namespace vApus.Util
                 {
                     _ping = new Ping();
 
-                    _ping.PingCompleted += new PingCompletedEventHandler(OnPingCompleted);
+                    _ping.PingCompleted += OnPingCompleted;
                     _options = new PingOptions(1, true);
-                    _ping.SendAsync(_ip, _timeout, Tracert.Buffer, _options, null);
+                    _ping.SendAsync(_ip, _timeout, Buffer, _options, null);
                 }
             }
             catch
@@ -81,26 +69,30 @@ namespace vApus.Util
                 ProcessHop(_ip, IPStatus.Unknown);
             }
         }
+
         private void OnPingCompleted(object sender, PingCompletedEventArgs e)
         {
             ThreadPool.QueueUserWorkItem(delegate
-            {
-                if (!_isDone)
-                    try
-                    {
-                        _options.Ttl += 1;
-                        ProcessHop(e.Reply.Address, e.Reply.Status);
-                        _ping.SendAsync(_ip, _timeout, Tracert.Buffer, _options, null);
-                    }
-                    catch { }
-            });
+                {
+                    if (!_isDone)
+                        try
+                        {
+                            _options.Ttl += 1;
+                            ProcessHop(e.Reply.Address, e.Reply.Status);
+                            _ping.SendAsync(_ip, _timeout, Buffer, _options, null);
+                        }
+                        catch
+                        {
+                        }
+                });
         }
+
         protected void ProcessHop(IPAddress ip, IPStatus status)
         {
             long roundTripTime = 0;
             if (status == IPStatus.TtlExpired || status == IPStatus.Success)
             {
-                Ping pingIntermediate = new Ping();
+                var pingIntermediate = new Ping();
                 try
                 {
                     //Compute roundtrip time to the address by pinging it
@@ -128,33 +120,74 @@ namespace vApus.Util
             if (_isDone)
                 FireDone();
         }
+
         private void FireHop(IPAddress ip, long roundTripTime, IPStatus status)
         {
             if (Hop != null)
             {
                 string hostName = string.Empty;
-                try { hostName = Dns.GetHostEntry(ip).HostName; }
-                catch { }
+                try
+                {
+                    hostName = Dns.GetHostEntry(ip).HostName;
+                }
+                catch
+                {
+                }
                 Hop(this, new HopEventArgs(ip.ToString(), hostName, roundTripTime, status));
             }
         }
+
         private void FireDone()
         {
             if (Done != null)
                 Done(this, null);
         }
+
+        #endregion
+
+        public void Dispose()
+        {
+            _isDone = true;
+            if (_ping != null)
+                try
+                {
+                    _ping.Dispose();
+                }
+                catch
+                {
+                }
+            _ping = null;
+        }
+
+        public event EventHandler<HopEventArgs> Hop;
+        public event EventHandler Done;
+
+        #region Fields
+
+        private static byte[] _buffer;
+        private int _hops;
+        private IPAddress _ip;
+        private bool _isDone;
+        private int _maxHops;
+        private PingOptions _options;
+        private Ping _ping;
+        private int _timeout;
+
         #endregion
 
         public class HopEventArgs : EventArgs
         {
-            public readonly string IP, HostName;
+            public readonly string HostName;
+            public readonly string IP;
+
             /// <summary>
-            /// in ms
+            ///     in ms
             /// </summary>
             public readonly long RoundTripTime;
+
             public readonly IPStatus Status;
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="ip"></param>
             /// <param name="hostName"></param>
@@ -167,18 +200,6 @@ namespace vApus.Util
                 RoundTripTime = roundTripTime;
                 Status = status;
             }
-        }
-
-        public void Dispose()
-        {
-            _isDone = true;
-            if (_ping != null)
-                try
-                {
-                    _ping.Dispose();
-                }
-                catch { }
-            _ping = null;
         }
     }
 }

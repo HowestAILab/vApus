@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Drawing;
 
@@ -13,12 +14,13 @@ namespace vApus.Util
     [Serializable]
     public struct EventPanelEvent
     {
-        public EventViewEventType EventType;
-        public Color EventProgressBarEventColor;
-        public string Message;
         public DateTime At;
+        public Color EventProgressBarEventColor;
+        public EventViewEventType EventType;
+        public string Message;
 
-        public EventPanelEvent(EventViewEventType eventType, Color eventProgressBarEventColor, string message, DateTime at)
+        public EventPanelEvent(EventViewEventType eventType, Color eventProgressBarEventColor, string message,
+                               DateTime at)
         {
             EventType = eventType;
             EventProgressBarEventColor = eventProgressBarEventColor;

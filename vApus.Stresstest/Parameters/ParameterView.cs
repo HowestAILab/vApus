@@ -5,10 +5,11 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using vApus.SolutionTree;
-using System.Collections.Generic;
 using vApus.Util;
 
 namespace vApus.Stresstest
@@ -16,25 +17,30 @@ namespace vApus.Stresstest
     public partial class ParameterView : BaseSolutionComponentView
     {
         #region Fields
-        private BaseParameter _parameter;
+
         private CustomListGenerator _customListGenerator;
+        private BaseParameter _parameter;
+
         #endregion
 
         #region Constructors
+
         public ParameterView()
         {
             InitializeComponent();
         }
+
         public ParameterView(SolutionComponent solutionComponent, params object[] args)
             : base(solutionComponent, args)
         {
             InitializeComponent();
             _parameter = solutionComponent as BaseParameter;
             solutionComponentPropertyPanel.SolutionComponent = solutionComponent;
-            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
             SetGui();
         }
+
         #endregion
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
@@ -49,9 +55,9 @@ namespace vApus.Stresstest
             {
                 pnlCustomList.Visible = true;
 
-                CustomListParameter parameter = _parameter as CustomListParameter;
+                var parameter = _parameter as CustomListParameter;
                 btnClear.Enabled = parameter.CustomList.Length > 0;
-                HashSet<string> entries = new HashSet<string>();
+                var entries = new HashSet<string>();
                 foreach (string s in parameter.CustomList)
                     if (!entries.Add(s))
                     {
@@ -59,7 +65,6 @@ namespace vApus.Stresstest
                         return;
                     }
                 btnRemoveDuplicates.Enabled = false;
-
             }
             else
             {
@@ -74,18 +79,19 @@ namespace vApus.Stresstest
 
             if (_customListGenerator.ShowDialog() == DialogResult.OK)
             {
-                SolutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                SolutionComponent.InvokeSolutionComponentChangedEvent(
+                    SolutionComponentChangedEventArgs.DoneAction.Edited);
                 solutionComponentPropertyPanel.Refresh();
             }
         }
 
         private void btnAddFromText_Click(object sender, EventArgs e)
         {
-            CustomListParameter parameter = _parameter as CustomListParameter;
+            var parameter = _parameter as CustomListParameter;
 
-            FromTextDialog fromTextDialog = new FromTextDialog();
+            var fromTextDialog = new FromTextDialog();
             fromTextDialog.ShowDialog();
-            List<string> entries = new List<string>(parameter.CustomList);
+            var entries = new List<string>(parameter.CustomList);
             entries.AddRange(fromTextDialog.Entries);
             parameter.CustomList = entries.ToArray();
             _parameter = parameter;
@@ -95,7 +101,7 @@ namespace vApus.Stresstest
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            (_parameter as CustomListParameter).CustomList = new string[] { };
+            (_parameter as CustomListParameter).CustomList = new string[] {};
             SolutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             solutionComponentPropertyPanel.Refresh();
         }
@@ -103,8 +109,8 @@ namespace vApus.Stresstest
         private void btnRemoveDuplicates_Click(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
-            CustomListParameter parameter = _parameter as CustomListParameter;
-            HashSet<string> entries = new HashSet<string>();
+            var parameter = _parameter as CustomListParameter;
+            var entries = new HashSet<string>();
             foreach (string value in parameter.CustomList)
                 entries.Add(value);
             parameter.CustomList = new string[entries.Count];

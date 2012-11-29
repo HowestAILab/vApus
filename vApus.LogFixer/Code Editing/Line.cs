@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
@@ -15,24 +16,28 @@ namespace vApus.LogFixer
     public class Lines : List<Line>
     {
         public Lines()
-            : base()
-        { }
+        {
+        }
+
         public Lines(int count)
-            : base()
-        { }
+        {
+        }
+
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (Line l in this)
                 sb.AppendLine(l.ToString());
 
             return sb.ToString().Trim();
         }
     }
+
     public class Line
     {
         public readonly Lines Parent;
-        private bool _fileNotFoundComment, _hasLogEntry;
+        private readonly bool _fileNotFoundComment;
+        private readonly bool _hasLogEntry;
 
         public string Comment;
         public LogEntry LogEntry;
@@ -43,23 +48,19 @@ namespace vApus.LogFixer
         }
 
         public Line(Lines parent, string comment, bool fileNotFoundComment = false)
-            :this(parent)
+            : this(parent)
         {
             Comment = comment;
             _fileNotFoundComment = fileNotFoundComment;
         }
+
         public Line(Lines parent, LogEntry logEntry)
             : this(parent)
         {
             LogEntry = logEntry;
             _hasLogEntry = true;
         }
-        public override string ToString()
-        {
-            if (_hasLogEntry)
-                return LogEntry.LogEntryString;
-            return Comment;
-        }
+
         public LexicalResult LexicalResult
         {
             get
@@ -71,6 +72,7 @@ namespace vApus.LogFixer
                 return LexicalResult.OK;
             }
         }
+
         public Color LineColor
         {
             get
@@ -81,6 +83,13 @@ namespace vApus.LogFixer
                     return Color.DarkRed;
                 return Color.DarkGray;
             }
+        }
+
+        public override string ToString()
+        {
+            if (_hasLogEntry)
+                return LogEntry.LogEntryString;
+            return Comment;
         }
     }
 }

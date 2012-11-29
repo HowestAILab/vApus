@@ -5,32 +5,32 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 
 namespace vApus.Results
 {
     /// <summary>
-    /// Should be kept where the results are visualized (rows in a datagridview) and used together with MetricsHelper.
+    ///     Should be kept where the results are visualized (rows in a datagridview) and used together with MetricsHelper.
     /// </summary>
     public class StresstestMetricsCache
     {
+        private readonly List<MetricsCacheObject> _cache = new List<MetricsCacheObject>();
         public EventHandler<MetricAddedOrUpdatedEventArgs> MetricAddedOrUpdated;
-
-        private List<MetricsCacheObject> _cache = new List<MetricsCacheObject>();
 
         public StresstestResult StresstestResult { get; set; }
 
         /// <summary>
-        /// Caching metrics for results that are not known (master-slave vApus setup).
+        ///     Caching metrics for results that are not known (master-slave vApus setup).
         /// </summary>
         /// <param name="metrics"></param>
         public void Add(StresstestMetrics metrics)
         {
             __AddOrUpdate(metrics);
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="metrics">eg MetricsHelper.GetMetrics(result)</param>
         /// <param name="result">eg result</param>
@@ -38,8 +38,8 @@ namespace vApus.Results
         {
             __AddOrUpdate(metrics, result);
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="metrics">eg MetricsHelper.GetMetrics(result)</param>
         /// <param name="result">eg result</param>
@@ -47,14 +47,15 @@ namespace vApus.Results
         {
             __AddOrUpdate(metrics, result);
         }
+
         private void __AddOrUpdate(StresstestMetrics metrics, object result = null)
         {
             bool add = true;
-            var cacheObject = new MetricsCacheObject() { Metrics = metrics, Result = result };
+            var cacheObject = new MetricsCacheObject {Metrics = metrics, Result = result};
             if (result != null)
                 for (int i = 0; i != _cache.Count; i++)
                 {
-                    var o = _cache[i];
+                    MetricsCacheObject o = _cache[i];
                     if (o.Result == result)
                     {
                         _cache[i] = cacheObject;
@@ -71,16 +72,16 @@ namespace vApus.Results
         }
 
         /// <summary>
-        /// This will update the metrics if possible, otherwise it will just return them.
-        /// It will also remove the concurrency results from the stresstest result if they are not needed anymore (stopped).
-        /// This is if you did set the StresstestResult property. The concurrency results are removed from cache anyways.
+        ///     This will update the metrics if possible, otherwise it will just return them.
+        ///     It will also remove the concurrency results from the stresstest result if they are not needed anymore (stopped).
+        ///     This is if you did set the StresstestResult property. The concurrency results are removed from cache anyways.
         /// </summary>
         /// <returns></returns>
         public List<StresstestMetrics> GetConcurrencyMetrics()
         {
-            List<MetricsCacheObject> removeResults = new List<MetricsCacheObject>();
+            var removeResults = new List<MetricsCacheObject>();
             var metrics = new List<StresstestMetrics>();
-            foreach (var o in _cache)
+            foreach (MetricsCacheObject o in _cache)
                 if (o.Metrics.Run == 0)
                 {
                     if (o.Result != null)
@@ -93,7 +94,7 @@ namespace vApus.Results
                     metrics.Add(o.Metrics);
                 }
 
-            foreach (var removeResult in removeResults)
+            foreach (MetricsCacheObject removeResult in removeResults)
             {
                 var cr = removeResult.Result as ConcurrencyResult;
                 if (StresstestResult != null && StresstestResult.ConcurrencyResults.Contains(cr))
@@ -104,14 +105,15 @@ namespace vApus.Results
             }
             return metrics;
         }
+
         /// <summary>
-        /// This will update the metrics if possible, otherwise it will just return them.
+        ///     This will update the metrics if possible, otherwise it will just return them.
         /// </summary>
         /// <returns></returns>
         public List<StresstestMetrics> GetRunMetrics()
         {
             var metrics = new List<StresstestMetrics>();
-            foreach (var o in _cache)
+            foreach (MetricsCacheObject o in _cache)
                 if (o.Metrics.Run != 0)
                 {
                     if (o.Result != null)
@@ -121,20 +123,10 @@ namespace vApus.Results
                 }
             return metrics;
         }
+
         public class MetricAddedOrUpdatedEventArgs : EventArgs
         {
-            public StresstestMetrics Metrics { private set; get; }
             /// <summary>
-            /// False for updated.
-            /// </summary>
-            public bool Added { private set; get; }
-            /// <summary>
-            /// ConcurrencyResult or RunResult.
-            /// </summary>
-            public object Result { private set; get; }
-
-            /// <summary>
-            /// 
             /// </summary>
             /// <param name="metrics"></param>
             /// <param name="added">False for updated.</param>
@@ -146,12 +138,26 @@ namespace vApus.Results
                 Added = added;
                 Result = result;
             }
+
+            public StresstestMetrics Metrics { private set; get; }
+
+            /// <summary>
+            ///     False for updated.
+            /// </summary>
+            public bool Added { private set; get; }
+
+            /// <summary>
+            ///     ConcurrencyResult or RunResult.
+            /// </summary>
+            public object Result { private set; get; }
         }
+
         private class MetricsCacheObject
         {
             public StresstestMetrics Metrics { get; set; }
+
             /// <summary>
-            /// ConcurrencyResult or RunResult.
+            ///     ConcurrencyResult or RunResult.
             /// </summary>
             public object Result { get; set; }
         }

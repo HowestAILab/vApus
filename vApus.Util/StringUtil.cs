@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Text;
 using System.Threading;
@@ -15,7 +16,6 @@ namespace vApus.Util
     public static class StringUtil
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
@@ -25,17 +25,17 @@ namespace vApus.Util
                 throw new ArgumentNullException("o");
 
             return o is short
-                || o is int
-                || o is long
-                || o is ushort
-                || o is uint
-                || o is ulong
-                || o is float
-                || o is double
-                || o is decimal;
+                   || o is int
+                   || o is long
+                   || o is ushort
+                   || o is uint
+                   || o is ulong
+                   || o is float
+                   || o is double
+                   || o is decimal;
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
@@ -44,35 +44,37 @@ namespace vApus.Util
             if (t == null)
                 throw new ArgumentNullException("t");
 
-            return t == typeof(short)
-               || t == typeof(int)
-               || t == typeof(long)
-               || t == typeof(ushort)
-               || t == typeof(uint)
-               || t == typeof(ulong)
-               || t == typeof(float)
-               || t == typeof(double)
-               || t == typeof(decimal);
+            return t == typeof (short)
+                   || t == typeof (int)
+                   || t == typeof (long)
+                   || t == typeof (ushort)
+                   || t == typeof (uint)
+                   || t == typeof (ulong)
+                   || t == typeof (float)
+                   || t == typeof (double)
+                   || t == typeof (decimal);
         }
+
         /// <summary>
-        /// Generates a random name.
+        ///     Generates a random name.
         /// </summary>
         /// <param name="len"></param>
         /// <returns></returns>
         public static string GenerateRandomName(int len)
         {
-            StringBuilder sb = new StringBuilder();
-            Random random = new Random();
+            var sb = new StringBuilder();
+            var random = new Random();
             char c;
             for (int i = 0; i < len; i++)
             {
-                c = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
+                c = Convert.ToChar(Convert.ToInt32(Math.Floor(26*random.NextDouble() + 65)));
                 sb.Append(c);
             }
             return sb.ToString();
         }
+
         /// <summary>
-        /// Generates a random name with a random length.
+        ///     Generates a random name with a random length.
         /// </summary>
         /// <param name="min"></param>
         /// <param name="max">exclusive</param>
@@ -81,29 +83,30 @@ namespace vApus.Util
         {
             return GenerateRandomName((new Random()).Next(min, max));
         }
+
         /// <summary>
-        /// generates a random word via the given pattern.
-        /// 0 = 1 numeric char (obligatory)
-        /// 9 = 1 numeric char (optional)
-        /// A = 1 capital (obligatory)
-        /// a = 1 non-capital (obligatory)
-        /// B = 1 capital (optional)
-        /// b = 1 non)capital (optional)
-        /// # = 1 random char (obligatory)
-        /// ? = 1 random char (optional)
-        /// all other chars are fixed. 
+        ///     generates a random word via the given pattern.
+        ///     0 = 1 numeric char (obligatory)
+        ///     9 = 1 numeric char (optional)
+        ///     A = 1 capital (obligatory)
+        ///     a = 1 non-capital (obligatory)
+        ///     B = 1 capital (optional)
+        ///     b = 1 non)capital (optional)
+        ///     # = 1 random char (obligatory)
+        ///     ? = 1 random char (optional)
+        ///     all other chars are fixed.
         /// </summary>
         /// <param name="pattern"></param>
         /// <returns></returns>
         public static string GenerateRandomPattern(string pattern)
         {
             char[] chars = pattern.ToCharArray();
-            StringBuilder returnPattern = new StringBuilder();
+            var returnPattern = new StringBuilder();
 
             for (int j = 0; j < chars.Length; j++)
             {
                 char c = chars[j];
-                Random rand = new Random();
+                var rand = new Random();
                 int i = 0;
 
                 switch (c)
@@ -143,8 +146,9 @@ namespace vApus.Util
             }
             return returnPattern.ToString();
         }
+
         /// <summary>
-        /// No Scientific notation ToString().
+        ///     No Scientific notation ToString().
         /// </summary>
         /// <param name="f"></param>
         /// <returns></returns>
@@ -152,8 +156,9 @@ namespace vApus.Util
         {
             return NumberToLongString(f, thousandSeparator && f > 999);
         }
+
         /// <summary>
-        /// No Scientific notation ToString().
+        ///     No Scientific notation ToString().
         /// </summary>
         /// <param name="f"></param>
         /// <returns></returns>
@@ -161,8 +166,9 @@ namespace vApus.Util
         {
             return NumberToLongString(d, thousandSeparator && d > 999);
         }
+
         /// <summary>
-        /// No Scientific notation ToString().
+        ///     No Scientific notation ToString().
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
@@ -179,7 +185,7 @@ namespace vApus.Util
             string[] decimalParts = exponentParts[0].Split(separator);
 
             //fix missing decimal point
-            if (decimalParts.Length == 1) decimalParts = new string[] { exponentParts[0], "0" };
+            if (decimalParts.Length == 1) decimalParts = new[] {exponentParts[0], "0"};
             string newNumber = decimalParts[0] + decimalParts[1];
 
             int exponentValue = int.Parse(exponentParts[1]);
@@ -194,8 +200,8 @@ namespace vApus.Util
                 s = SeparateThousands(s);
 
             return s;
-
         }
+
         private static string GetZeros(int zeroCount)
         {
             if (zeroCount < 0)
@@ -203,12 +209,13 @@ namespace vApus.Util
 
             return new string('0', zeroCount);
         }
+
         private static string SeparateThousands(string s)
         {
             string separator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             string[] split = s.Split(separator[0]);
 
-            StringBuilder sb = new StringBuilder(split[0].Length + 1);
+            var sb = new StringBuilder(split[0].Length + 1);
 
             int j = 0;
             for (int i = split[0].Length - 1; i != -1; i--)

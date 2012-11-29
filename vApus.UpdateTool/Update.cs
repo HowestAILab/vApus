@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,27 +20,38 @@ namespace vApus.UpdateTool
     public partial class Update : Form
     {
         #region Fields
-        private Sftp _sftp;
-        //This exe is run as a copy, so set the startup path to the parent directory.
-        private string _startupPath;
-        private List<string[]> _currentVersions;
-        private bool _updating;
-
-        private Win32WindowMessageHandler _msgHandler;
 
         private const int MAXRETRY = 3;
+        private readonly int _channel;
+        private readonly bool _force; //Update all files regardesly that they must or must not be updated
 
         /// <summary>
-        /// To auto connect.
+        ///     To auto connect.
         /// </summary>
-        private string _host, _userName, _password;
-        private int _port = 22; //External port 5222
-        private int _channel;
-        private bool _force; //Update all files regardesly that they must or must not be updated
+        private readonly string _host;
+
+        /// <summary>
+        ///     To auto connect.
+        /// </summary>
+        private readonly string _password;
+
+        private readonly int _port = 22; //External port 5222
+        private readonly string _startupPath;
+
+        /// <summary>
+        ///     To auto connect.
+        /// </summary>
+        private readonly string _userName;
+
+        private List<string[]> _currentVersions;
+        private Win32WindowMessageHandler _msgHandler;
+        private Sftp _sftp;
+        private bool _updating;
 
         #endregion
 
         #region Init
+
         /// <summary>
         /// </summary>
         /// <param name="args">If contains GUID, host, port, username, password in that order it will auto connect.</param>
@@ -58,11 +70,12 @@ namespace vApus.UpdateTool
                 _force = bool.Parse(args[6]);
             }
 
-            this.HandleCreated += new EventHandler(Update_HandleCreated);
+            HandleCreated += Update_HandleCreated;
 
             if (_host != null)
-                this.Shown += new EventHandler(Update_Shown);
+                Shown += Update_Shown;
         }
+
         private void Update_HandleCreated(object sender, EventArgs e)
         {
             try
@@ -73,24 +86,28 @@ namespace vApus.UpdateTool
 
                 _currentVersions = LoadVersion(Path.Combine(_startupPath, "version.ini"));
             }
-            catch { }
-
+            catch
+            {
+            }
         }
+
         private void Update_Shown(object sender, EventArgs e)
         {
-            this.Shown -= Update_Shown;
+            Shown -= Update_Shown;
 
             //Tries connecting first, if that works then update.
             if (Connect())
                 DoUpdate();
         }
+
         #endregion
 
         #region Connect
+
         private bool Connect()
         {
             bool connected = false;
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
             try
             {
@@ -103,25 +120,31 @@ namespace vApus.UpdateTool
             }
             catch
             {
-                MessageBox.Show("Failed to connect!\nAre your credentials correct?", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Failed to connect!\nAre your credentials correct?", string.Empty, MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
             }
 
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
             return connected;
         }
+
         private void Disconnect()
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
-            if (!_updating || MessageBox.Show("Are you sure you want to disconnect while updating?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+            if (!_updating ||
+                MessageBox.Show("Are you sure you want to disconnect while updating?", "", MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
             {
                 _updating = false;
                 try
                 {
                     _sftp.Close();
                 }
-                catch { }
+                catch
+                {
+                }
                 _sftp = null;
                 lvwUpdate.ClearEmbeddedControls();
                 lvwUpdate.Items.Clear();
@@ -133,27 +156,31 @@ namespace vApus.UpdateTool
                     if (File.Exists(tempVersion))
                         File.Delete(tempVersion);
                 }
-                catch { }
+                catch
+                {
+                }
             }
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         #endregion
 
         #region Versioning
+
         /// <summary>
-        /// Returns the versions of the files.
+        ///     Returns the versions of the files.
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
         private List<string[]> LoadVersion(string versionControl)
         {
             bool filesFound = false;
-            List<string[]> fileVersions = new List<string[]>();
+            var fileVersions = new List<string[]>();
             string line = string.Empty;
 
             if (File.Exists(versionControl))
             {
-                StreamReader sr = new StreamReader(versionControl);
+                var sr = new StreamReader(versionControl);
                 while (sr.Peek() != -1)
                 {
                     line = sr.ReadLine().Trim();
@@ -174,20 +201,32 @@ namespace vApus.UpdateTool
                             fileVersions.Add(splittedLine);
                     }
                 }
-                try { sr.Close(); }
-                catch { }
-                try { sr.Dispose(); }
-                catch { }
+                try
+                {
+                    sr.Close();
+                }
+                catch
+                {
+                }
+                try
+                {
+                    sr.Dispose();
+                }
+                catch
+                {
+                }
                 sr = null;
             }
             return fileVersions;
         }
+
         private void GetFilesToUpdate()
         {
             try
-            {                
+            {
                 string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
-                if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
+                if (Directory.Exists(tempFolder) &&
+                    Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
 
                 Directory.CreateDirectory(tempFolder);
@@ -195,7 +234,8 @@ namespace vApus.UpdateTool
                 if (!File.Exists(readme))
                     using (var sw = new StreamWriter(readme))
                     {
-                        sw.Write("All new files are found here (except this readme which is generated), for a manual update you have to overwrite the files in the upper folder with these.\nThis folder has no use when empty so it can be removed safely.");
+                        sw.Write(
+                            "All new files are found here (except this readme which is generated), for a manual update you have to overwrite the files in the upper folder with these.\nThis folder has no use when empty so it can be removed safely.");
                         sw.Flush();
                     }
 
@@ -206,34 +246,38 @@ namespace vApus.UpdateTool
 
                 List<string[]> serverVersions = LoadVersion(tempVersion);
 
-                foreach (string[] line in serverVersions)
+                foreach (var line in serverVersions)
                 {
                     string localMD5Hash;
                     if (_force | !AlreadyVersioned(line, _currentVersions, out localMD5Hash))
-                        {
-                            ListViewItem lvwi = new ListViewItem(line[0]);
-                            lvwi.SubItems.Add(localMD5Hash);
-                            lvwi.SubItems.Add(line[1]);
-                            lvwUpdate.Items.Add(lvwi);
-                            lvwUpdate.AddEmbeddedControl(new ProgressBar(), lvwUpdate.Columns.Count - 1, lvwUpdate.Items.Count - 1);
-                        }
+                    {
+                        var lvwi = new ListViewItem(line[0]);
+                        lvwi.SubItems.Add(localMD5Hash);
+                        lvwi.SubItems.Add(line[1]);
+                        lvwUpdate.Items.Add(lvwi);
+                        lvwUpdate.AddEmbeddedControl(new ProgressBar(), lvwUpdate.Columns.Count - 1,
+                                                     lvwUpdate.Items.Count - 1);
+                    }
                 }
             }
             catch
             {
-                MessageBox.Show("Failed to get the list of files needed to be versioned.\nThe update server is probably down.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    "Failed to get the list of files needed to be versioned.\nThe update server is probably down.",
+                    string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private bool AlreadyVersioned(string[] entry, List<string[]> versioned, out string localMD5Hash)
         {
             localMD5Hash = string.Empty;
-            foreach (string[] line in versioned)
+            foreach (var line in versioned)
             {
-                List<bool> equals = new List<bool>(line.Length);
+                var equals = new List<bool>(line.Length);
                 for (int i = 0; i < line.Length; i++)
                     equals.Add(line[i] == entry[i]);
 
-                if (equals[0] == true)
+                if (@equals[0])
                     localMD5Hash = line[1];
                 if (!equals.Contains(false))
                     return true;
@@ -241,21 +285,23 @@ namespace vApus.UpdateTool
 
             return false;
         }
+
         #endregion
 
         #region Update or reinstall
+
         private void DoUpdate()
         {
             string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
-            _sftp.OnTransferProgress += new FileTransferEvent(_sftp_OnTransferProgress);
-            _sftp.OnTransferEnd += new FileTransferEvent(_sftp_OnTransferEnd);
+            _sftp.OnTransferProgress += _sftp_OnTransferProgress;
+            _sftp.OnTransferEnd += _sftp_OnTransferEnd;
             try
             {
                 string possibleNonExistingFolder;
 
                 string channelDir = _channel == 0 ? "stable" : "nightly";
 
-                Dictionary<string, string> toUpdate = new Dictionary<string, string>(lvwUpdate.Items.Count);
+                var toUpdate = new Dictionary<string, string>(lvwUpdate.Items.Count);
                 foreach (ListViewItem lvwi in lvwUpdate.Items)
                 {
                     possibleNonExistingFolder = tempFolder;
@@ -269,74 +315,90 @@ namespace vApus.UpdateTool
                     toUpdate.Add(channelDir + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
                 }
 
-                Thread t = new Thread(delegate()
-                {
-                    try
-                    {
-                        foreach (string key in toUpdate.Keys)
-                            _sftp.Get(key, toUpdate[key]);
-
-                        SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                        {
-                            _sftp.OnTransferProgress -= _sftp_OnTransferProgress;
-                            _sftp.OnTransferEnd -= _sftp_OnTransferEnd;
-
-                            OverwriteFiles();
-                        }, null);
-                    }
-                    catch
+                var t = new Thread(delegate()
                     {
                         try
                         {
+                            foreach (string key in toUpdate.Keys)
+                                _sftp.Get(key, toUpdate[key]);
+
                             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                            {
-                                MessageBox.Show("Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }, null);
+                                {
+                                    _sftp.OnTransferProgress -= _sftp_OnTransferProgress;
+                                    _sftp.OnTransferEnd -= _sftp_OnTransferEnd;
+
+                                    OverwriteFiles();
+                                }, null);
                         }
-                        catch { }
-                    }
-                    finally
-                    {
-                        _updating = false;
-                    }
-                });
+                        catch
+                        {
+                            try
+                            {
+                                SynchronizationContextWrapper.SynchronizationContext.Send(
+                                    delegate
+                                        {
+                                            MessageBox.Show(
+                                                "Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.",
+                                                string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        }, null);
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        finally
+                        {
+                            _updating = false;
+                        }
+                    });
                 t.Start();
             }
             catch
             {
                 Disconnect();
-                MessageBox.Show("Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    "Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.",
+                    string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void OverwriteFiles()
         {
-            this.Enabled = false;
+            Enabled = false;
             try
             {
                 if (Process.GetProcessesByName("vApus").Length != 0)
                 {
                     string message = "vApus will now be updated, click 'Yes' to close all running instances.";
-                    if (MessageBox.Show(message, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    if (
+                        MessageBox.Show(message, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Information,
+                                        MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
                         int retry = 0;
-                    Retry:
+                        Retry:
                         foreach (Process p in Process.GetProcessesByName("vApus"))
                             try
                             {
                                 p.Kill();
                                 p.WaitForExit(10000);
                             }
-                            catch { }
+                            catch
+                            {
+                            }
                         if (Process.GetProcessesByName("vApus").Length != 0)
                             if (++retry <= MAXRETRY)
                             {
-                                Thread.Sleep(1000 * retry);
+                                Thread.Sleep(1000*retry);
                                 goto Retry;
                             }
                             else
                             {
-                                message = "Something went wrong when trying to close one or more instances of vApus.\nPlease close it manually and click 'Yes' or 'No', or click 'Yes' to try again.";
-                                if (MessageBox.Show(message, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                                message =
+                                    "Something went wrong when trying to close one or more instances of vApus.\nPlease close it manually and click 'Yes' or 'No', or click 'Yes' to try again.";
+                                if (
+                                    MessageBox.Show(message, string.Empty, MessageBoxButtons.YesNo,
+                                                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) ==
+                                    DialogResult.Yes)
                                 {
                                     retry = 0;
                                     goto Retry;
@@ -345,25 +407,27 @@ namespace vApus.UpdateTool
                     }
                     else
                     {
-                        this.Close();
+                        Close();
                         return;
                     }
                 }
 
                 //Kill vApus JumpStart
                 int retryKillJumpStart = 0;
-            RetryKillJumpStart:
+                RetryKillJumpStart:
                 foreach (Process p in Process.GetProcessesByName("vApus.JumpStart"))
                     try
                     {
                         p.Kill();
                         p.WaitForExit(10000);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 if (Process.GetProcessesByName("vApus.JumpStart").Length != 0)
                     if (++retryKillJumpStart <= MAXRETRY)
                     {
-                        Thread.Sleep(1000 * retryKillJumpStart);
+                        Thread.Sleep(1000*retryKillJumpStart);
                         goto RetryKillJumpStart;
                     }
 
@@ -374,7 +438,8 @@ namespace vApus.UpdateTool
                     if (File.Exists(filename))
                     {
                         int sleepTime = 0;
-                        while (File.Exists(filename) && File.GetAttributes(filename) == FileAttributes.ReadOnly && sleepTime++ < 3000)
+                        while (File.Exists(filename) && File.GetAttributes(filename) == FileAttributes.ReadOnly &&
+                               sleepTime++ < 3000)
                             Thread.Sleep(1);
                         Exception ex = null;
                         while (File.Exists(filename) && sleepTime++ < 6000)
@@ -391,7 +456,7 @@ namespace vApus.UpdateTool
                         }
                         if (File.Exists(filename))
                         {
-                            MessageBox.Show(filename + "\n\n" + ex.ToString());
+                            MessageBox.Show(filename + "\n\n" + ex);
                             throw ex;
                         }
                     }
@@ -406,22 +471,32 @@ namespace vApus.UpdateTool
                         if (Directory.GetFiles(d).Length == 0 && Directory.GetDirectories(d).Length == 0)
                             Directory.Delete(d);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
 
                 if (!Directory.Exists(tempFolder))
                 {
-                    if (MessageBox.Show("Do you want to start vApus now?", "Updated!", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    if (
+                        MessageBox.Show("Do you want to start vApus now?", "Updated!", MessageBoxButtons.YesNo,
+                                        MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                         Process.Start(Path.Combine(_startupPath, "vApus.exe"));
                 }
-                else if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
+                else if (Directory.Exists(tempFolder) &&
+                         Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                 {
                     Directory.Delete(tempFolder, true);
-                    if (MessageBox.Show("Do you want to start vApus now?", "Updated!", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    if (
+                        MessageBox.Show("Do you want to start vApus now?", "Updated!", MessageBoxButtons.YesNo,
+                                        MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) ==
+                        DialogResult.Yes)
                         Process.Start(Path.Combine(_startupPath, "vApus.exe"));
                 }
                 else
                 {
-                    MessageBox.Show("Not all files where updated due to access or authorization errors!\nThose files are stored in the 'UpdateTempFiles' folder located in the top directory of vApus, so you can put them at the right place manually.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(
+                        "Not all files where updated due to access or authorization errors!\nThose files are stored in the 'UpdateTempFiles' folder located in the top directory of vApus, so you can put them at the right place manually.",
+                        "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
             }
             catch
@@ -437,12 +512,15 @@ namespace vApus.UpdateTool
                     if (File.Exists(jumpStartPath))
                         Process.Start(jumpStartPath);
                 }
-                catch { }
-                this.Enabled = true;
+                catch
+                {
+                }
+                Enabled = true;
                 _updating = false;
             }
-            this.Close();
+            Close();
         }
+
         private void TryOverwriteDirectoriesAndFiles(string from, string to)
         {
             string[] splittedFilename;
@@ -454,7 +532,9 @@ namespace vApus.UpdateTool
                     File.Copy(f, Path.Combine(to, splittedFilename[splittedFilename.Length - 1]), true);
                     File.Delete(f);
                 }
-                catch { }
+                catch
+                {
+                }
             }
             string[] splittedDirectoryName;
             string directoryName, newFrom, newTo;
@@ -470,62 +550,71 @@ namespace vApus.UpdateTool
                 TryOverwriteDirectoriesAndFiles(newFrom, newTo);
             }
         }
+
         private void _sftp_OnTransferEnd(string src, string dst, int transferredBytes, int totalBytes, string message)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-            {
-                for (int i = 0; i < lvwUpdate.Items.Count; i++)
-                    if (lvwUpdate.Items[i].Tag as string == dst)
-                    {
-                        lvwUpdate.Items[i].Selected = true;
-                        lvwUpdate.SelectedItems[0].EnsureVisible();
-                        ProgressBar pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
-                        pb.Value = pb.Maximum;
-                        break;
-                    }
-            }, null);
+                {
+                    for (int i = 0; i < lvwUpdate.Items.Count; i++)
+                        if (lvwUpdate.Items[i].Tag as string == dst)
+                        {
+                            lvwUpdate.Items[i].Selected = true;
+                            lvwUpdate.SelectedItems[0].EnsureVisible();
+                            var pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
+                            pb.Value = pb.Maximum;
+                            break;
+                        }
+                }, null);
         }
 
-        private void _sftp_OnTransferProgress(string src, string dst, int transferredBytes, int totalBytes, string message)
+        private void _sftp_OnTransferProgress(string src, string dst, int transferredBytes, int totalBytes,
+                                              string message)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-            {
-                for (int i = 0; i < lvwUpdate.Items.Count; i++)
-                    if (lvwUpdate.Items[i].Tag as string == dst)
-                    {
-                        lvwUpdate.Items[i].Selected = true;
-                        lvwUpdate.SelectedItems[0].EnsureVisible();
-                        ProgressBar pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
-                        pb.Maximum = totalBytes;
-                        pb.Value = transferredBytes;
-                        break;
-                    }
-            }, null);
+                {
+                    for (int i = 0; i < lvwUpdate.Items.Count; i++)
+                        if (lvwUpdate.Items[i].Tag as string == dst)
+                        {
+                            lvwUpdate.Items[i].Selected = true;
+                            lvwUpdate.SelectedItems[0].EnsureVisible();
+                            var pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
+                            pb.Maximum = totalBytes;
+                            pb.Value = transferredBytes;
+                            break;
+                        }
+                }, null);
         }
+
         #endregion
 
         #region Other
+
         protected override void WndProc(ref Message m)
         {
             if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG)
             {
-                this.TopMost = true;
-                this.TopMost = false;
-                this.Activate();
+                TopMost = true;
+                TopMost = false;
+                Activate();
             }
             base.WndProc(ref m);
         }
+
         private void Update_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (_updating)
             {
-                if (MessageBox.Show("Are you sure you want to disconnect while updating?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                if (
+                    MessageBox.Show("Are you sure you want to disconnect while updating?", "", MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     try
                     {
                         _updating = false;
                         Disconnect();
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 else
                     e.Cancel = true;
             }
@@ -536,13 +625,17 @@ namespace vApus.UpdateTool
                     if (_sftp.Connected)
                         _sftp.Close();
                 }
-                catch { }
+                catch
+                {
+                }
                 _sftp = null;
                 string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
-                if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
+                if (Directory.Exists(tempFolder) &&
+                    Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
             }
         }
+
         #endregion
     }
 }

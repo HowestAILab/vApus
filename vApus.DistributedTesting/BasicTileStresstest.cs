@@ -5,10 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -18,19 +20,21 @@ namespace vApus.DistributedTesting
     public class BasicTileStresstest : BaseItem
     {
         #region Fields
-        protected internal Connection _connection;
-        private Monitor.MonitorProject _monitorProject;
-        private int[] _monitorIndices = { };
-        private Monitor.Monitor[] _monitors = { };
 
-        private List<Slave> _slavesParent = new List<Slave>();
-        private int[] _slaveIndices = { };
-        private Slave[] _slaves = { };
-        private int[] _WorkDistribution = { };
+        private readonly List<Slave> _slavesParent = new List<Slave>();
+        private int[] _WorkDistribution = {};
+        protected internal Connection _connection;
+        private int[] _monitorIndices = {};
+        private MonitorProject _monitorProject;
+        private Monitor.Monitor[] _monitors = {};
+
+        private int[] _slaveIndices = {};
+        private Slave[] _slaves = {};
 
         #endregion
 
         #region Properties
+
         [Description("The connection to the application to test.")]
         [PropertyControl(0), SavableCloneable]
         public Connection Connection
@@ -40,7 +44,10 @@ namespace vApus.DistributedTesting
                 if (_connection != null)
                 {
                     if (_connection.IsEmpty)
-                        Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
+                        Connection =
+                            GetNextOrEmptyChild(typeof (Connection),
+                                                Solution.ActiveSolution.GetSolutionComponent(typeof (Connections))) as
+                            Connection;
 
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
                 }
@@ -53,6 +60,7 @@ namespace vApus.DistributedTesting
                 _connection.ParentIsNull += _connection_ParentIsNull;
             }
         }
+
         [ReadOnly(true)]
         [DisplayName("Connection Proxy")]
         public string ConnectionProxy
@@ -64,6 +72,7 @@ namespace vApus.DistributedTesting
                 return _connection.ConnectionProxy.ToString();
             }
         }
+
         [SavableCloneable]
         public int[] MonitorIndices
         {
@@ -76,6 +85,7 @@ namespace vApus.DistributedTesting
                 _monitorIndices = value;
             }
         }
+
         [PropertyControl(1)]
         public Monitor.Monitor[] Monitors
         {
@@ -83,7 +93,7 @@ namespace vApus.DistributedTesting
             {
                 if (_monitors.Length != _monitorIndices.Length && _monitorProject != null)
                 {
-                    List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorIndices.Length);
+                    var l = new List<Monitor.Monitor>(_monitorIndices.Length);
                     foreach (int index in _monitorIndices)
                         if (index < _monitorProject.Count)
                         {
@@ -110,7 +120,7 @@ namespace vApus.DistributedTesting
                 {
                     _monitors.SetParent(_monitorProject);
 
-                    List<int> l = new List<int>(_monitors.Length);
+                    var l = new List<int>(_monitors.Length);
                     for (int index = 0; index != _monitorProject.Count; index++)
                         if (_monitors.Contains(_monitorProject[index]) && !l.Contains(index))
                             l.Add(index);
@@ -119,6 +129,7 @@ namespace vApus.DistributedTesting
                 }
             }
         }
+
         [SavableCloneable]
         public int[] SlaveIndices
         {
@@ -131,21 +142,23 @@ namespace vApus.DistributedTesting
                 _slaveIndices = value;
             }
         }
+
         [PropertyControl(2)]
-        [Description("Currently limited to one (only the first one counts). More than one slave will be handy in the future for many-to-one testing.")]
+        [Description(
+            "Currently limited to one (only the first one counts). More than one slave will be handy in the future for many-to-one testing."
+            )]
         public Slave[] Slaves
         {
             get
             {
-
-                var slavesParent = SlavesParent;
+                List<Slave> slavesParent = SlavesParent;
                 if (_slaves.Length != _slaveIndices.Length && slavesParent != null)
                 {
-                    List<Slave> l = new List<Slave>(_slaveIndices.Length);
+                    var l = new List<Slave>(_slaveIndices.Length);
                     foreach (int index in _slaveIndices)
                         if (index < slavesParent.Count)
                         {
-                            var slave = slavesParent[index] as Slave;
+                            Slave slave = slavesParent[index];
                             if (!l.Contains(slave))
                                 l.Add(slave);
                         }
@@ -162,12 +175,12 @@ namespace vApus.DistributedTesting
 
                 _slaves = value;
 
-                var slavesParent = SlavesParent;
+                List<Slave> slavesParent = SlavesParent;
                 if (slavesParent != null)
                 {
                     _slaves.SetParent(slavesParent);
 
-                    List<int> l = new List<int>(_slaves.Length);
+                    var l = new List<int>(_slaves.Length);
                     for (int index = 0; index != slavesParent.Count; index++)
                         if (_slaves.Contains(slavesParent[index]) && !l.Contains(index))
                             l.Add(index);
@@ -176,19 +189,21 @@ namespace vApus.DistributedTesting
                 }
             }
         }
+
         internal List<Slave> SlavesParent
         {
             get
             {
                 try
                 {
-                    if (this.Parent != null &&
-                        this.Parent.GetParent() != null &&
-                        this.Parent.GetParent().GetParent() != null &&
-                        this.Parent.GetParent().GetParent().GetParent() != null)
+                    if (Parent != null &&
+                        Parent.GetParent() != null &&
+                        Parent.GetParent().GetParent() != null &&
+                        Parent.GetParent().GetParent().GetParent() != null)
                     {
                         _slavesParent.Clear();
-                        Clients clientsAndSlaves = (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).Clients;
+                        Clients clientsAndSlaves =
+                            (Parent.GetParent().GetParent().GetParent() as DistributedTest).Clients;
 
                         foreach (Client client in clientsAndSlaves)
                             foreach (Slave slave in client)
@@ -197,56 +212,72 @@ namespace vApus.DistributedTesting
                         return _slavesParent;
                     }
                 }
-                catch { }
+                catch
+                {
+                }
                 return null;
             }
         }
+
         [SavableCloneable]
         public int[] WorkDistribution
         {
             get { return _WorkDistribution; }
             set { _WorkDistribution = value; }
         }
+
         #endregion
 
         #region Constructor
+
         public BasicTileStresstest()
         {
             ShowInGui = false;
-                if (Solution.ActiveSolution != null)
-                    Init();
-                else
-                    Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+            if (Solution.ActiveSolution != null)
+                Init();
+            else
+                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
+
         #endregion
 
         #region Functions
+
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             Init();
         }
+
         private void Init()
         {
-            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
-            _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
+            Connection =
+                GetNextOrEmptyChild(typeof (Connection),
+                                    Solution.ActiveSolution.GetSolutionComponent(typeof (Connections))) as Connection;
+            _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof (MonitorProject)) as MonitorProject;
 
             _monitors = new Monitor.Monitor[0];
             _slaves = new Slave[0];
 
-            SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponentChanged_SolutionComponentChanged);
+            SolutionComponentChanged += SolutionComponentChanged_SolutionComponentChanged;
         }
+
         private void _connection_ParentIsNull(object sender, EventArgs e)
         {
             if (_connection == sender)
-                Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
+                Connection =
+                    GetNextOrEmptyChild(typeof (Connection),
+                                        Solution.ActiveSolution.GetSolutionComponent(typeof (Connections))) as
+                    Connection;
         }
-        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
+
+        private void SolutionComponentChanged_SolutionComponentChanged(object sender,
+                                                                       SolutionComponentChangedEventArgs e)
         {
             //Cleanup _monitors if _monitorProject Changed
             if (sender == _monitorProject || sender is Monitor.Monitor)
             {
-                List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorProject.Count);
+                var l = new List<Monitor.Monitor>(_monitorProject.Count);
                 foreach (Monitor.Monitor monitor in _monitors)
                     if (!l.Contains(monitor) && _monitorProject.Contains(monitor))
                         l.Add(monitor);
@@ -255,10 +286,10 @@ namespace vApus.DistributedTesting
             }
             else //Cleanup slaves
             {
-                var slavesParent = SlavesParent;
+                List<Slave> slavesParent = SlavesParent;
                 if (slavesParent != null && (sender == slavesParent || sender is Client || sender is Slave))
                 {
-                    List<Slave> l = new List<Slave>(slavesParent.Count);
+                    var l = new List<Slave>(slavesParent.Count);
                     foreach (Slave slave in _slaves)
                         if (!l.Contains(slave) && slavesParent.Contains(slave))
                             l.Add(slave);
@@ -269,7 +300,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Create clone of this.f
+        ///     Create clone of this.f
         /// </summary>
         /// <returns></returns>
         public BasicTileStresstest Clone()
@@ -282,6 +313,7 @@ namespace vApus.DistributedTesting
             _slaveIndices.CopyTo(clone.SlaveIndices, 0);
             return clone;
         }
+
         #endregion
     }
 }

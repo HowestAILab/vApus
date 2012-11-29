@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,27 +16,30 @@ namespace vApus.Util
 {
     public partial class ProcessorAffinityPanel : Panel
     {
+        public ProcessorAffinityPanel()
+        {
+            InitializeComponent();
+            HandleCreated += ProcessorAffinityPanel_HandleCreated;
+        }
+
         /// <summary>
-        /// to know how much cores a group contains
+        ///     to know how much cores a group contains
         /// </summary>
         /// <param name="groupNumber">the group number if any, or ALL_PROCESSOR_GROUPS (0xffff) for every group</param>
         /// <returns></returns>
         [DllImport("kernel32.dll")]
         public static extern uint GetActiveProcessorCount(ushort groupNumber);
 
-        public ProcessorAffinityPanel()
-        {
-            InitializeComponent();
-            this.HandleCreated += new EventHandler(ProcessorAffinityPanel_HandleCreated);
-        }
         private void ProcessorAffinityPanel_HandleCreated(object sender, EventArgs e)
         {
             try
             {
                 //Get the affinity from the current process in order to get the cpu's.
-                List<int> cpus = new List<int>(ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity));
+                var cpus =
+                    new List<int>(
+                        ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity));
                 //Add all cpu's to the listview and check them if they are in 'cpus'.
-                for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++)        //(0xFFFF) to include all processor groups
+                for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) //(0xFFFF) to include all processor groups
                 {
                     ListViewItem lvwi = null;
                     if (i < lvw.Items.Count)
@@ -53,28 +57,34 @@ namespace vApus.Util
             }
             catch (Exception ex)
             {
-                this.Enabled = false;
-                MessageBox.Show("Processor affinity is not supported for this machine.\n" + ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Enabled = false;
+                MessageBox.Show("Processor affinity is not supported for this machine.\n" + ex, string.Empty,
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void btnSet_Click(object sender, EventArgs e)
         {
-            List<int> cpus = new List<int>();
+            var cpus = new List<int>();
             for (int i = 0; i < lvw.Items.Count; i++)
                 if (lvw.Items[i].Checked)
                     cpus.Add(i);
-            Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
+            Process.GetCurrentProcess().ProcessorAffinity =
+                ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
             btnSet.Enabled = false;
         }
 
         private void lvw_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
-            List<int> cpus = new List<int>();
+            var cpus = new List<int>();
             for (int i = 0; i < lvw.Items.Count; i++)
                 if (lvw.Items[i].Checked)
                     cpus.Add(i);
-            btnSet.Enabled = lvw.CheckedItems.Count > 0 && Process.GetCurrentProcess().ProcessorAffinity != ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
+            btnSet.Enabled = lvw.CheckedItems.Count > 0 &&
+                             Process.GetCurrentProcess().ProcessorAffinity !=
+                             ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
         }
+
         public override string ToString()
         {
             return "Processor Affinity";

@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 
@@ -26,6 +27,7 @@ namespace vApus.Util
                 enumerator.MoveNext();
             return enumerator.Current;
         }
+
         public static bool TryGetKey<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value, out TKey key)
         {
             foreach (TKey k in dictionary.Keys)

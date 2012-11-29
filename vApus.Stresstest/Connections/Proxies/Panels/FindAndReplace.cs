@@ -5,21 +5,16 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using FastColoredTextBoxNS;
 
 namespace vApus.Stresstest
 {
     public partial class FindAndReplace : UserControl
     {
-        public event EventHandler<FoundReplacedButtonClickedEventArgs> FoundReplacedButtonClicked;
-
-        #region Fields
-        public CodeTextBox CodeTextBox;
-        #endregion
-
         public FindAndReplace()
         {
             InitializeComponent();
@@ -28,10 +23,12 @@ namespace vApus.Stresstest
         #region Functions
 
         #region Find
+
         private void btnFind_Click(object sender, EventArgs e)
         {
             Find(txtFind.Text, chkWholeWords.Checked, chkMatchCase.Checked);
         }
+
         private void txtFind_TextChanged(object sender, EventArgs e)
         {
             btnFind.Enabled = txtFind.Text.Length > 0;
@@ -43,14 +40,16 @@ namespace vApus.Stresstest
 
             btnSwitchValues.Enabled = txtFind.Text.Length != 0 && txtReplace.Text.Length != 0;
         }
+
         private void txtFind_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter && btnFind.Enabled)
                 Find(txtFind.Text, chkWholeWords.Checked, chkMatchCase.Checked);
         }
+
         public void Find(string text, bool wholeWords = false, bool matchCase = false)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
             flpFoundReplaced.Controls.Clear();
 
@@ -59,30 +58,34 @@ namespace vApus.Stresstest
             chkWholeWords.Checked = wholeWords;
             chkMatchCase.Checked = matchCase;
 
-            var found = CodeTextBox.Find(text, wholeWords, matchCase);
+            Dictionary<int, string> found = CodeTextBox.Find(text, wholeWords, matchCase);
             foreach (int replaceLineNumber in found.Keys)
                 AddFoundReplacedButton(replaceLineNumber, found[replaceLineNumber]);
 
             if (flpFoundReplaced.Controls.Count > 0)
                 SelectButton(flpFoundReplaced.Controls[0] as Button);
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         #endregion
 
         #region Replace
+
         private void btnReplaceWith_Click(object sender, EventArgs e)
         {
             Button btn = SelectedButton();
             if (btn == null)
                 chkReplaceAll.Checked = true;
-            int atLine = chkReplaceAll.Checked ? -1 : (int)btn.Tag;
+            int atLine = chkReplaceAll.Checked ? -1 : (int) btn.Tag;
             Replace(txtFind.Text, txtReplace.Text, atLine, chkWholeWords.Checked, chkMatchCase.Checked);
         }
+
         private void txtReplace_TextChanged(object sender, EventArgs e)
         {
             btnSwitchValues.Enabled = txtFind.Text.Length != 0 && txtReplace.Text.Length != 0;
         }
+
         private void txtReplace_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -90,13 +93,12 @@ namespace vApus.Stresstest
                 Button btn = SelectedButton();
                 if (btn == null)
                     chkReplaceAll.Checked = true;
-                int atLine = chkReplaceAll.Checked ? -1 : (int)btn.Tag;
+                int atLine = chkReplaceAll.Checked ? -1 : (int) btn.Tag;
                 Replace(txtFind.Text, txtReplace.Text, atLine, chkWholeWords.Checked, chkMatchCase.Checked);
             }
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="oldText"></param>
         /// <param name="newText"></param>
@@ -105,7 +107,7 @@ namespace vApus.Stresstest
         /// <param name="matchCase"></param>
         public void Replace(string oldText, string newText, int atLine, bool wholeWords = false, bool matchCase = false)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
             flpFoundReplaced.Controls.Clear();
 
@@ -119,15 +121,16 @@ namespace vApus.Stresstest
             chkMatchCase.Checked = matchCase;
             chkReplaceAll.Checked = atLine == -1;
 
-            var replaced = CodeTextBox.Replace(oldText, newText, atLine, wholeWords, matchCase);
+            Dictionary<int, string> replaced = CodeTextBox.Replace(oldText, newText, atLine, wholeWords, matchCase);
             foreach (int relativeLineNumber in replaced.Keys)
                 AddFoundReplacedButton(relativeLineNumber, replaced[relativeLineNumber]);
 
             if (flpFoundReplaced.Controls.Count > 0)
                 SelectButton(flpFoundReplaced.Controls[0] as Button);
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         private void chkReplaceAll_CheckedChanged(object sender, EventArgs e)
         {
             Button btn = SelectedButton();
@@ -136,11 +139,12 @@ namespace vApus.Stresstest
             else
                 btnReplaceWith.Enabled = btnFind.Enabled && ((btn == null) ? true : !btn.Text.EndsWith("[READ ONLY]\0"));
         }
+
         #endregion
 
         private void AddFoundReplacedButton(int lineNumber, string foundReplaced)
         {
-            Button btn = new Button();
+            var btn = new Button();
             btn.AutoSize = true;
             btn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             btn.Font = flpFoundReplaced.Font;
@@ -150,7 +154,7 @@ namespace vApus.Stresstest
 
             btn.Text = (lineNumber + 1) + ") " + foundReplaced;
             btn.Tag = lineNumber;
-            btn.Click += new EventHandler(btn_Click);
+            btn.Click += btn_Click;
 
             flpFoundReplaced.Controls.Add(btn);
 
@@ -159,18 +163,21 @@ namespace vApus.Stresstest
             btn.AutoSize = false;
             btn.Height = height;
         }
+
         private void btn_Click(object sender, EventArgs e)
         {
             SelectButton(sender as Button);
         }
+
         private void GotoLine(int lineNumber)
         {
             if (FoundReplacedButtonClicked != null)
-               FoundReplacedButtonClicked(this, new FoundReplacedButtonClickedEventArgs(lineNumber));
+                FoundReplacedButtonClicked(this, new FoundReplacedButtonClickedEventArgs(lineNumber));
         }
+
         private void SelectButton(Button btn)
         {
-            GotoLine((int)btn.Tag);
+            GotoLine((int) btn.Tag);
 
             if (chkReplaceAll.Checked)
                 btnReplaceWith.Enabled = btnFind.Enabled;
@@ -183,6 +190,7 @@ namespace vApus.Stresstest
                 foreach (Control ctrl in flpFoundReplaced.Controls)
                     ctrl.BackColor = (ctrl == btn) ? SystemColors.GradientActiveCaption : Color.White;
         }
+
         private Button SelectedButton()
         {
             foreach (Button btn in flpFoundReplaced.Controls)
@@ -205,11 +213,21 @@ namespace vApus.Stresstest
             foreach (Control control in flpFoundReplaced.Controls)
                 control.Width = flpFoundReplaced.ClientSize.Width - 18;
         }
+
+        #endregion
+
+        public event EventHandler<FoundReplacedButtonClickedEventArgs> FoundReplacedButtonClicked;
+
+        #region Fields
+
+        public CodeTextBox CodeTextBox;
+
         #endregion
 
         public class FoundReplacedButtonClickedEventArgs : EventArgs
         {
             public readonly int LineNumber;
+
             public FoundReplacedButtonClickedEventArgs(int lineNumber)
             {
                 LineNumber = lineNumber;

@@ -277,10 +277,6 @@
       <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
       <Name>vApus.Results</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.SocketListenerLink\vApus.SocketListenerLink.csproj">
-      <Project>{505015d4-8b30-489a-b9c7-d1d4dd779ac3}</Project>
-      <Name>vApus.SocketListenerLink</Name>
-    </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>
       <Name>vApus.SolutionTree</Name>

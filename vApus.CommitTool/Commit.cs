@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,15 +22,16 @@ namespace vApus.CommitTool
     {
         private static Commit _commit;
 
+        private Commit()
+        {
+        }
+
         public static Commit GetInstance()
         {
             return _commit ?? (_commit = new Commit());
         }
 
-        private Commit() { }
-
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="host"></param>
         /// <param name="port">Default = 5222 for extern users, 22 for intern users</param>
@@ -42,9 +44,10 @@ namespace vApus.CommitTool
         /// <param name="timeStamp"></param>
         /// <param name="excludedFilesOrFolders"></param>
         public void Do(string host, int port, string username, string password, string historyXml,
-            string localGitRepository, out Exception exception, string gitCmd = @"C:\Program Files (x86)\Git\cmd\git.cmd",
-            string timeStamp = "",
-            params string[] excludedFilesOrFolders)
+                       string localGitRepository, out Exception exception,
+                       string gitCmd = @"C:\Program Files (x86)\Git\cmd\git.cmd",
+                       string timeStamp = "",
+                       params string[] excludedFilesOrFolders)
         {
             Sftp sftp;
             SshStream ssh;
@@ -54,7 +57,8 @@ namespace vApus.CommitTool
                 string channel;
                 List<string> fileList, folderList;
 
-                MakeVersionIni(historyXml, localGitRepository, gitCmd, timeStamp, excludedFilesOrFolders, out channel, out fileList, out folderList, out exception);
+                MakeVersionIni(historyXml, localGitRepository, gitCmd, timeStamp, excludedFilesOrFolders, out channel,
+                               out fileList, out folderList, out exception);
                 if (exception == null)
                     CommitBinaries(sftp, ssh, channel, fileList, folderList, out exception);
             }
@@ -64,8 +68,8 @@ namespace vApus.CommitTool
         }
 
         #region Communication
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="host"></param>
         /// <param name="port"></param>
@@ -74,7 +78,8 @@ namespace vApus.CommitTool
         /// <param name="sftp">For putting binaries</param>
         /// <param name="ssh">For removing foldersthat are not empty</param>
         /// <param name="exception"></param>
-        private void Connect(string host, int port, string username, string password, out Sftp sftp, out SshStream ssh, out Exception exception)
+        private void Connect(string host, int port, string username, string password, out Sftp sftp, out SshStream ssh,
+                             out Exception exception)
         {
             exception = null;
             sftp = null;
@@ -97,7 +102,7 @@ namespace vApus.CommitTool
         }
 
         /// <summary>
-        /// Does a null check, closes the connection, disposes the object.
+        ///     Does a null check, closes the connection, disposes the object.
         /// </summary>
         /// <param name="sftp"></param>
         /// <param name="ssh"></param>
@@ -105,18 +110,30 @@ namespace vApus.CommitTool
         {
             if (sftp != null)
             {
-                try { sftp.Close(); }
-                catch { }
+                try
+                {
+                    sftp.Close();
+                }
+                catch
+                {
+                }
                 sftp = null;
             }
             if (ssh != null)
             {
-                try { ssh.Close(); }
-                catch { }
+                try
+                {
+                    ssh.Close();
+                }
+                catch
+                {
+                }
                 ssh = null;
             }
         }
-        private void CommitBinaries(Sftp sftp, SshStream ssh, string channel, List<string> fileList, List<string> folderList, out Exception exception)
+
+        private void CommitBinaries(Sftp sftp, SshStream ssh, string channel, List<string> fileList,
+                                    List<string> folderList, out Exception exception)
         {
             string channelDir = channel.ToLower();
             exception = null;
@@ -130,25 +147,48 @@ namespace vApus.CommitTool
                     //A bit sad, but otherwise the following command doesn't work (10 seconds should be okay, just being sure)
                     Thread.Sleep(60000);
                 }
-                catch { }
-                try { sftp.Mkdir(channelDir); }
-                catch { }
+                catch
+                {
+                }
+                try
+                {
+                    sftp.Mkdir(channelDir);
+                }
+                catch
+                {
+                }
 
                 int startupPathLength = Application.StartupPath.Length;
                 foreach (string folder in folderList)
-                    try { sftp.Mkdir(channelDir + folder.Substring(startupPathLength).Replace('\\', '/')); }
-                    catch { }
+                    try
+                    {
+                        sftp.Mkdir(channelDir + folder.Substring(startupPathLength).Replace('\\', '/'));
+                    }
+                    catch
+                    {
+                    }
                 foreach (string file in fileList)
-                    try { sftp.Put(file, channelDir + file.Substring(startupPathLength).Replace('\\', '/')); }
-                    catch { }
+                    try
+                    {
+                        sftp.Put(file, channelDir + file.Substring(startupPathLength).Replace('\\', '/'));
+                    }
+                    catch
+                    {
+                    }
             }
-            catch (Exception ex) { exception = ex; }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
         }
+
         #endregion
 
         #region Make the version.ini and get files and folder to commit to the server
+
         private void MakeVersionIni(string historyXml, string localGitRepository, string gitCmd, string timeStamp,
-            string[] excludedFilesOrFolders, out string channel, out List<string> fileList, out List<string> folderList, out Exception exception)
+                                    string[] excludedFilesOrFolders, out string channel, out List<string> fileList,
+                                    out List<string> folderList, out Exception exception)
         {
             exception = null;
             channel = null;
@@ -184,8 +224,9 @@ namespace vApus.CommitTool
                 sw.Flush();
             }
         }
+
         /// <summary>
-        /// Gets a version from the git tags
+        ///     Gets a version from the git tags
         /// </summary>
         /// <param name="localGitRepository"></param>
         /// <param name="gitCmd">Don't forget to escape this</param>
@@ -197,13 +238,18 @@ namespace vApus.CommitTool
             try
             {
                 exception = null;
-                var output = GetCMDOutput(localGitRepository, "\"" + gitCmd + "\" describe \"--abbrev=0\" --tags");
+                List<string> output = GetCMDOutput(localGitRepository,
+                                                   "\"" + gitCmd + "\" describe \"--abbrev=0\" --tags");
                 version = output[output.Count - 1];
                 version = version.Replace('_', ' ');
             }
-            catch (Exception ex) { exception = ex; }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
             return version;
         }
+
         /// <summary>
         /// </summary>
         /// <param name="localGitRepository"></param>
@@ -217,8 +263,8 @@ namespace vApus.CommitTool
             {
                 exception = null;
                 string input = "\"" + gitCmd + "\" branch";
-                var output = GetCMDOutput(localGitRepository, input);
-                List<string> branches = new List<string>();
+                List<string> output = GetCMDOutput(localGitRepository, input);
+                var branches = new List<string>();
 
                 bool canAddToBranches = false;
                 foreach (string line in output)
@@ -238,11 +284,14 @@ namespace vApus.CommitTool
                         break;
                     }
             }
-            catch (Exception ex) { exception = ex; }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
             return channel;
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="exception"></param>
         /// <returns>The history from the history.xml in the start up folder of the commit tool.</returns>
@@ -252,35 +301,40 @@ namespace vApus.CommitTool
             try
             {
                 exception = null;
-                using (StreamReader sr = new StreamReader(historyXml))
+                using (var sr = new StreamReader(historyXml))
                     history = sr.ReadToEnd();
             }
-            catch (Exception ex) { exception = ex; }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
             return history;
         }
+
         /// <summary>
-        /// For reading out the cmd output of the git bash.
+        ///     For reading out the cmd output of the git bash.
         /// </summary>
         /// <param name="localGitRepository"></param>
         /// <param name="gitbash">eg "git branch"</param>
         /// <returns></returns>
         private List<string> GetCMDOutput(string localGitRepository, string gitbash)
         {
-            Process p = new Process();
-            List<string> output = new List<string>();
+            var p = new Process();
+            var output = new List<string>();
             bool killProcess = false;
 
             p.EnableRaisingEvents = true;
             p.StartInfo = new ProcessStartInfo("cmd")
-            {
-                RedirectStandardOutput = true,
-                RedirectStandardInput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+                {
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
             //The magic code
             //Using an anonymous delegate to handle the event, the process will be killed after the line after the input is received
-            p.OutputDataReceived += (s, e) => killProcess = AppendToOutput_DetermineInputFound(output, e.Data, gitbash, killProcess, p);
+            p.OutputDataReceived +=
+                (s, e) => killProcess = AppendToOutput_DetermineInputFound(output, e.Data, gitbash, killProcess, p);
             p.Start();
 
             p.BeginOutputReadLine();
@@ -295,7 +349,9 @@ namespace vApus.CommitTool
 
             return output;
         }
-        private bool AppendToOutput_DetermineInputFound(List<string> output, string line, string input, bool killProcess, Process p)
+
+        private bool AppendToOutput_DetermineInputFound(List<string> output, string line, string input, bool killProcess,
+                                                        Process p)
         {
             if (line == null)
                 return false;
@@ -308,15 +364,16 @@ namespace vApus.CommitTool
             }
             return line.Contains(input);
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="excludedFilesOrFolders"></param>
         /// <param name="fileList">All the files needed to be commit (absolute paths)</param>
         /// <param name="folderList">All the folders needed to be made serverside (absolute paths)</param>
         /// <param name="exception"></param>
         /// <returns>The files section of the version.ini</returns>
-        private string GetFiles(string[] excludedFilesOrFolders, out List<string> fileList, out List<string> folderList, out Exception exception)
+        private string GetFiles(string[] excludedFilesOrFolders, out List<string> fileList, out List<string> folderList,
+                                out Exception exception)
         {
             exception = null;
             folderList = new List<string>();
@@ -325,17 +382,25 @@ namespace vApus.CommitTool
             string files = null;
             try
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 using (var md5 = new MD5CryptoServiceProvider())
                 {
-                    foreach (string line in GetFilesFromFolderFormatted(Application.StartupPath, Application.StartupPath, excludedFilesOrFolders, md5, out fileList))
+                    foreach (
+                        string line in
+                            GetFilesFromFolderFormatted(Application.StartupPath, Application.StartupPath,
+                                                        excludedFilesOrFolders, md5, out fileList))
                         sb.AppendLine(line);
 
-                    foreach (string folder in Directory.GetDirectories(Application.StartupPath, "*", SearchOption.AllDirectories))
+                    foreach (
+                        string folder in
+                            Directory.GetDirectories(Application.StartupPath, "*", SearchOption.AllDirectories))
                         if (!IsFileOrFolderExcluded(folder, excludedFilesOrFolders))
                         {
                             List<string> tempFileList;
-                            foreach (string line in GetFilesFromFolderFormatted(Application.StartupPath, folder, excludedFilesOrFolders, md5, out tempFileList))
+                            foreach (
+                                string line in
+                                    GetFilesFromFolderFormatted(Application.StartupPath, folder, excludedFilesOrFolders,
+                                                                md5, out tempFileList))
                                 sb.AppendLine(line);
                             fileList.AddRange(tempFileList);
                             folderList.Add(folder);
@@ -345,23 +410,29 @@ namespace vApus.CommitTool
                 fileList.Add(Path.Combine(Application.StartupPath, "version.ini"));
                 files = sb.ToString();
             }
-            catch (Exception ex) { exception = ex; }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
             return files;
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="absolutePartFolder">The startup path of the commit tool</param>
         /// <param name="folder">Where to get the files from</param>
         /// <param name="excludedFilesOrFolders"></param>
         /// <param name="fileList"></param>
-        /// <returns>The files section of the version.ini. List of relativefilename:md5hash,
-        /// version.ini, history.xml and vApus.CommitTool.Xml are automatically excluded in the version.ini text,
-        /// however version.ini will always be sent to the server.
+        /// <returns>
+        ///     The files section of the version.ini. List of relativefilename:md5hash,
+        ///     version.ini, history.xml and vApus.CommitTool.Xml are automatically excluded in the version.ini text,
+        ///     however version.ini will always be sent to the server.
         /// </returns>
-        private List<string> GetFilesFromFolderFormatted(string absolutePartFolder, string folder, string[] excludedFilesOrFolders, MD5CryptoServiceProvider md5, out List<string> fileList)
+        private List<string> GetFilesFromFolderFormatted(string absolutePartFolder, string folder,
+                                                         string[] excludedFilesOrFolders, MD5CryptoServiceProvider md5,
+                                                         out List<string> fileList)
         {
-            List<string> formatted = new List<string>();
+            var formatted = new List<string>();
             fileList = new List<string>();
             int absolutePartDirectoryLength = absolutePartFolder.Length;
             foreach (string fileName in Directory.GetFiles(folder, "*", SearchOption.TopDirectoryOnly))
@@ -384,8 +455,9 @@ namespace vApus.CommitTool
             }
             return formatted;
         }
+
         /// <summary>
-        /// Checks if the given file or folder can be added to the version.ini and can be commit to the server.
+        ///     Checks if the given file or folder can be added to the version.ini and can be commit to the server.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="excludedFilesOrFolders"></param>
@@ -402,15 +474,17 @@ namespace vApus.CommitTool
                     return true;
             return false;
         }
+
         private string GetMD5HashFromFile(string fileName, MD5CryptoServiceProvider md5)
         {
             byte[] retVal = md5.ComputeHash(File.ReadAllBytes(fileName));
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < retVal.Length; i++)
                 sb.Append(retVal[i].ToString("x2"));
             return sb.ToString();
         }
+
         #endregion
     }
 }

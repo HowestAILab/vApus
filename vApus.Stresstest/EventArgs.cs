@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Drawing;
 using vApus.Results;
@@ -14,43 +15,47 @@ namespace vApus.Stresstest
 {
     public class StresstestResultEventArgs : EventArgs
     {
-        public StresstestResult StresstestResult { private set; get; }
         public StresstestResultEventArgs(StresstestResult stresstestResult)
         {
             StresstestResult = stresstestResult;
         }
+
+        public StresstestResult StresstestResult { private set; get; }
     }
+
     public class ConcurrencyResultEventArgs : EventArgs
     {
-        public ConcurrencyResult Result { private set; get; }
         public ConcurrencyResultEventArgs(ConcurrencyResult result)
         {
             Result = result;
         }
+
+        public ConcurrencyResult Result { private set; get; }
     }
+
     public class RunResultEventArgs : EventArgs
     {
-        public RunResult Result { private set; get; }
         public RunResultEventArgs(RunResult result)
         {
             Result = result;
         }
+
+        public RunResult Result { private set; get; }
     }
+
     public class IntValueEventArgs : EventArgs
     {
-        public int Value { private set; get; }
         public IntValueEventArgs(int value)
         {
             Value = value;
         }
+
+        public int Value { private set; get; }
     }
+
     public class MessageEventArgs : EventArgs
     {
-        public string Message { private set; get; }
-        public Color Color { private set; get; }
-        public LogLevel LogLevel { private set; get; }
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="logLevel"></param>
@@ -61,5 +66,9 @@ namespace vApus.Stresstest
             Color = color;
             LogLevel = logLevel;
         }
+
+        public string Message { private set; get; }
+        public Color Color { private set; get; }
+        public LogLevel LogLevel { private set; get; }
     }
 }

@@ -5,41 +5,49 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting
 {
     /// <summary>
-    /// A tile of stresstests.
+    ///     A tile of stresstests.
     /// </summary>
     public class Tile : LabeledBaseItem
     {
         #region Fields
-        private bool _use = false;
+
+        private bool _use;
+
         #endregion
 
         #region Properties
+
         [SavableCloneable]
         public bool Use
         {
             get { return _use; }
             set { _use = value; }
         }
+
         #endregion
 
         #region Constructor
+
         /// <summary>
-        /// A tile of stresstests.
+        ///     A tile of stresstests.
         /// </summary>
         public Tile()
         {
             ShowInGui = false;
         }
+
         #endregion
 
         #region Functions
+
         /// <summary>
-        /// Create a clone of this.
+        ///     Create a clone of this.
         /// </summary>
         /// <returns></returns>
         public Tile Clone()
@@ -50,6 +58,7 @@ namespace vApus.DistributedTesting
                 clone.AddWithoutInvokingEvent(ts.Clone());
             return clone;
         }
+
         ///// <summary>
         ///// Synchronize the tile stresstests with the real ones, meaning if one is deleted or added the number of tile stresstests must equal those of the real. 
         ///// </summary>
@@ -102,6 +111,7 @@ namespace vApus.DistributedTesting
         //    }
         //    return didSynchronize;
         //}
+
         #endregion
     }
 }

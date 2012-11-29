@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -12,32 +13,39 @@ using System.Windows.Forms;
 namespace vApus.Util
 {
     /// <summary>
-    /// An implementation of the old VB6 input dialog.
+    ///     An implementation of the old VB6 input dialog.
     /// </summary>
     public partial class InputDialog : Form
     {
         #region Fields
-        private int _minimumInputLength;
+
+        private DialogResult _cancel = DialogResult.Cancel;
         private MessageBoxButtons _messageBoxButtons = MessageBoxButtons.OKCancel;
-        private DialogResult _ok = DialogResult.OK, _cancel = DialogResult.Cancel;
+        private int _minimumInputLength;
+        private DialogResult _ok = DialogResult.OK;
+
         #endregion
 
         #region Properties
+
         public int MinimumInputLength
         {
             get { return _minimumInputLength; }
         }
+
         public int MaximumInputLength
         {
             get { return txtInput.MaxLength; }
         }
+
         public string Input
         {
             get { return txtInput.Text; }
             set { txtInput.Text = value; }
         }
+
         /// <summary>
-        /// Default: MessageBoxButtons.OKCancel
+        ///     Default: MessageBoxButtons.OKCancel
         /// </summary>
         public MessageBoxButtons MessageBoxButtons
         {
@@ -75,11 +83,13 @@ namespace vApus.Util
             }
             get { return _messageBoxButtons; }
         }
+
         #endregion
 
         #region Constructors
+
         /// <summary>
-        /// An implementation of the old VB6 input dialog.
+        ///     An implementation of the old VB6 input dialog.
         /// </summary>
         public InputDialog(string question, string caption = "", string defaultValue = "")
         {
@@ -87,25 +97,29 @@ namespace vApus.Util
             lblQuestion.Text = question;
             Text = caption;
             txtInput.Text = defaultValue;
-            if (this.IsHandleCreated)
+            if (IsHandleCreated)
                 SetGui();
             else
-                this.HandleCreated += new EventHandler(InputDialog_HandleCreated);
+                HandleCreated += InputDialog_HandleCreated;
         }
+
         #endregion
 
         #region Functions
+
         private void InputDialog_HandleCreated(object sender, EventArgs e)
         {
             SetGui();
         }
+
         private void SetGui()
         {
             Graphics g = lblQuestion.CreateGraphics();
-            int difference = txtInput.Height - (int)g.MeasureString(lblQuestion.Text, lblQuestion.Font).Height;
-            if (this.Height - difference > this.MinimumSize.Height)
-                this.Height -= difference;
+            int difference = txtInput.Height - (int) g.MeasureString(lblQuestion.Text, lblQuestion.Font).Height;
+            if (Height - difference > MinimumSize.Height)
+                Height -= difference;
         }
+
         public void SetInputLength(int min, int max = int.MaxValue)
         {
             if (min > max)
@@ -115,17 +129,20 @@ namespace vApus.Util
 
             btnOK.Enabled = txtInput.Text.Length >= _minimumInputLength;
         }
+
         /// <summary></summary>
         private void btnOk_Click(object sender, EventArgs e)
         {
-            this.DialogResult = _ok;
-            this.Close();
+            DialogResult = _ok;
+            Close();
         }
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = _cancel;
-            this.Close();
+            DialogResult = _cancel;
+            Close();
         }
+
         private void txtInput_TextChanged(object sender, EventArgs e)
         {
             btnOK.Enabled = txtInput.Text.Length >= _minimumInputLength;
@@ -137,6 +154,7 @@ namespace vApus.Util
             base.OnShown(e);
             txtInput.Focus();
         }
+
         #endregion
     }
 }

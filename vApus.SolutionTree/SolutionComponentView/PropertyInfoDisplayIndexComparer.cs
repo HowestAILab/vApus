@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -12,23 +13,20 @@ namespace vApus.SolutionTree
 {
     internal class PropertyInfoDisplayIndexComparer : IComparer<PropertyInfo>
     {
-        private static PropertyInfoDisplayIndexComparer _propertyInfoDisplayIndexComparer;
-        private PropertyInfoDisplayIndexComparer()
-        { }
+        private static readonly PropertyInfoDisplayIndexComparer _propertyInfoDisplayIndexComparer;
+
         /// <summary>
-        /// Compares the name of the property info's.
+        ///     Compares the name of the property info's.
         /// </summary>
         static PropertyInfoDisplayIndexComparer()
         {
             _propertyInfoDisplayIndexComparer = new PropertyInfoDisplayIndexComparer();
         }
-        /// <summary>
-        /// Compares the name of the property info's.
-        /// </summary>
-        public static PropertyInfoDisplayIndexComparer GetInstance()
+
+        private PropertyInfoDisplayIndexComparer()
         {
-            return _propertyInfoDisplayIndexComparer;
         }
+
         public int Compare(PropertyInfo x, PropertyInfo y)
         {
             PropertyControlAttribute xPropertyControlAttribute = GetPropertyControlAttribute(x);
@@ -41,9 +39,18 @@ namespace vApus.SolutionTree
                 return xPropertyControlAttribute.DisplayIndex.CompareTo(-1);
             return xPropertyControlAttribute.DisplayIndex.CompareTo(yPropertyControlAttribute.DisplayIndex);
         }
+
+        /// <summary>
+        ///     Compares the name of the property info's.
+        /// </summary>
+        public static PropertyInfoDisplayIndexComparer GetInstance()
+        {
+            return _propertyInfoDisplayIndexComparer;
+        }
+
         private PropertyControlAttribute GetPropertyControlAttribute(PropertyInfo info)
         {
-            object[] attributes = info.GetCustomAttributes(typeof(PropertyControlAttribute), true);
+            object[] attributes = info.GetCustomAttributes(typeof (PropertyControlAttribute), true);
             return (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
         }
     }

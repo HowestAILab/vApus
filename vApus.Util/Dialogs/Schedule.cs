@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Windows.Forms;
 
@@ -14,16 +15,13 @@ namespace vApus.Util
     {
         private DateTime _scheduledAt;
 
-        public DateTime ScheduledAt
-        {
-            get { return _scheduledAt; }
-        }
         public Schedule()
         {
             InitializeComponent();
         }
+
         public Schedule(DateTime scheduledAt)
-            :this()
+            : this()
         {
             rdbLater.Checked = (scheduledAt > dtpTime.Value);
             if (rdbLater.Checked)
@@ -32,12 +30,18 @@ namespace vApus.Util
                 dtpTime.Value = scheduledAt;
             }
         }
+
+        public DateTime ScheduledAt
+        {
+            get { return _scheduledAt; }
+        }
+
         private void btnOK_Click(object sender, EventArgs e)
         {
             _scheduledAt = (rdbNow.Checked) ? DateTime.Now : (dtpDate.Value.Date + dtpTime.Value.TimeOfDay);
             if (_scheduledAt < DateTime.Now)
                 _scheduledAt = DateTime.Now;
-            
+
             DialogResult = DialogResult.OK;
         }
 

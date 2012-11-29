@@ -5,8 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Windows.Forms;
+using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 
@@ -15,38 +17,45 @@ namespace vApus.DistributedTesting
     public partial class ConfigureTileStresstest : UserControl
     {
         #region Fields
-        private TileStresstest _tileStresstest;
+
         private DistributedTestMode _distributedTestMode;
+        private TileStresstest _tileStresstest;
+
         #endregion
 
         #region Properties
+
         public TileStresstest TileStresstest
         {
             get { return _tileStresstest; }
         }
+
         #endregion
 
         #region Constructor
+
         public ConfigureTileStresstest()
         {
             InitializeComponent();
 
 
             //For refreshing the property panels.
-            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
         }
+
         #endregion
 
         #region Functions
+
         public void SetTileStresstest(TileStresstest tileStresstest)
         {
             lblRunSync.Visible =
-            lblUseRDP.Visible =
-            lblUsage.Visible = false;
+                lblUseRDP.Visible =
+                lblUsage.Visible = false;
 
             defaultAdvancedSettingsToControl.Visible =
-            solutionComponentPropertyPanelBasic.Visible =
-            llblShowHideAdvancedSettings.Visible = true;
+                solutionComponentPropertyPanelBasic.Visible =
+                llblShowHideAdvancedSettings.Visible = true;
 
             if (_tileStresstest != tileStresstest)
             {
@@ -58,24 +67,26 @@ namespace vApus.DistributedTesting
                 Handle_DefaultToChecked();
             }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="showDescriptions">Should only be shown if the run sync cbo is focused</param>
         public void ClearTileStresstest(bool showDescriptions)
         {
             defaultAdvancedSettingsToControl.Visible =
-            solutionComponentPropertyPanelBasic.Visible =
-            solutionComponentPropertyPanelAdvanced.Visible =
-            llblShowHideAdvancedSettings.Visible = false;
+                solutionComponentPropertyPanelBasic.Visible =
+                solutionComponentPropertyPanelAdvanced.Visible =
+                llblShowHideAdvancedSettings.Visible = false;
 
             lblUseRDP.Visible = lblRunSync.Visible = showDescriptions;
             lblUsage.Visible = true;
         }
+
         private void defaultAdvancedSettingsToControl_CheckChanged(object sender, EventArgs e)
         {
             Handle_DefaultToChecked();
         }
+
         private void Handle_DefaultToChecked()
         {
             if (defaultAdvancedSettingsToControl.DefaultToChecked)
@@ -87,7 +98,7 @@ namespace vApus.DistributedTesting
             {
                 solutionComponentPropertyPanelAdvanced.Visible = true;
                 _tileStresstest.AutomaticDefaultAdvancedSettings = defaultAdvancedSettingsToControl.DefaultToChecked;
-                _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+                _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
 
@@ -98,7 +109,7 @@ namespace vApus.DistributedTesting
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
-            if (sender is TileStresstest || sender is Stresstest.Stresstest || sender is Stresstest.StresstestProject)
+            if (sender is TileStresstest || sender is Stresstest.Stresstest || sender is StresstestProject)
             {
                 if (_tileStresstest != null)
                 {
@@ -106,7 +117,8 @@ namespace vApus.DistributedTesting
                     {
                         defaultAdvancedSettingsToControl.Init(_tileStresstest);
                     }
-                    if (sender is StresstestProject || sender == _tileStresstest || sender == _tileStresstest.DefaultAdvancedSettingsTo)
+                    if (sender is StresstestProject || sender == _tileStresstest ||
+                        sender == _tileStresstest.DefaultAdvancedSettingsTo)
                     {
                         solutionComponentPropertyPanelBasic.Refresh();
                         solutionComponentPropertyPanelAdvanced.Refresh();
@@ -116,10 +128,9 @@ namespace vApus.DistributedTesting
                         solutionComponentPropertyPanelAdvanced.Refresh();
                     }
                 }
-
             }
             else if (sender is Clients || sender is Client || sender is Slave ||
-                    sender is Monitor.MonitorProject || sender is Monitor.Monitor)
+                     sender is MonitorProject || sender is Monitor.Monitor)
             {
                 solutionComponentPropertyPanelBasic.Refresh();
             }
@@ -147,13 +158,14 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Refresh some properties that are overriden in code.
+        ///     Refresh some properties that are overriden in code.
         /// </summary>
         public override void Refresh()
         {
             base.Refresh();
             solutionComponentPropertyPanelAdvanced.Refresh();
         }
+
         #endregion
     }
 }

@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 
 namespace vApus.Results
@@ -13,10 +14,12 @@ namespace vApus.Results
     {
         public string VirtualUser { get; set; }
         public string UserAction { get; set; }
+
         /// <summary>
-        /// Index in Log
+        ///     Index in Log
         /// </summary>
         public string LogEntryIndex { get; set; }
+
         public string LogEntry { get; set; }
         public DateTime SentAt { get; set; }
         public long TimeToLastByteInTicks { get; set; }

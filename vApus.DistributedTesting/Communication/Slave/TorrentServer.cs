@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using MonoTorrent;
 using MonoTorrent.Common;
 using MonoTorrent.Tracker;
 using MonoTorrent.Tracker.Listeners;
@@ -18,11 +19,13 @@ using MonoTorrent.Tracker.Listeners;
 namespace vApus.DistributedTesting
 {
     public delegate void TorrentCreatedEventHandler(object source, TorrentServerEventArgs e);
+
     public delegate void TorrentSeededEventHandler(object source, TorrentServerEventArgs e);
 
     public class TorrentServerEventArgs : EventArgs
     {
         public byte[] TorrentData;
+
         public TorrentServerEventArgs(byte[] torrentData)
         {
             TorrentData = torrentData;
@@ -32,23 +35,25 @@ namespace vApus.DistributedTesting
     public class TorrentServer
     {
         #region Fields
-        private ManualResetEvent _torrentStateChangedToStoppedWaitHandle = new ManualResetEvent(true);
-        private ManualResetEvent _locationUnlockedWaitHandle = new ManualResetEvent(true);
 
-        private Tracker _tracker;
-        private HttpListener _listener;
+        private readonly HashSet<TorrentClient> _clients;
+        private readonly ManualResetEvent _locationUnlockedWaitHandle = new ManualResetEvent(true);
+        private readonly Dictionary<string, byte[]> _torrentQueu;
+        private readonly ManualResetEvent _torrentStateChangedToStoppedWaitHandle = new ManualResetEvent(true);
+
         private string _ip;
+        private HttpListener _listener;
         private int _port;
+        private Tracker _tracker;
 
         //private HashSet<TorrentManager> _managers;
         //private ClientEngine _engine;
         //private Dictionary<Torrent, byte[]> _torrentQueu;
-        private Dictionary<string, byte[]> _torrentQueu;
 
-        HashSet<TorrentClient> _clients;
         #endregion
 
         #region Properties
+
         public bool TrackerStarted
         {
             get { return _tracker != null && !_tracker.Disposed; }
@@ -70,7 +75,7 @@ namespace vApus.DistributedTesting
         {
             get
             {
-                List<string> answers = new List<string>();
+                var answers = new List<string>();
 
                 foreach (TorrentClient client in _clients)
                     answers.Add(client.Name + " : " + client.CurrentStatus);
@@ -78,14 +83,17 @@ namespace vApus.DistributedTesting
                 return answers;
             }
         }
+
         #endregion
 
         #region Events
+
         public event TorrentSeededEventHandler TorrentSeeded;
+
         #endregion
 
         /// <summary>
-        /// Constructor
+        ///     Constructor
         /// </summary>
         public TorrentServer(string ip, int port)
         {
@@ -98,12 +106,12 @@ namespace vApus.DistributedTesting
         #region Logic
 
         #region Tracker
+
         /// <summary>
-        /// Starts the tracker with given IP and port. Tracker can only be started once.
+        ///     Starts the tracker with given IP and port. Tracker can only be started once.
         /// </summary>
         public void StartTracker(string ip, int port)
         {
-
             if (_tracker == null)
             {
                 StopTracker();
@@ -150,10 +158,11 @@ namespace vApus.DistributedTesting
             }
         }
 
-        void _tracker_PeerAnnounced(object sender, AnnounceEventArgs e)
+        private void _tracker_PeerAnnounced(object sender, AnnounceEventArgs e)
         {
             Debug.WriteLine(e.Peer.ClientAddress + " has connected.");
         }
+
         public void StopTracker()
         {
             if (TrackerStarted)
@@ -166,10 +175,11 @@ namespace vApus.DistributedTesting
                 _listener = null;
             }
         }
+
         #endregion
 
         /// <summary>
-        /// Loads a given .torrent filelocation and gives a MonoTorrent.Common.Torrent object back.
+        ///     Loads a given .torrent filelocation and gives a MonoTorrent.Common.Torrent object back.
         /// </summary>
         /// <param name="torrentLocation">Location of .torrent file</param>
         /// <returns>Torrent if can be loaded, null when not</returns>
@@ -181,7 +191,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Stops the manager who watches over the given Torrent
+        ///     Stops the manager who watches over the given Torrent
         /// </summary>
         /// <param name="torrent"></param>
         public void StopTorrent(string torrentName)
@@ -192,7 +202,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Closes down all current torrents. Its basically a reset for the server.
+        ///     Closes down all current torrents. Its basically a reset for the server.
         /// </summary>
         public void CloseAllTorrents()
         {
@@ -201,6 +211,7 @@ namespace vApus.DistributedTesting
 
             _clients.Clear();
         }
+
         public void EnforceReleaseFile(string filename)
         {
             Debug.WriteLine("Have to wait for door");
@@ -208,13 +219,15 @@ namespace vApus.DistributedTesting
 
             //I've added it on Wednesday 10-11-2010 (FileSystemWatcher) but doesnt work, keeps everything hanging
             if (!FileUnlocked(new FileInfo(filename)))
-            {    //Thread.Sleep(2);
+            {
+                //Thread.Sleep(2);
                 _locationUnlockedWaitHandle.Reset();
-                FileSystemWatcher watcher = new FileSystemWatcher(new FileInfo(filename).DirectoryName, "*" + new FileInfo(filename).Extension);
+                var watcher = new FileSystemWatcher(new FileInfo(filename).DirectoryName,
+                                                    "*" + new FileInfo(filename).Extension);
 
                 watcher.NotifyFilter = NotifyFilters.LastAccess;
 
-                watcher.Changed += new FileSystemEventHandler(watcher_Changed);
+                watcher.Changed += watcher_Changed;
 
                 watcher.EnableRaisingEvents = true;
             }
@@ -223,7 +236,7 @@ namespace vApus.DistributedTesting
             Debug.WriteLine(filename + " released.");
         }
 
-        void watcher_Changed(object sender, FileSystemEventArgs e)
+        private void watcher_Changed(object sender, FileSystemEventArgs e)
         {
             Debug.WriteLine("something changed");
             _locationUnlockedWaitHandle.Set();
@@ -254,13 +267,14 @@ namespace vApus.DistributedTesting
         }
 
         #region StartSeeding
+
         /// <summary>
-        /// Main method, not public.
+        ///     Main method, not public.
         /// </summary>
         private void StartSeeding(Torrent torrent, string parentDirectory)
         {
             //Register this torrent as tracked by our tracker
-            InfoHashTrackable trackable = new InfoHashTrackable(torrent);
+            var trackable = new InfoHashTrackable(torrent);
             if (_tracker.Contains(trackable))
             {
                 _tracker.Remove(trackable);
@@ -280,19 +294,21 @@ namespace vApus.DistributedTesting
             #endregion
 
             #region New way of seeding
+
             //trying to move the logic using a TorrentClient
-            TorrentClient client = new TorrentClient();
+            var client = new TorrentClient();
             _clients.Add(client);
             //in this message there's the needed information to setup a torrent connection
             //client.ProgressUpdated += new ProgressUpdatedEventHandler(client_ProgressUpdated);
             //client.DownloadCompleted += new DownloadCompletedEventHandler(client_DownloadCompleted);
-            client.StatusChanged += new StatusChangedEventHandler(client_StatusChanged);
-            client.DownloadTorrent(torrent, parentDirectory); //by giving the parentDirectory of the input the torrent will start Seeding
+            client.StatusChanged += client_StatusChanged;
+            client.DownloadTorrent(torrent, parentDirectory);
+                //by giving the parentDirectory of the input the torrent will start Seeding
 
             #endregion
         }
 
-        void client_StatusChanged(TorrentClient source, string status)
+        private void client_StatusChanged(TorrentClient source, string status)
         {
             if (status == "Seeding")
             {
@@ -313,15 +329,17 @@ namespace vApus.DistributedTesting
 
             Debug.WriteLine("SERVERCLIENT changed to " + status + "(" + source.Name + ")");
         }
+
         /// <summary>
-        /// Starts seeding a torrent composed from the given torrentBytes. Specify the location on your file system with location.
+        ///     Starts seeding a torrent composed from the given torrentBytes. Specify the location on your file system with location.
         /// </summary>
         public void StartSeeding(byte[] torrentBytes, string parentDirectory)
         {
             StartSeeding(Torrent.Load(torrentBytes), parentDirectory);
         }
+
         /// <summary>
-        /// Starts seeding a given torrent. Specify the location on your file system with location.
+        ///     Starts seeding a given torrent. Specify the location on your file system with location.
         /// </summary>
         public void StartSeeding(object torrent, string parentDirectory)
         {
@@ -330,24 +348,26 @@ namespace vApus.DistributedTesting
             else
                 throw new ArgumentException("torrent is not a Torrent", "torrent");
         }
+
         #endregion
 
         #region CreateTorrent
+
         /// <summary>
-        /// Main method to create torrents (file and/or stream). This is private.
+        ///     Main method to create torrents (file and/or stream). This is private.
         /// </summary>
-        private void CreateTorrent(string inputLocation, string torrentOutputLocation = null, System.IO.Stream stream = null)
+        private void CreateTorrent(string inputLocation, string torrentOutputLocation = null, Stream stream = null)
         {
             if (!TrackerStarted)
                 throw new Exception("Please start the tracker first.");
 
             // The class used for creating the torrent
-            TorrentCreator torrentCreator = new TorrentCreator();
+            var torrentCreator = new TorrentCreator();
 
             // Add one tier which contains one tracker
-            List<string> tier = new List<string>();
+            var tier = new List<string>();
             tier.Add("http://" + _ip + ":" + _port + "/announce/");
-            torrentCreator.Announces.Add(new MonoTorrent.RawTrackerTier(tier));
+            torrentCreator.Announces.Add(new RawTrackerTier(tier));
 
             torrentCreator.Comment = "Package with stresstest results";
             torrentCreator.CreatedBy = "vApus using MonoTorrent " + VersionInfo.ClientVersion;
@@ -361,7 +381,7 @@ namespace vApus.DistributedTesting
             torrentCreator.PieceLength = 0;
 
             //Create a filesource, path can be either a directory *or* a file.
-            TorrentFileSource source = new TorrentFileSource(inputLocation, false);
+            var source = new TorrentFileSource(inputLocation, false);
 
             // Create the torrent file and save it directly to the specified path
             // Different overloads of 'Create' can be used to save the data to a Stream
@@ -375,7 +395,7 @@ namespace vApus.DistributedTesting
                 torrentCreator.Create(source, stream);
 
             //Extra creation to add this one to the queu
-            System.IO.MemoryStream memStream = new System.IO.MemoryStream();
+            var memStream = new MemoryStream();
             torrentCreator.Create(source, memStream);
             memStream.Close();
             if (!_torrentQueu.ContainsKey(Torrent.Load(memStream.ToArray()).Name))
@@ -386,7 +406,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Use this function to create a .torrent file.
+        ///     Use this function to create a .torrent file.
         /// </summary>
         /// <param name="trackerIp">Ip of the tracker you want to use.</param>
         /// <param name="trackerPort">Port of the tracker you want to use.</param>
@@ -398,7 +418,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Use this function to create a torrent in byte[]. Can be used to send across sockets.
+        ///     Use this function to create a torrent in byte[]. Can be used to send across sockets.
         /// </summary>
         /// <param name="trackerIp">Ip of the tracker you want to use.</param>
         /// <param name="trackerPort">Port of the tracker you want to use.</param>
@@ -406,7 +426,7 @@ namespace vApus.DistributedTesting
         /// <returns></returns>
         public byte[] CreateTorrentInBytes(string fileOrFolder)
         {
-            MemoryStream memStream = new MemoryStream();
+            var memStream = new MemoryStream();
             try
             {
                 CreateTorrent(fileOrFolder, null, memStream);
@@ -417,9 +437,9 @@ namespace vApus.DistributedTesting
             }
             return memStream.ToArray();
         }
-        #endregion
 
         #endregion
 
+        #endregion
     }
 }

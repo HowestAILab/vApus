@@ -5,19 +5,21 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Diagnostics;
 
 //Kill vApus and Tools when uninstalling vApus.
+
 namespace vApus.KillvApusAndTools
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             foreach (Process p in Process.GetProcessesByName("vApus"))
                 if (p != null)

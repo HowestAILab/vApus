@@ -5,18 +5,19 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using vApus.SolutionTree;
 using System.Threading;
+using vApus.SolutionTree;
 
 namespace vApus.Stresstest
 {
     [Serializable]
     public class Parameters : BaseItem
     {
-        private static object _lock = new object();
+        private static readonly object _lock = new object();
+
         public Parameters()
         {
             AddAsDefaultItem(new CustomListParameters());
@@ -24,8 +25,9 @@ namespace vApus.Stresstest
             AddAsDefaultItem(new TextParameters());
             AddAsDefaultItem(new CustomRandomParameters());
         }
+
         /// <summary>
-        /// Threadsafe call.
+        ///     Threadsafe call.
         /// </summary>
         /// <returns></returns>
         public List<BaseParameter> GetAllParameters()
@@ -34,7 +36,7 @@ namespace vApus.Stresstest
             {
                 var l = new List<BaseParameter>();
                 int failedTries = 0;
-            Retry:
+                Retry:
                 try
                 {
                     foreach (BaseItem item in this)
@@ -46,24 +48,24 @@ namespace vApus.Stresstest
                     //Handle if the collection changed.
                     if (++failedTries != 3)
                     {
-                        Thread.Sleep(1000 * failedTries);
+                        Thread.Sleep(1000*failedTries);
                         goto Retry;
                     }
                 }
                 return l;
             }
         }
+
         /// <summary>
-        /// Needed for the token synchronization to the log and will visualize this in the gui.
+        ///     Needed for the token synchronization to the log and will visualize this in the gui.
         /// </summary>
-        /// <param name="oldAndNewIndices">The key and the value of the kvp are respectively the old and new index.
-        /// 
-        /// This is a reversed collection, the last occurs first so that the synchronization in the log entries is correct.
-        /// 
-        /// Otherwise, 3 can become 4 and after this 4 can become 5.
-        /// 
+        /// <param name="oldAndNewIndices">
+        ///     The key and the value of the kvp are respectively the old and new index.
+        ///     This is a reversed collection, the last occurs first so that the synchronization in the log entries is correct.
+        ///     Otherwise, 3 can become 4 and after this 4 can become 5.
         /// </param>
-        public void SynchronizeTokenNumericIdentifierToIndices(out Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices)
+        public void SynchronizeTokenNumericIdentifierToIndices(
+            out Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices)
         {
             var l1 = new List<BaseParameter>();
             var l2 = new List<KeyValuePair<int, int>>();
@@ -90,7 +92,9 @@ namespace vApus.Stresstest
 
             if (oldAndNewIndices.Count != 0)
             {
-                var view = SolutionComponentViewManager.Show(this, typeof(ParameterTokenSynchronization));
+                BaseSolutionComponentView view = SolutionComponentViewManager.Show(this,
+                                                                                   typeof (ParameterTokenSynchronization
+                                                                                       ));
                 (view as ParameterTokenSynchronization).VisualizeSynchronization(oldAndNewIndices);
             }
         }

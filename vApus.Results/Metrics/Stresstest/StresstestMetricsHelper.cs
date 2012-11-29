@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using vApus.Util;
@@ -13,19 +14,41 @@ namespace vApus.Results
 {
     public static class StresstestMetricsHelper
     {
-        private static string[] _readableMetricsHeadersConcurrency = { "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed",
-                                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)", "Avg. Delay (ms)", "Errors" };
-        private static string[] _readableMetricsHeadersRun = { "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed",
-                                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)", "Avg. Delay (ms)", "Errors" };
-        private static string[] _calculatableMetricsHeadersConcurrency = { "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed", "Log Entries",
-                                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)", "Avg. Delay (ms)", "Errors" };
-        private static string[] _calculatableMetricsHeadersRun = { "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed", "Log Entries",
-                                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)", " Avg. Delay (ms)", "Errors" };
+        private static readonly string[] _readableMetricsHeadersConcurrency =
+            {
+                "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed",
+                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
+                "Avg. Delay (ms)", "Errors"
+            };
+
+        private static readonly string[] _readableMetricsHeadersRun =
+            {
+                "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed",
+                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
+                "Avg. Delay (ms)", "Errors"
+            };
+
+        private static readonly string[] _calculatableMetricsHeadersConcurrency =
+            {
+                "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed",
+                "Log Entries",
+                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
+                "Avg. Delay (ms)", "Errors"
+            };
+
+        private static readonly string[] _calculatableMetricsHeadersRun =
+            {
+                "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed",
+                "Log Entries",
+                "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
+                " Avg. Delay (ms)", "Errors"
+            };
 
         public static string[] ReadableMetricsHeadersConcurrency
         {
             get { return _readableMetricsHeadersConcurrency; }
         }
+
         public static string[] ReadableMetricsHeadersRun
         {
             get { return _readableMetricsHeadersRun; }
@@ -35,21 +58,23 @@ namespace vApus.Results
         {
             get { return _calculatableMetricsHeadersConcurrency; }
         }
+
         public static string[] CalculatableMetricsHeadersRun
         {
             get { return _calculatableMetricsHeadersRun; }
         }
 
         /// <summary>
-        /// Get metrics for a concurrency result.
+        ///     Get metrics for a concurrency result.
         /// </summary>
         /// <param name="concurrencyResult"></param>
         /// <returns></returns>
         public static StresstestMetrics GetMetrics(ConcurrencyResult result)
         {
-            StresstestMetrics metrics = new StresstestMetrics();
+            var metrics = new StresstestMetrics();
             metrics.StartMeasuringRuntime = result.StartedAt;
-            metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
+            metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) -
+                                      metrics.StartMeasuringRuntime;
             metrics.ConcurrentUsers = result.ConcurrentUsers;
             metrics.AverageResponseTime = new TimeSpan();
             metrics.MaxResponseTime = new TimeSpan();
@@ -59,7 +84,7 @@ namespace vApus.Results
             {
                 long totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
                 long baseLogEntryCount = 0;
-                foreach (var runResult in result.RunResults)
+                foreach (RunResult runResult in result.RunResults)
                 {
                     StresstestMetrics runResultMetrics = GetMetrics(runResult);
 
@@ -86,23 +111,25 @@ namespace vApus.Results
 
                 metrics.ResponsesPerSecond /= result.RunResults.Count;
                 metrics.UserActionsPerSecond /= result.RunResults.Count;
-                metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks / result.RunResults.Count);
-                metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / result.RunResults.Count);
+                metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks/result.RunResults.Count);
+                metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks/result.RunResults.Count);
 
                 metrics.EstimatedTimeLeft = GetEstimatedRuntimeLeft(metrics, result.StoppedAt == DateTime.MinValue);
             }
             return metrics;
         }
+
         /// <summary>
-        /// Get metrics for a run result.
+        ///     Get metrics for a run result.
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
         public static StresstestMetrics GetMetrics(RunResult result)
         {
-            StresstestMetrics metrics = new StresstestMetrics();
+            var metrics = new StresstestMetrics();
             metrics.StartMeasuringRuntime = result.StartedAt;
-            metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
+            metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) -
+                                      metrics.StartMeasuringRuntime;
             metrics.ConcurrentUsers = result.VirtualUserResults.Length;
             metrics.Run = result.Run;
             metrics.RerunCount = result.RerunCount;
@@ -111,7 +138,7 @@ namespace vApus.Results
             metrics.AverageDelay = new TimeSpan();
 
             int enteredUserResultsCount = 0;
-            foreach (var virtualUserResult in result.VirtualUserResults)
+            foreach (VirtualUserResult virtualUserResult in result.VirtualUserResults)
             {
                 if (virtualUserResult.VirtualUser != null)
                     ++enteredUserResultsCount;
@@ -131,21 +158,22 @@ namespace vApus.Results
 
             if (enteredUserResultsCount != 0)
             {
-                metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks / enteredUserResultsCount);
-                metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / enteredUserResultsCount);
+                metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks/enteredUserResultsCount);
+                metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks/enteredUserResultsCount);
                 metrics.EstimatedTimeLeft = GetEstimatedRuntimeLeft(metrics, result.StoppedAt == DateTime.MinValue);
             }
             return metrics;
         }
+
         private static StresstestMetrics GetMetrics(VirtualUserResult result)
         {
-            StresstestMetrics metrics = new StresstestMetrics();
+            var metrics = new StresstestMetrics();
             metrics.MaxResponseTime = new TimeSpan();
             metrics.LogEntries = result.LogEntryResults.LongLength;
 
-            List<string> userActionIndices = new List<string>();
+            var userActionIndices = new List<string>();
             TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
-            foreach (var logEntryResult in result.LogEntryResults)
+            foreach (LogEntryResult logEntryResult in result.LogEntryResults)
                 if (logEntryResult != null && logEntryResult.LogEntryIndex != null)
                 {
                     ++metrics.LogEntriesProcessed;
@@ -155,17 +183,22 @@ namespace vApus.Results
                     totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
                     if (ttlb > metrics.MaxResponseTime)
                         metrics.MaxResponseTime = ttlb;
-                    totalDelay = totalDelay.Add(new TimeSpan(logEntryResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
+                    totalDelay =
+                        totalDelay.Add(new TimeSpan(logEntryResult.DelayInMilliseconds*TimeSpan.TicksPerMillisecond));
                     if (!string.IsNullOrEmpty(logEntryResult.Exception))
                         ++metrics.Errors;
                 }
 
             if (metrics.LogEntriesProcessed != 0)
             {
-                metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.LogEntriesProcessed);
-                metrics.AverageDelay = new TimeSpan(totalDelay.Ticks / metrics.LogEntriesProcessed);
-                metrics.ResponsesPerSecond = (double)metrics.LogEntriesProcessed / ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
-                metrics.UserActionsPerSecond = (double)userActionIndices.Count / ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
+                metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks/metrics.LogEntriesProcessed);
+                metrics.AverageDelay = new TimeSpan(totalDelay.Ticks/metrics.LogEntriesProcessed);
+                metrics.ResponsesPerSecond = metrics.LogEntriesProcessed/
+                                             ((double) (totalTimeToLastByte.Ticks + totalDelay.Ticks)/
+                                              TimeSpan.TicksPerSecond);
+                metrics.UserActionsPerSecond = userActionIndices.Count/
+                                               ((double) (totalTimeToLastByte.Ticks + totalDelay.Ticks)/
+                                                TimeSpan.TicksPerSecond);
             }
 
             return metrics;
@@ -176,14 +209,17 @@ namespace vApus.Results
             long estimatedRuntimeLeft = 0;
             if (stopped) //For run sync first this must be 0.
             {
-                estimatedRuntimeLeft = (long)(((DateTime.Now - metrics.StartMeasuringRuntime).TotalMilliseconds / metrics.LogEntriesProcessed) * (metrics.LogEntries - metrics.LogEntriesProcessed) * 10000);
+                estimatedRuntimeLeft =
+                    (long)
+                    (((DateTime.Now - metrics.StartMeasuringRuntime).TotalMilliseconds/metrics.LogEntriesProcessed)*
+                     (metrics.LogEntries - metrics.LogEntriesProcessed)*10000);
                 if (estimatedRuntimeLeft < 0)
                     estimatedRuntimeLeft = 0;
             }
             return new TimeSpan(estimatedRuntimeLeft);
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="readable">If it is notreadable it is calculatable.</param>
@@ -192,17 +228,34 @@ namespace vApus.Results
         {
             return readable ? ReadableMetricsToRow(metrics) : CalculatableMetricsToRow(metrics);
         }
+
         private static object[] ReadableMetricsToRow(StresstestMetrics metrics)
         {
             if (metrics.Run != 0)
                 return new object[]
+                    {
+                        metrics.StartMeasuringRuntime.ToString(),
+                        metrics.EstimatedTimeLeft.ToShortFormattedString(),
+                        metrics.MeasuredRunTime.ToShortFormattedString(),
+                        metrics.ConcurrentUsers,
+                        metrics.Run,
+                        metrics.LogEntriesProcessed + " / " +
+                        (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
+                        Math.Round(metrics.ResponsesPerSecond, 2),
+                        Math.Round(metrics.UserActionsPerSecond, 2),
+                        Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
+                        Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                        Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
+                        metrics.Errors
+                    };
+            return new object[]
                 {
                     metrics.StartMeasuringRuntime.ToString(),
                     metrics.EstimatedTimeLeft.ToShortFormattedString(),
                     metrics.MeasuredRunTime.ToShortFormattedString(),
                     metrics.ConcurrentUsers,
-                    metrics.Run,
-                    metrics.LogEntriesProcessed + " / " + (metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString()),
+                    metrics.LogEntriesProcessed + " / " +
+                    (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
                     Math.Round(metrics.ResponsesPerSecond, 2),
                     Math.Round(metrics.UserActionsPerSecond, 2),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
@@ -210,33 +263,35 @@ namespace vApus.Results
                     Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
                     metrics.Errors
                 };
-            return new object[]
-            {
-                metrics.StartMeasuringRuntime.ToString(),
-                metrics.EstimatedTimeLeft.ToShortFormattedString(),
-                metrics.MeasuredRunTime.ToShortFormattedString(),
-                metrics.ConcurrentUsers,
-                metrics.LogEntriesProcessed + " / " + (metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString()),
-                Math.Round(metrics.ResponsesPerSecond, 2),
-                Math.Round(metrics.UserActionsPerSecond, 2),
-                Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
-                Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
-                Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
-                metrics.Errors
-            };
         }
+
         private static object[] CalculatableMetricsToRow(StresstestMetrics metrics)
         {
             if (metrics.Run != 0)
                 return new object[]
+                    {
+                        metrics.StartMeasuringRuntime.ToString(),
+                        Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
+                        Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
+                        metrics.ConcurrentUsers,
+                        metrics.Run,
+                        metrics.LogEntriesProcessed,
+                        metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
+                        Math.Round(metrics.ResponsesPerSecond, 2),
+                        Math.Round(metrics.UserActionsPerSecond, 2),
+                        Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
+                        Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                        Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
+                        metrics.Errors
+                    };
+            return new object[]
                 {
                     metrics.StartMeasuringRuntime.ToString(),
                     Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
                     Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
                     metrics.ConcurrentUsers,
-                    metrics.Run,
                     metrics.LogEntriesProcessed,
-                    metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString(),
+                    metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
                     Math.Round(metrics.ResponsesPerSecond, 2),
                     Math.Round(metrics.UserActionsPerSecond, 2),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
@@ -244,32 +299,18 @@ namespace vApus.Results
                     Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
                     metrics.Errors
                 };
-            return new object[]
-            {
-                metrics.StartMeasuringRuntime.ToString(),
-                Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
-                Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
-                metrics.ConcurrentUsers,
-                metrics.LogEntriesProcessed,
-                metrics.LogEntries == 0 ?  "--" : metrics.LogEntries.ToString(),
-                Math.Round(metrics.ResponsesPerSecond, 2),
-                Math.Round(metrics.UserActionsPerSecond, 2),
-                Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
-                Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
-                Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
-                metrics.Errors
-            };
         }
+
         /// <summary>
-        /// Will only work if you input the output of a Get...Metrics function.
-        /// This is because the rows are cached too.
+        ///     Will only work if you input the output of a Get...Metrics function.
+        ///     This is because the rows are cached too.
         /// </summary>
         /// <param name="metrics"></param>
         /// <returns></returns>
         public static List<object[]> MetricsToRows(List<StresstestMetrics> metrics, bool readable)
         {
             var rows = new List<object[]>(metrics.Count);
-            foreach (var m in metrics)
+            foreach (StresstestMetrics m in metrics)
                 rows.Add(MetricsToRow(m, readable));
             return rows;
         }

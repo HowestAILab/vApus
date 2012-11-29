@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,13 +17,17 @@ namespace vApus.Util
     public class StringTree : ICollection<StringTree>
     {
         #region Fields
-        public bool _isReadOnly = false;
-        private string _value, _childDelimiter;
 
-        private StringTree[] _childs = new StringTree[] { };
+        private string _childDelimiter;
+
+        private StringTree[] _childs = new StringTree[] {};
+        public bool _isReadOnly = false;
+        private string _value;
+
         #endregion
 
         #region Properties
+
         public string Value
         {
             get { return _value; }
@@ -33,6 +38,7 @@ namespace vApus.Util
                 _value = value;
             }
         }
+
         public string ChildDelimiter
         {
             get { return _childDelimiter; }
@@ -43,27 +49,31 @@ namespace vApus.Util
                 _childDelimiter = value;
             }
         }
+
+        public StringTree this[int index]
+        {
+            get { return _childs[index]; }
+            set { _childs[index] = value; }
+        }
+
         public bool IsReadOnly
         {
             get { return _isReadOnly; }
             set { _isReadOnly = value; }
         }
-        public StringTree this[int index]
-        {
-            get { return _childs[index]; }
-            set { _childs[index] = value; }
 
-        }
         public int Count
         {
             get { return _childs.Length; }
         }
+
         #endregion
 
         #region Constructors
+
         /// <summary>
-        /// A simple structure for representing a tree of strings (Value).
-        /// New string trees can be added as nodes of this one.
+        ///     A simple structure for representing a tree of strings (Value).
+        ///     New string trees can be added as nodes of this one.
         /// </summary>
         /// <param name="value"></param>
         /// <param name="childDelimiter">Use combine values to return a string representation of the elements in this structure.</param>
@@ -72,33 +82,39 @@ namespace vApus.Util
             Value = value;
             ChildDelimiter = childDelimiter;
         }
+
         #endregion
 
         #region Functions
+
         public void Add(StringTree item)
         {
             if (_isReadOnly)
                 throw new Exception("Is read only");
 
-            List<StringTree> childs = new List<StringTree>(_childs);
+            var childs = new List<StringTree>(_childs);
             childs.Add(item);
             _childs = childs.ToArray();
         }
+
         public void Clear()
         {
             if (_isReadOnly)
                 throw new Exception("Is read only");
 
-            _childs = new StringTree[] { };
+            _childs = new StringTree[] {};
         }
+
         public bool Contains(StringTree item)
         {
             return _childs.Contains(item);
         }
+
         public void CopyTo(StringTree[] array, int arrayIndex)
         {
             _childs.CopyTo(array, arrayIndex);
         }
+
         public bool Remove(StringTree item)
         {
             if (_isReadOnly)
@@ -121,11 +137,21 @@ namespace vApus.Util
             return removed;
         }
 
+        public IEnumerator<StringTree> GetEnumerator()
+        {
+            return _childs.Cast<StringTree>().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _childs.GetEnumerator();
+        }
+
         public string CombineValues()
         {
             lock (this)
             {
-                StringBuilder sb = new StringBuilder(_value);
+                var sb = new StringBuilder(_value);
                 if (Count != 0)
                 {
                     if (_childDelimiter.Length == 0)
@@ -145,18 +171,12 @@ namespace vApus.Util
                 return sb.ToString();
             }
         }
-        public IEnumerator<StringTree> GetEnumerator()
-        {
-            return _childs.Cast<StringTree>().GetEnumerator();
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _childs.GetEnumerator();
-        }
+
         public override string ToString()
         {
-            return base.ToString() + (Count == 0 ?  " value: " + Value : " count: " + Count);
+            return base.ToString() + (Count == 0 ? " value: " + Value : " count: " + Count);
         }
+
         #endregion
     }
 }

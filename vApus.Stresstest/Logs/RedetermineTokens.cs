@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,12 +16,13 @@ namespace vApus.Stresstest
 {
     public partial class RedetermineTokens : Form
     {
-        private int _originalPreferredTokenDelimiterIndex;
-        private Log _log;
-        private bool _warning, _error;
+        private readonly Log _log;
+        private readonly int _originalPreferredTokenDelimiterIndex;
+        private bool _error;
+        private bool _warning;
 
         /// <summary>
-        /// Design time constructor.
+        ///     Design time constructor.
         /// </summary>
         public RedetermineTokens()
         {
@@ -102,22 +104,27 @@ namespace vApus.Stresstest
         private void btnOK_Click(object sender, EventArgs e)
         {
             if ((_warning || _error) &&
-                        MessageBox.Show("Are you sure you want to use these delimiters, this can make the log invalid!", string.Empty, MessageBoxButtons.YesNo, 
-                        MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                MessageBox.Show("Are you sure you want to use these delimiters, this can make the log invalid!",
+                                string.Empty, MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
             {
                 return;
             }
 
             //Old indices are equal to the new ones.
-            Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices = new Dictionary<BaseParameter, KeyValuePair<int, int>>();
-            Parameters parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            var oldAndNewIndices = new Dictionary<BaseParameter, KeyValuePair<int, int>>();
+            var parameters = Solution.ActiveSolution.GetSolutionComponent(typeof (Parameters)) as Parameters;
             foreach (BaseParameter parameter in parameters.GetAllParameters())
-                oldAndNewIndices.Add(parameter, new KeyValuePair<int, int>(parameter.TokenNumericIdentifier, parameter.TokenNumericIdentifier));
+                oldAndNewIndices.Add(parameter,
+                                     new KeyValuePair<int, int>(parameter.TokenNumericIdentifier,
+                                                                parameter.TokenNumericIdentifier));
 
-            _log.SynchronizeTokens(oldAndNewIndices, new KeyValuePair<string, string>(lblCurrentBegin.Text, lblNewBegin.Text), new KeyValuePair<string, string>(lblCurrentEnd.Text, lblNewEnd.Text));
+            _log.SynchronizeTokens(oldAndNewIndices,
+                                   new KeyValuePair<string, string>(lblCurrentBegin.Text, lblNewBegin.Text),
+                                   new KeyValuePair<string, string>(lblCurrentEnd.Text, lblNewEnd.Text));
 
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            DialogResult = DialogResult.OK;
+            Close();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -127,11 +134,16 @@ namespace vApus.Stresstest
 
         private void btnWarning_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("The chosen delimiters occur in the log entries as they were imported but not necessarely in the editted log entry strings.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(
+                "The chosen delimiters occur in the log entries as they were imported but not necessarely in the editted log entry strings.",
+                string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
+
         private void btnError_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("The chosen delimiters occur in the editted log entry strings.\nAre you sure you want to use these, this can make the log invalid!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(
+                "The chosen delimiters occur in the editted log entry strings.\nAre you sure you want to use these, this can make the log invalid!",
+                string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 }

@@ -5,6 +5,7 @@
  * Author(s):
  *    Vandroemme Dieter
  */
+
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -17,23 +18,23 @@ using Microsoft.CSharp;
 namespace vApus.Util
 {
     /// <summary>
-    /// A C# .net v4.0 compiler unit.
-    /// 
-    /// For references there is linked in Application.StartupPath or in the folders given in ReferenceResolver.ini if the Use property of ReferenceResolver is set to true. 
+    ///     A C# .net v4.0 compiler unit.
+    ///     For references there is linked in Application.StartupPath or in the folders given in ReferenceResolver.ini if the Use property of ReferenceResolver is set to true.
     /// </summary>
     public class CompilerUnit
     {
-        private List<TempFileCollection> _tempFiles = new List<TempFileCollection>();
-        private string _tempFilesDirectory = Path.Combine(Application.StartupPath, "ConnectionProxyTempFiles");
+        private readonly List<TempFileCollection> _tempFiles = new List<TempFileCollection>();
+        private readonly string _tempFilesDirectory = Path.Combine(Application.StartupPath, "ConnectionProxyTempFiles");
 
         public CompilerUnit()
         {
-            Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
+            Application.ApplicationExit += Application_ApplicationExit;
         }
+
         /// <summary>
-        /// A threadsafe compile.
-        /// A source should have 1 commented line with 
-        /// the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        ///     A threadsafe compile.
+        ///     A source should have 1 commented line with
+        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="debug">For compiling with an attached debugger. Compile warnings are threated as errros.</param>
@@ -43,10 +44,11 @@ namespace vApus.Util
         {
             return Compile(source, null, debug, out compilerResults);
         }
+
         /// <summary>
-        /// A threadsafe compile.
-        /// Each source should have 1 commented line with 
-        /// the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        ///     A threadsafe compile.
+        ///     Each source should have 1 commented line with
+        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
         /// <param name="sources"></param>
         /// <param name="debug">For compiling with an attached debugger. Compile warnings are threated as errros.</param>
@@ -56,10 +58,11 @@ namespace vApus.Util
         {
             return Compile(sources, null, debug, out compilerResults);
         }
+
         /// <summary>
-        /// A threadsafe compile.
-        /// A source should have 1 commented line with 
-        /// the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        ///     A threadsafe compile.
+        ///     A source should have 1 commented line with
+        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="outputAssembly"></param>
@@ -68,12 +71,13 @@ namespace vApus.Util
         /// <returns></returns>
         public Assembly Compile(string source, string outputAssembly, bool debug, out CompilerResults compilerResults)
         {
-            return Compile(new string[] { source }, outputAssembly, debug, out compilerResults);
+            return Compile(new[] {source}, outputAssembly, debug, out compilerResults);
         }
+
         /// <summary>
-        /// A threadsafe compile.
-        /// Each source should have 1 commented line with 
-        /// the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        ///     A threadsafe compile.
+        ///     Each source should have 1 commented line with
+        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
         /// <param name="sources"></param>
         /// <param name="outputAssembly"></param>
@@ -85,10 +89,10 @@ namespace vApus.Util
             if (sources.Length == 0)
                 throw new Exception("Nothing to compile.");
 
-            Dictionary<string, string> providerOptions = new Dictionary<string, string>();
+            var providerOptions = new Dictionary<string, string>();
             providerOptions.Add("CompilerVersion", "v4.0");
             CodeDomProvider compiler = new CSharpCodeProvider(providerOptions);
-            CompilerParameters compilerParameters = new CompilerParameters();
+            var compilerParameters = new CompilerParameters();
 
             compilerParameters.GenerateExecutable = false;
             if (outputAssembly != null)
@@ -104,7 +108,8 @@ namespace vApus.Util
                 if (!File.Exists(readme))
                     using (var sw = new StreamWriter(readme))
                     {
-                        sw.Write("These files are compiled connection proxies used for stresstesting, this folder can be removed safely.");
+                        sw.Write(
+                            "These files are compiled connection proxies used for stresstesting, this folder can be removed safely.");
                         sw.Flush();
                     }
                 compilerParameters.GenerateInMemory = false;
@@ -142,10 +147,12 @@ namespace vApus.Util
                             break;
 
                         compilerResults.Errors.Clear();
-                        Thread.Sleep(1000 * i);
+                        Thread.Sleep(1000*i);
                     }
                 }
-                catch { }
+                catch
+                {
+                }
 
             if (!debug)
                 DeleteTempFiles();
@@ -161,10 +168,9 @@ namespace vApus.Util
         }
 
         /// <summary>
-        /// Each source should have 1 commented line with 
-        /// the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
-        /// 
-        /// If the ReferenceResolver is used ('Use' property == true) there will be searched in the folders given (ReferenceResolver.ini).
+        ///     Each source should have 1 commented line with
+        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        ///     If the ReferenceResolver is used ('Use' property == true) there will be searched in the folders given (ReferenceResolver.ini).
         /// </summary>
         /// <param name="compilerParamaters"></param>
         /// <param name="fileName"></param>
@@ -175,7 +181,7 @@ namespace vApus.Util
             foreach (string line in source.Split('\n'))
                 if (line.StartsWith("// dllreferences:"))
                 {
-                    string[] dllReferences = line.Split(':')[1].Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] dllReferences = line.Split(':')[1].Split(new[] {";"}, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string dllReference in dllReferences)
                     {
                         List<string> matches = GetMatches(dllReference);
@@ -207,9 +213,11 @@ namespace vApus.Util
                     break;
                 }
         }
+
         private List<string> GetMatches(string dllReference)
         {
-            List<string> matches = new List<string>(Directory.GetFiles(Application.StartupPath, dllReference, SearchOption.AllDirectories));
+            var matches =
+                new List<string>(Directory.GetFiles(Application.StartupPath, dllReference, SearchOption.AllDirectories));
             //if (ReferenceResolver.Use)
             //{
             //    //Check the reference resolver
@@ -227,7 +235,7 @@ namespace vApus.Util
         }
 
         /// <summary>
-        /// Delete the tempFiles generated on compiling when debugging, if possible.
+        ///     Delete the tempFiles generated on compiling when debugging, if possible.
         /// </summary>
         public void DeleteTempFiles()
         {
@@ -238,7 +246,9 @@ namespace vApus.Util
                 {
                     tempFiles.Delete();
                 }
-                catch { }
+                catch
+                {
+                }
             }
             _tempFiles.Clear();
 
@@ -247,8 +257,11 @@ namespace vApus.Util
                 {
                     Directory.Delete(_tempFilesDirectory, true);
                 }
-                catch { }
+                catch
+                {
+                }
         }
+
         private void Application_ApplicationExit(object sender, EventArgs e)
         {
             if (Directory.Exists(_tempFilesDirectory))
@@ -256,7 +269,9 @@ namespace vApus.Util
                 {
                     Directory.Delete(_tempFilesDirectory, true);
                 }
-                catch { }
+                catch
+                {
+                }
         }
     }
 }
