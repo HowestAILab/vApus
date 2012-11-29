@@ -23,12 +23,11 @@ namespace vApus.CommitTool
 
         public static Commit GetInstance()
         {
-            if (_commit == null)
-                _commit = new Commit();
-            return _commit;
+            return _commit ?? (_commit = new Commit());
         }
 
         private Commit() { }
+
         /// <summary>
         /// 
         /// </summary>
@@ -37,8 +36,10 @@ namespace vApus.CommitTool
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="localGitRepository">The folder containing all the source files (and the .git folder).</param>
+        /// <param name="exception"></param>
         /// <param name="gitCmd">eg C:\Program Files (x86)\Git\cmd\git.cmd</param>
         /// <param name="historyXml">The path to the history.xml</param>
+        /// <param name="timeStamp"></param>
         /// <param name="excludedFilesOrFolders"></param>
         public void Do(string host, int port, string username, string password, string historyXml,
             string localGitRepository, out Exception exception, string gitCmd = @"C:\Program Files (x86)\Git\cmd\git.cmd",
@@ -94,10 +95,12 @@ namespace vApus.CommitTool
                 exception = ex;
             }
         }
+
         /// <summary>
         /// Does a null check, closes the connection, disposes the object.
         /// </summary>
         /// <param name="sftp"></param>
+        /// <param name="ssh"></param>
         private void Disconnect(Sftp sftp, SshStream ssh)
         {
             if (sftp != null)

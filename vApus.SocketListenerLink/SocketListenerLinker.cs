@@ -9,7 +9,7 @@ using vApus.DistributedTesting;
 using vApus.Util;
 using System;
 
-namespace vApus.Link
+namespace vApus.SocketListenerLink
 {
     public static class SocketListenerLinker
     {
@@ -26,16 +26,12 @@ namespace vApus.Link
         #region Properties
         public static bool SocketListenerIsRunning
         {
-            get
-            {
-                return _socketListener.IsRunning;
-            }
+            get  { return _socketListener.IsRunning; }
         }
         public static string SocketListenerIP
         {
             get { return _socketListener.IP; }
         }
-
         public static int SocketListenerPort
         {
             get { return _socketListener.Port; }

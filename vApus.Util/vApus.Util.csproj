@@ -164,13 +164,15 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DiffieHellman">
+    <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SharpSSH\DiffieHellman.dll</HintPath>
     </Reference>
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="Org.Mentalis.Security">
+    <Reference Include="Org.Mentalis.Security, Version=1.0.13.715, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -180,13 +182,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Tamir.SharpSSH">
       <HintPath>..\Prerequisites\SharpSSH\Tamir.SharpSSH.dll</HintPath>
@@ -220,6 +215,9 @@
       <DependentUpon>KeyValuePairControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\LabeledTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\LinkButton.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.cs">

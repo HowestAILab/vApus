@@ -159,7 +159,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="MonoTorrent">
       <HintPath>..\Prerequisites\MonoTorrent.dll</HintPath>
     </Reference>
@@ -168,16 +167,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +176,8 @@
     <Compile Include="Client.cs" />
     <Compile Include="Communication\EnumsAndStructs.cs" />
     <Compile Include="Communication\Master\TorrentClient.cs" />
+    <Compile Include="Communication\Slave\SlaveSideCommunicationHandler.cs" />
+    <Compile Include="Communication\Slave\SocketListener.cs" />
     <Compile Include="Communication\Slave\TorrentServer.cs" />
     <Compile Include="Controls\TestTreeView\DefaultAdvancedSettingsToControl.cs">
       <SubType>UserControl</SubType>
@@ -288,7 +280,6 @@
     <Compile Include="Communication\JumpStart.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Communication\Master\MasterSideCommunicationHandler.cs" />
-    <Compile Include="Communication\Slave\SlaveSideCommunicationHandler.cs" />
     <Compile Include="Communication\SocketListenerManagerPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -306,7 +297,6 @@
     </Compile>
     <Compile Include="DistributedTest.cs" />
     <Compile Include="DistributedTestingProject.cs" />
-    <Compile Include="Communication\Slave\SocketListener.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
