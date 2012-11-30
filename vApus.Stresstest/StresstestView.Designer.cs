@@ -56,10 +56,10 @@
             // 
             this.solutionComponentPropertyPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.solutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.solutionComponentPropertyPanel.Location = new System.Drawing.Point(0, 0);
+            this.solutionComponentPropertyPanel.Location = new System.Drawing.Point(3, 3);
             this.solutionComponentPropertyPanel.Margin = new System.Windows.Forms.Padding(0);
             this.solutionComponentPropertyPanel.Name = "solutionComponentPropertyPanel";
-            this.solutionComponentPropertyPanel.Size = new System.Drawing.Size(790, 494);
+            this.solutionComponentPropertyPanel.Size = new System.Drawing.Size(784, 488);
             this.solutionComponentPropertyPanel.SolutionComponent = null;
             this.solutionComponentPropertyPanel.TabIndex = 1;
             // 
@@ -87,6 +87,7 @@
             this.tpConfigure.Controls.Add(this.solutionComponentPropertyPanel);
             this.tpConfigure.Location = new System.Drawing.Point(0, 22);
             this.tpConfigure.Name = "tpConfigure";
+            this.tpConfigure.Padding = new System.Windows.Forms.Padding(3);
             this.tpConfigure.Size = new System.Drawing.Size(790, 494);
             this.tpConfigure.TabIndex = 0;
             this.tpConfigure.Text = "Configure";

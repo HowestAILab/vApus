@@ -1521,7 +1521,7 @@ namespace vApus.DistributedTesting
                     {
                         ++monitorCount;
                         Converter.SetMonitorProgress(monitorProgressCache, _distributedTest.ToString(), view.Monitor,
-                                                     view.GetHeaders(), view.GetMonitorValues());
+                                                     view.GetMonitorResultCache().Headers, view.GetMonitorValues());
                     }
                 if (monitorCount != 0)
                     Converter.WriteToFile(monitorProgressCache, "MonitorProgress");

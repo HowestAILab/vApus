@@ -754,7 +754,7 @@ namespace vApus.Monitor
 
         private void btnSaveAllMonitorCounters_Click(object sender, EventArgs e)
         {
-            if (monitorControl.Headers != null && monitorControl.Headers.Length != 0)
+            if (monitorControl.MonitorResultCache.Headers != null && monitorControl.MonitorResultCache.Headers.Length != 0)
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     Cursor = Cursors.WaitCursor;
@@ -765,7 +765,7 @@ namespace vApus.Monitor
 
         private void btnSaveFilteredMonitoredCounters_Click(object sender, EventArgs e)
         {
-            if (monitorControl.Headers != null && monitorControl.Headers.Length != 0)
+            if (monitorControl.MonitorResultCache.Headers != null && monitorControl.MonitorResultCache.Headers.Length != 0)
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     Cursor = Cursors.WaitCursor;
@@ -1422,7 +1422,7 @@ namespace vApus.Monitor
 
             if (exception == null)
             {
-                monitorControl.Init(_monitor.Wiw, units);
+                monitorControl.Init(_monitor, units);
                 btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
 
                 int refreshInS = _refreshTimeInMS/1000;
@@ -1523,24 +1523,14 @@ namespace vApus.Monitor
             Cursor = Cursors.Default;
         }
 
-        /// <summary>
-        ///     Gets the headers of all the counters
-        /// </summary>
-        /// <returns></returns>
-        public string[] GetHeaders()
-        {
-            return monitorControl.Headers;
-        }
-
-        public MonitorResultCache GetMonitorResults()
+        public MonitorResultCache GetMonitorResultCache()
         {
             return monitorControl.MonitorResultCache;
         }
 
         public Dictionary<DateTime, float[]> GetMonitorValues()
         {
-            return null;
-            //return monitorControl.GetMonitorValues();
+            return monitorControl.GetMonitorValues();
         }
 
         /// <summary>

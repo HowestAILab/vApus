@@ -35,6 +35,7 @@
             this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.lblUpdatesIn = new System.Windows.Forms.Label();
+            this.lbtnStresstest = new vApus.Util.LinkButton();
             this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.flpFastMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
@@ -48,19 +49,12 @@
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
             this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
-            this.btnMonitor = new System.Windows.Forms.Button();
-            this.flpMetrics = new System.Windows.Forms.FlowLayoutPanel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.btnExport = new System.Windows.Forms.Button();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.lbtnStresstest = new vApus.Util.LinkButton();
-            this.linkButton1 = new vApus.Util.LinkButton();
-            this.linkButton2 = new vApus.Util.LinkButton();
             this.kvpStresstest = new vApus.Util.KeyValuePairControl();
             this.kvpConnection = new vApus.Util.KeyValuePairControl();
             this.kvpConnectionProxy = new vApus.Util.KeyValuePairControl();
             this.kvpLog = new vApus.Util.KeyValuePairControl();
             this.kvpLogRuleSet = new vApus.Util.KeyValuePairControl();
+            this.btnMonitor = new System.Windows.Forms.Button();
             this.kvpConcurrencies = new vApus.Util.KeyValuePairControl();
             this.kvpRuns = new vApus.Util.KeyValuePairControl();
             this.kvpDelay = new vApus.Util.KeyValuePairControl();
@@ -69,12 +63,16 @@
             this.kvpMonitorBefore = new vApus.Util.KeyValuePairControl();
             this.kvpMonitorAfter = new vApus.Util.KeyValuePairControl();
             this.epnlMessages = new vApus.Util.EventPanel();
+            this.flpMetrics = new System.Windows.Forms.FlowLayoutPanel();
+            this.label2 = new System.Windows.Forms.Label();
             this.kvmThreadsInUse = new vApus.Util.KeyValuePairControl();
             this.kvmCPUUsage = new vApus.Util.KeyValuePairControl();
             this.kvmContextSwitchesPerSecond = new vApus.Util.KeyValuePairControl();
             this.kvmMemoryUsage = new vApus.Util.KeyValuePairControl();
             this.kvmNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
+            this.btnExport = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -140,15 +138,13 @@
             // 
             this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpFastResultsHeader.AutoScroll = true;
             this.flpFastResultsHeader.Controls.Add(this.label4);
             this.flpFastResultsHeader.Controls.Add(this.lblUpdatesIn);
             this.flpFastResultsHeader.Controls.Add(this.lbtnStresstest);
-            this.flpFastResultsHeader.Controls.Add(this.linkButton1);
-            this.flpFastResultsHeader.Controls.Add(this.linkButton2);
             this.flpFastResultsHeader.Location = new System.Drawing.Point(0, 0);
             this.flpFastResultsHeader.Margin = new System.Windows.Forms.Padding(0);
             this.flpFastResultsHeader.Name = "flpFastResultsHeader";
-            this.flpFastResultsHeader.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.flpFastResultsHeader.Size = new System.Drawing.Size(897, 37);
             this.flpFastResultsHeader.TabIndex = 0;
             // 
@@ -158,7 +154,7 @@
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.Black;
             this.label4.Location = new System.Drawing.Point(3, 6);
-            this.label4.Margin = new System.Windows.Forms.Padding(3);
+            this.label4.Margin = new System.Windows.Forms.Padding(3, 6, 5, 3);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(99, 20);
             this.label4.TabIndex = 17;
@@ -169,12 +165,35 @@
             this.lblUpdatesIn.AutoSize = true;
             this.lblUpdatesIn.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUpdatesIn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lblUpdatesIn.Location = new System.Drawing.Point(108, 7);
-            this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.lblUpdatesIn.Location = new System.Drawing.Point(107, 7);
+            this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 7, 6, 3);
             this.lblUpdatesIn.Name = "lblUpdatesIn";
             this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
             this.lblUpdatesIn.TabIndex = 9999;
-            this.lblUpdatesIn.Visible = false;
+            // 
+            // lbtnStresstest
+            // 
+            this.lbtnStresstest.Active = true;
+            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.AutoSize = true;
+            this.lbtnStresstest.BackColor = System.Drawing.Color.LightBlue;
+            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnStresstest.ForeColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.lbtnStresstest.LinkColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.Location = new System.Drawing.Point(116, 6);
+            this.lbtnStresstest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.lbtnStresstest.MinimumSize = new System.Drawing.Size(0, 24);
+            this.lbtnStresstest.Name = "lbtnStresstest";
+            this.lbtnStresstest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.lbtnStresstest.RadioButtonBehavior = true;
+            this.lbtnStresstest.Size = new System.Drawing.Size(95, 24);
+            this.lbtnStresstest.TabIndex = 0;
+            this.lbtnStresstest.TabStop = true;
+            this.lbtnStresstest.Text = "The Stresstest";
+            this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbtnStresstest.Visible = false;
+            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Black;
             // 
             // dgvFastResults
             // 
@@ -377,141 +396,6 @@
             this.label3.TabIndex = 16;
             this.label3.Text = "Configuration";
             // 
-            // btnMonitor
-            // 
-            this.btnMonitor.AutoSize = true;
-            this.btnMonitor.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnMonitor.BackColor = System.Drawing.Color.LightBlue;
-            this.btnMonitor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMonitor.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMonitor.Location = new System.Drawing.Point(510, 5);
-            this.btnMonitor.Margin = new System.Windows.Forms.Padding(3, 5, 0, 3);
-            this.btnMonitor.MaximumSize = new System.Drawing.Size(1000, 24);
-            this.btnMonitor.Name = "btnMonitor";
-            this.btnMonitor.Size = new System.Drawing.Size(73, 24);
-            this.btnMonitor.TabIndex = 18;
-            this.btnMonitor.Text = "Monitor...";
-            this.toolTip.SetToolTip(this.btnMonitor, "The monitors used to link stresstest results to performance counters. Maximum 5 a" +
-        "llowed.");
-            this.btnMonitor.UseVisualStyleBackColor = false;
-            this.btnMonitor.Click += new System.EventHandler(this.btnMonitor_Click);
-            // 
-            // flpMetrics
-            // 
-            this.flpMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpMetrics.BackColor = System.Drawing.Color.White;
-            this.flpMetrics.Controls.Add(this.label2);
-            this.flpMetrics.Controls.Add(this.kvmThreadsInUse);
-            this.flpMetrics.Controls.Add(this.kvmCPUUsage);
-            this.flpMetrics.Controls.Add(this.kvmContextSwitchesPerSecond);
-            this.flpMetrics.Controls.Add(this.kvmMemoryUsage);
-            this.flpMetrics.Controls.Add(this.kvmNicsSent);
-            this.flpMetrics.Controls.Add(this.kvmNicsReceived);
-            this.flpMetrics.Controls.Add(this.btnExport);
-            this.flpMetrics.Location = new System.Drawing.Point(0, 0);
-            this.flpMetrics.Margin = new System.Windows.Forms.Padding(0);
-            this.flpMetrics.Name = "flpMetrics";
-            this.flpMetrics.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.flpMetrics.Size = new System.Drawing.Size(897, 61);
-            this.flpMetrics.TabIndex = 2;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.Black;
-            this.label2.Location = new System.Drawing.Point(3, 6);
-            this.label2.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(312, 20);
-            this.label2.TabIndex = 9;
-            this.label2.Text = "Client Monitoring and Stresstest Messages";
-            // 
-            // btnExport
-            // 
-            this.btnExport.AutoSize = true;
-            this.btnExport.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnExport.BackColor = System.Drawing.SystemColors.Control;
-            this.btnExport.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
-            this.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExport.Location = new System.Drawing.Point(324, 29);
-            this.btnExport.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
-            this.btnExport.MaximumSize = new System.Drawing.Size(127, 24);
-            this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(127, 24);
-            this.btnExport.TabIndex = 12;
-            this.btnExport.Text = "Export Messages...";
-            this.btnExport.UseVisualStyleBackColor = false;
-            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
-            // 
-            // lbtnStresstest
-            // 
-            this.lbtnStresstest.Active = true;
-            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.AutoSize = true;
-            this.lbtnStresstest.BackColor = System.Drawing.SystemColors.Control;
-            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.lbtnStresstest.ForeColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.lbtnStresstest.LinkColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.Location = new System.Drawing.Point(111, 8);
-            this.lbtnStresstest.Margin = new System.Windows.Forms.Padding(0, 5, 0, 3);
-            this.lbtnStresstest.Name = "lbtnStresstest";
-            this.lbtnStresstest.Padding = new System.Windows.Forms.Padding(3);
-            this.lbtnStresstest.RadioButtonBehavior = true;
-            this.lbtnStresstest.Size = new System.Drawing.Size(95, 19);
-            this.lbtnStresstest.TabIndex = 0;
-            this.lbtnStresstest.TabStop = true;
-            this.lbtnStresstest.Text = "The Stresstest";
-            this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Black;
-            // 
-            // linkButton1
-            // 
-            this.linkButton1.Active = false;
-            this.linkButton1.ActiveLinkColor = System.Drawing.Color.Blue;
-            this.linkButton1.AutoSize = true;
-            this.linkButton1.BackColor = System.Drawing.Color.White;
-            this.linkButton1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.linkButton1.ForeColor = System.Drawing.Color.Blue;
-            this.linkButton1.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.linkButton1.LinkColor = System.Drawing.Color.Blue;
-            this.linkButton1.Location = new System.Drawing.Point(206, 8);
-            this.linkButton1.Margin = new System.Windows.Forms.Padding(0, 5, 0, 3);
-            this.linkButton1.Name = "linkButton1";
-            this.linkButton1.Padding = new System.Windows.Forms.Padding(3);
-            this.linkButton1.RadioButtonBehavior = true;
-            this.linkButton1.Size = new System.Drawing.Size(57, 19);
-            this.linkButton1.TabIndex = 10000;
-            this.linkButton1.TabStop = true;
-            this.linkButton1.Text = "Monitor 1";
-            this.linkButton1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.linkButton1.VisitedLinkColor = System.Drawing.Color.Blue;
-            // 
-            // linkButton2
-            // 
-            this.linkButton2.Active = false;
-            this.linkButton2.ActiveLinkColor = System.Drawing.Color.Blue;
-            this.linkButton2.AutoSize = true;
-            this.linkButton2.BackColor = System.Drawing.Color.White;
-            this.linkButton2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.linkButton2.ForeColor = System.Drawing.Color.Blue;
-            this.linkButton2.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.linkButton2.LinkColor = System.Drawing.Color.Blue;
-            this.linkButton2.Location = new System.Drawing.Point(263, 8);
-            this.linkButton2.Margin = new System.Windows.Forms.Padding(0, 5, 0, 3);
-            this.linkButton2.Name = "linkButton2";
-            this.linkButton2.Padding = new System.Windows.Forms.Padding(3);
-            this.linkButton2.RadioButtonBehavior = true;
-            this.linkButton2.Size = new System.Drawing.Size(57, 19);
-            this.linkButton2.TabIndex = 10001;
-            this.linkButton2.TabStop = true;
-            this.linkButton2.Text = "Monitor 2";
-            this.linkButton2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.linkButton2.VisitedLinkColor = System.Drawing.Color.Blue;
-            // 
             // kvpStresstest
             // 
             this.kvpStresstest.BackColor = System.Drawing.Color.LightBlue;
@@ -576,6 +460,25 @@
             this.kvpLogRuleSet.TabStop = false;
             this.kvpLogRuleSet.Tooltip = "This is used in and defines the log entries.";
             this.kvpLogRuleSet.Value = "";
+            // 
+            // btnMonitor
+            // 
+            this.btnMonitor.AutoSize = true;
+            this.btnMonitor.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnMonitor.BackColor = System.Drawing.Color.LightBlue;
+            this.btnMonitor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMonitor.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMonitor.Location = new System.Drawing.Point(510, 5);
+            this.btnMonitor.Margin = new System.Windows.Forms.Padding(3, 5, 0, 3);
+            this.btnMonitor.MaximumSize = new System.Drawing.Size(1000, 24);
+            this.btnMonitor.Name = "btnMonitor";
+            this.btnMonitor.Size = new System.Drawing.Size(73, 24);
+            this.btnMonitor.TabIndex = 18;
+            this.btnMonitor.Text = "Monitor...";
+            this.toolTip.SetToolTip(this.btnMonitor, "The monitors used to link stresstest results to performance counters. Maximum 5 a" +
+        "llowed.");
+            this.btnMonitor.UseVisualStyleBackColor = false;
+            this.btnMonitor.Click += new System.EventHandler(this.btnMonitor_Click);
             // 
             // kvpConcurrencies
             // 
@@ -693,6 +596,38 @@
             this.epnlMessages.TabIndex = 3;
             this.epnlMessages.CollapsedChanged += new System.EventHandler(this.epnlMessages_CollapsedChanged);
             // 
+            // flpMetrics
+            // 
+            this.flpMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpMetrics.BackColor = System.Drawing.Color.White;
+            this.flpMetrics.Controls.Add(this.label2);
+            this.flpMetrics.Controls.Add(this.kvmThreadsInUse);
+            this.flpMetrics.Controls.Add(this.kvmCPUUsage);
+            this.flpMetrics.Controls.Add(this.kvmContextSwitchesPerSecond);
+            this.flpMetrics.Controls.Add(this.kvmMemoryUsage);
+            this.flpMetrics.Controls.Add(this.kvmNicsSent);
+            this.flpMetrics.Controls.Add(this.kvmNicsReceived);
+            this.flpMetrics.Controls.Add(this.btnExport);
+            this.flpMetrics.Location = new System.Drawing.Point(0, 0);
+            this.flpMetrics.Margin = new System.Windows.Forms.Padding(0);
+            this.flpMetrics.Name = "flpMetrics";
+            this.flpMetrics.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.flpMetrics.Size = new System.Drawing.Size(897, 61);
+            this.flpMetrics.TabIndex = 2;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.Black;
+            this.label2.Location = new System.Drawing.Point(3, 6);
+            this.label2.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(312, 20);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Client Monitoring and Stresstest Messages";
+            // 
             // kvmThreadsInUse
             // 
             this.kvmThreadsInUse.BackColor = System.Drawing.Color.GhostWhite;
@@ -773,6 +708,24 @@
             this.kvmNicsReceived.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
             this.kvmNicsReceived.Value = "N/A";
             // 
+            // btnExport
+            // 
+            this.btnExport.AutoSize = true;
+            this.btnExport.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnExport.BackColor = System.Drawing.SystemColors.Control;
+            this.btnExport.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnExport.Location = new System.Drawing.Point(324, 29);
+            this.btnExport.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
+            this.btnExport.MaximumSize = new System.Drawing.Size(127, 24);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(127, 24);
+            this.btnExport.TabIndex = 12;
+            this.btnExport.Text = "Export Messages...";
+            this.btnExport.UseVisualStyleBackColor = false;
+            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
+            // 
             // StresstestControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -848,7 +801,5 @@
         private System.Windows.Forms.DataGridView dgvFastResults;
         private Util.LinkButton lbtnStresstest;
         private System.Windows.Forms.FlowLayoutPanel flpFastResultsHeader;
-        private Util.LinkButton linkButton1;
-        private Util.LinkButton linkButton2;
     }
 }

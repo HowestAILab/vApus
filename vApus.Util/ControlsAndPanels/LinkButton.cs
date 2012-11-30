@@ -21,7 +21,9 @@ namespace vApus.Util
         public LinkButton()
         {
             Padding = new Padding(3);
-            TextAlign = ContentAlignment.MiddleCenter;
+            TextAlign = ContentAlignment.TopCenter;
+            Padding = new Padding(3, 4, 3, 3);
+            MinimumSize = new Size(0, 24);
             SetStateInGui();
         }
 
@@ -47,7 +49,7 @@ namespace vApus.Util
         {
             if (_active)
             {
-                BackColor = SystemColors.Control;
+                BackColor = Color.LightBlue;
                 LinkColor = ActiveLinkColor = VisitedLinkColor = ForeColor = Color.Black;
                 Font = new Font(Font, FontStyle.Bold);
                 LinkBehavior = LinkBehavior.NeverUnderline;

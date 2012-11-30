@@ -17,27 +17,6 @@ namespace vApus.Results
     {
         private long _logEntriesProcessed;
 
-        public StresstestMetrics()
-        {
-        }
-
-        public StresstestMetrics(SerializationInfo info, StreamingContext ctxt)
-        {
-            SerializationReader sr = SerializationReader.GetReader(info);
-            StartMeasuringRuntime = sr.ReadDateTime();
-            EstimatedTimeLeft = sr.ReadTimeSpan();
-            MeasuredRunTime = sr.ReadTimeSpan();
-            ConcurrentUsers = sr.ReadInt32();
-            Run = sr.ReadInt32();
-            LogEntries = sr.ReadInt64();
-            _logEntriesProcessed = sr.ReadInt64();
-            ResponsesPerSecond = sr.ReadDouble();
-            AverageResponseTime = sr.ReadTimeSpan();
-            MaxResponseTime = sr.ReadTimeSpan();
-            AverageDelay = sr.ReadTimeSpan();
-            Errors = sr.ReadInt64();
-        }
-
         public DateTime StartMeasuringRuntime { get; set; }
         public TimeSpan EstimatedTimeLeft { get; set; }
         public TimeSpan MeasuredRunTime { get; set; }
@@ -74,12 +53,29 @@ namespace vApus.Results
             get { return _logEntriesProcessed; }
             set
             {
-                if (value > LogEntries)
-                    value = LogEntries;
+                if (value > LogEntries) value = LogEntries;
                 _logEntriesProcessed = value;
             }
         }
 
+        public StresstestMetrics() { }
+
+        public StresstestMetrics(SerializationInfo info, StreamingContext ctxt)
+        {
+            SerializationReader sr = SerializationReader.GetReader(info);
+            StartMeasuringRuntime = sr.ReadDateTime();
+            EstimatedTimeLeft = sr.ReadTimeSpan();
+            MeasuredRunTime = sr.ReadTimeSpan();
+            ConcurrentUsers = sr.ReadInt32();
+            Run = sr.ReadInt32();
+            LogEntries = sr.ReadInt64();
+            _logEntriesProcessed = sr.ReadInt64();
+            ResponsesPerSecond = sr.ReadDouble();
+            AverageResponseTime = sr.ReadTimeSpan();
+            MaxResponseTime = sr.ReadTimeSpan();
+            AverageDelay = sr.ReadTimeSpan();
+            Errors = sr.ReadInt64();
+        }
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             SerializationWriter sw = SerializationWriter.GetWriter();

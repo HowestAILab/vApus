@@ -9,12 +9,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace vApus.Results.Metrics.Monitor
+namespace vApus.Results
 {
     public class MonitorMetrics
     {
         public DateTime StartMeasuringRuntime { get; set; }
-        public TimeSpan EstimatedTimeLeft { get; set; }
         public TimeSpan MeasuredRunTime { get; set; }
         public int ConcurrentUsers { get; set; }
 

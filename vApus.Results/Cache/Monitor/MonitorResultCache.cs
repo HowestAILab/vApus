@@ -12,12 +12,10 @@ namespace vApus.Results
 {
     public class MonitorResultCache
     {
-        public MonitorResultCache()
-        {
-            MonitorConfigurationId = -1;
-            Rows = new List<object[]>();
-        }
-
+        /// <summary>
+        ///     Identifier for the metrics (the tostring of the monitor)
+        /// </summary>
+        public string Monitor { get; set; }
         /// <summary>
         ///     For linking the right results to the right configuration.
         /// </summary>
@@ -27,5 +25,13 @@ namespace vApus.Results
         ///     Set this when stresstesting.
         /// </summary>
         public List<object[]> Rows { get; private set; }
+        public string[] Headers { get; set; }
+
+        public MonitorResultCache()
+        {
+            MonitorConfigurationId = -1;
+            Rows = new List<object[]>();
+            Headers = new string[0];
+        }
     }
 }

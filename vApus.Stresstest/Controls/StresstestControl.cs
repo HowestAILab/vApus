@@ -101,7 +101,6 @@ namespace vApus.Stresstest
         /// </summary>
         public void SetStresstestInitialized()
         {
-            lblUpdatesIn.Visible = true;
             epnlMessages.ClearEvents();
 
             lblStarted.Text = string.Empty;
@@ -177,7 +176,7 @@ namespace vApus.Stresstest
             else
             {
                 lblUpdatesIn.ForeColor = Color.DarkGray;
-                lblUpdatesIn.Text = "updates in ..  ";
+                lblUpdatesIn.Text = "updates in  ";
                 lblUpdatesIn.Image = Resources.Wait;
             }
         }
@@ -230,7 +229,7 @@ namespace vApus.Stresstest
             else
             {
                 kvmMemoryUsage.Value = memoryUsage.ToString() + " / " + totalVisibleMemory + " MB";
-                if (memoryUsage < 0.9*totalVisibleMemory)
+                if (memoryUsage < 0.9 * totalVisibleMemory)
                 {
                     kvmMemoryUsage.BackColor = Color.GhostWhite;
                 }
@@ -310,7 +309,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateConcurrencyFastResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true)
+        public void UpdateFastConcurrencyResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true)
         {
             _concurrencyMetrics = metrics;
             _concurrencyMetricsCache = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
@@ -328,7 +327,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateRunFastResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true)
+        public void UpdateFastRunResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true)
         {
             _runMetrics = metrics;
             _runMetricsCache = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
@@ -344,14 +343,8 @@ namespace vApus.Stresstest
 
         private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            try
-            {
-                List<object[]> cache = cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache : _runMetricsCache;
-                e.Value = cache[e.RowIndex][e.ColumnIndex];
-            }
-            catch
-            {
-            }
+            try { e.Value = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMetricsCache : _runMetricsCache)[e.RowIndex][e.ColumnIndex]; }
+            catch { }
         }
 
         /// <summary>
@@ -369,12 +362,9 @@ namespace vApus.Stresstest
 
         private void dgvFastResults_Scroll(object sender, ScrollEventArgs e)
         {
-            var verticalScrollBar =
-                typeof (DataGridView).GetProperty("VerticalScrollBar",
-                                                  BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
-                                     .GetValue(dgvFastResults) as ScrollBar;
-            _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >=
-                                    verticalScrollBar.Maximum;
+            var verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+                                                        .GetValue(dgvFastResults) as ScrollBar;
+            _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >= verticalScrollBar.Maximum;
         }
 
         /// <summary>
@@ -384,10 +374,7 @@ namespace vApus.Stresstest
         private void SetMeasuredRunTime()
         {
             epnlMessages.SetEndOfTimeFrameToNow();
-
-            lblMeasuredRuntime.Text = "; ran " +
-                                      (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame)
-                                          .ToShortFormattedString();
+            lblMeasuredRuntime.Text = "; ran " + (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString();
         }
 
         private void btnRerunning_Click(object sender, EventArgs e)
@@ -402,7 +389,7 @@ namespace vApus.Stresstest
         /// </summary>
         public void SetStresstestStopped()
         {
-            lblUpdatesIn.Visible = false;
+            lblUpdatesIn.Text = string.Empty;
             btnRerunning.Visible = false;
         }
 
@@ -421,9 +408,7 @@ namespace vApus.Stresstest
                 if (exception != null)
                 {
                     message = "The stresstest threw an exception:\n" + exception + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION,
-                                           DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name +
-                                           ".txt");
+                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     LogWrapper.LogByLevel(message, LogLevel.Error);
                     AppendMessages(message, Color.Red);
                 }
@@ -433,9 +418,7 @@ namespace vApus.Stresstest
                         lblStopped.ForeColor = Color.Green;
                         lblStopped.Text = "and finished at " + epnlMessages.EndOfTimeFrame;
 
-                        message = string.Format("The test completed succesfully in {0}.",
-                                                (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame)
-                                                    .ToShortFormattedString());
+                        message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString());
                         LogWrapper.LogByLevel(message, LogLevel.Info);
                         AppendMessages(message, Color.GreenYellow);
 
@@ -459,19 +442,16 @@ namespace vApus.Stresstest
                         break;
                     default:
                         lblStopped.Text = string.Empty;
-                        lblUpdatesIn.Visible = true;
                         break;
                 }
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info)
         {
-            var c = new[] {Color.DarkGray, Color.Orange, Color.Red};
-            AppendMessages(message, c[(int) logLevel], logLevel);
+            var c = new[] { Color.DarkGray, Color.Orange, Color.Red };
+            AppendMessages(message, c[(int)logLevel], logLevel);
         }
 
         /// <summary>
@@ -481,13 +461,8 @@ namespace vApus.Stresstest
         /// <param name="logLevel"></param>
         public void AppendMessages(string message, Color eventColor, LogLevel logLevel = LogLevel.Info)
         {
-            try
-            {
-                epnlMessages.AddEvent((EventViewEventType) logLevel, eventColor, message);
-            }
-            catch
-            {
-            }
+            try { epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message); }
+            catch { }
         }
 
         /// <summary>
@@ -504,8 +479,8 @@ namespace vApus.Stresstest
         /// </summary>
         public void SetEvents(List<EventPanelEvent> events)
         {
-            if (IsDisposed)
-                return;
+            if (IsDisposed) return;
+
             LockWindowUpdate(Handle.ToInt32());
             epnlMessages.ClearEvents();
             foreach (EventPanelEvent epe in events)
@@ -535,10 +510,7 @@ namespace vApus.Stresstest
         private void chkReadable_CheckedChanged(object sender, EventArgs e)
         {
             SetFastResultsOnGuiInteraction();
-            toolTip.SetToolTip(chkReadable,
-                               chkReadable.Checked
-                                   ? "Uncheck this if you want results you can calculate with."
-                                   : "Check this if you want readable results.");
+            toolTip.SetToolTip(chkReadable, chkReadable.Checked ? "Uncheck this if you want results you can calculate with." : "Check this if you want readable results.");
         }
 
         private void SetFastResultsOnGuiInteraction()
@@ -571,8 +543,8 @@ namespace vApus.Stresstest
 
             dgvFastResults.Columns.AddRange(clms);
 
-            UpdateConcurrencyFastResults(_concurrencyMetrics, false);
-            UpdateRunFastResults(_runMetrics, false);
+            UpdateFastConcurrencyResults(_concurrencyMetrics, false);
+            UpdateFastRunResults(_runMetrics, false);
         }
 
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e)
@@ -650,9 +622,7 @@ namespace vApus.Stresstest
                 splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
                 BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;
             }
-            catch
-            {
-            }
+            catch  {  }
 
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }
