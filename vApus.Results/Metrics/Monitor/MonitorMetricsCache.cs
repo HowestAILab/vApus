@@ -36,7 +36,7 @@ namespace vApus.Results
         public List<MonitorMetrics> AddOrUpdate(ConcurrencyResult result, MonitorResultCache monitorResultCache)
         {
             __AddOrUpdate(MonitorMetricsHelper.GetMetrics(result, monitorResultCache), monitorResultCache, result);
-            return GetConcurrencyMetrics();
+            return GetConcurrencyMetrics(monitorResultCache.Monitor);
         }
         /// <summary>
         /// This will auto add or update metrics for the given result.
@@ -46,7 +46,7 @@ namespace vApus.Results
         public List<MonitorMetrics> AddOrUpdate(RunResult result, MonitorResultCache monitorResultCache)
         {
             __AddOrUpdate(MonitorMetricsHelper.GetMetrics(result, monitorResultCache), monitorResultCache, result);
-            return GetRunMetrics();
+            return GetRunMetrics(monitorResultCache.Monitor);
         }
         private void __AddOrUpdate(MonitorMetrics metrics, MonitorResultCache monitorResultCache = null, object result = null)
         {
@@ -71,20 +71,20 @@ namespace vApus.Results
         ///     This will update the metrics if possible, otherwise it will just return them.
         ///     The concurrency results are removed from cache when not needed anymre.
         /// </summary>
+        /// <monitorToString>The identifier of the monitor.</monitorToString>
         /// <returns></returns>
-        public List<MonitorMetrics> GetConcurrencyMetrics()
+        public List<MonitorMetrics> GetConcurrencyMetrics(string monitorToString)
         {
             var removeResults = new List<MetricsCacheObject>();
             var metrics = new List<MonitorMetrics>();
             foreach (MetricsCacheObject o in _cache)
-                if (o.Metrics.Run == 0)
+                if (o.Metrics.Monitor == monitorToString && o.Metrics.Run == 0)
                 {
                     if (o.Result != null && o.MonitorResultCache != null)
                     {
                         var cr = o.Result as ConcurrencyResult;
                         o.Metrics = MonitorMetricsHelper.GetMetrics(cr, o.MonitorResultCache);
-                        if (cr.StoppedAt != DateTime.MinValue)
-                            removeResults.Add(o);
+                        if (cr.StoppedAt != DateTime.MinValue) removeResults.Add(o);
                     }
                     metrics.Add(o.Metrics);
                 }
@@ -101,12 +101,13 @@ namespace vApus.Results
         /// <summary>
         ///     This will update the metrics if possible, otherwise it will just return them.
         /// </summary>
+        /// <monitorToString>The identifier of the monitor.</monitorToString>
         /// <returns></returns>
-        public List<MonitorMetrics> GetRunMetrics()
+        public List<MonitorMetrics> GetRunMetrics(string monitorToString)
         {
             var metrics = new List<MonitorMetrics>();
             foreach (MetricsCacheObject o in _cache)
-                if (o.Metrics.Run != 0)
+                if (o.Metrics.Monitor == monitorToString && o.Metrics.Run != 0)
                 {
                     if (o.Result != null && o.MonitorResultCache != null) o.Metrics = MonitorMetricsHelper.GetMetrics(o.Result as RunResult, o.MonitorResultCache);
                     metrics.Add(o.Metrics);

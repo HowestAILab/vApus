@@ -102,8 +102,12 @@ namespace vApus.Stresstest
 
         private void stresstestControl_MonitorClicked(object sender, EventArgs e)
         {
-            foreach (MonitorView view in _monitorViews)
+            //Make sure the first monitor is the first visible.
+            for (int i = _monitorViews.Count - 1; i != -1; i--)
+            {
+                var view = _monitorViews[i];
                 if (view != null && !view.IsDisposed) view.Show();
+            }
         }
 
         /// <summary>
@@ -244,6 +248,8 @@ namespace vApus.Stresstest
             //stresstestReportControl.ClearReport();
 
             stresstestControl.SetConfigurationControls(_stresstest);
+
+            _monitorViews.Clear();
 
             solutionComponentPropertyPanel.Lock();
 
@@ -412,8 +418,6 @@ namespace vApus.Stresstest
                     monitorView.OnUnhandledException -= monitorView_OnUnhandledException;
                 }
                 catch { }
-
-            _monitorViews.Clear();
 
             foreach (Monitor.Monitor monitor in _stresstest.Monitors)
             {
@@ -591,7 +595,7 @@ namespace vApus.Stresstest
             foreach (var monitorResultCache in GetMonitorResultCaches())
             {
                 stresstestControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
-                stresstestControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics());
+                stresstestControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
             }
 
             stresstestControl.SetRerunning(false);
@@ -626,8 +630,8 @@ namespace vApus.Stresstest
                 stresstestControl.UpdateFastRunResults(runMetrics);
                 foreach (var monitorResultCache in GetMonitorResultCaches())
                 {
-                    stresstestControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics());
-                    stresstestControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics());
+                    stresstestControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                    stresstestControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                 }
 
                 //Set rerunning
@@ -784,8 +788,8 @@ namespace vApus.Stresstest
                 stresstestControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics());
                 foreach (var monitorResultCache in GetMonitorResultCaches())
                 {
-                    stresstestControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics());
-                    stresstestControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics());
+                    stresstestControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                    stresstestControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                 }
 
                 stresstestControl.SetRerunning(false);

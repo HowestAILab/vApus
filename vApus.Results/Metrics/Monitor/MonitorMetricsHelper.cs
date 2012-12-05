@@ -59,18 +59,28 @@ namespace vApus.Results
         public static MonitorMetrics GetMetrics(ConcurrencyResult result, MonitorResultCache monitorResultCache)
         {
             var metrics = new MonitorMetrics();
+            metrics.Monitor = monitorResultCache.Monitor;
             metrics.StartMeasuringRuntime = result.StartedAt;
             metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
             metrics.ConcurrentUsers = result.ConcurrentUsers;
             metrics.Headers = monitorResultCache.Headers;
 
-            SetAverageMonitorResults(metrics, GetMonitorValues(result.StartedAt, result.StoppedAt == DateTime.MinValue ? DateTime.MaxValue : result.StoppedAt, monitorResultCache));
+            //Done this way to strip the monitor values during vApus think times between the runs.
+            var monitorValues = new Dictionary<DateTime, float[]>();
+            foreach (var runResult in result.RunResults)
+            {
+                var part = GetMonitorValues(runResult.StartedAt, runResult.StoppedAt == DateTime.MinValue ? DateTime.MaxValue : runResult.StoppedAt, monitorResultCache);
+                foreach (var key in part.Keys) if(!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
+            }
+
+            SetAverageMonitorResults(metrics, monitorValues);
 
             return metrics;
         }
         public static MonitorMetrics GetMetrics(RunResult result, MonitorResultCache monitorResultCache)
         {
             var metrics = new MonitorMetrics();
+            metrics.Monitor = monitorResultCache.Monitor;
             metrics.StartMeasuringRuntime = result.StartedAt;
             metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
             metrics.ConcurrentUsers = result.VirtualUserResults.Length;

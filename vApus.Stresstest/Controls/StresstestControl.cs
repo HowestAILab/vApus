@@ -364,8 +364,9 @@ namespace vApus.Stresstest
             _concurrencyStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
             if (cboDrillDown.SelectedIndex == 0 && lbtnStresstest.Active)
             {
-                dgvFastResults.RowCount = 0;
-                dgvFastResults.RowCount = _concurrencyStresstestMetricsRows.Count;
+                int count = _concurrencyStresstestMetricsRows.Count;
+                if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
+                dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
             }
             if (setMeasuredRunTime) SetMeasuredRunTime();
@@ -389,8 +390,9 @@ namespace vApus.Stresstest
 
             if (cboDrillDown.SelectedIndex == 0 && lbtnMonitor != null && lbtnMonitor.Active)
             {
-                dgvFastResults.RowCount = 0;
-                dgvFastResults.RowCount = concurrencyMonitorMetricsRows.Count;
+                int count = concurrencyMonitorMetricsRows.Count;
+                if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
+                dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
             }
 
@@ -407,8 +409,9 @@ namespace vApus.Stresstest
             _runStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
             if (cboDrillDown.SelectedIndex == 1)
             {
-                dgvFastResults.RowCount = 0;
-                dgvFastResults.RowCount = _runStresstestMetricsRows.Count;
+                int count = _runStresstestMetricsRows.Count;
+                if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
+                dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
             }
             if (setMeasuredRunTime) SetMeasuredRunTime();
@@ -432,8 +435,9 @@ namespace vApus.Stresstest
 
             if (cboDrillDown.SelectedIndex == 1 && lbtnMonitor != null && lbtnMonitor.Active)
             {
-                dgvFastResults.RowCount = 0;
-                dgvFastResults.RowCount = runMonitorMetricsRows.Count;
+                int count = runMonitorMetricsRows.Count;
+                if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
+                dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
             }
             if (_trySettingDataGridViewColumnsOnNextMonitorUpdate) SetFastResultsOnGuiInteraction();
@@ -635,7 +639,6 @@ namespace vApus.Stresstest
         private void SetFastResultsOnGuiInteraction()
         {
             //Set the headers.
-            dgvFastResults.RowCount = 0;
             dgvFastResults.Columns.Clear();
 
             string monitorToString = null;
@@ -650,7 +653,7 @@ namespace vApus.Stresstest
                 if (monitorToString != null)
                     if (cboDrillDown.SelectedIndex == 0 && _concurrencyMonitorMetrics.ContainsKey(monitorToString) && _concurrencyMonitorMetrics[monitorToString].Count != 0)
                         columnHeaders = MonitorMetricsHelper.GetMetricsHeadersConcurrency(_concurrencyMonitorMetrics[monitorToString][0].Headers, chkReadable.Checked);
-                    else if (cboDrillDown.SelectedIndex == 0 && _runMonitorMetrics.ContainsKey(monitorToString) && _runMonitorMetrics[monitorToString].Count != 0)
+                    else if (cboDrillDown.SelectedIndex == 1 && _runMonitorMetrics.ContainsKey(monitorToString) && _runMonitorMetrics[monitorToString].Count != 0)
                         columnHeaders = MonitorMetricsHelper.GetMetricsHeadersRun(_runMonitorMetrics[monitorToString][0].Headers, chkReadable.Checked);
             }
             //For when the selected monitor is not initialized yet.
@@ -683,7 +686,7 @@ namespace vApus.Stresstest
             if (lbtnStresstest.Active)
                 if (cboDrillDown.SelectedIndex == 0) UpdateFastConcurrencyResults(_concurrencyStresstestMetrics, false); else UpdateFastRunResults(_runStresstestMetrics, false);
             else if (monitorToString != null)
-                if (cboDrillDown.SelectedIndex == 0) UpdateFastConcurrencyResults(monitorToString, _concurrencyMonitorMetrics[monitorToString]); else UpdateFastConcurrencyResults(monitorToString, _runMonitorMetrics[monitorToString]);
+                if (cboDrillDown.SelectedIndex == 0) UpdateFastConcurrencyResults(monitorToString, _concurrencyMonitorMetrics[monitorToString]); else UpdateFastRunResults(monitorToString, _runMonitorMetrics[monitorToString]);
         }
 
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e)

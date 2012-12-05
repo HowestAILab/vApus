@@ -13,6 +13,11 @@ namespace vApus.Results
 {
     public class MonitorMetrics
     {
+        /// <summary>
+        /// The to string of the monitor as identifier.
+        /// </summary>
+        public string Monitor { get; set; }
+
         public DateTime StartMeasuringRuntime { get; set; }
         public TimeSpan MeasuredRunTime { get; set; }
         public int ConcurrentUsers { get; set; }
