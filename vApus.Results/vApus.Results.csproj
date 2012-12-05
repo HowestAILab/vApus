@@ -60,6 +60,7 @@
       <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Metrics\Monitor\MonitorMetrics.cs" />
+    <Compile Include="Metrics\Monitor\MonitorMetricsCache.cs" />
     <Compile Include="Metrics\Monitor\MonitorMetricsHelper.cs" />
     <Compile Include="Metrics\Stresstest\StresstestMetrics.cs" />
     <Compile Include="Metrics\Stresstest\StresstestMetricsCache.cs" />

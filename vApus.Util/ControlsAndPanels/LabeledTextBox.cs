@@ -49,8 +49,7 @@ namespace vApus.Util
             get { return base.Text; }
             set
             {
-                if (!_settingLabel)
-                    ForeColor = Color.Black;
+                if (!_settingLabel) ForeColor = Color.Black;
                 base.Text = value;
             }
         }

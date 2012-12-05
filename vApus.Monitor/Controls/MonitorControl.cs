@@ -157,6 +157,7 @@ namespace vApus.Monitor
                 clm.HeaderText = header;
 
                 clm.SortMode = DataGridViewColumnSortMode.NotSortable;
+                //To allow 2 power 32 columns.
                 clm.FillWeight = 1;
 
                 clms[headerIndex] = clm;

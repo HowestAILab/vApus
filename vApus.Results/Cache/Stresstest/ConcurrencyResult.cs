@@ -13,6 +13,21 @@ namespace vApus.Results
 {
     public class ConcurrencyResult
     {
+        public int ConcurrentUsers { get; private set; }
+
+        /// <summary>
+        ///     Not in the database, only for the metrics helper.
+        /// </summary>
+        public int RunCount { get; private set; }
+
+        public DateTime StartedAt { get; private set; }
+        /// <summary>
+        /// Set to DateTime.MinValue in the constructor.
+        /// </summary>
+        public DateTime StoppedAt { get; internal set; }
+
+        public List<RunResult> RunResults { get; private set; }
+
         /// <summary>
         /// </summary>
         /// <param name="concurrentUsers"></param>
@@ -25,17 +40,5 @@ namespace vApus.Results
             RunCount = runCount;
             RunResults = new List<RunResult>();
         }
-
-        public int ConcurrentUsers { get; private set; }
-
-        /// <summary>
-        ///     Not in the database, only for the metrics helper.
-        /// </summary>
-        public int RunCount { get; private set; }
-
-        public DateTime StartedAt { get; private set; }
-        public DateTime StoppedAt { get; internal set; }
-
-        public List<RunResult> RunResults { get; private set; }
     }
 }

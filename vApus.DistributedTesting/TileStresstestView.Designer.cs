@@ -88,7 +88,7 @@
             // 
             this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestControl.Location = new System.Drawing.Point(0, 40);
-            this.stresstestControl.MonitorConfigurationControlVisible = false;
+            this.stresstestControl.MonitorConfigurationControlAndLinkButtonsVisible = false;
             this.stresstestControl.Name = "stresstestControl";
             this.stresstestControl.Size = new System.Drawing.Size(843, 592);
             this.stresstestControl.TabIndex = 2;

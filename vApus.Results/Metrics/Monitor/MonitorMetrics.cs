@@ -22,6 +22,13 @@ namespace vApus.Results
         /// </summary>
         public int Run { get; set; }
 
-        public List<float> AverageMonitorResults { get; set; }
+        public string[] Headers { get; set; }
+        public float[] AverageMonitorResults { get; set; }
+
+        public MonitorMetrics()
+        {
+            Headers = new string[0];
+            AverageMonitorResults = new float[0];
+        }
     }
 }

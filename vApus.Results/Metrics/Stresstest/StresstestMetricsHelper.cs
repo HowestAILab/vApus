@@ -40,14 +40,9 @@ namespace vApus.Results
             };
         #endregion
 
-        #region Properties
-        public static string[] ReadableMetricsHeadersConcurrency { get { return _readableMetricsHeadersConcurrency; } }
-        public static string[] ReadableMetricsHeadersRun { get { return _readableMetricsHeadersRun; } }
-        public static string[] CalculatableMetricsHeadersConcurrency { get { return _calculatableMetricsHeadersConcurrency; } }
-        public static string[] CalculatableMetricsHeadersRun { get { return _calculatableMetricsHeadersRun; } }
-        #endregion
-
         #region Functions
+        public static string[] GetMetricsHeadersConcurrency(bool readable) { return readable ? _readableMetricsHeadersConcurrency : _calculatableMetricsHeadersConcurrency; }
+        public static string[] GetMetricsHeadersRun(bool readable) { return readable ? _readableMetricsHeadersRun : _calculatableMetricsHeadersRun; }
         /// <summary>
         ///     Get metrics for a concurrency result.
         /// </summary>

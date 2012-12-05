@@ -194,6 +194,7 @@
             this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lbtnStresstest.Visible = false;
             this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.ActiveChanged += new System.EventHandler(this.lbtnStresstest_ActiveChanged);
             // 
             // dgvFastResults
             // 

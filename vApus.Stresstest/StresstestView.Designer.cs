@@ -96,9 +96,9 @@
             // 
             this.tpStresstest.BackColor = System.Drawing.Color.White;
             this.tpStresstest.Controls.Add(this.stresstestControl);
-            this.tpStresstest.Location = new System.Drawing.Point(0, 19);
+            this.tpStresstest.Location = new System.Drawing.Point(0, 22);
             this.tpStresstest.Name = "tpStresstest";
-            this.tpStresstest.Size = new System.Drawing.Size(790, 497);
+            this.tpStresstest.Size = new System.Drawing.Size(790, 494);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
             // 
@@ -108,9 +108,9 @@
             this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestControl.Location = new System.Drawing.Point(0, 0);
             this.stresstestControl.Margin = new System.Windows.Forms.Padding(0);
-            this.stresstestControl.MonitorConfigurationControlVisible = true;
+            this.stresstestControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
             this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(790, 497);
+            this.stresstestControl.Size = new System.Drawing.Size(790, 494);
             this.stresstestControl.TabIndex = 0;
             this.stresstestControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
             // 

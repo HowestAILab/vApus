@@ -14,36 +14,38 @@ namespace vApus.Results
     public static class MonitorMetricsHelper
     {
         #region Fields
-        private static string[] _metricsHeadersConcurrency, _metricsHeadersRun;
+        //private static string[] _metricsHeadersConcurrency, _metricsHeadersRun;
         #endregion
 
         #region Functions
-        public static string[] GetMetricsHeadersConcurrency(MonitorResultCache monitorResultCache)
+        public static string[] GetMetricsHeadersConcurrency(string[] monitorHeaders, bool readable)
         {
-            if (_metricsHeadersConcurrency == null)
-            {
-                var l = new List<string>(monitorResultCache.Headers.Length + 3);
-                l.Add("Started At");
-                l.Add("Measured Time");
-                l.Add("Concurrency");
-                l.AddRange(GetFormattedHeaders(monitorResultCache.Headers));
-                _metricsHeadersConcurrency = l.ToArray();
-            }
-            return _metricsHeadersConcurrency;
+            //if (_metricsHeadersConcurrency == null)
+            //{
+            var l = new List<string>(monitorHeaders.Length + 3);
+            l.Add("Started At");
+            l.Add(readable ? "Measured Time" : "Measured Time (ms)");
+            l.Add("Concurrency");
+            l.AddRange(GetFormattedHeaders(monitorHeaders));
+            return l.ToArray();
+            //      _metricsHeadersConcurrency = l.ToArray();
+            //}
+            //return _metricsHeadersConcurrency;
         }
-        public static string[] GetMetricsHeadersRun(MonitorResultCache monitorResultCache)
+        public static string[] GetMetricsHeadersRun(string[] monitorHeaders, bool readable)
         {
-            if (_metricsHeadersRun == null)
-            {
-                var l = new List<string>(monitorResultCache.Headers.Length + 4);
-                l.Add("Started At");
-                l.Add("Measured Time");
-                l.Add("Concurrency");
-                l.Add("Run");
-                l.AddRange(GetFormattedHeaders(monitorResultCache.Headers));
-                _metricsHeadersRun = l.ToArray();
-            }
-            return _metricsHeadersRun;
+            //if (_metricsHeadersRun == null)
+            //{
+            var l = new List<string>(monitorHeaders.Length + 4);
+            l.Add("Started At");
+            l.Add(readable ? "Measured Time" : "Measured Time (ms)");
+            l.Add("Concurrency");
+            l.Add("Run");
+            l.AddRange(GetFormattedHeaders(monitorHeaders));
+            return l.ToArray();
+            //    _metricsHeadersRun = l.ToArray();
+            //}
+            //return _metricsHeadersRun;
         }
         private static List<string> GetFormattedHeaders(string[] headers)
         {
@@ -60,6 +62,7 @@ namespace vApus.Results
             metrics.StartMeasuringRuntime = result.StartedAt;
             metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
             metrics.ConcurrentUsers = result.ConcurrentUsers;
+            metrics.Headers = monitorResultCache.Headers;
 
             SetAverageMonitorResults(metrics, GetMonitorValues(result.StartedAt, result.StoppedAt == DateTime.MinValue ? DateTime.MaxValue : result.StoppedAt, monitorResultCache));
 
@@ -72,6 +75,7 @@ namespace vApus.Results
             metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
             metrics.ConcurrentUsers = result.VirtualUserResults.Length;
             metrics.Run = result.Run;
+            metrics.Headers = monitorResultCache.Headers;
 
             SetAverageMonitorResults(metrics, GetMonitorValues(result.StartedAt, result.StoppedAt == DateTime.MinValue ? DateTime.MaxValue : result.StoppedAt, monitorResultCache));
 
@@ -103,14 +107,30 @@ namespace vApus.Results
         }
         private static void SetAverageMonitorResults(MonitorMetrics metrics, Dictionary<DateTime, float[]> values)
         {
-            int valuesCount = values.Count;
-            metrics.AverageMonitorResults = new List<float>(valuesCount);
-
-            foreach (var key in values.Keys)
+            metrics.AverageMonitorResults = new float[0];
+            if (values.Count != 0)
             {
-                float avg = 0;
-                foreach (var value in values[key]) avg += (value / valuesCount);
-                metrics.AverageMonitorResults.Add(avg);
+                //Average divider
+                int valueCount = values.Count;
+                metrics.AverageMonitorResults = new float[valueCount];
+
+                foreach (var key in values.Keys)
+                {
+                    var floats = values[key];
+
+                    // The averages length must be the same as the floats length.
+                    if (metrics.AverageMonitorResults.Length != floats.Length) metrics.AverageMonitorResults = new float[floats.Length];
+
+                    for (int i = 0; i != floats.Length; i++)
+                    {
+                        float value = floats[i], average = metrics.AverageMonitorResults[i];
+
+                        if (value == -1) //Detect invalid values.
+                            metrics.AverageMonitorResults[i] = -1;
+                        else if (average != -1) //Add the value to the averages at the same index (i), divide it first (no overflow).
+                            metrics.AverageMonitorResults[i] = average + (value / valueCount);
+                    }
+                }
             }
         }
 
@@ -122,7 +142,7 @@ namespace vApus.Results
         }
         private static object[] ReadableMetricsToRow(MonitorMetrics metrics)
         {
-            var row = new List<object>(metrics.AverageMonitorResults.Count + 4);
+            var row = new List<object>(metrics.AverageMonitorResults.Length + 4);
             row.Add(metrics.StartMeasuringRuntime.ToString());
             row.Add(metrics.MeasuredRunTime.ToShortFormattedString());
             row.Add(metrics.ConcurrentUsers);
@@ -134,7 +154,7 @@ namespace vApus.Results
         }
         private static object[] CalculatableMetricsToRow(MonitorMetrics metrics)
         {
-            var row = new List<object>(metrics.AverageMonitorResults.Count + 4);
+            var row = new List<object>(metrics.AverageMonitorResults.Length + 4);
             row.Add(metrics.StartMeasuringRuntime.ToString());
             row.Add(Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2));
             row.Add(metrics.ConcurrentUsers);

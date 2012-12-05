@@ -16,14 +16,17 @@ namespace vApus.Util
 {
     public class LinkButton : LinkLabel
     {
+        [Description("Use this rather than LinkClicked, Click or KeyDown.")]
+        public event EventHandler ActiveChanged;
+
         private bool _active;
 
         public LinkButton()
         {
-            Padding = new Padding(3);
             TextAlign = ContentAlignment.TopCenter;
             Padding = new Padding(3, 4, 3, 3);
             MinimumSize = new Size(0, 24);
+            AutoSize = true;
             SetStateInGui();
         }
 
@@ -87,27 +90,23 @@ namespace vApus.Util
                         if (ctrl != this && ctrl is LinkButton)
                         {
                             var lbtn = ctrl as LinkButton;
-                            if (lbtn.Active)
-                                otherActiveLinkButtons.Add(lbtn);
+                            if (lbtn.Active) otherActiveLinkButtons.Add(lbtn);
                         }
 
                     if (Active)
                     {
-                        if (otherActiveLinkButtons.Count != 0)
-                            Active = false;
+                        if (otherActiveLinkButtons.Count != 0) Active = false;
                     }
                     else
                     {
                         Active = true;
-                        foreach (LinkButton lbtn in otherActiveLinkButtons)
-                            lbtn.Active = false;
+                        foreach (LinkButton lbtn in otherActiveLinkButtons) lbtn.Active = false;
                     }
                 }
             }
-            else
-            {
-                Active = !Active;
-            }
+            else Active = !Active;
+
+            if (ActiveChanged != null) ActiveChanged(this, null);
         }
     }
 }

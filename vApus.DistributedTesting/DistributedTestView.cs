@@ -789,7 +789,7 @@ namespace vApus.DistributedTesting
                                                       (int) testProgressMessage.MemoryUsage,
                                                       (int) testProgressMessage.TotalVisibleMemory,
                                                       testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
-                stresstestControl.SetConfigurationControls(tileStresstest.ToString(),
+                stresstestControl.SetConfigurationControlsAndMonitorLinkButtons(tileStresstest.ToString(),
                                                            tileStresstest.BasicTileStresstest.Connection,
                                                            tileStresstest.BasicTileStresstest.ConnectionProxy,
                                                            tileStresstest.AdvancedTileStresstest.Log,

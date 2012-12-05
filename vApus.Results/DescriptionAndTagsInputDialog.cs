@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -32,14 +33,15 @@ namespace vApus.Results
             get { return _description; }
             set
             {
-                if (value.Length != 0)
+                if (value.Length == 0)
+                    FocusDescription();
+                else
                 {
                     _description = value;
-                    txtDescription.Text = value;
+                    txtDescription.Text = _description;
                 }
             }
         }
-
         public string[] Tags
         {
             get { return _tags; }
@@ -51,6 +53,19 @@ namespace vApus.Results
                     txtTags.Text = _tags.Combine(", ");
                 }
             }
+        }
+        private void FocusDescription()
+        {
+            var t = new Thread(delegate()
+            {
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
+                {
+                    try { txtDescription.Focus(); }
+                    catch { }
+                }, null);
+            });
+            t.IsBackground = true;
+            t.Start();
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -75,13 +90,8 @@ namespace vApus.Results
                 LogWrapper.LogByLevel("Could not add the description and tags to the database.\n" + ex, LogLevel.Error);
             }
 
-            try
-            {
-                Close();
-            }
-            catch
-            {
-            }
+            try { Close(); }
+            catch { }
         }
     }
 }

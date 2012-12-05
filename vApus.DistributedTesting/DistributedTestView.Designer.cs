@@ -283,7 +283,7 @@
             this.stresstestControl.BackColor = System.Drawing.Color.Transparent;
             this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stresstestControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestControl.MonitorConfigurationControlVisible = false;
+            this.stresstestControl.MonitorConfigurationControlAndLinkButtonsVisible = false;
             this.stresstestControl.Name = "stresstestControl";
             this.stresstestControl.Size = new System.Drawing.Size(595, 622);
             this.stresstestControl.TabIndex = 0;

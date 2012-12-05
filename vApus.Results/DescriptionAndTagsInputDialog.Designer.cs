@@ -38,9 +38,9 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(16, 11);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(372, 33);
+            this.label1.Size = new System.Drawing.Size(496, 41);
             this.label1.TabIndex = 2;
             this.label1.Text = "Add a short description and tags to the stresstest results.\r\nThese values will be" +
     " stored in the generated results database for easy finding.";
@@ -51,11 +51,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOK.BackColor = System.Drawing.Color.White;
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOK.Location = new System.Drawing.Point(12, 176);
+            this.btnOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOK.Location = new System.Drawing.Point(16, 217);
             this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(372, 24);
-            this.btnOK.TabIndex = 2;
+            this.btnOK.Size = new System.Drawing.Size(496, 30);
+            this.btnOK.TabIndex = 0;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = false;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
@@ -64,37 +64,38 @@
             // 
             this.txtTags.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtTags.ForeColor = System.Drawing.Color.DimGray;
+            this.txtTags.Text = "";
             this.txtTags.EmptyTextBoxLabel = "Comma-separated tags";
-            this.txtTags.ForeColor = System.Drawing.Color.Black;
-            this.txtTags.Location = new System.Drawing.Point(12, 144);
+            this.txtTags.Location = new System.Drawing.Point(16, 177);
             this.txtTags.Name = "txtTags";
-            this.txtTags.Size = new System.Drawing.Size(372, 20);
-            this.txtTags.TabIndex = 1;
-            this.txtTags.Text = "Comma-separated tags";
+            this.txtTags.Size = new System.Drawing.Size(494, 22);
+            this.txtTags.TabIndex = 2;
             // 
             // txtDescription
             // 
             this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDescription.ForeColor = System.Drawing.Color.DimGray;
+            this.txtDescription.Text = "";
             this.txtDescription.EmptyTextBoxLabel = "Description";
-            this.txtDescription.ForeColor = System.Drawing.Color.Black;
-            this.txtDescription.Location = new System.Drawing.Point(12, 45);
+            this.txtDescription.Location = new System.Drawing.Point(16, 55);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
-            this.txtDescription.Size = new System.Drawing.Size(372, 93);
-            this.txtDescription.TabIndex = 0;
-            this.txtDescription.Text = "Description";
+            this.txtDescription.Size = new System.Drawing.Size(494, 114);
+            this.txtDescription.TabIndex = 1;
             // 
             // DescriptionAndTagsInputDialog
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.ClientSize = new System.Drawing.Size(396, 212);
+            this.ClientSize = new System.Drawing.Size(528, 261);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtTags);
             this.Controls.Add(this.txtDescription);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.MinimizeBox = false;

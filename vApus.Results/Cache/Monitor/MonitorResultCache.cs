@@ -20,7 +20,6 @@ namespace vApus.Results
         ///     For linking the right results to the right configuration.
         /// </summary>
         public int MonitorConfigurationId { get; set; }
-
         /// <summary>
         ///     Set this when stresstesting.
         /// </summary>
@@ -29,7 +28,6 @@ namespace vApus.Results
 
         public MonitorResultCache()
         {
-            MonitorConfigurationId = -1;
             Rows = new List<object[]>();
             Headers = new string[0];
         }
