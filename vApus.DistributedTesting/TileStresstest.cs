@@ -153,7 +153,7 @@ namespace vApus.DistributedTesting
             stresstest.ConcurrentUsers = AdvancedTileStresstest.ConcurrentUsers;
 
             Connections connections = new Connections();
-            Connection connection = BasicTileStresstest._connection;
+            Connection connection = BasicTileStresstest._connection.Clone();
             ObjectExtension.RemoveDescription(connection);
             connections.AddWithoutInvokingEvent(connection, false);
             connection.ForceSettingChildsParent();
@@ -164,7 +164,7 @@ namespace vApus.DistributedTesting
             stresstest.Label = this.ToString();
 
             Logs logs = new Logs();
-            Log log = AdvancedTileStresstest._log;
+            Log log = AdvancedTileStresstest._log.Clone();
             ObjectExtension.RemoveDescription(log);
             logs.AddWithoutInvokingEvent(log);
             log.ForceSettingChildsParent();
