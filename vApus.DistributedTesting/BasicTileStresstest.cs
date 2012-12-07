@@ -141,7 +141,7 @@ namespace vApus.DistributedTesting
                 var slavesParent = SlavesParent;
                 if (_slaves.Length != _slaveIndices.Length && slavesParent != null)
                 {
-                    List<Slave> l = new List<Slave>(_slaveIndices.Length);
+                    var l = new List<Slave>(_slaveIndices.Length);
                     foreach (int index in _slaveIndices)
                         if (index < slavesParent.Count)
                         {
@@ -165,7 +165,7 @@ namespace vApus.DistributedTesting
                 {
                     _slaves.SetParent(slavesParent);
 
-                    List<int> l = new List<int>(_slaves.Length);
+                    var l = new List<int>(_slaves.Length);
                     for (int index = 0; index != slavesParent.Count; index++)
                         if (_slaves.Contains(slavesParent[index]) && !l.Contains(index))
                             l.Add(index);
