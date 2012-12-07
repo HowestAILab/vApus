@@ -180,7 +180,7 @@ namespace vApus.DistributedTesting
             stresstest.Concurrencies = AdvancedTileStresstest.Concurrency;
 
             var connections = new Connections();
-            Connection connection = BasicTileStresstest._connection;
+            Connection connection = BasicTileStresstest._connection.Clone();
             connection.RemoveDescription();
             connections.AddWithoutInvokingEvent(connection, false);
             connection.ForceSettingChildsParent();
@@ -190,7 +190,7 @@ namespace vApus.DistributedTesting
             stresstest.Label = ToString();
 
             var logs = new Logs();
-            Log log = AdvancedTileStresstest._log;
+            Log log = AdvancedTileStresstest._log.Clone();
             log.RemoveDescription();
             logs.AddWithoutInvokingEvent(log);
             log.ForceSettingChildsParent();

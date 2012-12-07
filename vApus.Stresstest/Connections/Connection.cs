@@ -170,6 +170,14 @@ namespace vApus.Stresstest
                                         Solution.ActiveSolution.GetSolutionComponent(typeof (ConnectionProxies))) as
                     ConnectionProxy;
         }
+        public Connection Clone()
+        {
+            var clone = new Connection();
+            clone._connectionProxy = _connectionProxy;
+            clone._connectionString = _connectionString;
+            clone._parameters = _parameters;
+            return clone;
+        }
 
         /// <summary>
         ///     Build and returns a new connection proxy class.

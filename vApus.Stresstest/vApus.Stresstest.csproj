@@ -176,6 +176,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -197,6 +198,12 @@
     </Compile>
     <Compile Include="Connections\TestAllConnections.Designer.cs">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DetailedResultsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\DetailedResultsControl.Designer.cs">
+      <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="StresstestResults.cs">
       <SubType>Code</SubType>
@@ -300,11 +307,11 @@
       <DependentUpon>References.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
-    <Compile Include="Controls\StresstestControl.cs">
+    <Compile Include="Controls\FastResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\StresstestControl.Designer.cs">
-      <DependentUpon>StresstestControl.cs</DependentUpon>
+    <Compile Include="Controls\FastResultsControl.Designer.cs">
+      <DependentUpon>FastResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Delegates.cs" />
     <Compile Include="Logs\Controls\ErrorAndFindSelector.cs">
@@ -450,8 +457,11 @@
     <EmbeddedResource Include="Connections\TestAllConnections.resx">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\StresstestControl.resx">
-      <DependentUpon>StresstestControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\DetailedResultsControl.resx">
+      <DependentUpon>DetailedResultsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FastResultsControl.resx">
+      <DependentUpon>FastResultsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\AddEditLogEntry.resx">
       <DependentUpon>AddEditLogEntry.cs</DependentUpon>

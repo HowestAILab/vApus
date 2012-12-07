@@ -35,7 +35,7 @@
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.tmrProgress = new System.Timers.Timer();
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
-            this.stresstestControl = new vApus.Stresstest.StresstestControl();
+            this.stresstestControl = new vApus.Stresstest.FastResultsControl();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tmrProgress)).BeginInit();
             this.SuspendLayout();
@@ -120,7 +120,7 @@
         private System.Windows.Forms.ToolStrip toolStrip;
         private System.Timers.Timer tmrProgress;
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
-        private Stresstest.StresstestControl stresstestControl;
+        private Stresstest.FastResultsControl stresstestControl;
 
     }
 }

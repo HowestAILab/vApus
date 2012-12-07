@@ -50,7 +50,7 @@
             this.configureTileStresstest = new vApus.DistributedTesting.ConfigureTileStresstest();
             this.configureSlaves = new vApus.DistributedTesting.ConfigureSlaves();
             this.tpStresstest = new System.Windows.Forms.TabPage();
-            this.stresstestControl = new vApus.Stresstest.StresstestControl();
+            this.stresstestControl = new vApus.Stresstest.FastResultsControl();
             this.distributedStresstestControl = new vApus.DistributedTesting.DistributedStresstestControl();
             this.tpReport = new System.Windows.Forms.TabPage();
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
@@ -365,7 +365,7 @@
         private System.Windows.Forms.ToolStripButton btnStart;
         private System.Windows.Forms.ToolStripButton btnSchedule;
         private System.Windows.Forms.ToolStripButton btnStop;
-        private Stresstest.StresstestControl stresstestControl;
+        private Stresstest.FastResultsControl stresstestControl;
         private ConfigureTileStresstest configureTileStresstest;
         private SlaveTreeView slaveTreeView;
         private System.Windows.Forms.Timer tmrSetGui;

@@ -1,6 +1,6 @@
 ﻿namespace vApus.Stresstest
 {
-    partial class StresstestControl
+    partial class FastResultsControl
     {
         /// <summary> 
         /// Required designer variable.

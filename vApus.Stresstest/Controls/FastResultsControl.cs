@@ -19,7 +19,7 @@ using vApus.Util;
 
 namespace vApus.Stresstest
 {
-    public partial class StresstestControl : UserControl
+    public partial class FastResultsControl : UserControl
     {
         /// <summary>
         /// For smooth updating the gui.
@@ -85,7 +85,7 @@ namespace vApus.Stresstest
 
         #region Constructor
 
-        public StresstestControl()
+        public FastResultsControl()
         {
             InitializeComponent();
 
