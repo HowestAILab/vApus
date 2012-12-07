@@ -341,7 +341,6 @@ namespace vApus.Util
 
         public static event ParentChangedEventHandler ParentChanged;
 
-        private static object _lock = new object();
         //Nifty hack to make this work everywhere (also in derived types when shallow copying).
         //Having just a static field for tag and parent doesn't work, they will be the same for every object you assign them.
         //Do not use this for primary datatypes (strings included) except if you do something like this:
@@ -364,25 +363,14 @@ namespace vApus.Util
         {
             lock (_tags.SyncRoot)
                 if (o != null)
-                {
                     if (_tags.Contains(o))
-                    {
-                        if (tag == null)
-                            _tags.Remove(o);
-                        else
-                            _tags[o] = tag;
-                    }
-                    else if (tag != null)
-                    {
-                        _tags.Add(o, tag);
-                    }
-                }
+                        if (tag == null) _tags.Remove(o); else _tags[o] = tag;
+                    else if (tag != null) _tags.Add(o, tag);
         }
         public static object GetTag(this object o)
         {
             //Threadsafe for reader threads.
-            if (o == null)
-                return null;
+            if (o == null) return null;
             return _tags.Contains(o) ? _tags[o] : null;
         }
         /// <summary>
@@ -403,22 +391,12 @@ namespace vApus.Util
                     if (_parents.Contains(o))
                     {
                         previous = _parents[o];
-                        if (parent == null)
-                        {
-                            _parents.Remove(o);
-                        }
-                        else
-                        {
-                            if (previous != null && !previous.Equals(parent))
-                                _parents[o] = parent;
-                            else
-                                return;
-                        }
+                        if (parent == null) _parents.Remove(o);
+                        else if (previous != null && !previous.Equals(parent)) _parents[o] = parent; else return;
                     }
                     else
                     {
-                        if (parent == null)
-                            return;
+                        if (parent == null) return;
                         _parents.Add(o, parent);
                     }
 
@@ -430,8 +408,7 @@ namespace vApus.Util
         public static object GetParent(this object o)
         {
             //Threadsafe for reader threads.
-            if (o == null)
-                return null;
+            if (o == null) return null;
             return _parents.Contains(o) ? _parents[o] : null;
         }
 
@@ -440,22 +417,13 @@ namespace vApus.Util
             lock (_descriptions.SyncRoot)
                 if (o != null)
                     if (_descriptions.Contains(o))
-                    {
-                        if (description == null)
-                            _descriptions.Remove(o);
-                        else
-                            _descriptions[o] = description;
-                    }
-                    else if (description != null)
-                    {
-                        _descriptions.Add(o, description);
-                    }
+                        if (description == null) _descriptions.Remove(o); else _descriptions[o] = description;
+                    else if (description != null) _descriptions.Add(o, description);
         }
         public static string GetDescription(this object o)
         {
             //Threadsafe for reader threads.
-            if (o == null)
-                return null;
+            if (o == null) return null;
             return (_descriptions.Contains(o) ? _descriptions[o] : null) as string;
         }
         /// <summary>
@@ -465,7 +433,7 @@ namespace vApus.Util
         /// <returns>True if the object was removed.</returns>
         public static bool RemoveParent(this object o, bool invokeParentChanged = true)
         {
-            lock (_lock)
+            lock (_parents.SyncRoot)
             {
                 bool removed = false;
                 if (_parents.Contains(o))
@@ -489,17 +457,14 @@ namespace vApus.Util
         /// <returns>True if the object was removed.</returns>
         public static bool RemoveTag(this object o)
         {
-            lock (_lock)
+            lock (_tags.SyncRoot)
             {
-                bool removed = false;
                 if (_tags.Contains(o))
                 {
-                    object tag = _tags[o];
-
                     _tags.Remove(o);
-                    removed = true;
+                    return true;
                 }
-                return removed;
+                return false;
             }
         }
         /// <summary>
@@ -509,7 +474,7 @@ namespace vApus.Util
         /// <returns>True if the object was removed.</returns>
         public static bool RemoveDescription(this object o)
         {
-            lock (_lock)
+            lock (_descriptions.SyncRoot)
             {
                 if (_descriptions.Contains(o))
                 {
@@ -525,7 +490,7 @@ namespace vApus.Util
         /// <returns>True if the cache was not empty.</returns>
         public static bool ClearCache(bool invokeParentChanged = true)
         {
-            lock (_lock)
+            lock (_tags.SyncRoot)
             {
                 bool cleared = _tags.Count != 0 || _parents.Count != 0 || _descriptions.Count != 0;
 

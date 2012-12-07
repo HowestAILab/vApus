@@ -146,19 +146,17 @@ namespace vApus.DistributedTesting
                         if (index < slavesParent.Count)
                         {
                             var slave = slavesParent[index] as Slave;
-                            if (!l.Contains(slave))
-                                l.Add(slave);
+                            if (!l.Contains(slave)) l.Add(slave);
                         }
 
                     Slaves = l.ToArray();
                 }
-                _slaves.SetParent(slavesParent);
+                if (!_slaves.GetParent().Equals(slavesParent)) _slaves.SetParent(slavesParent);
                 return _slaves;
             }
             set
             {
-                if (value == null)
-                    throw new ArgumentNullException("Can be empty but not null.");
+                if (value == null) throw new ArgumentNullException("Can be empty but not null.");
 
                 _slaves = value;
 
@@ -191,8 +189,7 @@ namespace vApus.DistributedTesting
                         Clients clientsAndSlaves = (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).Clients;
 
                         foreach (Client client in clientsAndSlaves)
-                            foreach (Slave slave in client)
-                                _slavesParent.Add(slave);
+                            foreach (Slave slave in client) _slavesParent.Add(slave);
 
                         return _slavesParent;
                     }
@@ -213,10 +210,10 @@ namespace vApus.DistributedTesting
         public BasicTileStresstest()
         {
             ShowInGui = false;
-                if (Solution.ActiveSolution != null)
-                    Init();
-                else
-                    Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+            if (Solution.ActiveSolution != null)
+                Init();
+            else
+                Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
         }
         #endregion
 

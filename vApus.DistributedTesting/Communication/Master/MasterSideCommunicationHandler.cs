@@ -831,21 +831,20 @@ namespace vApus.DistributedTesting
                 Exception exception = null;
 
 #warning Allow multiple slaves for work distribution
-                Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
-                SocketWrapper socketWrapper = Get(slave.IP, slave.Port, out exception);
+                var slave = tileStresstest.BasicTileStresstest.Slaves[0];
+                var socketWrapper = Get(slave.IP, slave.Port, out exception);
                 if (exception == null)
                     try
                     {
-                        StresstestWrapper stresstestWrapper = tileStresstest.GetStresstestWrapper(runSynchronization);
+                        var stresstestWrapper = tileStresstest.GetStresstestWrapper(runSynchronization);
 
-                        InitializeTestMessage initializeTestMessage = new InitializeTestMessage();
-                        initializeTestMessage.StresstestWrapper = stresstestWrapper;
+                        var initializeTestMessage = new InitializeTestMessage() { StresstestWrapper = stresstestWrapper };
 
-                        SocketWrapper masterSocketWrapper = _connectedSlaves[socketWrapper];
+                        var masterSocketWrapper = _connectedSlaves[socketWrapper];
                         initializeTestMessage.PushIP = masterSocketWrapper.IP.ToString();
                         initializeTestMessage.PushPort = masterSocketWrapper.Port;
 
-                        Message<Key> message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
+                        var message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
 
                         //Increases the buffer size, never decreases it.
                         SynchronizeBuffers(socketWrapper, message);
@@ -858,13 +857,9 @@ namespace vApus.DistributedTesting
 
                         //Reset the buffers to keep the messages as small as possible.
                         ResetBuffers(socketWrapper);
-                        if (initializeTestMessage.Exception != null)
-                            throw new Exception(initializeTestMessage.Exception);
+                        if (initializeTestMessage.Exception != null) throw new Exception(initializeTestMessage.Exception);
                     }
-                    catch (Exception ex)
-                    {
-                        exception = ex;
-                    }
+                    catch (Exception ex) { exception = ex; }
                 // InvokeTestInitialized(tileStresstest, exception);
 
                 return exception;
