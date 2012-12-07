@@ -92,6 +92,10 @@ namespace vApus.Stresstest
             //Double buffer the datagridview.
             (dgvFastResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvFastResults, true);
 
+            btnCollapseExpand.PerformClick();
+            cboDrillDown.SelectedIndex = 0;
+            epnlMessages.Collapsed = true;
+
             if (IsHandleCreated)
                 SetGui();
             else
@@ -110,8 +114,6 @@ namespace vApus.Stresstest
 
         private void SetGui()
         {
-            cboDrillDown.SelectedIndex = 0;
-            epnlMessages.Collapsed = true;
         }
 
         /// <summary>
@@ -644,9 +646,7 @@ namespace vApus.Stresstest
             string monitorToString = null;
             string[] columnHeaders = null;
             if (lbtnStresstest.Active)
-            {
                 columnHeaders = cboDrillDown.SelectedIndex == 0 ? StresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked) : StresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
-            }
             else
             {
                 foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
@@ -706,16 +706,13 @@ namespace vApus.Stresstest
                 }
                 catch
                 {
-                    MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK,
-                                    MessageBoxIcon.Error);
+                    MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
         }
 
         /// <summary>
         ///     Get the displayed results.
         /// </summary>
-        /// <param name="appendHeaders"></param>
-        /// <param name="addStresstestColumn"></param>
         /// <returns></returns>
         private string GetDisplayedResults()
         {
@@ -782,5 +779,24 @@ namespace vApus.Stresstest
         }
 
         #endregion
+
+        private void btnCollapseExpand_Click(object sender, EventArgs e)
+        {
+            if (btnCollapseExpand.Text == "-")
+            {
+                btnCollapseExpand.Text = "+";
+
+                splitTop.SplitterDistance = splitTop.Panel1MinSize;
+                splitTop.IsSplitterFixed = true;
+                splitTop.BackColor = Color.White;
+            }
+            else
+            {
+                btnCollapseExpand.Text = "-";
+                splitTop.SplitterDistance = 68;
+                splitTop.IsSplitterFixed = false;
+                splitTop.BackColor = SystemColors.Control;
+            }
+        }
     }
 }

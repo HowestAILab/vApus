@@ -39,8 +39,8 @@ namespace vApus.DistributedTesting
             {
                 if (_defaultAdvancedSettingsTo.IsEmpty)
                     DefaultAdvancedSettingsTo =
-                        GetNextOrEmptyChild(typeof (Stresstest.Stresstest),
-                                            Solution.ActiveSolution.GetSolutionComponent(typeof (StresstestProject))) as
+                        GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
+                                            Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
                         Stresstest.Stresstest;
 
                 return _defaultAdvancedSettingsTo;
@@ -105,8 +105,8 @@ namespace vApus.DistributedTesting
             if (Solution.ActiveSolution != null)
             {
                 DefaultAdvancedSettingsTo =
-                    GetNextOrEmptyChild(typeof (Stresstest.Stresstest),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof (StresstestProject))) as
+                    GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
+                                        Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
                     Stresstest.Stresstest;
                 _canDefaultAdvancedSettingsTo = true;
             }
@@ -125,8 +125,8 @@ namespace vApus.DistributedTesting
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             _canDefaultAdvancedSettingsTo = false;
             DefaultAdvancedSettingsTo =
-                GetNextOrEmptyChild(typeof (Stresstest.Stresstest),
-                                    Solution.ActiveSolution.GetSolutionComponent(typeof (StresstestProject))) as
+                GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
+                                    Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
                 Stresstest.Stresstest;
             _canDefaultAdvancedSettingsTo = true;
         }
@@ -136,12 +136,12 @@ namespace vApus.DistributedTesting
             if (_defaultAdvancedSettingsTo == sender)
             {
                 DefaultAdvancedSettingsTo =
-                    GetNextOrEmptyChild(typeof (Stresstest.Stresstest),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof (StresstestProject))) as
+                    GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
+                                        Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
                     Stresstest.Stresstest;
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate
-                        { InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); },
+                    { InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); },
                     null);
             }
         }
@@ -180,7 +180,7 @@ namespace vApus.DistributedTesting
             stresstest.Concurrencies = AdvancedTileStresstest.Concurrency;
 
             var connections = new Connections();
-            Connection connection = BasicTileStresstest._connection.Clone();
+            var connection = BasicTileStresstest._connection.Clone();
             connection.RemoveDescription();
             connections.AddWithoutInvokingEvent(connection, false);
             connection.ForceSettingChildsParent();
@@ -190,7 +190,7 @@ namespace vApus.DistributedTesting
             stresstest.Label = ToString();
 
             var logs = new Logs();
-            Log log = AdvancedTileStresstest._log.Clone();
+            var log = AdvancedTileStresstest._log;//.Clone();
             log.RemoveDescription();
             logs.AddWithoutInvokingEvent(log);
             log.ForceSettingChildsParent();
@@ -208,16 +208,11 @@ namespace vApus.DistributedTesting
             stresstest.Runs = AdvancedTileStresstest.Runs;
             stresstest.Shuffle = AdvancedTileStresstest.Shuffle;
             stresstest.UseParallelExecutionOfLogEntries = false;
-                // AdvancedTileStresstest.useParallelExecutionOfLogEntries;
+            // AdvancedTileStresstest.useParallelExecutionOfLogEntries;
 
             stresstest.ForceSettingChildsParent();
 
-            return new StresstestWrapper
-                {
-                    Stresstest = stresstest,
-                    TileStresstestIndex = tileStresstestIndex,
-                    RunSynchronization = runSynchronization
-                };
+            return new StresstestWrapper { Stresstest = stresstest, TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization };
         }
 
         #endregion

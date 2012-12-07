@@ -5,7 +5,6 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -22,42 +21,40 @@ namespace vApus.DistributedTesting
     public static class MasterSideCommunicationHandler
     {
         #region Events
-
         public static event EventHandler<ListeningErrorEventArgs> ListeningError;
         public static event EventHandler<TestProgressMessageReceivedEventArgs> OnTestProgressMessageReceived;
 
         public static event EventHandler<TestInitializedEventArgs> TestInitialized;
-
         #endregion
 
         #region Fields
-
         private static object _lock = new object();
-        private static readonly object _stopLock = new object();
+        private static object _stopLock = new object();
 
         //A slave side and a master side socket wrappers for full duplex communication.
-        private static readonly Dictionary<SocketWrapper, SocketWrapper> _connectedSlaves =
-            new Dictionary<SocketWrapper, SocketWrapper>();
-
+        private static Dictionary<SocketWrapper, SocketWrapper> _connectedSlaves = new Dictionary<SocketWrapper, SocketWrapper>();
         private static AsyncCallback _onReceiveCallBack;
         private static IAsyncResult _asyncResult;
 
         //When sending a continue --> continue to the right run.
         private static int _continueCounter = -1;
 
-        [ThreadStatic] private static InitializeTestWorkItem _initializeTestWorkItem;
-        [ThreadStatic] private static StopTestWorkItem _stopTestWorkItem;
-        [ThreadStatic] private static GetResultsWorkItem _getResultsWorkItem;
+        [ThreadStatic]
+        private static InitializeTestWorkItem _initializeTestWorkItem;
+        [ThreadStatic]
+        private static StopTestWorkItem _stopTestWorkItem;
+        [ThreadStatic]
+        private static GetResultsWorkItem _getResultsWorkItem;
 
         #endregion
 
         #region Functions
 
         #region Private
-
         /// <summary>
-        ///     Will begin listening after initializing the test.
-        ///     The retry count for connecting is 3 and the connect timeout is 30 seconds.
+        /// Will begin listening after initializing the test.
+        /// 
+        /// The retry count for connecting is 3 and the connect timeout is 30 seconds.
         /// </summary>
         /// <param name="slaveSocketWrapper"></param>
         /// <param name="processID">-1 for already connected.</param>
@@ -74,10 +71,10 @@ namespace vApus.DistributedTesting
                     slaveSocketWrapper.Connect(30000, 2);
                     if (slaveSocketWrapper.Connected)
                     {
-                        SocketWrapper masterSocketWrapper = GetMasterSocketWrapper(slaveSocketWrapper);
+                        var masterSocketWrapper = GetMasterSocketWrapper(slaveSocketWrapper);
 
                         Message<Key> message = SendAndReceive(slaveSocketWrapper, Key.Poll, null, 30000);
-                        var pollMessage = (PollMessage) message.Content;
+                        PollMessage pollMessage = (PollMessage)message.Content;
                         processID = pollMessage.ProcessID;
 
                         lock (_lock)
@@ -86,8 +83,7 @@ namespace vApus.DistributedTesting
                     }
                     else
                     {
-                        throw (new Exception(string.Format("Could not connect {0}:{1}.", slaveSocketWrapper.IP,
-                                                           slaveSocketWrapper.Port.ToString())));
+                        throw (new Exception(string.Format("Could not connect {0}:{1}.", slaveSocketWrapper.IP.ToString(), slaveSocketWrapper.Port.ToString())));
                     }
                 }
             }
@@ -96,9 +92,8 @@ namespace vApus.DistributedTesting
                 exception = ex;
             }
         }
-
         /// <summary>
-        ///     Will start listening too.
+        /// Will start listening too.
         /// </summary>
         /// <param name="slaveSocketWrapper"></param>
         /// <returns></returns>
@@ -113,11 +108,11 @@ namespace vApus.DistributedTesting
 
             if (masterSocketWrapper == null)
             {
-                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                 string ip = SocketListener.GetInstance().IP;
 
-                int start = slaveSocketWrapper.Port*10;
+                int start = slaveSocketWrapper.Port * 10;
                 int stop = int.MaxValue;
 
                 for (int i = start; i != stop; i++)
@@ -140,7 +135,6 @@ namespace vApus.DistributedTesting
                 throw exception;
             return masterSocketWrapper;
         }
-
         /// <summary>
         /// </summary>
         /// <param name="slaveSocketWrapper">Will be removed from the connected slaves collection.</param>
@@ -155,34 +149,27 @@ namespace vApus.DistributedTesting
                         {
                             try
                             {
-                                SocketWrapper masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
+                                var masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
                                 masterSocketWrapper.Close();
                                 masterSocketWrapper = null;
                             }
-                            catch
-                            {
-                            }
+                            catch { }
 
                             try
                             {
                                 slaveSocketWrapper.Close();
                             }
-                            catch
-                            {
-                            }
+                            catch { }
                         }
                         _connectedSlaves.Remove(slaveSocketWrapper);
                         slaveSocketWrapper = null;
                         break;
                     }
             }
-            catch
-            {
-            }
+            catch { }
         }
-
         /// <summary>
-        ///     Gets the slave socket wrapper from the connected slaves. Returns null if not found.
+        /// Gets the slave socket wrapper from the connected slaves. Returns null if not found.
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port"></param>
@@ -198,9 +185,8 @@ namespace vApus.DistributedTesting
                 return null;
             }
         }
-
         /// <summary>
-        ///     Will try to reconnect if the connection was lost.
+        /// Will try to reconnect if the connection was lost.
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port"></param>
@@ -218,7 +204,6 @@ namespace vApus.DistributedTesting
                 exception = new Exception(string.Format("Not connected to {0}:{1}.", ip, port));
             return socketWrapper;
         }
-
         /// <summary>
         /// </summary>
         /// <param name="socketWrapper"></param>
@@ -230,7 +215,6 @@ namespace vApus.DistributedTesting
             socketWrapper.Send(message, SendType.Binary);
             socketWrapper.SendTimeout = -1;
         }
-
         /// <summary>
         /// </summary>
         /// <param name="socketWrapper"></param>
@@ -241,7 +225,6 @@ namespace vApus.DistributedTesting
         {
             Send(socketWrapper, new Message<Key>(key, content), tempSendTimeout);
         }
-
         /// <summary>
         /// </summary>
         /// <param name="ip"></param>
@@ -250,8 +233,7 @@ namespace vApus.DistributedTesting
         /// <param name="content"></param>
         /// <param name="exception"></param>
         /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
-        private static void Send(string ip, int port, Key key, object content, out Exception exception,
-                                 int tempSendTimeout = -1)
+        private static void Send(string ip, int port, Key key, object content, out Exception exception, int tempSendTimeout = -1)
         {
             exception = null;
             SocketWrapper socketWrapper = null;
@@ -267,10 +249,9 @@ namespace vApus.DistributedTesting
                 exception = ex;
             }
         }
-
         /// <summary>
-        ///     Send to all slaves.
-        ///     Will connect all the slaves if not connected.
+        /// Send to all slaves.
+        /// Will connect all the slaves if not connected.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="content"></param>
@@ -280,8 +261,8 @@ namespace vApus.DistributedTesting
         {
             exception = null;
             int processID;
-            var failedFor = new List<string>();
-            var dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
+            List<string> failedFor = new List<string>();
+            Dictionary<SocketWrapper, Message<Key>> dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
             foreach (SocketWrapper slaveSocketWrapper in _connectedSlaves.Keys)
             {
                 try
@@ -297,7 +278,7 @@ namespace vApus.DistributedTesting
 
             if (failedFor.Count > 0)
             {
-                var sb = new StringBuilder("Failed send and receive for ");
+                StringBuilder sb = new StringBuilder("Failed send and receive for ");
                 for (int j = 0; j < failedFor.Count - 1; j++)
                 {
                     sb.Append(failedFor[j]);
@@ -308,8 +289,8 @@ namespace vApus.DistributedTesting
                 exception = new Exception(sb.ToString());
             }
         }
-
         /// <summary>
+        /// 
         /// </summary>
         /// <param name="socketWrapper"></param>
         /// <param name="tempReceiveTimeout">A temporarly timeout for the receive, it will be reset to -1 afterwards.</param>
@@ -317,20 +298,18 @@ namespace vApus.DistributedTesting
         private static Message<Key> Receive(SocketWrapper socketWrapper, int tempReceiveTimeout = -1)
         {
             socketWrapper.ReceiveTimeout = tempReceiveTimeout;
-            var message = (Message<Key>) socketWrapper.Receive(SendType.Binary);
+            var message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
             socketWrapper.ReceiveTimeout = -1;
             return message;
         }
-
         /// <summary>
-        ///     Thread safe
+        /// Thread safe
         /// </summary>
         /// <param name="socketWrapper"></param>
         /// <param name="message"></param>
         /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Message<Key> message,
-                                                   int tempSendReceiveTimeout = -1)
+        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Message<Key> message, int tempSendReceiveTimeout = -1)
         {
             lock (_lock)
             {
@@ -338,17 +317,15 @@ namespace vApus.DistributedTesting
                 return Receive(socketWrapper, tempSendReceiveTimeout);
             }
         }
-
         /// <summary>
-        ///     Thread safe
+        /// Thread safe
         /// </summary>
         /// <param name="socketWrapper"></param>
         /// <param name="key"></param>
         /// <param name="content"></param>
         /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Key key, object content = null,
-                                                   int tempSendReceiveTimeout = -1)
+        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Key key, object content = null, int tempSendReceiveTimeout = -1)
         {
             lock (_lock)
             {
@@ -356,8 +333,8 @@ namespace vApus.DistributedTesting
                 return Receive(socketWrapper, tempSendReceiveTimeout);
             }
         }
-
         /// <summary>
+        /// 
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port"></param>
@@ -366,8 +343,7 @@ namespace vApus.DistributedTesting
         /// <param name="exception"></param>
         /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Message<Key> SendAndReceive(string ip, int port, Key key, object content, out Exception exception,
-                                                   int tempSendReceiveTimeout = -1)
+        private static Message<Key> SendAndReceive(string ip, int port, Key key, object content, out Exception exception, int tempSendReceiveTimeout = -1)
         {
             exception = null;
             SocketWrapper socketWrapper = null;
@@ -384,24 +360,22 @@ namespace vApus.DistributedTesting
             }
             return new Message<Key>();
         }
-
         /// <summary>
+        /// 
         /// </summary>
         /// <param name="key"></param>
         /// <param name="content"></param>
         /// <param name="exception"></param>
         /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Dictionary<SocketWrapper, Message<Key>> SendAndReceive(Key key, object content,
-                                                                              out Exception exception,
-                                                                              int tempSendReceiveTimeout = -1)
+        private static Dictionary<SocketWrapper, Message<Key>> SendAndReceive(Key key, object content, out Exception exception, int tempSendReceiveTimeout = -1)
         {
             exception = null;
-            var failedFor = new List<string>();
-            var dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
+            List<string> failedFor = new List<string>();
+            Dictionary<SocketWrapper, Message<Key>> dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
             foreach (SocketWrapper slaveSocketWrapper in _connectedSlaves.Keys)
             {
-                var message = new Message<Key>();
+                Message<Key> message = new Message<Key>();
                 try
                 {
                     message = SendAndReceive(slaveSocketWrapper, key, content, tempSendReceiveTimeout);
@@ -415,7 +389,7 @@ namespace vApus.DistributedTesting
 
             if (failedFor.Count != 0)
             {
-                var sb = new StringBuilder("Failed send and receive for ");
+                StringBuilder sb = new StringBuilder("Failed send and receive for ");
                 for (int j = 0; j < failedFor.Count - 1; j++)
                 {
                     sb.Append(failedFor[j]);
@@ -429,7 +403,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        ///     The maximum number of connections is 100.
+        /// The maximum number of connections is 100.
         /// </summary>
         /// <param name="masterSocketWrapper"></param>
         private static void StartListening(SocketWrapper masterSocketWrapper)
@@ -437,36 +411,31 @@ namespace vApus.DistributedTesting
             Socket socket = masterSocketWrapper.Socket;
             socket.Bind(new IPEndPoint(masterSocketWrapper.IP, masterSocketWrapper.Port));
             socket.Listen(100);
-            socket.BeginAccept(OnAccept, masterSocketWrapper);
+            socket.BeginAccept(new AsyncCallback(OnAccept), masterSocketWrapper);
         }
-
         private static void OnAccept(IAsyncResult ar)
         {
             try
             {
-                var masterSocketWrapper = ar.AsyncState as SocketWrapper;
+                SocketWrapper masterSocketWrapper = ar.AsyncState as SocketWrapper;
                 Socket socket = masterSocketWrapper.Socket.EndAccept(ar);
 
-                var socketWrapper = new SocketWrapper(masterSocketWrapper.IP, 1234, socket, SocketFlags.None,
-                                                      SocketFlags.None);
+                SocketWrapper socketWrapper = new SocketWrapper(masterSocketWrapper.IP, 1234, socket, SocketFlags.None, SocketFlags.None);
                 socketWrapper.SetTag(masterSocketWrapper.Port);
                 BeginReceive(socketWrapper);
-                masterSocketWrapper.Socket.BeginAccept(OnAccept, masterSocketWrapper);
+                masterSocketWrapper.Socket.BeginAccept(new AsyncCallback(OnAccept), masterSocketWrapper);
             }
             catch
-            {
-            }
+            { }
         }
-
         private static void BeginReceive(SocketWrapper socketWrapper)
         {
             try
             {
                 if (_onReceiveCallBack == null)
-                    _onReceiveCallBack = OnReceive;
+                    _onReceiveCallBack = new AsyncCallback(OnReceive);
                 socketWrapper.Buffer = new byte[socketWrapper.ReceiveBufferSize];
-                socketWrapper.Socket.BeginReceive(socketWrapper.Buffer, 0, socketWrapper.ReceiveBufferSize,
-                                                  SocketFlags.None, _onReceiveCallBack, socketWrapper);
+                socketWrapper.Socket.BeginReceive(socketWrapper.Buffer, 0, socketWrapper.ReceiveBufferSize, SocketFlags.None, _onReceiveCallBack, socketWrapper);
             }
             catch (SocketException soe)
             {
@@ -478,20 +447,19 @@ namespace vApus.DistributedTesting
                     BeginReceive(socketWrapper);
             }
         }
-
         private static void OnReceive(IAsyncResult result)
         {
             _asyncResult = result;
-            var socketWrapper = (SocketWrapper) result.AsyncState;
+            SocketWrapper socketWrapper = (SocketWrapper)result.AsyncState;
             try
             {
                 socketWrapper.Socket.EndReceive(result);
 
-                var message = (Message<Key>) socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
+                Message<Key> message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
 
                 if (message.Key == Key.SynchronizeBuffers)
                 {
-                    socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage) message.Content).BufferSize;
+                    socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)message.Content).BufferSize;
                     BeginReceive(socketWrapper);
                     socketWrapper.Socket.SendBufferSize = socketWrapper.ReceiveBufferSize;
                 }
@@ -499,9 +467,7 @@ namespace vApus.DistributedTesting
                 {
                     BeginReceive(socketWrapper);
                     if (OnTestProgressMessageReceived != null)
-                        OnTestProgressMessageReceived(null,
-                                                      new TestProgressMessageReceivedEventArgs(
-                                                          (TestProgressMessage) message.Content));
+                        OnTestProgressMessageReceived(null, new TestProgressMessageReceivedEventArgs((TestProgressMessage)message.Content));
                 }
             }
             catch (SocketException soe)
@@ -514,7 +480,6 @@ namespace vApus.DistributedTesting
                     BeginReceive(socketWrapper);
             }
         }
-
         private static void InvokeListeningError(SocketWrapper socketWrapper, Exception ex)
         {
             lock (_lock)
@@ -525,10 +490,9 @@ namespace vApus.DistributedTesting
                     foreach (SocketWrapper sw in _connectedSlaves.Keys)
                     {
                         SocketWrapper masterSocketWrapper = _connectedSlaves[sw];
-                        var masterSocketWrapperPort = (int) socketWrapper.GetTag();
+                        int masterSocketWrapperPort = (int)socketWrapper.GetTag();
 
-                        if (masterSocketWrapper.IP.Equals(socketWrapper.IP) &&
-                            masterSocketWrapper.Port == masterSocketWrapperPort)
+                        if (masterSocketWrapper.IP.Equals(socketWrapper.IP) && masterSocketWrapper.Port == masterSocketWrapperPort)
                         {
                             slaveSocketWrapper = sw;
                             break;
@@ -538,16 +502,11 @@ namespace vApus.DistributedTesting
                     DisconnectSlave(slaveSocketWrapper);
 
                     if (ListeningError != null)
-                        ListeningError.Invoke(null,
-                                              new ListeningErrorEventArgs(slaveSocketWrapper.IP.ToString(),
-                                                                          slaveSocketWrapper.Port, ex));
+                        ListeningError.Invoke(null, new ListeningErrorEventArgs(slaveSocketWrapper.IP.ToString(), slaveSocketWrapper.Port, ex));
                 }
-                catch
-                {
-                }
+                catch { }
             }
         }
-
         private static void InvokeTestInitialized(TileStresstest tileStresstest, Exception ex)
         {
             lock (_lock)
@@ -557,13 +516,11 @@ namespace vApus.DistributedTesting
                         del.BeginInvoke(null, new TestInitializedEventArgs(tileStresstest, ex), null, null);
             }
         }
-
         #endregion
 
         #region Public
-
         /// <summary>
-        ///     Before everything else do this first.
+        /// Before everything else do this first.
         /// </summary>
         public static void Init()
         {
@@ -577,10 +534,9 @@ namespace vApus.DistributedTesting
 
             _continueCounter = -1;
         }
-
         /// <summary>
-        ///     Connects, sends a poll and adds to the collection (if not there already).
-        ///     The retry count is 3.
+        /// Connects, sends a poll and adds to the collection (if not there already).
+        /// The retry count is 3.
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port"></param>
@@ -597,7 +553,7 @@ namespace vApus.DistributedTesting
                 socketWrapper = Get(ip, port);
                 if (socketWrapper == null)
                 {
-                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     socketWrapper = new SocketWrapper(ip, port, socket, SocketFlags.None, SocketFlags.None);
                 }
                 ConnectSlave(socketWrapper, out processID, out exception);
@@ -608,9 +564,8 @@ namespace vApus.DistributedTesting
             }
             return socketWrapper;
         }
-
         /// <summary>
-        ///     Disconnects all slaves
+        /// Disconnects all slaves
         /// </summary>
         public static void DisconnectSlaves()
         {
@@ -619,27 +574,23 @@ namespace vApus.DistributedTesting
                 {
                     try
                     {
-                        SocketWrapper masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
+                        var masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
                         masterSocketWrapper.Close();
                         masterSocketWrapper = null;
                     }
-                    catch
-                    {
-                    }
+                    catch { }
 
                     try
                     {
                         slaveSocketWrapper.Close();
                     }
-                    catch
-                    {
-                    }
+                    catch { }
+
                 }
             _connectedSlaves.Clear();
         }
-
         /// <summary>
-        ///     Disconnect a certain slave.
+        /// Disconnect a certain slave.
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port"></param>
@@ -647,39 +598,37 @@ namespace vApus.DistributedTesting
         {
             DisconnectSlave(Get(ip, port));
         }
-
         /// <summary>
-        ///     Will begin listening after this.
-        ///     No timeouts (except for the synchronization of the buffers (30 seconds)), this can take a while.
+        /// Will begin listening after this.
+        /// 
+        /// No timeouts (except for the synchronization of the buffers (30 seconds)), this can take a while.
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public static Exception[] InitializeTests(TileStresstest[] tileStresstests,
-                                                  RunSynchronization runSynchronization)
+        public static Exception[] InitializeTests(TileStresstest[] tileStresstests, RunSynchronization runSynchronization)
         {
-            var exceptions = new ConcurrentBag<Exception>();
+            ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
             int length = tileStresstests.Length;
 
             if (length != 0)
             {
-                var waitHandle = new AutoResetEvent(false);
+                AutoResetEvent waitHandle = new AutoResetEvent(false);
                 int handled = 0;
                 for (int i = 0; i != length; i++)
                 {
-                    var t = new Thread(delegate(object parameter)
-                        {
-                            _initializeTestWorkItem = new InitializeTestWorkItem();
-                            exceptions.Add(
-                                _initializeTestWorkItem.InitializeTest(tileStresstests[(int) parameter],
-                                                                       runSynchronization)
-                                );
-                            _initializeTestWorkItem = null;
+                    Thread t = new Thread(delegate(object parameter)
+                    {
+                        _initializeTestWorkItem = new InitializeTestWorkItem();
+                        exceptions.Add(
+                            _initializeTestWorkItem.InitializeTest(tileStresstests[(int)parameter], runSynchronization)
+                        );
+                        _initializeTestWorkItem = null;
 
-                            if (Interlocked.Increment(ref handled) == tileStresstests.Length)
-                                waitHandle.Set();
-                        });
+                        if (Interlocked.Increment(ref handled) == tileStresstests.Length)
+                            waitHandle.Set();
+                    });
                     t.IsBackground = true;
                     t.Start(i);
                 }
@@ -689,7 +638,7 @@ namespace vApus.DistributedTesting
                 waitHandle = null;
             }
 
-            var l = new List<Exception>();
+            List<Exception> l = new List<Exception>();
             foreach (Exception ex in exceptions)
                 if (ex != null)
                     l.Add(ex);
@@ -698,44 +647,41 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        ///     Will start the test on all connected slaves.
-        ///     The retry count is 3 with a send and a receive timeout of 30 seconds.
+        /// Will start the test on all connected slaves.
+        /// 
+        /// The retry count is 3 with a send and a receive timeout of 30 seconds.
         /// </summary>
         /// <param name="exception"></param>
         public static void StartTest(out Exception exception)
         {
             Exception e = null;
             Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper)
-                {
-                    for (int i = 1; i != 4; i++)
-                        try
-                        {
-                            Message<Key> message = SendAndReceive(socketWrapper, Key.StartTest, 30000);
+            {
+                for (int i = 1; i != 4; i++)
+                    try
+                    {
+                        Message<Key> message = SendAndReceive(socketWrapper, Key.StartTest, 30000);
 
-                            var startMessage = (StartAndStopMessage) message.Content;
-                            if (startMessage.Exception != null)
-                                throw new Exception(startMessage.Exception);
-                            e = null;
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            e =
-                                new Exception("Failed to start the test on " + socketWrapper.IP + ":" +
-                                              socketWrapper.Port + ":\n" + ex);
-                            Thread.Sleep(i*500);
-                        }
-                });
+                        StartAndStopMessage startMessage = (StartAndStopMessage)message.Content;
+                        if (startMessage.Exception != null)
+                            throw new Exception(startMessage.Exception);
+                        e = null;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        e = new Exception("Failed to start the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
+                        Thread.Sleep(i * 500);
+                    }
+            });
 
             exception = e;
         }
-
         public static void SendBreak()
         {
             Exception exception = null;
             SendAndReceive(Key.Break, null, out exception, 30000);
         }
-
         public static void SendContinue()
         {
             Exception exception = null;
@@ -746,7 +692,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        ///     The retry count is 3 with a send and a receive timeout of 30 seconds.
+        /// The retry count is 3 with a send and a receive timeout of 30 seconds.
         /// </summary>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
@@ -767,22 +713,21 @@ namespace vApus.DistributedTesting
                         if (stopped.Count == length)
                             break;
 
-                        var waitHandle = new AutoResetEvent(false);
+                        AutoResetEvent waitHandle = new AutoResetEvent(false);
                         int handled = 0;
 
                         foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
                             if (!stopped.Contains(socketWrapper))
                             {
-                                var t = new Thread(delegate(object parameter)
-                                    {
-                                        _stopTestWorkItem = new StopTestWorkItem();
-                                        _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions,
-                                                                   ref stopped);
-                                        _stopTestWorkItem = null;
+                                Thread t = new Thread(delegate(object parameter)
+                                {
+                                    _stopTestWorkItem = new StopTestWorkItem();
+                                    _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
+                                    _stopTestWorkItem = null;
 
-                                        if (Interlocked.Increment(ref handled) == length && waitHandle != null)
-                                            waitHandle.Set();
-                                    });
+                                    if (Interlocked.Increment(ref handled) == length && waitHandle != null)
+                                        waitHandle.Set();
+                                });
                                 t.IsBackground = true;
                                 t.Start(socketWrapper);
                             }
@@ -795,7 +740,7 @@ namespace vApus.DistributedTesting
                             break;
                     }
 
-                var l = new List<Exception>();
+                List<Exception> l = new List<Exception>();
                 foreach (Exception ex in exceptions)
                     if (ex != null)
                         l.Add(ex);
@@ -803,11 +748,11 @@ namespace vApus.DistributedTesting
                 return l.ToArray();
             }
         }
-
         /// <summary>
-        ///     Only use after the test is stopped.
-        ///     If the result getting fails for a certain slave an empty message is returned.
-        ///     The retry count is 3 with a send and a receive timeout of 30 seconds.
+        /// Only use after the test is stopped.
+        /// If the result getting fails for a certain slave an empty message is returned.
+        ///
+        /// The retry count is 3 with a send and a receive timeout of 30 seconds.
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port"></param>
@@ -816,25 +761,25 @@ namespace vApus.DistributedTesting
         public static ResultsMessage[] GetResults(out Exception[] exception)
         {
             int length = _connectedSlaves.Count;
-            var exc = new ConcurrentBag<Exception>();
-            var resultsMsgs = new ConcurrentBag<ResultsMessage>();
+            ConcurrentBag<Exception> exc = new ConcurrentBag<Exception>();
+            ConcurrentBag<ResultsMessage> resultsMsgs = new ConcurrentBag<ResultsMessage>();
 
             if (length != 0)
             {
-                var waitHandle = new AutoResetEvent(false);
+                AutoResetEvent waitHandle = new AutoResetEvent(false);
                 int handled = 0;
 
                 foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
                 {
-                    var t = new Thread(delegate(object parameter)
-                        {
-                            _getResultsWorkItem = new GetResultsWorkItem();
-                            _getResultsWorkItem.GetResults(parameter as SocketWrapper, ref exc, ref resultsMsgs);
-                            _getResultsWorkItem = null;
+                    Thread t = new Thread(delegate(object parameter)
+                    {
+                        _getResultsWorkItem = new GetResultsWorkItem();
+                        _getResultsWorkItem.GetResults(parameter as SocketWrapper, ref exc, ref resultsMsgs);
+                        _getResultsWorkItem = null;
 
-                            if (Interlocked.Increment(ref handled) == length && waitHandle != null)
-                                waitHandle.Set();
-                        });
+                        if (Interlocked.Increment(ref handled) == length && waitHandle != null)
+                            waitHandle.Set();
+                    });
                     t.IsBackground = true;
                     t.Start(socketWrapper);
                 }
@@ -845,14 +790,13 @@ namespace vApus.DistributedTesting
             exception = new Exception[exc.Count];
             exc.CopyTo(exception, 0);
 
-            var resultsMessages = new ResultsMessage[resultsMsgs.Count];
+            ResultsMessage[] resultsMessages = new ResultsMessage[resultsMsgs.Count];
             resultsMsgs.CopyTo(resultsMessages, 0);
 
             return resultsMessages;
         }
-
         /// <summary>
-        ///     The retry count is 3 with a send timeout of 30 seconds.
+        /// The retry count is 3 with a send timeout of 30 seconds.
         /// </summary>
         /// <param name="tileStresstest"></param>
         /// <param name="torrentName"></param>
@@ -872,61 +816,14 @@ namespace vApus.DistributedTesting
                     catch (Exception ex)
                     {
                         exception = ex;
-                        Thread.Sleep(i*500);
+                        Thread.Sleep(i * 500);
                     }
         }
-
         #endregion
 
         #endregion
 
         #region Work items
-
-        private class GetResultsWorkItem
-        {
-            public void GetResults(SocketWrapper socketWrapper, ref ConcurrentBag<Exception> exceptions,
-                                   ref ConcurrentBag<ResultsMessage> resultsMessages)
-            {
-                Exception e = null;
-                if (socketWrapper != null && socketWrapper.Connected)
-                {
-                    var resultsMessage = new ResultsMessage();
-                    for (int i = 1; i != 4; i++)
-                        try
-                        {
-                            socketWrapper.SendTimeout = 30000;
-                            socketWrapper.Send(new Message<Key>(Key.Results, null), SendType.Binary);
-                            socketWrapper.SendTimeout = -1;
-
-                            socketWrapper.ReceiveTimeout = 30000;
-                            object data = ((Message<Key>) socketWrapper.Receive(SendType.Binary)).Content;
-                            while (data is SynchronizeBuffersMessage)
-                            {
-                                socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage) data).BufferSize;
-                                data = ((Message<Key>) socketWrapper.Receive(SendType.Binary)).Content;
-                            }
-                            socketWrapper.ReceiveTimeout = -1;
-
-                            resultsMessage = (ResultsMessage) data;
-                            if (resultsMessage.Exception != null)
-                                throw new Exception(resultsMessage.Exception);
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            e =
-                                new Exception("Failed to get the test results from " + socketWrapper.IP + ":" +
-                                              socketWrapper.Port + ":\n" + ex);
-                            Thread.Sleep(i*500);
-                        }
-                    if (e != null)
-                        exceptions.Add(e);
-
-                    resultsMessages.Add(resultsMessage);
-                }
-            }
-        }
-
         private class InitializeTestWorkItem
         {
             public Exception InitializeTest(TileStresstest tileStresstest, RunSynchronization runSynchronization)
@@ -934,17 +831,16 @@ namespace vApus.DistributedTesting
                 Exception exception = null;
 
 #warning Allow multiple slaves for work distribution
-                Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
-                SocketWrapper socketWrapper = Get(slave.IP, slave.Port, out exception);
+                var slave = tileStresstest.BasicTileStresstest.Slaves[0];
+                var socketWrapper = Get(slave.IP, slave.Port, out exception);
                 if (exception == null)
                     try
                     {
-                        StresstestWrapper stresstestWrapper = tileStresstest.GetStresstestWrapper(runSynchronization);
+                        var stresstestWrapper = tileStresstest.GetStresstestWrapper(runSynchronization);
 
-                        var initializeTestMessage = new InitializeTestMessage();
-                        initializeTestMessage.StresstestWrapper = stresstestWrapper;
+                        var initializeTestMessage = new InitializeTestMessage() { StresstestWrapper = stresstestWrapper };
 
-                        SocketWrapper masterSocketWrapper = _connectedSlaves[socketWrapper];
+                        var masterSocketWrapper = _connectedSlaves[socketWrapper];
                         initializeTestMessage.PushIP = masterSocketWrapper.IP.ToString();
                         initializeTestMessage.PushPort = masterSocketWrapper.Port;
 
@@ -955,27 +851,24 @@ namespace vApus.DistributedTesting
 
                         //message = SendAndReceive(socketWrapper, message);
                         socketWrapper.Send(message, SendType.Binary);
-                        message = (Message<Key>) socketWrapper.Receive(SendType.Binary);
+                        message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
 
-                        initializeTestMessage = (InitializeTestMessage) message.Content;
+                        initializeTestMessage = (InitializeTestMessage)message.Content;
 
                         //Reset the buffers to keep the messages as small as possible.
                         ResetBuffers(socketWrapper);
-                        if (initializeTestMessage.Exception != null)
-                            throw new Exception(initializeTestMessage.Exception);
+                        if (initializeTestMessage.Exception != null) throw new Exception(initializeTestMessage.Exception);
                     }
-                    catch (Exception ex)
-                    {
-                        exception = ex;
-                    }
+                    catch (Exception ex) { exception = ex; }
                 // InvokeTestInitialized(tileStresstest, exception);
 
                 return exception;
             }
 
             /// <summary>
-            ///     Increases the buffer size if needed, never decreases it. Use ResetBuffers for that.
-            ///     This has a timout of 30 seconds.
+            /// Increases the buffer size if needed, never decreases it. Use ResetBuffers for that.
+            /// 
+            /// This has a timout of 30 seconds.
             /// </summary>
             /// <param name="socketWrapper"></param>
             /// <param name="toSend"></param>
@@ -987,31 +880,30 @@ namespace vApus.DistributedTesting
                 {
                     socketWrapper.SendBufferSize = bufferSize;
                     socketWrapper.ReceiveBufferSize = socketWrapper.SendBufferSize;
-                    var synchronizeBuffersMessage = new SynchronizeBuffersMessage();
+                    SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
                     synchronizeBuffersMessage.BufferSize = socketWrapper.SendBufferSize;
 
                     //Sync the buffers with a temp receive timeout.
                     int receiveTimeout = socketWrapper.ReceiveTimeout;
                     int tempReceiveTimeout = 30000;
                     socketWrapper.ReceiveTimeout = tempReceiveTimeout;
-                    socketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage),
-                                       SendType.Binary);
+                    socketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage), SendType.Binary);
                     socketWrapper.Receive(SendType.Binary);
                     socketWrapper.ReceiveTimeout = receiveTimeout;
                 }
             }
-
             /// <summary>
-            ///     Set the buffer size to the default buffer size (SocketWrapper.DEFAULTBUFFERSIZE).
-            ///     This will set the buffer size of the socket on the other end too.
-            ///     This has a timout of 30 seconds.
+            /// Set the buffer size to the default buffer size (SocketWrapper.DEFAULTBUFFERSIZE).
+            /// This will set the buffer size of the socket on the other end too.
+            ///
+            /// This has a timout of 30 seconds.
             /// </summary>
             /// <param name="socketWrapper"></param>
             private void ResetBuffers(SocketWrapper socketWrapper)
             {
                 socketWrapper.SendBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
                 socketWrapper.ReceiveBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
-                var synchronizeBuffersMessage = new SynchronizeBuffersMessage();
+                SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
                 synchronizeBuffersMessage.BufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
 
 
@@ -1024,23 +916,22 @@ namespace vApus.DistributedTesting
                 socketWrapper.ReceiveTimeout = receiveTimeout;
             }
         }
-
         private class StopTestWorkItem
         {
             /// <summary>
+            /// 
             /// </summary>
             /// <param name="socketWrapper"></param>
             /// <param name="exceptions">Add to exceptions on exception.</param>
             /// <param name="stopped">Add to stopped on succesful stop.</param>
-            public void StopTest(SocketWrapper socketWrapper, ref ConcurrentBag<Exception> exceptions,
-                                 ref ConcurrentBag<SocketWrapper> stopped)
+            public void StopTest(SocketWrapper socketWrapper, ref ConcurrentBag<Exception> exceptions, ref ConcurrentBag<SocketWrapper> stopped)
             {
                 if (socketWrapper != null)
                     try
                     {
                         Message<Key> message = SendAndReceive(socketWrapper, Key.StopTest, 30000);
 
-                        var stopMessage = (StartAndStopMessage) message.Content;
+                        StartAndStopMessage stopMessage = (StartAndStopMessage)message.Content;
                         if (stopMessage.Exception != null)
                             throw new Exception(stopMessage.Exception);
 
@@ -1049,13 +940,51 @@ namespace vApus.DistributedTesting
                     }
                     catch (Exception ex)
                     {
-                        exceptions.Add(
-                            new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port +
-                                          ":\n" + ex));
+                        exceptions.Add(new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex));
                     }
             }
         }
+        private class GetResultsWorkItem
+        {
+            public void GetResults(SocketWrapper socketWrapper, ref ConcurrentBag<Exception> exceptions, ref ConcurrentBag<ResultsMessage> resultsMessages)
+            {
+                Exception e = null;
+                if (socketWrapper != null && socketWrapper.Connected)
+                {
+                    ResultsMessage resultsMessage = new ResultsMessage();
+                    for (int i = 1; i != 4; i++)
+                        try
+                        {
+                            socketWrapper.SendTimeout = 30000;
+                            socketWrapper.Send(new Message<Key>(Key.Results, null), SendType.Binary);
+                            socketWrapper.SendTimeout = -1;
 
+                            socketWrapper.ReceiveTimeout = 30000;
+                            object data = ((Message<Key>)socketWrapper.Receive(SendType.Binary)).Content;
+                            while (data is SynchronizeBuffersMessage)
+                            {
+                                socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)data).BufferSize;
+                                data = ((Message<Key>)socketWrapper.Receive(SendType.Binary)).Content;
+                            }
+                            socketWrapper.ReceiveTimeout = -1;
+
+                            resultsMessage = (ResultsMessage)data;
+                            if (resultsMessage.Exception != null)
+                                throw new Exception(resultsMessage.Exception);
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            e = new Exception("Failed to get the test results from " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
+                            Thread.Sleep(i * 500);
+                        }
+                    if (e != null)
+                        exceptions.Add(e);
+
+                    resultsMessages.Add(resultsMessage);
+                }
+            }
+        }
         #endregion
     }
 }

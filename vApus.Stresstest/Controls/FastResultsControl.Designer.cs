@@ -30,7 +30,9 @@
         {
             this.components = new System.ComponentModel.Container();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.pnl = new System.Windows.Forms.Panel();
+            this.splitTop = new System.Windows.Forms.SplitContainer();
+            this.pnlBorderCollapse = new System.Windows.Forms.Panel();
+            this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.pnlFastResults = new System.Windows.Forms.Panel();
             this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
@@ -77,7 +79,11 @@
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
-            this.pnl.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitTop)).BeginInit();
+            this.splitTop.Panel1.SuspendLayout();
+            this.splitTop.Panel2.SuspendLayout();
+            this.splitTop.SuspendLayout();
+            this.pnlBorderCollapse.SuspendLayout();
             this.pnlFastResults.SuspendLayout();
             this.flpFastResultsHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFastResults)).BeginInit();
@@ -97,7 +103,7 @@
             // 
             // splitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(this.pnl);
+            this.splitContainer.Panel1.Controls.Add(this.splitTop);
             // 
             // splitContainer.Panel2
             // 
@@ -107,17 +113,57 @@
             this.splitContainer.SplitterDistance = 384;
             this.splitContainer.TabIndex = 2;
             // 
-            // pnl
+            // splitTop
             // 
-            this.pnl.Controls.Add(this.pnlFastResults);
-            this.pnl.Controls.Add(this.flpConfiguration);
-            this.pnl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnl.Location = new System.Drawing.Point(0, 0);
-            this.pnl.Name = "pnl";
-            this.pnl.Padding = new System.Windows.Forms.Padding(3);
-            this.pnl.Size = new System.Drawing.Size(897, 384);
-            this.pnl.TabIndex = 1;
-            this.pnl.Text = "[Put title here]";
+            this.splitTop.BackColor = System.Drawing.SystemColors.Control;
+            this.splitTop.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitTop.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.splitTop.Location = new System.Drawing.Point(0, 0);
+            this.splitTop.Name = "splitTop";
+            this.splitTop.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitTop.Panel1
+            // 
+            this.splitTop.Panel1.BackColor = System.Drawing.Color.White;
+            this.splitTop.Panel1.Controls.Add(this.pnlBorderCollapse);
+            this.splitTop.Panel1.Controls.Add(this.flpConfiguration);
+            this.splitTop.Panel1MinSize = 34;
+            // 
+            // splitTop.Panel2
+            // 
+            this.splitTop.Panel2.BackColor = System.Drawing.Color.White;
+            this.splitTop.Panel2.Controls.Add(this.pnlFastResults);
+            this.splitTop.Size = new System.Drawing.Size(897, 384);
+            this.splitTop.SplitterDistance = 68;
+            this.splitTop.TabIndex = 1;
+            this.splitTop.Text = "[Put title here]";
+            // 
+            // pnlBorderCollapse
+            // 
+            this.pnlBorderCollapse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlBorderCollapse.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderCollapse.Controls.Add(this.btnCollapseExpand);
+            this.pnlBorderCollapse.Location = new System.Drawing.Point(872, 6);
+            this.pnlBorderCollapse.Name = "pnlBorderCollapse";
+            this.pnlBorderCollapse.Size = new System.Drawing.Size(22, 23);
+            this.pnlBorderCollapse.TabIndex = 2;
+            // 
+            // btnCollapseExpand
+            // 
+            this.btnCollapseExpand.BackColor = System.Drawing.Color.White;
+            this.btnCollapseExpand.FlatAppearance.BorderSize = 0;
+            this.btnCollapseExpand.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCollapseExpand.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCollapseExpand.Location = new System.Drawing.Point(1, 1);
+            this.btnCollapseExpand.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.btnCollapseExpand.Name = "btnCollapseExpand";
+            this.btnCollapseExpand.Size = new System.Drawing.Size(20, 21);
+            this.btnCollapseExpand.TabIndex = 18;
+            this.btnCollapseExpand.TabStop = false;
+            this.btnCollapseExpand.Text = "-";
+            this.toolTip.SetToolTip(this.btnCollapseExpand, "Collapse or Expand");
+            this.btnCollapseExpand.UseVisualStyleBackColor = false;
+            this.btnCollapseExpand.Click += new System.EventHandler(this.btnCollapseExpand_Click);
             // 
             // pnlFastResults
             // 
@@ -128,9 +174,9 @@
             this.pnlFastResults.Controls.Add(this.flpFastResultsHeader);
             this.pnlFastResults.Controls.Add(this.dgvFastResults);
             this.pnlFastResults.Controls.Add(this.flpFastMetrics);
-            this.pnlFastResults.Location = new System.Drawing.Point(0, 104);
+            this.pnlFastResults.Location = new System.Drawing.Point(0, 0);
             this.pnlFastResults.Name = "pnlFastResults";
-            this.pnlFastResults.Size = new System.Drawing.Size(897, 280);
+            this.pnlFastResults.Size = new System.Drawing.Size(897, 312);
             this.pnlFastResults.TabIndex = 1;
             this.pnlFastResults.Text = "Fast Results";
             // 
@@ -216,7 +262,7 @@
             this.dgvFastResults.ReadOnly = true;
             this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.dgvFastResults.Size = new System.Drawing.Size(897, 184);
+            this.dgvFastResults.Size = new System.Drawing.Size(897, 216);
             this.dgvFastResults.TabIndex = 2;
             this.dgvFastResults.VirtualMode = true;
             this.dgvFastResults.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvFastResults_CellValueNeeded);
@@ -362,7 +408,8 @@
             // 
             // flpConfiguration
             // 
-            this.flpConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.flpConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpConfiguration.AutoScroll = true;
             this.flpConfiguration.BackColor = System.Drawing.Color.White;
@@ -382,7 +429,7 @@
             this.flpConfiguration.Controls.Add(this.kvpMonitorAfter);
             this.flpConfiguration.Location = new System.Drawing.Point(0, 0);
             this.flpConfiguration.Name = "flpConfiguration";
-            this.flpConfiguration.Size = new System.Drawing.Size(897, 105);
+            this.flpConfiguration.Size = new System.Drawing.Size(866, 68);
             this.flpConfiguration.TabIndex = 0;
             // 
             // label3
@@ -727,20 +774,24 @@
             this.btnExport.UseVisualStyleBackColor = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
-            // StresstestControl
+            // FastResultsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.splitContainer);
-            this.Name = "StresstestControl";
+            this.Name = "FastResultsControl";
             this.Size = new System.Drawing.Size(897, 639);
             this.SizeChanged += new System.EventHandler(this.StresstestControl_SizeChanged);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
-            this.pnl.ResumeLayout(false);
+            this.splitTop.Panel1.ResumeLayout(false);
+            this.splitTop.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitTop)).EndInit();
+            this.splitTop.ResumeLayout(false);
+            this.pnlBorderCollapse.ResumeLayout(false);
             this.pnlFastResults.ResumeLayout(false);
             this.flpFastResultsHeader.ResumeLayout(false);
             this.flpFastResultsHeader.PerformLayout();
@@ -759,7 +810,7 @@
         #endregion
 
         private System.Windows.Forms.SplitContainer splitContainer;
-        private System.Windows.Forms.Panel pnl;
+        private System.Windows.Forms.SplitContainer splitTop;
         private System.Windows.Forms.FlowLayoutPanel flpConfiguration;
         private System.Windows.Forms.Label label3;
         private vApus.Util.KeyValuePairControl kvpStresstest;
@@ -802,5 +853,7 @@
         private System.Windows.Forms.DataGridView dgvFastResults;
         private Util.LinkButton lbtnStresstest;
         private System.Windows.Forms.FlowLayoutPanel flpFastResultsHeader;
+        private System.Windows.Forms.Panel pnlBorderCollapse;
+        private System.Windows.Forms.Button btnCollapseExpand;
     }
 }
