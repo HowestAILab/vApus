@@ -9,12 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using vApus.Util;
 using vApusSMT.Base;
-using System.Threading;
 
 namespace vApus.Monitor
 {
@@ -412,24 +412,30 @@ namespace vApus.Monitor
         {
             var monitorValues = new Dictionary<DateTime, float[]>();
             if (_cache != null)
-                foreach (object[] row in _cache)
-                {
-                    DateTime timestamp = (DateTime)row[0];
-                    if (timestamp >= from && timestamp <= to)
+                lock (_lock)
+                    foreach (var r in _cache)
                     {
-                        float[] values = new float[row.Length - 1];
-                        for (int i = 0; i != values.Length; i++)
-                            values[i] = (float)row[i + 1];
+                        if (r == null) continue;
+                        var row = r as object[];
+                        if (RowContainsNull(row)) continue;
+                        DateTime timestamp = (DateTime)row[0];
+                        if (timestamp >= from && timestamp <= to)
+                        {
+                            float[] values = new float[row.Length - 1];
+                            for (int i = 0; i != values.Length; i++)
+                                values[i] = (float)row[i + 1];
 
-                        if (!monitorValues.ContainsKey(timestamp))
-                            monitorValues.Add(timestamp, values);
+                            if (!monitorValues.ContainsKey(timestamp))
+                                monitorValues.Add(timestamp, values);
+                        }
                     }
-                }
             return monitorValues;
         }
-        /// <summary>
-        /// Returns all monitor values.
-        /// </summary>
-        /// <returns></returns>
+        private bool RowContainsNull(object[] row)
+        {
+            foreach (var v in (row as object[]))
+                if (v == null) return true;
+            return false;
+        }
     }
 }
