@@ -211,15 +211,24 @@ namespace vApus.Monitor
         public Dictionary<DateTime, float[]> GetMonitorValues()
         {
             var monitorValues = new Dictionary<DateTime, float[]>();
-            foreach (var row in MonitorResultCache.Rows)
-            {
-                var timestamp = (DateTime)row[0];
-                var values = new float[row.Length - 1];
-                for (int i = 0; i != values.Length; i++) values[i] = (float)row[i + 1];
+            lock (_lock)
+                foreach (var row in MonitorResultCache.Rows)
+                {
+                    if (row == null) continue;
+                    if (RowContainsNull(row)) continue;
+                    var timestamp = (DateTime)row[0];
+                    var values = new float[row.Length - 1];
+                    for (int i = 0; i != values.Length; i++) values[i] = (float)row[i + 1];
 
-                if (!monitorValues.ContainsKey(timestamp)) monitorValues.Add(timestamp, values);
-            }
+                    if (!monitorValues.ContainsKey(timestamp)) monitorValues.Add(timestamp, values);
+                }
             return monitorValues;
+        }
+        private bool RowContainsNull(object[] row)
+        {
+            foreach (var v in (row as object[]))
+                if (v == null) return true;
+            return false;
         }
         /// <summary>
         ///     Save all monitor values.
@@ -275,7 +284,7 @@ namespace vApus.Monitor
         {
             int j = 0;
             var filtered = new string[_filteredColumnIndices.Count];
-            for (int i = 0; i != array.Length; i++) 
+            for (int i = 0; i != array.Length; i++)
                 if (_filteredColumnIndices.Contains(i)) filtered[j++] = array[i];
             return filtered;
         }
@@ -301,8 +310,8 @@ namespace vApus.Monitor
                     var visibleColumns = new List<DataGridViewColumn>();
                     visibleColumns.Add(Columns[0]);
 
-                    foreach (string s in _filter) 
-                        foreach (DataGridViewColumn clm in Find(s)) 
+                    foreach (string s in _filter)
+                        foreach (DataGridViewColumn clm in Find(s))
                             if (!visibleColumns.Contains(clm)) visibleColumns.Add(clm);
 
                     foreach (DataGridViewColumn clm in Columns)

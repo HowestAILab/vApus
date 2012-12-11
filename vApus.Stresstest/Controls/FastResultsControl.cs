@@ -95,26 +95,11 @@ namespace vApus.Stresstest
             btnCollapseExpand.PerformClick();
             cboDrillDown.SelectedIndex = 0;
             epnlMessages.Collapsed = true;
-
-            if (IsHandleCreated)
-                SetGui();
-            else
-                HandleCreated += StresstestControl_HandleCreated;
         }
 
         #endregion
 
         #region Functions
-
-        private void StresstestControl_HandleCreated(object sender, EventArgs e)
-        {
-            HandleCreated -= StresstestControl_HandleCreated;
-            SetGui();
-        }
-
-        private void SetGui()
-        {
-        }
 
         /// <summary>
         ///     Resets everything to the initial state.
@@ -793,7 +778,7 @@ namespace vApus.Stresstest
             else
             {
                 btnCollapseExpand.Text = "-";
-                splitTop.SplitterDistance = 68;
+                splitTop.SplitterDistance = 85;
                 splitTop.IsSplitterFixed = false;
                 splitTop.BackColor = SystemColors.Control;
             }

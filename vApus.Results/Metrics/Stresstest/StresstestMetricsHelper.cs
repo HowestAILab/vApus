@@ -53,7 +53,7 @@ namespace vApus.Results
             var metrics = new StresstestMetrics();
             metrics.StartMeasuringRuntime = result.StartedAt;
             metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
-            metrics.ConcurrentUsers = result.ConcurrentUsers;
+            metrics.ConcurrentUsers = result.Concurrency;
             metrics.AverageResponseTime = new TimeSpan();
             metrics.MaxResponseTime = new TimeSpan();
             metrics.AverageDelay = new TimeSpan();

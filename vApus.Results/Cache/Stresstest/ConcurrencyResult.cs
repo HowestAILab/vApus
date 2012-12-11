@@ -13,7 +13,7 @@ namespace vApus.Results
 {
     public class ConcurrencyResult
     {
-        public int ConcurrentUsers { get; private set; }
+        public int Concurrency { get; private set; }
 
         /// <summary>
         ///     Not in the database, only for the metrics helper.
@@ -36,7 +36,7 @@ namespace vApus.Results
         {
             StartedAt = DateTime.Now;
             StoppedAt = DateTime.MinValue;
-            ConcurrentUsers = concurrentUsers;
+            Concurrency = concurrentUsers;
             RunCount = runCount;
             RunResults = new List<RunResult>();
         }

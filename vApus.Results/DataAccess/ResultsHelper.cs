@@ -26,7 +26,7 @@ namespace vApus.Results
                 0x62
             };
 
-        private static int _vApusInstanceId, _stresstestId, _stresstestResultId, _concurrencyResultId, _runResultId;
+        private static long _vApusInstanceId, _stresstestId, _stresstestResultId, _concurrencyResultId, _runResultId;
 
         #endregion
 
@@ -145,15 +145,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     The monitor configuration id in the database, set this in the proper monitor result cache.
         ///     -1 if not connected.
         /// </returns>
-        public static int SetMonitor(string monitor, string connectionString, string machineConfiguration,
-                                     string[] resultHeaders)
+        public static long SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders)
         {
             if (_databaseActions != null)
             {
                 _databaseActions.ExecuteSQL(
                     string.Format(
-                        "INSERT INTO Monitors(StresstestId, Monitor, ConnectionString, MachineConfiguration, ResultHeaders) VALUES('{0}', '{1}', '{2}', '{3}', '{4}')",
-                        _stresstestId, monitor, connectionString.Encrypt(_passwordGUID, _salt), machineConfiguration,
+                        "INSERT INTO Monitors(StresstestId, Monitor, MonitorSource, ConnectionString, MachineConfiguration, ResultHeaders) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
+                        _stresstestId, monitor, monitorSource, connectionString.Encrypt(_passwordGUID, _salt), machineConfiguration,
                         resultHeaders.Combine("; ", string.Empty))
                     );
                 return GetLastInsertId();
@@ -162,6 +161,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         }
 
         #endregion
+
+        //SET
 
         #region Stresstest results
 
@@ -215,8 +216,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             {
                 _databaseActions.ExecuteSQL(
                     string.Format(
-                        "INSERT INTO ConcurrencyResults(StresstestResultId, ConcurrentUsers, StartedAt, StoppedAt) VALUES('{0}', '{1}', '{2}', '{3}')",
-                        _stresstestResultId, concurrencyResult.ConcurrentUsers, Parse(concurrencyResult.StartedAt),
+                        "INSERT INTO ConcurrencyResults(StresstestResultId, Concurrency, StartedAt, StoppedAt) VALUES('{0}', '{1}', '{2}', '{3}')",
+                        _stresstestResultId, concurrencyResult.Concurrency, Parse(concurrencyResult.StartedAt),
                         Parse(DateTime.MinValue))
                     );
                 _concurrencyResultId = GetLastInsertId();
@@ -286,7 +287,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 ulong totalLogEntryCount = 0;
                 foreach (VirtualUserResult virtualUserResult in runResult.VirtualUserResults)
                 {
-                    totalLogEntryCount += (ulong) virtualUserResult.LogEntryResults.LongLength;
+                    totalLogEntryCount += (ulong)virtualUserResult.LogEntryResults.LongLength;
                     foreach (LogEntryResult logEntryResult in virtualUserResult.LogEntryResults)
                         //mssn de multiple insert approach gebruiken bvb insert into tbl(a) values(1),(2),(3) voegt 3 rijen toe.
                         //deze manier is volgens mysql de snelste.
@@ -322,10 +323,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')",
             if (_databaseActions != null)
                 foreach (var row in monitorResultCache.Rows)
                 {
-                    var timeStamp = (DateTime) row[0];
+                    var timeStamp = (DateTime)row[0];
 
                     var value = new List<float>();
-                    for (int i = 1; i < row.Length; i++) value.Add((float) row[i]);
+                    for (int i = 1; i < row.Length; i++) value.Add((float)row[i]);
 
                     _databaseActions.ExecuteSQL(
                         string.Format(
@@ -337,21 +338,115 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')",
 
         #endregion
 
+        //GET
+
+        #region Configuration
+        public static string GetDescription()
+        {
+            if (_databaseActions != null)
+            {
+                var dt = _databaseActions.GetDataTable("Select * FROM Description");
+                foreach (DataRow row in dt.Rows) return row.ItemArray[0] as string;
+            }
+            return string.Empty;
+        }
+        public static List<string> GetTags()
+        {
+            var l = new List<string>();
+            if (_databaseActions != null)
+            {
+                var dt = _databaseActions.GetDataTable("Select * FROM Tags");
+                foreach (DataRow row in dt.Rows) l.Add(row.ItemArray[0] as string);
+            }
+            return l;
+        }
+        public static List<int> GetvApusInstanceIds()
+        {
+            var l = new List<int>();
+            if (_databaseActions != null)
+            {
+                var dt = _databaseActions.GetDataTable("Select Id FROM vApusInstances");
+                foreach (DataRow row in dt.Rows) l.Add((int)row.ItemArray[0]);
+            }
+            return l;
+        }
+        public static List<KeyValuePair<string, string>> GetvApusInstance(int Id)
+        {
+            var l = new List<KeyValuePair<string, string>>();
+            if (_databaseActions != null)
+            {
+                var dt = _databaseActions.GetDataTable(string.Format(
+                    "Select HostName, IP, Port, Version, Channel, IsMaster FROM vApusInstances WHERE ID = '{0}'", Id));
+                object[] row = dt.Rows[0].ItemArray;
+                l.Add(new KeyValuePair<string, string>(row[0] as string, string.Empty));
+                l.Add(new KeyValuePair<string, string>(row[1] + ":" + row[2], string.Empty));
+                l.Add(new KeyValuePair<string, string>("Version", row[3] as string));
+                l.Add(new KeyValuePair<string, string>("Channel", row[4] as string));
+                l.Add(new KeyValuePair<string, string>("Is Master", ((bool)row[5]) ? "Yes" : "No"));
+            }
+            return l;
+        }
+        public static List<KeyValuePair<string, string>> GetStresstest(int vApusInstanceId)
+        {
+            var l = new List<KeyValuePair<string, string>>();
+            if (_databaseActions != null)
+            {
+                var dt = _databaseActions.GetDataTable(string.Format(
+                    @"Select Stresstest, RunSynchronization, Connection, ConnectionProxy, Log, LogRuleSet, Concurrencies,
+Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribute, MonitorBeforeInMinutes, MonitorAfterInMinutes FROM Stresstests WHERE vApusInstanceId = '{0}'", vApusInstanceId));
+                object[] row = dt.Rows[0].ItemArray;
+                l.Add(new KeyValuePair<string, string>(row[0] as string, string.Empty));
+                l.Add(new KeyValuePair<string, string>("RunSynchronization", row[1] as string));
+                l.Add(new KeyValuePair<string, string>(row[2] as string, string.Empty));
+                l.Add(new KeyValuePair<string, string>(row[3] as string, string.Empty));
+                l.Add(new KeyValuePair<string, string>(row[4] as string, string.Empty));
+                l.Add(new KeyValuePair<string, string>(row[5] as string, string.Empty));
+                l.Add(new KeyValuePair<string, string>("Concurrencies", row[6] as string));
+                l.Add(new KeyValuePair<string, string>("Runs", row[7].ToString()));
+                int minDelay = (int)row[8];
+                int maxDelay = (int)row[9];
+                l.Add(new KeyValuePair<string, string>("Delay", minDelay == maxDelay ? minDelay + " ms" : minDelay + " - " + maxDelay + " ms"));
+                l.Add(new KeyValuePair<string, string>("Shuffle", ((bool)row[10]) ? "Yes" : "No"));
+                l.Add(new KeyValuePair<string, string>("Distribute", row[11] as string));
+                l.Add(new KeyValuePair<string, string>("Monitor Before", row[12] + " minutes"));
+                l.Add(new KeyValuePair<string, string>("Monitor After", row[13] + " minutes"));
+
+            }
+            return l;
+        }
+        public static List<string> GetMonitors()
+        {
+            var l = new List<string>();
+            if (_databaseActions != null)
+            {
+                var dt = _databaseActions.GetDataTable("Select Monitor, MonitorSource FROM Monitors");
+                foreach (DataRow dr in dt.Rows) l.Add(dr.ItemArray[0] + " (" + dr.ItemArray[1] + ")");
+            }
+            return l;
+        }
+        #endregion
+
+        #region Procedures
+        public static void AverageConcurrentUsers()
+        {
+            if (_databaseActions != null)
+            {
+                //StartedAt StoppedAt Concurrency Log Entries Processed Throuput User Actions / s Avg. Response Time
+                //Max. Response Time 95th percentile max response time (ms) Avg. Delay (ms) Errors
+            }
+        }
+        #endregion
+
         /// <summary>
-        ///     Works with a data reader, releases the connection.
         /// </summary>
         /// <returns></returns>
-        private static int GetLastInsertId()
+        private static long GetLastInsertId()
         {
-            int id = 0;
-            IDataReader dr = _databaseActions.GetDataReader("SELECT LAST_INSERT_ID()");
-            while (dr.Read())
-            {
-                id = dr.GetInt32(0);
-                break;
-            }
-            _databaseActions.ReleaseConnection();
-            return id;
+            var dt = _databaseActions.GetDataTable("SELECT LAST_INSERT_ID()");
+            foreach (DataRow dr in dt.Rows)
+                return (long)dr.ItemArray[0];
+            
+            return 0;
         }
 
         private static string Parse(DateTime dateTime)

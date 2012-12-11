@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Data;
 
 namespace vApus.Results
@@ -88,7 +95,7 @@ FOREIGN KEY(StresstestId) REFERENCES Stresstests(Id), StartedAt datetime(6) NOT 
             if (!TableExists("ConcurrencyResults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table ConcurrencyResults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (Id), StresstestResultId int NOT NULL,
-FOREIGN KEY(StresstestResultID) REFERENCES StresstestResults(Id), ConcurrentUsers int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL)");
+FOREIGN KEY(StresstestResultID) REFERENCES StresstestResults(Id), Concurrency int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL)");
         }
 
         private static void CreateRunResultsTable(DatabaseActions databaseActions)
@@ -113,7 +120,7 @@ SentAt datetime(6) NOT NULL, TimeToLastByteInTicks bigint NOT NULL, DelayInMilli
             if (!TableExists("Monitors", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table Monitors (Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), StresstestId int NOT NULL,
-FOREIGN KEY(StresstestId) REFERENCES Stresstests(Id),Monitor varchar(255) NOT NULL, ConnectionString text NOT NULL, MachineConfiguration text NOT NULL, 
+FOREIGN KEY(StresstestId) REFERENCES Stresstests(Id),Monitor varchar(255) NOT NULL, MonitorSource varchar(255) NOT NULL, ConnectionString text NOT NULL, MachineConfiguration text NOT NULL, 
 ResultHeaders text NOT NULL)");
         }
 
@@ -156,13 +163,8 @@ TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
 
         private static void ReleaseConnection(DatabaseActions databaseActions)
         {
-            try
-            {
-                databaseActions.ReleaseConnection();
-            }
-            catch
-            {
-            }
+            try { databaseActions.ReleaseConnection(); }
+            catch { }
             databaseActions = null;
         }
 
@@ -171,8 +173,7 @@ TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
             tableName = tableName.ToLower();
             DataTable tables = databaseActions.GetDataTable("Show Tables");
             foreach (DataRow row in tables.Rows)
-                if (row.ItemArray[0].ToString().ToLower() == tableName)
-                    return true;
+                if (row.ItemArray[0].ToString().ToLower() == tableName) return true;
             return false;
         }
     }

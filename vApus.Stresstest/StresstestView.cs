@@ -487,7 +487,7 @@ namespace vApus.Stresstest
                             monitorView.Start();
 
                             monitorView.GetMonitorResultCache().MonitorConfigurationId =
-                                ResultsHelper.SetMonitor(monitorView.Monitor.ToString(),
+                                ResultsHelper.SetMonitor(monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
                                                          monitorView.GetConnectionString(), monitorView.Configuration,
                                                          monitorView.GetMonitorResultCache().Headers);
 

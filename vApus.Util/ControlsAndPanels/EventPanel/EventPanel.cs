@@ -20,7 +20,7 @@ namespace vApus.Util
         private readonly object _lock = new object();
 
         private bool _expandOnErrorEvent;
-        private int _preferredHeight = 300;
+        private int _preferredHeight = 150;
 
         public EventPanel()
         {
@@ -100,11 +100,11 @@ namespace vApus.Util
             set { _expandOnErrorEvent = value; }
         }
 
-        [DefaultValue(typeof (EventViewEventType), "Info")]
+        [DefaultValue(typeof(EventViewEventType), "Info")]
         public EventViewEventType Filter
         {
-            get { return (EventViewEventType) cboFilter.SelectedIndex; }
-            set { cboFilter.SelectedIndex = (int) value; }
+            get { return (EventViewEventType)cboFilter.SelectedIndex; }
+            set { cboFilter.SelectedIndex = (int)value; }
         }
 
         public event EventHandler CollapsedChanged;
@@ -205,8 +205,7 @@ namespace vApus.Util
 
         private void EventPanel_Resize(object sender, EventArgs e)
         {
-            if (!Collapsed)
-                _preferredHeight = Height;
+            if (!Collapsed) _preferredHeight = Height;
         }
 
         private void cboFilter_SelectedIndexChanged(object sender, EventArgs e)

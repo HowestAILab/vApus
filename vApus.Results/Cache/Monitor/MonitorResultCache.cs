@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System.Collections.Generic;
 
 namespace vApus.Results
@@ -19,7 +18,7 @@ namespace vApus.Results
         /// <summary>
         ///     For linking the right results to the right configuration.
         /// </summary>
-        public int MonitorConfigurationId { get; set; }
+        public long MonitorConfigurationId { get; set; }
         /// <summary>
         ///     Set this when stresstesting.
         /// </summary>

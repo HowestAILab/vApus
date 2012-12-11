@@ -25,7 +25,6 @@ namespace vApus.Util
         {
             TextAlign = ContentAlignment.TopCenter;
             Padding = new Padding(3, 4, 3, 3);
-            MinimumSize = new Size(0, 24);
             AutoSize = true;
             SetStateInGui();
         }
@@ -52,14 +51,14 @@ namespace vApus.Util
         {
             if (_active)
             {
-                BackColor = Color.LightBlue;
+                BorderStyle = BorderStyle.FixedSingle;
                 LinkColor = ActiveLinkColor = VisitedLinkColor = ForeColor = Color.Black;
                 Font = new Font(Font, FontStyle.Bold);
                 LinkBehavior = LinkBehavior.NeverUnderline;
             }
             else
             {
-                BackColor = Color.Transparent;
+                BorderStyle = BorderStyle.None;
                 LinkColor = ActiveLinkColor = VisitedLinkColor = ForeColor = Color.Blue;
                 Font = new Font(Font, FontStyle.Regular);
                 LinkBehavior = LinkBehavior.AlwaysUnderline;
@@ -75,8 +74,7 @@ namespace vApus.Util
         protected override void OnKeyUp(KeyEventArgs e)
         {
             base.OnKeyUp(e);
-            if (e.KeyCode == Keys.Enter)
-                Activate();
+            if (e.KeyCode == Keys.Enter) Activate();
         }
 
         private void Activate()

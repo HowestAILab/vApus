@@ -62,7 +62,7 @@ namespace vApus.Results
             metrics.Monitor = monitorResultCache.Monitor;
             metrics.StartMeasuringRuntime = result.StartedAt;
             metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
-            metrics.ConcurrentUsers = result.ConcurrentUsers;
+            metrics.ConcurrentUsers = result.Concurrency;
             metrics.Headers = monitorResultCache.Headers;
 
             //Done this way to strip the monitor values during vApus think times between the runs.

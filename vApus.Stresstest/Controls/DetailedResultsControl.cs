@@ -6,11 +6,14 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using vApus.Results;
+using vApus.Util;
 
 namespace vApus.Stresstest.Controls
 {
@@ -37,7 +40,7 @@ namespace vApus.Stresstest.Controls
             if (btnCollapseExpand.Text == "+")
             {
                 btnCollapseExpand.Text = "-";
-                splitContainer.SplitterDistance = 68;
+                splitContainer.SplitterDistance = 85;
                 splitContainer.IsSplitterFixed = false;
                 splitContainer.BackColor = SystemColors.Control;
             }
@@ -52,10 +55,10 @@ namespace vApus.Stresstest.Controls
                 splitContainer.IsSplitterFixed = true;
                 splitContainer.BackColor = Color.White;
             }
-            else 
+            else
             {
                 btnCollapseExpand.Text = "-";
-                splitContainer.SplitterDistance = 68;
+                splitContainer.SplitterDistance = 85;
                 splitContainer.IsSplitterFixed = false;
                 splitContainer.BackColor = SystemColors.Control;
             }
@@ -117,5 +120,50 @@ namespace vApus.Stresstest.Controls
             return sb.ToString();
         }
 
+        private KeyValuePairControl[] _config = new KeyValuePairControl[0];
+        private void lbtnDescription_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            SetConfig(ResultsHelper.GetDescription());
+        }
+
+        private void lbtnTags_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            SetConfig(ResultsHelper.GetTags());
+        }
+
+        private void lbtnvApusInstances_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            //ResultsHelper.GetvApusInstanceIds();
+            SetConfig(ResultsHelper.GetvApusInstance(1));
+        }
+        private void SetConfig(string value)
+        {
+            foreach (var v in _config) flpConfiguration.Controls.Remove(v);
+            _config = new KeyValuePairControl[] { new KeyValuePairControl(value, string.Empty) { BackColor = SystemColors.Control } };
+            flpConfiguration.Controls.AddRange(_config);
+        }
+        private void lbtnStresstest_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            SetConfig(ResultsHelper.GetStresstest(1));
+        }
+        private void lbtnMonitors_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            SetConfig(ResultsHelper.GetMonitors());
+        }
+        private void SetConfig(List<string> values)
+        {
+            foreach (var v in _config) flpConfiguration.Controls.Remove(v);
+            _config = new KeyValuePairControl[values.Count];
+            for (int i = 0; i != _config.Length; i++) _config[i] = new KeyValuePairControl(values[i], string.Empty) { BackColor = SystemColors.Control };
+            flpConfiguration.Controls.AddRange(_config);
+        }
+        private void SetConfig(List<KeyValuePair<string, string>> keyValues)
+        {
+            foreach (var v in _config) flpConfiguration.Controls.Remove(v);
+            _config = new KeyValuePairControl[keyValues.Count];
+            int i = 0;
+            foreach (var kvp in keyValues) _config[i++] = new KeyValuePairControl(kvp.Key, kvp.Value) { BackColor = SystemColors.Control };
+            flpConfiguration.Controls.AddRange(_config);
+        }
     }
 }

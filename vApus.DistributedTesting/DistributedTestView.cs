@@ -366,7 +366,7 @@ namespace vApus.DistributedTesting
                 return;
             }
 
-            if (btnSchedule.Tag != null && btnSchedule.Tag is DateTime && (DateTime) btnSchedule.Tag > DateTime.Now)
+            if (btnSchedule.Tag != null && btnSchedule.Tag is DateTime && (DateTime)btnSchedule.Tag > DateTime.Now)
                 ScheduleTest();
             else
                 Start();
@@ -408,7 +408,7 @@ namespace vApus.DistributedTesting
             distributedStresstestControl.AppendMessages("Opening remote desktop connection(s) to the client(s)...");
 
             var rdc =
-                SolutionComponentViewManager.Show(_distributedTest, typeof (RemoteDesktopClient)) as RemoteDesktopClient;
+                SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
             rdc.Text = "Remote Desktop Client";
             Show();
             rdc.ClearRemoteDesktops();
@@ -486,7 +486,7 @@ namespace vApus.DistributedTesting
 
         private void tmrSchedule_Tick(object sender, EventArgs e)
         {
-            var scheduledAt = (DateTime) btnSchedule.Tag;
+            var scheduledAt = (DateTime)btnSchedule.Tag;
             if (scheduledAt <= DateTime.Now)
             {
                 btnSchedule.Text = "Scheduled at " + scheduledAt;
@@ -498,7 +498,7 @@ namespace vApus.DistributedTesting
                 TimeSpan dt = scheduledAt - DateTime.Now;
                 if (dt.Milliseconds != 0)
                 {
-                    dt = new TimeSpan(dt.Ticks - (dt.Ticks%TimeSpan.TicksPerSecond));
+                    dt = new TimeSpan(dt.Ticks - (dt.Ticks % TimeSpan.TicksPerSecond));
                     dt += new TimeSpan(0, 0, 1);
                 }
                 btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString();
@@ -513,7 +513,7 @@ namespace vApus.DistributedTesting
         private void btnSchedule_Click(object sender, EventArgs e)
         {
             Schedule schedule = (btnSchedule.Tag != null && btnSchedule.Tag is DateTime)
-                                    ? new Schedule((DateTime) btnSchedule.Tag)
+                                    ? new Schedule((DateTime)btnSchedule.Tag)
                                     : new Schedule();
             if (schedule.ShowDialog() == DialogResult.OK)
             {
@@ -609,7 +609,7 @@ namespace vApus.DistributedTesting
                     {
                         try
                         {
-                            LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay*1000);
+                            LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000);
                         }
                         catch
                         {
@@ -617,7 +617,7 @@ namespace vApus.DistributedTesting
                                 "Could not initialize the local monitor, something is wrong with your WMI.",
                                 LogLevel.Error);
                         }
-                        tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay*1000;
+                        tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
                         tmrProgress.Start();
 
                         tmrProgressDelayCountDown.Start();
@@ -786,8 +786,8 @@ namespace vApus.DistributedTesting
 
                 stresstestControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage,
                                                       testProgressMessage.ContextSwitchesPerSecond,
-                                                      (int) testProgressMessage.MemoryUsage,
-                                                      (int) testProgressMessage.TotalVisibleMemory,
+                                                      (int)testProgressMessage.MemoryUsage,
+                                                      (int)testProgressMessage.TotalVisibleMemory,
                                                       testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
                 stresstestControl.SetConfigurationControlsAndMonitorLinkButtons(tileStresstest.ToString(),
                                                            tileStresstest.BasicTileStresstest.Connection,
@@ -999,8 +999,8 @@ namespace vApus.DistributedTesting
                                                                  _distributedTestCore.Cancelled,
                                                                  _distributedTestCore.Failed, LocalMonitor.CPUUsage,
                                                                  LocalMonitor.ContextSwitchesPerSecond,
-                                                                 (int) LocalMonitor.MemoryUsage,
-                                                                 (int) LocalMonitor.TotalVisibleMemory,
+                                                                 (int)LocalMonitor.MemoryUsage,
+                                                                 (int)LocalMonitor.TotalVisibleMemory,
                                                                  LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
             }
             catch
@@ -1022,8 +1022,8 @@ namespace vApus.DistributedTesting
                                                                  _distributedTestCore.Cancelled,
                                                                  _distributedTestCore.Failed, LocalMonitor.CPUUsage,
                                                                  LocalMonitor.ContextSwitchesPerSecond,
-                                                                 (int) LocalMonitor.MemoryUsage,
-                                                                 (int) LocalMonitor.TotalVisibleMemory,
+                                                                 (int)LocalMonitor.MemoryUsage,
+                                                                 (int)LocalMonitor.TotalVisibleMemory,
                                                                  LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
             }
             catch
@@ -1086,7 +1086,7 @@ namespace vApus.DistributedTesting
 
             if (btnSchedule.Tag != null && tmrSchedule.Tag is DateTime)
             {
-                var scheduledDateTime = (DateTime) btnSchedule.Tag;
+                var scheduledDateTime = (DateTime)btnSchedule.Tag;
                 btnSchedule.Text = (scheduledDateTime > DateTime.Now)
                                        ? "Scheduled at " + scheduledDateTime
                                        : "Schedule...";
@@ -1103,8 +1103,8 @@ namespace vApus.DistributedTesting
                                                                          _distributedTestCore.Failed,
                                                                          LocalMonitor.CPUUsage,
                                                                          LocalMonitor.ContextSwitchesPerSecond,
-                                                                         (int) LocalMonitor.MemoryUsage,
-                                                                         (int) LocalMonitor.TotalVisibleMemory,
+                                                                         (int)LocalMonitor.MemoryUsage,
+                                                                         (int)LocalMonitor.TotalVisibleMemory,
                                                                          LocalMonitor.NicsSent,
                                                                          LocalMonitor.NicsReceived);
                     }
@@ -1139,7 +1139,7 @@ namespace vApus.DistributedTesting
             }
             if (monitorAfter && monitorAfterTime != 0 && runningMonitors != 0)
             {
-                int countdownTime = monitorAfterTime*60000;
+                int countdownTime = monitorAfterTime * 60000;
                 var monitorAfterCountdown = new Countdown(countdownTime, 5000);
                 monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
                 monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
@@ -1152,7 +1152,7 @@ namespace vApus.DistributedTesting
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
                     var monitorAfterCountDown = sender as Countdown;
-                    var ts = new TimeSpan(monitorAfterCountDown.CountdownTime*TimeSpan.TicksPerMillisecond);
+                    var ts = new TimeSpan(monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
                     distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " +
                                                                 ts.ToShortFormattedString() + ".");
 
@@ -1301,7 +1301,7 @@ namespace vApus.DistributedTesting
                 }
                 if (runningMonitors != 0 && monitorBefore != 0)
                 {
-                    int countdownTime = monitorBefore*60000;
+                    int countdownTime = monitorBefore * 60000;
                     _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
                     _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                     _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
@@ -1322,7 +1322,7 @@ namespace vApus.DistributedTesting
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
-                    var ts = new TimeSpan(_monitorBeforeCountDown.CountdownTime*TimeSpan.TicksPerMillisecond);
+                    var ts = new TimeSpan(_monitorBeforeCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
                     distributedStresstestControl.AppendMessages("The test will start in " + ts.ToShortFormattedString() +
                                                                 ", monitoring first.");
 
@@ -1505,9 +1505,7 @@ namespace vApus.DistributedTesting
 
                 Converter.WriteToFile(monitorConfigCache, "MonitorConfig");
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         private void WriteMonitorRestProgress()
@@ -1526,9 +1524,7 @@ namespace vApus.DistributedTesting
                 if (monitorCount != 0)
                     Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         #endregion

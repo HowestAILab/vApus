@@ -33,6 +33,21 @@
             this.splitTop = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
+            this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.kvpStresstest = new vApus.Util.KeyValuePairControl();
+            this.kvpConnection = new vApus.Util.KeyValuePairControl();
+            this.kvpConnectionProxy = new vApus.Util.KeyValuePairControl();
+            this.kvpLog = new vApus.Util.KeyValuePairControl();
+            this.kvpLogRuleSet = new vApus.Util.KeyValuePairControl();
+            this.btnMonitor = new System.Windows.Forms.Button();
+            this.kvpConcurrencies = new vApus.Util.KeyValuePairControl();
+            this.kvpRuns = new vApus.Util.KeyValuePairControl();
+            this.kvpDelay = new vApus.Util.KeyValuePairControl();
+            this.kvpShuffle = new vApus.Util.KeyValuePairControl();
+            this.kvpDistribute = new vApus.Util.KeyValuePairControl();
+            this.kvpMonitorBefore = new vApus.Util.KeyValuePairControl();
+            this.kvpMonitorAfter = new vApus.Util.KeyValuePairControl();
             this.pnlFastResults = new System.Windows.Forms.Panel();
             this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
@@ -49,21 +64,6 @@
             this.lblStopped = new System.Windows.Forms.Label();
             this.chkReadable = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
-            this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
-            this.label3 = new System.Windows.Forms.Label();
-            this.kvpStresstest = new vApus.Util.KeyValuePairControl();
-            this.kvpConnection = new vApus.Util.KeyValuePairControl();
-            this.kvpConnectionProxy = new vApus.Util.KeyValuePairControl();
-            this.kvpLog = new vApus.Util.KeyValuePairControl();
-            this.kvpLogRuleSet = new vApus.Util.KeyValuePairControl();
-            this.btnMonitor = new System.Windows.Forms.Button();
-            this.kvpConcurrencies = new vApus.Util.KeyValuePairControl();
-            this.kvpRuns = new vApus.Util.KeyValuePairControl();
-            this.kvpDelay = new vApus.Util.KeyValuePairControl();
-            this.kvpShuffle = new vApus.Util.KeyValuePairControl();
-            this.kvpDistribute = new vApus.Util.KeyValuePairControl();
-            this.kvpMonitorBefore = new vApus.Util.KeyValuePairControl();
-            this.kvpMonitorAfter = new vApus.Util.KeyValuePairControl();
             this.epnlMessages = new vApus.Util.EventPanel();
             this.flpMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -84,12 +84,12 @@
             this.splitTop.Panel2.SuspendLayout();
             this.splitTop.SuspendLayout();
             this.pnlBorderCollapse.SuspendLayout();
+            this.flpConfiguration.SuspendLayout();
             this.pnlFastResults.SuspendLayout();
             this.flpFastResultsHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFastResults)).BeginInit();
             this.flpFastMetrics.SuspendLayout();
             this.pnlBorderDrillDown.SuspendLayout();
-            this.flpConfiguration.SuspendLayout();
             this.flpMetrics.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -109,8 +109,9 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.epnlMessages);
             this.splitContainer.Panel2.Controls.Add(this.flpMetrics);
+            this.splitContainer.Panel2MinSize = 63;
             this.splitContainer.Size = new System.Drawing.Size(897, 639);
-            this.splitContainer.SplitterDistance = 384;
+            this.splitContainer.SplitterDistance = 448;
             this.splitContainer.TabIndex = 2;
             // 
             // splitTop
@@ -127,14 +128,14 @@
             this.splitTop.Panel1.BackColor = System.Drawing.Color.White;
             this.splitTop.Panel1.Controls.Add(this.pnlBorderCollapse);
             this.splitTop.Panel1.Controls.Add(this.flpConfiguration);
-            this.splitTop.Panel1MinSize = 34;
+            this.splitTop.Panel1MinSize = 39;
             // 
             // splitTop.Panel2
             // 
             this.splitTop.Panel2.BackColor = System.Drawing.Color.White;
             this.splitTop.Panel2.Controls.Add(this.pnlFastResults);
-            this.splitTop.Size = new System.Drawing.Size(897, 384);
-            this.splitTop.SplitterDistance = 68;
+            this.splitTop.Size = new System.Drawing.Size(897, 448);
+            this.splitTop.SplitterDistance = 75;
             this.splitTop.TabIndex = 1;
             this.splitTop.Text = "[Put title here]";
             // 
@@ -165,247 +166,6 @@
             this.btnCollapseExpand.UseVisualStyleBackColor = false;
             this.btnCollapseExpand.Click += new System.EventHandler(this.btnCollapseExpand_Click);
             // 
-            // pnlFastResults
-            // 
-            this.pnlFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlFastResults.BackColor = System.Drawing.Color.White;
-            this.pnlFastResults.Controls.Add(this.flpFastResultsHeader);
-            this.pnlFastResults.Controls.Add(this.dgvFastResults);
-            this.pnlFastResults.Controls.Add(this.flpFastMetrics);
-            this.pnlFastResults.Location = new System.Drawing.Point(0, 0);
-            this.pnlFastResults.Name = "pnlFastResults";
-            this.pnlFastResults.Size = new System.Drawing.Size(897, 312);
-            this.pnlFastResults.TabIndex = 1;
-            this.pnlFastResults.Text = "Fast Results";
-            // 
-            // flpFastResultsHeader
-            // 
-            this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpFastResultsHeader.AutoScroll = true;
-            this.flpFastResultsHeader.Controls.Add(this.label4);
-            this.flpFastResultsHeader.Controls.Add(this.lblUpdatesIn);
-            this.flpFastResultsHeader.Controls.Add(this.lbtnStresstest);
-            this.flpFastResultsHeader.Location = new System.Drawing.Point(0, 0);
-            this.flpFastResultsHeader.Margin = new System.Windows.Forms.Padding(0);
-            this.flpFastResultsHeader.Name = "flpFastResultsHeader";
-            this.flpFastResultsHeader.Size = new System.Drawing.Size(897, 37);
-            this.flpFastResultsHeader.TabIndex = 0;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.Color.Black;
-            this.label4.Location = new System.Drawing.Point(3, 6);
-            this.label4.Margin = new System.Windows.Forms.Padding(3, 6, 5, 3);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(99, 20);
-            this.label4.TabIndex = 17;
-            this.label4.Text = "Fast Results";
-            // 
-            // lblUpdatesIn
-            // 
-            this.lblUpdatesIn.AutoSize = true;
-            this.lblUpdatesIn.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUpdatesIn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lblUpdatesIn.Location = new System.Drawing.Point(107, 7);
-            this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 7, 6, 3);
-            this.lblUpdatesIn.Name = "lblUpdatesIn";
-            this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
-            this.lblUpdatesIn.TabIndex = 9999;
-            // 
-            // lbtnStresstest
-            // 
-            this.lbtnStresstest.Active = true;
-            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.AutoSize = true;
-            this.lbtnStresstest.BackColor = System.Drawing.Color.LightBlue;
-            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.lbtnStresstest.ForeColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.lbtnStresstest.LinkColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.Location = new System.Drawing.Point(116, 6);
-            this.lbtnStresstest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.lbtnStresstest.MinimumSize = new System.Drawing.Size(0, 24);
-            this.lbtnStresstest.Name = "lbtnStresstest";
-            this.lbtnStresstest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.lbtnStresstest.RadioButtonBehavior = true;
-            this.lbtnStresstest.Size = new System.Drawing.Size(95, 24);
-            this.lbtnStresstest.TabIndex = 0;
-            this.lbtnStresstest.TabStop = true;
-            this.lbtnStresstest.Text = "The Stresstest";
-            this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnStresstest.Visible = false;
-            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.ActiveChanged += new System.EventHandler(this.lbtnStresstest_ActiveChanged);
-            // 
-            // dgvFastResults
-            // 
-            this.dgvFastResults.AllowUserToAddRows = false;
-            this.dgvFastResults.AllowUserToDeleteRows = false;
-            this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvFastResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dgvFastResults.BackgroundColor = System.Drawing.Color.White;
-            this.dgvFastResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvFastResults.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
-            this.dgvFastResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvFastResults.EnableHeadersVisualStyles = false;
-            this.dgvFastResults.Font = new System.Drawing.Font("Consolas", 9.75F);
-            this.dgvFastResults.Location = new System.Drawing.Point(0, 96);
-            this.dgvFastResults.Name = "dgvFastResults";
-            this.dgvFastResults.ReadOnly = true;
-            this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.dgvFastResults.Size = new System.Drawing.Size(897, 216);
-            this.dgvFastResults.TabIndex = 2;
-            this.dgvFastResults.VirtualMode = true;
-            this.dgvFastResults.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvFastResults_CellValueNeeded);
-            this.dgvFastResults.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dgvFastResults_Scroll);
-            // 
-            // flpFastMetrics
-            // 
-            this.flpFastMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpFastMetrics.Controls.Add(this.label1);
-            this.flpFastMetrics.Controls.Add(this.pnlBorderDrillDown);
-            this.flpFastMetrics.Controls.Add(this.lblStarted);
-            this.flpFastMetrics.Controls.Add(this.lblMeasuredRuntime);
-            this.flpFastMetrics.Controls.Add(this.btnRerunning);
-            this.flpFastMetrics.Controls.Add(this.lblStopped);
-            this.flpFastMetrics.Controls.Add(this.chkReadable);
-            this.flpFastMetrics.Controls.Add(this.btnSaveDisplayedResults);
-            this.flpFastMetrics.Location = new System.Drawing.Point(-1, 37);
-            this.flpFastMetrics.Name = "flpFastMetrics";
-            this.flpFastMetrics.Size = new System.Drawing.Size(899, 60);
-            this.flpFastMetrics.TabIndex = 1;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 6);
-            this.label1.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(80, 16);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Drill down to";
-            // 
-            // pnlBorderDrillDown
-            // 
-            this.pnlBorderDrillDown.BackColor = System.Drawing.Color.Silver;
-            this.pnlBorderDrillDown.Controls.Add(this.cboDrillDown);
-            this.pnlBorderDrillDown.Location = new System.Drawing.Point(86, 3);
-            this.pnlBorderDrillDown.Name = "pnlBorderDrillDown";
-            this.pnlBorderDrillDown.Size = new System.Drawing.Size(127, 23);
-            this.pnlBorderDrillDown.TabIndex = 0;
-            // 
-            // cboDrillDown
-            // 
-            this.cboDrillDown.BackColor = System.Drawing.Color.White;
-            this.cboDrillDown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboDrillDown.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboDrillDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboDrillDown.FormattingEnabled = true;
-            this.cboDrillDown.Items.AddRange(new object[] {
-            "Concurrencies",
-            "Runs"});
-            this.cboDrillDown.Location = new System.Drawing.Point(1, 1);
-            this.cboDrillDown.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.cboDrillDown.Name = "cboDrillDown";
-            this.cboDrillDown.Size = new System.Drawing.Size(125, 21);
-            this.cboDrillDown.TabIndex = 0;
-            this.cboDrillDown.SelectedIndexChanged += new System.EventHandler(this.cboDrillDown_SelectedIndexChanged);
-            // 
-            // lblStarted
-            // 
-            this.lblStarted.AutoSize = true;
-            this.lblStarted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStarted.Location = new System.Drawing.Point(216, 6);
-            this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.lblStarted.Name = "lblStarted";
-            this.lblStarted.Size = new System.Drawing.Size(0, 16);
-            this.lblStarted.TabIndex = 0;
-            // 
-            // lblMeasuredRuntime
-            // 
-            this.lblMeasuredRuntime.AutoSize = true;
-            this.lblMeasuredRuntime.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMeasuredRuntime.Location = new System.Drawing.Point(216, 6);
-            this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
-            this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
-            this.lblMeasuredRuntime.TabIndex = 0;
-            // 
-            // btnRerunning
-            // 
-            this.btnRerunning.AutoSize = true;
-            this.btnRerunning.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnRerunning.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.btnRerunning.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRerunning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.btnRerunning.ForeColor = System.Drawing.Color.White;
-            this.btnRerunning.Location = new System.Drawing.Point(219, 3);
-            this.btnRerunning.MaximumSize = new System.Drawing.Size(89, 24);
-            this.btnRerunning.MinimumSize = new System.Drawing.Size(89, 24);
-            this.btnRerunning.Name = "btnRerunning";
-            this.btnRerunning.Size = new System.Drawing.Size(89, 24);
-            this.btnRerunning.TabIndex = 2;
-            this.btnRerunning.Text = "Rerunning...";
-            this.btnRerunning.UseVisualStyleBackColor = false;
-            this.btnRerunning.Visible = false;
-            this.btnRerunning.Click += new System.EventHandler(this.btnRerunning_Click);
-            // 
-            // lblStopped
-            // 
-            this.lblStopped.AutoSize = true;
-            this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
-            this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStopped.Location = new System.Drawing.Point(317, 3);
-            this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
-            this.lblStopped.Name = "lblStopped";
-            this.lblStopped.Size = new System.Drawing.Size(0, 20);
-            this.lblStopped.TabIndex = 0;
-            // 
-            // chkReadable
-            // 
-            this.chkReadable.AutoSize = true;
-            this.chkReadable.Checked = true;
-            this.chkReadable.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkReadable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkReadable.Location = new System.Drawing.Point(326, 7);
-            this.chkReadable.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
-            this.chkReadable.Name = "chkReadable";
-            this.chkReadable.Size = new System.Drawing.Size(69, 17);
-            this.chkReadable.TabIndex = 3;
-            this.chkReadable.Text = "Readable";
-            this.toolTip.SetToolTip(this.chkReadable, "Uncheck this if you want results you can calculate with.");
-            this.chkReadable.UseVisualStyleBackColor = true;
-            this.chkReadable.CheckedChanged += new System.EventHandler(this.chkReadable_CheckedChanged);
-            // 
-            // btnSaveDisplayedResults
-            // 
-            this.btnSaveDisplayedResults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSaveDisplayedResults.AutoSize = true;
-            this.btnSaveDisplayedResults.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnSaveDisplayedResults.BackColor = System.Drawing.SystemColors.Control;
-            this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
-            this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(398, 3);
-            this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
-            this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
-            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
-            this.btnSaveDisplayedResults.TabIndex = 4;
-            this.btnSaveDisplayedResults.Text = "Save Displayed Results...";
-            this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
-            this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
-            // 
             // flpConfiguration
             // 
             this.flpConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -429,7 +189,7 @@
             this.flpConfiguration.Controls.Add(this.kvpMonitorAfter);
             this.flpConfiguration.Location = new System.Drawing.Point(0, 0);
             this.flpConfiguration.Name = "flpConfiguration";
-            this.flpConfiguration.Size = new System.Drawing.Size(866, 68);
+            this.flpConfiguration.Size = new System.Drawing.Size(866, 75);
             this.flpConfiguration.TabIndex = 0;
             // 
             // label3
@@ -626,6 +386,247 @@
     "f 60.";
             this.kvpMonitorAfter.Value = "";
             // 
+            // pnlFastResults
+            // 
+            this.pnlFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlFastResults.BackColor = System.Drawing.Color.White;
+            this.pnlFastResults.Controls.Add(this.flpFastResultsHeader);
+            this.pnlFastResults.Controls.Add(this.dgvFastResults);
+            this.pnlFastResults.Controls.Add(this.flpFastMetrics);
+            this.pnlFastResults.Location = new System.Drawing.Point(0, 0);
+            this.pnlFastResults.Name = "pnlFastResults";
+            this.pnlFastResults.Size = new System.Drawing.Size(897, 369);
+            this.pnlFastResults.TabIndex = 1;
+            this.pnlFastResults.Text = "Fast Results";
+            // 
+            // flpFastResultsHeader
+            // 
+            this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpFastResultsHeader.AutoScroll = true;
+            this.flpFastResultsHeader.Controls.Add(this.label4);
+            this.flpFastResultsHeader.Controls.Add(this.lblUpdatesIn);
+            this.flpFastResultsHeader.Controls.Add(this.lbtnStresstest);
+            this.flpFastResultsHeader.Location = new System.Drawing.Point(0, 0);
+            this.flpFastResultsHeader.Margin = new System.Windows.Forms.Padding(0);
+            this.flpFastResultsHeader.Name = "flpFastResultsHeader";
+            this.flpFastResultsHeader.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.flpFastResultsHeader.Size = new System.Drawing.Size(897, 40);
+            this.flpFastResultsHeader.TabIndex = 0;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.Black;
+            this.label4.Location = new System.Drawing.Point(3, 9);
+            this.label4.Margin = new System.Windows.Forms.Padding(3, 6, 5, 3);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(99, 20);
+            this.label4.TabIndex = 17;
+            this.label4.Text = "Fast Results";
+            // 
+            // lblUpdatesIn
+            // 
+            this.lblUpdatesIn.AutoSize = true;
+            this.lblUpdatesIn.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUpdatesIn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblUpdatesIn.Location = new System.Drawing.Point(107, 10);
+            this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 7, 6, 3);
+            this.lblUpdatesIn.Name = "lblUpdatesIn";
+            this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
+            this.lblUpdatesIn.TabIndex = 9999;
+            // 
+            // lbtnStresstest
+            // 
+            this.lbtnStresstest.Active = true;
+            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.AutoSize = true;
+            this.lbtnStresstest.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnStresstest.ForeColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.lbtnStresstest.LinkColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.Location = new System.Drawing.Point(118, 9);
+            this.lbtnStresstest.Margin = new System.Windows.Forms.Padding(5, 6, 0, 3);
+            this.lbtnStresstest.Name = "lbtnStresstest";
+            this.lbtnStresstest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.lbtnStresstest.RadioButtonBehavior = true;
+            this.lbtnStresstest.Size = new System.Drawing.Size(97, 22);
+            this.lbtnStresstest.TabIndex = 0;
+            this.lbtnStresstest.TabStop = true;
+            this.lbtnStresstest.Text = "The Stresstest";
+            this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbtnStresstest.Visible = false;
+            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.ActiveChanged += new System.EventHandler(this.lbtnStresstest_ActiveChanged);
+            // 
+            // dgvFastResults
+            // 
+            this.dgvFastResults.AllowUserToAddRows = false;
+            this.dgvFastResults.AllowUserToDeleteRows = false;
+            this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvFastResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvFastResults.BackgroundColor = System.Drawing.Color.White;
+            this.dgvFastResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvFastResults.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
+            this.dgvFastResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvFastResults.EnableHeadersVisualStyles = false;
+            this.dgvFastResults.Font = new System.Drawing.Font("Consolas", 9.75F);
+            this.dgvFastResults.Location = new System.Drawing.Point(0, 101);
+            this.dgvFastResults.Name = "dgvFastResults";
+            this.dgvFastResults.ReadOnly = true;
+            this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.dgvFastResults.Size = new System.Drawing.Size(897, 268);
+            this.dgvFastResults.TabIndex = 2;
+            this.dgvFastResults.VirtualMode = true;
+            this.dgvFastResults.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvFastResults_CellValueNeeded);
+            this.dgvFastResults.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dgvFastResults_Scroll);
+            // 
+            // flpFastMetrics
+            // 
+            this.flpFastMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpFastMetrics.Controls.Add(this.label1);
+            this.flpFastMetrics.Controls.Add(this.pnlBorderDrillDown);
+            this.flpFastMetrics.Controls.Add(this.lblStarted);
+            this.flpFastMetrics.Controls.Add(this.lblMeasuredRuntime);
+            this.flpFastMetrics.Controls.Add(this.btnRerunning);
+            this.flpFastMetrics.Controls.Add(this.lblStopped);
+            this.flpFastMetrics.Controls.Add(this.chkReadable);
+            this.flpFastMetrics.Controls.Add(this.btnSaveDisplayedResults);
+            this.flpFastMetrics.Location = new System.Drawing.Point(-1, 40);
+            this.flpFastMetrics.Name = "flpFastMetrics";
+            this.flpFastMetrics.Size = new System.Drawing.Size(899, 60);
+            this.flpFastMetrics.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(5, 6);
+            this.label1.Margin = new System.Windows.Forms.Padding(5, 6, 0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(80, 16);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Drill down to";
+            // 
+            // pnlBorderDrillDown
+            // 
+            this.pnlBorderDrillDown.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderDrillDown.Controls.Add(this.cboDrillDown);
+            this.pnlBorderDrillDown.Location = new System.Drawing.Point(88, 3);
+            this.pnlBorderDrillDown.Name = "pnlBorderDrillDown";
+            this.pnlBorderDrillDown.Size = new System.Drawing.Size(127, 23);
+            this.pnlBorderDrillDown.TabIndex = 0;
+            // 
+            // cboDrillDown
+            // 
+            this.cboDrillDown.BackColor = System.Drawing.Color.White;
+            this.cboDrillDown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboDrillDown.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboDrillDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboDrillDown.FormattingEnabled = true;
+            this.cboDrillDown.Items.AddRange(new object[] {
+            "Concurrencies",
+            "Runs"});
+            this.cboDrillDown.Location = new System.Drawing.Point(1, 1);
+            this.cboDrillDown.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboDrillDown.Name = "cboDrillDown";
+            this.cboDrillDown.Size = new System.Drawing.Size(125, 21);
+            this.cboDrillDown.TabIndex = 0;
+            this.cboDrillDown.SelectedIndexChanged += new System.EventHandler(this.cboDrillDown_SelectedIndexChanged);
+            // 
+            // lblStarted
+            // 
+            this.lblStarted.AutoSize = true;
+            this.lblStarted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStarted.Location = new System.Drawing.Point(218, 6);
+            this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.lblStarted.Name = "lblStarted";
+            this.lblStarted.Size = new System.Drawing.Size(0, 16);
+            this.lblStarted.TabIndex = 0;
+            // 
+            // lblMeasuredRuntime
+            // 
+            this.lblMeasuredRuntime.AutoSize = true;
+            this.lblMeasuredRuntime.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblMeasuredRuntime.Location = new System.Drawing.Point(218, 6);
+            this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
+            this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
+            this.lblMeasuredRuntime.TabIndex = 0;
+            // 
+            // btnRerunning
+            // 
+            this.btnRerunning.AutoSize = true;
+            this.btnRerunning.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnRerunning.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.btnRerunning.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRerunning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.btnRerunning.ForeColor = System.Drawing.Color.White;
+            this.btnRerunning.Location = new System.Drawing.Point(221, 3);
+            this.btnRerunning.MaximumSize = new System.Drawing.Size(89, 24);
+            this.btnRerunning.MinimumSize = new System.Drawing.Size(89, 24);
+            this.btnRerunning.Name = "btnRerunning";
+            this.btnRerunning.Size = new System.Drawing.Size(89, 24);
+            this.btnRerunning.TabIndex = 2;
+            this.btnRerunning.Text = "Rerunning...";
+            this.btnRerunning.UseVisualStyleBackColor = false;
+            this.btnRerunning.Visible = false;
+            this.btnRerunning.Click += new System.EventHandler(this.btnRerunning_Click);
+            // 
+            // lblStopped
+            // 
+            this.lblStopped.AutoSize = true;
+            this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
+            this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStopped.Location = new System.Drawing.Point(319, 3);
+            this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
+            this.lblStopped.Name = "lblStopped";
+            this.lblStopped.Size = new System.Drawing.Size(0, 20);
+            this.lblStopped.TabIndex = 0;
+            // 
+            // chkReadable
+            // 
+            this.chkReadable.AutoSize = true;
+            this.chkReadable.Checked = true;
+            this.chkReadable.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkReadable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chkReadable.Location = new System.Drawing.Point(328, 7);
+            this.chkReadable.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
+            this.chkReadable.Name = "chkReadable";
+            this.chkReadable.Size = new System.Drawing.Size(69, 17);
+            this.chkReadable.TabIndex = 3;
+            this.chkReadable.Text = "Readable";
+            this.toolTip.SetToolTip(this.chkReadable, "Uncheck this if you want results you can calculate with.");
+            this.chkReadable.UseVisualStyleBackColor = true;
+            this.chkReadable.CheckedChanged += new System.EventHandler(this.chkReadable_CheckedChanged);
+            // 
+            // btnSaveDisplayedResults
+            // 
+            this.btnSaveDisplayedResults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSaveDisplayedResults.AutoSize = true;
+            this.btnSaveDisplayedResults.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnSaveDisplayedResults.BackColor = System.Drawing.SystemColors.Control;
+            this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(400, 3);
+            this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
+            this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
+            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
+            this.btnSaveDisplayedResults.TabIndex = 4;
+            this.btnSaveDisplayedResults.Text = "Save Displayed Results...";
+            this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
+            this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
+            // 
             // epnlMessages
             // 
             this.epnlMessages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -636,11 +637,11 @@
             this.epnlMessages.Collapsed = false;
             this.epnlMessages.Cursor = System.Windows.Forms.Cursors.Default;
             this.epnlMessages.ExpandOnErrorEvent = true;
-            this.epnlMessages.Location = new System.Drawing.Point(0, 61);
+            this.epnlMessages.Location = new System.Drawing.Point(0, 37);
             this.epnlMessages.Margin = new System.Windows.Forms.Padding(0);
             this.epnlMessages.Name = "epnlMessages";
             this.epnlMessages.ProgressBarColor = System.Drawing.Color.SteelBlue;
-            this.epnlMessages.Size = new System.Drawing.Size(897, 190);
+            this.epnlMessages.Size = new System.Drawing.Size(897, 150);
             this.epnlMessages.TabIndex = 3;
             this.epnlMessages.CollapsedChanged += new System.EventHandler(this.epnlMessages_CollapsedChanged);
             // 
@@ -648,6 +649,7 @@
             // 
             this.flpMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpMetrics.AutoScroll = true;
             this.flpMetrics.BackColor = System.Drawing.Color.White;
             this.flpMetrics.Controls.Add(this.label2);
             this.flpMetrics.Controls.Add(this.kvmThreadsInUse);
@@ -661,7 +663,7 @@
             this.flpMetrics.Margin = new System.Windows.Forms.Padding(0);
             this.flpMetrics.Name = "flpMetrics";
             this.flpMetrics.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.flpMetrics.Size = new System.Drawing.Size(897, 61);
+            this.flpMetrics.Size = new System.Drawing.Size(897, 37);
             this.flpMetrics.TabIndex = 2;
             // 
             // label2
@@ -792,6 +794,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitTop)).EndInit();
             this.splitTop.ResumeLayout(false);
             this.pnlBorderCollapse.ResumeLayout(false);
+            this.flpConfiguration.ResumeLayout(false);
+            this.flpConfiguration.PerformLayout();
             this.pnlFastResults.ResumeLayout(false);
             this.flpFastResultsHeader.ResumeLayout(false);
             this.flpFastResultsHeader.PerformLayout();
@@ -799,8 +803,6 @@
             this.flpFastMetrics.ResumeLayout(false);
             this.flpFastMetrics.PerformLayout();
             this.pnlBorderDrillDown.ResumeLayout(false);
-            this.flpConfiguration.ResumeLayout(false);
-            this.flpConfiguration.PerformLayout();
             this.flpMetrics.ResumeLayout(false);
             this.flpMetrics.PerformLayout();
             this.ResumeLayout(false);
