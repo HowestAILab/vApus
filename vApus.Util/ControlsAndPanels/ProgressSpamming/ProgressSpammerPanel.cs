@@ -31,5 +31,9 @@ namespace vApus.Util
             grp.Enabled = chkEnable.Enabled;
             // btnSet.Enabled = chkEnable.Checked; 
         }
+        public override string ToString()
+        {
+            return "Progress Spammer";
+        }
     }
 }

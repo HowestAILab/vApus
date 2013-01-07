@@ -25,6 +25,11 @@ namespace vApus.Results
                 HandleCreated += SavingResultsPanel_HandleCreated;
         }
 
+        public bool Connected
+        {
+            get { return Settings.Default.ConnectionStringIndex > -1 && Settings.Default.ConnectionStringIndex < SettingsManager.GetConnectionStrings().Count; }
+        }
+
         #region Functions
 
         private void SavingResultsPanel_HandleCreated(object sender, EventArgs e)
@@ -102,7 +107,7 @@ namespace vApus.Results
 
                 btnSave.Enabled = txtUser.Text != user ||
                                   txtHost.Text != host ||
-                                  (int) nudPort.Value != port ||
+                                  (int)nudPort.Value != port ||
                                   txtPassword.Text != password;
             }
         }
@@ -114,7 +119,7 @@ namespace vApus.Results
                 {
                     ConnectionString =
                         string.Format("Server={0};Port={1};DataBase=mysql;Uid={2};Pwd={3}", txtHost.Text,
-                                      (int) nudPort.Value, txtUser.Text, txtPassword.Text)
+                                      (int)nudPort.Value, txtUser.Text, txtPassword.Text)
                 };
             try
             {
@@ -138,10 +143,10 @@ namespace vApus.Results
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (cboConnectionString.SelectedIndex == cboConnectionString.Items.Count - 1)
-                SettingsManager.AddCredentials(txtUser.Text, txtHost.Text, (int) nudPort.Value, txtPassword.Text);
+                SettingsManager.AddCredentials(txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
             else
                 SettingsManager.EditCredentials(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text,
-                                                (int) nudPort.Value, txtPassword.Text);
+                                                (int)nudPort.Value, txtPassword.Text);
             SetGui();
         }
 

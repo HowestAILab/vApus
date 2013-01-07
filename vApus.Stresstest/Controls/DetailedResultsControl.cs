@@ -28,6 +28,7 @@ namespace vApus.Stresstest.Controls
 
             btnCollapseExpand.PerformClick();
             chkReadable.Checked = false;
+            cboShow.SelectedIndex = 0;
         }
 
         private void chkReadable_CheckedChanged(object sender, EventArgs e)
@@ -164,6 +165,42 @@ namespace vApus.Stresstest.Controls
             int i = 0;
             foreach (var kvp in keyValues) _config[i++] = new KeyValuePairControl(kvp.Key, kvp.Value) { BackColor = SystemColors.Control };
             flpConfiguration.Controls.AddRange(_config);
+        }
+
+        private void cboShow_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboShow.SelectedIndex == 0) dgvDetailedResults.DataSource = ResultsHelper.GetAverageConcurrentUsers();
+            else if(cboShow.SelectedIndex == 1)dgvDetailedResults.DataSource = ResultsHelper.GetAverageUserActions();
+            else if (cboShow.SelectedIndex == 2) dgvDetailedResults.DataSource = ResultsHelper.GetAverageLogEntries();
+            else dgvDetailedResults.DataSource = ResultsHelper.GetErrors();
+        }
+
+        private void btnExecute_Click(object sender, EventArgs e)
+        {
+            try { dgvDetailedResults.DataSource = ResultsHelper.ExecuteQuery(codeTextBox.Text); }
+            catch { }
+        }
+
+        public void ClearReport()
+        {
+            foreach (var v in _config) flpConfiguration.Controls.Remove(v);
+            _config = new KeyValuePairControl[0];
+
+            dgvDetailedResults.DataSource = null;
+        }
+        public void RefreshReport()
+        {
+            foreach(var ctrl in flpConfiguration.Controls)
+                if (ctrl is LinkButton)
+                {
+                    var lbtn = ctrl as LinkButton;
+                    if (lbtn.Active)
+                    {
+                        lbtn.PerformClick();
+                        break;
+                    }
+                }
+            cboShow_SelectedIndexChanged(null, null);
         }
     }
 }

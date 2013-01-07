@@ -103,7 +103,7 @@ FOREIGN KEY(StresstestResultID) REFERENCES StresstestResults(Id), Concurrency in
             if (!TableExists("RunResults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table RunResults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), ConcurrencyResultId int NOT NULL,
-FOREIGN KEY(ConcurrencyResultId) REFERENCES ConcurrencyResults(Id), TotalLogEntryCount bigint UNSIGNED NOT NULL, RerunCount int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL)");
+FOREIGN KEY(ConcurrencyResultId) REFERENCES ConcurrencyResults(Id), Run int NOT NULL, TotalLogEntryCount bigint UNSIGNED NOT NULL, RerunCount int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL)");
         }
 
         private static void CreateLogEntryResultsTable(DatabaseActions databaseActions)
@@ -112,7 +112,7 @@ FOREIGN KEY(ConcurrencyResultId) REFERENCES ConcurrencyResults(Id), TotalLogEntr
                 databaseActions.ExecuteSQL(
                     @"Create Table LogEntryResults(Id serial, PRIMARY KEY(Id), RunResultId int NOT NULL, 
 FOREIGN KEY(RunResultId) REFERENCES RunResults(Id),VirtualUser varchar(255) NOT NULL, UserAction text NOT NULL, LogEntryIndex varchar(255) NOT NULL, LogEntry text NOT NULL,
-SentAt datetime(6) NOT NULL, TimeToLastByteInTicks bigint NOT NULL, DelayInMilliseconds int NOT NULL, Exception text NOT NULL)");
+SentAt datetime(6) NOT NULL, TimeToLastByteInTicks bigint NOT NULL, DelayInMilliseconds int NOT NULL, Error text NOT NULL)");
         }
 
         private static void CreateMonitorsTable(DatabaseActions databaseActions)
@@ -175,6 +175,15 @@ TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
             foreach (DataRow row in tables.Rows)
                 if (row.ItemArray[0].ToString().ToLower() == tableName) return true;
             return false;
+        }
+
+        /// <summary>
+        /// Remove a schema (after cancel or failed)
+        /// </summary>
+        /// <param name="name"></param>
+        internal static void Drop(string databaseName, DatabaseActions databaseActions)
+        {
+            databaseActions.ExecuteSQL("DROP SCHEMA " + databaseName);
         }
     }
 }

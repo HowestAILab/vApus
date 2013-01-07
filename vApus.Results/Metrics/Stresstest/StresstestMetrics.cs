@@ -42,6 +42,7 @@ namespace vApus.Results
         public double UserActionsPerSecond { get; set; }
         public TimeSpan AverageResponseTime { get; set; }
         public TimeSpan MaxResponseTime { get; set; }
+        public TimeSpan Percentile95thResponseTimes { get; set; }
         public TimeSpan AverageDelay { get; set; }
         public long Errors { get; set; }
 
@@ -73,6 +74,7 @@ namespace vApus.Results
             ResponsesPerSecond = sr.ReadDouble();
             AverageResponseTime = sr.ReadTimeSpan();
             MaxResponseTime = sr.ReadTimeSpan();
+            Percentile95thResponseTimes = sr.ReadTimeSpan();
             AverageDelay = sr.ReadTimeSpan();
             Errors = sr.ReadInt64();
         }
@@ -89,6 +91,7 @@ namespace vApus.Results
             sw.Write(ResponsesPerSecond);
             sw.Write(AverageResponseTime);
             sw.Write(MaxResponseTime);
+            sw.Write(Percentile95thResponseTimes);
             sw.Write(AverageDelay);
             sw.Write(Errors);
             sw.AddToInfo(info);

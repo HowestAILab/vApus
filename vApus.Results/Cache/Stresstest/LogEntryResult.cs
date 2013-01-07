@@ -24,6 +24,6 @@ namespace vApus.Results
         public DateTime SentAt { get; set; }
         public long TimeToLastByteInTicks { get; set; }
         public int DelayInMilliseconds { get; set; }
-        public string Exception { get; set; }
+        public string Error { get; set; }
     }
 }

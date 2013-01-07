@@ -235,8 +235,7 @@ namespace vApus.Stresstest
 
         private void SetGuiForStart(bool enableStop)
         {
-            if (enableStop)
-                btnStop.Enabled = true;
+            if (enableStop) btnStop.Enabled = true;
             btnStart.Enabled = btnSchedule.Enabled = false;
             btnSchedule.Text = "Schedule...";
 
@@ -245,7 +244,7 @@ namespace vApus.Stresstest
             _stresstestResult = null;
             _stresstestMetricsCache = new StresstestMetricsCache();
             _monitorMetricsCache = new MonitorMetricsCache();
-            //stresstestReportControl.ClearReport();
+            detailedResultsControl.ClearReport();
 
             stresstestControl.SetConfigurationControls(_stresstest);
 
@@ -730,6 +729,8 @@ namespace vApus.Stresstest
                     monitorAfterCountdown.Start();
                 }
             }
+
+            detailedResultsControl.RefreshReport();
         }
 
         private void monitorAfterCountdown_Tick(object sender, EventArgs e)

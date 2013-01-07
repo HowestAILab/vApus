@@ -531,6 +531,8 @@ namespace vApus.Stresstest
                         lblStopped.Text = " failed at " + epnlMessages.EndOfTimeFrame;
 
                         SetStresstestStopped();
+
+                        RemoveDatabase();
                         break;
                     case StresstestStatus.Cancelled:
                         lblStopped.ForeColor = Color.Orange;
@@ -541,6 +543,8 @@ namespace vApus.Stresstest
                         AppendMessages(message, Color.Orange);
 
                         SetStresstestStopped();
+
+                        RemoveDatabase();
                         break;
                     default:
                         lblStopped.Text = string.Empty;
@@ -549,7 +553,14 @@ namespace vApus.Stresstest
             }
             catch { }
         }
-
+        private void RemoveDatabase()
+        {
+            if (ResultsHelper.DatabaseName != null)
+                if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                    == DialogResult.Yes)
+                    try { ResultsHelper.RemoveDatabase(); }
+                    catch { }
+        }
         public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info)
         {
             var c = new[] { Color.DarkGray, Color.Orange, Color.Red };

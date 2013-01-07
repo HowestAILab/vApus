@@ -1024,7 +1024,7 @@ namespace vApus.Stresstest
                             SentAt = sentAt,
                             TimeToLastByteInTicks = timeToLastByte.Ticks,
                             DelayInMilliseconds = delayInMilliseconds,
-                            Exception = (exception == null) ? string.Empty : exception.ToString()
+                            Error = (exception == null) ? string.Empty : exception.ToString()
                         };
                     result.SetLogEntryResultAt(testableLogEntryIndex, logEntryResult);
 

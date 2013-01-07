@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Stresstest.Properties;
@@ -73,7 +74,12 @@ namespace vApus.Stresstest
             if (_userAction.Label != txtUserAction.Text)
             {
                 _userAction.Label = txtUserAction.Text;
-                _userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                Thread t = new Thread(delegate()
+                {
+                    //_userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                });
+                t.IsBackground = true;
+                t.Start();
             }
             if (txtUserAction.Text == string.Empty)
             {

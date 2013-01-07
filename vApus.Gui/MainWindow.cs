@@ -60,7 +60,7 @@ namespace vApus.Gui
         private void Init()
         {
             InitializeComponent();
-            mainMenu.ImageList = new ImageList {ColorDepth = ColorDepth.Depth24Bit};
+            mainMenu.ImageList = new ImageList { ColorDepth = ColorDepth.Depth24Bit };
             _msgHandler = new Win32WindowMessageHandler();
 
             if (IsHandleCreated)
@@ -93,7 +93,7 @@ namespace vApus.Gui
                 _updateNotifierPanel = new UpdateNotifierPanel();
                 _logPanel = new LogPanel();
                 _logPanel.LogErrorCountChanged += _logPanel_LogErrorCountChanged;
-                _logErrorToolTip = new LogErrorToolTip {AutoPopDelay = 10000};
+                _logErrorToolTip = new LogErrorToolTip { AutoPopDelay = 10000 };
 
                 _localizationPanel = new LocalizationPanel();
                 _processorAffinityPanel = new ProcessorAffinityPanel();
@@ -236,7 +236,6 @@ namespace vApus.Gui
         private void ShowOptionsDialog(int panelIndex = 0)
         {
             Cursor = Cursors.WaitCursor;
-            tmrSetStatusStrip.Stop();
             if (_optionsDialog == null)
             {
                 _optionsDialog = new OptionsDialog();
@@ -248,12 +247,11 @@ namespace vApus.Gui
                 _optionsDialog.AddOptionsPanel(_savingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
-                //_optionsDialog.AddOptionsPanel(_progressSpammerPannel);
+                _optionsDialog.AddOptionsPanel(_progressSpammerPannel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.ShowDialog(this);
             SetStatusStrip();
-            tmrSetStatusStrip.Start();
             Cursor = Cursors.Default;
         }
 
@@ -597,15 +595,14 @@ namespace vApus.Gui
 
         private void tmrSetStatusStrip_Tick(object sender, EventArgs e)
         {
-            if (IsHandleCreated)
-                SetStatusStrip();
+            if (IsHandleCreated) SetStatusStrip();
         }
 
         private void SetStatusStrip()
         {
             var attr =
-                typeof (UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
-                                            .GetCustomAttributes(typeof (DescriptionAttribute), false) as
+                typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
+                                            .GetCustomAttributes(typeof(DescriptionAttribute), false) as
                 DescriptionAttribute[];
             lblUpdateNotifier.Text = attr[0].Description;
 
@@ -626,7 +623,7 @@ namespace vApus.Gui
             if (!SocketListenerLinker.SocketListenerIsRunning)
                 lblSocketListener.Text += " [Stopped]";
 
-            SetWindowsFirewallAutoUpdateLabel();
+            SetWarningLabel();
 
             if (_cleanTempDataPanel != null)
             {
@@ -652,30 +649,31 @@ namespace vApus.Gui
             lblProcessorAffinity.Text = oneBasedCPUs.Combine(", ");
         }
 
-        private void SetWindowsFirewallAutoUpdateLabel()
+        private void SetWarningLabel()
         {
             DisableFirewallAutoUpdatePanel.Status status = _disableFirewallAutoUpdatePanel.CheckStatus();
             switch (status)
             {
                 case DisableFirewallAutoUpdatePanel.Status.AllDisabled:
-                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible =
-                        lblMicrosoftFirewallAutoUpdateEnabled.Visible = false;
+                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = false;
                     break;
                 case DisableFirewallAutoUpdatePanel.Status.WindowsFirewallEnabled:
-                    lblMicrosoftFirewallAutoUpdateEnabled.Text = "Windows Firewall Enabled!";
-                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible =
-                        lblMicrosoftFirewallAutoUpdateEnabled.Visible = true;
+                    lblWarning.Text = "Windows Firewall enabled!";
+                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
                 case DisableFirewallAutoUpdatePanel.Status.WindowsAutoUpdateEnabled:
-                    lblMicrosoftFirewallAutoUpdateEnabled.Text = "Windows Auto Update Enabled!";
-                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible =
-                        lblMicrosoftFirewallAutoUpdateEnabled.Visible = true;
+                    lblWarning.Text = "Windows Auto Update enabled!";
+                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
                 case DisableFirewallAutoUpdatePanel.Status.AllEnabled:
-                    lblMicrosoftFirewallAutoUpdateEnabled.Text = "Windows Firewall and Auto Update Enabled!";
-                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible =
-                        lblMicrosoftFirewallAutoUpdateEnabled.Visible = true;
+                    lblWarning.Text = "Windows Firewall and Auto Update enabled!";
+                    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
+            }
+            if (!lblWarning.Visible && !_savingResultsPanel.Connected)
+            {
+                lblWarning.Text = "Test results cannot be saved!";
+                lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
             }
         }
 
@@ -706,12 +704,12 @@ namespace vApus.Gui
 
         private void lblCleanTempData_Click(object sender, EventArgs e)
         {
-            ShowOptionsDialog(5);
+            ShowOptionsDialog(6);
         }
 
-        private void lblMicrosoftFirewallAutoUpdateEnabled_Click(object sender, EventArgs e)
+        private void lblWarning_Click(object sender, EventArgs e)
         {
-            ShowOptionsDialog(6);
+            if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(7); else ShowOptionsDialog(5);
         }
 
         #endregion

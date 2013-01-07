@@ -18,25 +18,25 @@ namespace vApus.Results
             {
                 "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed",
                 "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
-                "Avg. Delay (ms)", "Errors"
+                "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors"
             };
         private static readonly string[] _readableMetricsHeadersRun =
             {
                 "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed",
                 "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
-                "Avg. Delay (ms)", "Errors"
+                "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors"
             };
         private static readonly string[] _calculatableMetricsHeadersConcurrency =
             {
                 "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed",
                 "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
-                "Avg. Delay (ms)", "Errors"
+                "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors"
             };
         private static readonly string[] _calculatableMetricsHeadersRun =
             {
                 "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed",
                 "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
-                " Avg. Delay (ms)", "Errors"
+                "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors"
             };
         #endregion
 
@@ -62,22 +62,39 @@ namespace vApus.Results
             {
                 long totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
                 long baseLogEntryCount = 0;
+
+                var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
+                int percent5 = -1;
                 foreach (RunResult runResult in result.RunResults)
                 {
-                    StresstestMetrics runResultMetrics = GetMetrics(runResult);
+                    StresstestMetrics runResultMetrics = GetMetrics(runResult, false);
+
+                    if (percent5 == -1) percent5 = (int)(result.RunResults.Count * runResultMetrics.LogEntries * 0.05) + 1;
 
                     metrics.AverageResponseTime = metrics.AverageResponseTime.Add(runResultMetrics.AverageResponseTime);
-                    if (runResultMetrics.MaxResponseTime > metrics.MaxResponseTime)
-                        metrics.MaxResponseTime = runResultMetrics.MaxResponseTime;
+                    if (runResultMetrics.MaxResponseTime > metrics.MaxResponseTime) metrics.MaxResponseTime = runResultMetrics.MaxResponseTime;
+
                     metrics.AverageDelay = metrics.AverageDelay.Add(runResultMetrics.AverageDelay);
                     metrics.LogEntries += runResultMetrics.LogEntries;
-                    if (baseLogEntryCount == 0)
-                        baseLogEntryCount = metrics.LogEntries;
+                    if (baseLogEntryCount == 0) baseLogEntryCount = metrics.LogEntries;
 
                     totalAndExtraLogEntriesProcessed += runResultMetrics.LogEntriesProcessed;
                     metrics.ResponsesPerSecond += runResultMetrics.ResponsesPerSecond;
                     metrics.UserActionsPerSecond += runResultMetrics.UserActionsPerSecond;
                     metrics.Errors += runResultMetrics.Errors;
+
+                    foreach (var vur in runResult.VirtualUserResults)
+                        foreach (var ler in vur.LogEntryResults)
+                            if (ler != null && ler.LogEntryIndex != null)
+                            {
+                                for (int i = 0; i != timesToLastByteInTicks.Count; i++)
+                                    if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks)
+                                    {
+                                        timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
+                                        break;
+                                    }
+                                while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
+                            }
                 }
                 for (int i = result.RunResults.Count; i < result.RunCount; i++)
                     metrics.LogEntries += baseLogEntryCount;
@@ -93,6 +110,9 @@ namespace vApus.Results
                 metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / result.RunResults.Count);
 
                 metrics.EstimatedTimeLeft = GetEstimatedRuntimeLeft(metrics, result.StoppedAt == DateTime.MinValue);
+
+                long percentile95thResponseTimes = timesToLastByteInTicks[timesToLastByteInTicks.Count - 1];
+                metrics.Percentile95thResponseTimes = percentile95thResponseTimes == 0 ? metrics.MaxResponseTime : new TimeSpan(percentile95thResponseTimes);
             }
             return metrics;
         }
@@ -101,7 +121,7 @@ namespace vApus.Results
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static StresstestMetrics GetMetrics(RunResult result)
+        public static StresstestMetrics GetMetrics(RunResult result, bool calculate95thPercentileResponseTimes = true)
         {
             var metrics = new StresstestMetrics();
             metrics.StartMeasuringRuntime = result.StartedAt;
@@ -114,22 +134,38 @@ namespace vApus.Results
             metrics.AverageDelay = new TimeSpan();
 
             int enteredUserResultsCount = 0;
+            var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
+            int percent5 = -1;
             foreach (VirtualUserResult virtualUserResult in result.VirtualUserResults)
             {
-                if (virtualUserResult.VirtualUser != null)
-                    ++enteredUserResultsCount;
+                if (virtualUserResult.VirtualUser != null) ++enteredUserResultsCount;
 
                 StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult);
 
+                if (calculate95thPercentileResponseTimes && percent5 == -1) 
+                    percent5 = (int)(result.VirtualUserResults.Length * virtualUserMetrics.LogEntries * 0.05) + 1;
+
                 metrics.AverageResponseTime = metrics.AverageResponseTime.Add(virtualUserMetrics.AverageResponseTime);
-                if (virtualUserMetrics.MaxResponseTime > metrics.MaxResponseTime)
-                    metrics.MaxResponseTime = virtualUserMetrics.MaxResponseTime;
+                if (virtualUserMetrics.MaxResponseTime > metrics.MaxResponseTime) metrics.MaxResponseTime = virtualUserMetrics.MaxResponseTime;
                 metrics.AverageDelay = metrics.AverageDelay.Add(virtualUserMetrics.AverageDelay);
                 metrics.LogEntries += virtualUserMetrics.LogEntries;
                 metrics.LogEntriesProcessed += virtualUserMetrics.LogEntriesProcessed;
                 metrics.ResponsesPerSecond += virtualUserMetrics.ResponsesPerSecond;
                 metrics.UserActionsPerSecond += virtualUserMetrics.UserActionsPerSecond;
                 metrics.Errors += virtualUserMetrics.Errors;
+
+                if (calculate95thPercentileResponseTimes)
+                    foreach (var ler in virtualUserResult.LogEntryResults)
+                        if (ler != null && ler.LogEntryIndex != null)
+                        {
+                            for (int i = 0; i != timesToLastByteInTicks.Count; i++)
+                                if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks)
+                                {
+                                    timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
+                                    break;
+                                }
+                            while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
+                        }
             }
 
             if (enteredUserResultsCount != 0)
@@ -137,6 +173,8 @@ namespace vApus.Results
                 metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks / enteredUserResultsCount);
                 metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / enteredUserResultsCount);
                 metrics.EstimatedTimeLeft = GetEstimatedRuntimeLeft(metrics, result.StoppedAt == DateTime.MinValue);
+                long percentile95thResponseTimes = timesToLastByteInTicks[timesToLastByteInTicks.Count - 1];
+                metrics.Percentile95thResponseTimes = percentile95thResponseTimes == 0 ? metrics.MaxResponseTime : new TimeSpan(percentile95thResponseTimes);
             }
             return metrics;
         }
@@ -152,30 +190,27 @@ namespace vApus.Results
                 if (logEntryResult != null && logEntryResult.LogEntryIndex != null)
                 {
                     ++metrics.LogEntriesProcessed;
-                    if (!userActionIndices.Contains(logEntryResult.UserAction))
-                        userActionIndices.Add(logEntryResult.UserAction);
+                    if (!userActionIndices.Contains(logEntryResult.UserAction)) userActionIndices.Add(logEntryResult.UserAction);
+
                     var ttlb = new TimeSpan(logEntryResult.TimeToLastByteInTicks);
                     totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
-                    if (ttlb > metrics.MaxResponseTime)
-                        metrics.MaxResponseTime = ttlb;
-                    totalDelay =
-                        totalDelay.Add(new TimeSpan(logEntryResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
-                    if (!string.IsNullOrEmpty(logEntryResult.Exception))
-                        ++metrics.Errors;
+                    if (ttlb > metrics.MaxResponseTime) metrics.MaxResponseTime = ttlb;
+
+                    totalDelay = totalDelay.Add(new TimeSpan(logEntryResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
+                    if (!string.IsNullOrEmpty(logEntryResult.Error)) ++metrics.Errors;
                 }
 
             if (metrics.LogEntriesProcessed != 0)
             {
                 metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.LogEntriesProcessed);
                 metrics.AverageDelay = new TimeSpan(totalDelay.Ticks / metrics.LogEntriesProcessed);
-                metrics.ResponsesPerSecond = metrics.LogEntriesProcessed /
+                metrics.ResponsesPerSecond = ((double)metrics.LogEntriesProcessed) /
                                              ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) /
                                               TimeSpan.TicksPerSecond);
-                metrics.UserActionsPerSecond = userActionIndices.Count /
+                metrics.UserActionsPerSecond = ((double)userActionIndices.Count) /
                                                ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) /
                                                 TimeSpan.TicksPerSecond);
             }
-
             return metrics;
         }
         private static TimeSpan GetEstimatedRuntimeLeft(StresstestMetrics metrics, bool stopped)
@@ -187,15 +222,12 @@ namespace vApus.Results
                     (long)
                     (((DateTime.Now - metrics.StartMeasuringRuntime).TotalMilliseconds / metrics.LogEntriesProcessed) *
                      (metrics.LogEntries - metrics.LogEntriesProcessed) * 10000);
-                if (estimatedRuntimeLeft < 0)
-                    estimatedRuntimeLeft = 0;
+                if (estimatedRuntimeLeft < 0) estimatedRuntimeLeft = 0;
             }
             return new TimeSpan(estimatedRuntimeLeft);
         }
 
         /// <summary>
-        ///     Will only work if you input the output of a Get...Metrics function.
-        ///     This is because the rows are cached too.
         /// </summary>
         /// <param name="metrics"></param>
         /// <returns></returns>
@@ -220,6 +252,7 @@ namespace vApus.Results
                         Math.Round(metrics.UserActionsPerSecond, 2),
                         Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                         Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                        Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
                         Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
                         metrics.Errors
                     };
@@ -236,6 +269,7 @@ namespace vApus.Results
                     Math.Round(metrics.UserActionsPerSecond, 2),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                    Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
                     Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
                     metrics.Errors
                 };
@@ -255,6 +289,7 @@ namespace vApus.Results
                         Math.Round(metrics.UserActionsPerSecond, 2),
                         Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                         Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                        Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
                         Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
                         metrics.Errors
                     };
@@ -271,6 +306,7 @@ namespace vApus.Results
                     Math.Round(metrics.UserActionsPerSecond, 2),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
+                    Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
                     Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
                     metrics.Errors
                 };

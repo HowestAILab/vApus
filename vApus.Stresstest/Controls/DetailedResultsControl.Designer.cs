@@ -302,12 +302,12 @@
             // pnlBorderExecute
             // 
             this.pnlBorderExecute.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.pnlBorderExecute.BackColor = System.Drawing.Color.Silver;
             this.pnlBorderExecute.Controls.Add(this.btnExecute);
-            this.pnlBorderExecute.Location = new System.Drawing.Point(872, 0);
+            this.pnlBorderExecute.Location = new System.Drawing.Point(3, 0);
             this.pnlBorderExecute.Name = "pnlBorderExecute";
-            this.pnlBorderExecute.Size = new System.Drawing.Size(22, 100);
+            this.pnlBorderExecute.Size = new System.Drawing.Size(26, 100);
             this.pnlBorderExecute.TabIndex = 20;
             // 
             // btnExecute
@@ -323,11 +323,12 @@
             this.btnExecute.Location = new System.Drawing.Point(1, 1);
             this.btnExecute.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.btnExecute.Name = "btnExecute";
-            this.btnExecute.Size = new System.Drawing.Size(20, 98);
+            this.btnExecute.Size = new System.Drawing.Size(24, 98);
             this.btnExecute.TabIndex = 1;
             this.btnExecute.TabStop = false;
             this.toolTip.SetToolTip(this.btnExecute, "Execute the script.");
             this.btnExecute.UseVisualStyleBackColor = false;
+            this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
             // 
             // dgvDetailedResults
             // 
@@ -384,27 +385,35 @@
             this.pnlBorderShow.Controls.Add(this.cboShow);
             this.pnlBorderShow.Location = new System.Drawing.Point(49, 3);
             this.pnlBorderShow.Name = "pnlBorderShow";
-            this.pnlBorderShow.Size = new System.Drawing.Size(127, 23);
+            this.pnlBorderShow.Size = new System.Drawing.Size(200, 23);
             this.pnlBorderShow.TabIndex = 1;
             // 
             // cboShow
             // 
+            this.cboShow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cboShow.BackColor = System.Drawing.Color.White;
             this.cboShow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboShow.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cboShow.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboShow.FormattingEnabled = true;
+            this.cboShow.Items.AddRange(new object[] {
+            "Average Concurrency Results",
+            "Average User Actions",
+            "Average Log Entries",
+            "Errors"});
             this.cboShow.Location = new System.Drawing.Point(1, 1);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboShow.Name = "cboShow";
-            this.cboShow.Size = new System.Drawing.Size(125, 21);
+            this.cboShow.Size = new System.Drawing.Size(198, 21);
             this.cboShow.TabIndex = 0;
+            this.cboShow.SelectedIndexChanged += new System.EventHandler(this.cboShow_SelectedIndexChanged);
             // 
             // lblStarted
             // 
             this.lblStarted.AutoSize = true;
             this.lblStarted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStarted.Location = new System.Drawing.Point(179, 6);
+            this.lblStarted.Location = new System.Drawing.Point(252, 6);
             this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblStarted.Name = "lblStarted";
             this.lblStarted.Size = new System.Drawing.Size(0, 16);
@@ -414,7 +423,7 @@
             // 
             this.lblMeasuredRuntime.AutoSize = true;
             this.lblMeasuredRuntime.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMeasuredRuntime.Location = new System.Drawing.Point(179, 6);
+            this.lblMeasuredRuntime.Location = new System.Drawing.Point(252, 6);
             this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
             this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
@@ -425,7 +434,7 @@
             this.lblStopped.AutoSize = true;
             this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
             this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStopped.Location = new System.Drawing.Point(185, 3);
+            this.lblStopped.Location = new System.Drawing.Point(258, 3);
             this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
             this.lblStopped.Name = "lblStopped";
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
@@ -437,7 +446,7 @@
             this.chkReadable.Checked = true;
             this.chkReadable.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkReadable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkReadable.Location = new System.Drawing.Point(194, 7);
+            this.chkReadable.Location = new System.Drawing.Point(267, 7);
             this.chkReadable.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
             this.chkReadable.Name = "chkReadable";
             this.chkReadable.Size = new System.Drawing.Size(72, 17);
@@ -456,7 +465,7 @@
             this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(269, 3);
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(342, 3);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
@@ -484,10 +493,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 15);
             this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.codeTextBox.Location = new System.Drawing.Point(0, 0);
+            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
             this.codeTextBox.Name = "codeTextBox";
             this.codeTextBox.PreferredLineWidth = 65536;
-            this.codeTextBox.Size = new System.Drawing.Size(866, 100);
+            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
             this.codeTextBox.TabIndex = 0;
             this.codeTextBox.WordWrap = true;
             this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;

@@ -64,7 +64,10 @@ namespace vApus.Util
                 LinkBehavior = LinkBehavior.AlwaysUnderline;
             }
         }
-
+        public void PerformClick()
+        {
+            OnClick(new EventArgs());
+        }
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);

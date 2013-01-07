@@ -38,7 +38,7 @@
             this.tpStresstest = new System.Windows.Forms.TabPage();
             this.stresstestControl = new vApus.Stresstest.FastResultsControl();
             this.tpReport = new System.Windows.Forms.TabPage();
-            this.detailedResultsControl1 = new vApus.Stresstest.Controls.DetailedResultsControl();
+            this.detailedResultsControl = new vApus.Stresstest.Controls.DetailedResultsControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
@@ -119,7 +119,7 @@
             // tpReport
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
-            this.tpReport.Controls.Add(this.detailedResultsControl1);
+            this.tpReport.Controls.Add(this.detailedResultsControl);
             this.tpReport.Location = new System.Drawing.Point(0, 22);
             this.tpReport.Name = "tpReport";
             this.tpReport.Size = new System.Drawing.Size(790, 494);
@@ -128,12 +128,12 @@
             // 
             // detailedResultsControl1
             // 
-            this.detailedResultsControl1.BackColor = System.Drawing.SystemColors.Control;
-            this.detailedResultsControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.detailedResultsControl1.Location = new System.Drawing.Point(0, 0);
-            this.detailedResultsControl1.Name = "detailedResultsControl1";
-            this.detailedResultsControl1.Size = new System.Drawing.Size(790, 494);
-            this.detailedResultsControl1.TabIndex = 0;
+            this.detailedResultsControl.BackColor = System.Drawing.SystemColors.Control;
+            this.detailedResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailedResultsControl.Location = new System.Drawing.Point(0, 0);
+            this.detailedResultsControl.Name = "detailedResultsControl1";
+            this.detailedResultsControl.Size = new System.Drawing.Size(790, 494);
+            this.detailedResultsControl.TabIndex = 0;
             // 
             // toolStrip
             // 
@@ -236,7 +236,7 @@
         private System.Windows.Forms.TabPage tpReport;
         private System.Windows.Forms.SaveFileDialog sfd;
         private FastResultsControl stresstestControl;
-        private Controls.DetailedResultsControl detailedResultsControl1;
+        private Controls.DetailedResultsControl detailedResultsControl;
 
     }
 }
