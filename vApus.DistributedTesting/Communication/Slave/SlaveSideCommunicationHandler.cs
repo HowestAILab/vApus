@@ -110,14 +110,23 @@ namespace vApus.DistributedTesting
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
                 {
-                    _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
-                    _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
-                    _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
+                    try
+                    {
+                        _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
+                        _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
+                        _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
+                    }
+                    catch (Exception e)
+                    {
+                        initializeTestMessage.Exception = e.ToString();
+                        MessageBox.Show(e.ToString());
+                    }
                 }, null);
 
 
                 //This is threadsafe
-                _tileStresstestView.InitializeTest();
+                if (initializeTestMessage.Exception == null)
+                    _tileStresstestView.InitializeTest();
 
             }
             catch (Exception ex)
