@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using vApus.Results;
 using vApus.Stresstest;
 using vApus.Util;
 
@@ -37,17 +38,7 @@ namespace vApus.DistributedTesting
         ///     To push progress to the master (also finished and failed and such).
         ///     Pushing progress will be at minimum, just the metrics will be send, getting the results will happen afterwards.
         /// </summary>
-        Push,
-
-        /// <summary>
-        ///     This will return a torrent file in bytes that the torrent client will use on the master-side.
-        /// </summary>
-        Results,
-
-        /// <summary>
-        ///     Stops seeding the results and deletes the r file slave side if it was succesfully sent to the master.
-        /// </summary>
-        StopSeedingResults
+        Push
     }
 
     [Serializable]
@@ -103,10 +94,13 @@ namespace vApus.DistributedTesting
         public float NicsSent;
 
         public RunStateChange RunStateChange;
-        public StresstestStatus StresstestResult;
+        public StresstestStatus StresstestStatus;
+        public DateTime StartedAt;
+        public TimeSpan MeasuredRuntime;
+        
         public int ThreadsInUse;
         public string TileStresstestIndex;
-        public TileStresstestProgressResults TileStresstestProgressResults;
+        public StresstestMetricsCache StresstestMetricsCache;
 
         /// <summary>
         ///     in MB

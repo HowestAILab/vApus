@@ -292,9 +292,13 @@ namespace vApus.Util
                 Invalidate();
         }
 
-        public void SetEndOfTimeFrameNow()
+        public void SetEndOfTimeFrameToNow()
         {
-            _endOfTimeFrame = DateTime.Now;
+            SetEndOfTimeFrameTo(DateTime.Now);
+        }
+        public void SetEndOfTimeFrameTo(DateTime dateTime)
+        {
+            _endOfTimeFrame = dateTime;
             _nowProgressEvent = new ProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
             Invalidate();
         }

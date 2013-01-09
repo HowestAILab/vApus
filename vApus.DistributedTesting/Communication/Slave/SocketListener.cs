@@ -77,7 +77,7 @@ namespace vApus.DistributedTesting
             get
             {
                 string network = string.Empty;
-                string[] parts = _ip.Split(new[] {'.'});
+                string[] parts = _ip.Split(new[] { '.' });
                 for (int i = 0; i < 3; i++)
                     network = network + parts[i] + '.';
                 return network;
@@ -155,6 +155,8 @@ namespace vApus.DistributedTesting
 
         private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e)
         {
+            if (_ip == "127.0.0.1") return;
+
             try
             {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate
@@ -172,9 +174,7 @@ namespace vApus.DistributedTesting
                         }
                     }, null);
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         public void SetIPAndPort(string ip, int port, bool preferred = false)
@@ -277,11 +277,7 @@ namespace vApus.DistributedTesting
                 }
             }
 
-            if (_availableIps.Count != 0)
-                entryindex = 0;
-            else
-                _availableIps.Add("127.0.0.1");
-
+            if (_availableIps.Count == 0) _availableIps.Add("127.0.0.1"); else entryindex = 0;
 
             int preferredIPIndex = _availableIps.IndexOf(Settings.Default.PreferredIP);
             if (preferredIPIndex > -1)
@@ -411,7 +407,7 @@ namespace vApus.DistributedTesting
                 {
                     DisconnectMaster(socketWrapper);
                     SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
-                        //The test cannot be valid without a master, stop the test if any.
+                    //The test cannot be valid without a master, stop the test if any.
                     LogWrapper.LogByLevel(
                         "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" +
                         exception, LogLevel.Warning);
@@ -425,16 +421,16 @@ namespace vApus.DistributedTesting
 
         private void OnReceive(IAsyncResult result)
         {
-            var socketWrapper = (SocketWrapper) result.AsyncState;
+            var socketWrapper = (SocketWrapper)result.AsyncState;
             var message = new Message<Key>();
             try
             {
                 socketWrapper.Socket.EndReceive(result);
-                message = (Message<Key>) socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
+                message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
 
                 if (message.Key == Key.SynchronizeBuffers)
                 {
-                    socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage) message.Content).BufferSize;
+                    socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)message.Content).BufferSize;
                     BeginReceive(socketWrapper);
                     socketWrapper.Socket.SendBufferSize = socketWrapper.ReceiveBufferSize;
                 }
@@ -449,7 +445,7 @@ namespace vApus.DistributedTesting
             {
                 DisconnectMaster(socketWrapper);
                 SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
-                    //The test cannot be valid without a master, stop the test if any.
+                //The test cannot be valid without a master, stop the test if any.
                 LogWrapper.LogByLevel(
                     "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" +
                     exception, LogLevel.Warning);

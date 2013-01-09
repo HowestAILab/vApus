@@ -181,6 +181,9 @@ namespace vApus.Stresstest.Controls
             catch { }
         }
 
+        /// <summary>
+        /// Clear before testing.
+        /// </summary>
         public void ClearReport()
         {
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
@@ -188,6 +191,9 @@ namespace vApus.Stresstest.Controls
 
             dgvDetailedResults.DataSource = null;
         }
+        /// <summary>
+        /// Refresh after testing.
+        /// </summary>
         public void RefreshReport()
         {
             foreach(var ctrl in flpConfiguration.Controls)

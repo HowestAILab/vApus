@@ -36,7 +36,7 @@
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.tpStresstest = new System.Windows.Forms.TabPage();
-            this.stresstestControl = new vApus.Stresstest.FastResultsControl();
+            this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
             this.tpReport = new System.Windows.Forms.TabPage();
             this.detailedResultsControl = new vApus.Stresstest.Controls.DetailedResultsControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
@@ -97,7 +97,7 @@
             // tpStresstest
             // 
             this.tpStresstest.BackColor = System.Drawing.Color.White;
-            this.tpStresstest.Controls.Add(this.stresstestControl);
+            this.tpStresstest.Controls.Add(this.fastResultsControl);
             this.tpStresstest.Location = new System.Drawing.Point(0, 19);
             this.tpStresstest.Name = "tpStresstest";
             this.tpStresstest.Size = new System.Drawing.Size(790, 497);
@@ -106,15 +106,15 @@
             // 
             // stresstestControl
             // 
-            this.stresstestControl.BackColor = System.Drawing.Color.Transparent;
-            this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestControl.Location = new System.Drawing.Point(0, 0);
-            this.stresstestControl.Margin = new System.Windows.Forms.Padding(0);
-            this.stresstestControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
-            this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(790, 497);
-            this.stresstestControl.TabIndex = 0;
-            this.stresstestControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
+            this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
+            this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastResultsControl.Location = new System.Drawing.Point(0, 0);
+            this.fastResultsControl.Margin = new System.Windows.Forms.Padding(0);
+            this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
+            this.fastResultsControl.Name = "stresstestControl";
+            this.fastResultsControl.Size = new System.Drawing.Size(790, 497);
+            this.fastResultsControl.TabIndex = 0;
+            this.fastResultsControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
             // 
             // tpReport
             // 
@@ -235,7 +235,7 @@
         private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.TabPage tpReport;
         private System.Windows.Forms.SaveFileDialog sfd;
-        private FastResultsControl stresstestControl;
+        private FastResultsControl fastResultsControl;
         private Controls.DetailedResultsControl detailedResultsControl;
 
     }

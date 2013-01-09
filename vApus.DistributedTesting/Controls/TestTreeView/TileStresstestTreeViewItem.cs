@@ -49,11 +49,8 @@ namespace vApus.DistributedTesting
         private bool _ctrl;
 
         private DistributedTestMode _distributedTestMode;
-
-        private bool _downloadResultsFinished;
-
         private bool _exclamation;
-        private StresstestStatus _stresstestResult;
+        private StresstestStatus _stresstestStatus;
 
         #endregion
 
@@ -66,7 +63,7 @@ namespace vApus.DistributedTesting
 
         public StresstestStatus StresstestResult
         {
-            get { return _stresstestResult; }
+            get { return _stresstestStatus; }
         }
 
         /// <summary>
@@ -168,8 +165,6 @@ namespace vApus.DistributedTesting
 
                     picStresstestStatus.Image = null;
                     toolTip.SetToolTip(picStresstestStatus, string.Empty);
-
-                    _downloadResultsFinished = false;
                 }
                 else
                 {
@@ -295,45 +290,28 @@ namespace vApus.DistributedTesting
         public void SetMeasuredRunTime(TimeSpan estimatedRuntimeLeft)
         {
             //eventProgressBar.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
-            eventProgressBar.SetEndOfTimeFrameNow();
+            eventProgressBar.SetEndOfTimeFrameToNow();
         }
 
-        public void SetStresstestResult(StresstestStatus stresstestResult, int downloadResultsProgress)
+        public void SetStresstestStatus(StresstestStatus stresstestStatus)
         {
-            _stresstestResult = stresstestResult;
-            SetStresstestResult(downloadResultsProgress);
-        }
+            _stresstestStatus = stresstestStatus;
+            eventProgressBar.SetEndOfTimeFrameToNow();
 
-        public void SetStresstestResult(int downloadResultsProgress)
-        {
-            if (downloadResultsProgress == 100)
+            switch (_stresstestStatus)
             {
-                _downloadResultsFinished = true;
-                eventProgressBar.SetEndOfTimeFrameNow();
-            }
-
-            if (downloadResultsProgress == 0 || downloadResultsProgress == 100)
-            {
-                switch (_stresstestResult)
-                {
-                    case StresstestStatus.Ok:
-                        picStresstestStatus.Image = Resources.OK;
-                        toolTip.SetToolTip(picStresstestStatus, "Finished");
-                        break;
-                    case StresstestStatus.Cancelled:
-                        picStresstestStatus.Image = Resources.Cancelled;
-                        toolTip.SetToolTip(picStresstestStatus, "Cancelled");
-                        break;
-                    case StresstestStatus.Error:
-                        picStresstestStatus.Image = Resources.Error;
-                        toolTip.SetToolTip(picStresstestStatus, "Failed");
-                        break;
-                }
-            }
-            else if (!_downloadResultsFinished)
-            {
-                picStresstestStatus.Image = Resources.Busy;
-                toolTip.SetToolTip(picStresstestStatus, "Downloading Results " + downloadResultsProgress + "%");
+                case StresstestStatus.Ok:
+                    picStresstestStatus.Image = Resources.OK;
+                    toolTip.SetToolTip(picStresstestStatus, "Finished");
+                    break;
+                case StresstestStatus.Cancelled:
+                    picStresstestStatus.Image = Resources.Cancelled;
+                    toolTip.SetToolTip(picStresstestStatus, "Cancelled");
+                    break;
+                case StresstestStatus.Error:
+                    picStresstestStatus.Image = Resources.Error;
+                    toolTip.SetToolTip(picStresstestStatus, "Failed");
+                    break;
             }
         }
 

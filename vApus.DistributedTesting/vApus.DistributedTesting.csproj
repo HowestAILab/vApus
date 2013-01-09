@@ -304,7 +304,6 @@
     </Compile>
     <Compile Include="Clients.cs" />
     <Compile Include="Tiles.cs" />
-    <Compile Include="TileStresstestProgressResults.cs" />
     <Compile Include="TileStresstestView.cs">
       <SubType>Form</SubType>
     </Compile>

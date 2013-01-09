@@ -205,9 +205,6 @@
     <Compile Include="Controls\DetailedResultsControl.Designer.cs">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="StresstestResults.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">

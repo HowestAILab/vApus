@@ -43,8 +43,6 @@ namespace vApus.DistributedTesting
         private static InitializeTestWorkItem _initializeTestWorkItem;
         [ThreadStatic]
         private static StopTestWorkItem _stopTestWorkItem;
-        [ThreadStatic]
-        private static GetResultsWorkItem _getResultsWorkItem;
 
         #endregion
 
@@ -748,77 +746,6 @@ namespace vApus.DistributedTesting
                 return l.ToArray();
             }
         }
-        /// <summary>
-        /// Only use after the test is stopped.
-        /// If the result getting fails for a certain slave an empty message is returned.
-        ///
-        /// The retry count is 3 with a send and a receive timeout of 30 seconds.
-        /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <param name="exception"></param>
-        /// <returns></returns>
-        public static ResultsMessage[] GetResults(out Exception[] exception)
-        {
-            int length = _connectedSlaves.Count;
-            ConcurrentBag<Exception> exc = new ConcurrentBag<Exception>();
-            ConcurrentBag<ResultsMessage> resultsMsgs = new ConcurrentBag<ResultsMessage>();
-
-            if (length != 0)
-            {
-                AutoResetEvent waitHandle = new AutoResetEvent(false);
-                int handled = 0;
-
-                foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
-                {
-                    Thread t = new Thread(delegate(object parameter)
-                    {
-                        _getResultsWorkItem = new GetResultsWorkItem();
-                        _getResultsWorkItem.GetResults(parameter as SocketWrapper, ref exc, ref resultsMsgs);
-                        _getResultsWorkItem = null;
-
-                        if (Interlocked.Increment(ref handled) == length && waitHandle != null)
-                            waitHandle.Set();
-                    });
-                    t.IsBackground = true;
-                    t.Start(socketWrapper);
-                }
-
-                waitHandle.WaitOne();
-            }
-
-            exception = new Exception[exc.Count];
-            exc.CopyTo(exception, 0);
-
-            ResultsMessage[] resultsMessages = new ResultsMessage[resultsMsgs.Count];
-            resultsMsgs.CopyTo(resultsMessages, 0);
-
-            return resultsMessages;
-        }
-        /// <summary>
-        /// The retry count is 3 with a send timeout of 30 seconds.
-        /// </summary>
-        /// <param name="tileStresstest"></param>
-        /// <param name="torrentName"></param>
-        /// <param name="exception"></param>
-        public static void StopSeedingResults(TileStresstest tileStresstest, out Exception exception)
-        {
-#warning Allow multiple slaves for work distribution
-            Slave slave = tileStresstest.BasicTileStresstest.Slaves[0];
-            SocketWrapper socketWrapper = Get(slave.IP, slave.Port, out exception);
-            if (exception == null)
-                for (int i = 1; i != 4; i++)
-                    try
-                    {
-                        Send(socketWrapper, Key.StopSeedingResults, 30000);
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        exception = ex;
-                        Thread.Sleep(i * 500);
-                    }
-        }
         #endregion
 
         #endregion
@@ -942,47 +869,6 @@ namespace vApus.DistributedTesting
                     {
                         exceptions.Add(new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex));
                     }
-            }
-        }
-        private class GetResultsWorkItem
-        {
-            public void GetResults(SocketWrapper socketWrapper, ref ConcurrentBag<Exception> exceptions, ref ConcurrentBag<ResultsMessage> resultsMessages)
-            {
-                Exception e = null;
-                if (socketWrapper != null && socketWrapper.Connected)
-                {
-                    ResultsMessage resultsMessage = new ResultsMessage();
-                    for (int i = 1; i != 4; i++)
-                        try
-                        {
-                            socketWrapper.SendTimeout = 30000;
-                            socketWrapper.Send(new Message<Key>(Key.Results, null), SendType.Binary);
-                            socketWrapper.SendTimeout = -1;
-
-                            socketWrapper.ReceiveTimeout = 30000;
-                            object data = ((Message<Key>)socketWrapper.Receive(SendType.Binary)).Content;
-                            while (data is SynchronizeBuffersMessage)
-                            {
-                                socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)data).BufferSize;
-                                data = ((Message<Key>)socketWrapper.Receive(SendType.Binary)).Content;
-                            }
-                            socketWrapper.ReceiveTimeout = -1;
-
-                            resultsMessage = (ResultsMessage)data;
-                            if (resultsMessage.Exception != null)
-                                throw new Exception(resultsMessage.Exception);
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            e = new Exception("Failed to get the test results from " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
-                            Thread.Sleep(i * 500);
-                        }
-                    if (e != null)
-                        exceptions.Add(e);
-
-                    resultsMessages.Add(resultsMessage);
-                }
             }
         }
         #endregion

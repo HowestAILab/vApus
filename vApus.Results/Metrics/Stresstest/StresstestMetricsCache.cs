@@ -13,6 +13,7 @@ namespace vApus.Results
     /// <summary>
     ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StresstestMetricsHelper.
     /// </summary>
+    [Serializable]
     public class StresstestMetricsCache
     {
         #region Fields
@@ -30,7 +31,7 @@ namespace vApus.Results
         /// </summary>
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
-        public List<StresstestMetrics> AddOrUpdate(ConcurrencyResult result) 
+        public List<StresstestMetrics> AddOrUpdate(ConcurrencyResult result)
         {
             __AddOrUpdate(StresstestMetricsHelper.GetMetrics(result), result);
             return GetConcurrencyMetrics();
@@ -112,13 +113,15 @@ namespace vApus.Results
         }
         #endregion
 
+        [Serializable]
         private class MetricsCacheObject
         {
             public StresstestMetrics Metrics { get; set; }
             /// <summary>
             ///     ConcurrencyResult or RunResult.
             /// </summary>
-            public object Result { get; set; }
+            [NonSerialized]
+            public object Result;
         }
     }
 }

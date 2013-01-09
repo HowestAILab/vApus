@@ -62,6 +62,10 @@ namespace vApus.Stresstest
         /// Normally columns are only added to the datagrid view on gui interaction. For monitors this fails if the monitors are not yet initialized.
         /// </summary>
         private bool _trySettingDataGridViewColumnsOnNextMonitorUpdate;
+
+        //For distributed test
+        private DateTime _stresstestStartedAt = DateTime.Now;
+        private TimeSpan _measuredRuntime = new TimeSpan();
         #endregion
 
         #region Properties
@@ -81,6 +85,17 @@ namespace vApus.Stresstest
             }
         }
 
+        public DateTime StresstestStartedAt
+        {
+            get { return _stresstestStartedAt; }
+        }
+        /// <summary>
+        /// For distributed test
+        /// </summary>
+        public TimeSpan MeasuredRuntime
+        {
+            get { return _measuredRuntime; }
+        }
         #endregion
 
         #region Constructor
@@ -106,11 +121,15 @@ namespace vApus.Stresstest
         /// </summary>
         public void SetStresstestInitialized()
         {
+            _measuredRuntime = new TimeSpan();
+            _stresstestStartedAt = DateTime.Now;
+
             epnlMessages.ClearEvents();
 
             lblStarted.Text = string.Empty;
             lblMeasuredRuntime.Text = string.Empty;
             lblStopped.Text = string.Empty;
+
 
             ClearFastResults();
         }
@@ -304,10 +323,6 @@ namespace vApus.Stresstest
             }
         }
 
-        public void SlaveSideSaveResults()
-        {
-        }
-
 
         /// <summary>
         ///     Sets the label.
@@ -315,6 +330,7 @@ namespace vApus.Stresstest
         /// <param name="start"></param>
         public void SetStresstestStarted(DateTime at)
         {
+            _stresstestStartedAt = at;
             lblStarted.Text = "Test started at " + at;
             epnlMessages.BeginOfTimeFrame = at;
         }
@@ -356,7 +372,7 @@ namespace vApus.Stresstest
                 dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
             }
-            if (setMeasuredRunTime) SetMeasuredRunTime();
+            if (setMeasuredRunTime) SetMeasuredRuntime();
         }
         /// <summary>
         /// Uses the monitor.ToString as an identifier.
@@ -401,7 +417,7 @@ namespace vApus.Stresstest
                 dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
             }
-            if (setMeasuredRunTime) SetMeasuredRunTime();
+            if (setMeasuredRunTime) SetMeasuredRuntime();
         }
         /// <summary>
         /// Uses the monitor.ToString as an identifier.
@@ -473,10 +489,17 @@ namespace vApus.Stresstest
         ///     Sets the '; ran ...' label.
         /// </summary>
         /// <param name="metrics"></param>
-        private void SetMeasuredRunTime()
+        private void SetMeasuredRuntime()
         {
             epnlMessages.SetEndOfTimeFrameToNow();
-            lblMeasuredRuntime.Text = "; ran " + (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString();
+            _measuredRuntime = epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame;
+            lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString();
+        }
+        public void SetMeasuredRuntime(TimeSpan measuredRuntime)
+        {
+            epnlMessages.SetEndOfTimeFrameTo(epnlMessages.BeginOfTimeFrame + measuredRuntime);
+            string s = "; ran " + measuredRuntime.ToShortFormattedString();
+            if(lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
         }
 
         private void btnRerunning_Click(object sender, EventArgs e)
@@ -500,12 +523,32 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
+        public void SetStresstestStopped(StresstestStatus stresstestResult, TimeSpan measuredRuntime, Exception exception = null)
+        {
+            SetMeasuredRuntime(measuredRuntime);
+            __SetStresstestStopped(stresstestResult);
+        }
+
+        /// <summary>
+        ///     label updates in visibility + label stopped forecolor and text.
+        /// </summary>
+        /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
+        /// <param name="message">If null, no message is appended.</param>
         public void SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null)
+        {
+            SetMeasuredRuntime();
+            __SetStresstestStopped(stresstestResult);
+        }
+
+        /// <summary>
+        ///     label updates in visibility + label stopped forecolor and text.
+        /// </summary>
+        /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
+        /// <param name="message">If null, no message is appended.</param>
+        private void __SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null)
         {
             try
             {
-                SetMeasuredRunTime();
-
                 string message = null;
                 if (exception != null)
                 {
@@ -514,37 +557,50 @@ namespace vApus.Stresstest
                     LogWrapper.LogByLevel(message, LogLevel.Error);
                     AppendMessages(message, Color.Red);
                 }
+                string lblStoppedText = null;
                 switch (stresstestResult)
                 {
                     case StresstestStatus.Ok:
-                        lblStopped.ForeColor = Color.Green;
-                        lblStopped.Text = "and finished at " + epnlMessages.EndOfTimeFrame;
+                        lblStoppedText = "and finished at " + epnlMessages.EndOfTimeFrame;
+                        if (lblStopped.Text != lblStoppedText)
+                        {
+                            lblStopped.ForeColor = Color.Green;
+                            lblStopped.Text = lblStoppedText;
 
-                        message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString());
-                        LogWrapper.LogByLevel(message, LogLevel.Info);
-                        AppendMessages(message, Color.GreenYellow);
+                            message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString());
+                            LogWrapper.LogByLevel(message, LogLevel.Info);
+                            AppendMessages(message, Color.GreenYellow);
 
-                        SetStresstestStopped();
+                            SetStresstestStopped();
+                        }
                         break;
                     case StresstestStatus.Error:
-                        lblStopped.ForeColor = Color.Red;
-                        lblStopped.Text = " failed at " + epnlMessages.EndOfTimeFrame;
+                        lblStoppedText = "failed at " + epnlMessages.EndOfTimeFrame;
+                        if (lblStopped.Text != lblStoppedText)
+                        {
+                            lblStopped.ForeColor = Color.Red;
+                            lblStopped.Text = lblStoppedText;
 
-                        SetStresstestStopped();
+                            SetStresstestStopped();
 
-                        RemoveDatabase();
+                            RemoveDatabase();
+                        }
                         break;
                     case StresstestStatus.Cancelled:
-                        lblStopped.ForeColor = Color.Orange;
-                        lblStopped.Text = "and cancelled at " + epnlMessages.EndOfTimeFrame;
+                        lblStoppedText = "and cancelled at " + epnlMessages.EndOfTimeFrame;
+                        if (lblStopped.Text != lblStoppedText)
+                        {
+                            lblStopped.ForeColor = Color.Orange;
+                            lblStopped.Text = lblStoppedText;
 
-                        message = "The stresstest was cancelled.";
-                        LogWrapper.LogByLevel(message, LogLevel.Info);
-                        AppendMessages(message, Color.Orange);
+                            message = "The stresstest was cancelled.";
+                            LogWrapper.LogByLevel(message, LogLevel.Info);
+                            AppendMessages(message, Color.Orange);
 
-                        SetStresstestStopped();
+                            SetStresstestStopped();
 
-                        RemoveDatabase();
+                            RemoveDatabase();
+                        }
                         break;
                     default:
                         lblStopped.Text = string.Empty;

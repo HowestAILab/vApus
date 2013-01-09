@@ -159,9 +159,12 @@ namespace vApus.Util
 
         public void SetEndOfTimeFrameToNow()
         {
-            eventProgressBar.SetEndOfTimeFrameNow();
+            eventProgressBar.SetEndOfTimeFrameToNow();
         }
-
+        public void SetEndOfTimeFrameTo(DateTime dateTime)
+        {
+            if (eventProgressBar.EndOfTimeFrame != dateTime) eventProgressBar.SetEndOfTimeFrameTo(dateTime);
+        }
         public void ClearEvents()
         {
             eventProgressBar.ClearEvents();

@@ -23,8 +23,8 @@ namespace vApus.DistributedTesting
         private DistributedTest _distributedTest;
 
         //Caching the progress here.
-        private Dictionary<TileStresstest, TileStresstestProgressResults> _progress =
-            new Dictionary<TileStresstest, TileStresstestProgressResults>();
+        //private Dictionary<TileStresstest, TileStresstestProgressResults> _progress =
+        //    new Dictionary<TileStresstest, TileStresstestProgressResults>();
 
         #region Properties
 
@@ -134,7 +134,7 @@ namespace vApus.DistributedTesting
             else
             {
                 kvmMasterMemoryUsage.Value = memoryUsage.ToString() + " / " + totalVisibleMemory + " MB";
-                if (memoryUsage < 0.9*totalVisibleMemory)
+                if (memoryUsage < 0.9 * totalVisibleMemory)
                 {
                     kvmMasterMemoryUsage.BackColor = Color.GhostWhite;
                 }
@@ -184,291 +184,286 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="title">Distributed test or the tostring of the tile</param>
         /// <param name="progress"></param>
-        public void SetOverallFastResults(string title,
-                                          Dictionary<TileStresstest, TileStresstestProgressResults> progress)
-        {
-            _progress = progress;
-            lblFastResultListing.Text = "Fast Results Listing [" + title + "]";
-            SetOverallFastResults();
-        }
+        //public void SetOverallFastResults(string title,
+        //                                  Dictionary<TileStresstest, TileStresstestProgressResults> progress)
+        //{
+        //    _progress = progress;
+        //    lblFastResultListing.Text = "Fast Results Listing [" + title + "]";
+        //    SetOverallFastResults();
+        //}
 
-        private void SetOverallFastResults()
-        {
-            LockWindowUpdate(lvwFastResultsListing.Handle.ToInt32());
-            try
-            {
-                if (!IsDisposed && _progress != null)
-                {
-                    if (cboDrillDown.SelectedIndex == 0)
-                        SetConcurrentUsersProgress();
-                    else
-                        SetRunProgress();
-                }
-            }
-            catch
-            {
-            }
-            LockWindowUpdate(0);
-        }
+        //private void SetOverallFastResults()
+        //{
+        //    LockWindowUpdate(lvwFastResultsListing.Handle.ToInt32());
+        //    try
+        //    {
+        //        if (!IsDisposed && _progress != null)
+        //        {
+        //            if (cboDrillDown.SelectedIndex == 0)
+        //                SetConcurrentUsersProgress();
+        //            else
+        //                SetRunProgress();
+        //        }
+        //    }
+        //    catch
+        //    {
+        //    }
+        //    LockWindowUpdate(0);
+        //}
 
-        private void SetConcurrentUsersProgress()
-        {
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
-            {
-                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
-                clmFRLConcurrency.Width = -2;
-            }
-            if (lvwFastResultsListing.Columns.Contains(clmFRLRuns))
-                lvwFastResultsListing.Columns.Remove(clmFRLRuns);
+        //private void SetConcurrentUsersProgress()
+        //{
+        //    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
+        //    {
+        //        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
+        //        clmFRLConcurrency.Width = -2;
+        //    }
+        //    if (lvwFastResultsListing.Columns.Contains(clmFRLRuns))
+        //        lvwFastResultsListing.Columns.Remove(clmFRLRuns);
 
-            //Remove the ListViewItems we don't need.
-            int count = 0;
-            foreach (TileStresstest key in _progress.Keys)
-                if (_progress[key] != null)
-                    foreach (TileConcurrencyProgressResult result in _progress[key].TileConcurrencyProgressResults)
-                        ++count;
+        //    //Remove the ListViewItems we don't need.
+        //    int count = 0;
+        //    foreach (TileStresstest key in _progress.Keys)
+        //        if (_progress[key] != null)
+        //            foreach (TileConcurrencyProgressResult result in _progress[key].TileConcurrencyProgressResults)
+        //                ++count;
 
-            while (lvwFastResultsListing.Items.Count > count)
-                lvwFastResultsListing.Items.RemoveAt(count);
+        //    while (lvwFastResultsListing.Items.Count > count)
+        //        lvwFastResultsListing.Items.RemoveAt(count);
 
-            //Add new or recycle.
-            int index = 0;
-            foreach (TileStresstest key in _progress.Keys)
-                if (_progress[key] != null)
-                    foreach (TileConcurrencyProgressResult result in _progress[key].TileConcurrencyProgressResults)
-                    {
-                        if (index < lvwFastResultsListing.Items.Count)
-                            RefreshConcurrentUsersLVWI(key, result, lvwFastResultsListing.Items[index]);
-                        else
-                            lvwFastResultsListing.Items.Add(NewConcurrentUsersLVWI(key, result));
+        //    //Add new or recycle.
+        //    int index = 0;
+        //    foreach (TileStresstest key in _progress.Keys)
+        //        if (_progress[key] != null)
+        //            foreach (TileConcurrencyProgressResult result in _progress[key].TileConcurrencyProgressResults)
+        //            {
+        //                if (index < lvwFastResultsListing.Items.Count)
+        //                    RefreshConcurrentUsersLVWI(key, result, lvwFastResultsListing.Items[index]);
+        //                else
+        //                    lvwFastResultsListing.Items.Add(NewConcurrentUsersLVWI(key, result));
 
-                        ++index;
-                    }
-        }
-
-        /// <summary>
-        ///     Recycles list view items.
-        /// </summary>
-        /// <param name="result"></param>
-        /// <param name="lvwi"></param>
-        private void RefreshConcurrentUsersLVWI(TileStresstest ts, TileConcurrencyProgressResult result,
-                                                ListViewItem lvwi)
-        {
-            lvwi.Tag = result;
-            Metrics metrics = result.Metrics;
-
-            string tilestresstest = ts.ToString();
-            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
-
-            //Only update the ones needed to be updated
-            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
-                lvwi.SubItems[5].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
-                metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
-            {
-                lvwi.SubItems[0].Text = tilestresstest;
-                lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
-                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
-                lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
-                lvwi.SubItems[4].Text = result.ConcurrentUsers.ToString();
-                lvwi.SubItems[5].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
-                lvwi.SubItems[6].Text =
-                    Math.Round((metrics.TotalLogEntriesProcessedPerTick*TimeSpan.TicksPerSecond), 4).ToString();
-                lvwi.SubItems[7].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[8].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[9].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
-                lvwi.SubItems[10].Text = metrics.Errors.ToString();
-                lvwi.SubItems[10].ForeColor = Color.Red;
-
-                while (lvwi.SubItems.Count > 11) //Remove the ones we do not need.
-                    lvwi.SubItems.RemoveAt(11);
-            }
-        }
-
-        private ListViewItem NewConcurrentUsersLVWI(TileStresstest ts, TileConcurrencyProgressResult result)
-        {
-            Metrics metrics = result.Metrics;
-
-            string tilestresstest = ts.ToString();
-
-            var lvwi = new ListViewItem(tilestresstest);
-            lvwi.UseItemStyleForSubItems = false;
-
-            var font = new Font("Consolas", 10.25f);
-
-            lvwi.Font = font;
-            lvwi.Tag = result;
-
-            lvwi.SubItems.Add(result.Metrics.StartMeasuringRuntime.ToString()).Font = font;
-            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
-
-            lvwi.SubItems.Add(result.ConcurrentUsers.ToString()).Font = font;
-
-            ListViewItem.ListViewSubItem sub =
-                lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " +
-                                  result.Metrics.TotalLogEntries.ToString());
-            sub.Font = font;
-            sub.Name = "LogEntriesProcessed";
-            lvwi.SubItems.Add(
-                Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick*TimeSpan.TicksPerSecond), 4).ToString()).Font
-                = font;
-            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
-
-            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
-            sub.Font = font;
-            sub.ForeColor = Color.Red;
-
-            return lvwi;
-        }
-
-        private void SetRunProgress()
-        {
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
-            {
-                lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
-                clmFRLConcurrency.Width = -2;
-            }
-            if (!lvwFastResultsListing.Columns.Contains(clmFRLRuns))
-            {
-                lvwFastResultsListing.Columns.Insert(4, clmFRLRuns);
-                clmFRLRuns.Width = -2;
-            }
-
-            int count = 0;
-            foreach (TileStresstest key in _progress.Keys)
-                if (_progress[key] != null)
-                    foreach (TileConcurrencyProgressResult cu in _progress[key].TileConcurrencyProgressResults)
-                        foreach (TileRunProgressResult result in cu.TileRunProgressResults)
-                            ++count;
-
-            while (lvwFastResultsListing.Items.Count > count)
-                lvwFastResultsListing.Items.RemoveAt(count);
-
-            int index = 0;
-            foreach (TileStresstest key in _progress.Keys)
-                if (_progress[key] != null)
-                    foreach (TileConcurrencyProgressResult cu in _progress[key].TileConcurrencyProgressResults)
-                        foreach (TileRunProgressResult result in cu.TileRunProgressResults)
-                        {
-                            if (index < lvwFastResultsListing.Items.Count)
-                                RefreshRunLVWI(key, cu, result, lvwFastResultsListing.Items[index]);
-                            else
-                                lvwFastResultsListing.Items.Add(NewRunLVWI(key, cu, result));
-
-                            ++index;
-                        }
-        }
+        //                ++index;
+        //            }
+        //}
 
         /// <summary>
         ///     Recycles list view items.
         /// </summary>
         /// <param name="result"></param>
         /// <param name="lvwi"></param>
-        private void RefreshRunLVWI(TileStresstest ts, TileConcurrencyProgressResult cu, TileRunProgressResult result,
-                                    ListViewItem lvwi)
-        {
-            lvwi.Tag = result;
-            Metrics metrics = result.Metrics;
+        //private void RefreshConcurrentUsersLVWI(TileStresstest ts, TileConcurrencyProgressResult result,
+        //                                        ListViewItem lvwi)
+        //{
+        //    lvwi.Tag = result;
+        //    Metrics metrics = result.Metrics;
 
-            string tilestresstest = ts.ToString();
-            string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
+        //    string tilestresstest = ts.ToString();
+        //    string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
 
-            //Only update the ones needed to be updated
-            if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
-                lvwi.SubItems[7].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
-                metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
-            {
-                lvwi.SubItems[0].Text = tilestresstest;
-                lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
-                lvwi.SubItems[2].Text = estimatedRuntimeLeft;
-                lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
-                lvwi.SubItems[4].Text = cu.ConcurrentUsers.ToString();
-                lvwi.SubItems[5].Text = (result.Run + 1).ToString();
-                lvwi.SubItems[6].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
-                lvwi.SubItems[7].Text =
-                    Math.Round((metrics.TotalLogEntriesProcessedPerTick*TimeSpan.TicksPerSecond), 4).ToString();
-                lvwi.SubItems[8].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[9].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
-                lvwi.SubItems[9].ForeColor = Color.Black;
+        //    //Only update the ones needed to be updated
+        //    if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
+        //        lvwi.SubItems[5].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
+        //        metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
+        //    {
+        //        lvwi.SubItems[0].Text = tilestresstest;
+        //        lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
+        //        lvwi.SubItems[2].Text = estimatedRuntimeLeft;
+        //        lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
+        //        lvwi.SubItems[4].Text = result.ConcurrentUsers.ToString();
+        //        lvwi.SubItems[5].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
+        //        lvwi.SubItems[6].Text =
+        //            Math.Round((metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString();
+        //        lvwi.SubItems[7].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
+        //        lvwi.SubItems[8].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
+        //        lvwi.SubItems[9].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+        //        lvwi.SubItems[10].Text = metrics.Errors.ToString();
+        //        lvwi.SubItems[10].ForeColor = Color.Red;
 
-                if (lvwi.SubItems.Count == 10) //Add if not available.
-                {
-                    lvwi.SubItems.Add(metrics.AverageDelay.TotalMilliseconds.ToString()).Font = lvwi.Font;
+        //        while (lvwi.SubItems.Count > 11) //Remove the ones we do not need.
+        //            lvwi.SubItems.RemoveAt(11);
+        //    }
+        //}
 
-                    ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(metrics.Errors.ToString());
-                    sub.Font = lvwi.Font;
-                    sub.ForeColor = Color.Red;
-                }
-                else if (lvwi.SubItems.Count == 11)
-                {
-                    lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+        //private ListViewItem NewConcurrentUsersLVWI(TileStresstest ts, TileConcurrencyProgressResult result)
+        //{
+        //    Metrics metrics = result.Metrics;
 
-                    ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(metrics.Errors.ToString());
-                    sub.Font = lvwi.Font;
-                    sub.ForeColor = Color.Red;
-                }
-                else if (lvwi.SubItems.Count == 12)
-                {
-                    lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
-                    lvwi.SubItems[10].ForeColor = Color.Black;
+        //    string tilestresstest = ts.ToString();
 
-                    lvwi.SubItems[11].Text = metrics.Errors.ToString();
-                    lvwi.SubItems[11].ForeColor = Color.Red;
-                }
-            }
-        }
+        //    var lvwi = new ListViewItem(tilestresstest);
+        //    lvwi.UseItemStyleForSubItems = false;
 
-        private ListViewItem NewRunLVWI(TileStresstest ts, TileConcurrencyProgressResult cu,
-                                        TileRunProgressResult result)
-        {
-            string tilestresstest = ts.ToString();
-            Metrics metrics = result.Metrics;
+        //    var font = new Font("Consolas", 10.25f);
 
-            var lvwi = new ListViewItem(tilestresstest);
-            lvwi.UseItemStyleForSubItems = false;
-            var font = new Font("Consolas", 10.25f);
+        //    lvwi.Font = font;
+        //    lvwi.Tag = result;
 
-            lvwi.Font = font;
-            lvwi.Tag = result;
+        //    lvwi.SubItems.Add(result.Metrics.StartMeasuringRuntime.ToString()).Font = font;
+        //    lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
+        //    lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
 
-            lvwi.SubItems.Add(result.Metrics.StartMeasuringRuntime.ToString()).Font = font;
-            lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
+        //    lvwi.SubItems.Add(result.ConcurrentUsers.ToString()).Font = font;
+
+        //    ListViewItem.ListViewSubItem sub =
+        //        lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " +
+        //                          result.Metrics.TotalLogEntries.ToString());
+        //    sub.Font = font;
+        //    sub.Name = "LogEntriesProcessed";
+        //    lvwi.SubItems.Add(
+        //        Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick * TimeSpan.TicksPerSecond), 4).ToString()).Font
+        //        = font;
+        //    lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+        //    lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+        //    lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
+
+        //    sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
+        //    sub.Font = font;
+        //    sub.ForeColor = Color.Red;
+
+        //    return lvwi;
+        //}
+
+        //private void SetRunProgress()
+        //{
+        //    if (!lvwFastResultsListing.Columns.Contains(clmFRLConcurrency))
+        //    {
+        //        lvwFastResultsListing.Columns.Insert(3, clmFRLConcurrency);
+        //        clmFRLConcurrency.Width = -2;
+        //    }
+        //    if (!lvwFastResultsListing.Columns.Contains(clmFRLRuns))
+        //    {
+        //        lvwFastResultsListing.Columns.Insert(4, clmFRLRuns);
+        //        clmFRLRuns.Width = -2;
+        //    }
+
+        //    int count = 0;
+        //    foreach (TileStresstest key in _progress.Keys)
+        //        if (_progress[key] != null)
+        //            foreach (TileConcurrencyProgressResult cu in _progress[key].TileConcurrencyProgressResults)
+        //                foreach (TileRunProgressResult result in cu.TileRunProgressResults)
+        //                    ++count;
+
+        //    while (lvwFastResultsListing.Items.Count > count)
+        //        lvwFastResultsListing.Items.RemoveAt(count);
+
+        //    int index = 0;
+        //    foreach (TileStresstest key in _progress.Keys)
+        //        if (_progress[key] != null)
+        //            foreach (TileConcurrencyProgressResult cu in _progress[key].TileConcurrencyProgressResults)
+        //                foreach (TileRunProgressResult result in cu.TileRunProgressResults)
+        //                {
+        //                    if (index < lvwFastResultsListing.Items.Count)
+        //                        RefreshRunLVWI(key, cu, result, lvwFastResultsListing.Items[index]);
+        //                    else
+        //                        lvwFastResultsListing.Items.Add(NewRunLVWI(key, cu, result));
+
+        //                    ++index;
+        //                }
+        //}
+
+        /// <summary>
+        ///     Recycles list view items.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="lvwi"></param>
+        //private void RefreshRunLVWI(TileStresstest ts, TileConcurrencyProgressResult cu, TileRunProgressResult result,
+        //                            ListViewItem lvwi)
+        //{
+        //    lvwi.Tag = result;
+        //    Metrics metrics = result.Metrics;
+
+        //    string tilestresstest = ts.ToString();
+        //    string estimatedRuntimeLeft = result.EstimatedRuntimeLeft.ToShortFormattedString();
+
+        //    //Only update the ones needed to be updated
+        //    if (lvwi.Text != tilestresstest || lvwi.SubItems[2].Text != estimatedRuntimeLeft ||
+        //        lvwi.SubItems[7].Text != metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries ||
+        //        metrics.TotalLogEntriesProcessed < metrics.TotalLogEntries)
+        //    {
+        //        lvwi.SubItems[0].Text = tilestresstest;
+        //        lvwi.SubItems[1].Text = result.Metrics.StartMeasuringRuntime.ToString();
+        //        lvwi.SubItems[2].Text = estimatedRuntimeLeft;
+        //        lvwi.SubItems[3].Text = metrics.MeasuredRunTime.ToShortFormattedString();
+        //        lvwi.SubItems[4].Text = cu.ConcurrentUsers.ToString();
+        //        lvwi.SubItems[5].Text = (result.Run + 1).ToString();
+        //        lvwi.SubItems[6].Text = metrics.TotalLogEntriesProcessed + " / " + metrics.TotalLogEntries;
+        //        lvwi.SubItems[7].Text =
+        //            Math.Round((metrics.TotalLogEntriesProcessedPerTick*TimeSpan.TicksPerSecond), 4).ToString();
+        //        lvwi.SubItems[8].Text = metrics.AverageTimeToLastByte.TotalMilliseconds.ToString();
+        //        lvwi.SubItems[9].Text = metrics.MaxTimeToLastByte.TotalMilliseconds.ToString();
+        //        lvwi.SubItems[9].ForeColor = Color.Black;
+
+        //        if (lvwi.SubItems.Count == 10) //Add if not available.
+        //        {
+        //            lvwi.SubItems.Add(metrics.AverageDelay.TotalMilliseconds.ToString()).Font = lvwi.Font;
+
+        //            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+        //            sub.Font = lvwi.Font;
+        //            sub.ForeColor = Color.Red;
+        //        }
+        //        else if (lvwi.SubItems.Count == 11)
+        //        {
+        //            lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+
+        //            ListViewItem.ListViewSubItem sub = lvwi.SubItems.Add(metrics.Errors.ToString());
+        //            sub.Font = lvwi.Font;
+        //            sub.ForeColor = Color.Red;
+        //        }
+        //        else if (lvwi.SubItems.Count == 12)
+        //        {
+        //            lvwi.SubItems[10].Text = metrics.AverageDelay.TotalMilliseconds.ToString();
+        //            lvwi.SubItems[10].ForeColor = Color.Black;
+
+        //            lvwi.SubItems[11].Text = metrics.Errors.ToString();
+        //            lvwi.SubItems[11].ForeColor = Color.Red;
+        //        }
+        //    }
+        //}
+
+        //private ListViewItem NewRunLVWI(TileStresstest ts, TileConcurrencyProgressResult cu,
+        //                                TileRunProgressResult result)
+        //{
+        //    string tilestresstest = ts.ToString();
+        //    Metrics metrics = result.Metrics;
+
+        //    var lvwi = new ListViewItem(tilestresstest);
+        //    lvwi.UseItemStyleForSubItems = false;
+        //    var font = new Font("Consolas", 10.25f);
+
+        //    lvwi.Font = font;
+        //    lvwi.Tag = result;
+
+        //    lvwi.SubItems.Add(result.Metrics.StartMeasuringRuntime.ToString()).Font = font;
+        //    lvwi.SubItems.Add(result.EstimatedRuntimeLeft.ToShortFormattedString()).Font = font;
+        //    lvwi.SubItems.Add(result.Metrics.MeasuredRunTime.ToShortFormattedString()).Font = font;
 
 
-            lvwi.SubItems.Add(cu.ConcurrentUsers.ToString()).Font = font;
-            lvwi.SubItems.Add((result.Run + 1).ToString()).Font = font;
+        //    lvwi.SubItems.Add(cu.ConcurrentUsers.ToString()).Font = font;
+        //    lvwi.SubItems.Add((result.Run + 1).ToString()).Font = font;
 
-            ListViewItem.ListViewSubItem sub =
-                lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " +
-                                  result.Metrics.TotalLogEntries.ToString());
-            sub.Font = font;
-            sub.Name = "LogEntriesProcessed";
-            lvwi.SubItems.Add(
-                Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick*TimeSpan.TicksPerSecond), 4).ToString()).Font
-                = font;
-            lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
-            lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
+        //    ListViewItem.ListViewSubItem sub =
+        //        lvwi.SubItems.Add(result.Metrics.TotalLogEntriesProcessed + " / " +
+        //                          result.Metrics.TotalLogEntries.ToString());
+        //    sub.Font = font;
+        //    sub.Name = "LogEntriesProcessed";
+        //    lvwi.SubItems.Add(
+        //        Math.Round((result.Metrics.TotalLogEntriesProcessedPerTick*TimeSpan.TicksPerSecond), 4).ToString()).Font
+        //        = font;
+        //    lvwi.SubItems.Add(result.Metrics.AverageTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+        //    lvwi.SubItems.Add(result.Metrics.MaxTimeToLastByte.TotalMilliseconds.ToString()).Font = font;
+        //    lvwi.SubItems.Add(result.Metrics.AverageDelay.TotalMilliseconds.ToString()).Font = font;
 
-            sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
-            sub.Font = font;
-            sub.ForeColor = Color.Red;
+        //    sub = lvwi.SubItems.Add(result.Metrics.Errors.ToString());
+        //    sub.Font = font;
+        //    sub.ForeColor = Color.Red;
 
-            return lvwi;
-        }
+        //    return lvwi;
+        //}
 
         public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info)
         {
-            try
-            {
-                eventView.AddEvent((EventViewEventType) logLevel, message);
-            }
-            catch
-            {
-            }
+            try { eventView.AddEvent((EventViewEventType)logLevel, message); }
+            catch { }
         }
 
         /// <summary>
@@ -537,7 +532,7 @@ namespace vApus.DistributedTesting
 
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SetOverallFastResults();
+            //SetOverallFastResults();
         }
 
         #endregion
