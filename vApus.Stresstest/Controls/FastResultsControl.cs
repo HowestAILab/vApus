@@ -17,10 +17,8 @@ using vApus.Results;
 using vApus.Stresstest.Properties;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class FastResultsControl : UserControl
-    {
+namespace vApus.Stresstest {
+    public partial class FastResultsControl : UserControl {
         /// <summary>
         /// For smooth updating the gui.
         /// </summary>
@@ -75,33 +73,28 @@ namespace vApus.Stresstest
         /// <summary>
         /// Should be false for a slave in a distributed test.
         /// </summary>
-        public bool MonitorConfigurationControlAndLinkButtonsVisible
-        {
+        public bool MonitorConfigurationControlAndLinkButtonsVisible {
             get { return _monitorConfigurationControlAndLinkButtonsVisible; }
-            set
-            {
+            set {
                 _monitorConfigurationControlAndLinkButtonsVisible = value;
                 btnMonitor.Visible = _monitorConfigurationControlAndLinkButtonsVisible;
             }
         }
 
-        public DateTime StresstestStartedAt
-        {
+        public DateTime StresstestStartedAt {
             get { return _stresstestStartedAt; }
         }
         /// <summary>
         /// For distributed test
         /// </summary>
-        public TimeSpan MeasuredRuntime
-        {
+        public TimeSpan MeasuredRuntime {
             get { return _measuredRuntime; }
         }
         #endregion
 
         #region Constructor
 
-        public FastResultsControl()
-        {
+        public FastResultsControl() {
             InitializeComponent();
 
             //Double buffer the datagridview.
@@ -119,8 +112,7 @@ namespace vApus.Stresstest
         /// <summary>
         ///     Resets everything to the initial state.
         /// </summary>
-        public void SetStresstestInitialized()
-        {
+        public void SetStresstestInitialized() {
             _measuredRuntime = new TimeSpan();
             _stresstestStartedAt = DateTime.Now;
 
@@ -134,8 +126,7 @@ namespace vApus.Stresstest
             ClearFastResults();
         }
 
-        public void SetConfigurationControls(Stresstest stresstest)
-        {
+        public void SetConfigurationControls(Stresstest stresstest) {
             SetConfigurationControlsAndMonitorLinkButtons(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy,
                                      stresstest.Log, stresstest.LogRuleSet,
                                      stresstest.Monitors, stresstest.Concurrencies, stresstest.Runs,
@@ -148,8 +139,7 @@ namespace vApus.Stresstest
                                              Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
                                              int runs, int minimumDelay, int maximumDelay, bool shuffle,
                                              ActionAndLogEntryDistribution distribute, int monitorBefore,
-                                             int monitorAfter)
-        {
+                                             int monitorAfter) {
             kvpStresstest.Key = stresstest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
@@ -162,21 +152,17 @@ namespace vApus.Stresstest
             foreach (var lbtnMonitor in _monitorLinkButtons) flpFastResultsHeader.Controls.Remove(lbtnMonitor);
             _monitorLinkButtons.Clear();
 
-            if (_monitorConfigurationControlAndLinkButtonsVisible)
-            {
-                if (monitors == null || monitors.Length == 0)
-                {
+            if (_monitorConfigurationControlAndLinkButtonsVisible) {
+                if (monitors == null || monitors.Length == 0) {
                     btnMonitor.Text = "No Monitor(s)";
                     btnMonitor.BackColor = Color.Orange;
                 }
-                else
-                {
+                else {
                     lbtnStresstest.Visible = true;
                     btnMonitor.Text = monitors.Combine(", ") + "...";
                     btnMonitor.BackColor = Color.LightBlue;
 
-                    foreach (var monitor in monitors)
-                    {
+                    foreach (var monitor in monitors) {
                         var lbtnMonitor = new LinkButton();
                         lbtnMonitor.Text = monitor.ToString();
                         lbtnMonitor.RadioButtonBehavior = true;
@@ -204,8 +190,7 @@ namespace vApus.Stresstest
             SetFastResultsOnGuiInteraction();
         }
 
-        private void btnMonitor_Click(object sender, EventArgs e)
-        {
+        private void btnMonitor_Click(object sender, EventArgs e) {
             if (btnMonitor.Text != "Monitor" && btnMonitor.Text != "No Monitor" && MonitorClicked != null)
                 MonitorClicked(this, null);
         }
@@ -213,16 +198,13 @@ namespace vApus.Stresstest
         /// <summary>
         /// </summary>
         /// <param name="countDown">smaller than 0 for paused or unknown</param>
-        public void SetCountDownProgressDelay(int countDown)
-        {
-            if (countDown > -1)
-            {
+        public void SetCountDownProgressDelay(int countDown) {
+            if (countDown > -1) {
                 lblUpdatesIn.ForeColor = Color.SteelBlue;
                 lblUpdatesIn.Text = "updates in " + countDown;
                 lblUpdatesIn.Image = null;
             }
-            else
-            {
+            else {
                 lblUpdatesIn.ForeColor = Color.DarkGray;
                 lblUpdatesIn.Text = "updates in  ";
                 lblUpdatesIn.Image = Resources.Wait;
@@ -245,23 +227,18 @@ namespace vApus.Stresstest
                                         int memoryUsage = -1,
                                         int totalVisibleMemory = -1,
                                         float nicsSent = -1,
-                                        float nicsReceived = -1)
-        {
+                                        float nicsReceived = -1) {
             kvmThreadsInUse.Value = threadsInUse.ToString();
-            if (cpuUsage == -1)
-            {
+            if (cpuUsage == -1) {
                 kvmCPUUsage.Value = "N/A";
             }
-            else
-            {
+            else {
                 kvmCPUUsage.Value = Math.Round(cpuUsage, 2).ToString() + " %";
 
-                if (cpuUsage < 60)
-                {
+                if (cpuUsage < 60) {
                     kvmCPUUsage.BackColor = Color.GhostWhite;
                 }
-                else
-                {
+                else {
                     kvmCPUUsage.BackColor = Color.Orange;
                     AppendMessages(cpuUsage + " % CPU Usage", LogLevel.Warning);
                 }
@@ -270,53 +247,41 @@ namespace vApus.Stresstest
                                                     ? "N/A"
                                                     : contextSwitchesPerSecond.ToString();
 
-            if (memoryUsage == -1 || totalVisibleMemory == -1)
-            {
+            if (memoryUsage == -1 || totalVisibleMemory == -1) {
                 kvmMemoryUsage.Value = "N/A";
             }
-            else
-            {
+            else {
                 kvmMemoryUsage.Value = memoryUsage.ToString() + " / " + totalVisibleMemory + " MB";
-                if (memoryUsage < 0.9 * totalVisibleMemory)
-                {
+                if (memoryUsage < 0.9 * totalVisibleMemory) {
                     kvmMemoryUsage.BackColor = Color.GhostWhite;
                 }
-                else if (memoryUsage != 0)
-                {
+                else if (memoryUsage != 0) {
                     kvmMemoryUsage.BackColor = Color.Orange;
                     AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
                 }
             }
-            if (nicsSent == -1)
-            {
+            if (nicsSent == -1) {
                 kvmNicsSent.Value = "N/A";
             }
-            else
-            {
+            else {
                 kvmNicsSent.Value = Math.Round(nicsSent, 2).ToString() + " %";
-                if (nicsSent < 90)
-                {
+                if (nicsSent < 90) {
                     kvmNicsSent.BackColor = Color.GhostWhite;
                 }
-                else
-                {
+                else {
                     kvmNicsSent.BackColor = Color.Orange;
                     AppendMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
                 }
             }
-            if (nicsReceived == -1)
-            {
+            if (nicsReceived == -1) {
                 kvmNicsReceived.Value = "N/A";
             }
-            else
-            {
+            else {
                 kvmNicsReceived.Value = Math.Round(nicsReceived, 2).ToString() + " %";
-                if (nicsReceived < 90)
-                {
+                if (nicsReceived < 90) {
                     kvmNicsReceived.BackColor = Color.GhostWhite;
                 }
-                else
-                {
+                else {
                     kvmNicsReceived.BackColor = Color.Orange;
                     AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
                 }
@@ -328,20 +293,17 @@ namespace vApus.Stresstest
         ///     Sets the label.
         /// </summary>
         /// <param name="start"></param>
-        public void SetStresstestStarted(DateTime at)
-        {
+        public void SetStresstestStarted(DateTime at) {
             _stresstestStartedAt = at;
             lblStarted.Text = "Test started at " + at;
             epnlMessages.BeginOfTimeFrame = at;
         }
 
-        public void SetRerunning(bool rerun)
-        {
+        public void SetRerunning(bool rerun) {
             btnRerunning.Visible = rerun;
         }
 
-        public void ClearFastResults()
-        {
+        public void ClearFastResults() {
             dgvFastResults.RowCount = 0;
 
             _concurrencyStresstestMetrics = new List<StresstestMetrics>();
@@ -361,12 +323,10 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateFastConcurrencyResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true)
-        {
+        public void UpdateFastConcurrencyResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true) {
             _concurrencyStresstestMetrics = metrics;
             _concurrencyStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
-            if (cboDrillDown.SelectedIndex == 0 && lbtnStresstest.Active)
-            {
+            if (cboDrillDown.SelectedIndex == 0 && lbtnStresstest.Active) {
                 int count = _concurrencyStresstestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
                 dgvFastResults.AutoResizeColumns();
@@ -379,8 +339,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="monitorToString"></param>
         /// <param name="metrics"></param>
-        public void UpdateFastConcurrencyResults(string monitorToString, List<MonitorMetrics> metrics)
-        {
+        public void UpdateFastConcurrencyResults(string monitorToString, List<MonitorMetrics> metrics) {
             if (_concurrencyMonitorMetrics.ContainsKey(monitorToString)) _concurrencyMonitorMetrics[monitorToString] = metrics;
             else _concurrencyMonitorMetrics.Add(monitorToString, metrics);
 
@@ -391,8 +350,7 @@ namespace vApus.Stresstest
             LinkButton lbtnMonitor = null;
             foreach (var lbtn in _monitorLinkButtons) if (lbtn.Text == monitorToString) { lbtnMonitor = lbtn; break; }
 
-            if (cboDrillDown.SelectedIndex == 0 && lbtnMonitor != null && lbtnMonitor.Active)
-            {
+            if (cboDrillDown.SelectedIndex == 0 && lbtnMonitor != null && lbtnMonitor.Active) {
                 int count = concurrencyMonitorMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
                 dgvFastResults.AutoResizeColumns();
@@ -406,12 +364,10 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateFastRunResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true)
-        {
+        public void UpdateFastRunResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true) {
             _runStresstestMetrics = metrics;
             _runStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
-            if (cboDrillDown.SelectedIndex == 1)
-            {
+            if (cboDrillDown.SelectedIndex == 1) {
                 int count = _runStresstestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
                 dgvFastResults.AutoResizeColumns();
@@ -424,8 +380,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="monitorToString"></param>
         /// <param name="metrics"></param>
-        public void UpdateFastRunResults(string monitorToString, List<MonitorMetrics> metrics)
-        {
+        public void UpdateFastRunResults(string monitorToString, List<MonitorMetrics> metrics) {
             if (_runMonitorMetrics.ContainsKey(monitorToString)) _runMonitorMetrics[monitorToString] = metrics;
             else _runMonitorMetrics.Add(monitorToString, metrics);
 
@@ -436,8 +391,7 @@ namespace vApus.Stresstest
             LinkButton lbtnMonitor = null;
             foreach (var lbtn in _monitorLinkButtons) if (lbtn.Text == monitorToString) { lbtnMonitor = lbtn; break; }
 
-            if (cboDrillDown.SelectedIndex == 1 && lbtnMonitor != null && lbtnMonitor.Active)
-            {
+            if (cboDrillDown.SelectedIndex == 1 && lbtnMonitor != null && lbtnMonitor.Active) {
                 int count = runMonitorMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
                 dgvFastResults.AutoResizeColumns();
@@ -445,18 +399,14 @@ namespace vApus.Stresstest
             }
             if (_trySettingDataGridViewColumnsOnNextMonitorUpdate) SetFastResultsOnGuiInteraction();
         }
-        private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
-        {
-            try
-            {
+        private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
+            try {
                 if (lbtnStresstest.Active)
                     e.Value = (cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows)[e.RowIndex][e.ColumnIndex];
-                else
-                {
+                else {
                     string monitorToString = null;
                     foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
-                    if (monitorToString != null)
-                    {
+                    if (monitorToString != null) {
                         var row = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString][e.RowIndex];
                         e.Value = (e.ColumnIndex < row.Length) ? row[e.ColumnIndex] : "--";
                     }
@@ -468,18 +418,15 @@ namespace vApus.Stresstest
         /// <summary>
         ///     When the row count changes.
         /// </summary>
-        private void KeepFastResultsAtEnd()
-        {
-            if (_keepFastResultsAtEnd && dgvFastResults.RowCount != 0)
-            {
+        private void KeepFastResultsAtEnd() {
+            if (_keepFastResultsAtEnd && dgvFastResults.RowCount != 0) {
                 dgvFastResults.Scroll -= dgvFastResults_Scroll;
                 dgvFastResults.FirstDisplayedScrollingRowIndex = dgvFastResults.RowCount - 1;
                 dgvFastResults.Scroll += dgvFastResults_Scroll;
             }
         }
 
-        private void dgvFastResults_Scroll(object sender, ScrollEventArgs e)
-        {
+        private void dgvFastResults_Scroll(object sender, ScrollEventArgs e) {
             var verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
                                                         .GetValue(dgvFastResults) as ScrollBar;
             _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >= verticalScrollBar.Maximum;
@@ -489,21 +436,18 @@ namespace vApus.Stresstest
         ///     Sets the '; ran ...' label.
         /// </summary>
         /// <param name="metrics"></param>
-        private void SetMeasuredRuntime()
-        {
+        private void SetMeasuredRuntime() {
             epnlMessages.SetEndOfTimeFrameToNow();
             _measuredRuntime = epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame;
             lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString();
         }
-        public void SetMeasuredRuntime(TimeSpan measuredRuntime)
-        {
+        public void SetMeasuredRuntime(TimeSpan measuredRuntime) {
             epnlMessages.SetEndOfTimeFrameTo(epnlMessages.BeginOfTimeFrame + measuredRuntime);
             string s = "; ran " + measuredRuntime.ToShortFormattedString();
-            if(lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
+            if (lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
         }
 
-        private void btnRerunning_Click(object sender, EventArgs e)
-        {
+        private void btnRerunning_Click(object sender, EventArgs e) {
             MessageBox.Show(
                 "The current run is rerunning until the slowest current run on another slave is finished (aka Break on Last Run Sync).",
                 string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -512,8 +456,7 @@ namespace vApus.Stresstest
         /// <summary>
         ///     label updates in visibility
         /// </summary>
-        public void SetStresstestStopped()
-        {
+        public void SetStresstestStopped() {
             lblUpdatesIn.Text = string.Empty;
             btnRerunning.Visible = false;
         }
@@ -523,8 +466,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        public void SetStresstestStopped(StresstestStatus stresstestResult, TimeSpan measuredRuntime, Exception exception = null)
-        {
+        public void SetStresstestStopped(StresstestStatus stresstestResult, TimeSpan measuredRuntime, Exception exception = null) {
             SetMeasuredRuntime(measuredRuntime);
             __SetStresstestStopped(stresstestResult);
         }
@@ -534,8 +476,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        public void SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null)
-        {
+        public void SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null) {
             SetMeasuredRuntime();
             __SetStresstestStopped(stresstestResult);
         }
@@ -545,25 +486,20 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        private void __SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null)
-        {
-            try
-            {
+        private void __SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null) {
+            try {
                 string message = null;
-                if (exception != null)
-                {
+                if (exception != null) {
                     message = "The stresstest threw an exception:\n" + exception + "\n\nSee " +
                               Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     LogWrapper.LogByLevel(message, LogLevel.Error);
                     AppendMessages(message, Color.Red);
                 }
                 string lblStoppedText = null;
-                switch (stresstestResult)
-                {
+                switch (stresstestResult) {
                     case StresstestStatus.Ok:
                         lblStoppedText = "and finished at " + epnlMessages.EndOfTimeFrame;
-                        if (lblStopped.Text != lblStoppedText)
-                        {
+                        if (lblStopped.Text != lblStoppedText) {
                             lblStopped.ForeColor = Color.Green;
                             lblStopped.Text = lblStoppedText;
 
@@ -576,8 +512,7 @@ namespace vApus.Stresstest
                         break;
                     case StresstestStatus.Error:
                         lblStoppedText = "failed at " + epnlMessages.EndOfTimeFrame;
-                        if (lblStopped.Text != lblStoppedText)
-                        {
+                        if (lblStopped.Text != lblStoppedText) {
                             lblStopped.ForeColor = Color.Red;
                             lblStopped.Text = lblStoppedText;
 
@@ -588,8 +523,7 @@ namespace vApus.Stresstest
                         break;
                     case StresstestStatus.Cancelled:
                         lblStoppedText = "and cancelled at " + epnlMessages.EndOfTimeFrame;
-                        if (lblStopped.Text != lblStoppedText)
-                        {
+                        if (lblStopped.Text != lblStoppedText) {
                             lblStopped.ForeColor = Color.Orange;
                             lblStopped.Text = lblStoppedText;
 
@@ -609,16 +543,14 @@ namespace vApus.Stresstest
             }
             catch { }
         }
-        private void RemoveDatabase()
-        {
+        private void RemoveDatabase() {
             if (ResultsHelper.DatabaseName != null)
                 if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
                     try { ResultsHelper.RemoveDatabase(); }
                     catch { }
         }
-        public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info)
-        {
+        public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
             var c = new[] { Color.DarkGray, Color.Orange, Color.Red };
             AppendMessages(message, c[(int)logLevel], logLevel);
         }
@@ -628,8 +560,7 @@ namespace vApus.Stresstest
         /// <param name="message"></param>
         /// <param name="eventColor">a custom color if you need one</param>
         /// <param name="logLevel"></param>
-        public void AppendMessages(string message, Color eventColor, LogLevel logLevel = LogLevel.Info)
-        {
+        public void AppendMessages(string message, Color eventColor, LogLevel logLevel = LogLevel.Info) {
             try { epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message); }
             catch { }
         }
@@ -638,16 +569,14 @@ namespace vApus.Stresstest
         ///     Get all events (messages).
         /// </summary>
         /// <returns></returns>
-        public List<EventPanelEvent> GetEvents()
-        {
+        public List<EventPanelEvent> GetEvents() {
             return epnlMessages.GetEvents();
         }
 
         /// <summary>
         ///     Set events
         /// </summary>
-        public void SetEvents(List<EventPanelEvent> events)
-        {
+        public void SetEvents(List<EventPanelEvent> events) {
             if (IsDisposed) return;
 
             LockWindowUpdate(Handle.ToInt32());
@@ -657,8 +586,7 @@ namespace vApus.Stresstest
             LockWindowUpdate(0);
         }
 
-        public void ClearEvents()
-        {
+        public void ClearEvents() {
             epnlMessages.ClearEvents();
         }
 
@@ -666,32 +594,26 @@ namespace vApus.Stresstest
         ///     Show event message at the right date time, use this if you have an external event progress bar.
         /// </summary>
         /// <param name="at"></param>
-        public void ShowEvent(DateTime at)
-        {
+        public void ShowEvent(DateTime at) {
             epnlMessages.ShowEvent(at);
         }
 
-        private void lbtnStresstest_ActiveChanged(object sender, EventArgs e)
-        {
+        private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) {
             if (lbtnStresstest.Active) SetFastResultsOnGuiInteraction();
         }
-        private void lbtnMonitor_ActiveChanged(object sender, EventArgs e)
-        {
+        private void lbtnMonitor_ActiveChanged(object sender, EventArgs e) {
             if ((sender as LinkButton).Active) SetFastResultsOnGuiInteraction();
         }
-        private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e) {
             SetFastResultsOnGuiInteraction();
         }
 
-        private void chkReadable_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkReadable_CheckedChanged(object sender, EventArgs e) {
             SetFastResultsOnGuiInteraction();
             toolTip.SetToolTip(chkReadable, chkReadable.Checked ? "Uncheck this if you want results you can calculate with." : "Check this if you want readable results.");
         }
 
-        private void SetFastResultsOnGuiInteraction()
-        {
+        private void SetFastResultsOnGuiInteraction() {
             //Set the headers.
             dgvFastResults.Columns.Clear();
 
@@ -699,8 +621,7 @@ namespace vApus.Stresstest
             string[] columnHeaders = null;
             if (lbtnStresstest.Active)
                 columnHeaders = cboDrillDown.SelectedIndex == 0 ? StresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked) : StresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
-            else
-            {
+            else {
                 foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
                 if (monitorToString != null)
                     if (cboDrillDown.SelectedIndex == 0 && _concurrencyMonitorMetrics.ContainsKey(monitorToString) && _concurrencyMonitorMetrics[monitorToString].Count != 0)
@@ -709,8 +630,7 @@ namespace vApus.Stresstest
                         columnHeaders = MonitorMetricsHelper.GetMetricsHeadersRun(_runMonitorMetrics[monitorToString][0].Headers, chkReadable.Checked);
             }
             //For when the selected monitor is not initialized yet.
-            if (columnHeaders == null)
-            {
+            if (columnHeaders == null) {
                 _trySettingDataGridViewColumnsOnNextMonitorUpdate = true;
                 return;
             }
@@ -718,10 +638,9 @@ namespace vApus.Stresstest
 
             var clms = new DataGridViewColumn[columnHeaders.Length];
             string clmPrefix = ToString() + "clm";
-            for (int headerIndex = 0; headerIndex != columnHeaders.Length; headerIndex++)
-            {
+            for (int headerIndex = 0; headerIndex != columnHeaders.Length; headerIndex++) {
                 string header = columnHeaders[headerIndex];
-                DataGridViewColumn clm = new DataGridViewTextBoxColumn();
+                var clm = new DataGridViewTextBoxColumn();
                 clm.Name = clmPrefix + header;
                 clm.HeaderText = header;
 
@@ -741,23 +660,19 @@ namespace vApus.Stresstest
                 if (cboDrillDown.SelectedIndex == 0) UpdateFastConcurrencyResults(monitorToString, _concurrencyMonitorMetrics[monitorToString]); else UpdateFastRunResults(monitorToString, _runMonitorMetrics[monitorToString]);
         }
 
-        private void btnSaveDisplayedResults_Click(object sender, EventArgs e)
-        {
+        private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
             var sfd = new SaveFileDialog();
             sfd.Title = "Where do you want to save the displayed results?";
             sfd.FileName = kvpStresstest.Key.ReplaceInvalidWindowsFilenameChars('_');
             sfd.Filter = "TXT|*.txt";
             if (sfd.ShowDialog() == DialogResult.OK)
-                try
-                {
-                    using (var sw = new StreamWriter(sfd.FileName))
-                    {
+                try {
+                    using (var sw = new StreamWriter(sfd.FileName)) {
                         sw.Write(GetDisplayedResults());
                         sw.Flush();
                     }
                 }
-                catch
-                {
+                catch {
                     MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
         }
@@ -766,12 +681,10 @@ namespace vApus.Stresstest
         ///     Get the displayed results.
         /// </summary>
         /// <returns></returns>
-        private string GetDisplayedResults()
-        {
+        private string GetDisplayedResults() {
             var sb = new StringBuilder();
             //Write column headers
-            foreach (DataGridViewColumn clm in dgvFastResults.Columns)
-            {
+            foreach (DataGridViewColumn clm in dgvFastResults.Columns) {
                 sb.Append(clm.HeaderText);
                 sb.Append("\t");
             }
@@ -781,15 +694,13 @@ namespace vApus.Stresstest
             List<object[]> rows = new List<object[]>();
             if (lbtnStresstest.Active)
                 rows = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows;
-            else
-            {
+            else {
                 string monitorToString = null;
                 foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
                 if (monitorToString != null)
                     rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString];
             }
-            foreach (var row in rows)
-            {
+            foreach (var row in rows) {
                 sb.Append(row.Combine("\t"));
                 sb.AppendLine();
             }
@@ -797,14 +708,12 @@ namespace vApus.Stresstest
             return sb.ToString();
         }
 
-        private void btnExport_Click(object sender, EventArgs e)
-        {
+        private void btnExport_Click(object sender, EventArgs e) {
             epnlMessages.Export();
         }
 
         // Gui correction, the epnl wil not be sized correctly otherwise.
-        private void StresstestControl_SizeChanged(object sender, EventArgs e)
-        {
+        private void StresstestControl_SizeChanged(object sender, EventArgs e) {
             LockWindowUpdate(Handle.ToInt32());
             epnlMessages.Collapsed = !epnlMessages.Collapsed;
             epnlMessages.Collapsed = !epnlMessages.Collapsed;
@@ -812,12 +721,10 @@ namespace vApus.Stresstest
         }
 
         // Set the splitter distance of the splitcontainer if collapsed has changed.
-        private void epnlMessages_CollapsedChanged(object sender, EventArgs e)
-        {
+        private void epnlMessages_CollapsedChanged(object sender, EventArgs e) {
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
 
-            try
-            {
+            try {
                 int distance = splitContainer.Panel2.Height - epnlMessages.Bottom;
                 if (splitContainer.SplitterDistance + distance > 0)
                     splitContainer.SplitterDistance += distance;
@@ -830,25 +737,21 @@ namespace vApus.Stresstest
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }
 
-        #endregion
-
-        private void btnCollapseExpand_Click(object sender, EventArgs e)
-        {
-            if (btnCollapseExpand.Text == "-")
-            {
+        private void btnCollapseExpand_Click(object sender, EventArgs e) {
+            if (btnCollapseExpand.Text == "-") {
                 btnCollapseExpand.Text = "+";
 
                 splitTop.SplitterDistance = splitTop.Panel1MinSize;
                 splitTop.IsSplitterFixed = true;
                 splitTop.BackColor = Color.White;
             }
-            else
-            {
+            else {
                 btnCollapseExpand.Text = "-";
                 splitTop.SplitterDistance = 85;
                 splitTop.IsSplitterFixed = false;
                 splitTop.BackColor = SystemColors.Control;
             }
         }
+        #endregion
     }
 }

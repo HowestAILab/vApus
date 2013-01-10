@@ -221,11 +221,11 @@
     <Compile Include="Controls\TestTreeView\ConfigureTileStresstest.Designer.cs">
       <DependentUpon>ConfigureTileStresstest.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\DistributedStresstestControl.cs">
+    <Compile Include="Controls\OveralFastResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\DistributedStresstestControl.Designer.cs">
-      <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
+    <Compile Include="Controls\OveralFastResultsControl.Designer.cs">
+      <DependentUpon>OveralFastResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\SlaveTreeView\ClientsAndSlavesTreeViewItem.cs">
       <SubType>UserControl</SubType>
@@ -378,8 +378,8 @@
     <EmbeddedResource Include="Controls\TestTreeView\ConfigureTileStresstest.resx">
       <DependentUpon>ConfigureTileStresstest.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\DistributedStresstestControl.resx">
-      <DependentUpon>DistributedStresstestControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\OveralFastResultsControl.resx">
+      <DependentUpon>OveralFastResultsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\SlaveTreeView\ClientsAndSlavesTreeViewItem.resx">
       <DependentUpon>ClientsAndSlavesTreeViewItem.cs</DependentUpon>

@@ -51,7 +51,7 @@
             this.configureSlaves = new vApus.DistributedTesting.ConfigureSlaves();
             this.tpStresstest = new System.Windows.Forms.TabPage();
             this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
-            this.distributedStresstestControl = new vApus.DistributedTesting.DistributedStresstestControl();
+            this.distributedStresstestControl = new vApus.DistributedTesting.OveralFastResultsControl();
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
@@ -356,7 +356,7 @@
         private SlaveTreeView slaveTreeView;
         private System.Windows.Forms.Timer tmrSetGui;
         private vApus.DistributedTesting.ConfigureSlaves configureSlaves;
-        private DistributedStresstestControl distributedStresstestControl;
+        private OveralFastResultsControl distributedStresstestControl;
         private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
         private System.Windows.Forms.Timer tmrProgress;

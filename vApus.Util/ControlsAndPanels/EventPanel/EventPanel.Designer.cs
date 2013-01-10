@@ -93,7 +93,7 @@
             this.eventProgressBar.Location = new System.Drawing.Point(3, 2);
             this.eventProgressBar.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.eventProgressBar.Name = "eventProgressBar";
-            this.eventProgressBar.ProgressBarColor = System.Drawing.Color.SteelBlue;
+            this.eventProgressBar.ProgressBarColor = System.Drawing.Color.LightSteelBlue;
             this.eventProgressBar.Size = new System.Drawing.Size(398, 21);
             this.eventProgressBar.TabIndex = 1;
             this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.eventProgressBar_EventClick);

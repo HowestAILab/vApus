@@ -13,18 +13,15 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     Makes it able to show events in time while changing the value of the progress chart.
     /// </summary>
-    public class EventProgressChart : Panel
-    {
+    public class EventProgressChart : Panel {
         /// <summary>
         ///     Makes it able to show events in time while changing the value of the progress chart.
         /// </summary>
-        public EventProgressChart()
-        {
+        public EventProgressChart() {
             Height = 15;
 
             toolTip.UseAnimation = false;
@@ -44,8 +41,83 @@ namespace vApus.Util
         [Description("Occurs when a progress event is clicked.")]
         public event EventHandler<ProgressEventEventArgs> EventClick;
 
-        private ProgressEvent GetEventAt(int index)
-        {
+        #region Fields
+
+        private readonly SolidBrush _brush = new SolidBrush(Color.LightSteelBlue);
+        private readonly List<ProgressEvent> _progressEvents = new List<ProgressEvent>();
+
+        private readonly ToolTip toolTip = new ToolTip();
+
+        private DateTime _beginOfTimeFrame = DateTime.MinValue, _endOfTimeFrame = DateTime.MaxValue;
+        private bool _eventToolTip = true;
+
+        /// <summary>
+        ///     To set the progressbar to 'now'.
+        /// </summary>
+        private ProgressEvent _nowProgressEvent;
+
+        private ProgressEvent _previouslyHovered;
+
+        private List<ProgressEvent> _sortedProgressEvents = new List<ProgressEvent>();
+        //Sorted on importance, to draw the lines.
+
+        private bool _toolTipThisShown;
+
+        #endregion
+
+        #region Properties
+
+        [Description("Show or do not show a tool tip (label + \"\\n\" + at) when hovering a progress event.")]
+        public bool EventToolTip {
+            get { return _eventToolTip; }
+            set { _eventToolTip = value; }
+        }
+
+        [Description("The count of all progress events.")]
+        public int EventCount {
+            get { return _progressEvents.Count; }
+        }
+
+        [Description("The begin of the time frame when the events occured ('at').")]
+        /// </summary>
+        public DateTime BeginOfTimeFrame {
+            set {
+                _beginOfTimeFrame = value;
+                Invalidate();
+            }
+            get { return _beginOfTimeFrame; }
+        }
+
+        /// <summary>
+        ///     It is set through SetProgressBarToNow().
+        /// </summary>
+        [Description("The end of the time frame.")]
+        public DateTime EndOfTimeFrame {
+            get { return _endOfTimeFrame; }
+        }
+
+        public Color ProgressBarColor {
+            get { return _brush.Color; }
+            set { _brush.Color = value; }
+        }
+
+        [DefaultValue(typeof(BorderStyle), "FixedSingle")]
+        public new BorderStyle BorderStyle {
+            get { return base.BorderStyle; }
+            set { base.BorderStyle = value; }
+        }
+
+        #endregion
+
+        public class ProgressEventEventArgs : EventArgs {
+            public readonly ProgressEvent ProgressEvent;
+
+            public ProgressEventEventArgs(ProgressEvent progressEvent) {
+                ProgressEvent = progressEvent;
+            }
+        }
+
+        private ProgressEvent GetEventAt(int index) {
             return _progressEvents[index];
         }
 
@@ -55,8 +127,7 @@ namespace vApus.Util
         /// <param name="color"></param>
         /// <param name="message"></param>
         /// <param name="at"></param>
-        public ProgressEvent AddEvent(Color color, string message, DateTime at)
-        {
+        public ProgressEvent AddEvent(Color color, string message, DateTime at) {
             var pe = new ProgressEvent(this, color, message, at);
             pe.MouseEnter += pe_MouseEnter;
             pe.MouseLeave += pe_MouseLeave;
@@ -75,18 +146,15 @@ namespace vApus.Util
         /// </summary>
         /// <param name="progressEvents"></param>
         /// <returns></returns>
-        private List<ProgressEvent> Sort(List<ProgressEvent> progressEvents)
-        {
+        private List<ProgressEvent> Sort(List<ProgressEvent> progressEvents) {
             var pes = new List<ProgressEvent>(progressEvents.Count);
             var sorter = new Dictionary<Color, List<ProgressEvent>>();
 
             foreach (ProgressEvent pe in progressEvents)
-                if (sorter.ContainsKey(pe.Color))
-                {
+                if (sorter.ContainsKey(pe.Color)) {
                     sorter[pe.Color].Add(pe);
                 }
-                else
-                {
+                else {
                     var value = new List<ProgressEvent>();
                     value.Add(pe);
                     sorter.Add(pe.Color, value);
@@ -94,8 +162,7 @@ namespace vApus.Util
 
             var sorted = new Dictionary<Color, List<ProgressEvent>>(sorter.Count);
 
-            while (sorter.Count != 0)
-            {
+            while (sorter.Count != 0) {
                 Color smallestCount = Color.Empty;
                 foreach (Color key in sorter.Keys)
                     if (smallestCount == Color.Empty)
@@ -113,39 +180,32 @@ namespace vApus.Util
             return pes;
         }
 
-        public List<ProgressEvent> GetEvents()
-        {
+        public List<ProgressEvent> GetEvents() {
             return _progressEvents;
         }
 
-        public void ClearEvents()
-        {
+        public void ClearEvents() {
             _progressEvents.Clear();
             Invalidate();
         }
 
-        private void pe_MouseEnter(object sender, EventArgs e)
-        {
+        private void pe_MouseEnter(object sender, EventArgs e) {
             if (EventMouseEnter != null)
                 EventMouseEnter(this, new ProgressEventEventArgs(sender as ProgressEvent));
         }
 
-        private void pe_MouseLeave(object sender, EventArgs e)
-        {
+        private void pe_MouseLeave(object sender, EventArgs e) {
             if (EventMouseLeave != null)
                 EventMouseLeave(this, new ProgressEventEventArgs(sender as ProgressEvent));
         }
 
-        private void pe_Click(object sender, EventArgs e)
-        {
+        private void pe_Click(object sender, EventArgs e) {
             if (EventClick != null)
                 EventClick(this, new ProgressEventEventArgs(sender as ProgressEvent));
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            try
-            {
+        protected override void OnPaint(PaintEventArgs e) {
+            try {
                 base.OnPaint(e);
 
                 Graphics g = e.Graphics;
@@ -155,8 +215,7 @@ namespace vApus.Util
                 ProgressEvent entered = null;
 
                 //Do this in reversed order --> the most important are drawn last.
-                for (int i = _sortedProgressEvents.Count - 1; i != -1; i--)
-                {
+                for (int i = _sortedProgressEvents.Count - 1; i != -1; i--) {
                     ProgressEvent pe = _sortedProgressEvents[i];
                     if (pe.Entered)
                         entered = pe;
@@ -166,16 +225,13 @@ namespace vApus.Util
                 if (entered != null)
                     entered.Draw(g);
             }
-            catch
-            {
+            catch {
             }
         }
 
-        private void DrawProgressBar(Graphics g)
-        {
+        private void DrawProgressBar(Graphics g) {
             ProgressEvent pe = null;
-            if (_sortedProgressEvents.Count != 0)
-            {
+            if (_sortedProgressEvents.Count != 0) {
                 pe = _sortedProgressEvents[_sortedProgressEvents.Count - 1];
                 if (_nowProgressEvent == null || _nowProgressEvent.At < pe.At)
                     _nowProgressEvent = pe;
@@ -187,11 +243,9 @@ namespace vApus.Util
             SetValueInTB();
         }
 
-        private Form FindOwnerForm()
-        {
+        private Form FindOwnerForm() {
             Form ownerform = FindForm();
-            while (ownerform != null)
-            {
+            while (ownerform != null) {
                 Form f = ownerform.ParentForm;
                 if (f == null)
                     break;
@@ -201,39 +255,31 @@ namespace vApus.Util
             return ownerform;
         }
 
-        private void SetValueInTB()
-        {
+        private void SetValueInTB() {
             Form ownerform = FindOwnerForm();
-            if (ownerform != null && ownerform.IsHandleCreated)
-            {
-                var maximum = (ulong) (Width);
-                var progress = (ulong) (_nowProgressEvent == null ? 0 : _nowProgressEvent.Location.X);
+            if (ownerform != null && ownerform.IsHandleCreated) {
+                var maximum = (ulong)(Width);
+                var progress = (ulong)(_nowProgressEvent == null ? 0 : _nowProgressEvent.Location.X);
             }
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
+        protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
             ProgressEvent pe = GetHoveredProgressEvent();
             PerformMouseEnter(pe, _eventToolTip);
         }
 
-        public void PerformMouseEnter(DateTime at, bool showToolTip)
-        {
+        public void PerformMouseEnter(DateTime at, bool showToolTip) {
             foreach (ProgressEvent pe in _sortedProgressEvents)
-                if (pe.At == at)
-                {
+                if (pe.At == at) {
                     PerformMouseEnter(pe, showToolTip);
                     break;
                 }
         }
 
-        private void PerformMouseEnter(ProgressEvent pe, bool showToolTip)
-        {
-            if (pe == null)
-            {
-                if (!_toolTipThisShown)
-                {
+        private void PerformMouseEnter(ProgressEvent pe, bool showToolTip) {
+            if (pe == null) {
+                if (!_toolTipThisShown) {
                     if (_previouslyHovered != null)
                         PerformMouseLeave();
 
@@ -241,8 +287,7 @@ namespace vApus.Util
                     toolTip.Show("Time frame: " + _beginOfTimeFrame + " - " + _endOfTimeFrame, this);
                 }
             }
-            else if (pe != _previouslyHovered)
-            {
+            else if (pe != _previouslyHovered) {
                 _toolTipThisShown = false;
                 PerformMouseLeave(false);
 
@@ -253,16 +298,14 @@ namespace vApus.Util
             _previouslyHovered = pe;
         }
 
-        protected override void OnMouseLeave(EventArgs e)
-        {
+        protected override void OnMouseLeave(EventArgs e) {
             base.OnMouseLeave(e);
             _toolTipThisShown = false;
             toolTip.Hide(this);
             PerformMouseLeave();
         }
 
-        protected override void OnClick(EventArgs e)
-        {
+        protected override void OnClick(EventArgs e) {
             base.OnClick(e);
 
             ProgressEvent pe = GetHoveredProgressEvent();
@@ -270,11 +313,9 @@ namespace vApus.Util
                 pe.PerformClick();
         }
 
-        private ProgressEvent GetHoveredProgressEvent()
-        {
+        private ProgressEvent GetHoveredProgressEvent() {
             Point p = PointToClient(Cursor.Position);
-            foreach (ProgressEvent pe in _sortedProgressEvents)
-            {
+            foreach (ProgressEvent pe in _sortedProgressEvents) {
                 Point location = pe.Location;
                 if (p.X >= location.X &&
                     p.X <= location.X + ProgressEvent.WIDTH)
@@ -283,8 +324,7 @@ namespace vApus.Util
             return null;
         }
 
-        public void PerformMouseLeave(bool invalidate = true)
-        {
+        public void PerformMouseLeave(bool invalidate = true) {
             if (_previouslyHovered != null)
                 _previouslyHovered.PerformMouseLeave();
 
@@ -292,105 +332,13 @@ namespace vApus.Util
                 Invalidate();
         }
 
-        public void SetEndOfTimeFrameToNow()
-        {
+        public void SetEndOfTimeFrameToNow() {
             SetEndOfTimeFrameTo(DateTime.Now);
         }
-        public void SetEndOfTimeFrameTo(DateTime dateTime)
-        {
+        public void SetEndOfTimeFrameTo(DateTime dateTime) {
             _endOfTimeFrame = dateTime;
             _nowProgressEvent = new ProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
             Invalidate();
-        }
-
-        #region Fields
-
-        private readonly SolidBrush _brush = new SolidBrush(Color.SteelBlue);
-        private readonly List<ProgressEvent> _progressEvents = new List<ProgressEvent>();
-
-        private readonly ToolTip toolTip = new ToolTip();
-
-        private DateTime _beginOfTimeFrame = DateTime.MinValue, _endOfTimeFrame = DateTime.MaxValue;
-        private bool _eventToolTip = true;
-
-        /// <summary>
-        ///     To set the progressbar to 'now'.
-        /// </summary>
-        private ProgressEvent _nowProgressEvent;
-
-        private ProgressEvent _previouslyHovered;
-
-        private List<ProgressEvent> _sortedProgressEvents = new List<ProgressEvent>();
-                                    //Sorted on importance, to draw the lines.
-
-        private bool _toolTipThisShown;
-
-        #endregion
-
-        #region Properties
-
-        [Description("Show or do not show a tool tip (label + \"\\n\" + at) when hovering a progress event.")]
-        public bool EventToolTip
-        {
-            get { return _eventToolTip; }
-            set { _eventToolTip = value; }
-        }
-
-        [Description("The count of all progress events.")]
-        public int EventCount
-        {
-            get { return _progressEvents.Count; }
-        }
-
-        [Description("The begin of the time frame when the events occured ('at').")]
-        /// </summary>
-        public DateTime BeginOfTimeFrame
-        {
-            set
-            {
-                _beginOfTimeFrame = value;
-                Invalidate();
-            }
-            get { return _beginOfTimeFrame; }
-        }
-
-        /// <summary>
-        ///     It is set through SetProgressBarToNow().
-        /// </summary>
-        [Description("The end of the time frame.")]
-        public DateTime EndOfTimeFrame
-        {
-            //private set
-            //{
-            //    _endOfTimeFrame = value;
-            //    this.Invalidate();
-            //}
-            get { return _endOfTimeFrame; }
-        }
-
-        public Color ProgressBarColor
-        {
-            get { return _brush.Color; }
-            set { _brush.Color = value; }
-        }
-
-        [DefaultValue(typeof (BorderStyle), "FixedSingle")]
-        public new BorderStyle BorderStyle
-        {
-            get { return base.BorderStyle; }
-            set { base.BorderStyle = value; }
-        }
-
-        #endregion
-
-        public class ProgressEventEventArgs : EventArgs
-        {
-            public readonly ProgressEvent ProgressEvent;
-
-            public ProgressEventEventArgs(ProgressEvent progressEvent)
-            {
-                ProgressEvent = progressEvent;
-            }
         }
     }
 }

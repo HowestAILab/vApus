@@ -17,11 +17,9 @@ using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
+namespace vApus.DistributedTesting {
     [ToolboxItem(false)]
-    public partial class TileStresstestTreeViewItem : UserControl, ITreeViewItem
-    {
+    public partial class TileStresstestTreeViewItem : UserControl, ITreeViewItem {
         #region Events
 
         /// <summary>
@@ -56,36 +54,23 @@ namespace vApus.DistributedTesting
 
         #region Properties
 
-        public TileStresstest TileStresstest
-        {
-            get { return _tileStresstest; }
-        }
+        public TileStresstest TileStresstest { get { return _tileStresstest; } }
 
-        public StresstestStatus StresstestResult
-        {
-            get { return _stresstestStatus; }
-        }
+        public StresstestStatus StresstestResult { get { return _stresstestStatus; } }
 
         /// <summary>
         ///     true if the test can't start.
         /// </summary>
-        public bool Exclamation
-        {
-            get { return _exclamation; }
-        }
+        public bool Exclamation { get { return _exclamation; } }
 
         #endregion
 
         #region Constructors
 
-        public TileStresstestTreeViewItem()
-        {
-            InitializeComponent();
-        }
+        public TileStresstestTreeViewItem() { InitializeComponent(); }
 
         public TileStresstestTreeViewItem(TileStresstest tileStresstest)
-            : this()
-        {
+            : this() {
             _tileStresstest = tileStresstest;
             RefreshGui();
 
@@ -96,7 +81,7 @@ namespace vApus.DistributedTesting
             //Use if the parent is used explicitely.
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
-            eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
+            eventProgressChart.BeginOfTimeFrame = DateTime.MinValue;
 
             CheckIfTestCanStart();
         }
@@ -105,34 +90,26 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        public void Unfocus()
-        {
+        public void Unfocus() {
             BackColor = Color.Transparent;
             SetVisibleControls();
         }
 
-        public void SetVisibleControls(bool visible)
-        {
-            if (_distributedTestMode == DistributedTestMode.Edit)
-            {
+        public void SetVisibleControls(bool visible) {
+            if (_distributedTestMode == DistributedTestMode.Edit) {
                 picDuplicate.Visible = picDelete.Visible = visible;
                 CheckIfTestCanStart();
             }
         }
 
-        public void SetVisibleControls()
-        {
-            if (IsDisposed)
-                return;
+        public void SetVisibleControls() {
+            if (IsDisposed) return;
 
-            if (BackColor == SystemColors.Control)
-                SetVisibleControls(true);
-            else
-                SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
+            if (BackColor == SystemColors.Control) SetVisibleControls(true);
+            else SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
         }
 
-        public void RefreshGui()
-        {
+        public void RefreshGui() {
             string label = _tileStresstest.Index + ") " +
                            ((_tileStresstest.BasicTileStresstest.Connection == null ||
                              _tileStresstest.BasicTileStresstest.Connection.IsEmpty)
@@ -143,45 +120,30 @@ namespace vApus.DistributedTesting
                 lblTileStresstest.Text = label;
         }
 
-        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
-        {
+        public void SetDistributedTestMode(DistributedTestMode distributedTestMode) {
             _distributedTestMode = distributedTestMode;
-            if (_distributedTestMode == DistributedTestMode.Edit)
-            {
-                if (_tileStresstest.Use)
-                    chk.Visible = true;
-                else
-                    Visible = true;
+            if (_distributedTestMode == DistributedTestMode.Edit) {
+                if (_tileStresstest.Use) chk.Visible = true; else Visible = true;
             }
-            else
-            {
-                if (_tileStresstest.Use)
-                {
-                    chk.Visible =
-                        picDelete.Visible =
-                        picDuplicate.Visible = false;
+            else {
+                if (_tileStresstest.Use) {
+                    chk.Visible = picDelete.Visible = picDuplicate.Visible = false;
 
-                    eventProgressBar.BeginOfTimeFrame = DateTime.MinValue;
+                    eventProgressChart.BeginOfTimeFrame = DateTime.MinValue;
 
                     picStresstestStatus.Image = null;
                     toolTip.SetToolTip(picStresstestStatus, string.Empty);
                 }
-                else
-                {
-                    Visible = false;
-                }
+                else Visible = false;
             }
         }
 
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender == _tileStresstest.Parent &&
-                e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Edited)
-            {
+                e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Edited) {
                 var parent = sender as Tile;
                 _tileStresstest.Use = parent.Use;
-                if (chk.Checked != _tileStresstest.Use)
-                {
+                if (chk.Checked != _tileStresstest.Use) {
                     chk.CheckedChanged -= chk_CheckedChanged;
                     chk.Checked = _tileStresstest.Use;
                     chk.CheckedChanged += chk_CheckedChanged;
@@ -189,73 +151,50 @@ namespace vApus.DistributedTesting
                     CheckIfTestCanStart();
                 }
             }
-            else if (sender == _tileStresstest.BasicTileStresstest || sender == _tileStresstest.AdvancedTileStresstest)
-            {
+            else if (sender == _tileStresstest.BasicTileStresstest || sender == _tileStresstest.AdvancedTileStresstest) {
                 CheckIfTestCanStart();
             }
         }
 
-        private void _Enter(object sender, EventArgs e)
-        {
+        private void _Enter(object sender, EventArgs e) {
             BackColor = SystemColors.Control;
             SetVisibleControls();
 
-            if (AfterSelect != null)
-                AfterSelect(this, null);
+            if (AfterSelect != null) AfterSelect(this, null);
         }
 
-        private void _MouseEnter(object sender, EventArgs e)
-        {
-            SetVisibleControls();
-        }
+        private void _MouseEnter(object sender, EventArgs e) { SetVisibleControls(); }
 
-        private void _MouseLeave(object sender, EventArgs e)
-        {
-            SetVisibleControls();
-        }
+        private void _MouseLeave(object sender, EventArgs e) { SetVisibleControls(); }
 
-        private void _KeyUp(object sender, KeyEventArgs e)
-        {
-            if (_distributedTestMode == DistributedTestMode.TestAndReport)
-            {
+        private void _KeyUp(object sender, KeyEventArgs e) {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport) {
                 _ctrl = false;
                 return;
             }
 
-            if (e.KeyCode == Keys.ControlKey)
-                _ctrl = false;
+            if (e.KeyCode == Keys.ControlKey) _ctrl = false;
             else if (_ctrl)
-                if (e.KeyCode == Keys.R && DeleteClicked != null)
-                    DeleteClicked(this, null);
-                else if (e.KeyCode == Keys.D && DuplicateClicked != null)
-                    DuplicateClicked(this, null);
-                else if (e.KeyCode == Keys.U)
-                    chk.Checked = !chk.Checked;
+                if (e.KeyCode == Keys.R && DeleteClicked != null) DeleteClicked(this, null);
+                else if (e.KeyCode == Keys.D && DuplicateClicked != null) DuplicateClicked(this, null);
+                else if (e.KeyCode == Keys.U) chk.Checked = !chk.Checked;
         }
 
-        private void _KeyDown(object sender, KeyEventArgs e)
-        {
-            if (_distributedTestMode == DistributedTestMode.TestAndReport)
-                return;
+        private void _KeyDown(object sender, KeyEventArgs e) {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport) return;
 
-            if (e.KeyCode == Keys.ControlKey)
-                _ctrl = true;
+            if (e.KeyCode == Keys.ControlKey) _ctrl = true;
         }
 
-        private void picDuplicate_Click(object sender, EventArgs e)
-        {
-            if (DuplicateClicked != null)
-                DuplicateClicked(this, null);
+        private void picDuplicate_Click(object sender, EventArgs e) {
+            if (DuplicateClicked != null) DuplicateClicked(this, null);
         }
 
-        private void picDelete_Click(object sender, EventArgs e)
-        {
-            if (DeleteClicked != null)
-                DeleteClicked(this, null);
+        private void picDelete_Click(object sender, EventArgs e) {
+            if (DeleteClicked != null) DeleteClicked(this, null);
         }
 
-        private void chk_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chk_CheckedChanged(object sender, EventArgs e) {
             _tileStresstest._canDefaultAdvancedSettingsTo = false;
             _tileStresstest.Use = chk.Checked;
             CheckIfTestCanStart();
@@ -263,43 +202,30 @@ namespace vApus.DistributedTesting
             _tileStresstest._canDefaultAdvancedSettingsTo = false;
         }
 
-        private void eventProgressBar_EventClick(object sender, EventProgressChart.ProgressEventEventArgs e)
-        {
+        private void eventProgressBar_EventClick(object sender, EventProgressChart.ProgressEventEventArgs e) {
             _Enter(this, e);
-            if (EventClicked != null)
-                EventClicked(this, e);
+            if (EventClicked != null) EventClicked(this, e);
         }
 
-        public void ClearEvents()
-        {
-            eventProgressBar.ClearEvents();
-        }
+        public void ClearEvents() { eventProgressChart.ClearEvents(); }
 
-        public void SetEvents(List<EventPanelEvent> events)
-        {
+        public void SetEvents(List<EventPanelEvent> events) {
             ClearEvents();
             foreach (EventPanelEvent epe in events)
-                eventProgressBar.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
+                eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
         }
 
-        public void SetStresstestStarted(DateTime start)
-        {
-            eventProgressBar.BeginOfTimeFrame = start;
+        public void SetStresstestStarted(DateTime start) { eventProgressChart.BeginOfTimeFrame = start; }
+
+        public void SetMeasuredRunTime(TimeSpan measuredRuntime) {
+            eventProgressChart.SetEndOfTimeFrameTo(eventProgressChart.BeginOfTimeFrame + measuredRuntime);
         }
 
-        public void SetMeasuredRunTime(TimeSpan estimatedRuntimeLeft)
-        {
-            //eventProgressBar.EndOfTimeFrame = DateTime.Now + estimatedRuntimeLeft;
-            eventProgressBar.SetEndOfTimeFrameToNow();
-        }
-
-        public void SetStresstestStatus(StresstestStatus stresstestStatus)
-        {
+        public void SetStresstestStatus(StresstestStatus stresstestStatus) {
             _stresstestStatus = stresstestStatus;
-            eventProgressBar.SetEndOfTimeFrameToNow();
+            eventProgressChart.SetEndOfTimeFrameToNow();
 
-            switch (_stresstestStatus)
-            {
+            switch (_stresstestStatus) {
                 case StresstestStatus.Ok:
                     picStresstestStatus.Image = Resources.OK;
                     toolTip.SetToolTip(picStresstestStatus, "Finished");
@@ -315,29 +241,21 @@ namespace vApus.DistributedTesting
             }
         }
 
-        private void CheckIfTestCanStart()
-        {
+        private void CheckIfTestCanStart() {
             var sb = new StringBuilder();
-            if (_tileStresstest.Use)
-            {
-                if (_tileStresstest.BasicTileStresstest.Connection.IsEmpty)
-                    sb.AppendLine("The connection is not filled in.");
-                if (_tileStresstest.BasicTileStresstest.Slaves.Length == 0)
-                    sb.AppendLine("No slaves have been assigned.");
-                if (_tileStresstest.AdvancedTileStresstest.Log.IsEmpty)
-                    sb.AppendLine("The log is not filled in. [Advanced Settings]");
+            if (_tileStresstest.Use) {
+                if (_tileStresstest.BasicTileStresstest.Connection.IsEmpty) sb.AppendLine("The connection is not filled in.");
+                if (_tileStresstest.BasicTileStresstest.Slaves.Length == 0) sb.AppendLine("No slaves have been assigned.");
+                if (_tileStresstest.AdvancedTileStresstest.Log.IsEmpty) sb.AppendLine("The log is not filled in. [Advanced Settings]");
             }
 
             string exclamation = sb.ToString();
 
-            if (exclamation.Length != 0)
-            {
-                if (toolTip.GetToolTip(lblExclamation) != exclamation)
-                    toolTip.SetToolTip(lblExclamation, exclamation);
+            if (exclamation.Length != 0) {
+                if (toolTip.GetToolTip(lblExclamation) != exclamation) toolTip.SetToolTip(lblExclamation, exclamation);
                 _exclamation = lblExclamation.Visible = true;
             }
-            else
-            {
+            else {
                 _exclamation = lblExclamation.Visible = false;
             }
         }

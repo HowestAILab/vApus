@@ -36,7 +36,7 @@
             this.chk = new System.Windows.Forms.CheckBox();
             this.lblTileStresstest = new System.Windows.Forms.Label();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
-            this.eventProgressBar = new vApus.Util.EventProgressChart();
+            this.eventProgressChart = new vApus.Util.EventProgressChart();
             this.lblExclamation = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
@@ -122,19 +122,19 @@
             // 
             // eventProgressBar
             // 
-            this.eventProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.eventProgressChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.eventProgressBar.BeginOfTimeFrame = new System.DateTime(((long)(0)));
-            this.eventProgressBar.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.eventProgressBar.EventToolTip = true;
-            this.eventProgressBar.Location = new System.Drawing.Point(42, 25);
-            this.eventProgressBar.Margin = new System.Windows.Forms.Padding(0);
-            this.eventProgressBar.Name = "eventProgressBar";
-            this.eventProgressBar.ProgressBarColor = System.Drawing.Color.SteelBlue;
-            this.eventProgressBar.Size = new System.Drawing.Size(552, 5);
-            this.eventProgressBar.TabIndex = 21;
-            this.eventProgressBar.EventClick += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
-            this.eventProgressBar.Enter += new System.EventHandler(this._Enter);
+            this.eventProgressChart.BeginOfTimeFrame = new System.DateTime(((long)(0)));
+            this.eventProgressChart.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.eventProgressChart.EventToolTip = true;
+            this.eventProgressChart.Location = new System.Drawing.Point(42, 25);
+            this.eventProgressChart.Margin = new System.Windows.Forms.Padding(0);
+            this.eventProgressChart.Name = "eventProgressBar";
+            this.eventProgressChart.ProgressBarColor = System.Drawing.Color.LightSteelBlue;
+            this.eventProgressChart.Size = new System.Drawing.Size(552, 5);
+            this.eventProgressChart.TabIndex = 21;
+            this.eventProgressChart.EventClick += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
+            this.eventProgressChart.Enter += new System.EventHandler(this._Enter);
             // 
             // lblExclamation
             // 
@@ -156,7 +156,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.lblExclamation);
             this.Controls.Add(this.picDelete);
-            this.Controls.Add(this.eventProgressBar);
+            this.Controls.Add(this.eventProgressChart);
             this.Controls.Add(this.lblTileStresstest);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.chk);
@@ -183,7 +183,7 @@
         private System.Windows.Forms.CheckBox chk;
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblTileStresstest;
-        private Util.EventProgressChart eventProgressBar;
+        private Util.EventProgressChart eventProgressChart;
         private System.Windows.Forms.PictureBox picStresstestStatus;
         private System.Windows.Forms.Label lblExclamation;
     }
