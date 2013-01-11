@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,8 +31,8 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     The monitors for the tests if any.
         /// </summary>
-        private readonly Dictionary<TileStresstest, List<MonitorView>> _monitorViews =
-            new Dictionary<TileStresstest, List<MonitorView>>();
+        private readonly Dictionary<TileStresstest, List<MonitorView>> _monitorViews = new Dictionary<TileStresstest, List<MonitorView>>();
+        private Dictionary<TileStresstest, MonitorMetricsCache> _monitorMetricsCaches = new Dictionary<TileStresstest, MonitorMetricsCache>();
 
         private readonly AutoResetEvent _monitorViewsInitializedWaitHandle = new AutoResetEvent(false);
 
@@ -143,7 +142,7 @@ namespace vApus.DistributedTesting {
                 SetGui();
         }
 
-        private void btnWizard_Click(object sender, EventArgs e) {  ShowWizard(); }
+        private void btnWizard_Click(object sender, EventArgs e) { ShowWizard(); }
 
         private void ShowWizard() {
             using (var wizard = new Wizard()) {
@@ -470,6 +469,7 @@ namespace vApus.DistributedTesting {
 
                     //Initialize the monitors.
                     _monitorViews.Clear();
+                    _monitorMetricsCaches.Clear();
                     foreach (TileStresstest tileStresstest in _distributedTestCore.UsedTileStresstests)
                         for (int i = 0; i != tileStresstest.BasicTileStresstest.Monitors.Length; i++)
                             ShowAndInitMonitorView(tileStresstest, tileStresstest.BasicTileStresstest.Monitors[i]);
@@ -549,8 +549,22 @@ namespace vApus.DistributedTesting {
                 }
             }
 
+            UpdateMonitorMetricsCaches(tileStresstest, testProgressMessage);
+
             SetOverallProgress();
             SetSlaveProgressInTreeView(tileStresstest, testProgressMessage);
+        }
+        private void UpdateMonitorMetricsCaches(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
+            foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
+                foreach (var metrics in testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics()) 
+                {
+                    var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
+                    //fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.AddOrUpdate(
+                }
+            //if(testProgressMessage.StresstestMetricsCache.
+            }
+            //  fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
+
         }
 
         private void SetOverallProgress() {
@@ -586,7 +600,6 @@ namespace vApus.DistributedTesting {
             WriteMonitorRestProgress();
 #endif
         }
-
         /// <summary>
         /// </summary>
         /// <param name="tileStresstest"></param>
@@ -600,7 +613,14 @@ namespace vApus.DistributedTesting {
                     fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics());
                     fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics());
                 }
-
+                var monitorResultCaches = GetMonitorResultCaches(tileStresstest);
+                foreach (var monitorResultCache in monitorResultCaches) {
+                    if (_monitorMetricsCaches.ContainsKey(tileStresstest)) {
+                        var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+                }
 
                 if (testProgressMessage.Events == null) fastResultsControl.ClearEvents();
                 else fastResultsControl.SetEvents(testProgressMessage.Events);
@@ -631,7 +651,6 @@ namespace vApus.DistributedTesting {
                                                            tileStresstest.AdvancedTileStresstest.MonitorAfter);
             }
         }
-
         private void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
             lock (_lock) {
                 DistributedTestTreeViewItem distributedTestTreeViewItem = null;
@@ -872,6 +891,9 @@ namespace vApus.DistributedTesting {
                 _monitorViews.Add(tileStresstest, new List<MonitorView>());
             _monitorViews[tileStresstest].Add(monitorView);
 
+            if (!_monitorMetricsCaches.ContainsKey(tileStresstest))
+                _monitorMetricsCaches.Add(tileStresstest, new MonitorMetricsCache());
+
 #if EnableBetaFeature
             WriteMonitorRestConfig();
 #endif
@@ -903,6 +925,20 @@ namespace vApus.DistributedTesting {
         private void monitorView_OnHandledException(object sender, ErrorEventArgs e) { var view = sender as MonitorView; }
 
         private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e) { var view = sender as MonitorView; }
+
+        /// <summary>
+        /// Get all monitor result caches for al the running monitors.
+        /// </summary>
+        /// <returns></returns>
+        private List<MonitorResultCache> GetMonitorResultCaches(TileStresstest tileStresstest) {
+            var l = new List<MonitorResultCache>();
+            if (_monitorViews != null)
+                foreach (var ts in _monitorViews.Keys)
+                    if (tileStresstest == ts)
+                        foreach (var view in _monitorViews[ts])
+                            l.Add(view.GetMonitorResultCache());
+            return l;
+        }
 
         /// <summary>
         ///     Used in stresstest started eventhandling.

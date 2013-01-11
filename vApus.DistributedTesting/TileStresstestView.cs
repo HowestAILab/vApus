@@ -46,7 +46,6 @@ namespace vApus.DistributedTesting
         /// </summary>
         private bool _finishedSent;
 
-        private HashSet<ListViewItem> _resultListViewItems = new HashSet<ListViewItem>();
         private StresstestCore _stresstestCore;
         private StresstestResult _stresstestResult;
         private StresstestStatus _stresstestStatus;

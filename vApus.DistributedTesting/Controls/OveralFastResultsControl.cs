@@ -5,13 +5,11 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using vApus.Results;
@@ -19,9 +17,12 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     public partial class OveralFastResultsControl : UserControl {
+
+        #region Fields
         private DistributedTest _distributedTest;
 
         //Caching the progress here.
+        Dictionary<TileStresstest, StresstestMetricsCache> _progress = new Dictionary<TileStresstest, StresstestMetricsCache>();
         private List<object[]> _concurrencyStresstestMetricsRows = new List<object[]>();
         private List<object[]> _runStresstestMetricsRows = new List<object[]>();
 
@@ -32,38 +33,29 @@ namespace vApus.DistributedTesting {
         ///     Enables Auto scroll to end of fast results when appropriate.
         /// </summary>
         private bool _keepFastResultsAtEnd = true;
+        #endregion
 
         #region Properties
-
         public DistributedTest DistributedTest {
             get { return _distributedTest; }
             set { _distributedTest = value; }
         }
-
         #endregion
 
         #region Constructor
-
         public OveralFastResultsControl() {
             InitializeComponent();
             (dgvFastResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvFastResults, true);
             cboDrillDown.SelectedIndex = 0;
         }
-
         #endregion
 
         #region Functions
 
-        private void DistributedStresstestControl_HandleCreated(object sender, EventArgs e) {
-            HandleCreated -= DistributedStresstestControl_HandleCreated;
-            SetGui();
-        }
-
-        private void SetGui() {
-        }
-
         public void ClearFastResults() {
             dgvFastResults.RowCount = 0;
+
+            _progress = new Dictionary<TileStresstest, StresstestMetricsCache>();
 
             _concurrencyStresstestMetricsRows = new List<object[]>();
             _runStresstestMetricsRows = new List<object[]>();
@@ -173,19 +165,33 @@ namespace vApus.DistributedTesting {
         /// <param name="title">Distributed test or the tostring of the tile</param>
         /// <param name="progress"></param>
         public void SetOverallFastResults(Dictionary<TileStresstest, StresstestMetricsCache> progress) {
-            _concurrencyStresstestMetricsRows.Clear();
-            _runStresstestMetricsRows.Clear();
+            _progress = progress;
 
-            _invalidateConcurrencyRows.Clear();
-            _invalidateRunRows.Clear();
-
-            foreach (TileStresstest ts in progress.Keys) {
-                _concurrencyStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), StresstestMetricsHelper.MetricsToRows(progress[ts].GetConcurrencyMetrics(), chkReadable.Checked)));
-                _runStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), StresstestMetricsHelper.MetricsToRows(progress[ts].GetRunMetrics(), chkReadable.Checked)));
-                _invalidateConcurrencyRows.Add(_concurrencyStresstestMetricsRows.Count - 1);
-                _invalidateRunRows.Add(_runStresstestMetricsRows.Count - 1);
-            }
+            RefreshRows(false);
             if (cboDrillDown.SelectedIndex == 0) SetOverallFastConcurrencyResults(); else SetOverallFastRunResults();
+        }
+        private void RefreshRows(bool refreshAll) {
+            foreach (TileStresstest ts in _progress.Keys) {
+                _concurrencyStresstestMetricsRows.Clear();
+                _runStresstestMetricsRows.Clear();
+
+                _invalidateConcurrencyRows.Clear();
+                _invalidateRunRows.Clear();
+
+                _concurrencyStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), StresstestMetricsHelper.MetricsToRows(_progress[ts].GetConcurrencyMetrics(), chkReadable.Checked)));
+                _runStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), StresstestMetricsHelper.MetricsToRows(_progress[ts].GetRunMetrics(), chkReadable.Checked)));
+                if (!refreshAll) {
+                    _invalidateConcurrencyRows.Add(_concurrencyStresstestMetricsRows.Count - 1);
+                    _invalidateRunRows.Add(_runStresstestMetricsRows.Count - 1);
+                }
+            }
+            if (refreshAll) {
+                for (int i = 0; i != _concurrencyStresstestMetricsRows.Count; i++)
+                    _invalidateConcurrencyRows.Add(i);
+
+                for (int i = 0; i != _runStresstestMetricsRows.Count; i++)
+                    _invalidateRunRows.Add(i);
+            }
         }
         /// <summary>
         /// Puts the tile stresstest tostring in front of the rows.
@@ -219,7 +225,7 @@ namespace vApus.DistributedTesting {
             try {
                 if (!IsDisposed) {
                     int count = _runStresstestMetricsRows.Count;
-                    if (dgvFastResults.RowCount == count && count != 0) 
+                    if (dgvFastResults.RowCount == count && count != 0)
                         foreach (int i in _invalidateRunRows)
                             dgvFastResults.InvalidateRow(i);
                     else dgvFastResults.RowCount = count;
@@ -228,12 +234,65 @@ namespace vApus.DistributedTesting {
             }
             catch { }
         }
-        public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
-            try { eventView.AddEvent((EventViewEventType)logLevel, message); }
-            catch { }
+
+        private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e) {
+            SetOverallFastResultsOnGuiInteraction(false);
+        }
+        private void chkReadable_CheckedChanged(object sender, EventArgs e) {
+            SetOverallFastResultsOnGuiInteraction(true);
+        }
+        private void SetOverallFastResultsOnGuiInteraction(bool readableChanged) {
+            //Set the headers.
+            dgvFastResults.Columns.Clear();
+            string[] columnHeaders = null;
+            columnHeaders = cboDrillDown.SelectedIndex == 0 ? StresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked)
+                : StresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
+
+            if (readableChanged) RefreshRows(true);
+
+            string[] newColumnHeaders = new string[columnHeaders.LongLength + 1];
+            newColumnHeaders[0] = "Tile Stresstest";
+            columnHeaders.CopyTo(newColumnHeaders, 1);
+
+            var clms = new DataGridViewColumn[newColumnHeaders.Length];
+            string clmPrefix = ToString() + "clm";
+            for (int headerIndex = 0; headerIndex != newColumnHeaders.Length; headerIndex++) {
+                string header = newColumnHeaders[headerIndex];
+                var clm = new DataGridViewTextBoxColumn();
+                clm.Name = clmPrefix + header;
+                clm.HeaderText = header;
+
+                clm.SortMode = DataGridViewColumnSortMode.NotSortable;
+                //To allow 2 power 32 columns.
+                clm.FillWeight = 1;
+
+                clms[headerIndex] = clm;
+            }
+
+            dgvFastResults.Columns.AddRange(clms);
+
+            if (cboDrillDown.SelectedIndex == 0) SetOverallFastConcurrencyResults(); else SetOverallFastRunResults();
         }
 
-        private void btnExport_Click(object sender, EventArgs e) { eventView.Export(); }
+        private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
+            e.Value = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows[e.RowIndex][e.ColumnIndex] : _runStresstestMetricsRows[e.RowIndex][e.ColumnIndex];
+        }
+
+        private void dgvFastResults_Scroll(object sender, ScrollEventArgs e) {
+            var verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+                                                        .GetValue(dgvFastResults) as ScrollBar;
+            _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >= verticalScrollBar.Maximum;
+        }
+        /// <summary>
+        ///     When the row count changes.
+        /// </summary>
+        private void KeepFastResultsAtEnd() {
+            if (_keepFastResultsAtEnd && dgvFastResults.RowCount != 0) {
+                dgvFastResults.Scroll -= dgvFastResults_Scroll;
+                dgvFastResults.FirstDisplayedScrollingRowIndex = dgvFastResults.RowCount - 1;
+                dgvFastResults.Scroll += dgvFastResults_Scroll;
+            }
+        }
 
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
             var sfd = new SaveFileDialog();
@@ -252,7 +311,6 @@ namespace vApus.DistributedTesting {
                     MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
         }
-
         /// <summary>
         ///     Get the displayed results.
         /// </summary>
@@ -286,64 +344,13 @@ namespace vApus.DistributedTesting {
             return sb.ToString();
         }
 
-        private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e) {
-            SetOverallFastResultsOnGuiInteraction();
+        public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
+            try { eventView.AddEvent((EventViewEventType)logLevel, message); }
+            catch { }
         }
 
-        private void SetOverallFastResultsOnGuiInteraction() {
-            //Set the headers.
-            dgvFastResults.Columns.Clear();
-            string[] columnHeaders = null;
-            columnHeaders = cboDrillDown.SelectedIndex == 0 ? StresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked)
-                : StresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
-
-            string[] newColumnHeaders = new string[columnHeaders.LongLength + 1];
-            newColumnHeaders[0] = "Tile Stresstest";
-            columnHeaders.CopyTo(newColumnHeaders, 1);
-
-            var clms = new DataGridViewColumn[newColumnHeaders.Length];
-            string clmPrefix = ToString() + "clm";
-            for (int headerIndex = 0; headerIndex != newColumnHeaders.Length; headerIndex++) {
-                string header = newColumnHeaders[headerIndex];
-                var clm = new DataGridViewTextBoxColumn();
-                clm.Name = clmPrefix + header;
-                clm.HeaderText = header;
-
-                clm.SortMode = DataGridViewColumnSortMode.NotSortable;
-                //To allow 2 power 32 columns.
-                clm.FillWeight = 1;
-
-                clms[headerIndex] = clm;
-            }
-
-            dgvFastResults.Columns.AddRange(clms);
-
-            if (cboDrillDown.SelectedIndex == 0) SetOverallFastConcurrencyResults(); else SetOverallFastRunResults();
-        }
+        private void btnExport_Click(object sender, EventArgs e) { eventView.Export(); }
 
         #endregion
-
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
-        private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
-            e.Value = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows[e.RowIndex][e.ColumnIndex] : _runStresstestMetricsRows[e.RowIndex][e.ColumnIndex];
-        }
-        /// <summary>
-        ///     When the row count changes.
-        /// </summary>
-        private void KeepFastResultsAtEnd() {
-            if (_keepFastResultsAtEnd && dgvFastResults.RowCount != 0) {
-                dgvFastResults.Scroll -= dgvFastResults_Scroll;
-                dgvFastResults.FirstDisplayedScrollingRowIndex = dgvFastResults.RowCount - 1;
-                dgvFastResults.Scroll += dgvFastResults_Scroll;
-            }
-        }
-
-        private void dgvFastResults_Scroll(object sender, ScrollEventArgs e) {
-            var verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
-                                                        .GetValue(dgvFastResults) as ScrollBar;
-            _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >= verticalScrollBar.Maximum;
-        }
     }
 }

@@ -32,6 +32,10 @@ namespace vApus.DistributedTesting
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.pnlFastResultListing = new System.Windows.Forms.Panel();
+            this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
+            this.lblFastResults = new System.Windows.Forms.Label();
+            this.lblUpdatesIn = new System.Windows.Forms.Label();
+            this.lbtnStresstest = new vApus.Util.LinkButton();
             this.flpFastMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorder = new System.Windows.Forms.Panel();
@@ -41,14 +45,9 @@ namespace vApus.DistributedTesting
             this.lblStopped = new System.Windows.Forms.Label();
             this.chkReadable = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
+            this.eventView = new vApus.Util.EventView();
             this.flpMetricsMaster = new System.Windows.Forms.FlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
-            this.btnMasterExportMessages = new System.Windows.Forms.Button();
-            this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblFastResults = new System.Windows.Forms.Label();
-            this.lblUpdatesIn = new System.Windows.Forms.Label();
-            this.lbtnStresstest = new vApus.Util.LinkButton();
-            this.eventView = new vApus.Util.EventView();
             this.kvpRunningTests = new vApus.Util.KeyValuePairControl();
             this.kvpOK = new vApus.Util.KeyValuePairControl();
             this.kvpCancelled = new vApus.Util.KeyValuePairControl();
@@ -58,16 +57,17 @@ namespace vApus.DistributedTesting
             this.kvmMasterMemoryUsage = new vApus.Util.KeyValuePairControl();
             this.kvmMasterNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmMasterNicsReceived = new vApus.Util.KeyValuePairControl();
+            this.btnMasterExportMessages = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFastResults)).BeginInit();
             this.pnlFastResultListing.SuspendLayout();
+            this.flpFastResultsHeader.SuspendLayout();
             this.flpFastMetrics.SuspendLayout();
             this.pnlBorder.SuspendLayout();
             this.flpMetricsMaster.SuspendLayout();
-            this.flpFastResultsHeader.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer
@@ -129,6 +129,67 @@ namespace vApus.DistributedTesting
             this.pnlFastResultListing.Size = new System.Drawing.Size(937, 100);
             this.pnlFastResultListing.TabIndex = 0;
             this.pnlFastResultListing.Text = "Fast Results";
+            // 
+            // flpFastResultsHeader
+            // 
+            this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpFastResultsHeader.AutoScroll = true;
+            this.flpFastResultsHeader.Controls.Add(this.lblFastResults);
+            this.flpFastResultsHeader.Controls.Add(this.lblUpdatesIn);
+            this.flpFastResultsHeader.Controls.Add(this.lbtnStresstest);
+            this.flpFastResultsHeader.Location = new System.Drawing.Point(0, 0);
+            this.flpFastResultsHeader.Margin = new System.Windows.Forms.Padding(0);
+            this.flpFastResultsHeader.Name = "flpFastResultsHeader";
+            this.flpFastResultsHeader.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.flpFastResultsHeader.Size = new System.Drawing.Size(897, 40);
+            this.flpFastResultsHeader.TabIndex = 1;
+            // 
+            // lblFastResults
+            // 
+            this.lblFastResults.AutoSize = true;
+            this.lblFastResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblFastResults.ForeColor = System.Drawing.Color.Black;
+            this.lblFastResults.Location = new System.Drawing.Point(3, 9);
+            this.lblFastResults.Margin = new System.Windows.Forms.Padding(3, 6, 5, 3);
+            this.lblFastResults.Name = "lblFastResults";
+            this.lblFastResults.Size = new System.Drawing.Size(99, 20);
+            this.lblFastResults.TabIndex = 17;
+            this.lblFastResults.Text = "Fast Results";
+            // 
+            // lblUpdatesIn
+            // 
+            this.lblUpdatesIn.AutoSize = true;
+            this.lblUpdatesIn.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUpdatesIn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblUpdatesIn.Location = new System.Drawing.Point(107, 10);
+            this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 7, 6, 3);
+            this.lblUpdatesIn.Name = "lblUpdatesIn";
+            this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
+            this.lblUpdatesIn.TabIndex = 9999;
+            // 
+            // lbtnStresstest
+            // 
+            this.lbtnStresstest.Active = true;
+            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.AutoSize = true;
+            this.lbtnStresstest.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnStresstest.ForeColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.lbtnStresstest.LinkColor = System.Drawing.Color.Black;
+            this.lbtnStresstest.Location = new System.Drawing.Point(118, 9);
+            this.lbtnStresstest.Margin = new System.Windows.Forms.Padding(5, 6, 0, 3);
+            this.lbtnStresstest.Name = "lbtnStresstest";
+            this.lbtnStresstest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.lbtnStresstest.RadioButtonBehavior = true;
+            this.lbtnStresstest.Size = new System.Drawing.Size(97, 22);
+            this.lbtnStresstest.TabIndex = 0;
+            this.lbtnStresstest.TabStop = true;
+            this.lbtnStresstest.Text = "The Stresstest";
+            this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbtnStresstest.Visible = false;
+            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Black;
             // 
             // flpFastMetrics
             // 
@@ -227,6 +288,7 @@ namespace vApus.DistributedTesting
             this.chkReadable.TabIndex = 4;
             this.chkReadable.Text = "Readable";
             this.chkReadable.UseVisualStyleBackColor = true;
+            this.chkReadable.CheckedChanged += new System.EventHandler(this.chkReadable_CheckedChanged);
             // 
             // btnSaveDisplayedResults
             // 
@@ -245,6 +307,15 @@ namespace vApus.DistributedTesting
             this.btnSaveDisplayedResults.Text = "Save All Displayed Results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
+            // 
+            // eventView
+            // 
+            this.eventView.BackColor = System.Drawing.Color.White;
+            this.eventView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.eventView.Location = new System.Drawing.Point(0, 61);
+            this.eventView.Name = "eventView";
+            this.eventView.Size = new System.Drawing.Size(937, 135);
+            this.eventView.TabIndex = 2;
             // 
             // flpMetricsMaster
             // 
@@ -279,94 +350,6 @@ namespace vApus.DistributedTesting
             this.label5.Size = new System.Drawing.Size(312, 20);
             this.label5.TabIndex = 19;
             this.label5.Text = "Client Monitoring and Stresstest Messages";
-            // 
-            // btnMasterExportMessages
-            // 
-            this.btnMasterExportMessages.AutoSize = true;
-            this.btnMasterExportMessages.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnMasterExportMessages.BackColor = System.Drawing.SystemColors.Control;
-            this.btnMasterExportMessages.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
-            this.btnMasterExportMessages.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMasterExportMessages.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMasterExportMessages.Location = new System.Drawing.Point(450, 31);
-            this.btnMasterExportMessages.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
-            this.btnMasterExportMessages.MaximumSize = new System.Drawing.Size(127, 24);
-            this.btnMasterExportMessages.Name = "btnMasterExportMessages";
-            this.btnMasterExportMessages.Size = new System.Drawing.Size(127, 24);
-            this.btnMasterExportMessages.TabIndex = 14;
-            this.btnMasterExportMessages.Text = "Export Messages...";
-            this.btnMasterExportMessages.UseVisualStyleBackColor = false;
-            this.btnMasterExportMessages.Click += new System.EventHandler(this.btnExport_Click);
-            // 
-            // flpFastResultsHeader
-            // 
-            this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpFastResultsHeader.AutoScroll = true;
-            this.flpFastResultsHeader.Controls.Add(this.lblFastResults);
-            this.flpFastResultsHeader.Controls.Add(this.lblUpdatesIn);
-            this.flpFastResultsHeader.Controls.Add(this.lbtnStresstest);
-            this.flpFastResultsHeader.Location = new System.Drawing.Point(0, 0);
-            this.flpFastResultsHeader.Margin = new System.Windows.Forms.Padding(0);
-            this.flpFastResultsHeader.Name = "flpFastResultsHeader";
-            this.flpFastResultsHeader.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.flpFastResultsHeader.Size = new System.Drawing.Size(897, 40);
-            this.flpFastResultsHeader.TabIndex = 1;
-            // 
-            // lblFastResults
-            // 
-            this.lblFastResults.AutoSize = true;
-            this.lblFastResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFastResults.ForeColor = System.Drawing.Color.Black;
-            this.lblFastResults.Location = new System.Drawing.Point(3, 9);
-            this.lblFastResults.Margin = new System.Windows.Forms.Padding(3, 6, 5, 3);
-            this.lblFastResults.Name = "lblFastResults";
-            this.lblFastResults.Size = new System.Drawing.Size(99, 20);
-            this.lblFastResults.TabIndex = 17;
-            this.lblFastResults.Text = "Fast Results";
-            // 
-            // lblUpdatesIn
-            // 
-            this.lblUpdatesIn.AutoSize = true;
-            this.lblUpdatesIn.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUpdatesIn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lblUpdatesIn.Location = new System.Drawing.Point(107, 10);
-            this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 7, 6, 3);
-            this.lblUpdatesIn.Name = "lblUpdatesIn";
-            this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
-            this.lblUpdatesIn.TabIndex = 9999;
-            // 
-            // lbtnStresstest
-            // 
-            this.lbtnStresstest.Active = true;
-            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.AutoSize = true;
-            this.lbtnStresstest.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.lbtnStresstest.ForeColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.lbtnStresstest.LinkColor = System.Drawing.Color.Black;
-            this.lbtnStresstest.Location = new System.Drawing.Point(118, 9);
-            this.lbtnStresstest.Margin = new System.Windows.Forms.Padding(5, 6, 0, 3);
-            this.lbtnStresstest.Name = "lbtnStresstest";
-            this.lbtnStresstest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.lbtnStresstest.RadioButtonBehavior = true;
-            this.lbtnStresstest.Size = new System.Drawing.Size(97, 22);
-            this.lbtnStresstest.TabIndex = 0;
-            this.lbtnStresstest.TabStop = true;
-            this.lbtnStresstest.Text = "The Stresstest";
-            this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnStresstest.Visible = false;
-            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Black;
-            // 
-            // eventView
-            // 
-            this.eventView.BackColor = System.Drawing.Color.White;
-            this.eventView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.eventView.Location = new System.Drawing.Point(0, 61);
-            this.eventView.Name = "eventView";
-            this.eventView.Size = new System.Drawing.Size(937, 135);
-            this.eventView.TabIndex = 2;
             // 
             // kvpRunningTests
             // 
@@ -489,6 +472,24 @@ namespace vApus.DistributedTesting
             this.kvmMasterNicsReceived.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
             this.kvmMasterNicsReceived.Value = "N/A";
             // 
+            // btnMasterExportMessages
+            // 
+            this.btnMasterExportMessages.AutoSize = true;
+            this.btnMasterExportMessages.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnMasterExportMessages.BackColor = System.Drawing.SystemColors.Control;
+            this.btnMasterExportMessages.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnMasterExportMessages.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMasterExportMessages.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMasterExportMessages.Location = new System.Drawing.Point(450, 31);
+            this.btnMasterExportMessages.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
+            this.btnMasterExportMessages.MaximumSize = new System.Drawing.Size(127, 24);
+            this.btnMasterExportMessages.Name = "btnMasterExportMessages";
+            this.btnMasterExportMessages.Size = new System.Drawing.Size(127, 24);
+            this.btnMasterExportMessages.TabIndex = 14;
+            this.btnMasterExportMessages.Text = "Export Messages...";
+            this.btnMasterExportMessages.UseVisualStyleBackColor = false;
+            this.btnMasterExportMessages.Click += new System.EventHandler(this.btnExport_Click);
+            // 
             // OveralFastResultsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -503,13 +504,13 @@ namespace vApus.DistributedTesting
             this.splitContainer.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvFastResults)).EndInit();
             this.pnlFastResultListing.ResumeLayout(false);
+            this.flpFastResultsHeader.ResumeLayout(false);
+            this.flpFastResultsHeader.PerformLayout();
             this.flpFastMetrics.ResumeLayout(false);
             this.flpFastMetrics.PerformLayout();
             this.pnlBorder.ResumeLayout(false);
             this.flpMetricsMaster.ResumeLayout(false);
             this.flpMetricsMaster.PerformLayout();
-            this.flpFastResultsHeader.ResumeLayout(false);
-            this.flpFastResultsHeader.PerformLayout();
             this.ResumeLayout(false);
 
         }

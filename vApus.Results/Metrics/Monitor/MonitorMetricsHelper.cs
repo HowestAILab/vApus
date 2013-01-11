@@ -9,17 +9,14 @@ using System;
 using System.Collections.Generic;
 using vApus.Util;
 
-namespace vApus.Results
-{
-    public static class MonitorMetricsHelper
-    {
+namespace vApus.Results {
+    public static class MonitorMetricsHelper {
         #region Fields
         //private static string[] _metricsHeadersConcurrency, _metricsHeadersRun;
         #endregion
 
         #region Functions
-        public static string[] GetMetricsHeadersConcurrency(string[] monitorHeaders, bool readable)
-        {
+        public static string[] GetMetricsHeadersConcurrency(string[] monitorHeaders, bool readable) {
             //if (_metricsHeadersConcurrency == null)
             //{
             var l = new List<string>(monitorHeaders.Length + 3);
@@ -32,8 +29,7 @@ namespace vApus.Results
             //}
             //return _metricsHeadersConcurrency;
         }
-        public static string[] GetMetricsHeadersRun(string[] monitorHeaders, bool readable)
-        {
+        public static string[] GetMetricsHeadersRun(string[] monitorHeaders, bool readable) {
             //if (_metricsHeadersRun == null)
             //{
             var l = new List<string>(monitorHeaders.Length + 4);
@@ -47,8 +43,7 @@ namespace vApus.Results
             //}
             //return _metricsHeadersRun;
         }
-        private static List<string> GetFormattedHeaders(string[] headers)
-        {
+        private static List<string> GetFormattedHeaders(string[] headers) {
             string avg = "Avg. ";
             var l = new List<string>(headers.Length);
             foreach (string header in headers)
@@ -56,8 +51,7 @@ namespace vApus.Results
             return l;
         }
 
-        public static MonitorMetrics GetMetrics(ConcurrencyResult result, MonitorResultCache monitorResultCache)
-        {
+        public static MonitorMetrics GetMetrics(ConcurrencyResult result, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitorResultCache.Monitor;
             metrics.StartMeasuringRuntime = result.StartedAt;
@@ -67,18 +61,36 @@ namespace vApus.Results
 
             //Done this way to strip the monitor values during vApus think times between the runs.
             var monitorValues = new Dictionary<DateTime, float[]>();
-            foreach (var runResult in result.RunResults)
-            {
+            foreach (var runResult in result.RunResults) {
                 var part = GetMonitorValues(runResult.StartedAt, runResult.StoppedAt == DateTime.MinValue ? DateTime.MaxValue : runResult.StoppedAt, monitorResultCache);
-                foreach (var key in part.Keys) if(!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
+                foreach (var key in part.Keys) if (!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
             }
 
             SetAverageMonitorResults(metrics, monitorValues);
 
             return metrics;
         }
-        public static MonitorMetrics GetMetrics(RunResult result, MonitorResultCache monitorResultCache)
-        {
+        public static MonitorMetrics GetMetrics(string monitor, StresstestMetrics concurrencyMetrics, List<StresstestMetrics> runMetrics, MonitorResultCache monitorResultCache) {
+            var metrics = new MonitorMetrics();
+            metrics.Monitor = monitor;
+            metrics.StartMeasuringRuntime = concurrencyMetrics.StartMeasuringRuntime;
+            metrics.MeasuredRunTime = concurrencyMetrics.MeasuredRunTime;
+            metrics.ConcurrentUsers = concurrencyMetrics.ConcurrentUsers;
+            metrics.Headers = monitorResultCache.Headers;
+
+            //Done this way to strip the monitor values during vApus think times between the runs.
+            var monitorValues = new Dictionary<DateTime, float[]>();
+            foreach (var rms in runMetrics) {
+                var stoppedAt = rms.StartMeasuringRuntime + rms.MeasuredRunTime;
+                var part = GetMonitorValues(rms.StartMeasuringRuntime, stoppedAt == rms.StartMeasuringRuntime ? DateTime.MaxValue : stoppedAt, monitorResultCache);
+                foreach (var key in part.Keys) if (!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
+            }
+
+            SetAverageMonitorResults(metrics, monitorValues);
+
+            return metrics;
+        }
+        public static MonitorMetrics GetMetrics(RunResult result, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitorResultCache.Monitor;
             metrics.StartMeasuringRuntime = result.StartedAt;
@@ -91,20 +103,32 @@ namespace vApus.Results
 
             return metrics;
         }
+
+        public static MonitorMetrics GetMetrics(string monitor, StresstestMetrics runMetrics, MonitorResultCache monitorResultCache) {
+            var metrics = new MonitorMetrics();
+            metrics.Monitor = monitor;
+            metrics.StartMeasuringRuntime = runMetrics.StartMeasuringRuntime;
+            metrics.MeasuredRunTime = runMetrics.MeasuredRunTime;
+            metrics.ConcurrentUsers = runMetrics.ConcurrentUsers;
+            metrics.Run = runMetrics.Run;
+            metrics.Headers = monitorResultCache.Headers;
+
+            var stoppedAt = runMetrics.StartMeasuringRuntime + runMetrics.MeasuredRunTime;
+            SetAverageMonitorResults(metrics, GetMonitorValues(runMetrics.StartMeasuringRuntime, stoppedAt == runMetrics.StartMeasuringRuntime ? DateTime.MaxValue : stoppedAt, monitorResultCache));
+
+            return metrics;
+        }
         /// <summary>
         ///     Returns monitor values filtered.
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        private static Dictionary<DateTime, float[]> GetMonitorValues(DateTime from, DateTime to, MonitorResultCache monitorResultCache)
-        {
+        private static Dictionary<DateTime, float[]> GetMonitorValues(DateTime from, DateTime to, MonitorResultCache monitorResultCache) {
             var monitorValues = new Dictionary<DateTime, float[]>();
-            foreach (var row in monitorResultCache.Rows)
-            {
+            foreach (var row in monitorResultCache.Rows) {
                 var timestamp = (DateTime)row[0];
-                if (timestamp >= from && timestamp <= to)
-                {
+                if (timestamp >= from && timestamp <= to) {
                     var values = new float[row.Length - 1];
                     for (int i = 0; i != values.Length; i++)
                         values[i] = (float)row[i + 1];
@@ -115,24 +139,20 @@ namespace vApus.Results
             }
             return monitorValues;
         }
-        private static void SetAverageMonitorResults(MonitorMetrics metrics, Dictionary<DateTime, float[]> values)
-        {
+        private static void SetAverageMonitorResults(MonitorMetrics metrics, Dictionary<DateTime, float[]> values) {
             metrics.AverageMonitorResults = new float[0];
-            if (values.Count != 0)
-            {
+            if (values.Count != 0) {
                 //Average divider
                 int valueCount = values.Count;
                 metrics.AverageMonitorResults = new float[valueCount];
 
-                foreach (var key in values.Keys)
-                {
+                foreach (var key in values.Keys) {
                     var floats = values[key];
 
                     // The averages length must be the same as the floats length.
                     if (metrics.AverageMonitorResults.Length != floats.Length) metrics.AverageMonitorResults = new float[floats.Length];
 
-                    for (int i = 0; i != floats.Length; i++)
-                    {
+                    for (int i = 0; i != floats.Length; i++) {
                         float value = floats[i], average = metrics.AverageMonitorResults[i];
 
                         if (value == -1) //Detect invalid values.
@@ -144,14 +164,12 @@ namespace vApus.Results
             }
         }
 
-        public static List<object[]> MetricsToRows(List<MonitorMetrics> metrics, bool readable)
-        {
+        public static List<object[]> MetricsToRows(List<MonitorMetrics> metrics, bool readable) {
             var rows = new List<object[]>(metrics.Count);
             foreach (var m in metrics) rows.Add(readable ? ReadableMetricsToRow(m) : CalculatableMetricsToRow(m));
             return rows;
         }
-        private static object[] ReadableMetricsToRow(MonitorMetrics metrics)
-        {
+        private static object[] ReadableMetricsToRow(MonitorMetrics metrics) {
             var row = new List<object>(metrics.AverageMonitorResults.Length + 4);
             row.Add(metrics.StartMeasuringRuntime.ToString());
             row.Add(metrics.MeasuredRunTime.ToShortFormattedString());
@@ -162,8 +180,7 @@ namespace vApus.Results
 
             return row.ToArray();
         }
-        private static object[] CalculatableMetricsToRow(MonitorMetrics metrics)
-        {
+        private static object[] CalculatableMetricsToRow(MonitorMetrics metrics) {
             var row = new List<object>(metrics.AverageMonitorResults.Length + 4);
             row.Add(metrics.StartMeasuringRuntime.ToString());
             row.Add(Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2));
