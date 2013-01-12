@@ -70,7 +70,7 @@ namespace vApus.Results {
 
             return metrics;
         }
-        public static MonitorMetrics GetMetrics(string monitor, StresstestMetrics concurrencyMetrics, List<StresstestMetrics> runMetrics, MonitorResultCache monitorResultCache) {
+        public static MonitorMetrics GetConcurrencyMetrics(string monitor, StresstestMetrics concurrencyMetrics, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitor;
             metrics.StartMeasuringRuntime = concurrencyMetrics.StartMeasuringRuntime;
@@ -80,9 +80,8 @@ namespace vApus.Results {
 
             //Done this way to strip the monitor values during vApus think times between the runs.
             var monitorValues = new Dictionary<DateTime, float[]>();
-            foreach (var rms in runMetrics) {
-                var stoppedAt = rms.StartMeasuringRuntime + rms.MeasuredRunTime;
-                var part = GetMonitorValues(rms.StartMeasuringRuntime, stoppedAt == rms.StartMeasuringRuntime ? DateTime.MaxValue : stoppedAt, monitorResultCache);
+            foreach (var kvp in concurrencyMetrics.StartsAndStopsRuns) {
+                var part = GetMonitorValues(kvp.Key, kvp.Value == DateTime.MinValue ? DateTime.MaxValue : kvp.Value, monitorResultCache);
                 foreach (var key in part.Keys) if (!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
             }
 
@@ -104,7 +103,7 @@ namespace vApus.Results {
             return metrics;
         }
 
-        public static MonitorMetrics GetMetrics(string monitor, StresstestMetrics runMetrics, MonitorResultCache monitorResultCache) {
+        public static MonitorMetrics GetRunMetrics(string monitor, StresstestMetrics runMetrics, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitor;
             metrics.StartMeasuringRuntime = runMetrics.StartMeasuringRuntime;

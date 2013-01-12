@@ -170,6 +170,21 @@ namespace vApus.DistributedTesting {
                 fastResultsControl.Visible = true;
                 distributedStresstestControl.Visible = false;
 
+                fastResultsControl.SetConfigurationControlsAndMonitorLinkButtons(tstvi.TileStresstest.ToString(),
+                   tstvi.TileStresstest.BasicTileStresstest.Connection,
+                   tstvi.TileStresstest.BasicTileStresstest.ConnectionProxy,
+                   tstvi.TileStresstest.AdvancedTileStresstest.Log,
+                   tstvi.TileStresstest.AdvancedTileStresstest.LogRuleSet,
+                   tstvi.TileStresstest.BasicTileStresstest.Monitors,
+                   tstvi.TileStresstest.AdvancedTileStresstest.Concurrency,
+                   tstvi.TileStresstest.AdvancedTileStresstest.Runs,
+                   tstvi.TileStresstest.AdvancedTileStresstest.MinimumDelay,
+                   tstvi.TileStresstest.AdvancedTileStresstest.MaximumDelay,
+                   tstvi.TileStresstest.AdvancedTileStresstest.Shuffle,
+                   tstvi.TileStresstest.AdvancedTileStresstest.Distribute,
+                   tstvi.TileStresstest.AdvancedTileStresstest.MonitorBefore,
+                   tstvi.TileStresstest.AdvancedTileStresstest.MonitorAfter);
+
                 if (_distributedTestCore != null) {
                     if (_distributedTestCore.TestProgressMessages.ContainsKey(tstvi.TileStresstest))
                         SetSlaveProgress(tstvi.TileStresstest, _distributedTestCore.TestProgressMessages[tstvi.TileStresstest]);
@@ -206,18 +221,14 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        private void tmrSetGui_Tick(object sender, EventArgs e) {
-            SetGui();
-        }
+        private void tmrSetGui_Tick(object sender, EventArgs e) { SetGui(); }
 
         private void SetGui() {
             string tests = "Tests (" + UsedTileStresstestCount + "/" + TileStresstestCount + ")";
-            if (tpTests.Text != tests)
-                tpTests.Text = tests;
+            if (tpTests.Text != tests) tpTests.Text = tests;
 
             string slaves = "Slaves (" + UsedSlaveCount + "/" + SlaveCount + ")";
-            if (tpSlaves.Text != slaves)
-                tpSlaves.Text = slaves;
+            if (tpSlaves.Text != slaves) tpSlaves.Text = slaves;
 
             testTreeView.SetGui();
             slaveTreeView.SetGui();
@@ -270,6 +281,7 @@ namespace vApus.DistributedTesting {
             if (_distributedTestMode == DistributedTestMode.TestAndReport) {
                 btnStart.Enabled = false;
                 if (scheduled) tmrSchedule.Start(); else btnSchedule.Text = "Schedule...";
+                //tcTree.SelectedTab = tpTests;
             }
             else {
                 btnStart.Enabled = !testTreeView.Exclamation;
@@ -555,16 +567,21 @@ namespace vApus.DistributedTesting {
             SetSlaveProgressInTreeView(tileStresstest, testProgressMessage);
         }
         private void UpdateMonitorMetricsCaches(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
-            foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
-                foreach (var metrics in testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics()) 
-                {
-                    var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
-                    //fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.AddOrUpdate(
-                }
-            //if(testProgressMessage.StresstestMetricsCache.
-            }
-            //  fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
+            if (_monitorViews.ContainsKey(tileStresstest)) {
+                _monitorMetricsCaches[tileStresstest] = new MonitorMetricsCache();
+                var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
 
+                foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
+                    foreach (var concurrencyMetrics in testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics()) {
+                        var monitorMetrics = MonitorMetricsHelper.GetConcurrencyMetrics(monitorResultCache.Monitor, concurrencyMetrics, monitorResultCache);
+                        monitorMetricsCache.Add(monitorMetrics);
+                    }
+                    foreach (var runMetrics in testProgressMessage.StresstestMetricsCache.GetRunMetrics()) {
+                        var monitorMetrics = MonitorMetricsHelper.GetRunMetrics(monitorResultCache.Monitor, runMetrics, monitorResultCache);
+                        monitorMetricsCache.Add(monitorMetrics);
+                    }
+                }
+            }
         }
 
         private void SetOverallProgress() {
@@ -635,20 +652,6 @@ namespace vApus.DistributedTesting {
                                                       testProgressMessage.ContextSwitchesPerSecond, (int)testProgressMessage.MemoryUsage,
                                                       (int)testProgressMessage.TotalVisibleMemory,
                                                       testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
-                fastResultsControl.SetConfigurationControlsAndMonitorLinkButtons(tileStresstest.ToString(),
-                                                           tileStresstest.BasicTileStresstest.Connection,
-                                                           tileStresstest.BasicTileStresstest.ConnectionProxy,
-                                                           tileStresstest.AdvancedTileStresstest.Log,
-                                                           tileStresstest.AdvancedTileStresstest.LogRuleSet,
-                                                           tileStresstest.BasicTileStresstest.Monitors,
-                                                           tileStresstest.AdvancedTileStresstest.Concurrency,
-                                                           tileStresstest.AdvancedTileStresstest.Runs,
-                                                           tileStresstest.AdvancedTileStresstest.MinimumDelay,
-                                                           tileStresstest.AdvancedTileStresstest.MaximumDelay,
-                                                           tileStresstest.AdvancedTileStresstest.Shuffle,
-                                                           tileStresstest.AdvancedTileStresstest.Distribute,
-                                                           tileStresstest.AdvancedTileStresstest.MonitorBefore,
-                                                           tileStresstest.AdvancedTileStresstest.MonitorAfter);
             }
         }
         private void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -807,8 +810,6 @@ namespace vApus.DistributedTesting {
                     monitorAfter = false;
                 }
 
-            if (!monitorAfter) StopMonitors();
-
             Cursor = Cursors.Default;
 
             int runningMonitors = 0;
@@ -828,6 +829,7 @@ namespace vApus.DistributedTesting {
                 monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
                 monitorAfterCountdown.Start();
             }
+            else { StopMonitors(); }
         }
 
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {

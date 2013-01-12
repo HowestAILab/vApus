@@ -40,28 +40,28 @@
             // 
             // solutionComponentPropertyPanelBasic
             // 
-            this.solutionComponentPropertyPanelBasic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.solutionComponentPropertyPanelBasic.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.solutionComponentPropertyPanelBasic.AutoSelectControl = false;
             this.solutionComponentPropertyPanelBasic.BackColor = System.Drawing.Color.White;
             this.solutionComponentPropertyPanelBasic.Location = new System.Drawing.Point(0, 11);
             this.solutionComponentPropertyPanelBasic.MaximumSize = new System.Drawing.Size(360, 99999);
             this.solutionComponentPropertyPanelBasic.Name = "solutionComponentPropertyPanelBasic";
-            this.solutionComponentPropertyPanelBasic.Size = new System.Drawing.Size(360, 489);
+            this.solutionComponentPropertyPanelBasic.Size = new System.Drawing.Size(360, 472);
             this.solutionComponentPropertyPanelBasic.SolutionComponent = null;
             this.solutionComponentPropertyPanelBasic.TabIndex = 1;
             this.solutionComponentPropertyPanelBasic.Visible = false;
             // 
             // solutionComponentPropertyPanelAdvanced
             // 
-            this.solutionComponentPropertyPanelAdvanced.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.solutionComponentPropertyPanelAdvanced.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.solutionComponentPropertyPanelAdvanced.AutoSelectControl = false;
             this.solutionComponentPropertyPanelAdvanced.Location = new System.Drawing.Point(363, 91);
             this.solutionComponentPropertyPanelAdvanced.Margin = new System.Windows.Forms.Padding(0);
-            this.solutionComponentPropertyPanelAdvanced.MaximumSize = new System.Drawing.Size(360, 99999);
+            this.solutionComponentPropertyPanelAdvanced.MaximumSize = new System.Drawing.Size(376, 99999);
             this.solutionComponentPropertyPanelAdvanced.Name = "solutionComponentPropertyPanelAdvanced";
-            this.solutionComponentPropertyPanelAdvanced.Size = new System.Drawing.Size(360, 409);
+            this.solutionComponentPropertyPanelAdvanced.Size = new System.Drawing.Size(376, 392);
             this.solutionComponentPropertyPanelAdvanced.SolutionComponent = null;
             this.solutionComponentPropertyPanelAdvanced.TabIndex = 0;
             this.solutionComponentPropertyPanelAdvanced.Visible = false;
@@ -84,12 +84,12 @@
             this.lblUsage.AutoSize = true;
             this.lblUsage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUsage.ForeColor = System.Drawing.Color.DimGray;
-            this.lblUsage.Location = new System.Drawing.Point(117, 237);
+            this.lblUsage.Location = new System.Drawing.Point(125, 228);
             this.lblUsage.Name = "lblUsage";
             this.lblUsage.Size = new System.Drawing.Size(489, 26);
             this.lblUsage.TabIndex = 3;
             this.lblUsage.Text = "Add Tiles to the Distributed Test and Tile Stresstests to a Tile clicking the \'+ " +
-                "button\'.\r\nSelect a Tile Stresstest to configure it.";
+    "button\'.\r\nSelect a Tile Stresstest to configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lblUseRDP
@@ -103,8 +103,8 @@
             this.lblUseRDP.Size = new System.Drawing.Size(553, 26);
             this.lblUseRDP.TabIndex = 4;
             this.lblUseRDP.Text = "Check \'Use RDP\' if you want vApus to open remote desktop connections to the used " +
-                "clients.\r\nRegardless if you check it or not, you need to be logged into the clie" +
-                "nts to be able to stresstest.";
+    "clients.\r\nRegardless if you check it or not, you need to be logged into the clie" +
+    "nts to be able to stresstest.";
             this.lblUseRDP.Visible = false;
             // 
             // lblRunSync
@@ -146,7 +146,7 @@
             this.Controls.Add(this.llblShowHideAdvancedSettings);
             this.Controls.Add(this.defaultAdvancedSettingsToControl);
             this.Name = "ConfigureTileStresstest";
-            this.Size = new System.Drawing.Size(724, 500);
+            this.Size = new System.Drawing.Size(740, 483);
             this.ResumeLayout(false);
             this.PerformLayout();
 

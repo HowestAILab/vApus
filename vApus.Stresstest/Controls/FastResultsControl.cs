@@ -586,17 +586,13 @@ namespace vApus.Stresstest {
             LockWindowUpdate(0);
         }
 
-        public void ClearEvents() {
-            epnlMessages.ClearEvents();
-        }
+        public void ClearEvents() { epnlMessages.ClearEvents(); }
 
         /// <summary>
         ///     Show event message at the right date time, use this if you have an external event progress bar.
         /// </summary>
         /// <param name="at"></param>
-        public void ShowEvent(DateTime at) {
-            epnlMessages.ShowEvent(at);
-        }
+        public void ShowEvent(DateTime at) { epnlMessages.ShowEvent(at); }
 
         private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) {
             if (lbtnStresstest.Active) SetFastResultsOnGuiInteraction();

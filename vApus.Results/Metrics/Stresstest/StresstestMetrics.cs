@@ -9,6 +9,8 @@
 using System;
 using System.Runtime.Serialization;
 using vApus.Util;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace vApus.Results
 {
@@ -31,6 +33,8 @@ namespace vApus.Results
         ///     Stays 0 for concurrency level metrics.
         /// </summary>
         public int RerunCount { get; set; }
+
+        public List<KeyValuePair<DateTime, DateTime>> StartsAndStopsRuns { get; set; }
 
         public long LogEntries { get; set; }
 
@@ -59,7 +63,7 @@ namespace vApus.Results
             }
         }
 
-        public StresstestMetrics() { }
+        public StresstestMetrics() { StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>(); }
 
         public StresstestMetrics(SerializationInfo info, StreamingContext ctxt)
         {
@@ -69,6 +73,9 @@ namespace vApus.Results
             MeasuredRunTime = sr.ReadTimeSpan();
             ConcurrentUsers = sr.ReadInt32();
             Run = sr.ReadInt32();
+            RerunCount = sr.ReadInt32();
+            StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>();
+            StartsAndStopsRuns = sr.ReadCollection<KeyValuePair<DateTime, DateTime>>(StartsAndStopsRuns) as List<KeyValuePair<DateTime, DateTime>>;
             LogEntries = sr.ReadInt64();
             _logEntriesProcessed = sr.ReadInt64();
             ResponsesPerSecond = sr.ReadDouble();
@@ -86,6 +93,8 @@ namespace vApus.Results
             sw.Write(MeasuredRunTime);
             sw.Write(ConcurrentUsers);
             sw.Write(Run);
+            sw.Write(RerunCount);
+            sw.Write(StartsAndStopsRuns);
             sw.Write(LogEntries);
             sw.Write(_logEntriesProcessed);
             sw.Write(ResponsesPerSecond);
