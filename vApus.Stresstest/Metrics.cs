@@ -5,35 +5,32 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
-using vApus.Util;
 using System.Runtime.Serialization;
+using vApus.Util;
 
 namespace vApus.Stresstest
 {
     [Serializable]
     public struct Metrics : ISerializable
     {
-        public DateTime StartMeasuringRuntime;
-        public TimeSpan MeasuredRunTime, AverageTimeToLastByte, MaxTimeToLastByte, Percentile95MaxTimeToLastByte, AverageDelay;
-        public ulong TotalLogEntries;
-        private ulong _totalLogEntriesProcessed;
-        public double TotalLogEntriesProcessedPerTick;
+        public TimeSpan AverageDelay;
+        public TimeSpan AverageTimeToLastByte;
+
         public ulong Errors;
 
-        /// <summary>
-        /// The setter makes sure this cannot exceed the Total Log Entries.
-        /// </summary>
-        public ulong TotalLogEntriesProcessed
-        {
-            get { return _totalLogEntriesProcessed; }
-            set
-            {
-                if (value > TotalLogEntries)
-                    value = TotalLogEntries;
-                _totalLogEntriesProcessed = value;
-            }
-        }
+        public TimeSpan MaxTimeToLastByte;
+
+        public TimeSpan MeasuredRunTime;
+
+        public TimeSpan Percentile95MaxTimeToLastByte;
+
+        public DateTime StartMeasuringRuntime;
+
+        public ulong TotalLogEntries;
+        public double TotalLogEntriesProcessedPerTick;
+        private ulong _totalLogEntriesProcessed;
 
         public Metrics(SerializationInfo info, StreamingContext ctxt)
         {
@@ -48,6 +45,20 @@ namespace vApus.Stresstest
             _totalLogEntriesProcessed = sr.ReadUInt64();
             TotalLogEntriesProcessedPerTick = sr.ReadDouble();
             Errors = sr.ReadUInt64();
+        }
+
+        /// <summary>
+        ///     The setter makes sure this cannot exceed the Total Log Entries.
+        /// </summary>
+        public ulong TotalLogEntriesProcessed
+        {
+            get { return _totalLogEntriesProcessed; }
+            set
+            {
+                if (value > TotalLogEntries)
+                    value = TotalLogEntries;
+                _totalLogEntriesProcessed = value;
+            }
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)

@@ -172,23 +172,13 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="QuickLZ.Net">
-      <HintPath>..\Prerequisites\QuickLZ.Net\QuickLZ.Net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -209,11 +199,11 @@
     <Compile Include="Connections\TestAllConnections.Designer.cs">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\MonitorReportControl.cs">
+    <Compile Include="Controls\DetailedResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\MonitorReportControl.Designer.cs">
-      <DependentUpon>MonitorReportControl.cs</DependentUpon>
+    <Compile Include="Controls\DetailedResultsControl.Designer.cs">
+      <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
@@ -268,7 +258,6 @@
     <Compile Include="Parameters\ParameterTokenSynchronization.Designer.cs">
       <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>
     </Compile>
-    <Compile Include="RFileHandler.cs" />
     <Compile Include="Connections\ConnectionView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -315,17 +304,11 @@
       <DependentUpon>References.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
-    <Compile Include="Controls\StresstestReportControl.cs">
+    <Compile Include="Controls\FastResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\StresstestReportControl.Designer.cs">
-      <DependentUpon>StresstestReportControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\StresstestControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\StresstestControl.Designer.cs">
-      <DependentUpon>StresstestControl.cs</DependentUpon>
+    <Compile Include="Controls\FastResultsControl.Designer.cs">
+      <DependentUpon>FastResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Delegates.cs" />
     <Compile Include="Logs\Controls\ErrorAndFindSelector.cs">
@@ -414,7 +397,6 @@
     <Compile Include="Stresstest.cs" />
     <Compile Include="StresstestProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StresstestResults.cs" />
     <Compile Include="StresstestView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -426,6 +408,10 @@
     <ProjectReference Include="..\vApus.Monitor\vApus.Monitor.csproj">
       <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
       <Name>vApus.Monitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
+      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
+      <Name>vApus.Results</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>
@@ -468,14 +454,11 @@
     <EmbeddedResource Include="Connections\TestAllConnections.resx">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\MonitorReportControl.resx">
-      <DependentUpon>MonitorReportControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\DetailedResultsControl.resx">
+      <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\StresstestReportControl.resx">
-      <DependentUpon>StresstestReportControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\StresstestControl.resx">
-      <DependentUpon>StresstestControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\FastResultsControl.resx">
+      <DependentUpon>FastResultsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\AddEditLogEntry.resx">
       <DependentUpon>AddEditLogEntry.cs</DependentUpon>

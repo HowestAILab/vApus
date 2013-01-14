@@ -164,13 +164,15 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DiffieHellman">
+    <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SharpSSH\DiffieHellman.dll</HintPath>
     </Reference>
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="Org.Mentalis.Security">
+    <Reference Include="Org.Mentalis.Security, Version=1.0.13.715, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -180,13 +182,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Tamir.SharpSSH">
       <HintPath>..\Prerequisites\SharpSSH\Tamir.SharpSSH.dll</HintPath>
@@ -199,11 +194,6 @@
     <Compile Include="CompilerUnit.cs" />
     <Compile Include="CodeEditing\XMLTextStyle.cs" />
     <Compile Include="CodeEditing\CSharpTextStyle.cs" />
-    <Compile Include="ControlsAndPanels\Charts\ChartTypes\Direct3D\D3D9BaseChart.cs" />
-    <Compile Include="ControlsAndPanels\Charts\ChartTypes\Direct3D\D3D9LineChart.cs" />
-    <Compile Include="ControlsAndPanels\Charts\ChartTypes\GDIPlus\GDIPlusBaseChart.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -218,6 +208,12 @@
     </Compile>
     <Compile Include="ControlsAndPanels\KeyValuePairControl.Designer.cs">
       <DependentUpon>KeyValuePairControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\LabeledTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\LinkButton.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.cs">
       <SubType>Component</SubType>
@@ -241,10 +237,10 @@
       <DependentUpon>EventPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\EventPanel\EventPanelEvent.cs" />
-    <Compile Include="ControlsAndPanels\EventPanel\EventProgressBar\EventProgressBar.cs">
+    <Compile Include="ControlsAndPanels\EventPanel\EventProgressChart\EventProgressChart.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\EventPanel\EventProgressBar\ProgressEvent.cs" />
+    <Compile Include="ControlsAndPanels\EventPanel\EventProgressChart\ProgressEvent.cs" />
     <Compile Include="ControlsAndPanels\EventPanel\EventView\EventViewEventType.cs" />
     <Compile Include="ControlsAndPanels\EventPanel\EventView\EventView.cs">
       <SubType>UserControl</SubType>
@@ -399,37 +395,6 @@
     <Compile Include="Dialogs\OptionsDialog.Designer.cs">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\Charts\Axis\XAxis.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\Axis\XAxis.Designer.cs">
-      <DependentUpon>XAxis.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\Axis\XAxisLabel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\Axis\YAxis.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\Chart.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\Chart.Designer.cs">
-      <DependentUpon>Chart.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\ChartArea.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\ChartArea.Designer.cs">
-      <DependentUpon>ChartArea.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\ChartTypes\ChartType.cs" />
-    <Compile Include="ControlsAndPanels\Charts\ChartTypes\BaseChart.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\ChartTypes\GDIPlus\GDIPlusLineChart.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Dialogs\PostNewIssue.cs" />
     <Compile Include="Dialogs\Schedule.cs">
       <SubType>Form</SubType>
@@ -438,14 +403,6 @@
       <DependentUpon>Schedule.cs</DependentUpon>
     </Compile>
     <Compile Include="DictionaryUtil.cs" />
-    <Compile Include="ControlsAndPanels\Charts\Enums.cs" />
-    <Compile Include="ControlsAndPanels\Charts\Legend.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\Legend.Designer.cs">
-      <DependentUpon>Legend.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Charts\Series.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FastSerializer.cs" />
     <Compile Include="ControlsAndPanels\Logging\ExceptionHelper.cs" />
@@ -457,7 +414,6 @@
       <DependentUpon>LogPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
-    <Compile Include="MultimediaTimer.cs" />
     <Compile Include="ProcessorAffinityCalculator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -476,12 +432,12 @@
     <Compile Include="ControlsAndPanels\RemoteDesktopClient.Designer.cs">
       <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
     </Compile>
+    <Compile Include="ObjectService\NamedObjectRegistrar.cs" />
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />
     <Compile Include="ActiveObject\StaticActiveObjectWrapper.cs" />
-    <Compile Include="ObjectService\ObjectService.cs" />
-    <Compile Include="ObjectService\StaticObjectServiceWrapper.cs" />
+    <Compile Include="ObjectService\ObjectRegistrar.cs" />
     <Compile Include="StringTree.cs" />
     <Compile Include="StringUtil.cs" />
     <Compile Include="SynchronizationContextWrapper.cs" />
@@ -503,7 +459,6 @@
     <Compile Include="ControlsAndPanels\Tracert\TracertDialog.Designer.cs">
       <DependentUpon>TracertDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="WeightedRandom.cs" />
     <Compile Include="Win32WindowMessageHandler.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -570,18 +525,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\OptionsDialog.resx">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\Charts\Axis\XAxis.resx">
-      <DependentUpon>XAxis.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\Charts\Chart.resx">
-      <DependentUpon>Chart.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\Charts\ChartArea.resx">
-      <DependentUpon>ChartArea.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\Charts\Legend.resx">
-      <DependentUpon>Legend.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\Logging\LogPanel.resx">
       <DependentUpon>LogPanel.cs</DependentUpon>
@@ -653,7 +596,6 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ControlsAndPanels\Charts\ChartTypes\Direct2D\README.txt" />
     <Content Include="quicklz150_64_1.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

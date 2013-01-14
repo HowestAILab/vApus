@@ -5,11 +5,13 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 namespace vApus.Util
 {
     public static class StaticActiveObjectWrapper
     {
         public static readonly ActiveObject ActiveObject;
+
         static StaticActiveObjectWrapper()
         {
             ActiveObject = new ActiveObject();

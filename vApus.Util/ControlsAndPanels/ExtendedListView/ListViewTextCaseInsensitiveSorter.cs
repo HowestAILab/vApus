@@ -5,34 +5,35 @@
  * @Author S.Deckers 
  * @Description
  */
+
 using System;
 using System.Windows.Forms;
 
 namespace vApus.Util
 {
-	/// <summary date="16-04-2005, 22:04:24" author="S.Deckers">
-	/// Implements Text case-insensitive sorting
-	/// </summary>
-	public class ListViewTextCaseInsensitiveSorter : ListViewSorter
-	{
-		/// <summary>
-		/// Sorting implementation
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		/// <returns></returns>
-		public override int OnSort(object x, object y, System.Windows.Forms.SortOrder sortOrder)
-		{
-			System.Windows.Forms.ListViewItem.ListViewSubItem left  = GetLeft( x);
-			System.Windows.Forms.ListViewItem.ListViewSubItem right = GetLeft( y);
+    /// <summary date="16-04-2005, 22:04:24" author="S.Deckers">
+    ///     Implements Text case-insensitive sorting
+    /// </summary>
+    public class ListViewTextCaseInsensitiveSorter : ListViewSorter
+    {
+        /// <summary>
+        ///     Sorting implementation
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public override int OnSort(object x, object y, SortOrder sortOrder)
+        {
+            ListViewItem.ListViewSubItem left = GetLeft(x);
+            ListViewItem.ListViewSubItem right = GetLeft(y);
 
-			int res = String.Compare( left.Text, right.Text, true);
-			
-			if( sortOrder == SortOrder.Descending)
-			{
-				res *= -1;
-			}
-			return( res);
-		}
-	}
+            int res = String.Compare(left.Text, right.Text, true);
+
+            if (sortOrder == SortOrder.Descending)
+            {
+                res *= -1;
+            }
+            return (res);
+        }
+    }
 }

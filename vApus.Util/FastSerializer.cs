@@ -32,7 +32,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace vApus.Util
 {
-
     // Enum for the standard types handled by Read/WriteObject()
     internal enum ObjType : byte
     {
@@ -57,20 +56,23 @@ namespace vApus.Util
         otherType
     }
 
-    /// <summary> SerializationWriter.  Extends BinaryWriter to add additional data types,
-    /// handle null strings and simplify use with ISerializable. </summary>
+    /// <summary>
+    ///     SerializationWriter.  Extends BinaryWriter to add additional data types,
+    ///     handle null strings and simplify use with ISerializable.
+    /// </summary>
     public class SerializationWriter : BinaryWriter
     {
         private BinaryFormatter _binaryFormatter;
 
         private SerializationWriter(Stream s)
             : base(s)
-        { }
+        {
+        }
 
         /// <summary> Static method to initialise the writer with a suitable MemoryStream. </summary>
         public static SerializationWriter GetWriter()
         {
-            MemoryStream ms = new MemoryStream(1024);
+            var ms = new MemoryStream(1024);
             return new SerializationWriter(ms);
         }
 
@@ -79,17 +81,19 @@ namespace vApus.Util
         {
             if (str == null)
             {
-                Write((byte)ObjType.nullType);
+                Write((byte) ObjType.nullType);
             }
             else
             {
-                Write((byte)ObjType.stringType);
+                Write((byte) ObjType.stringType);
                 base.Write(str);
             }
         }
 
-        /// <summary> Writes a byte array to the buffer.  Overrides the base implementation to
-        /// send the length of the array which is needed when it is retrieved </summary>
+        /// <summary>
+        ///     Writes a byte array to the buffer.  Overrides the base implementation to
+        ///     send the length of the array which is needed when it is retrieved
+        /// </summary>
         public override void Write(byte[] b)
         {
             if (b == null)
@@ -105,8 +109,10 @@ namespace vApus.Util
             }
         }
 
-        /// <summary> Writes a char array to the buffer.  Overrides the base implementation to
-        /// sends the length of the array which is needed when it is read. </summary>
+        /// <summary>
+        ///     Writes a char array to the buffer.  Overrides the base implementation to
+        ///     sends the length of the array which is needed when it is read.
+        /// </summary>
         public override void Write(char[] c)
         {
             if (c == null)
@@ -122,7 +128,9 @@ namespace vApus.Util
             }
         }
 
-        /// <summary> Writes a DateTime to the buffer. <summary>
+        /// <summary>
+        ///     Writes a DateTime to the buffer.
+        ///     <summary>
         public void Write(DateTime dt)
         {
             Write(dt.Ticks);
@@ -133,7 +141,9 @@ namespace vApus.Util
             Write(ts.Ticks);
         }
 
-        /// <summary> Writes a generic ICollection (such as an IList<T> or Array) to the buffer. </summary>
+        /// <summary>
+        ///     Writes a generic ICollection (such as an IList<T> or Array) to the buffer.
+        /// </summary>
         public void Write<T>(ICollection<T> c)
         {
             if (c == null)
@@ -158,7 +168,7 @@ namespace vApus.Util
             else
             {
                 Write(d.Count);
-                foreach (KeyValuePair<T, U> kvp in d)
+                foreach (var kvp in d)
                 {
                     WriteObject(kvp.Key);
                     WriteObject(kvp.Value);
@@ -166,133 +176,153 @@ namespace vApus.Util
             }
         }
 
-        /// <summary> Writes an arbitrary object to the buffer.  Useful where we have something of type "object"
-        /// and don't know how to treat it.  This works out the best method to use to write to the buffer. </summary>
+        /// <summary>
+        ///     Writes an arbitrary object to the buffer.  Useful where we have something of type "object"
+        ///     and don't know how to treat it.  This works out the best method to use to write to the buffer.
+        /// </summary>
         public void WriteObject(object obj)
         {
             if (obj == null)
             {
-                Write((byte)ObjType.nullType);
+                Write((byte) ObjType.nullType);
             }
             else
             {
-
                 switch (obj.GetType().Name)
                 {
-
-                    case "Boolean": Write((byte)ObjType.boolType);
-                        Write((bool)obj);
+                    case "Boolean":
+                        Write((byte) ObjType.boolType);
+                        Write((bool) obj);
                         break;
 
-                    case "Byte": Write((byte)ObjType.byteType);
-                        Write((byte)obj);
+                    case "Byte":
+                        Write((byte) ObjType.byteType);
+                        Write((byte) obj);
                         break;
 
-                    case "UInt16": Write((byte)ObjType.uint16Type);
-                        Write((ushort)obj);
+                    case "UInt16":
+                        Write((byte) ObjType.uint16Type);
+                        Write((ushort) obj);
                         break;
 
-                    case "UInt32": Write((byte)ObjType.uint32Type);
-                        Write((uint)obj);
+                    case "UInt32":
+                        Write((byte) ObjType.uint32Type);
+                        Write((uint) obj);
                         break;
 
-                    case "UInt64": Write((byte)ObjType.uint64Type);
-                        Write((ulong)obj);
+                    case "UInt64":
+                        Write((byte) ObjType.uint64Type);
+                        Write((ulong) obj);
                         break;
 
-                    case "SByte": Write((byte)ObjType.sbyteType);
-                        Write((sbyte)obj);
+                    case "SByte":
+                        Write((byte) ObjType.sbyteType);
+                        Write((sbyte) obj);
                         break;
 
-                    case "Int16": Write((byte)ObjType.int16Type);
-                        Write((short)obj);
+                    case "Int16":
+                        Write((byte) ObjType.int16Type);
+                        Write((short) obj);
                         break;
 
-                    case "Int32": Write((byte)ObjType.int32Type);
-                        Write((int)obj);
+                    case "Int32":
+                        Write((byte) ObjType.int32Type);
+                        Write((int) obj);
                         break;
 
-                    case "Int64": Write((byte)ObjType.int64Type);
-                        Write((long)obj);
+                    case "Int64":
+                        Write((byte) ObjType.int64Type);
+                        Write((long) obj);
                         break;
 
-                    case "Char": Write((byte)ObjType.charType);
-                        base.Write((char)obj);
+                    case "Char":
+                        Write((byte) ObjType.charType);
+                        base.Write((char) obj);
                         break;
 
-                    case "String": Write((byte)ObjType.stringType);
-                        base.Write((string)obj);
+                    case "String":
+                        Write((byte) ObjType.stringType);
+                        base.Write((string) obj);
                         break;
 
-                    case "Single": Write((byte)ObjType.singleType);
-                        Write((float)obj);
+                    case "Single":
+                        Write((byte) ObjType.singleType);
+                        Write((float) obj);
                         break;
 
-                    case "Double": Write((byte)ObjType.doubleType);
-                        Write((double)obj);
+                    case "Double":
+                        Write((byte) ObjType.doubleType);
+                        Write((double) obj);
                         break;
 
-                    case "Decimal": Write((byte)ObjType.decimalType);
-                        Write((decimal)obj);
+                    case "Decimal":
+                        Write((byte) ObjType.decimalType);
+                        Write((decimal) obj);
                         break;
 
-                    case "DateTime": Write((byte)ObjType.dateTimeType);
-                        Write((DateTime)obj);
+                    case "DateTime":
+                        Write((byte) ObjType.dateTimeType);
+                        Write((DateTime) obj);
                         break;
 
-                    case "Byte[]": Write((byte)ObjType.byteArrayType);
-                        base.Write((byte[])obj);
+                    case "Byte[]":
+                        Write((byte) ObjType.byteArrayType);
+                        base.Write((byte[]) obj);
                         break;
 
-                    case "Char[]": Write((byte)ObjType.charArrayType);
-                        base.Write((char[])obj);
+                    case "Char[]":
+                        Write((byte) ObjType.charArrayType);
+                        base.Write((char[]) obj);
                         break;
 
-                    default: Write((byte)ObjType.otherType);
+                    default:
+                        Write((byte) ObjType.otherType);
                         if (_binaryFormatter == null)
                             _binaryFormatter = new BinaryFormatter();
                         _binaryFormatter.Serialize(BaseStream, obj);
                         break;
-
                 }
-
             }
-
         }
 
         /// <summary> Adds the SerializationWriter buffer to the SerializationInfo at the end of GetObjectData(). </summary>
         public void AddToInfo(SerializationInfo info)
         {
-            byte[] b = ((MemoryStream)BaseStream).ToArray();
-            info.AddValue("X", b, typeof(byte[]));
+            byte[] b = ((MemoryStream) BaseStream).ToArray();
+            info.AddValue("X", b, typeof (byte[]));
         }
-
     }
 
 
-    /// <summary> SerializationReader.  Extends BinaryReader to add additional data types,
-    /// handle null strings and simplify use with ISerializable. </summary>
+    /// <summary>
+    ///     SerializationReader.  Extends BinaryReader to add additional data types,
+    ///     handle null strings and simplify use with ISerializable.
+    /// </summary>
     public class SerializationReader : BinaryReader
     {
         private BinaryFormatter _binaryFormatter;
 
         private SerializationReader(Stream s)
             : base(s)
-        { }
+        {
+        }
 
-        /// <summary> Static method to take a SerializationInfo object (an input to an ISerializable constructor)
-        /// and produce a SerializationReader from which serialized objects can be read </summary>.
+        /// <summary>
+        ///     Static method to take a SerializationInfo object (an input to an ISerializable constructor)
+        ///     and produce a SerializationReader from which serialized objects can be read
+        /// </summary>
+        /// .
         public static SerializationReader GetReader(SerializationInfo info)
         {
-            byte[] byteArray = (byte[])info.GetValue("X", typeof(byte[]));
-            MemoryStream ms = new MemoryStream(byteArray);
+            var byteArray = (byte[]) info.GetValue("X", typeof (byte[]));
+            var ms = new MemoryStream(byteArray);
             return new SerializationReader(ms);
         }
 
         /// <summary> Reads a string from the buffer.  Overrides the base implementation so it can cope with nulls. </summary>
         public override string ReadString()
         {
-            ObjType t = (ObjType)ReadByte();
+            var t = (ObjType) ReadByte();
             if (t == ObjType.stringType)
                 return base.ReadString();
             return null;
@@ -351,9 +381,9 @@ namespace vApus.Util
             int count = ReadInt32();
             if (count < 0)
                 return null;
-            ICollection<T> c = Activator.CreateInstance(caller.GetType(), count) as ICollection<T>;
+            var c = Activator.CreateInstance(caller.GetType(), count) as ICollection<T>;
             for (int i = 0; i < count; i++)
-                c.Add((T)ReadObject());
+                c.Add((T) ReadObject());
             return c;
         }
 
@@ -369,41 +399,57 @@ namespace vApus.Util
                 return null;
             IDictionary<T, U> d = Activator.CreateInstance(caller.GetType(), count) as Dictionary<T, U>;
             for (int i = 0; i < count; i++)
-                d.Add((T)ReadObject(), (U)ReadObject());
+                d.Add((T) ReadObject(), (U) ReadObject());
             return d;
         }
 
         /// <summary> Reads an object which was added to the buffer by WriteObject. </summary>
         public object ReadObject()
         {
-            ObjType t = (ObjType)ReadByte();
+            var t = (ObjType) ReadByte();
             switch (t)
             {
-                case ObjType.boolType: return ReadBoolean();
-                case ObjType.byteType: return ReadByte();
-                case ObjType.uint16Type: return ReadUInt16();
-                case ObjType.uint32Type: return ReadUInt32();
-                case ObjType.uint64Type: return ReadUInt64();
-                case ObjType.sbyteType: return ReadSByte();
-                case ObjType.int16Type: return ReadInt16();
-                case ObjType.int32Type: return ReadInt32();
-                case ObjType.int64Type: return ReadInt64();
-                case ObjType.charType: return ReadChar();
-                case ObjType.stringType: return base.ReadString();
-                case ObjType.singleType: return ReadSingle();
-                case ObjType.doubleType: return ReadDouble();
-                case ObjType.decimalType: return ReadDecimal();
-                case ObjType.dateTimeType: return ReadDateTime();
-                case ObjType.byteArrayType: return ReadByteArray();
-                case ObjType.charArrayType: return ReadCharArray();
+                case ObjType.boolType:
+                    return ReadBoolean();
+                case ObjType.byteType:
+                    return ReadByte();
+                case ObjType.uint16Type:
+                    return ReadUInt16();
+                case ObjType.uint32Type:
+                    return ReadUInt32();
+                case ObjType.uint64Type:
+                    return ReadUInt64();
+                case ObjType.sbyteType:
+                    return ReadSByte();
+                case ObjType.int16Type:
+                    return ReadInt16();
+                case ObjType.int32Type:
+                    return ReadInt32();
+                case ObjType.int64Type:
+                    return ReadInt64();
+                case ObjType.charType:
+                    return ReadChar();
+                case ObjType.stringType:
+                    return base.ReadString();
+                case ObjType.singleType:
+                    return ReadSingle();
+                case ObjType.doubleType:
+                    return ReadDouble();
+                case ObjType.decimalType:
+                    return ReadDecimal();
+                case ObjType.dateTimeType:
+                    return ReadDateTime();
+                case ObjType.byteArrayType:
+                    return ReadByteArray();
+                case ObjType.charArrayType:
+                    return ReadCharArray();
                 case ObjType.otherType:
                     if (_binaryFormatter == null)
                         _binaryFormatter = new BinaryFormatter();
                     return _binaryFormatter.Deserialize(BaseStream);
-                default: return null;
+                default:
+                    return null;
             }
         }
-
-
     }
 }

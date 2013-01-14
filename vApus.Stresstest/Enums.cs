@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.ComponentModel;
 
@@ -12,13 +13,14 @@ namespace vApus.Stresstest
 {
     /// <summary></summary>
     [Serializable]
-    public enum StresstestResult
+    public enum StresstestStatus
     {
         Busy = 0,
         Ok,
         Error,
         Cancelled
     }
+
     [Serializable]
     public enum ActionAndLogEntryDistribution
     {
@@ -26,15 +28,15 @@ namespace vApus.Stresstest
         Fast = 1,
         Full = 2
     }
+
     [Serializable]
     public enum RunSynchronization
     {
         None = 0,
-        [Description("Break on first finished")]
-        BreakOnFirstFinished,
-        [Description("Break on last finished")]
-        BreakOnLastFinished
+        [Description("Break on first finished")] BreakOnFirstFinished,
+        [Description("Break on last finished")] BreakOnLastFinished
     }
+
     [Serializable]
     public enum RunStateChange
     {

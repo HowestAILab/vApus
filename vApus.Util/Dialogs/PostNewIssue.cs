@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -15,19 +16,19 @@ namespace vApus.Util
 {
     public static class NewIssue
     {
-        public static event EventHandler<ActiveObject.OnResultEventArgs> Done;
-
-        private delegate string PostDelegate(string applicationLogEntry);
-        private static PostDelegate _postDelegate;
+        private static readonly PostDelegate _postDelegate;
 
         static NewIssue()
         {
             _postDelegate = PostCallback;
-            StaticActiveObjectWrapper.ActiveObject.OnResult += new EventHandler<ActiveObject.OnResultEventArgs>(ActiveObject_OnResult);
+            StaticActiveObjectWrapper.ActiveObject.OnResult += ActiveObject_OnResult;
         }
+
+        public static event EventHandler<ActiveObject.OnResultEventArgs> Done;
+
         /// <summary>
-        /// Posts bugs to redmine.sizingservers.be to the @Tickets project.
-        /// This wil throw an exception if any.
+        ///     Posts bugs to redmine.sizingservers.be to the @Tickets project.
+        ///     This wil throw an exception if any.
         /// </summary>
         /// <param name="applicationLogEntry"></param>
         /// <returns>Issue url</returns>
@@ -38,7 +39,7 @@ namespace vApus.Util
 
         private static string PostCallback(string applicationLogEntry)
         {
-            HttpStatusCode statusCode = HttpStatusCode.OK;
+            var statusCode = HttpStatusCode.OK;
             try
             {
                 string host = "redmine.sizingservers.be";
@@ -46,15 +47,16 @@ namespace vApus.Util
 
                 string[] split = applicationLogEntry.Replace("\r\n", "\n").Replace("\n\r", "\n").Split('\n');
 
-                XmlDocument doc = new XmlDocument();
-                var escape = doc.CreateElement("escape");
+                var doc = new XmlDocument();
+                XmlElement escape = doc.CreateElement("escape");
                 escape.InnerText = split[0];
                 string subject = escape.InnerXml;
 
                 escape.InnerText = applicationLogEntry.Substring(split[0].Length).TrimStart();
                 string description = escape.InnerXml;
 
-                var httpWebRequest = (HttpWebRequest)System.Net.WebRequest.Create(new Uri("http://" + host + "/issues.xml?key=" + apiKey));
+                var httpWebRequest =
+                    (HttpWebRequest) WebRequest.Create(new Uri("http://" + host + "/issues.xml?key=" + apiKey));
                 httpWebRequest.UserAgent = "vApus v2 - Test connection function";
                 httpWebRequest.ServicePoint.Expect100Continue = true;
 
@@ -62,17 +64,17 @@ namespace vApus.Util
                 httpWebRequest.ContentType = "text/xml";
 
                 string postData = "<?xml version=\"1.0\"? encoding=\"UTF-8\"?>" +
-                    "<issue>" +
-                    "<subject>" + subject + "</subject>" +
-                    "<description>" + description + "</description>" +
-                    "<custom_fields type=\"array\">" +
-                    "<custom_field name=\"Software version\" id=\"2\">" +
-                    "<value>N/A</value>" +
-                    "</custom_field>" +
-                    "</custom_fields>" +
-                    "<project_id>18</project_id>" +
-                    "<tracker_id>1</tracker_id>" +
-                    "</issue>";
+                                  "<issue>" +
+                                  "<subject>" + subject + "</subject>" +
+                                  "<description>" + description + "</description>" +
+                                  "<custom_fields type=\"array\">" +
+                                  "<custom_field name=\"Software version\" id=\"2\">" +
+                                  "<value>N/A</value>" +
+                                  "</custom_field>" +
+                                  "</custom_fields>" +
+                                  "<project_id>18</project_id>" +
+                                  "<tracker_id>1</tracker_id>" +
+                                  "</issue>";
 
                 ApplyPostData(httpWebRequest, postData);
                 var httpWebResponse = httpWebRequest.GetResponse() as HttpWebResponse;
@@ -82,18 +84,26 @@ namespace vApus.Util
                 if (statusCode == HttpStatusCode.NotFound)
                     throw new Exception();
                 else if (statusCode == HttpStatusCode.Unauthorized)
-                    throw new Exception("You are not authorized to report bugs, please contact Sizing Servers about this problem.");
+                    throw new Exception(
+                        "You are not authorized to report bugs, please contact Sizing Servers about this problem.");
 
                 //Read the response and get the issue id
                 string response, issueUrl = null;
                 if (httpWebResponse.ContentEncoding.ToLower().Contains("gzip"))
-                    using (var streamReader = new StreamReader(new GZipStream(httpWebResponse.GetResponseStream(), CompressionMode.Decompress)))
+                    using (
+                        var streamReader =
+                            new StreamReader(new GZipStream(httpWebResponse.GetResponseStream(),
+                                                            CompressionMode.Decompress)))
                     {
                         response = streamReader.ReadToEnd();
                     }
                 else
-                    using (var streamReader = new StreamReader(httpWebResponse.GetResponseStream(), (httpWebResponse.ContentEncoding.Length != 0) ?
-                    System.Text.Encoding.GetEncoding(httpWebResponse.ContentEncoding) : System.Text.Encoding.GetEncoding(1252)))
+                    using (
+                        var streamReader = new StreamReader(httpWebResponse.GetResponseStream(),
+                                                            (httpWebResponse.ContentEncoding.Length != 0)
+                                                                ? System.Text.Encoding.GetEncoding(
+                                                                    httpWebResponse.ContentEncoding)
+                                                                : System.Text.Encoding.GetEncoding(1252)))
                     {
                         response = streamReader.ReadToEnd();
                     }
@@ -111,17 +121,18 @@ namespace vApus.Util
                 throw new Exception("The bug report server could not be found, are you connected to the internet?");
             }
         }
+
         private static void ActiveObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
         {
             if (Done != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                { Done(null, e); }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Done(null, e); }, null);
         }
+
         private static void ApplyPostData(HttpWebRequest httpWebRequest, string postData)
         {
             httpWebRequest.ContentLength = postData.Length;
             Stream postStream = httpWebRequest.GetRequestStream();
-            StreamWriter postStreamWriter = new StreamWriter(postStream);
+            var postStreamWriter = new StreamWriter(postStream);
             postStreamWriter.Write(postData);
             postStreamWriter.Flush();
 
@@ -131,5 +142,7 @@ namespace vApus.Util
 
             postStream.Close();
         }
+
+        private delegate string PostDelegate(string applicationLogEntry);
     }
 }

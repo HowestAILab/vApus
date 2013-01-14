@@ -1,26 +1,22 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows.Forms;
 
 namespace WeifenLuo.WinFormsUI.Docking
 {
     internal abstract class InertButtonBase : Control
     {
+        private bool m_isMouseOver;
+
         protected InertButtonBase()
         {
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             BackColor = Color.Transparent;
         }
 
-        public abstract Bitmap Image
-        {
-            get;
-        }
+        public abstract Bitmap Image { get; }
 
-        private bool m_isMouseOver = false;
         protected bool IsMouseOver
         {
             get { return m_isMouseOver; }
@@ -65,15 +61,15 @@ namespace WeifenLuo.WinFormsUI.Docking
         {
             if (IsMouseOver && Enabled)
             {
-                using (Pen pen = new Pen(ForeColor))
+                using (var pen = new Pen(ForeColor))
                 {
                     e.Graphics.DrawRectangle(pen, Rectangle.Inflate(ClientRectangle, -1, -1));
                 }
             }
 
-            using (ImageAttributes imageAttributes = new ImageAttributes())
+            using (var imageAttributes = new ImageAttributes())
             {
-                ColorMap[] colorMap = new ColorMap[2];
+                var colorMap = new ColorMap[2];
                 colorMap[0] = new ColorMap();
                 colorMap[0].OldColor = Color.FromArgb(0, 0, 0);
                 colorMap[0].NewColor = ForeColor;
@@ -84,13 +80,13 @@ namespace WeifenLuo.WinFormsUI.Docking
                 imageAttributes.SetRemapTable(colorMap);
 
                 e.Graphics.DrawImage(
-                   Image,
-                   new Rectangle(0, 0, Image.Width, Image.Height),
-                   0, 0,
-                   Image.Width,
-                   Image.Height,
-                   GraphicsUnit.Pixel,
-                   imageAttributes);
+                    Image,
+                    new Rectangle(0, 0, Image.Width, Image.Height),
+                    0, 0,
+                    Image.Width,
+                    Image.Height,
+                    GraphicsUnit.Pixel,
+                    imageAttributes);
             }
 
             base.OnPaint(e);
@@ -101,7 +97,7 @@ namespace WeifenLuo.WinFormsUI.Docking
             if (IsDisposed)
                 return;
 
-            bool mouseOver = ClientRectangle.Contains(PointToClient(Control.MousePosition));
+            bool mouseOver = ClientRectangle.Contains(PointToClient(MousePosition));
             if (mouseOver != IsMouseOver)
                 IsMouseOver = mouseOver;
 

@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,22 +13,12 @@ using System.Threading;
 namespace vApus.Util
 {
     /// <summary>
-    /// To offload work to a background thread keeping that work in a synchronized order.
+    ///     To offload work to a background thread keeping that work in a synchronized order.
     /// </summary>
     public class ActiveObject : IDisposable
     {
-        public event EventHandler<OnResultEventArgs> OnResult;
-
-        #region Fields
-        private Queue<KeyValuePair<Delegate, object[]>> _sendQueue;
-        private AutoResetEvent _sendWaitHandle;
-        private Thread _sendWorkerThread;
-
-        private bool _isDisposed;
-        #endregion
-
         /// <summary>
-        /// To offload work to a background thread keeping that work in a synchronized order.
+        ///     To offload work to a background thread keeping that work in a synchronized order.
         /// </summary>
         public ActiveObject()
         {
@@ -37,6 +28,9 @@ namespace vApus.Util
             _sendWorkerThread.IsBackground = true;
             _sendWorkerThread.Start();
         }
+
+        public event EventHandler<OnResultEventArgs> OnResult;
+
         ~ActiveObject()
         {
             Dispose(0);
@@ -47,14 +41,15 @@ namespace vApus.Util
         #region IDisposable Members
 
         /// <summary>
-        /// Wait indefinetly until the work is done before disposing.
+        ///     Wait indefinetly until the work is done before disposing.
         /// </summary>
         public void Dispose()
         {
             Dispose(-1);
         }
+
         /// <summary>
-        /// Wait the given timeout before disposing, if the work is not done it will be aborted.
+        ///     Wait the given timeout before disposing, if the work is not done it will be aborted.
         /// </summary>
         /// <param name="millisecondsTimeout"></param>
         public void Dispose(int millisecondsTimeout)
@@ -76,21 +71,18 @@ namespace vApus.Util
                 _sendQueue = null;
             }
         }
+
         #endregion
 
         #region Send
+
         /// <summary>
-        /// Define your delegate like so:
-        /// 
-        /// delegate T del(T, out T);
-        /// 
-        /// then pass your function using this signature:
-        /// 
-        /// ActiveObject.Send(new del(Func), value, value);
-        /// 
-        /// The return type may be void and args are not obligatory.
-        /// 
-        /// Make sure you provide the right amount of args, even if it are out parameters (yes that is possible too).
+        ///     Define your delegate like so:
+        ///     delegate T del(T, out T);
+        ///     then pass your function using this signature:
+        ///     ActiveObject.Send(new del(Func), value, value);
+        ///     The return type may be void and args are not obligatory.
+        ///     Make sure you provide the right amount of args, even if it are out parameters (yes that is possible too).
         /// </summary>
         /// <param name="del"></param>
         /// <param name="args"></param>
@@ -106,6 +98,7 @@ namespace vApus.Util
                 //Exception on dispose if any.
             }
         }
+
         private void HandleSendQueue()
         {
             try
@@ -114,7 +107,7 @@ namespace vApus.Util
                 {
                     while (_sendQueue.Count != 0)
                     {
-                        var kvp = _sendQueue.Dequeue();
+                        KeyValuePair<Delegate, object[]> kvp = _sendQueue.Dequeue();
                         object returned = null;
                         Exception exception = null;
                         try
@@ -129,7 +122,8 @@ namespace vApus.Util
                         {
                             if (OnResult != null)
                                 foreach (EventHandler<OnResultEventArgs> del in OnResult.GetInvocationList())
-                                    del.BeginInvoke(this, new OnResultEventArgs(kvp.Key, kvp.Value, returned, exception), OnResultCallback, null);
+                                    del.BeginInvoke(this, new OnResultEventArgs(kvp.Key, kvp.Value, returned, exception),
+                                                    OnResultCallback, null);
                         }
                     }
                     _sendWaitHandle.WaitOne();
@@ -140,21 +134,29 @@ namespace vApus.Util
                 //Exception on dispose if any.
             }
         }
+
         #endregion
 
-        private void OnResultCallback(IAsyncResult ar) { }
+        private void OnResultCallback(IAsyncResult ar)
+        {
+        }
+
         #endregion
 
         #region EventArgs
+
         public class OnResultEventArgs : EventArgs
         {
-            public readonly Delegate Delegate;
             /// <summary>
-            /// Out parameters are stored here too.
+            ///     Out parameters are stored here too.
             /// </summary>
             public readonly object[] Arguments;
-            public readonly object Returned;
+
+            public readonly Delegate Delegate;
+
             public readonly Exception Exception;
+            public readonly object Returned;
+
             public OnResultEventArgs(Delegate del, object[] args, object returned, Exception exception)
             {
                 Delegate = del;
@@ -163,6 +165,17 @@ namespace vApus.Util
                 Exception = exception;
             }
         }
+
+        #endregion
+
+        #region Fields
+
+        private readonly AutoResetEvent _sendWaitHandle;
+
+        private bool _isDisposed;
+        private Queue<KeyValuePair<Delegate, object[]>> _sendQueue;
+        private Thread _sendWorkerThread;
+
         #endregion
     }
 }

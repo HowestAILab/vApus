@@ -48,6 +48,7 @@
             this.mainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newFromTemplateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openRecentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -87,10 +88,9 @@
             this.lblCleanTempData = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTempDataSize = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblWarning = new System.Windows.Forms.ToolStripStatusLabel();
             this.tmrSetStatusStrip = new System.Windows.Forms.Timer(this.components);
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
-            this.newFromTemplateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -134,6 +134,13 @@
             this.newToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.newToolStripMenuItem.Text = "&New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
+            // 
+            // newFromTemplateToolStripMenuItem
+            // 
+            this.newFromTemplateToolStripMenuItem.Name = "newFromTemplateToolStripMenuItem";
+            this.newFromTemplateToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.newFromTemplateToolStripMenuItem.Text = "New From Template...";
+            this.newFromTemplateToolStripMenuItem.Click += new System.EventHandler(this.newFromTemplateToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
@@ -318,7 +325,7 @@
             this.lblCleanTempData,
             this.lblTempDataSize,
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled,
-            this.lblMicrosoftFirewallAutoUpdateEnabled});
+            this.lblWarning});
             this.statusStrip.Location = new System.Drawing.Point(0, 704);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1184, 22);
@@ -421,7 +428,7 @@
             // 
             this.lblProcessorAffinity.IsLink = true;
             this.lblProcessorAffinity.Name = "lblProcessorAffinity";
-            this.lblProcessorAffinity.Size = new System.Drawing.Size(580, 17);
+            this.lblProcessorAffinity.Size = new System.Drawing.Size(364, 17);
             this.lblProcessorAffinity.Spring = true;
             this.lblProcessorAffinity.Text = "...";
             this.lblProcessorAffinity.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -453,15 +460,15 @@
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled.Text = "|";
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = false;
             // 
-            // lblMicrosoftFirewallAutoUpdateEnabled
+            // lblWarning
             // 
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Image = global::vApus.Gui.Properties.Resources.Warning;
-            this.lblMicrosoftFirewallAutoUpdateEnabled.IsLink = true;
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Name = "lblMicrosoftFirewallAutoUpdateEnabled";
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Size = new System.Drawing.Size(16, 17);
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Visible = false;
-            this.lblMicrosoftFirewallAutoUpdateEnabled.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lblMicrosoftFirewallAutoUpdateEnabled.Click += new System.EventHandler(this.lblMicrosoftFirewallAutoUpdateEnabled_Click);
+            this.lblWarning.Image = global::vApus.Gui.Properties.Resources.Warning;
+            this.lblWarning.IsLink = true;
+            this.lblWarning.Name = "lblWarning";
+            this.lblWarning.Size = new System.Drawing.Size(16, 17);
+            this.lblWarning.Visible = false;
+            this.lblWarning.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lblWarning.Click += new System.EventHandler(this.lblWarning_Click);
             // 
             // tmrSetStatusStrip
             // 
@@ -524,13 +531,6 @@
             dockPanelSkin1.DockPaneStripSkin = dockPaneStripSkin1;
             this.dockPanel.Skin = dockPanelSkin1;
             this.dockPanel.TabIndex = 1;
-            // 
-            // newFromTemplateToolStripMenuItem
-            // 
-            this.newFromTemplateToolStripMenuItem.Name = "newFromTemplateToolStripMenuItem";
-            this.newFromTemplateToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.newFromTemplateToolStripMenuItem.Text = "New From Template...";
-            this.newFromTemplateToolStripMenuItem.Click += new System.EventHandler(this.newFromTemplateToolStripMenuItem_Click);
             // 
             // MainWindow
             // 
@@ -605,7 +605,7 @@
         private System.Windows.Forms.ToolStripStatusLabel lblCleanTempData;
         private System.Windows.Forms.ToolStripStatusLabel lblTempDataSize;
         private System.Windows.Forms.ToolStripStatusLabel lblPipeMicrosoftFirewallAutoUpdateEnabled;
-        private System.Windows.Forms.ToolStripStatusLabel lblMicrosoftFirewallAutoUpdateEnabled;
+        private System.Windows.Forms.ToolStripStatusLabel lblWarning;
         private System.Windows.Forms.ToolStripMenuItem newFromTemplateToolStripMenuItem;
     }
 }

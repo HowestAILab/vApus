@@ -36,9 +36,9 @@
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.tpStresstest = new System.Windows.Forms.TabPage();
-            this.stresstestControl = new vApus.Stresstest.StresstestControl();
+            this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
             this.tpReport = new System.Windows.Forms.TabPage();
-            this.stresstestReportControl = new vApus.Stresstest.StresstestReportControl();
+            this.detailedResultsControl = new vApus.Stresstest.Controls.DetailedResultsControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
@@ -59,8 +59,9 @@
             this.solutionComponentPropertyPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.solutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.solutionComponentPropertyPanel.Location = new System.Drawing.Point(3, 3);
+            this.solutionComponentPropertyPanel.Margin = new System.Windows.Forms.Padding(0);
             this.solutionComponentPropertyPanel.Name = "solutionComponentPropertyPanel";
-            this.solutionComponentPropertyPanel.Size = new System.Drawing.Size(784, 488);
+            this.solutionComponentPropertyPanel.Size = new System.Drawing.Size(784, 491);
             this.solutionComponentPropertyPanel.SolutionComponent = null;
             this.solutionComponentPropertyPanel.TabIndex = 1;
             // 
@@ -86,55 +87,53 @@
             // 
             this.tpConfigure.BackColor = System.Drawing.Color.White;
             this.tpConfigure.Controls.Add(this.solutionComponentPropertyPanel);
-            this.tpConfigure.Location = new System.Drawing.Point(0, 22);
+            this.tpConfigure.Location = new System.Drawing.Point(0, 19);
             this.tpConfigure.Name = "tpConfigure";
             this.tpConfigure.Padding = new System.Windows.Forms.Padding(3);
-            this.tpConfigure.Size = new System.Drawing.Size(790, 494);
+            this.tpConfigure.Size = new System.Drawing.Size(790, 497);
             this.tpConfigure.TabIndex = 0;
             this.tpConfigure.Text = "Configure";
             // 
             // tpStresstest
             // 
             this.tpStresstest.BackColor = System.Drawing.Color.White;
-            this.tpStresstest.Controls.Add(this.stresstestControl);
-            this.tpStresstest.Location = new System.Drawing.Point(0, 22);
+            this.tpStresstest.Controls.Add(this.fastResultsControl);
+            this.tpStresstest.Location = new System.Drawing.Point(0, 19);
             this.tpStresstest.Name = "tpStresstest";
-            this.tpStresstest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstest.Size = new System.Drawing.Size(790, 494);
+            this.tpStresstest.Size = new System.Drawing.Size(790, 497);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
             // 
             // stresstestControl
             // 
-            this.stresstestControl.BackColor = System.Drawing.Color.Transparent;
-            this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestControl.MonitorConfigurationControlVisible = true;
-            this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(784, 488);
-            this.stresstestControl.TabIndex = 0;
-            this.stresstestControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
+            this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
+            this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastResultsControl.Location = new System.Drawing.Point(0, 0);
+            this.fastResultsControl.Margin = new System.Windows.Forms.Padding(0);
+            this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
+            this.fastResultsControl.Name = "stresstestControl";
+            this.fastResultsControl.Size = new System.Drawing.Size(790, 497);
+            this.fastResultsControl.TabIndex = 0;
+            this.fastResultsControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
             // 
             // tpReport
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
-            this.tpReport.Controls.Add(this.stresstestReportControl);
+            this.tpReport.Controls.Add(this.detailedResultsControl);
             this.tpReport.Location = new System.Drawing.Point(0, 22);
             this.tpReport.Name = "tpReport";
-            this.tpReport.Padding = new System.Windows.Forms.Padding(3);
             this.tpReport.Size = new System.Drawing.Size(790, 494);
             this.tpReport.TabIndex = 2;
             this.tpReport.Text = "Report";
             // 
-            // stresstestReportControl
+            // detailedResultsControl1
             // 
-            this.stresstestReportControl.BackColor = System.Drawing.SystemColors.Control;
-            this.stresstestReportControl.CanSaveRFile = true;
-            this.stresstestReportControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestReportControl.Location = new System.Drawing.Point(3, 3);
-            this.stresstestReportControl.Name = "stresstestReportControl";
-            this.stresstestReportControl.Size = new System.Drawing.Size(784, 488);
-            this.stresstestReportControl.TabIndex = 0;
+            this.detailedResultsControl.BackColor = System.Drawing.SystemColors.Control;
+            this.detailedResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailedResultsControl.Location = new System.Drawing.Point(0, 0);
+            this.detailedResultsControl.Name = "detailedResultsControl1";
+            this.detailedResultsControl.Size = new System.Drawing.Size(790, 494);
+            this.detailedResultsControl.TabIndex = 0;
             // 
             // toolStrip
             // 
@@ -236,8 +235,8 @@
         private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.TabPage tpReport;
         private System.Windows.Forms.SaveFileDialog sfd;
-        private StresstestReportControl stresstestReportControl;
-        private StresstestControl stresstestControl;
+        private FastResultsControl fastResultsControl;
+        private Controls.DetailedResultsControl detailedResultsControl;
 
     }
 }

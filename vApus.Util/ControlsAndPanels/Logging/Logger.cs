@@ -13,21 +13,23 @@ using System.Windows.Forms;
 namespace vApus.Util
 {
     /// <summary>
-    /// The purpose of this class is to have a logger who writes to a file.
-    /// Before this we used Log4Net but that was a bit overrated for the things we want to log (mainly exceptions).
+    ///     The purpose of this class is to have a logger who writes to a file.
+    ///     Before this we used Log4Net but that was a bit overrated for the things we want to log (mainly exceptions).
     /// </summary>
     public class Logger
     {
         #region Fields
+
         public static readonly string DEFAULT_LOCATION;
+        private static readonly object _lock = new object();
         private string _location;
-        private StreamWriter _sw;
-        private string _name;
         private string _logFile;
-        private static object _lock = new object();
+        private StreamWriter _sw;
+
         #endregion
 
         #region Properties
+
         public StreamWriter Writer
         {
             get
@@ -36,8 +38,8 @@ namespace vApus.Util
                 {
                     if (_sw == null)
                     {
-                        if (!System.IO.Directory.Exists(_location))
-                            System.IO.Directory.CreateDirectory(_location);
+                        if (!Directory.Exists(_location))
+                            Directory.CreateDirectory(_location);
 
                         //Only create a new log file if needed (if the app runs multiple days there will be only one file per run).
                         if (_logFile == null)
@@ -49,36 +51,40 @@ namespace vApus.Util
             }
             //set { _sw = value; }
         }
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
+
+        public string Name { get; set; }
+
         public string Location
         {
             get { return _location; }
             set { _location = value; }
         }
+
         public string LogFile
         {
             get { return _logFile; }
         }
+
         #endregion
 
         #region Constructors
+
         static Logger()
         {
             DEFAULT_LOCATION = Path.Combine(Application.StartupPath, "Logs");
         }
+
         /// <summary>
-        /// Creates a new FileLogger with given name.
+        ///     Creates a new FileLogger with given name.
         /// </summary>
         /// <param name="name"></param>
         public Logger(string name)
             : this(name, DEFAULT_LOCATION)
-        { }
+        {
+        }
+
         /// <summary>
-        /// Creates a new FileLogger with given name and optionally a location.
+        ///     Creates a new FileLogger with given name and optionally a location.
         /// </summary>
         /// <param name="location">Use this this to a location different than the default location</param>
         public Logger(string name, string location)
@@ -88,6 +94,7 @@ namespace vApus.Util
 
             OpenOrReOpenWriter();
         }
+
         #endregion
 
         public void Log(object input)
@@ -95,26 +102,38 @@ namespace vApus.Util
             Writer.WriteLine(input);
             Writer.Flush();
         }
+
         /// <summary>
-        /// If the log file must be accessible (temporary!), you can close the writer, don't forget to reopen it.
+        ///     If the log file must be accessible (temporary!), you can close the writer, don't forget to reopen it.
         /// </summary>
         public void CloseWriter()
         {
             if (_sw != null)
             {
-                try { _sw.Close(); }
-                catch { }
-                try { _sw.Dispose(); }
-                catch { }
+                try
+                {
+                    _sw.Close();
+                }
+                catch
+                {
+                }
+                try
+                {
+                    _sw.Dispose();
+                }
+                catch
+                {
+                }
                 _sw = null;
             }
         }
+
         /// <summary>
-        /// Opens the writer.
+        ///     Opens the writer.
         /// </summary>
         public void OpenOrReOpenWriter()
         {
-            var writer = Writer;
+            StreamWriter writer = Writer;
         }
 
         public void RemoveLogIfEmptyLog()

@@ -5,23 +5,27 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using vApus.Gui.Properties;
 using vApus.Link;
 using vApus.Util;
 
 namespace vApus.Gui
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             LogWrapper.Log("vApus Started!");
 
@@ -29,11 +33,11 @@ namespace vApus.Gui
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
+                Application.ThreadException += Application_ThreadException;
 
                 //Mainly for the ToString() of floating point numbers and of DateTime().
-                string culture = global::vApus.Gui.Properties.Settings.Default.Culture;
-                if (culture != null && culture != string.Empty)
+                string culture = Settings.Default.Culture;
+                if (!string.IsNullOrEmpty(culture))
                     Thread.CurrentThread.CurrentCulture = new CultureInfo(culture);
                 Linker.Link();
 
@@ -42,10 +46,9 @@ namespace vApus.Gui
                     SocketListenerLinker.StartSocketListener();
 
                 //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
-                System.IO.Directory.SetCurrentDirectory(Application.StartupPath);
+                Directory.SetCurrentDirectory(Application.StartupPath);
 
                 Application.Run(new MainWindow(args));
-
             }
             catch (Exception ex)
             {
@@ -59,10 +62,11 @@ namespace vApus.Gui
                 LogWrapper.RemoveEmptyLogs();
             }
         }
+
         private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             //LogWrapper.LogByLevel(e.Exception, LogLevel.Fatal);
-            System.Diagnostics.Debug.WriteLine(e.Exception, "Application_ThreadException");
+            Debug.WriteLine(e.Exception, "Application_ThreadException");
         }
     }
 }

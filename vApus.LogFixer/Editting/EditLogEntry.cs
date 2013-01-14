@@ -5,10 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using FastColoredTextBoxNS;
+using vApus.LogFixer.Properties;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 
@@ -16,32 +20,22 @@ namespace vApus.LogFixer
 {
     public partial class EditLogEntry : Form
     {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private readonly LogEntry _logEntry;
 
-        private Changes _textChangeTracker;
-        private LogEntry _logEntry;
-        private string _untouchedLogEntry;
+        private readonly List<int> _selectedTreeNodeIndex = new List<int>(new[] {0});
+        private readonly Changes _textChangeTracker;
+        private readonly string _untouchedLogEntry;
+
+        private readonly VisualizeWhiteSpaceTextStyle _visualizeWhiteSpaceTextStyle;
+        private bool _canEnableBtnOK;
         private TrackedChanges _trackedChanges;
 
-        private List<int> _selectedTreeNodeIndex = new List<int>(new int[] { 0 });
-        private bool _canEnableBtnOK = false;
-
-        private VisualizeWhiteSpaceTextStyle _visualizeWhiteSpaceTextStyle;
-
-        public LogEntry LogEntry
-        {
-            get { return _logEntry; }
-        }
-        public TrackedChanges TrackedChanges
-        {
-            get { return _trackedChanges; }
-        }
         public EditLogEntry()
         {
             InitializeComponent();
             fastColoredTextBoxEdit.AllowDrop = true;
         }
+
         public EditLogEntry(int line, LogEntry logEntry)
             : this()
         {
@@ -58,29 +52,45 @@ namespace vApus.LogFixer
             fastColoredTextBoxEdit.Text = logEntry.LogEntryString;
             fastColoredTextBoxEdit.TextChangedDelayed += fastColoredTextBoxEdit_TextChangedDelayed;
 
-            _visualizeWhiteSpaceTextStyle = new VisualizeWhiteSpaceTextStyle(fastColoredTextBoxEdit, chkVisualizeWhitespace.Checked);
+            _visualizeWhiteSpaceTextStyle = new VisualizeWhiteSpaceTextStyle(fastColoredTextBoxEdit,
+                                                                             chkVisualizeWhitespace.Checked);
         }
+
+        public LogEntry LogEntry
+        {
+            get { return _logEntry; }
+        }
+
+        public TrackedChanges TrackedChanges
+        {
+            get { return _trackedChanges; }
+        }
+
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
         private void SetValidation()
         {
             switch (_logEntry.LexicalResult)
             {
                 case LexicalResult.OK:
-                    Icon = Icon.FromHandle(global::vApus.LogFixer.Properties.Resources.LogEntryOK.GetHicon());
+                    Icon = Icon.FromHandle(Resources.LogEntryOK.GetHicon());
                     tc.TabPages.Remove(tpError);
                     if (!tc.TabPages.Contains(tpEdit))
                         tc.TabPages.Add(tpEdit);
                     break;
                 case LexicalResult.Error:
-                    Icon = Icon.FromHandle(global::vApus.LogFixer.Properties.Resources.LogEntryError.GetHicon());
+                    Icon = Icon.FromHandle(Resources.LogEntryError.GetHicon());
                     if (!tc.TabPages.Contains(tpError))
                         tc.TabPages.Add(tpError);
                     break;
             }
             FillTreeView();
         }
+
         private void FillTreeView()
         {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(Handle.ToInt32());
 
             btnOK.Enabled = false;
 
@@ -97,8 +107,9 @@ namespace vApus.LogFixer
 
             root.Tag = _logEntry.LexedLogEntry;
             string lexedLogEntry_ToString = "Validated against: " +
-                _logEntry.LexedLogEntry.ToString(chkShowNamesAndIndices.Checked, chkShowLabels.Checked) +
-                " [ > Select to Show/Edit Full Log Entry String]";
+                                            _logEntry.LexedLogEntry.ToString(chkShowNamesAndIndices.Checked,
+                                                                             chkShowLabels.Checked) +
+                                            " [ > Select to Show/Edit Full Log Entry String]";
 
 
             if (_logEntry.LexedLogEntry.Error.Length == 0)
@@ -139,7 +150,9 @@ namespace vApus.LogFixer
 
             LockWindowUpdate(0);
         }
-        private void AddOrRecycleChildNodesToTreeView(ASTNode astNode, LabeledBaseItem ruleSetItem, TreeNode parentTreeNode)
+
+        private void AddOrRecycleChildNodesToTreeView(ASTNode astNode, LabeledBaseItem ruleSetItem,
+                                                      TreeNode parentTreeNode)
         {
             int astNodeCount = astNode.Count;
             //Remove not needed nodes
@@ -152,13 +165,13 @@ namespace vApus.LogFixer
             uint occuranceCheck = 0;
             for (int i = 0; i < astNodeCount; i++)
             {
-                ASTNode childPart = astNode[i] as ASTNode;
-                LabeledBaseItem childItem = ruleSetItem[astNodeIndex] as LabeledBaseItem;
+                var childPart = astNode[i] as ASTNode;
+                var childItem = ruleSetItem[astNodeIndex] as LabeledBaseItem;
 
                 //Keep re-occuring items in mind.
                 if (childItem is SyntaxItem)
                 {
-                    SyntaxItem syntaxItem = childItem as SyntaxItem;
+                    var syntaxItem = childItem as SyntaxItem;
                     if (syntaxItem.Occurance > 0 && occuranceCheck == 0)
                         occuranceCheck = syntaxItem.Occurance;
                 }
@@ -204,11 +217,12 @@ namespace vApus.LogFixer
                 AddOrRecycleChildNodesToTreeView(childPart, childItem, childTreeNode);
             }
         }
+
         private void tvwValidation_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (tvwValidation.SelectedNode != null)
             {
-                ASTNode astNode = tvwValidation.SelectedNode.Tag as ASTNode;
+                var astNode = tvwValidation.SelectedNode.Tag as ASTNode;
                 rtxtError.Text = astNode.Error;
 
                 fastColoredTextBoxEdit.TextChangedDelayed -= fastColoredTextBoxEdit_TextChangedDelayed;
@@ -227,32 +241,34 @@ namespace vApus.LogFixer
                 _selectedTreeNodeIndex.Reverse();
             }
         }
-        private void chk_CheckedChanged(object sender, System.EventArgs e)
+
+        private void chk_CheckedChanged(object sender, EventArgs e)
         {
             _canEnableBtnOK = btnOK.Enabled;
             FillTreeView();
         }
-        private void chkVisualizeWhitespace_CheckedChanged(object sender, System.EventArgs e)
+
+        private void chkVisualizeWhitespace_CheckedChanged(object sender, EventArgs e)
         {
             _visualizeWhiteSpaceTextStyle.VisualizeWhiteSpace = chkVisualizeWhitespace.Checked;
         }
-        private void btnOK_Click(object sender, System.EventArgs e)
-        {
-            this.DialogResult = DialogResult.OK;
-            this.Close();
 
-        }
-        private void btnCancel_Click(object sender, System.EventArgs e)
+        private void btnOK_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
+            DialogResult = DialogResult.OK;
+            Close();
         }
 
-        private void fastColoredTextBoxEdit_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
+        private void btnCancel_Click(object sender, EventArgs e)
         {
+            DialogResult = DialogResult.Cancel;
+        }
 
+        private void fastColoredTextBoxEdit_TextChangedDelayed(object sender, TextChangedEventArgs e)
+        {
             if (tvwValidation.SelectedNode != null)
             {
-                ASTNode astNode = tvwValidation.SelectedNode.Tag as ASTNode;
+                var astNode = tvwValidation.SelectedNode.Tag as ASTNode;
                 astNode.ClearWithoutInvokingEvent();
                 astNode.Value = fastColoredTextBoxEdit.Text;
 

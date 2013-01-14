@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,9 +21,11 @@ namespace vApus.LogFixer
     public partial class FixTab : TabPage
     {
         #region Fields
-        private Log _log;
-        private Lines _lines = new Lines();
+
         private static string _multilineComment = string.Empty;
+        private readonly Lines _lines = new Lines();
+        private Log _log;
+
         #endregion
 
         public FixTab()
@@ -31,7 +34,7 @@ namespace vApus.LogFixer
         }
 
         /// <summary>
-        /// Filenames
+        ///     Filenames
         /// </summary>
         /// <param name="logFile"></param>
         /// <param name="logRuleSetFileName"></param>
@@ -46,11 +49,11 @@ namespace vApus.LogFixer
 
                 if (File.Exists(logRuleSetFileName))
                 {
-                    LogRuleSets logRuleSets = new LogRuleSets();
+                    var logRuleSets = new LogRuleSets();
                     logRuleSet = new LogRuleSet();
 
                     string err;
-                    XmlDocument doc = new XmlDocument();
+                    var doc = new XmlDocument();
                     doc.Load(logRuleSetFileName);
 
                     logRuleSets.LoadFromXml(doc.FirstChild, out err);
@@ -70,15 +73,15 @@ namespace vApus.LogFixer
 
             Text = logFileName;
 
-            if (this.IsHandleCreated)
+            if (IsHandleCreated)
                 SetGui();
             else
-                this.HandleCreated += new EventHandler(FixTab_HandleCreated);
+                HandleCreated += FixTab_HandleCreated;
         }
 
         private void FixTab_HandleCreated(object sender, EventArgs e)
         {
-            this.HandleCreated -= FixTab_HandleCreated;
+            HandleCreated -= FixTab_HandleCreated;
             SetGui();
         }
 
@@ -104,7 +107,7 @@ namespace vApus.LogFixer
                 }
                 else
                 {
-                    LogEntry logEntry = new LogEntry(output);
+                    var logEntry = new LogEntry(output);
                     _log.Add(logEntry);
 
                     _lines.Add(new Line(_lines, logEntry));
@@ -113,6 +116,7 @@ namespace vApus.LogFixer
             if (_log.LogRuleSet != null)
                 _log.ApplyLogRuleSet();
         }
+
         private bool DetermineComment(string input, out string output)
         {
             int singleline = -1;
@@ -130,7 +134,9 @@ namespace vApus.LogFixer
                     if (output.Length == 0)
                     {
                         if (input.Length > _log.LogRuleSet.EndCommentString.Length + 1)
-                            output = FormatComment(_multilineComment.TrimStart() + ' ' + input.Substring(0, input.Length - _log.LogRuleSet.EndCommentString.Length));
+                            output =
+                                FormatComment(_multilineComment.TrimStart() + ' ' +
+                                              input.Substring(0, input.Length - _log.LogRuleSet.EndCommentString.Length));
                         else
                             output = FormatComment(_multilineComment.TrimStart());
                         _multilineComment = string.Empty;
@@ -169,9 +175,13 @@ namespace vApus.LogFixer
                 if (multilineCopy > -1 && multilineCopy > multiline)
                 {
                     _multilineComment = string.Empty;
-                    output = input.TrimStart().Substring(0, multiline) + input.Substring(multilineCopy + _log.LogRuleSet.EndCommentString.Length);
+                    output = input.TrimStart().Substring(0, multiline) +
+                             input.Substring(multilineCopy + _log.LogRuleSet.EndCommentString.Length);
                     if (output.Length == 0)
-                        output = FormatComment(input.Substring(multiline + _log.LogRuleSet.BeginCommentString.Length, input.Length - _log.LogRuleSet.EndCommentString.Length - _log.LogRuleSet.BeginCommentString.Length));
+                        output =
+                            FormatComment(input.Substring(multiline + _log.LogRuleSet.BeginCommentString.Length,
+                                                          input.Length - _log.LogRuleSet.EndCommentString.Length -
+                                                          _log.LogRuleSet.BeginCommentString.Length));
                     return true;
                 }
                 else
@@ -185,11 +195,12 @@ namespace vApus.LogFixer
             }
             return false;
         }
+
         private string FormatComment(string input)
         {
             int i = 0;
             input = input.TrimStart();
-            StringBuilder sb = new StringBuilder(255);
+            var sb = new StringBuilder(255);
             foreach (char c in input)
             {
                 sb.Append(c);
@@ -198,6 +209,7 @@ namespace vApus.LogFixer
             }
             return sb.ToString();
         }
+
         private void SetGui()
         {
             int ok, error;
@@ -211,6 +223,7 @@ namespace vApus.LogFixer
 
             btnRestoreAll.Visible = false;
         }
+
         private void SetGuiLL(out int ok, out int error)
         {
             largeList.RemoveAll();
@@ -221,7 +234,7 @@ namespace vApus.LogFixer
             foreach (Line line in _lines)
             {
                 var elc = new EditLineControl(line);
-                elc.ButtonClicked += new EventHandler(elc_ButtonClicked);
+                elc.ButtonClicked += elc_ButtonClicked;
                 largeList.Add(elc);
                 if (line.LexicalResult == LexicalResult.OK)
                 {
@@ -239,6 +252,7 @@ namespace vApus.LogFixer
         {
             ElcChanged();
         }
+
         private void ElcChanged()
         {
             int ok = 0;
@@ -266,32 +280,36 @@ namespace vApus.LogFixer
         }
 
         #region Buttons
+
         private void tbtnOK_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (var elc in EditLineControls())
+            foreach (EditLineControl elc in EditLineControls())
                 if (elc.Line.LexicalResult == LexicalResult.OK)
                     elc.Visible = tbtnOK.Checked;
         }
+
         private void tbtnError_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (var elc in EditLineControls())
+            foreach (EditLineControl elc in EditLineControls())
                 if (elc.Line.LexicalResult == LexicalResult.Error)
                     elc.Visible = tbtnError.Checked;
         }
+
         private IEnumerable<EditLineControl> EditLineControls()
         {
             for (int i = 0; i != largeList.ViewCount; i++)
                 foreach (EditLineControl elc in largeList[i])
                     yield return elc;
         }
+
         private void btnApplyFix_Click(object sender, EventArgs e)
         {
-            ApplyFix applyFix = new ApplyFix(_lines);
+            var applyFix = new ApplyFix(_lines);
             if (applyFix.ShowDialog() == DialogResult.OK)
             {
-                List<EditLineControl> l = new List<EditLineControl>();
+                var l = new List<EditLineControl>();
                 foreach (EditLineControl elc in EditLineControls())
-                    foreach(FixLineControl flc in applyFix.FixLineControls())
+                    foreach (FixLineControl flc in applyFix.FixLineControls())
                         if (elc.Line == flc.Line)
                         {
                             if (flc.Checked)
@@ -310,7 +328,8 @@ namespace vApus.LogFixer
                 ElcChanged();
             }
         }
-        private void btnRestoreAll_Click(object sender, System.EventArgs e)
+
+        private void btnRestoreAll_Click(object sender, EventArgs e)
         {
             foreach (Line l in _lines)
                 if (l.Comment == null)
@@ -319,18 +338,19 @@ namespace vApus.LogFixer
             _log.ApplyLogRuleSet();
 
             SetGui();
-
         }
-        private void btnSave_Click(object sender, System.EventArgs e)
+
+        private void btnSave_Click(object sender, EventArgs e)
         {
             Save();
         }
+
         private void Save()
         {
             if (sfd.ShowDialog() == DialogResult.OK && _lines.Count != 0)
                 using (var sw = new StreamWriter(sfd.FileName))
                 {
-                    StringBuilder sb = new StringBuilder();
+                    var sb = new StringBuilder();
                     foreach (Line line in _lines)
                         sb.AppendLine(line.ToString());
 
@@ -342,6 +362,7 @@ namespace vApus.LogFixer
                     sw.Flush();
                 }
         }
+
         #endregion
     }
 }

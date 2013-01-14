@@ -5,10 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Tamir.SharpSsh;
+using vApus.Util.Properties;
 
 namespace vApus.Util
 {
@@ -25,23 +27,47 @@ namespace vApus.Util
         [Description("Up to Date")]
         UpToDate
     }
+
     public static class UpdateNotifier
     {
         /// <summary>
-        /// Keep this to create a update notifier dialog when needed.
+        ///     Keep this to create a update notifier dialog when needed.
         /// </summary>
-        private static string _currentVersion, _newVersion, _currentChannel, _newChannel, _newHistory;
-
-        private static bool _failedRefresh = false;
-        private static bool _versionChanged = false;
-        private static bool _refreshed = false;
+        private static string _currentVersion, _currentChannel, _newVersion, _newChannel, _newHistory;
+        private static string CurrentVersion
+        {
+            get { return _currentVersion; }
+            set
+            {
+                if (_currentVersion != value)
+                {
+                    _currentVersion = value;
+                    NamedObjectRegistrar.RegisterOrUpdate("vApusVersion", _currentVersion);
+                }
+            }
+        }
+        private static string CurrentChannel
+        {
+            get { return _currentChannel; }
+            set
+            {
+                if (_currentChannel != value)
+                {
+                    _currentChannel = value;
+                    NamedObjectRegistrar.RegisterOrUpdate("vApusChannel", _currentChannel);
+                }
+            }
+        }
+        private static bool _failedRefresh;
+        private static bool _versionChanged;
+        private static bool _refreshed;
 
         public static UpdateNotifierState UpdateNotifierState
         {
             get
             {
                 if (_failedRefresh)
-                    return Util.UpdateNotifierState.FailedConnectingToTheUpdateServer;
+                    return UpdateNotifierState.FailedConnectingToTheUpdateServer;
 
                 string host, username, password;
                 int port, channel;
@@ -54,7 +80,7 @@ namespace vApus.Util
                 else if (_refreshed)
                 {
                     if (_versionChanged)
-                        return Util.UpdateNotifierState.NewUpdateFound;
+                        return UpdateNotifierState.NewUpdateFound;
                     return UpdateNotifierState.UpToDate;
                 }
 
@@ -64,33 +90,44 @@ namespace vApus.Util
 
         public static void SetCredentials(string host, int port, string username, string password, int channel)
         {
-            vApus.Util.Properties.Settings.Default.Host = host;
-            vApus.Util.Properties.Settings.Default.Port = port;
-            vApus.Util.Properties.Settings.Default.Username = username;
+            Settings.Default.Host = host;
+            Settings.Default.Port = port;
+            Settings.Default.Username = username;
 
-            password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-            vApus.Util.Properties.Settings.Default.Password = password;
-            vApus.Util.Properties.Settings.Default.Channel = channel;
-            vApus.Util.Properties.Settings.Default.Save();
+            password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
+                                        new byte[]
+                                            {
+                                                0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65,
+                                                0x76
+                                            });
+            Settings.Default.Password = password;
+            Settings.Default.Channel = channel;
+            Settings.Default.Save();
 
             _refreshed = false;
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="host"></param>
         /// <param name="port"></param>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="channel">0 == Stable; 1 == Nightly</param>
-        public static void GetCredentials(out string host, out int port, out string username, out string password, out int channel)
+        public static void GetCredentials(out string host, out int port, out string username, out string password,
+                                          out int channel)
         {
-            host = vApus.Util.Properties.Settings.Default.Host;
-            port = vApus.Util.Properties.Settings.Default.Port;
-            username = vApus.Util.Properties.Settings.Default.Username;
-            password = vApus.Util.Properties.Settings.Default.Password;
-            password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}", new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-            channel = vApus.Util.Properties.Settings.Default.Channel;
+            host = Settings.Default.Host;
+            port = Settings.Default.Port;
+            username = Settings.Default.Username;
+            password = Settings.Default.Password;
+            password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
+                                        new byte[]
+                                            {
+                                                0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65,
+                                                0x76
+                                            });
+            channel = Settings.Default.Channel;
 
             //If there is no channel set get it from the version.ini.
             if (channel == -1)
@@ -105,7 +142,6 @@ namespace vApus.Util
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <returns>true if can update.</returns>
         public static void Refresh()
@@ -114,6 +150,10 @@ namespace vApus.Util
 
             try
             {
+                string currentVersionIni = Path.Combine(Application.StartupPath, "version.ini");
+                CurrentVersion = GetVersion(currentVersionIni);
+                CurrentChannel = GetChannel(currentVersionIni);
+
                 string host, username, password;
                 int port, channel;
                 GetCredentials(out host, out port, out username, out password, out channel);
@@ -126,45 +166,32 @@ namespace vApus.Util
                     return;
                 }
 
-                Sftp sftp = new Sftp(host, username, password);
+                var sftp = new Sftp(host, username, password);
                 sftp.Connect(port);
 
-                if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
+                if (Directory.Exists(tempFolder) &&
+                    Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
 
                 Directory.CreateDirectory(tempFolder);
 
                 string tempVersion = Path.Combine(tempFolder, "version.ini");
-                string currentVersion = Path.Combine(Application.StartupPath, "version.ini");
 
-                try
-                {
-                    if (File.Exists(tempVersion))
-                        File.Delete(tempVersion);
-                }
+                try { if (File.Exists(tempVersion)) File.Delete(tempVersion); }
                 catch { }
 
                 string channelDir = channel == 0 ? "stable" : "nightly";
                 sftp.Get(channelDir + "/version.ini", tempVersion);
 
-                try
-                {
-                    sftp.Close();
-                }
-                finally
-                {
-                    sftp = null;
-                }
+                try { sftp.Close(); }
+                finally { sftp = null; }
 
-                _currentVersion = GetVersion(currentVersion);
                 _newVersion = GetVersion(tempVersion);
-
-                _currentChannel = GetChannel(currentVersion);
                 _newChannel = GetChannel(tempVersion);
 
                 _newHistory = GetHistory(tempVersion);
 
-                _versionChanged = (_currentVersion != _newVersion) || (_currentChannel != _newChannel);
+                _versionChanged = (CurrentVersion != _newVersion) || (CurrentChannel != _newChannel);
 
                 _refreshed = true;
             }
@@ -179,21 +206,25 @@ namespace vApus.Util
                     Directory.Delete(tempFolder, true);
             }
         }
+
         private static string GetVersion(string versionIniPath)
         {
             return Get(versionIniPath, "[VERSION]");
         }
+
         private static string GetChannel(string versionIniPath)
         {
             return Get(versionIniPath, "[CHANNEL]");
         }
+
         private static string GetHistory(string versionIniPath)
         {
             return Get(versionIniPath, "[HISTORY]");
         }
+
         private static string Get(string versionIniPath, string part)
         {
-            using (StreamReader sr = new StreamReader(versionIniPath))
+            using (var sr = new StreamReader(versionIniPath))
             {
                 bool found = false;
                 while (sr.Peek() != -1)
@@ -211,7 +242,7 @@ namespace vApus.Util
 
         public static UpdateNotifierDialog GetUpdateNotifierDialog()
         {
-            return new UpdateNotifierDialog(_currentVersion, _newVersion, _currentChannel, _newChannel, _newHistory);
+            return new UpdateNotifierDialog(CurrentVersion, _newVersion, CurrentChannel, _newChannel, _newHistory);
         }
     }
 }

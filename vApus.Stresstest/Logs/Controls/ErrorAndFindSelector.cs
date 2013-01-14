@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -13,13 +14,14 @@ namespace vApus.Stresstest
 {
     public partial class ErrorAndFindSelector : UserControl
     {
-        public event EventHandler<SelectErrorEventArgs> SelectError;
-        public event EventHandler<FindEventArgs> Find;
-
+        private readonly List<LogEntryControl> _errors = new List<LogEntryControl>();
         private int _errorIndex;
-        private LogChildControlBase _found = null;
-        private List<LogEntryControl> _errors = new List<LogEntryControl>();
+        private LogChildControlBase _found;
 
+        public ErrorAndFindSelector()
+        {
+            InitializeComponent();
+        }
 
         public LogChildControlBase Found
         {
@@ -27,12 +29,11 @@ namespace vApus.Stresstest
             set { _found = value; }
         }
 
-        public ErrorAndFindSelector()
-        {
-            InitializeComponent();
-        }
+        public event EventHandler<SelectErrorEventArgs> SelectError;
+        public event EventHandler<FindEventArgs> Find;
+
         /// <summary>
-        /// Clears and sets invisible.
+        ///     Clears and sets invisible.
         /// </summary>
         public void ClearErrors()
         {
@@ -46,8 +47,9 @@ namespace vApus.Stresstest
             btnPreviousError.Visible = false;
             btnNextError.Visible = false;
         }
+
         /// <summary>
-        /// Adds and sets visible.
+        ///     Adds and sets visible.
         /// </summary>
         /// <param name="error"></param>
         public void AddError(LogEntryControl error)
@@ -68,6 +70,7 @@ namespace vApus.Stresstest
                 }
             }
         }
+
         public void RemoveError(LogEntryControl error)
         {
             _errors.Remove(error);
@@ -77,24 +80,26 @@ namespace vApus.Stresstest
             }
             else
             {
-                if(_errorIndex > 0)
+                if (_errorIndex > 0)
                     --_errorIndex;
                 btnSelectError.Text = (_errorIndex + 1) + " / " + _errors.Count;
                 btnNextError.Enabled = (_errorIndex < _errors.Count - 1);
                 btnPreviousError.Enabled = (_errorIndex > 0);
             }
-            
         }
-        private void btnPreviousError_Click(object sender, System.EventArgs e)
+
+        private void btnPreviousError_Click(object sender, EventArgs e)
         {
             --_errorIndex;
             IndexChanged();
         }
-        private void btnNextError_Click(object sender, System.EventArgs e)
+
+        private void btnNextError_Click(object sender, EventArgs e)
         {
             ++_errorIndex;
             IndexChanged();
         }
+
         private void IndexChanged()
         {
             btnSelectError.Text = (_errorIndex + 1) + " / " + _errors.Count;
@@ -115,27 +120,33 @@ namespace vApus.Stresstest
             if (Find != null)
                 Find(this, new FindEventArgs(txtFind.Text));
         }
+
         private void txtFind_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return && Find != null)
                 Find(this, new FindEventArgs(txtFind.Text));
         }
+
         private void txtFind_TextChanged(object sender, EventArgs e)
         {
             _found = null;
         }
     }
+
     public class SelectErrorEventArgs : EventArgs
     {
         public readonly LogEntryControl Error;
+
         public SelectErrorEventArgs(LogEntryControl error)
         {
             Error = error;
         }
     }
+
     public class FindEventArgs : EventArgs
     {
         public readonly string Find;
+
         public FindEventArgs(string find)
         {
             Find = find;

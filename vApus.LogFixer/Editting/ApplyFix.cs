@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -15,18 +16,21 @@ namespace vApus.LogFixer
     public partial class ApplyFix : Form
     {
         #region Fields
-        private Lines _lines;
-        private TrackedChanges _trackedChanges;
-        private Line _line;
-        private Scenario _scenario;
+
+        private readonly Line _line;
+        private readonly Lines _lines;
+        private readonly TrackedChanges _trackedChanges;
 
         private Help _help;
+        private Scenario _scenario;
+
         #endregion
 
         public ApplyFix()
         {
             InitializeComponent();
         }
+
         public ApplyFix(Lines lines)
             : this()
         {
@@ -34,8 +38,9 @@ namespace vApus.LogFixer
 
             SetPreview();
 
-            largeList.HandleCreated += new EventHandler(largeList_HandleCreated);
+            largeList.HandleCreated += largeList_HandleCreated;
         }
+
         public ApplyFix(Line line, TrackedChanges trackedChanges)
             : this()
         {
@@ -45,8 +50,9 @@ namespace vApus.LogFixer
 
             SetPreview();
 
-            largeList.HandleCreated += new EventHandler(largeList_HandleCreated);
+            largeList.HandleCreated += largeList_HandleCreated;
         }
+
         private void SetPreview()
         {
             int okCount = 0, errorCount = 0;
@@ -56,7 +62,7 @@ namespace vApus.LogFixer
                 if ((_line != null && l == _line) || l.LogEntry == null)
                     continue;
 
-                FixLineControl flc = new FixLineControl(l);
+                var flc = new FixLineControl(l);
 
                 if (l.LexicalResult == LexicalResult.OK)
                 {
@@ -70,7 +76,7 @@ namespace vApus.LogFixer
                     ++errorCount;
                 }
 
-                flc.CheckedChanged += new EventHandler(flc_CheckedChanged);
+                flc.CheckedChanged += flc_CheckedChanged;
 
                 largeList.Add(flc);
             }
@@ -84,10 +90,11 @@ namespace vApus.LogFixer
             chkAll.CheckState = CheckState.Checked;
             chkAll.CheckedChanged += chkAll_CheckedChanged;
         }
+
         private void flc_CheckedChanged(object sender, EventArgs e)
         {
             int check = 0, visible = 0;
-            foreach (var flc in FixLineControls())
+            foreach (FixLineControl flc in FixLineControls())
             {
                 if (flc.Checked)
                     ++check;
@@ -98,6 +105,7 @@ namespace vApus.LogFixer
             SetChkAll(check, visible);
             btnApply.Enabled = chkAll.CheckState != CheckState.Unchecked;
         }
+
         private void SetChkAll(int check, int visible)
         {
             chkAll.Text = check.ToString();
@@ -111,11 +119,13 @@ namespace vApus.LogFixer
                 chkAll.CheckState = CheckState.Indeterminate;
             chkAll.CheckedChanged += chkAll_CheckedChanged;
         }
+
         private void largeList_HandleCreated(object sender, EventArgs e)
         {
-            largeList.HandleCreated -= new EventHandler(largeList_HandleCreated);
+            largeList.HandleCreated -= largeList_HandleCreated;
             SetScenarios(_trackedChanges);
         }
+
         private void SetScenarios(TrackedChanges trackedChanges = null)
         {
             if (trackedChanges == null)
@@ -138,6 +148,7 @@ namespace vApus.LogFixer
             DialogResult = DialogResult.OK;
             Close();
         }
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
@@ -147,7 +158,7 @@ namespace vApus.LogFixer
         private void tbtnPreviewOK_CheckedChanged(object sender, EventArgs e)
         {
             int check = 0, visible = 0;
-            foreach (var flc in FixLineControls())
+            foreach (FixLineControl flc in FixLineControls())
             {
                 if (flc.Line.LexicalResult == LexicalResult.OK)
                     flc.Visible = tbtnPreviewOK.Checked;
@@ -163,10 +174,11 @@ namespace vApus.LogFixer
             SetChkAll(check, visible);
             btnApply.Enabled = chkAll.CheckState != CheckState.Unchecked;
         }
+
         private void tbtnPreviewError_CheckedChanged(object sender, EventArgs e)
         {
             int check = 0, visible = 0;
-            foreach (var flc in FixLineControls())
+            foreach (FixLineControl flc in FixLineControls())
             {
                 if (flc.Line.LexicalResult == LexicalResult.Error)
                     flc.Visible = tbtnPreviewError.Checked;
@@ -182,12 +194,13 @@ namespace vApus.LogFixer
             SetChkAll(check, visible);
             btnApply.Enabled = chkAll.CheckState != CheckState.Unchecked;
         }
+
         private void chkAll_CheckedChanged(object sender, EventArgs e)
         {
             if (chkAll.CheckState != CheckState.Indeterminate)
             {
                 int check = 0;
-                foreach (var flc in FixLineControls())
+                foreach (FixLineControl flc in FixLineControls())
                     if (flc.Visible)
                     {
                         flc.CheckedChanged -= flc_CheckedChanged;
@@ -213,6 +226,7 @@ namespace vApus.LogFixer
         {
             PreviewScenario();
         }
+
         private void PreviewScenario()
         {
             Scenario scenario;
@@ -223,12 +237,13 @@ namespace vApus.LogFixer
                 if (flc.SetPreview(scenario.Apply(flc.Line.LogEntry.LogEntryString)) && flc.Checked)
                     ++previewedErrorCount;
 
-            int errorCount = (int)tbtnPreviewError.Tag;
+            var errorCount = (int) tbtnPreviewError.Tag;
             if (previewedErrorCount == errorCount)
                 tbtnPreviewError.Text = "     " + errorCount;
             else
                 tbtnPreviewError.Text = "     " + errorCount + " --> " + previewedErrorCount;
         }
+
         private void btnHelp_Click(object sender, EventArgs e)
         {
             if (_help == null)

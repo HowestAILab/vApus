@@ -5,6 +5,7 @@
  * Author(s):
  *    Vandroemme Dieter
  */
+
 using System;
 using System.IO;
 using System.Text;
@@ -17,38 +18,52 @@ namespace vApus.Monitor
     public partial class ConfigurationDialog : Form
     {
         #region Fields
+
         // The XmlDocument where the formatted configuration is loaded into.
         private XmlDocument _configuration;
         private StringBuilder _sb = new StringBuilder();
+
         #endregion
 
         #region Constructor
+
         public ConfigurationDialog(string configuration)
         {
             InitializeComponent();
             LoadConfiguration(configuration);
         }
+
         #endregion
 
         #region Functions
+
         private void LoadConfiguration(string configuration)
         {
             try
             {
-                this.Cursor = Cursors.WaitCursor;
+                Cursor = Cursors.WaitCursor;
 
-                StringReader stringReader = new StringReader(configuration);
+                var stringReader = new StringReader(configuration);
                 _configuration = new XmlDocument();
 
-                try { _configuration.Load(stringReader); }
-                catch { throw; }
-                finally { stringReader.Close(); }
+                try
+                {
+                    _configuration.Load(stringReader);
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    stringReader.Close();
+                }
 
                 foreach (XmlNode node in _configuration.ChildNodes)
                 {
                     if (node.Name != null && node.NodeType != XmlNodeType.Text && node.Name != "xml")
                     {
-                        TreeNode treeNode = new TreeNode();
+                        var treeNode = new TreeNode();
                         treeNode.Text = node.Name;
                         foreach (XmlAttribute attribute in node.Attributes)
                             treeNode.Text += " " + attribute.Name + "= " + attribute.Value;
@@ -68,21 +83,23 @@ namespace vApus.Monitor
                     tv.SelectedNode.Expand();
                 }
 
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
             }
             catch (Exception ex)
             {
-                LogWrapper.LogByLevel("[" + this + "] " + "The configuration is not a wellformed xml.\n" + ex.ToString(), LogLevel.Error);
-                this.Close();
+                LogWrapper.LogByLevel("[" + this + "] " + "The configuration is not a wellformed xml.\n" + ex,
+                                      LogLevel.Error);
+                Close();
             }
         }
+
         private void AddNodesToTreeView(XmlNode xmlNode, TreeNode treeNode)
         {
             foreach (XmlNode node in xmlNode.ChildNodes)
             {
                 if (node.Name != null && node.NodeType != XmlNodeType.Text)
                 {
-                    TreeNode tn = new TreeNode();
+                    var tn = new TreeNode();
                     tn.Text = node.Name;
                     foreach (XmlAttribute attribute in node.Attributes)
                         tn.Text += " " + attribute.Name + "= " + attribute.Value;
@@ -97,17 +114,19 @@ namespace vApus.Monitor
                 }
             }
         }
+
         private void tv_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
             rtxt.Clear();
             rtxt.Text = GetText(tv.SelectedNode, 0);
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         private string GetText(TreeNode node, int indent)
         {
-            StringBuilder sb = new StringBuilder();
-            string spaces = new string(' ', indent * 2);
+            var sb = new StringBuilder();
+            var spaces = new string(' ', indent*2);
             sb.Append(spaces);
             sb.Append(node.Text.ToUpper());
 
@@ -125,11 +144,13 @@ namespace vApus.Monitor
 
             return sb.ToString();
         }
+
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (sfd.ShowDialog() == DialogResult.OK)
                 _configuration.Save(sfd.FileName);
         }
+
         #endregion
     }
 }

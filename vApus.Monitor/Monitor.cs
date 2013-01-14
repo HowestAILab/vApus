@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,26 +16,30 @@ using vApusSMT.Base;
 
 namespace vApus.Monitor
 {
-    [ContextMenu(new string[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new string[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
-    [Hotkeys(new string[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" }, new Keys[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
+    [ContextMenu(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
+        new[] {"Edit", "Remove", "Copy", "Cut", "Duplicate"})]
+    [Hotkeys(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
+        new[] {Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D)})]
     [Serializable]
     public class Monitor : LabeledBaseItem
     {
         #region Fields
-        protected internal List<MonitorSource> _monitorSources = new List<MonitorSource>();
+
+        private string[] _filter = new string[0];
         private MonitorSource _monitorSource = new MonitorSource(string.Empty);
         private int _monitorSourceIndex;
+        protected internal List<MonitorSource> _monitorSources = new List<MonitorSource>();
+        private object[] _parameters = new object[0];
 
         private int _previousMonitorSourceIndexForCounters;
         private Dictionary<Entity, List<CounterInfo>> _wiw = new Dictionary<Entity, List<CounterInfo>>();
 
-        private object[] _parameters = new object[0];
-        private string[] _filter = new string[0];
         #endregion
 
         #region Properties
+
         /// <summary>
-        /// To check if the counters match the monitor source.
+        ///     To check if the counters match the monitor source.
         /// </summary>
         [SavableCloneable]
         public int PreviousMonitorSourceIndexForCounters
@@ -42,12 +47,14 @@ namespace vApus.Monitor
             get { return _previousMonitorSourceIndexForCounters; }
             set { _previousMonitorSourceIndexForCounters = value; }
         }
+
         [SavableCloneable]
         public int MonitorSourceIndex
         {
             get { return _monitorSourceIndex; }
             set { _monitorSourceIndex = value; }
         }
+
         [DisplayName("Monitor Source"), PropertyControl(1)]
         public MonitorSource MonitorSource
         {
@@ -64,23 +71,25 @@ namespace vApus.Monitor
         }
 
         /// <summary>
-        ///The counters you want to monitor.
+        ///     The counters you want to monitor.
         /// </summary>
         public Dictionary<Entity, List<CounterInfo>> Wiw
         {
             get { return _wiw; }
             internal set { _wiw = value; }
         }
+
         /// <summary>
-        /// All the parameters, just the values, the names and types and such come from the monitor source.
+        ///     All the parameters, just the values, the names and types and such come from the monitor source.
         /// </summary>
         public object[] Parameters
         {
             get { return _parameters; }
             set { _parameters = value; }
         }
+
         /// <summary>
-        /// To be able to load and save this.
+        ///     To be able to load and save this.
         /// </summary>
         [SavableCloneable]
         public string WIWRepresentation
@@ -93,15 +102,16 @@ namespace vApus.Monitor
                     _wiw = new Dictionary<Entity, List<CounterInfo>>();
             }
         }
+
         /// <summary>
-        /// To be able to load and save this.
+        ///     To be able to load and save this.
         /// </summary>
         [SavableCloneable]
         public string[] ParametersRepresentation
         {
             get
             {
-                string[] repr = new string[_parameters.Length];
+                var repr = new string[_parameters.Length];
                 for (int i = 0; i != _parameters.Length; i++)
                     repr[i] = _parameters[i].ToBinaryToString();
                 return repr;
@@ -113,8 +123,11 @@ namespace vApus.Monitor
                     _parameters[i] = value[i].ToByteArrayToObject();
             }
         }
-        [SavableCloneable()]
-        [Description("To filter the counters in a (large) counter collection. Wild card * can be used. Not case sensitive. All entries are in OR-relation with each other.")]
+
+        [SavableCloneable]
+        [Description(
+            "To filter the counters in a (large) counter collection. Wild card * can be used. Not case sensitive. All entries are in OR-relation with each other."
+            )]
         public string[] Filter
         {
             get { return _filter; }
@@ -124,8 +137,9 @@ namespace vApus.Monitor
         #endregion
 
         #region Functions
+
         /// <summary>
-        /// Set the monitor sources to be able to monitor.
+        ///     Set the monitor sources to be able to monitor.
         /// </summary>
         /// <param name="monitorSources"></param>
         public void SetMonitorSources(string[] monitorSources)
@@ -134,7 +148,7 @@ namespace vApus.Monitor
             if (monitorSources != null)
                 foreach (string source in monitorSources)
                 {
-                    MonitorSource monitorSource = new MonitorSource(source);
+                    var monitorSource = new MonitorSource(source);
                     _monitorSources.Add(monitorSource);
                     monitorSource.SetParent(_monitorSources);
                 }
@@ -145,7 +159,6 @@ namespace vApus.Monitor
             }
             else
             {
-
                 if (_monitorSourceIndex == -1)
                     _monitorSourceIndex = 0;
                 else if (_monitorSourceIndex >= _monitorSources.Count)
@@ -154,10 +167,12 @@ namespace vApus.Monitor
                 _monitorSource = _monitorSources[_monitorSourceIndex];
             }
         }
+
         public override void Activate()
         {
             SolutionComponentViewManager.Show(this);
         }
+
         #endregion
     }
 }

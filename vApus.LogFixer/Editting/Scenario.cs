@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,12 +15,15 @@ namespace vApus.LogFixer
     public class Scenario : List<ScenarioItem>
     {
         public Scenario()
-        { }
+        {
+        }
+
         public Scenario(TrackedChanges trackedChanges)
         {
             foreach (TrackedChange tc in trackedChanges)
                 Add(tc);
         }
+
         public void Add(TrackedChange trackedChange)
         {
             Add(new ScenarioItem(trackedChange));
@@ -30,7 +34,7 @@ namespace vApus.LogFixer
             scenario = new Scenario();
 
             text = text.Replace('\r', '\n');
-            string[] lines = text.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = text.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string line in lines)
             {
@@ -46,7 +50,7 @@ namespace vApus.LogFixer
 
         public string Apply(string textToChange)
         {
-            foreach (var si in this)
+            foreach (ScenarioItem si in this)
                 textToChange = si.Apply(textToChange);
 
             return textToChange;
@@ -54,14 +58,14 @@ namespace vApus.LogFixer
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (ScenarioItem si in this)
                 sb.AppendLine(si.ToString());
 
             return sb.ToString().Trim();
         }
-
     }
+
     public class ScenarioItem
     {
         public enum Action
@@ -69,22 +73,26 @@ namespace vApus.LogFixer
             Add = 0,
             Remove
         }
+
         public enum Where
         {
             AtIndex = 0,
             AsOccurance
         }
 
-        public Action __Action;
-        public string What;
-        public Where __Where;
         public int AtOrOccurance;
 
+        public string What;
+        public Action __Action;
+        public Where __Where;
+
         public ScenarioItem()
-        { }
+        {
+        }
+
         public ScenarioItem(TrackedChange trackedChange)
         {
-            __Action = trackedChange.Action == vApus.LogFixer.Action.Added ? Action.Add : Action.Remove;
+            __Action = trackedChange.Action == LogFixer.Action.Added ? Action.Add : Action.Remove;
             What = "\"" + trackedChange.What + "\"";
             AtOrOccurance = trackedChange.At;
         }
@@ -93,12 +101,12 @@ namespace vApus.LogFixer
         {
             scenarioItem = new ScenarioItem();
 
-            string[] words = line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            string[] words = line.Split(new[] {" "}, StringSplitOptions.RemoveEmptyEntries);
 
             //The max word count of a valid line
             if (words.Length == 4)
             {
-                if (!Enum.TryParse<Action>(words[0], out scenarioItem.__Action))
+                if (!Enum.TryParse(words[0], out scenarioItem.__Action))
                     return false;
 
                 if (words[1].Length < 2)
@@ -111,7 +119,7 @@ namespace vApus.LogFixer
                 else
                     return false;
 
-                if (!Enum.TryParse<Where>(words[2], out scenarioItem.__Where))
+                if (!Enum.TryParse(words[2], out scenarioItem.__Where))
                     return false;
 
                 //This is not concrete, thus not valid.
@@ -130,9 +138,10 @@ namespace vApus.LogFixer
         {
             if (__Action == Action.Add)
             {
-                int index = (__Where == Where.AtIndex) ?
-                                                    AtOrOccurance : FindOccuranceIndex(AtOrOccurance, textToChange);
-                
+                int index = (__Where == Where.AtIndex)
+                                ? AtOrOccurance
+                                : FindOccuranceIndex(AtOrOccurance, textToChange);
+
                 if (__Where == Where.AsOccurance && index != int.MaxValue)
                     ++index;
                 if (index < 0)
@@ -149,8 +158,9 @@ namespace vApus.LogFixer
             {
                 if (What == "char")
                 {
-                    int index = (__Where == Where.AtIndex) ?
-                                       AtOrOccurance : FindOccuranceIndex(AtOrOccurance, textToChange);
+                    int index = (__Where == Where.AtIndex)
+                                    ? AtOrOccurance
+                                    : FindOccuranceIndex(AtOrOccurance, textToChange);
                     if (index < 0)
                         index = 0;
                     else if (index >= textToChange.Length)
@@ -164,8 +174,9 @@ namespace vApus.LogFixer
 
                     int index = int.MaxValue;
 
-                    index = (__Where == Where.AtIndex) ? 
-                        ClosestMatchWhat(textToChange) : index = FindOccuranceIndex(AtOrOccurance, textToChange);
+                    index = (__Where == Where.AtIndex)
+                                ? ClosestMatchWhat(textToChange)
+                                : index = FindOccuranceIndex(AtOrOccurance, textToChange);
 
                     if (index < textToChange.Length)
                         textToChange = textToChange.Remove(index, what.Length);
@@ -174,8 +185,9 @@ namespace vApus.LogFixer
 
             return textToChange;
         }
+
         /// <summary>
-        /// Find the index of What in the text to change of the given occurance.
+        ///     Find the index of What in the text to change of the given occurance.
         /// </summary>
         /// <param name="occurance"></param>
         /// <returns>If this equals int.MaxValue nothing was found.</returns>
@@ -208,6 +220,7 @@ namespace vApus.LogFixer
                 return down;
             return up;
         }
+
         private int ClosestMatchWhatDown(string textToChange)
         {
             string what = What.Substring(1, What.Length - 2);
@@ -223,6 +236,7 @@ namespace vApus.LogFixer
 
             return int.MaxValue;
         }
+
         private int ClosestMatchWhatUp(string textToChange)
         {
             string what = What.Substring(1, What.Length - 2);

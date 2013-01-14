@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections;
 using System.Linq;
@@ -15,24 +16,32 @@ namespace vApus.Util
     public partial class SelectCollectionItemsDialog : Form
     {
         #region Fields
-        private IEnumerable _value, _newValue;
+
+        private IEnumerable _newValue;
+        private IEnumerable _value;
+
         #endregion
 
         #region Properties
+
         public IEnumerable NewValue
         {
             get { return _newValue; }
         }
+
         #endregion
 
         #region Constructor
+
         public SelectCollectionItemsDialog()
         {
             InitializeComponent();
         }
+
         #endregion
 
         #region Functions
+
         public void SetValue(IEnumerable value)
         {
             _value = value;
@@ -54,6 +63,7 @@ namespace vApus.Util
             }
             enumerator.Reset();
         }
+
         private ListViewItem ListViewItemHasTag(object tag)
         {
             foreach (ListViewItem item in lvw.Items)
@@ -61,9 +71,10 @@ namespace vApus.Util
                     return item;
             return null;
         }
+
         private void btnOK_Click(object sender, EventArgs e)
         {
-            ArrayList arrayList = new ArrayList(lvw.CheckedItems.Count);
+            var arrayList = new ArrayList(lvw.CheckedItems.Count);
             Type elementType = _value.AsQueryable().ElementType;
 
             foreach (ListViewItem item in lvw.CheckedItems)
@@ -76,15 +87,16 @@ namespace vApus.Util
             else if (_value is IList)
             {
                 _newValue = Activator.CreateInstance(_value.GetType()) as IEnumerable;
-                IList list = _newValue as IList;
+                var list = _newValue as IList;
                 for (int i = 0; i < arrayList.Count; i++)
                     list.Add(arrayList[i]);
             }
             _newValue.SetParent(_value.GetParent());
 
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            DialogResult = DialogResult.OK;
+            Close();
         }
+
         #endregion
     }
 }

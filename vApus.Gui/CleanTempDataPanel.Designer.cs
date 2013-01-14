@@ -36,14 +36,10 @@
             this.btnOpenLogs = new System.Windows.Forms.Button();
             this.btnDeleteConnectionProxyTempFiles = new System.Windows.Forms.Button();
             this.btnOpenConnectionProxyTempFiles = new System.Windows.Forms.Button();
-            this.btnDeleteSlaveSideResults = new System.Windows.Forms.Button();
-            this.btnOpenSlaveSideResults = new System.Windows.Forms.Button();
             this.btnDeleteAll = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -57,9 +53,9 @@
             this.groupBox1.Controls.Add(this.btnOpenLogs);
             this.groupBox1.Controls.Add(this.btnDeleteConnectionProxyTempFiles);
             this.groupBox1.Controls.Add(this.btnOpenConnectionProxyTempFiles);
-            this.groupBox1.Location = new System.Drawing.Point(12, 109);
+            this.groupBox1.Location = new System.Drawing.Point(12, 48);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(397, 129);
+            this.groupBox1.Size = new System.Drawing.Size(397, 190);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             // 
@@ -183,47 +179,6 @@
             this.btnOpenConnectionProxyTempFiles.UseVisualStyleBackColor = false;
             this.btnOpenConnectionProxyTempFiles.Click += new System.EventHandler(this.btnOpen_Click);
             // 
-            // btnDeleteSlaveSideResults
-            // 
-            this.btnDeleteSlaveSideResults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteSlaveSideResults.AutoSize = true;
-            this.btnDeleteSlaveSideResults.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnDeleteSlaveSideResults.BackColor = System.Drawing.Color.White;
-            this.btnDeleteSlaveSideResults.Enabled = false;
-            this.btnDeleteSlaveSideResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDeleteSlaveSideResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDeleteSlaveSideResults.Image = global::vApus.Gui.Properties.Resources.delete16x16;
-            this.btnDeleteSlaveSideResults.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnDeleteSlaveSideResults.Location = new System.Drawing.Point(367, 20);
-            this.btnDeleteSlaveSideResults.Name = "btnDeleteSlaveSideResults";
-            this.btnDeleteSlaveSideResults.Size = new System.Drawing.Size(24, 24);
-            this.btnDeleteSlaveSideResults.TabIndex = 1;
-            this.btnDeleteSlaveSideResults.Tag = "SlaveSideResults";
-            this.btnDeleteSlaveSideResults.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnDeleteSlaveSideResults.UseVisualStyleBackColor = false;
-            this.btnDeleteSlaveSideResults.Click += new System.EventHandler(this.btnDelete_Click);
-            // 
-            // btnOpenSlaveSideResults
-            // 
-            this.btnOpenSlaveSideResults.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOpenSlaveSideResults.BackColor = System.Drawing.Color.White;
-            this.btnOpenSlaveSideResults.Enabled = false;
-            this.btnOpenSlaveSideResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOpenSlaveSideResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOpenSlaveSideResults.Image = global::vApus.Gui.Properties.Resources.FolderOpen_16x16_72;
-            this.btnOpenSlaveSideResults.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnOpenSlaveSideResults.Location = new System.Drawing.Point(6, 19);
-            this.btnOpenSlaveSideResults.Name = "btnOpenSlaveSideResults";
-            this.btnOpenSlaveSideResults.Size = new System.Drawing.Size(355, 25);
-            this.btnOpenSlaveSideResults.TabIndex = 0;
-            this.btnOpenSlaveSideResults.Tag = "SlaveSideResults";
-            this.btnOpenSlaveSideResults.Text = "     SlaveSideResults... [?MB]";
-            this.btnOpenSlaveSideResults.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.toolTip.SetToolTip(this.btnOpenSlaveSideResults, "The folder where the results for distributed tests are saved, slave-side.");
-            this.btnOpenSlaveSideResults.UseVisualStyleBackColor = false;
-            this.btnOpenSlaveSideResults.Click += new System.EventHandler(this.btnOpen_Click);
-            // 
             // btnDeleteAll
             // 
             this.btnDeleteAll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -251,30 +206,15 @@
             this.label1.Text = "Here you can delete or clean (eg the current log cannot be deleted) the following" +
     " directories.";
             // 
-            // groupBox2
-            // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.btnOpenSlaveSideResults);
-            this.groupBox2.Controls.Add(this.btnDeleteSlaveSideResults);
-            this.groupBox2.Location = new System.Drawing.Point(12, 48);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(397, 55);
-            this.groupBox2.TabIndex = 0;
-            this.groupBox2.TabStop = false;
-            // 
             // CleanTempDataPanel
             // 
             this.ClientSize = new System.Drawing.Size(421, 284);
-            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.btnDeleteAll);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
             this.Name = "CleanTempDataPanel";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -282,8 +222,6 @@
         #endregion
 
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button btnOpenSlaveSideResults;
-        private System.Windows.Forms.Button btnDeleteSlaveSideResults;
         private System.Windows.Forms.Button btnDeleteUpdateTempFiles;
         private System.Windows.Forms.Button btnOpenUpdateTempFiles;
         private System.Windows.Forms.Button btnDeleteLogs;
@@ -293,7 +231,6 @@
         private System.Windows.Forms.Button btnDeleteAll;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.GroupBox groupBox2;
 
     }
 }

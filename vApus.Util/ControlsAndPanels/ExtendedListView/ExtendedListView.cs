@@ -11,11 +11,10 @@ namespace vApus.Util
 {
     public class ExtendedListView : ListView
     {
-        private bool _sorting = false;
+        private readonly List<EmbeddedControl> _embeddedControls = new List<EmbeddedControl>();
+        private bool _sorting;
 
         #region Interop-Defines
-        [DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wPar, IntPtr lPar);
 
         // ListView messages
         private const int LVM_FIRST = 0x1000;
@@ -23,29 +22,45 @@ namespace vApus.Util
 
         // Windows Messages
         private const int WM_PAINT = 0x000F;
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wPar, IntPtr lPar);
+
         #endregion
-
-        /// <summary>
-        /// Structure to hold an embedded control's info.
-        /// </summary>
-        private struct EmbeddedControl
-        {
-            public Control Control;
-            public int Column;
-            public int Row;
-            public DockStyle Dock;
-            public ListViewItem Item;
-        }
-
-        private List<EmbeddedControl> _embeddedControls = new List<EmbeddedControl>();
 
         public ExtendedListView()
         {
-            this.ColumnClick += new ColumnClickEventHandler(ExtendedListView_ColumnClick);
+            ColumnClick += ExtendedListView_ColumnClick;
+        }
+
+        /// <summary>Return the list of al the controls embedded in this listview.</summary>
+        public List<Control> EmbeddedControls
+        {
+            get
+            {
+                var controls = new List<Control>(_embeddedControls.Count);
+                foreach (EmbeddedControl embeddedControl in _embeddedControls)
+                    controls.Add(embeddedControl.Control);
+                return controls;
+            }
+        }
+
+        [DefaultValue(View.LargeIcon)]
+        public new View View
+        {
+            get { return base.View; }
+            set
+            {
+                // Embedded controls are rendered only when we're in Details mode
+                foreach (EmbeddedControl ec in _embeddedControls)
+                    ec.Control.Visible = (value == View.Details);
+
+                base.View = value;
+            }
         }
 
         /// <summary>
-        /// Adds a control to the ListView.
+        ///     Adds a control to the ListView.
         /// </summary>
         /// <param name="control">Control to be added.</param>
         /// <param name="column">Column index.</param>
@@ -54,8 +69,9 @@ namespace vApus.Util
         {
             AddEmbeddedControl(control, column, row, DockStyle.Fill);
         }
+
         /// <summary>
-        /// Adds a control to the ListView.
+        ///     Adds a control to the ListView.
         /// </summary>
         /// <param name="control">Control to be added.</param>
         /// <param name="column">Column index.</param>
@@ -78,15 +94,18 @@ namespace vApus.Util
             _embeddedControls.Add(embeddedControl);
 
             // Add a Click event handler to select the ListView row when an embedded control is clicked
-            control.Click += new EventHandler(EmbeddedControl_Click);
-            control.SizeChanged += new EventHandler(control_SizeChanged);
+            control.Click += EmbeddedControl_Click;
+            control.SizeChanged += control_SizeChanged;
 
-            this.Controls.Add(control);
+            Controls.Add(control);
         }
+
         /// <summary>
-        /// Removes a control from the ListView.
+        ///     Removes a control from the ListView.
         /// </summary>
-        /// <param name="control">Control to be removed.<./param>
+        /// <param name="control">
+        ///     Control to be removed.
+        ///     <./param>
         public void RemoveEmbeddedControl(Control control)
         {
             if (control == null)
@@ -94,33 +113,34 @@ namespace vApus.Util
 
             for (int i = 0; i < _embeddedControls.Count; i++)
             {
-                EmbeddedControl embeddedControl = (EmbeddedControl)_embeddedControls[i];
+                EmbeddedControl embeddedControl = _embeddedControls[i];
                 if (embeddedControl.Control == control)
                 {
-                    control.Click -= new EventHandler(EmbeddedControl_Click);
-                    this.Controls.Remove(control);
+                    control.Click -= EmbeddedControl_Click;
+                    Controls.Remove(control);
                     _embeddedControls.RemoveAt(i);
                     break;
                 }
             }
             throw new Exception("Control not found!");
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public void ClearEmbeddedControls()
         {
             for (int i = 0; i < _embeddedControls.Count; i++)
             {
-                EmbeddedControl embeddedControl = (EmbeddedControl)_embeddedControls[i];
+                EmbeddedControl embeddedControl = _embeddedControls[i];
 
-                embeddedControl.Control.Click -= new EventHandler(EmbeddedControl_Click);
-                this.Controls.Remove(embeddedControl.Control);
+                embeddedControl.Control.Click -= EmbeddedControl_Click;
+                Controls.Remove(embeddedControl.Control);
             }
             _embeddedControls.Clear();
         }
+
         /// <summary>
-        /// Retrieve the control embedded at a given location.
+        ///     Retrieve the control embedded at a given location.
         /// </summary>
         /// <param name="column">Column index.</param>
         /// <param name="row">Row index.</param>
@@ -133,33 +153,9 @@ namespace vApus.Util
 
             return null;
         }
-        /// <summary>Return the list of al the controls embedded in this listview.</summary>
-        public List<Control> EmbeddedControls
-        {
-            get
-            {
-                List<Control> controls = new List<Control>(_embeddedControls.Count);
-                foreach (EmbeddedControl embeddedControl in _embeddedControls)
-                    controls.Add(embeddedControl.Control);
-                return controls;
-            }
-        }
 
-        [DefaultValue(View.LargeIcon)]
-        public new View View
-        {
-            get { return base.View; }
-            set
-            {
-                // Embedded controls are rendered only when we're in Details mode
-                foreach (EmbeddedControl ec in _embeddedControls)
-                    ec.Control.Visible = (value == View.Details);
-
-                base.View = value;
-            }
-        }
         /// <summary>
-        /// Retrieves the bounds of a ListViewSubItem.
+        ///     Retrieves the bounds of a ListViewSubItem.
         /// </summary>
         /// <param name="item">The Item containing the subItem.</param>
         /// <param name="subItem">Index of the subItem.</param>
@@ -188,39 +184,40 @@ namespace vApus.Util
             int i;
             for (i = 0; i < order.Length; i++)
             {
-                col = this.Columns[order[i]];
+                col = Columns[order[i]];
                 if (col.Index == subItem)
                     break;
                 subItemX += col.Width;
             }
 
-            subItemRectangle = new Rectangle(subItemX, lviBounds.Top, this.Columns[order[i]].Width, lviBounds.Height);
+            subItemRectangle = new Rectangle(subItemX, lviBounds.Top, Columns[order[i]].Width, lviBounds.Height);
 
             return subItemRectangle;
         }
 
         /// <summary>
-        /// Retrieve the order in which columns appear.
+        ///     Retrieve the order in which columns appear.
         /// </summary>
         /// <returns>Current display order of column indices.</returns>
         protected int[] GetColumnOrder()
         {
-            IntPtr lPar = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)) * Columns.Count);
+            IntPtr lPar = Marshal.AllocHGlobal(Marshal.SizeOf(typeof (int))*Columns.Count);
 
             IntPtr res = SendMessage(Handle, LVM_GETCOLUMNORDERARRAY, new IntPtr(Columns.Count), lPar);
-            if (res.ToInt32() == 0)	// Something went wrong
+            if (res.ToInt32() == 0) // Something went wrong
             {
                 Marshal.FreeHGlobal(lPar);
                 return null;
             }
 
-            int[] order = new int[Columns.Count];
+            var order = new int[Columns.Count];
             Marshal.Copy(lPar, order, 0, Columns.Count);
 
             Marshal.FreeHGlobal(lPar);
 
             return order;
         }
+
         protected override void WndProc(ref Message message)
         {
             switch (message.Msg)
@@ -232,10 +229,10 @@ namespace vApus.Util
                     // Calculate the position of all embedded controls
                     foreach (EmbeddedControl ec in _embeddedControls)
                     {
-                        Rectangle rectangle = this.GetSubItemBounds(ec.Item, ec.Column);
+                        Rectangle rectangle = GetSubItemBounds(ec.Item, ec.Column);
 
-                        if ((this.HeaderStyle != ColumnHeaderStyle.None) &&
-                            (rectangle.Top < this.Font.Height)) // Control overlaps ColumnHeader
+                        if ((HeaderStyle != ColumnHeaderStyle.None) &&
+                            (rectangle.Top < Font.Height)) // Control overlaps ColumnHeader
                         {
                             ec.Control.Visible = false;
                             continue;
@@ -282,48 +279,63 @@ namespace vApus.Util
             // When a control is clicked the ListViewItem holding it is selected
             foreach (EmbeddedControl embeddedControl in _embeddedControls)
             {
-                if (embeddedControl.Control == (Control)sender)
+                if (embeddedControl.Control == sender)
                 {
-                    this.SelectedItems.Clear();
+                    SelectedItems.Clear();
                     embeddedControl.Item.Selected = true;
                 }
             }
         }
+
         private void control_SizeChanged(object sender, EventArgs e)
         {
             //this.Refresh();
         }
+
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            this.ResumeLayout(false);
-
+            SuspendLayout();
+            ResumeLayout(false);
         }
+
         //To sort
         private void ExtendedListView_ColumnClick(object sender, ColumnClickEventArgs e)
         {
             _sorting = true;
             // --- Perform sorting
-            SortableListviewColumnHeader sorter = this.Columns[e.Column] as SortableListviewColumnHeader;
+            var sorter = Columns[e.Column] as SortableListviewColumnHeader;
 
             if (sorter == null)
                 return;
 
-            if (this.Sorting == SortOrder.None)
-                this.Sorting = SortOrder.Ascending;
-            else if (this.Sorting == SortOrder.Ascending)
-                this.Sorting = SortOrder.Descending;
+            if (Sorting == SortOrder.None)
+                Sorting = SortOrder.Ascending;
+            else if (Sorting == SortOrder.Ascending)
+                Sorting = SortOrder.Descending;
             else
-                this.Sorting = SortOrder.Ascending;
+                Sorting = SortOrder.Ascending;
 
             sorter.Column = e.Column;
-            this.ListViewItemSorter = sorter;
+            ListViewItemSorter = sorter;
             _sorting = false;
         }
+
         protected override void OnSelectedIndexChanged(EventArgs e)
         {
             if (!_sorting)
                 base.OnSelectedIndexChanged(e);
+        }
+
+        /// <summary>
+        ///     Structure to hold an embedded control's info.
+        /// </summary>
+        private struct EmbeddedControl
+        {
+            public int Column;
+            public Control Control;
+            public DockStyle Dock;
+            public ListViewItem Item;
+            public int Row;
         }
     }
 }

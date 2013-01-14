@@ -5,22 +5,26 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
+
 namespace vApus.Monitor
 {
     [Serializable]
     public class MonitorSource
     {
-        private string _source = "<None>";
+        private readonly string _source = "<None>";
+
+        public MonitorSource(string source)
+        {
+            _source = source;
+        }
 
         public string Source
         {
             get { return _source; }
         }
-        public MonitorSource(string source)
-        {
-            _source = source;
-        }
+
         public override string ToString()
         {
             return _source;

@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Windows.Forms;
 using vApus.SolutionTree;
@@ -15,43 +16,54 @@ namespace vApus.DistributedTesting
     public partial class SlaveTile : UserControl
     {
         #region Events
+
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
 
         public event EventHandler GoToAssignedTest;
+
         #endregion
 
         #region Fields
-        private Slave _slave;
+
+        private readonly DistributedTest _distributedTest;
         private bool _clientOnline = false;
-        private DistributedTest _distributedTest;
         private DistributedTestMode _distributedTestMode;
+        private Slave _slave;
+
         #endregion
 
         #region Properties
+
         public Slave Slave
         {
             get { return _slave; }
         }
+
         public bool ClientOnline
         {
             get { return _clientOnline; }
         }
+
         #endregion
 
         #region Constructor
+
         public SlaveTile()
         {
             InitializeComponent();
         }
+
         public SlaveTile(DistributedTest distributedTest)
             : this()
         {
             _distributedTest = distributedTest;
         }
+
         #endregion
 
         #region Functions
+
         public void SetSlave(Slave slave)
         {
             if (_slave != slave)
@@ -65,6 +77,7 @@ namespace vApus.DistributedTesting
             if (sender == _slave)
                 SetGui();
         }
+
         private void SetGui()
         {
             if (nudPort.Value != _slave.Port)
@@ -88,9 +101,11 @@ namespace vApus.DistributedTesting
                 }
                 else //Show the full name in the tooltip
                 {
-                    string label = _slave.TileStresstest.Parent.ToString() + " -> " + _slave.TileStresstest.Index + ") " +
-                                    ((_slave.TileStresstest.BasicTileStresstest.Connection == null || _slave.TileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
-                                    string.Empty : _slave.TileStresstest.BasicTileStresstest.Connection.ToString());
+                    string label = _slave.TileStresstest.Parent + " -> " + _slave.TileStresstest.Index + ") " +
+                                   ((_slave.TileStresstest.BasicTileStresstest.Connection == null ||
+                                     _slave.TileStresstest.BasicTileStresstest.Connection.IsEmpty)
+                                        ? string.Empty
+                                        : _slave.TileStresstest.BasicTileStresstest.Connection.ToString());
 
 
                     toolTip.SetToolTip(llblTest, label);
@@ -101,11 +116,12 @@ namespace vApus.DistributedTesting
         private void nudPort_ValueChanged(object sender, EventArgs e)
         {
             //Check if the port is not already used. Don't allow duplicates.
-            int port = (int)nudPort.Value;
+            var port = (int) nudPort.Value;
             foreach (Slave slave in _slave.Parent)
                 if (slave.Port == port && slave != _slave)
                 {
-                    MessageBox.Show(this, "Cannot use the same port more than once.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, "Cannot use the same port more than once.", string.Empty, MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
                     nudPort.ValueChanged -= nudPort_ValueChanged;
                     nudPort.Value = _slave.Port;
                     nudPort.ValueChanged += nudPort_ValueChanged;
@@ -116,9 +132,10 @@ namespace vApus.DistributedTesting
             _slave.Port = port;
             _slave.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
+
         private void llblPA_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            FromTextDialog ftd = new FromTextDialog();
+            var ftd = new FromTextDialog();
             ftd.Text = "The one-based indices of the CPU cores, each on a new line.";
             ftd.SetText(_slave.ProcessorAffinity.Combine("\n"));
 
@@ -127,7 +144,7 @@ namespace vApus.DistributedTesting
                 string paToString = ftd.Entries.Combine(", ");
                 if (llblPA.Text != paToString)
                 {
-                    int[] pa = new int[paToString.Length == 0 ? 0 : ftd.Entries.Length];
+                    var pa = new int[paToString.Length == 0 ? 0 : ftd.Entries.Length];
                     if (paToString.Length != 0)
                         for (int i = 0; i != pa.Length; i++)
                         {
@@ -151,7 +168,7 @@ namespace vApus.DistributedTesting
 
         private void llblTest_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            AssignTest assignTest = new AssignTest(_distributedTest, _slave.TileStresstest);
+            var assignTest = new AssignTest(_distributedTest, _slave.TileStresstest);
             if (assignTest.ShowDialog() == DialogResult.OK)
             {
                 try
@@ -168,9 +185,11 @@ namespace vApus.DistributedTesting
                         }
                         else //Show the full name in the tooltip
                         {
-                            string label = _slave.TileStresstest.Parent.ToString() + " -> " + _slave.TileStresstest.Index + ") " +
-                                            ((_slave.TileStresstest.BasicTileStresstest.Connection == null || _slave.TileStresstest.BasicTileStresstest.Connection.IsEmpty) ?
-                                            string.Empty : _slave.TileStresstest.BasicTileStresstest.Connection.ToString());
+                            string label = _slave.TileStresstest.Parent + " -> " + _slave.TileStresstest.Index + ") " +
+                                           ((_slave.TileStresstest.BasicTileStresstest.Connection == null ||
+                                             _slave.TileStresstest.BasicTileStresstest.Connection.IsEmpty)
+                                                ? string.Empty
+                                                : _slave.TileStresstest.BasicTileStresstest.Connection.ToString());
 
 
                             toolTip.SetToolTip(llblTest, label);
@@ -209,31 +228,31 @@ namespace vApus.DistributedTesting
                 if (_distributedTestMode == DistributedTestMode.Edit)
                     if (_slave.TileStresstest == null)
                     {
-                        this.Visible = true;
+                        Visible = true;
                     }
                     else
                     {
                         picDuplicate.Visible =
-                        picDelete.Visible =
-                        nudPort.Enabled =
-                        llblPA.Enabled =
-                        llblTest.Enabled = true;
+                            picDelete.Visible =
+                            nudPort.Enabled =
+                            llblPA.Enabled =
+                            llblTest.Enabled = true;
                     }
+                else if (_slave.TileStresstest == null)
+                {
+                    Visible = false;
+                }
                 else
-                    if (_slave.TileStresstest == null)
-                    {
-                        this.Visible = false;
-                    }
-                    else
-                    {
-                        picDuplicate.Visible =
+                {
+                    picDuplicate.Visible =
                         picDelete.Visible =
                         nudPort.Enabled =
                         llblPA.Enabled =
                         llblTest.Enabled = false;
-                    }
+                }
             }
         }
+
         #endregion
     }
 }

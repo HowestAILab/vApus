@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Windows.Forms;
 using vApus.SolutionTree;
@@ -14,18 +15,20 @@ namespace vApus.Stresstest
     public partial class CustomRandomParameterPanel : UserControl
     {
         private CustomRandomParameter _parameter;
+
+        public CustomRandomParameterPanel()
+        {
+            InitializeComponent();
+        }
+
         /// <summary>
-        /// Call Init(...) to set.
+        ///     Call Init(...) to set.
         /// </summary>
         public CustomRandomParameter Parameter
         {
             get { return _parameter; }
         }
 
-        public CustomRandomParameterPanel()
-        {
-            InitializeComponent();
-        }
         public void Init(SolutionComponent solutionComponent)
         {
             cbGenerate.CodeTextChangedDelayed -= cbGenerate_CodeTextChangedDelayed;
@@ -43,6 +46,7 @@ namespace vApus.Stresstest
             chkUnique.Checked = _parameter.Unique;
             chkUnique.CheckedChanged += chkUnique_CheckedChanged;
         }
+
         private void cbGenerate_CodeTextChangedDelayed(object sender, EventArgs e)
         {
             cbGenerate.RefreshLineNumbers(2);
@@ -50,10 +54,12 @@ namespace vApus.Stresstest
             _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void compileCustomRandom_CompileErrorButtonClicked(object sender, TestCustomRandom.CompileErrorButtonClickedEventArgs e)
+        private void compileCustomRandom_CompileErrorButtonClicked(object sender,
+                                                                   TestCustomRandom.CompileErrorButtonClickedEventArgs e)
         {
             e.CodePart.SelectLine(e.LineNumber);
         }
+
         internal void TryCompileAndTestCode(out Exception exception)
         {
             compileCustomRandom.TryCompileAndTestCode(out exception);

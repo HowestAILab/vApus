@@ -13,10 +13,8 @@ using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
-    public class BasicTileStresstest : BaseItem
-    {
+namespace vApus.DistributedTesting {
+    public class BasicTileStresstest : BaseItem {
         #region Fields
         protected internal Connection _connection;
         private Monitor.MonitorProject _monitorProject;
@@ -33,12 +31,9 @@ namespace vApus.DistributedTesting
         #region Properties
         [Description("The connection to the application to test.")]
         [PropertyControl(0), SavableCloneable]
-        public Connection Connection
-        {
-            get
-            {
-                if (_connection != null)
-                {
+        public Connection Connection {
+            get {
+                if (_connection != null) {
                     if (_connection.IsEmpty)
                         Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
 
@@ -46,8 +41,7 @@ namespace vApus.DistributedTesting
                 }
                 return _connection;
             }
-            set
-            {
+            set {
                 value.ParentIsNull -= _connection_ParentIsNull;
                 _connection = value;
                 _connection.ParentIsNull += _connection_ParentIsNull;
@@ -55,21 +49,17 @@ namespace vApus.DistributedTesting
         }
         [ReadOnly(true)]
         [DisplayName("Connection Proxy")]
-        public string ConnectionProxy
-        {
-            get
-            {
+        public string ConnectionProxy {
+            get {
                 if (_connection == null || _connection.IsEmpty || _connection.ConnectionProxy.IsEmpty)
                     return "Connection Proxy: <none>";
                 return _connection.ConnectionProxy.ToString();
             }
         }
         [SavableCloneable]
-        public int[] MonitorIndices
-        {
+        public int[] MonitorIndices {
             get { return _monitorIndices; }
-            set
-            {
+            set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
 
@@ -77,16 +67,12 @@ namespace vApus.DistributedTesting
             }
         }
         [PropertyControl(1)]
-        public Monitor.Monitor[] Monitors
-        {
-            get
-            {
-                if (_monitors.Length != _monitorIndices.Length && _monitorProject != null)
-                {
+        public Monitor.Monitor[] Monitors {
+            get {
+                if (_monitors.Length != _monitorIndices.Length && _monitorProject != null) {
                     List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorIndices.Length);
                     foreach (int index in _monitorIndices)
-                        if (index < _monitorProject.Count)
-                        {
+                        if (index < _monitorProject.Count) {
                             var monitor = _monitorProject[index] as Monitor.Monitor;
                             if (!l.Contains(monitor))
                                 l.Add(monitor);
@@ -98,16 +84,14 @@ namespace vApus.DistributedTesting
 
                 return _monitors;
             }
-            set
-            {
+            set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
                 if (value.Length > 5)
                     throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
 
                 _monitors = value;
-                if (_monitorProject != null)
-                {
+                if (_monitorProject != null) {
                     _monitors.SetParent(_monitorProject);
 
                     List<int> l = new List<int>(_monitors.Length);
@@ -120,11 +104,9 @@ namespace vApus.DistributedTesting
             }
         }
         [SavableCloneable]
-        public int[] SlaveIndices
-        {
+        public int[] SlaveIndices {
             get { return _slaveIndices; }
-            set
-            {
+            set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
 
@@ -133,36 +115,32 @@ namespace vApus.DistributedTesting
         }
         [PropertyControl(2)]
         [Description("Currently limited to one (only the first one counts). More than one slave will be handy in the future for many-to-one testing.")]
-        public Slave[] Slaves
-        {
-            get
-            {
+        public Slave[] Slaves {
+            get {
 
                 var slavesParent = SlavesParent;
-                if (_slaves.Length != _slaveIndices.Length && slavesParent != null)
-                {
+                if (slavesParent == null) return new Slave[0];
+                if (_slaves.Length != _slaveIndices.Length) {
                     var l = new List<Slave>(_slaveIndices.Length);
                     foreach (int index in _slaveIndices)
-                        if (index < slavesParent.Count)
-                        {
+                        if (index < slavesParent.Count) {
                             var slave = slavesParent[index] as Slave;
                             if (!l.Contains(slave)) l.Add(slave);
                         }
 
                     Slaves = l.ToArray();
                 }
-                if (!_slaves.GetParent().Equals(slavesParent)) _slaves.SetParent(slavesParent);
+                var currentParent = _slaves.GetParent();
+                if (currentParent == null || !currentParent.Equals(slavesParent)) _slaves.SetParent(slavesParent);
                 return _slaves;
             }
-            set
-            {
+            set {
                 if (value == null) throw new ArgumentNullException("Can be empty but not null.");
 
                 _slaves = value;
 
                 var slavesParent = SlavesParent;
-                if (slavesParent != null)
-                {
+                if (slavesParent != null) {
                     _slaves.SetParent(slavesParent);
 
                     var l = new List<int>(_slaves.Length);
@@ -174,17 +152,13 @@ namespace vApus.DistributedTesting
                 }
             }
         }
-        internal List<Slave> SlavesParent
-        {
-            get
-            {
-                try
-                {
+        internal List<Slave> SlavesParent {
+            get {
+                try {
                     if (this.Parent != null &&
                         this.Parent.GetParent() != null &&
                         this.Parent.GetParent().GetParent() != null &&
-                        this.Parent.GetParent().GetParent().GetParent() != null)
-                    {
+                        this.Parent.GetParent().GetParent().GetParent() != null) {
                         _slavesParent.Clear();
                         Clients clientsAndSlaves = (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).Clients;
 
@@ -199,16 +173,14 @@ namespace vApus.DistributedTesting
             }
         }
         [SavableCloneable]
-        public int[] WorkDistribution
-        {
+        public int[] WorkDistribution {
             get { return _WorkDistribution; }
             set { _WorkDistribution = value; }
         }
         #endregion
 
         #region Constructor
-        public BasicTileStresstest()
-        {
+        public BasicTileStresstest() {
             ShowInGui = false;
             if (Solution.ActiveSolution != null)
                 Init();
@@ -218,13 +190,11 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Functions
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             Init();
         }
-        private void Init()
-        {
+        private void Init() {
             Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
             _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
 
@@ -233,16 +203,13 @@ namespace vApus.DistributedTesting
 
             SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponentChanged_SolutionComponentChanged);
         }
-        private void _connection_ParentIsNull(object sender, EventArgs e)
-        {
+        private void _connection_ParentIsNull(object sender, EventArgs e) {
             if (_connection == sender)
                 Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
         }
-        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
+        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             //Cleanup _monitors if _monitorProject Changed
-            if (sender == _monitorProject || sender is Monitor.Monitor)
-            {
+            if (sender == _monitorProject || sender is Monitor.Monitor) {
                 List<Monitor.Monitor> l = new List<Monitor.Monitor>(_monitorProject.Count);
                 foreach (Monitor.Monitor monitor in _monitors)
                     if (!l.Contains(monitor) && _monitorProject.Contains(monitor))
@@ -253,8 +220,7 @@ namespace vApus.DistributedTesting
             else //Cleanup slaves
             {
                 var slavesParent = SlavesParent;
-                if (slavesParent != null && (sender == slavesParent || sender is Client || sender is Slave))
-                {
+                if (slavesParent != null && (sender == slavesParent || sender is Client || sender is Slave)) {
                     List<Slave> l = new List<Slave>(slavesParent.Count);
                     foreach (Slave slave in _slaves)
                         if (!l.Contains(slave) && slavesParent.Contains(slave))
@@ -269,8 +235,7 @@ namespace vApus.DistributedTesting
         /// Create clone of this.f
         /// </summary>
         /// <returns></returns>
-        public BasicTileStresstest Clone()
-        {
+        public BasicTileStresstest Clone() {
             var clone = new BasicTileStresstest();
             clone.Connection = _connection;
             clone.MonitorIndices = new int[_monitorIndices.Length];

@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using vApus.Util;
@@ -14,40 +15,47 @@ namespace vApus.Stresstest
     public partial class RuleSetSyntaxItemPanel : ValueControlPanel
     {
         #region Events
+
         public event EventHandler InputChanged;
+
         #endregion
 
         #region Fields
-        private BaseRuleSet _ruleSet;
+
         private string _input;
+        private BaseRuleSet _ruleSet;
         private List<string> _splitInput;
+
         #endregion
 
         #region Properties
+
         public BaseRuleSet RuleSet
         {
             get { return _ruleSet; }
         }
+
         public string Input
         {
             get { return _input; }
         }
+
         #endregion
 
         public RuleSetSyntaxItemPanel()
         {
             InitializeComponent();
 
-            this.ValueChanged += new EventHandler<ValueChangedEventArgs>(RuleSetSyntaxItemPanel_ValueChanged);
+            ValueChanged += RuleSetSyntaxItemPanel_ValueChanged;
         }
 
-        private void RuleSetSyntaxItemPanel_ValueChanged(object sender, ValueControlPanel.ValueChangedEventArgs e)
+        private void RuleSetSyntaxItemPanel_ValueChanged(object sender, ValueChangedEventArgs e)
         {
             _input = string.Empty;
-            _splitInput = new List<string> { };
+            _splitInput = new List<string> {};
             for (int i = 0; i < base.ValueControls.Count; i++)
             {
-                BaseValueControl valueControl = base.ValueControls[i] as BaseValueControl;
+                var valueControl = base.ValueControls[i] as BaseValueControl;
                 string value = valueControl.__Value.__Value.ToString();
                 _splitInput.Add(value);
                 _input = (i == 0) ? value : string.Format("{0}{1}{2}", _input, _ruleSet.ChildDelimiter, value);
@@ -63,27 +71,29 @@ namespace vApus.Stresstest
             if (input == null)
                 throw new ArgumentNullException("input");
 
-            this.ValueChanged -= RuleSetSyntaxItemPanel_ValueChanged;
+            ValueChanged -= RuleSetSyntaxItemPanel_ValueChanged;
 
             _ruleSet = ruleSet;
             _input = input;
-            _splitInput = new List<string>(_input.Split(new string[] { _ruleSet.ChildDelimiter }, StringSplitOptions.None));
+            _splitInput = new List<string>(_input.Split(new[] {_ruleSet.ChildDelimiter}, StringSplitOptions.None));
 
             if (IsHandleCreated)
                 SetGui();
             else
-                this.HandleCreated += new EventHandler(RuleSetSyntaxItemPanel_HandleCreated);
+                HandleCreated += RuleSetSyntaxItemPanel_HandleCreated;
 
-            this.ValueChanged += RuleSetSyntaxItemPanel_ValueChanged;
+            ValueChanged += RuleSetSyntaxItemPanel_ValueChanged;
         }
+
         private void RuleSetSyntaxItemPanel_HandleCreated(object sender, EventArgs e)
         {
-            this.HandleCreated -= RuleSetSyntaxItemPanel_HandleCreated;
+            HandleCreated -= RuleSetSyntaxItemPanel_HandleCreated;
             SetGui();
         }
+
         private void SetGui()
         {
-            List<BaseValueControl.Value> values = new List<BaseValueControl.Value>(_ruleSet.Count);
+            var values = new List<BaseValueControl.Value>(_ruleSet.Count);
             if (_input != null && _ruleSet != null)
             {
                 if (_input.Length == 0)
@@ -96,7 +106,7 @@ namespace vApus.Stresstest
                     int indexModifier = 0;
                     for (int i = 0; i < _ruleSet.Count; i++)
                     {
-                        SyntaxItem syntaxItem = _ruleSet[i] as SyntaxItem;
+                        var syntaxItem = _ruleSet[i] as SyntaxItem;
                         if (indexModifier >= _splitInput.Count)
                             values.Add(CreateValue(syntaxItem, string.Empty));
                         else
@@ -107,13 +117,14 @@ namespace vApus.Stresstest
             }
             base.SetValues(values.ToArray());
         }
+
         private BaseValueControl.Value CreateValue(SyntaxItem syntaxItem, string input)
         {
             object value = input;
             bool isEncrypted = false;
             if (syntaxItem.Count != 0 && syntaxItem[0] is Rule)
             {
-                Rule rule = syntaxItem[0] as Rule;
+                var rule = syntaxItem[0] as Rule;
                 isEncrypted = rule.UsePasswordChar;
 
                 switch (rule.ValueType)
@@ -173,7 +184,14 @@ namespace vApus.Stresstest
                 }
             }
 
-            return new BaseValueControl.Value { __Value = value, Description = syntaxItem.Description, IsEncrypted = isEncrypted, IsReadOnly = false, Label = syntaxItem.Label };
+            return new BaseValueControl.Value
+                {
+                    __Value = value,
+                    Description = syntaxItem.Description,
+                    IsEncrypted = isEncrypted,
+                    IsReadOnly = false,
+                    Label = syntaxItem.Label
+                };
         }
     }
 }

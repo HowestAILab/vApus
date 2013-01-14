@@ -5,45 +5,56 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using vApus.SolutionTree;
+
 using System.Collections.Generic;
+using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting
 {
     public class Client : BaseItem
     {
         #region Fields
-        private string _ip = string.Empty, _hostName = string.Empty;
+
+        private string _domain = string.Empty;
+        private string _hostName = string.Empty;
+        private string _ip = string.Empty;
 
         //RDP credentials.
-        private string _userName = string.Empty, _password = string.Empty, _domain = string.Empty;
+        private string _password = string.Empty;
+        private string _userName = string.Empty;
+
         #endregion
 
         #region Properties
+
         [SavableCloneable]
         public string HostName
         {
             get { return _hostName; }
             set { _hostName = value; }
         }
+
         [SavableCloneable]
         public string IP
         {
             get { return _ip; }
             set { _ip = value; }
         }
+
         [SavableCloneable]
         public string UserName
         {
             get { return _userName; }
             set { _userName = value; }
         }
+
         [SavableCloneable(true)]
         public string Password
         {
             get { return _password; }
             set { _password = value; }
         }
+
         [SavableCloneable]
         public string Domain
         {
@@ -52,7 +63,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// The count of the slaves that are used.
+        ///     The count of the slaves that are used.
         /// </summary>
         public int UsedSlaveCount
         {
@@ -65,34 +76,41 @@ namespace vApus.DistributedTesting
                         if (s.TileStresstest != null)
                             ++count;
                 }
-                catch { }
+                catch
+                {
+                }
                 return count;
             }
         }
+
         #endregion
 
         #region Constructors
+
         public Client()
         {
             ShowInGui = false;
         }
+
         #endregion
 
         #region Functions
+
         public void Sort()
         {
-            List<Slave> slaves = new List<Slave>();
+            var slaves = new List<Slave>();
             foreach (Slave slave in this)
                 slaves.Add(slave);
 
             if (!IsSorted(slaves))
             {
-                slaves.Sort(vApus.DistributedTesting.Slave.SlaveComparer.GetInstance());
+                slaves.Sort(Slave.SlaveComparer.GetInstance());
 
-                this.ClearWithoutInvokingEvent();
-                this.AddRange(slaves);
+                ClearWithoutInvokingEvent();
+                AddRange(slaves);
             }
         }
+
         private bool IsSorted(List<Slave> slaves)
         {
             for (int i = 0; i < slaves.Count - 1; i++)
@@ -100,9 +118,10 @@ namespace vApus.DistributedTesting
                     return false;
             return true;
         }
+
         public Client Clone()
         {
-            Client clone = new Client();
+            var clone = new Client();
             clone.ClearWithoutInvokingEvent();
 
             clone.HostName = _hostName;
@@ -113,6 +132,7 @@ namespace vApus.DistributedTesting
 
             return clone;
         }
+
         public override string ToString()
         {
             string hostname = (_hostName.Length == 0) ? string.Empty : _hostName;
@@ -120,6 +140,7 @@ namespace vApus.DistributedTesting
 
             return "Host Name: " + hostname + "  -  IP: " + ip;
         }
+
         #endregion
     }
 }

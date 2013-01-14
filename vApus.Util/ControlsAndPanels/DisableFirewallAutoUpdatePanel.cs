@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -22,55 +23,73 @@ namespace vApus.Util
             WindowsAutoUpdateEnabled = 2,
             AllEnabled = 3
         }
+
+        private readonly ActiveObject _activeObject = new ActiveObject();
+        private readonly ApplyDel _applyCallback;
         private Status _status;
-        private delegate void ApplyDel();
-        private ApplyDel _applyCallback;
-        private ActiveObject _activeObject = new ActiveObject();
+
+        public DisableFirewallAutoUpdatePanel()
+        {
+            InitializeComponent();
+            _applyCallback = ApplyCallback;
+            _activeObject.OnResult += _activeObject_OnResult;
+            HandleCreated += DisableFirewallAutoUpdatePanel_HandleCreated;
+        }
 
         public Status __Status
         {
             get { return _status; }
         }
 
-        public DisableFirewallAutoUpdatePanel()
-        {
-            InitializeComponent();
-            _applyCallback = ApplyCallback;
-            _activeObject.OnResult += new EventHandler<ActiveObject.OnResultEventArgs>(_activeObject_OnResult);
-            this.HandleCreated += new EventHandler(DisableFirewallAutoUpdatePanel_HandleCreated);
-        }
-
         private void DisableFirewallAutoUpdatePanel_HandleCreated(object sender, EventArgs e)
         {
             CheckStatus();
         }
+
         public Status CheckStatus()
         {
             _status = Status.AllDisabled;
 
             //Firewall
-            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
-            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
-            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile", "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
+            EvaluateValue(
+                Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile",
+                    "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
+            EvaluateValue(
+                Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile",
+                    "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
+            EvaluateValue(
+                Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile",
+                    "EnableFirewall", 0), 0, Status.WindowsFirewallEnabled);
             //windows update
-            EvaluateValue(Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", 1), 1, Status.WindowsAutoUpdateEnabled);
+            EvaluateValue(
+                Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update",
+                    "AUOptions", 1), 1, Status.WindowsAutoUpdateEnabled);
 
             if (Handle != null)
                 SetGui();
             return _status;
         }
+
         private void EvaluateValue(object value, int validValue, Status append)
         {
             try
             {
-                if ((int)value != validValue)
+                if ((int) value != validValue)
                     _status |= append;
             }
             catch
             {
-                LogWrapper.LogByLevel("[" + this + "] Failed checking if the firewall and Windows auto update are enabled or not!\nCould not find a registry key.", LogLevel.Error);
+                LogWrapper.LogByLevel(
+                    "[" + this +
+                    "] Failed checking if the firewall and Windows auto update are enabled or not!\nCould not find a registry key.",
+                    LogLevel.Error);
             }
         }
+
         private void SetGui()
         {
             rdbFirewallOn.CheckedChanged -= rdb_CheckedChanged;
@@ -99,6 +118,7 @@ namespace vApus.Util
             rdbFirewallOn.CheckedChanged += rdb_CheckedChanged;
             rdbUpdateOn.CheckedChanged += rdb_CheckedChanged;
         }
+
         private void btnDisableAll_Click(object sender, EventArgs e)
         {
             rdbFirewallOn.CheckedChanged -= rdb_CheckedChanged;
@@ -111,10 +131,12 @@ namespace vApus.Util
 
             Disable();
         }
+
         private void rdb_CheckedChanged(object sender, EventArgs e)
         {
             Disable();
         }
+
         private void Disable()
         {
             groupBox.Enabled = false;
@@ -122,16 +144,22 @@ namespace vApus.Util
             btnDisableAll.Text = "Wait...";
             _activeObject.Send(_applyCallback);
         }
+
         private void ApplyCallback()
         {
             try
             {
-
                 //Disable or enable Windows Firewall
                 int value = rdbFirewallOff.Checked ? 0 : 1;
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile", "EnableFirewall", value, RegistryValueKind.DWord);
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile", "EnableFirewall", value, RegistryValueKind.DWord);
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile", "EnableFirewall", value, RegistryValueKind.DWord);
+                Registry.SetValue(
+                    @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\DomainProfile",
+                    "EnableFirewall", value, RegistryValueKind.DWord);
+                Registry.SetValue(
+                    @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\PublicProfile",
+                    "EnableFirewall", value, RegistryValueKind.DWord);
+                Registry.SetValue(
+                    @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\StandardProfile",
+                    "EnableFirewall", value, RegistryValueKind.DWord);
 
                 //Restarting the process
                 StartProcess("NET", "STOP MpsSvc");
@@ -139,14 +167,18 @@ namespace vApus.Util
             }
             catch (Exception ex)
             {
-                LogWrapper.LogByLevel("[" + this + "] Failed enabling or disabling the firewall!\nCould not find a registry key.\n" + ex.ToString(), LogLevel.Error);
+                LogWrapper.LogByLevel(
+                    "[" + this + "] Failed enabling or disabling the firewall!\nCould not find a registry key.\n" + ex,
+                    LogLevel.Error);
             }
 
             try
             {
                 //Disabling Auto Update
                 int value = rdbUpdateOff.Checked ? 1 : 4;
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update", "AUOptions", value, RegistryValueKind.DWord);
+                Registry.SetValue(
+                    @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update",
+                    "AUOptions", value, RegistryValueKind.DWord);
 
                 //Restarting the process
                 StartProcess("NET", "STOP wuauserv");
@@ -154,39 +186,53 @@ namespace vApus.Util
             }
             catch (Exception ex)
             {
-                LogWrapper.LogByLevel("[" + this + "] Failed enabling or disabling Windows auto update!\nCould not find a registry key.\n" + ex.ToString(), LogLevel.Error);
+                LogWrapper.LogByLevel(
+                    "[" + this + "] Failed enabling or disabling Windows auto update!\nCould not find a registry key.\n" +
+                    ex, LogLevel.Error);
             }
         }
+
         private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
         {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-            {
-                btnDisableAll.Text = "Disable All";
-                groupBox.Enabled = true;
-                CheckStatus();
-            }, null);
+                {
+                    btnDisableAll.Text = "Disable All";
+                    groupBox.Enabled = true;
+                    CheckStatus();
+                }, null);
         }
+
         private void StartProcess(string process, string arguments)
         {
             Process p = null;
             try
             {
-                ProcessStartInfo startInfo = new ProcessStartInfo(process, arguments);
+                var startInfo = new ProcessStartInfo(process, arguments);
                 startInfo.CreateNoWindow = true;
                 startInfo.UseShellExecute = false;
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 p = Process.Start(startInfo);
                 p.WaitForExit();
             }
-            catch { }
+            catch
+            {
+            }
             if (p != null)
-                try { p.Dispose(); }
-                catch { }
+                try
+                {
+                    p.Dispose();
+                }
+                catch
+                {
+                }
             p = null;
         }
+
         public override string ToString()
         {
             return "Windows Firewall / Auto Update";
         }
+
+        private delegate void ApplyDel();
     }
 }

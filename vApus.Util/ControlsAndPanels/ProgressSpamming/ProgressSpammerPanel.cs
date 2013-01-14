@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace vApus.Util
@@ -35,7 +29,11 @@ namespace vApus.Util
         private void chkEnabled_CheckedChanged(object sender, EventArgs e)
         {
             grp.Enabled = chkEnable.Enabled;
-           // btnSet.Enabled = chkEnable.Checked; 
+            // btnSet.Enabled = chkEnable.Checked; 
+        }
+        public override string ToString()
+        {
+            return "Progress Spammer";
         }
     }
 }

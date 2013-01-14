@@ -19,16 +19,20 @@
  * The user is free to choose the license he/she wants to use, as long as all the above copyright messages
  * and this disclaimer are included.
  */
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 
 namespace vApus.Util
 {
+
     #region Enums
+
     /// <summary>
     /// </summary>
     public enum Hotkeys
@@ -37,24 +41,27 @@ namespace vApus.Util
         Ctrl,
         Shift
     }
+
     /// <summary>
-    /// The sizemode of a control in the LargeList.
+    ///     The sizemode of a control in the LargeList.
     /// </summary>
     public enum SizeMode
     {
         Normal = 0,
+
         /// <summary>
-        /// Stretch the control horizontal en vertical.
+        ///     Stretch the control horizontal en vertical.
         /// </summary>
         Stretch,
         StretchHorizontal,
         StretchVertical
     }
+
     #endregion
 
     /// <summary>
-    /// This control is actualy an advanced pager which can contain 134 217 728 controls.
-    /// Most common functionality is implemented and a few other features.
+    ///     This control is actualy an advanced pager which can contain 134 217 728 controls.
+    ///     Most common functionality is implemented and a few other features.
     /// </summary>
     public partial class LargeList : UserControl, IEnumerable<List<Control>>
     {
@@ -62,150 +69,182 @@ namespace vApus.Util
         private static extern int LockWindowUpdate(int hWnd);
 
         #region Events
+
         /// <summary>
-        /// Occurs after a new view is loaded in de Gui.
+        ///     Occurs after a new view is loaded in de Gui.
         /// </summary>
         public event EventHandler<AfterSwithViewsEventArgs> AfterViewSwitch;
+
         /// <summary>
-        /// Occurs when the selection of controls changes.
+        ///     Occurs when the selection of controls changes.
         /// </summary>
         public event EventHandler<SelectionChangedEventArgs> SelectionChanged;
+
         /// <summary>
-        /// 
         /// </summary>
         public event EventHandler ControlCollectionChanged;
+
         #endregion
 
         #region Fields
+
         /// <summary>
-        /// The maximum capacity for one list of controls. The maximum assignable memory is 2^32 bit, the size of a pointer is 32 bit. 
-        /// This is also the maximum controls the largelist can contain, to make operations like sorting easier. On the other hand, having a List<List<Control>> makes the logic easier.
-        /// This is still a max of 134 217 728 controls.
+        ///     The maximum capacity for one list of controls. The maximum assignable memory is 2^32 bit, the size of a pointer is 32 bit.
+        ///     This is also the maximum controls the largelist can contain, to make operations like sorting easier. On the other hand, having a List<List
+        ///     <Control>
+        ///         > makes the logic easier.
+        ///         This is still a max of 134 217 728 controls.
         /// </summary>
-        private const int MAXCAPACITY = int.MaxValue / 32;
+        private const int MAXCAPACITY = int.MaxValue/32;
+
+        private readonly object _lock = new object();
+
         /// <summary>
-        /// A list of lists with all the controls, one list per view.
+        ///     A list with the scrollvalue to know which value has wich view.
         /// </summary>
-        private List<List<Control>> _controls = new List<List<Control>>();
+        private readonly List<int> _scrollValues = new List<int>();
+
+        private Control _activeControl;
+
+        private KeyValuePair<int, int> _beginOfSelection = new KeyValuePair<int, int>(-1, -1);
+
         /// <summary>
-        /// Extra variable for performance.
+        ///     Extra variable for performance.
         /// </summary>
         private int _controlCount;
+
         /// <summary>
-        /// A list with the scrollvalue to know which value has wich view. 
+        ///     A list of lists with all the controls, one list per view.
         /// </summary>
-        private List<int> _scrollValues = new List<int>();
+        private List<List<Control>> _controls = new List<List<Control>>();
+
+        private int _currentView;
+
         /// <summary>
-        /// The height for drawing the controls.
+        ///     The height for drawing the controls.
         /// </summary>
         private int _drawHeight;
+
+        private KeyValuePair<int, int> _endOfSelection = new KeyValuePair<int, int>(-1, -1);
+
+        private Point _firstSelectionPoint;
+        private Control _lastClickedControl;
+        private Point _lastSelectionPoint;
+
         /// <summary>
-        /// The previous height for the resizing, if it is equal, nothing must be done.
+        ///     The previous height for the resizing, if it is equal, nothing must be done.
         /// </summary>
         private int _previousHeight;
-        // To know how many controls can fit into one view, this is redetermined every time this number is higher then the view.
-        private int _totalControlsHeightsInLastView, _currentView;
+
         /// <summary>
-        /// Selection
+        ///     Selection
         /// </summary>
         private List<Control> _selection = new List<Control>();
-        private Control _activeControl, _lastClickedControl;
-        private Point _firstSelectionPoint, _lastSelectionPoint;
-        private KeyValuePair<int, int> _beginOfSelection = new KeyValuePair<int, int>(-1, -1), _endOfSelection = new KeyValuePair<int, int>(-1, -1);
+
         /// <summary>
-        /// Sizing the controls
+        ///     Sizing the controls
         /// </summary>
         private SizeMode _sizeMode;
-        /// <summary>
-        /// To let stuff wait on each other, because stuff could go wrong because of the Application.DoEvents.
-        /// </summary>
-        private AutoResetEvent _waitHandle = new AutoResetEvent(true);
 
         //For making sure stuff happens correctly after the handle is created.
         private List<Control> _toAdd = new List<Control>();
-        private object _lock = new object();
+        private int _totalControlsHeightsInLastView;
+
+        /// <summary>
+        ///     To let stuff wait on each other, because stuff could go wrong because of the Application.DoEvents.
+        /// </summary>
+        private AutoResetEvent _waitHandle = new AutoResetEvent(true);
+
         #endregion
 
         #region Properties
+
         /// <summary>
-        /// Returns the number of views.
+        ///     Returns the number of views.
         /// </summary>
         public int ViewCount
         {
             get { return _controls.Count; }
         }
+
         /// <summary>
-        /// Returns the number of controls.
+        ///     Returns the number of controls.
         /// </summary>
         public int ControlCount
         {
             get { return _controlCount; }
         }
+
         /// <summary>
-        /// The active control if any.
+        ///     The active control if any.
         /// </summary>
         public new Control ActiveControl
         {
             get { return _activeControl; }
         }
+
         public Control LastClickedControl
         {
             get { return _lastClickedControl; }
         }
+
         /// <summary>
-        /// The total selection.
+        ///     The total selection.
         /// </summary>
         public List<Control> Selection
         {
             get { return _selection; }
         }
+
         /// <summary>
-        /// Gets the view(key) and index(value) of the first control in the selection.
+        ///     Gets the view(key) and index(value) of the first control in the selection.
         /// </summary>
         public KeyValuePair<int, int> BeginOfSelection
         {
             get { return _beginOfSelection; }
         }
+
         /// <summary>
-        /// Gets the view(key) and index(value) of the last control in the selection.
+        ///     Gets the view(key) and index(value) of the last control in the selection.
         /// </summary>
         public KeyValuePair<int, int> EndOfSelection
         {
             get { return _endOfSelection; }
         }
+
         /// <summary>
-        /// The current view.
+        ///     The current view.
         /// </summary>
         public int CurrentView
         {
             get { return _currentView; }
         }
+
         /// <summary>
-        /// The number of controls in the current view.
+        ///     The number of controls in the current view.
         /// </summary>
         public int NumberOfControlsInCurrentView
         {
             get { return flpnl.Controls.Count; }
         }
+
         /// <summary>
-        /// Sets or gets a view.
+        ///     Sets or gets a view.
         /// </summary>
         /// <param name="view"></param>
         /// <returns></returns>
         public List<Control> this[int view]
         {
-            get
-            {
-                return _controls[view];
-            }
+            get { return _controls[view]; }
             set
             {
                 _controls[view] = value;
                 RefreshControls();
             }
         }
+
         /// <summary>
-        /// Gets or Sets the sizemode for the controls who aren't autosizing.
+        ///     Gets or Sets the sizemode for the controls who aren't autosizing.
         /// </summary>
         public SizeMode SizeMode
         {
@@ -215,7 +254,7 @@ namespace vApus.Util
                 if (value != _sizeMode)
                 {
                     _sizeMode = value;
-                    foreach (List<Control> controls in _controls)
+                    foreach (var controls in _controls)
                         foreach (Control control in controls)
                             if (!control.AutoSize)
                                 switch (_sizeMode)
@@ -223,20 +262,26 @@ namespace vApus.Util
                                     case SizeMode.Normal:
                                         break;
                                     case SizeMode.Stretch:
-                                        control.Size = new Size(flpnl.Width - control.Margin.Left - control.Margin.Right, flpnl.Height - control.Margin.Top - control.Margin.Bottom);
+                                        control.Size = new Size(
+                                            flpnl.Width - control.Margin.Left - control.Margin.Right,
+                                            flpnl.Height - control.Margin.Top - control.Margin.Bottom);
                                         break;
                                     case SizeMode.StretchHorizontal:
-                                        control.Size = new Size(flpnl.Width - control.Margin.Left - control.Margin.Right, control.Height);
+                                        control.Size = new Size(
+                                            flpnl.Width - control.Margin.Left - control.Margin.Right, control.Height);
                                         break;
                                     case SizeMode.StretchVertical:
-                                        control.Size = new Size(control.Width, flpnl.Height - control.Margin.Top - control.Margin.Bottom);
+                                        control.Size = new Size(control.Width,
+                                                                flpnl.Height - control.Margin.Top -
+                                                                control.Margin.Bottom);
                                         break;
                                 }
                 }
             }
         }
+
         /// <summary>
-        /// Enumerates all controls over all views.
+        ///     Enumerates all controls over all views.
         /// </summary>
         public IEnumerable<Control> AllControls
         {
@@ -247,12 +292,14 @@ namespace vApus.Util
                         yield return ctrl;
             }
         }
+
         #endregion
 
         #region Constructor
+
         /// <summary>
-        /// This control is actualy an advanced pager which can contain 134 217 728 controls.
-        /// Most common functionality is implemented and a few other features.
+        ///     This control is actualy an advanced pager which can contain 134 217 728 controls.
+        ///     Most common functionality is implemented and a few other features.
         /// </summary>
         public LargeList()
         {
@@ -260,9 +307,10 @@ namespace vApus.Util
             flpnl.MouseDown += flpnl_MouseDown;
             flpnl.MouseUp += flpnl_MouseUp;
         }
+
         /// <summary>
-        /// This control is actualy an advanced pager which can contain 134 217 728 controls.
-        /// Most common functionality is implemented and a few other features.
+        ///     This control is actualy an advanced pager which can contain 134 217 728 controls.
+        ///     Most common functionality is implemented and a few other features.
         /// </summary>
         /// <param name="controls"></param>
         public LargeList(List<Control> controls)
@@ -272,9 +320,10 @@ namespace vApus.Util
                 throw new ArgumentNullException("controls");
             AddRange(controls);
         }
+
         /// <summary>
-        /// This control is actualy an advanced pager which can contain 134 217 728 controls.
-        /// Most common functionality is implemented and a few other features.
+        ///     This control is actualy an advanced pager which can contain 134 217 728 controls.
+        ///     Most common functionality is implemented and a few other features.
         /// </summary>
         /// <param name="controls"></param>
         public LargeList(List<List<Control>> controls)
@@ -284,11 +333,13 @@ namespace vApus.Util
                 throw new ArgumentNullException("controls");
             AddRange(controls);
         }
+
         #endregion
 
         #region Functions
 
         #region IEnumerable
+
         /// <summary>
         /// </summary>
         /// <returns></returns>
@@ -296,19 +347,22 @@ namespace vApus.Util
         {
             return _controls.GetEnumerator();
         }
+
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return _controls.GetEnumerator();
         }
+
         #endregion
 
         #region Add, Insert, Remove,...
+
         private void LargeList_HandleCreated(object sender, EventArgs e)
         {
-            this.HandleCreated -= LargeList_HandleCreated;
+            HandleCreated -= LargeList_HandleCreated;
             lock (_lock)
             {
                 if (_toAdd != null)
@@ -317,22 +371,23 @@ namespace vApus.Util
                     _toAdd = null;
                 }
             }
-
         }
+
         /// <summary>
-        /// Adds a control.
+        ///     Adds a control.
         /// </summary>
         /// <param name="control"></param>
         public void Add(Control control)
         {
-            if (this.IsHandleCreated)
+            if (IsHandleCreated)
                 Add(control, true);
             else
             {
                 _toAdd.Add(control);
-                this.HandleCreated += new EventHandler(LargeList_HandleCreated);
+                HandleCreated += LargeList_HandleCreated;
             }
         }
+
         /// <summary>
         /// </summary>
         /// <param name="control"></param>
@@ -358,9 +413,9 @@ namespace vApus.Util
                 if (control.AutoSize)
                     controlHeight += control.PreferredSize.Height;
                 else
-                    controlHeight += (_sizeMode == SizeMode.Stretch || _sizeMode == SizeMode.StretchVertical) ?
-                            flpnl.Height - control.Margin.Top - control.Margin.Bottom :
-                            control.Height;
+                    controlHeight += (_sizeMode == SizeMode.Stretch || _sizeMode == SizeMode.StretchVertical)
+                                         ? flpnl.Height - control.Margin.Top - control.Margin.Bottom
+                                         : control.Height;
 
                 _totalControlsHeightsInLastView += controlHeight;
 
@@ -380,7 +435,7 @@ namespace vApus.Util
 
             if (_controls.Count == _currentView + 1)
             {
-                LockWindowUpdate(this.Handle.ToInt32());
+                LockWindowUpdate(Handle.ToInt32());
                 SizeControl(control);
                 flpnl.Controls.Add(control);
                 LockWindowUpdate(0);
@@ -394,8 +449,9 @@ namespace vApus.Util
             if (refresh && ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
         }
+
         /// <summary>
-        /// Size according to the size mode if the AutoSize property == false, do this when adding a control to the flpnl.
+        ///     Size according to the size mode if the AutoSize property == false, do this when adding a control to the flpnl.
         /// </summary>
         /// <param name="control"></param>
         private void SizeControl(Control control)
@@ -424,8 +480,9 @@ namespace vApus.Util
                 }
             }
         }
+
         /// <summary>
-        /// Size according to the size mode, do this when adding a range of controls to the flpnl.
+        ///     Size according to the size mode, do this when adding a range of controls to the flpnl.
         /// </summary>
         /// <param name="controls"></param>
         private void SizeControls(List<Control> controls)
@@ -433,55 +490,60 @@ namespace vApus.Util
             foreach (Control control in controls)
                 SizeControl(control);
         }
+
         /// <summary>
-        /// Adds a range of controls.
+        ///     Adds a range of controls.
         /// </summary>
         /// <param name="controls"></param>
         public void AddRange(List<Control> controls)
         {
-            if (this.IsHandleCreated)
+            if (IsHandleCreated)
                 AddRange(controls, true);
             else
             {
                 _toAdd.AddRange(controls);
-                this.HandleCreated += new EventHandler(LargeList_HandleCreated);
+                HandleCreated += LargeList_HandleCreated;
             }
         }
+
         private void AddRange(List<Control> controls, bool refresh)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
             foreach (Control control in controls)
                 Add(control, false);
             if (refresh && ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         /// <summary>
-        /// Adds a range of controls.
+        ///     Adds a range of controls.
         /// </summary>
         /// <param name="controls"></param>
         private void AddRange(List<List<Control>> controls)
         {
             AddRange(controls, true);
         }
+
         /// <summary>
-        /// Adds a range of controls.
+        ///     Adds a range of controls.
         /// </summary>
         /// <param name="controls"></param>
         /// <param name="refresh"></param>
         private void AddRange(List<List<Control>> controls, bool refresh)
         {
-            foreach (List<Control> l in controls)
+            foreach (var l in controls)
                 AddRange(l, false);
             if (refresh && ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
         }
+
         /// <summary>
-        /// Clears the controls.
+        ///     Clears the controls.
         /// </summary>
         public void Clear()
         {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(Handle.ToInt32());
 
             ClearSelection();
             _controls.Clear();
@@ -503,48 +565,49 @@ namespace vApus.Util
 
             LockWindowUpdate(0);
         }
+
         /// <summary>
-        /// Returns if the LargeList contains the given control.
+        ///     Returns if the LargeList contains the given control.
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
         public new bool Contains(Control control)
         {
-            foreach (List<Control> controls in _controls)
+            foreach (var controls in _controls)
                 if (controls.Contains(control))
                     return true;
             return false;
         }
 
         /// <summary>
-        /// Go from a flat index to a usable index for the largelist (handy for inserting / removing controls and all that)
+        ///     Go from a flat index to a usable index for the largelist (handy for inserting / removing controls and all that)
         /// </summary>
         /// <param name="index"></param>
         /// <returns>kvp(-1,-1) if not found.</returns>
         public KeyValuePair<int, int> ParseFlatIndex(long index)
         {
-            for (int view = 0; view != this.ViewCount; view++)
+            for (int view = 0; view != ViewCount; view++)
             {
                 int countOfView = this[view].Count;
                 if (countOfView > index)
-                    return new KeyValuePair<int, int>(view, (int)index);
+                    return new KeyValuePair<int, int>(view, (int) index);
 
                 index -= countOfView;
             }
             return new KeyValuePair<int, int>(-1, -1);
         }
+
         /// <summary>
-        /// Go from a usable index to a flat one, you can increment this for instance and parse it to a usable one again.
+        ///     Go from a usable index to a flat one, you can increment this for instance and parse it to a usable one again.
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
         public long ParseIndex(KeyValuePair<int, int> index)
         {
-
             long flatIndex = 0;
-            if (index.Key <= this.ViewCount)
+            if (index.Key <= ViewCount)
             {
-                for (int view = 0; view != this.ViewCount; view++)
+                for (int view = 0; view != ViewCount; view++)
                     if (view == index.Key)
                     {
                         if (this[view].Count > index.Value)
@@ -564,8 +627,9 @@ namespace vApus.Util
 
             return flatIndex;
         }
+
         /// <summary>
-        /// Gets the view(index) and the index(value) in view of the given control. -1 for both if not found.
+        ///     Gets the view(index) and the index(value) in view of the given control. -1 for both if not found.
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
@@ -575,8 +639,10 @@ namespace vApus.Util
                 for (int j = 0; j < _controls[i].Count; j++)
                     if (_controls[i][j] == control)
                         return new KeyValuePair<int, int>(i, j);
-            return new KeyValuePair<int, int>(-1, -1); ;
+            return new KeyValuePair<int, int>(-1, -1);
+            ;
         }
+
         public int FlatIndexOf(Control control)
         {
             int index = -1;
@@ -589,8 +655,9 @@ namespace vApus.Util
                 }
             return -1;
         }
+
         /// <summary>
-        /// Inserts a control in a specified view(key) and at a specified index(value) in the view.
+        ///     Inserts a control in a specified view(key) and at a specified index(value) in the view.
         /// </summary>
         /// <param name="control"></param>
         /// <param name="?"></param>
@@ -598,8 +665,9 @@ namespace vApus.Util
         {
             Insert(control, index, true);
         }
+
         /// <summary>
-        /// Inserts a control in a specified view(key) and at a specified index(value) in the view.
+        ///     Inserts a control in a specified view(key) and at a specified index(value) in the view.
         /// </summary>
         /// <param name="control"></param>
         /// <param name="index"></param>
@@ -619,8 +687,9 @@ namespace vApus.Util
                     break;
             }
         }
+
         /// <summary>
-        /// Inserts a range of controls in a specified view(key) and at a specified index(value) in the view.
+        ///     Inserts a range of controls in a specified view(key) and at a specified index(value) in the view.
         /// </summary>
         /// <param name="controls"></param>
         /// <param name="index"></param>
@@ -633,8 +702,9 @@ namespace vApus.Util
             if (ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
         }
+
         /// <summary>
-        /// Returns the previous control if any, else null is returned.
+        ///     Returns the previous control if any, else null is returned.
         /// </summary>
         /// <param name="control"></param>
         public Control PreviousControl(Control control)
@@ -651,8 +721,9 @@ namespace vApus.Util
             }
             return null;
         }
+
         /// <summary>
-        /// Returns the previous control if any, else null is returned.
+        ///     Returns the previous control if any, else null is returned.
         /// </summary>
         /// <param name="control"></param>
         public Control NextControl(Control control)
@@ -668,8 +739,9 @@ namespace vApus.Util
             }
             return null;
         }
+
         /// <summary>
-        /// Puts one control above another.
+        ///     Puts one control above another.
         /// </summary>
         /// <param name="control1"></param>
         /// <param name="control2"></param>
@@ -677,17 +749,19 @@ namespace vApus.Util
         {
             PutControl1AboveOrBelowControl2(control1, control2, true, true);
         }
+
         /// <summary>
-        /// Puts one control above another.
-        /// </summary>        
+        ///     Puts one control above another.
+        /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
         public void PutControl1AboveControl2(KeyValuePair<int, int> index1, KeyValuePair<int, int> index2)
         {
             PutControl1AboveControl2(_controls[index1.Key][index1.Value], _controls[index2.Key][index2.Value]);
         }
+
         /// <summary>
-        /// Puts one control below another.
+        ///     Puts one control below another.
         /// </summary>
         /// <param name="control1"></param>
         /// <param name="control2"></param>
@@ -695,8 +769,9 @@ namespace vApus.Util
         {
             PutControl1AboveOrBelowControl2(control1, control2, false, true);
         }
+
         /// <summary>
-        /// Puts one control below another.
+        ///     Puts one control below another.
         /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
@@ -704,16 +779,17 @@ namespace vApus.Util
         {
             PutControl1BelowControl2(_controls[index1.Key][index1.Value], _controls[index2.Key][index2.Value]);
         }
+
         private void PutControl1AboveOrBelowControl2(Control control1, Control control2, bool above, bool refresh)
         {
             //Control can't be put above itself
             if (control1 != control2)
             {
                 Control activeControl = _activeControl;
-                List<List<Control>> temp = new List<List<Control>>(_controls.Count);
-                foreach (List<Control> controls in _controls)
+                var temp = new List<List<Control>>(_controls.Count);
+                foreach (var controls in _controls)
                 {
-                    List<Control> tempPart = new List<Control>(controls.Count);
+                    var tempPart = new List<Control>(controls.Count);
                     temp.Add(tempPart);
                     foreach (Control control in controls)
                     {
@@ -747,8 +823,9 @@ namespace vApus.Util
                 _activeControl = activeControl;
             }
         }
+
         /// <summary>
-        /// Puts a range of controls above a specified control.
+        ///     Puts a range of controls above a specified control.
         /// </summary>
         /// <param name="range">Can be for instance 'LargeList.Selection'</param>
         /// <param name="control"></param>
@@ -756,18 +833,22 @@ namespace vApus.Util
         {
             PutRangeAboveOrBelowControl(range, control, true, true);
         }
+
         /// <summary>
-        /// Puts a range of controls above a specified control.
+        ///     Puts a range of controls above a specified control.
         /// </summary>
         /// <param name="beginRangeIndex"></param>
         /// <param name="endRangeIndex"></param>
         /// <param name="controlIndex"></param>
-        public void PutRangeAboveControl(KeyValuePair<int, int> beginRangeIndex, KeyValuePair<int, int> endRangeIndex, KeyValuePair<int, int> controlIndex)
+        public void PutRangeAboveControl(KeyValuePair<int, int> beginRangeIndex, KeyValuePair<int, int> endRangeIndex,
+                                         KeyValuePair<int, int> controlIndex)
         {
-            PutRangeAboveControl(GetRange(beginRangeIndex, endRangeIndex), _controls[controlIndex.Key][controlIndex.Value]);
+            PutRangeAboveControl(GetRange(beginRangeIndex, endRangeIndex),
+                                 _controls[controlIndex.Key][controlIndex.Value]);
         }
+
         /// <summary>
-        /// Puts a range of controls below a specified control.
+        ///     Puts a range of controls below a specified control.
         /// </summary>
         /// <param name="range">Can be for instance 'LargeList.Selection'</param>
         /// <param name="control"></param>
@@ -775,16 +856,20 @@ namespace vApus.Util
         {
             PutRangeAboveOrBelowControl(range, control, false, true);
         }
+
         /// <summary>
-        /// Puts a range of controls below a specified control.
+        ///     Puts a range of controls below a specified control.
         /// </summary>
         /// <param name="beginRangeIndex"></param>
         /// <param name="endRangeIndex"></param>
         /// <param name="controlIndex"></param>
-        public void PutRangeBelowControl(KeyValuePair<int, int> beginRangeIndex, KeyValuePair<int, int> endRangeIndex, KeyValuePair<int, int> controlIndex)
+        public void PutRangeBelowControl(KeyValuePair<int, int> beginRangeIndex, KeyValuePair<int, int> endRangeIndex,
+                                         KeyValuePair<int, int> controlIndex)
         {
-            PutRangeBelowControl(GetRange(beginRangeIndex, endRangeIndex), _controls[controlIndex.Key][controlIndex.Value]);
+            PutRangeBelowControl(GetRange(beginRangeIndex, endRangeIndex),
+                                 _controls[controlIndex.Key][controlIndex.Value]);
         }
+
         private void PutRangeAboveOrBelowControl(List<Control> range, Control control, bool above, bool refresh)
         {
             if (range.Count == 1)
@@ -793,16 +878,15 @@ namespace vApus.Util
             }
             else
             {
-
                 if (!range.Contains(control))
                 {
                     //Sort on keys and values.
                     OrderRange(range);
                     //Move the controls
-                    List<List<Control>> temp = new List<List<Control>>(_controls.Count);
+                    var temp = new List<List<Control>>(_controls.Count);
                     int lastIndex = -1;
                     Control activecontrol = _activeControl;
-                    foreach (List<Control> controls in _controls)
+                    foreach (var controls in _controls)
                     {
                         temp.Add(new List<Control>(controls.Count));
                         ++lastIndex;
@@ -839,22 +923,24 @@ namespace vApus.Util
                 }
             }
         }
+
         private void AddRange(List<List<Control>> controls, List<Control> range)
         {
             int lastIndex = controls.Count - 1;
             foreach (Control control in range)
                 controls[lastIndex].Add(control);
         }
+
         /// <summary>
-        /// To get a range of controls.
+        ///     To get a range of controls.
         /// </summary>
         /// <param name="beginRangeIndex"></param>
         /// <param name="endRangeIndex"></param>
         /// <returns></returns>
         public List<Control> GetRange(KeyValuePair<int, int> beginRangeIndex, KeyValuePair<int, int> endRangeIndex)
         {
-            this.Cursor = Cursors.WaitCursor;
-            List<Control> range = new List<Control>();
+            Cursor = Cursors.WaitCursor;
+            var range = new List<Control>();
             if (beginRangeIndex.Key > endRangeIndex.Key)
             {
                 KeyValuePair<int, int> temp = beginRangeIndex;
@@ -884,14 +970,15 @@ namespace vApus.Util
                         for (int value = 0; value < _controls[key].Count; value++)
                             range.Add(_controls[key][value]);
 
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
             return range;
         }
+
         public void RefreshControls()
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
             int previousScrollValue = scrollbar.Value;
-            List<List<Control>> copy = new List<List<Control>>(_controls);
+            var copy = new List<List<Control>>(_controls);
             _controls.Clear();
             _controlCount = 0;
             flpnl.Controls.Clear();
@@ -900,7 +987,7 @@ namespace vApus.Util
 
             scrollbar.ValueChanged -= scrollbar_ValueChanged;
             AddRange(copy);
-            scrollbar.Maximum = _controls.Count * _drawHeight;
+            scrollbar.Maximum = _controls.Count*_drawHeight;
             scrollbar.LargeChange = _drawHeight;
             scrollbar.SmallChange = _drawHeight;
             if (previousScrollValue > scrollbar.Maximum)
@@ -916,18 +1003,20 @@ namespace vApus.Util
             lblTotalViews.Text = _controls.Count == 0 ? "1" : _controls.Count.ToString();
             pnl.Visible = lblTotalViews.Text != "1";
             OrderSelection();
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         /// <summary>
-        /// Removes a control.
+        ///     Removes a control.
         /// </summary>
         /// <param name="control"></param>
         public void Remove(Control control)
         {
             Remove(control, true);
         }
+
         /// <summary>
-        /// Removes a control.
+        ///     Removes a control.
         /// </summary>
         /// <param name="control"></param>
         /// <param name="refresh"></param>
@@ -958,23 +1047,26 @@ namespace vApus.Util
                         break;
                 }
         }
+
         /// <summary>
-        /// Removes all controls.
+        ///     Removes all controls.
         /// </summary>
         public void RemoveAll()
         {
             Clear();
         }
+
         /// <summary>
-        /// Removes a control at a specified index.
+        ///     Removes a control at a specified index.
         /// </summary>
         /// <param name="index"></param>
         public void RemoveAt(KeyValuePair<int, int> index)
         {
             RemoveAt(index, true);
         }
+
         /// <summary>
-        /// Removes a control at a specified index.
+        ///     Removes a control at a specified index.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="refresh"></param>
@@ -998,8 +1090,9 @@ namespace vApus.Util
                     break;
             }
         }
+
         /// <summary>
-        /// Removes a range of controls.
+        ///     Removes a range of controls.
         /// </summary>
         /// <param name="range"></param>
         public void RemoveRange(List<Control> range)
@@ -1010,8 +1103,9 @@ namespace vApus.Util
             if (ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
         }
+
         /// <summary>
-        /// Removes a range of controls.
+        ///     Removes a range of controls.
         /// </summary>
         /// <param name="beginIndex"></param>
         /// <param name="endIndex"></param>
@@ -1019,8 +1113,9 @@ namespace vApus.Util
         {
             RemoveRange(GetRange(beginIndex, endIndex));
         }
+
         /// <summary>
-        /// Removes the selected controls.
+        ///     Removes the selected controls.
         /// </summary>
         public void RemoveSelection()
         {
@@ -1032,19 +1127,20 @@ namespace vApus.Util
                 }
                 else
                 {
-                    this.Cursor = Cursors.WaitCursor;
+                    Cursor = Cursors.WaitCursor;
                     foreach (Control control in _selection)
                         Remove(control, false);
                     _selection.Clear();
                     RefreshControls();
                     if (ControlCollectionChanged != null)
                         ControlCollectionChanged.Invoke(this, null);
-                    this.Cursor = Cursors.Default;
+                    Cursor = Cursors.Default;
                 }
             }
         }
+
         /// <summary>
-        /// Scroll to a view.
+        ///     Scroll to a view.
         /// </summary>
         /// <param name="view"></param>
         public void ScrollTo(int view)
@@ -1052,14 +1148,16 @@ namespace vApus.Util
             if (view != -1)
                 scrollbar.Value = _scrollValues[view];
         }
+
         /// <summary>
-        /// Scroll a control into view.
+        ///     Scroll a control into view.
         /// </summary>
         /// <param name="control"></param>
         public void ScrollIntoView(Control control)
         {
             ScrollTo(IndexOf(control).Key);
         }
+
         /// <summary>
         /// </summary>
         /// <param name="sortBy">Multiple values can be add up using a binairy or</param>
@@ -1067,6 +1165,7 @@ namespace vApus.Util
         {
             Sort(sortBy, SortOrder.Ascending);
         }
+
         /// <summary>
         /// </summary>
         /// <param name="sortBy">Multiple values can be add up using a binairy or</param>
@@ -1077,17 +1176,18 @@ namespace vApus.Util
                 return;
             Sort(new ControlComparer(sortBy, sortOrder));
         }
+
         /// <summary>
-        /// Sorts all controls using your own comparer. Tip: take a look at ControlComparer.
+        ///     Sorts all controls using your own comparer. Tip: take a look at ControlComparer.
         /// </summary>
         /// <param name="comparer"></param>
         public void Sort(IComparer<Control> comparer)
         {
             if (_controlCount < 2)
                 return;
-            this.Cursor = Cursors.WaitCursor;
-            List<Control> toSort = new List<Control>(_controlCount);
-            foreach (List<Control> controls in _controls)
+            Cursor = Cursors.WaitCursor;
+            var toSort = new List<Control>(_controlCount);
+            foreach (var controls in _controls)
                 foreach (Control control in controls)
                     toSort.Add(control);
 
@@ -1095,10 +1195,11 @@ namespace vApus.Util
             toSort.Sort(comparer);
             Clear();
             AddRange(toSort);
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         /// <summary>
-        /// Swaps one control with an other.
+        ///     Swaps one control with an other.
         /// </summary>
         /// <param name="control1"></param>
         /// <param name="control2"></param>
@@ -1106,8 +1207,9 @@ namespace vApus.Util
         {
             Swap(control1, control2, true);
         }
+
         /// <summary>
-        /// Swaps one control with an other.
+        ///     Swaps one control with an other.
         /// </summary>
         /// <param name="control1"></param>
         /// <param name="control2"></param>
@@ -1129,8 +1231,9 @@ namespace vApus.Util
                 }
             }
         }
+
         /// <summary>
-        /// Swaps one control with an other.
+        ///     Swaps one control with an other.
         /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
@@ -1138,8 +1241,9 @@ namespace vApus.Util
         {
             Swap(index1, index2, true);
         }
+
         /// <summary>
-        /// Swaps one control with an other.
+        ///     Swaps one control with an other.
         /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
@@ -1161,12 +1265,14 @@ namespace vApus.Util
                 }
             }
         }
+
         #endregion
 
         #region Selections
+
         /// <summary>
-        /// Clears the selection.
-        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
+        ///     Clears the selection.
+        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         public void ClearSelection()
         {
@@ -1178,10 +1284,11 @@ namespace vApus.Util
             _endOfSelection = new KeyValuePair<int, int>(-1, -1);
             InvokeSelectionChanged();
         }
+
         /// <summary>
-        /// Order the selection like it is in the controls.
-        /// Begin and end of selection will be stored.
-        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
+        ///     Order the selection like it is in the controls.
+        ///     Begin and end of selection will be stored.
+        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         public void OrderSelection()
         {
@@ -1197,9 +1304,10 @@ namespace vApus.Util
                 _endOfSelection = new KeyValuePair<int, int>(-1, -1);
             }
         }
+
         private void OrderRange(List<Control> range)
         {
-            Dictionary<int, List<int>> indices = new Dictionary<int, List<int>>();
+            var indices = new Dictionary<int, List<int>>();
             foreach (Control control in range)
             {
                 KeyValuePair<int, int> index = IndexOf(control);
@@ -1211,8 +1319,8 @@ namespace vApus.Util
                 }
             }
             range.Clear();
-            List<int> sortedKeys = new List<int>();
-            foreach (List<int> subIndices in indices.Values)
+            var sortedKeys = new List<int>();
+            foreach (var subIndices in indices.Values)
                 subIndices.Sort();
             foreach (int key in indices.Keys)
                 sortedKeys.Add(key);
@@ -1221,8 +1329,9 @@ namespace vApus.Util
                 foreach (int value in indices[key])
                     range.Add(_controls[key][value]);
         }
+
         /// <summary>
-        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
+        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         /// <param name="beginIndex"></param>
         /// <param name="endIndex"></param>
@@ -1230,13 +1339,14 @@ namespace vApus.Util
         {
             SelectRange(GetRange(beginIndex, endIndex));
         }
+
         /// <summary>
-        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
+        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         /// <param name="controls"></param>
         public void SelectRange(List<Control> controls)
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
             _selection.Clear();
             _activeControl = null;
             foreach (Control control in controls)
@@ -1248,11 +1358,12 @@ namespace vApus.Util
                 _endOfSelection = IndexOf(_selection[_selection.Count - 1]);
             }
             InvokeSelectionChanged();
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
+
         /// <summary>
-        /// Selects a control.
-        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
+        ///     Selects a control.
+        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         /// <param name="control"></param>
         public void Select(Control control, Hotkeys hotkeys)
@@ -1260,9 +1371,10 @@ namespace vApus.Util
             if (control != null)
                 SelectControl(control, hotkeys);
         }
+
         /// <summary>
-        /// Selects a control.
-        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
+        ///     Selects a control.
+        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         /// <param name="control"></param>
         /// <param name="hotkeys"></param>
@@ -1289,9 +1401,10 @@ namespace vApus.Util
             }
             InvokeSelectionChanged();
         }
+
         /// <summary>
-        /// Selects a control by its view(key) and index(value) in view.
-        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
+        ///     Selects a control by its view(key) and index(value) in view.
+        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         /// <param name="index"></param>
         /// <param name="hotkeys"></param>
@@ -1299,8 +1412,9 @@ namespace vApus.Util
         {
             SelectControl(_controls[index.Key][index.Value], hotkeys);
         }
+
         /// <summary>
-        /// Adds to, substract from selection. 
+        ///     Adds to, substract from selection.
         /// </summary>
         /// <param name="control"></param>
         private void CtrlPressed(Control control)
@@ -1321,11 +1435,13 @@ namespace vApus.Util
                         OrderSelection();
                         _activeControl = control;
                         KeyValuePair<int, int> index = IndexOf(_selection[0]);
-                        if (index.Key < _beginOfSelection.Key || (index.Key == _beginOfSelection.Key && index.Value < _beginOfSelection.Value))
+                        if (index.Key < _beginOfSelection.Key ||
+                            (index.Key == _beginOfSelection.Key && index.Value < _beginOfSelection.Value))
                             _beginOfSelection = index;
 
                         index = IndexOf(_selection[_selection.Count - 1]);
-                        if (index.Key > _endOfSelection.Key || (index.Key == _endOfSelection.Key && index.Value > _endOfSelection.Value))
+                        if (index.Key > _endOfSelection.Key ||
+                            (index.Key == _endOfSelection.Key && index.Value > _endOfSelection.Value))
                             _endOfSelection = index;
                     }
                 }
@@ -1333,17 +1449,22 @@ namespace vApus.Util
                 {
                     _selection.Add(control);
                     KeyValuePair<int, int> index = IndexOf(control);
-                    if (index.Key < _beginOfSelection.Key || (index.Key == _beginOfSelection.Key && index.Value < _beginOfSelection.Value))
+                    if (index.Key < _beginOfSelection.Key ||
+                        (index.Key == _beginOfSelection.Key && index.Value < _beginOfSelection.Value))
                         _beginOfSelection = index;
-                    if (index.Key > _endOfSelection.Key || (index.Key == _endOfSelection.Key && index.Value > _endOfSelection.Value))
+                    if (index.Key > _endOfSelection.Key ||
+                        (index.Key == _endOfSelection.Key && index.Value > _endOfSelection.Value))
                         _endOfSelection = index;
                     _activeControl = control;
                 }
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         /// <summary>
-        /// Selects a range of controls.
+        ///     Selects a range of controls.
         /// </summary>
         /// <param name="control"></param>
         private void ShiftPressed(Control control)
@@ -1355,7 +1476,8 @@ namespace vApus.Util
 
                 _selection.Clear();
 
-                if (beginIndex.Key > endIndex.Key || (beginIndex.Key == endIndex.Key && beginIndex.Value > endIndex.Value))
+                if (beginIndex.Key > endIndex.Key ||
+                    (beginIndex.Key == endIndex.Key && beginIndex.Value > endIndex.Value))
                 {
                     KeyValuePair<int, int> index = beginIndex;
                     beginIndex = endIndex;
@@ -1366,17 +1488,20 @@ namespace vApus.Util
                 _selection = GetRange(beginIndex, endIndex);
                 _activeControl = control;
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         /// <summary>
-        /// Selects all controls.
-        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
+        ///     Selects all controls.
+        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         public void SelectAll()
         {
             _selection.Clear();
             int lastIndex;
-            foreach (List<Control> controls in _controls)
+            foreach (var controls in _controls)
                 foreach (Control control in controls)
                     _selection.Add(control);
             if (_selection.Count > 0)
@@ -1389,8 +1514,9 @@ namespace vApus.Util
                 InvokeSelectionChanged();
             }
         }
+
         /// <summary>
-        /// Returns if the selection contains the given control.
+        ///     Returns if the selection contains the given control.
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
@@ -1398,6 +1524,7 @@ namespace vApus.Util
         {
             return _selection.Contains(control);
         }
+
         private void InvokeSelectionChanged()
         {
             if (SelectionChanged != null)
@@ -1406,13 +1533,15 @@ namespace vApus.Util
                 else
                     SelectionChanged.Invoke(this, new SelectionChangedEventArgs(null, _lastClickedControl));
         }
+
         #endregion
 
         #region EventHandling
 
         #region This
+
         /// <summary>
-        /// For the selectionbox.
+        ///     For the selectionbox.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1424,27 +1553,29 @@ namespace vApus.Util
                 _lastSelectionPoint = e.Location;
             }
         }
+
         /// <summary>
-        /// For the selectionbox.
-        /// /// </summary>
+        ///     For the selectionbox.
+        ///     ///
+        /// </summary>
         /// <param name="point1"></param>
         /// <param name="point2"></param>
         /// <returns></returns>
-        private System.Drawing.Rectangle GetNormalizedRectangle(Point point1, Point point2)
+        private Rectangle GetNormalizedRectangle(Point point1, Point point2)
         {
             if (point1.X < point2.X)
                 if (point1.Y < point2.Y)
-                    return new System.Drawing.Rectangle(point1.X, point1.Y, point2.X - point1.X, point2.Y - point1.Y);
+                    return new Rectangle(point1.X, point1.Y, point2.X - point1.X, point2.Y - point1.Y);
                 else
-                    return new System.Drawing.Rectangle(point1.X, point2.Y, point2.X - point1.X, point1.Y - point2.Y);
+                    return new Rectangle(point1.X, point2.Y, point2.X - point1.X, point1.Y - point2.Y);
+            else if (point1.Y < point2.Y)
+                return new Rectangle(point2.X, point1.Y, point1.X - point2.X, point2.Y - point1.Y);
             else
-                if (point1.Y < point2.Y)
-                    return new System.Drawing.Rectangle(point2.X, point1.Y, point1.X - point2.X, point2.Y - point1.Y);
-                else
-                    return new System.Drawing.Rectangle(point2.X, point2.Y, point1.X - point2.X, point1.Y - point2.Y);
+                return new Rectangle(point2.X, point2.Y, point1.X - point2.X, point1.Y - point2.Y);
         }
+
         /// <summary>
-        /// For the selectionbox.        
+        ///     For the selectionbox.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1452,34 +1583,35 @@ namespace vApus.Util
         {
             flpnl.Invalidate();
         }
+
         /// <summary>
-        /// Redetermines the views on resize when needed.
+        ///     Redetermines the views on resize when needed.
         /// </summary>
         /// <param name="e"></param>
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             PerformResize();
-
         }
+
         /// <summary>
-        /// Used internally for the resizing of this control, usable externally after setting the visibility of controls.
+        ///     Used internally for the resizing of this control, usable externally after setting the visibility of controls.
         /// </summary>
         /// <param name="force">Forces the rebuilding of the views even if the size has not changed.</param>
         public void PerformResize(bool force = false)
         {
-            if (this.Height != 0)
+            if (Height != 0)
             {
                 int previousVSBValue = scrollbar.Value;
                 _drawHeight = flpnl.Height;
                 if (_controls.Count > 0 && _controls[0].Count > 0)
                 {
-                    this.Cursor = Cursors.WaitCursor;
+                    Cursor = Cursors.WaitCursor;
 
-                    if (force || this.Height != _previousHeight)
+                    if (force || Height != _previousHeight)
                     {
                         string previousView = txtView.Text;
-                        List<List<Control>> copy = new List<List<Control>>(_controls);
+                        var copy = new List<List<Control>>(_controls);
                         _controls.Clear();
                         _controls.Add(new List<Control>());
 
@@ -1498,32 +1630,37 @@ namespace vApus.Util
                     }
                     else
                     {
-                        foreach (List<Control> controls in _controls)
+                        foreach (var controls in _controls)
                             foreach (Control control in controls)
                             {
                                 switch (_sizeMode)
                                 {
                                     case SizeMode.Stretch:
-                                        control.Size = new Size(flpnl.Width - control.Margin.Left - control.Margin.Right - 18, flpnl.Height - control.Margin.Top - control.Margin.Bottom);
+                                        control.Size =
+                                            new Size(flpnl.Width - control.Margin.Left - control.Margin.Right - 18,
+                                                     flpnl.Height - control.Margin.Top - control.Margin.Bottom);
                                         break;
                                     case SizeMode.StretchHorizontal:
-                                        control.Size = new Size(flpnl.Width - control.Margin.Left - control.Margin.Right - 18, control.Height);
+                                        control.Size =
+                                            new Size(flpnl.Width - control.Margin.Left - control.Margin.Right - 18,
+                                                     control.Height);
                                         break;
                                 }
                             }
                     }
                     txtView_KeyPress(null, new KeyPressEventArgs('\r'));
-                    this.Cursor = Cursors.Default;
+                    Cursor = Cursors.Default;
                 }
-                scrollbar.Maximum = _controls.Count * _drawHeight;
+                scrollbar.Maximum = _controls.Count*_drawHeight;
                 scrollbar.LargeChange = _drawHeight;
                 scrollbar.SmallChange = _drawHeight;
-                _previousHeight = this.Height;
+                _previousHeight = Height;
                 lblTotalViews_TextChanged(null, null);
             }
         }
+
         /// <summary>
-        /// For using the arrows, for selecting next and previous control.
+        ///     For using the arrows, for selecting next and previous control.
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="keyData"></param>
@@ -1555,8 +1692,9 @@ namespace vApus.Util
         }
 
         #region scrollbar
+
         /// <summary>
-        /// Select the right view on valuechanged.
+        ///     Select the right view on valuechanged.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1603,7 +1741,8 @@ namespace vApus.Util
                 _totalControlsHeightsInLastView = 0;
                 foreach (Control control in flpnl.Controls)
                     if (control.AutoSize)
-                        _totalControlsHeightsInLastView += control.PreferredSize.Height + control.Margin.Top + control.Margin.Bottom;
+                        _totalControlsHeightsInLastView += control.PreferredSize.Height + control.Margin.Top +
+                                                           control.Margin.Bottom;
                     else
                         _totalControlsHeightsInLastView += control.Height + control.Margin.Top + control.Margin.Bottom;
                 if (AfterViewSwitch != null)
@@ -1611,11 +1750,13 @@ namespace vApus.Util
                 Thread.Sleep(0);
             }
         }
+
         #endregion
 
         #region txt
+
         /// <summary>
-        /// Select the right view on keypress.
+        ///     Select the right view on keypress.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1657,9 +1798,11 @@ namespace vApus.Util
                         _currentView = index;
                         _totalControlsHeightsInLastView = 0;
                         foreach (Control control in flpnl.Controls)
-                            _totalControlsHeightsInLastView += control.Height + control.Margin.Top + control.Margin.Bottom;
+                            _totalControlsHeightsInLastView += control.Height + control.Margin.Top +
+                                                               control.Margin.Bottom;
                         if (AfterViewSwitch != null)
-                            AfterViewSwitch.Invoke(this, new AfterSwithViewsEventArgs(_currentView, flpnl.Controls.Count));
+                            AfterViewSwitch.Invoke(this,
+                                                   new AfterSwithViewsEventArgs(_currentView, flpnl.Controls.Count));
                     }
                 }
             }
@@ -1668,11 +1811,13 @@ namespace vApus.Util
                 e.Handled = true;
             }
         }
+
         #endregion
 
         #region lblTotalViews
+
         /// <summary>
-        /// To resize the selection controls.
+        ///     To resize the selection controls.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1685,6 +1830,7 @@ namespace vApus.Util
             txtView.Width = lblTotalViews.Width;
             scrollbar.Width = txtView.Location.X - 1;
         }
+
         #endregion
 
         #endregion
@@ -1695,27 +1841,17 @@ namespace vApus.Util
     }
 
     #region EventArgs
+
     /// <summary>
-    /// Occurs after switched view.
+    ///     Occurs after switched view.
     /// </summary>
     public class AfterSwithViewsEventArgs : EventArgs
     {
-        private int _currentView = 0;
-        private int _numberOfControlsInCurrentView = 0;
+        private readonly int _currentView;
+        private readonly int _numberOfControlsInCurrentView;
+
         /// <summary>
-        /// </summary>
-        public int CurrentView
-        {
-            get { return _currentView; }
-        }
-        /// <summary>
-        /// </summary>
-        public int NumberOfControlsInCurrentView
-        {
-            get { return _numberOfControlsInCurrentView; }
-        }
-        /// <summary>
-        /// Occurs after switched view.
+        ///     Occurs after switched view.
         /// </summary>
         /// <param name="currentView"></param>
         /// <param name="controlsOnView"></param>
@@ -1728,40 +1864,44 @@ namespace vApus.Util
             _currentView = currentView;
             _numberOfControlsInCurrentView = numberOfControlsInCurrentView;
         }
+
+        /// <summary>
+        /// </summary>
+        public int CurrentView
+        {
+            get { return _currentView; }
+        }
+
+        /// <summary>
+        /// </summary>
+        public int NumberOfControlsInCurrentView
+        {
+            get { return _numberOfControlsInCurrentView; }
+        }
     }
+
     /// <summary>
-    /// 
     /// </summary>
     public class SelectionChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// 
         /// </summary>
-        private Control _activeControl, _lastClickedControl;
+        private readonly Control _activeControl;
+
         /// <summary>
-        /// The first control in the selection or the last selected  (LastClickedControl).
         /// </summary>
-        public Control ActiveControl
-        {
-            get { return _activeControl; }
-        }
+        private readonly Control _lastClickedControl;
+
         /// <summary>
-        /// If this is not equal to ActiveControl that means this control has been deselected.
-        /// </summary>
-        public Control LastClickedControl
-        {
-            get { return _lastClickedControl; }
-        }
-        /// <summary>
-        /// 
         /// </summary>
         /// <param name="activeControl"></param>
         public SelectionChangedEventArgs(Control activeControl)
         {
             _activeControl = activeControl;
         }
+
         /// <summary>
-        /// Is only used when the user selects a control.
+        ///     Is only used when the user selects a control.
         /// </summary>
         /// <param name="activeControl"></param>
         /// <param name="lastClickedControl">If this is not equal to ActiveControl that means this control has been deselected.</param>
@@ -1770,6 +1910,23 @@ namespace vApus.Util
         {
             _lastClickedControl = lastClickedControl;
         }
+
+        /// <summary>
+        ///     The first control in the selection or the last selected  (LastClickedControl).
+        /// </summary>
+        public Control ActiveControl
+        {
+            get { return _activeControl; }
+        }
+
+        /// <summary>
+        ///     If this is not equal to ActiveControl that means this control has been deselected.
+        /// </summary>
+        public Control LastClickedControl
+        {
+            get { return _lastClickedControl; }
+        }
     }
+
     #endregion
 }

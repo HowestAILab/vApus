@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -19,7 +20,7 @@ namespace vApus.Util
             InitializeComponent();
         }
 
-        public void Init(BaseValueControl.Value value)
+        public void Init(Value value)
         {
             base.__Value = value;
 
@@ -72,8 +73,8 @@ namespace vApus.Util
                 nud.Dock = DockStyle.Fill;
 
                 //Use text changed rather then value changed, value changed is not invoked when the text is changed.
-                nud.Leave += new EventHandler(nud_Leave);
-                nud.KeyUp += new KeyEventHandler(nud_KeyUp);
+                nud.Leave += nud_Leave;
+                nud.KeyUp += nud_KeyUp;
             }
             else
             {
@@ -87,36 +88,40 @@ namespace vApus.Util
 
         private void nud_KeyUp(object sender, KeyEventArgs e)
         {
-            FixedNumericUpDown nud = sender as FixedNumericUpDown;
+            var nud = sender as FixedNumericUpDown;
             base.HandleKeyUp(e.KeyCode, ConvertToNumericType(nud.Value));
         }
+
         private void nud_Leave(object sender, EventArgs e)
         {
             try
             {
-                FixedNumericUpDown nud = sender as FixedNumericUpDown;
+                var nud = sender as FixedNumericUpDown;
                 base.HandleValueChanged(ConvertToNumericType(nud.Value));
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         private object ConvertToNumericType(decimal value)
         {
             Type numericType = base.__Value.__Value.GetType();
-            if (numericType == typeof(short))
+            if (numericType == typeof (short))
                 return Convert.ToInt16(value);
-            if (numericType == typeof(int))
+            if (numericType == typeof (int))
                 return Convert.ToInt32(value);
-            if (numericType == typeof(long))
+            if (numericType == typeof (long))
                 return Convert.ToInt64(value);
-            if (numericType == typeof(ushort))
+            if (numericType == typeof (ushort))
                 return Convert.ToUInt16(value);
-            if (numericType == typeof(uint))
+            if (numericType == typeof (uint))
                 return Convert.ToUInt32(value);
-            if (numericType == typeof(ulong))
+            if (numericType == typeof (ulong))
                 return Convert.ToUInt64(value);
-            if (numericType == typeof(float))
+            if (numericType == typeof (float))
                 return Convert.ToSingle(value);
-            if (numericType == typeof(double))
+            if (numericType == typeof (double))
                 return Convert.ToDouble(value);
             return Convert.ToDecimal(value);
         }

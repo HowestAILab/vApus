@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,18 +17,23 @@ namespace vApus.Util
 {
     public partial class UpdateNotifierDialog : Form
     {
-        private Font _titleFont;
+        private readonly string _currentChannel;
+        private readonly string _currentVersion;
+        private readonly string _history;
+        private readonly string _newChannel;
+        private readonly string _newVersion;
         private Font _dateFont;
         private Font _itemFont;
-
-        private string _currentVersion, _newVersion, _currentChannel, _newChannel, _history;
+        private Font _titleFont;
 
         public UpdateNotifierDialog()
         {
             InitializeComponent();
         }
-        public UpdateNotifierDialog(string currentVersion, string newVersion, string currentChannel, string newChannel, string history)
-            :this()
+
+        public UpdateNotifierDialog(string currentVersion, string newVersion, string currentChannel, string newChannel,
+                                    string history)
+            : this()
         {
             _currentVersion = currentVersion;
             _newVersion = newVersion;
@@ -35,7 +41,7 @@ namespace vApus.Util
             _newChannel = newChannel;
             _history = history;
 
-            this.HandleCreated += new EventHandler(UpdateNotifierDialog_HandleCreated);
+            HandleCreated += UpdateNotifierDialog_HandleCreated;
         }
 
         private void UpdateNotifierDialog_HandleCreated(object sender, EventArgs e)
@@ -45,19 +51,21 @@ namespace vApus.Util
             _itemFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Regular);
 
             lblVersion.Text = "Version: " + _currentVersion + " --> " + _newVersion;
-            lblChannel.Text = "Channel: " + _currentChannel + (_currentChannel == _newChannel ? string.Empty : " --> " + _newChannel);
+            lblChannel.Text = "Channel: " + _currentChannel +
+                              (_currentChannel == _newChannel ? string.Empty : " --> " + _newChannel);
 
             FillHistory(_history);
         }
+
         private void FillHistory(string historyOfChanges)
         {
             rtxtHistoryOfChanges.Text = string.Empty;
 
-            List<HistoryPart> parts = new List<HistoryPart>();
+            var parts = new List<HistoryPart>();
 
-            MemoryStream ms = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(historyOfChanges));
+            var ms = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(historyOfChanges));
             XmlReader reader = XmlReader.Create(ms);
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             XmlNode node = doc.ReadNode(reader);
 
             //First filling the rtxt and then applying the style
@@ -72,15 +80,19 @@ namespace vApus.Util
                             switch (nn.Name)
                             {
                                 case "d":
-                                    rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + " (" + nn.InnerText + ")" + Environment.NewLine;
-                                    parts.Add(new HistoryPart("d", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
+                                    rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + " (" + nn.InnerText + ")" +
+                                                                Environment.NewLine;
+                                    parts.Add(new HistoryPart("d", previousCaretPosition,
+                                                              rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
                                     break;
                                 default:
                                     if (previousCaretPosition > 0)
-                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + Environment.NewLine + nn.InnerText;
+                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + Environment.NewLine +
+                                                                    nn.InnerText;
                                     else
                                         rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + nn.InnerText;
-                                    parts.Add(new HistoryPart("t", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
+                                    parts.Add(new HistoryPart("t", previousCaretPosition,
+                                                              rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
                                     break;
                             }
                             previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
@@ -89,7 +101,8 @@ namespace vApus.Util
                         break;
                     case "i":
                         rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + n.InnerText + Environment.NewLine;
-                        parts.Add(new HistoryPart("i", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
+                        parts.Add(new HistoryPart("i", previousCaretPosition,
+                                                  rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
                         break;
                 }
                 previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
@@ -115,22 +128,25 @@ namespace vApus.Util
             }
             rtxtHistoryOfChanges.Select(0, 0);
         }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
         public struct HistoryPart
         {
-            public string Type;
-            public int SelectionStart;
             public int Length;
+            public int SelectionStart;
+            public string Type;
+
             public HistoryPart(string type, int selectionStart, int length)
             {
                 Type = type;
                 SelectionStart = selectionStart;
                 Length = length;
             }
-        }
-        private void btnUpdate_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.OK;
-            this.Close();
         }
     }
 }

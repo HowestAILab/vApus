@@ -5,60 +5,69 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using vApus.Gui.Properties;
 
 namespace vApus.Gui
 {
     public partial class About : Form
     {
         #region Fields
-        private Font _titleFont;
-        private Font _dateFont;
-        private Font _itemFont;
+
+        private readonly Font _dateFont;
+        private readonly Font _itemFont;
+        private readonly Font _titleFont;
+
         #endregion
 
         #region Properties
+
         /// <summary></summary>
         private string AssemblyVersion
         {
-            get
-            {
-                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            }
+            get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
+
         /// <summary></summary>
         private string AssemblyDescription
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
+                object[] attributes =
+                    Assembly.GetExecutingAssembly().GetCustomAttributes(typeof (AssemblyDescriptionAttribute), false);
                 if (attributes.Length == 0)
                     return "";
-                return ((AssemblyDescriptionAttribute)attributes[0]).Description;
+                return ((AssemblyDescriptionAttribute) attributes[0]).Description;
             }
         }
+
         /// <summary></summary>
         private string AssemblyCopyright
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
+                object[] attributes =
+                    Assembly.GetExecutingAssembly().GetCustomAttributes(typeof (AssemblyCopyrightAttribute), false);
                 if (attributes.Length == 0)
                     return "";
-                return ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
+                return ((AssemblyCopyrightAttribute) attributes[0]).Copyright;
             }
         }
+
         private string Licenses
         {
-            get { return global::vApus.Gui.Properties.Resources.Licenses; }
+            get { return Resources.Licenses; }
         }
+
         #endregion
 
         public About()
@@ -76,7 +85,7 @@ namespace vApus.Gui
 
             rtxtLicenses.Text = Licenses;
         }
-        
+
         private void ReadVersionIni()
         {
             string ini = Path.Combine(Application.StartupPath, "version.ini");
@@ -85,7 +94,7 @@ namespace vApus.Gui
 
             if (File.Exists(ini))
             {
-                StreamReader sr = new StreamReader(ini);
+                var sr = new StreamReader(ini);
                 while (sr.Peek() != -1)
                 {
                     line = sr.ReadLine().Trim();
@@ -122,18 +131,29 @@ namespace vApus.Gui
                         versionFound = false;
                     }
                 }
-                try { sr.Close(); }
-                catch { }
-                try { sr.Dispose(); }
-                catch { }
+                try
+                {
+                    sr.Close();
+                }
+                catch
+                {
+                }
+                try
+                {
+                    sr.Dispose();
+                }
+                catch
+                {
+                }
                 sr = null;
             }
         }
+
         private void FillHistory(string historyOfChanges)
         {
-            List<HistoryPart> parts = new List<HistoryPart>();
-            XmlDocument doc = new XmlDocument();
-            XmlNode node = doc.ReadNode(XmlReader.Create(new MemoryStream(System.Text.Encoding.ASCII.GetBytes(historyOfChanges))));
+            var parts = new List<HistoryPart>();
+            var doc = new XmlDocument();
+            XmlNode node = doc.ReadNode(XmlReader.Create(new MemoryStream(Encoding.ASCII.GetBytes(historyOfChanges))));
 
             //First filling the rtxt and then applying the style
             int previousCaretPosition = 0;
@@ -147,15 +167,18 @@ namespace vApus.Gui
                             switch (nn.Name)
                             {
                                 case "d":
-                                    rtxtHistory.Text = rtxtHistory.Text + " (" + nn.InnerText + ")" + Environment.NewLine;
-                                    parts.Add(new HistoryPart("d", previousCaretPosition, rtxtHistory.Text.Length - previousCaretPosition));
+                                    rtxtHistory.Text = rtxtHistory.Text + " (" + nn.InnerText + ")" +
+                                                       Environment.NewLine;
+                                    parts.Add(new HistoryPart("d", previousCaretPosition,
+                                                              rtxtHistory.Text.Length - previousCaretPosition));
                                     break;
                                 default:
                                     if (previousCaretPosition > 0)
                                         rtxtHistory.Text = rtxtHistory.Text + Environment.NewLine + nn.InnerText;
                                     else
                                         rtxtHistory.Text = rtxtHistory.Text + nn.InnerText;
-                                    parts.Add(new HistoryPart("t", previousCaretPosition, rtxtHistory.Text.Length - previousCaretPosition));
+                                    parts.Add(new HistoryPart("t", previousCaretPosition,
+                                                              rtxtHistory.Text.Length - previousCaretPosition));
                                     break;
                             }
                             previousCaretPosition = rtxtHistory.Text.Length;
@@ -164,7 +187,8 @@ namespace vApus.Gui
                         break;
                     case "i":
                         rtxtHistory.Text = rtxtHistory.Text + n.InnerText + Environment.NewLine;
-                        parts.Add(new HistoryPart("i", previousCaretPosition, rtxtHistory.Text.Length - previousCaretPosition));
+                        parts.Add(new HistoryPart("i", previousCaretPosition,
+                                                  rtxtHistory.Text.Length - previousCaretPosition));
                         break;
                 }
                 previousCaretPosition = rtxtHistory.Text.Length;
@@ -190,6 +214,7 @@ namespace vApus.Gui
             }
             rtxtHistory.Select(0, 0);
         }
+
         private void lblWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("http://www.sizingservers.be");

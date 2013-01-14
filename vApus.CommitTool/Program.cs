@@ -5,18 +5,18 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
-using System.Windows.Forms;
 
 namespace vApus.CommitTool
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Console.WriteLine("/*");
             Console.WriteLine("* Copyright 2012 (c) Sizing Servers Lab");
@@ -34,12 +34,13 @@ namespace vApus.CommitTool
             {
                 try
                 {
-                    string[] excludedFilesOrFolders = new string[args.Length - 8];
+                    var excludedFilesOrFolders = new string[args.Length - 8];
                     int j = 0;
                     for (int i = 8; i < args.Length; i++)
                         excludedFilesOrFolders[j++] = args[i];
 
-                    commit.Do(args[0], int.Parse(args[1]), args[2], args[3], args[4], args[5], out exception, args[6], args[7], excludedFilesOrFolders);
+                    commit.Do(args[0], int.Parse(args[1]), args[2], args[3], args[4], args[5], out exception, args[6],
+                              args[7], excludedFilesOrFolders);
                 }
                 catch (Exception ex)
                 {
@@ -52,8 +53,10 @@ namespace vApus.CommitTool
             }
             if (exception != null)
             {
-                Console.WriteLine("Usage: vApus.CommitTool.exe host port username password historyXml localGitRepository gitCmd excludeFilesOrFolders 1 ... n");
-                Console.WriteLine(@"Example: vApus.CommitTool.exe vApusUpdateServer 5222 root pass c:\vapus\history.xml c:\vapus C:\Program Files\Git\cmd\git.cmd *pdb temp*");
+                Console.WriteLine(
+                    "Usage: vApus.CommitTool.exe host port username password historyXml localGitRepository gitCmd excludeFilesOrFolders 1 ... n");
+                Console.WriteLine(
+                    @"Example: vApus.CommitTool.exe vApusUpdateServer 5222 root pass c:\vapus\history.xml c:\vapus C:\Program Files\Git\cmd\git.cmd *pdb temp*");
                 Console.WriteLine();
                 Console.WriteLine("Exception: " + exception);
             }

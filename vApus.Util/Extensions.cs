@@ -583,18 +583,24 @@ namespace vApus.Util
         /// <param name="array"></param>
         /// <param name="separator"></param>
         /// <returns></returns>
-        public static string Combine(this Array array, string separator)
+        public static string Combine(this Array array, string separator, params object[] exclude)
         {
-            if (array.Length == 0)
-                return string.Empty;
+            if (array.Length == 0) return string.Empty;
 
             StringBuilder sb = new StringBuilder();
+            object value;
             for (int i = 0; i != array.Length - 1; i++)
             {
-                sb.Append(array.GetValue(i));
-                sb.Append(separator);
+                value = array.GetValue(i);
+                if (exclude == null || !exclude.Contains(value))
+                {
+                    sb.Append(value);
+                    sb.Append(separator);
+                }
             }
-            sb.Append(array.GetValue(array.Length - 1));
+            value = array.GetValue(array.Length - 1);
+            if (exclude == null || !exclude.Contains(value))
+                sb.Append(value);
             return sb.ToString();
         }
     }

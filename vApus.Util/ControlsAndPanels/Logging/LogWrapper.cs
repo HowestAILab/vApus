@@ -8,21 +8,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
+using vApus.Util.Properties;
 
 namespace vApus.Util
 {
-
     public delegate void BeforeLoggingEventHandler(object source, BeforeLoggingEventArgs e);
+
     public delegate void AfterLoggingEventHandler(object source, LogEventArgs e);
 
     public class LogEventArgs : EventArgs
     {
-        public readonly string Timestamp;
-        public readonly LogLevel LogLevel;
         public readonly object Data;
+        public readonly LogLevel LogLevel;
+        public readonly string Timestamp;
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="timestamp">As a string for the rigt formatting.</param>
         /// <param name="logLevel"></param>
@@ -34,52 +35,43 @@ namespace vApus.Util
             Data = data;
         }
     }
+
     public class BeforeLoggingEventArgs
     {
-        private bool _cancel;
-        private object _data;
-
-        public bool Cancel
-        {
-            get { return _cancel; }
-            set { _cancel = value; }
-        }
-        public object Data
-        {
-            get { return _data; }
-            set { _data = value; }
-        }
-
         public BeforeLoggingEventArgs(bool cancel = false, object data = null)
         {
             Cancel = cancel;
             Data = data;
         }
+
+        public bool Cancel { get; set; }
+
+        public object Data { get; set; }
     }
 
     /// <summary>
-    /// Different LogLevels which can be used for tagging a log.
+    ///     Different LogLevels which can be used for tagging a log.
     /// </summary>
     public enum LogLevel
     {
         Info = 0,
         Warning = 1,
         Error = 2,
+
         /// <summary>
-        /// Use when the application crashes (in a try...catch around Application.Run(...)).
+        ///     Use when the application crashes (in a try...catch around Application.Run(...)).
         /// </summary>
         Fatal = 3
     }
 
     /// <summary>
-    /// This is a wrapper class for logging. It is built as a combination of a static implementation (the default logger) and possibly other loggers.
+    ///     This is a wrapper class for logging. It is built as a combination of a static implementation (the default logger) and possibly other loggers.
     /// </summary>
     public class LogWrapper
     {
         #region Fields
 
         private static LogWrapper _default;
-        private Logger _logger;
 
         private static LogLevel _logLevel;
 
@@ -87,6 +79,8 @@ namespace vApus.Util
 
         //keeps track whether we copy it to console or not, default false;
         private static bool _consoleEnabled;
+        private readonly Logger _logger;
+
         #endregion
 
         public Logger Logger
@@ -95,8 +89,10 @@ namespace vApus.Util
         }
 
         #region Events
+
         public event BeforeLoggingEventHandler BeforeLogging;
         public event AfterLoggingEventHandler AfterLogging;
+
         #endregion
 
         #region Properties
@@ -119,13 +115,13 @@ namespace vApus.Util
                 if (_logwrappers == null)
                     _logwrappers = new Dictionary<string, LogWrapper>();
 
-                return LogWrapper._logwrappers;
+                return _logwrappers;
             }
             //set { LogWrapper._logwrappers = value; }
         }
 
         /// <summary>
-        /// Logs with the same or higher level as this minimumLogLevel will be logged, lower will be discarded. This value is identical for all the loggers.
+        ///     Logs with the same or higher level as this minimumLogLevel will be logged, lower will be discarded. This value is identical for all the loggers.
         /// </summary>
         public static LogLevel LogLevel
         {
@@ -133,13 +129,13 @@ namespace vApus.Util
             set
             {
                 _logLevel = value;
-                global::vApus.Util.Properties.Settings.Default.LogLevel = ((int)_logLevel).ToString();
-                global ::vApus.Util.Properties.Settings.Default.Save();
+                Settings.Default.LogLevel = ((int) _logLevel).ToString();
+                Settings.Default.Save();
             }
         }
 
         /// <summary>
-        /// Keeps track whether we copy it to console or not, default false;
+        ///     Keeps track whether we copy it to console or not, default false;
         /// </summary>
         public static bool ConsoleEnabled
         {
@@ -150,14 +146,17 @@ namespace vApus.Util
         #endregion
 
         #region Constructors
+
         private LogWrapper()
-            : this("PID_" + System.Diagnostics.Process.GetCurrentProcess().Id)
-        { }
+            : this("PID_" + Process.GetCurrentProcess().Id)
+        {
+        }
+
         private LogWrapper(string loggerName)
         {
             _logger = new Logger(loggerName);
             Logwrappers.Add(loggerName, this);
-            _logLevel = (LogLevel)int.Parse(global::vApus.Util.Properties.Settings.Default.LogLevel);
+            _logLevel = (LogLevel) int.Parse(Settings.Default.LogLevel);
         }
 
         private LogWrapper(string loggerName, LogLevel minimumLogLevel)
@@ -165,18 +164,21 @@ namespace vApus.Util
         {
             LogLevel = minimumLogLevel;
         }
+
         #endregion
 
         #region Logic
 
         #region Static Methods
+
         public static void AddLog(string loggerName, LogLevel minimumLogLevel = LogLevel.Info)
         {
             if (!Logwrappers.ContainsKey(loggerName))
                 new LogWrapper(loggerName, minimumLogLevel);
         }
+
         /// <summary>
-        /// Logs the given object with the default logger. The LogLevel used for this is LogLevel.Info.
+        ///     Logs the given object with the default logger. The LogLevel used for this is LogLevel.Info.
         /// </summary>
         public static void Log(object input)
         {
@@ -188,25 +190,27 @@ namespace vApus.Util
         }
 
         /// <summary>
-        /// Logs the given object with the default logger and specified LogLevel.
+        ///     Logs the given object with the default logger and specified LogLevel.
         /// </summary>
         public static void LogByLevel(object input, LogLevel level)
         {
             Default.Log(input, level);
         }
+
         public static void RemoveEmptyLogs()
         {
             if (_logwrappers != null)
-                foreach (var logWrapper in _logwrappers.Values)
+                foreach (LogWrapper logWrapper in _logwrappers.Values)
                     logWrapper.RemoveLogIfEmptyLog();
 
             if (_default != null)
                 _default.RemoveLogIfEmptyLog();
         }
+
         #endregion
 
         /// <summary>
-        /// Use this method to log to a specific logger.
+        ///     Use this method to log to a specific logger.
         /// </summary>
         public void Log(object input, LogLevel level)
         {
@@ -215,7 +219,7 @@ namespace vApus.Util
 
             if (BeforeLogging != null)
             {
-                BeforeLoggingEventArgs ea = new BeforeLoggingEventArgs(false, input);
+                var ea = new BeforeLoggingEventArgs(false, input);
 
                 //Invoke and let the user change the data or cancel. Invoke because the data can be changed
                 BeforeLogging.Invoke(this, ea);
@@ -232,7 +236,7 @@ namespace vApus.Util
             //Create to the following string
             string timeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff");
             object data = input;
-            input = timeStamp + ";" + level.ToString() + ";" + input.ToString();
+            input = timeStamp + ";" + level.ToString() + ";" + input;
 
             //log the data
             _logger.Log(input);
@@ -249,6 +253,7 @@ namespace vApus.Util
         {
             _logger.RemoveLogIfEmptyLog();
         }
+
         #endregion
     }
 }

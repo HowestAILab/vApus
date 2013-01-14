@@ -160,21 +160,6 @@
         0n8eVwtXCbxCAr8B80x3bKbwKw8AAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="btnLocalOrRemoteSMT.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIPSURBVDhPldNdT9NQHAbwk5j4ifwmMjVqx9a1bKsdC2Xt
-        ug23BAWMREHARAJRY7zBF5IpFxpENw2MwSQoYYwxUTFKloWLJsDYDY/9d85oF19o8uSci54nv3N6ypjt
-        icd1TtM0IxLToFOiKsKUSAgaRe+EakbTVEPVVc6+ntHimdQ08msrKH0oYuvLJ5TL37CzU8H29ld83trE
-        RqmAVHoGqqYYTQWhsIKl5UWcEO//NfnCCoIdAbD/JYdjEXQNTSA2NmsVF9ZXIQclHI0cCSNws16wXsxD
-        kn1gRyV7bvwo2FiD1y+CKaEgcktZq7UlPgXftRfgep/B1fcciTuZJnLjbIpmgejlweggFnIZq8Dd/wrt
-        JlEYSCM0Ng9lNNNEpq+w+bGE9OuXEATBYHQQ84t1ln9kFoHRLDrGc1Buv4V8awF2stvjhIt3mot5gxdb
-        OSbJXsxl3/zzszXI1wf7Ee3S0dPbPZVIJI4zYiSfPja3MYfldzms5t+DXiYmcX8l+y94ceVqDx5OTmBo
-        eGDfvEjTzCeJHJUIbW54RIoLvEBphdtDqZPldsncdwrV6j729nZRqZThdJ07ZI4HjmOX+y4loxd1+KQ2
-        ENE+Epn+hVNnWuA4fdKKOT887zzbbV6kzkfDI4O7ySeTuHtv3CLax9/I9stPDOIQi3gHB1XUajUrNG8i
-        2wuIQZwG7U/jT7Kt4DuEZmc8JzDaGgAAAABJRU5ErkJggg==
-</value>
-  </data>
   <metadata name="tmrProgressDelayCountDown.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>235, 17</value>
   </metadata>
@@ -189,7 +174,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAA4
-        CAAAAk1TRnQBSQFMAgEBAwEAAegBCwHoAQsBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        CAAAAk1TRnQBSQFMAgEBAwEAAfABCwHwAQsBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAARADAAEBAQABCAYAAQQYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -229,9 +214,6 @@
   </data>
   <metadata name="tmrSchedule.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>115, 17</value>
-  </metadata>
-  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>597, 17</value>
   </metadata>
   <metadata name="saveFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>687, 17</value>

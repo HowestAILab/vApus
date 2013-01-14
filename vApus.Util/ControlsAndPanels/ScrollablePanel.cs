@@ -5,20 +5,23 @@
  * Author(s):
  *    Vandroemme Dieter
  */
+
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace vApus.Util
 {
     /// <summary>
-    /// Fixes scroll to control reset.
+    ///     Fixes scroll to control reset.
     /// </summary>
     public class ScrollablePanel : Panel
     {
         //Finally solved, thank you Anonymous at http://seewinapp.blogspot.com/2005/09/is-your-autoscroll-too-auto.html!
-        protected override System.Drawing.Point ScrollToControl(Control activeControl)
+        protected override Point ScrollToControl(Control activeControl)
         {
             return DisplayRectangle.Location;
         }
+
         protected override void OnScroll(ScrollEventArgs se)
         {
             base.OnScroll(se);

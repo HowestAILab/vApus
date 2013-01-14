@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using vApus.DistributedTesting;
 using vApus.Monitor;
 using vApus.SolutionTree;
@@ -13,16 +14,16 @@ using vApus.Stresstest;
 namespace vApus.Link
 {
     /// <summary>
-    /// This solves the circular dependency problem.
-    /// Only vApus.Gui should have a reference to the assembly.
+    ///     This solves the circular dependency problem.
+    ///     Only vApus.Gui should have a reference to the assembly.
     /// </summary>
     public static class Linker
     {
         public static void Link()
         {
-            Solution.RegisterProjectType(typeof(DistributedTestingProject));
-            Solution.RegisterProjectType(typeof(MonitorProject));
-            Solution.RegisterProjectType(typeof(StresstestProject));
+            Solution.RegisterProjectType(typeof (DistributedTestingProject));
+            Solution.RegisterProjectType(typeof (MonitorProject));
+            Solution.RegisterProjectType(typeof (StresstestProject));
         }
     }
 }

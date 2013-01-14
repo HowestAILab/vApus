@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -18,11 +19,12 @@ namespace vApus.Util
         {
             InitializeComponent();
         }
+
         /// <summary>
-        /// This inits the control with event handling.
+        ///     This inits the control with event handling.
         /// </summary>
         /// <param name="value"></param>
-        public void Init(BaseValueControl.Value value)
+        public void Init(Value value)
         {
             base.__Value = value;
 
@@ -33,9 +35,9 @@ namespace vApus.Util
             {
                 chk = new CheckBox();
                 chk.Dock = DockStyle.Top;
-                chk.CheckedChanged += new EventHandler(chk_CheckedChanged);
-                chk.Leave += new EventHandler(chk_Leave);
-                chk.KeyUp += new KeyEventHandler(chk_KeyUp);
+                chk.CheckedChanged += chk_CheckedChanged;
+                chk.Leave += chk_Leave;
+                chk.KeyUp += chk_KeyUp;
             }
             else
             {
@@ -43,34 +45,40 @@ namespace vApus.Util
             }
 
             chk.CheckedChanged -= chk_CheckedChanged;
-            chk.Checked = (bool)value.__Value;
+            chk.Checked = (bool) value.__Value;
             SetChkText(chk);
             chk.CheckedChanged += chk_CheckedChanged;
 
             base.ValueControl = chk;
         }
+
         private void chk_CheckedChanged(object sender, EventArgs e)
         {
-            CheckBox chk = ValueControl as CheckBox;
+            var chk = ValueControl as CheckBox;
             SetChkText(chk);
             base.HandleValueChanged(chk.Checked);
         }
+
         private void chk_KeyUp(object sender, KeyEventArgs e)
         {
-            CheckBox chk = ValueControl as CheckBox;
+            var chk = ValueControl as CheckBox;
             SetChkText(chk);
             base.HandleKeyUp(e.KeyCode, chk.Checked);
         }
+
         private void chk_Leave(object sender, EventArgs e)
         {
             try
             {
-                CheckBox chk = ValueControl as CheckBox;
+                var chk = ValueControl as CheckBox;
                 SetChkText(chk);
                 base.HandleValueChanged(chk.Checked);
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         private void SetChkText(CheckBox chk)
         {
             chk.Text = "[" + (chk.Checked ? "Checked " : "Unchecked ") + "equals " + chk.Checked + "]";

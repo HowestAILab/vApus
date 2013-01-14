@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Text;
 using System.Windows.Forms;
@@ -32,7 +33,7 @@ namespace vApus.LogFixer
                 }
                 else
                 {
-                    StringBuilder sb = new StringBuilder();
+                    var sb = new StringBuilder();
                     foreach (string fn in _logFileNames)
                     {
                         sb.Append("\"");
@@ -46,6 +47,7 @@ namespace vApus.LogFixer
                     DoStuff();
             }
         }
+
         private void btnLogRuleSet_Click(object sender, EventArgs e)
         {
             if (ofdLogRuleSet.ShowDialog() == DialogResult.OK)
@@ -62,7 +64,7 @@ namespace vApus.LogFixer
             tc.TabPages.Clear();
             foreach (string lfn in _logFileNames)
             {
-                FixTab ft = new FixTab();
+                var ft = new FixTab();
                 ft.Init(lfn, txtLogRuleSet.Text);
 
                 tc.TabPages.Add(ft);
@@ -76,7 +78,7 @@ namespace vApus.LogFixer
 
         private void btnEditLogRuleSet_Click(object sender, EventArgs e)
         {
-            EditLogRuleSet editLogRuleSet = new EditLogRuleSet(txtLogRuleSet.Text);
+            var editLogRuleSet = new EditLogRuleSet(txtLogRuleSet.Text);
             editLogRuleSet.ShowDialog();
 
             txtLogRuleSet.Text = editLogRuleSet.LogRuleSetFileName;

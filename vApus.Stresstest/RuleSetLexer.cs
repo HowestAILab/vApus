@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using vApus.SolutionTree;
 
@@ -12,9 +13,10 @@ namespace vApus.Stresstest
 {
     public static class RuleSetLexer
     {
-        private static object _lock = new object();
+        private static readonly object _lock = new object();
+
         /// <summary>
-        /// Lexes the input if possible and builds an AST.
+        ///     Lexes the input if possible and builds an AST.
         /// </summary>
         /// <param name="input"></param>
         /// <param name="ruleSet"></param>
@@ -22,7 +24,8 @@ namespace vApus.Stresstest
         /// <param name="parameters">Can be null</param>
         /// <param name="output"></param>
         /// <returns></returns>
-        public static LexicalResult TryLexicalAnalysis(string input, BaseItem ruleSet, string childDelimiter, Parameters parameters, out ASTNode output)
+        public static LexicalResult TryLexicalAnalysis(string input, BaseItem ruleSet, string childDelimiter,
+                                                       Parameters parameters, out ASTNode output)
         {
             lock (_lock)
             {
@@ -45,8 +48,9 @@ namespace vApus.Stresstest
                         //When there is not split the input will be analysed with the child syntax items AND-wise.
                         for (int i = 0; i < ruleSet.Count; i++)
                         {
-                            SyntaxItem syntaxItem = ruleSet[i] as SyntaxItem;
-                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters, out syntaxItemOutput);
+                            var syntaxItem = ruleSet[i] as SyntaxItem;
+                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters,
+                                                                                       out syntaxItemOutput);
                             if (lexicalResult != LexicalResult.OK)
                             {
                                 output.Value = input;
@@ -59,11 +63,11 @@ namespace vApus.Stresstest
                 }
                 else
                 {
-                    string[] splitInput = input.Split(new string[] { childDelimiter }, StringSplitOptions.None);
+                    string[] splitInput = input.Split(new[] {childDelimiter}, StringSplitOptions.None);
                     if (ruleSet.Count == 0)
                     {
                         //Add AST items without validation.
-                        SyntaxItem syntaxItem = new SyntaxItem();
+                        var syntaxItem = new SyntaxItem();
                         syntaxItem.Parent = ruleSet;
                         for (int i = 0; i < splitInput.Length; i++)
                         {
@@ -83,21 +87,24 @@ namespace vApus.Stresstest
                             {
                                 if (i < splitInput.Length && output.Count > 0)
                                 {
-                                    ASTNode last = output[output.Count - 1] as ASTNode;
+                                    var last = output[output.Count - 1] as ASTNode;
                                     for (int k = i; k < splitInput.Length; k++)
-                                        last.Value = string.Format("{0}{1}{2}", last.Value, childDelimiter, splitInput[k]);
+                                        last.Value = string.Format("{0}{1}{2}", last.Value, childDelimiter,
+                                                                   splitInput[k]);
                                     break;
                                 }
                                 else
                                 {
-                                    output.Error = "The input string could not be handled correctly due to not enough provided or right configured child syntax items.";
+                                    output.Error =
+                                        "The input string could not be handled correctly due to not enough provided or right configured child syntax items.";
                                     return LexicalResult.Error;
                                 }
                             }
 
-                            SyntaxItem syntaxItem = ruleSet[syntaxItemIndex] as SyntaxItem;
+                            var syntaxItem = ruleSet[syntaxItemIndex] as SyntaxItem;
                             ASTNode syntaxItemOutput = null;
-                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
+                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(splitInput[i], parameters,
+                                                                                       out syntaxItemOutput);
 
                             //Skip invalid optional syntax items.
                             if (lexicalResult == LexicalResult.Error)
@@ -143,14 +150,14 @@ namespace vApus.Stresstest
                         //Use 'loops' for optional syntaxItems.
                         if (loops < ruleSet.Count - 1)
                         {
-                            output.Error = "The input string could not be handled correctly either due to an infinite occuring syntax item that is not at the end of the collection where it should be.";
+                            output.Error =
+                                "The input string could not be handled correctly either due to an infinite occuring syntax item that is not at the end of the collection where it should be.";
                             return LexicalResult.Error;
                         }
                     }
                 }
                 return LexicalResult.OK;
             }
-
         }
     }
 }

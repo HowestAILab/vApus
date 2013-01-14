@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Windows.Forms;
 using vApus.SolutionTree;
@@ -12,26 +13,27 @@ using vApus.SolutionTree;
 namespace vApus.DistributedTesting
 {
     /// <summary>
-    /// Merges a cbo and a checkbox. A bit dirty but works well.
+    ///     Merges a cbo and a checkbox. A bit dirty but works well.
     /// </summary>
     public partial class DefaultAdvancedSettingsToControl : UserControl
     {
-        public event EventHandler CheckChanged;
-
         private BaseProject _stresstestProject;
         private TileStresstest _tileStresstest;
+
+        public DefaultAdvancedSettingsToControl()
+        {
+            InitializeComponent();
+        }
 
         public bool DefaultToChecked
         {
             get { return chkDefaultTo.Checked; }
         }
 
-        public DefaultAdvancedSettingsToControl()
-        {
-            InitializeComponent();
-        }
+        public event EventHandler CheckChanged;
+
         /// <summary>
-        /// Fill the cbo, selects the right stresstest, checks the chekbox.
+        ///     Fill the cbo, selects the right stresstest, checks the chekbox.
         /// </summary>
         /// <param name="tileStresstest"></param>
         public void Init(TileStresstest tileStresstest)
@@ -44,7 +46,7 @@ namespace vApus.DistributedTesting
             _tileStresstest = tileStresstest;
 
             cboStresstests.Items.Clear();
-            foreach (var item in _stresstestProject)
+            foreach (BaseItem item in _stresstestProject)
                 if (item is Stresstest.Stresstest)
                     cboStresstests.Items.Add(item);
 

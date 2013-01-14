@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -15,9 +16,12 @@ namespace vApus.Stresstest
 {
     public partial class CustomListGenerator : Form
     {
-        private SolutionComponentPropertyPanel _parameterTypeSolutionComponentPropertyPanel = new SolutionComponentPropertyPanel();
-        private CustomRandomParameterPanel _customRandomParameterPanel = new CustomRandomParameterPanel();
-        private CustomListParameter _customListParameter;
+        private readonly CustomListParameter _customListParameter;
+        private readonly CustomRandomParameterPanel _customRandomParameterPanel = new CustomRandomParameterPanel();
+
+        private readonly SolutionComponentPropertyPanel _parameterTypeSolutionComponentPropertyPanel =
+            new SolutionComponentPropertyPanel();
+
         private BaseParameter _generateFromParameter;
 
         public CustomListGenerator()
@@ -30,7 +34,7 @@ namespace vApus.Stresstest
         {
             _customListParameter = customListParameter;
 
-            if (this.IsHandleCreated)
+            if (IsHandleCreated)
             {
                 if (cboParameterType.SelectedIndex == -1)
                 {
@@ -48,7 +52,7 @@ namespace vApus.Stresstest
             }
             else
             {
-                this.HandleCreated += new EventHandler(CustomListGenerator_HandleCreated);
+                HandleCreated += CustomListGenerator_HandleCreated;
             }
         }
 
@@ -72,7 +76,7 @@ namespace vApus.Stresstest
         private void btnOK_Click(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
-            List<string> entries = new List<string>(_customListParameter.CustomList);
+            var entries = new List<string>(_customListParameter.CustomList);
             bool customRandomParameterException = false;
 
             if (cboParameterType.SelectedIndex == 2)
@@ -119,15 +123,15 @@ namespace vApus.Stresstest
             {
                 _customListParameter.CustomList = entries.ToArray();
 
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                DialogResult = DialogResult.OK;
+                Close();
             }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
 
         private void cboParameterType_SelectedIndexChanged(object sender, EventArgs e)
@@ -154,20 +158,22 @@ namespace vApus.Stresstest
             }
             else
             {
-                if (pnlPlaceHolder.Controls.Count == 0 || pnlPlaceHolder.Controls[0] != _parameterTypeSolutionComponentPropertyPanel)
+                if (pnlPlaceHolder.Controls.Count == 0 ||
+                    pnlPlaceHolder.Controls[0] != _parameterTypeSolutionComponentPropertyPanel)
                 {
                     pnlPlaceHolder.Controls.Clear();
                     pnlPlaceHolder.Controls.Add(_parameterTypeSolutionComponentPropertyPanel);
                     _parameterTypeSolutionComponentPropertyPanel.Dock = DockStyle.Fill;
                 }
-                _parameterTypeSolutionComponentPropertyPanel.SolutionComponent = _customListParameter.GenerateFromParameter;
+                _parameterTypeSolutionComponentPropertyPanel.SolutionComponent =
+                    _customListParameter.GenerateFromParameter;
                 timer.Start();
             }
         }
 
         private void timer_Tick(object sender, EventArgs e)
         {
-            if (!this.IsDisposed && this.IsHandleCreated && this.Visible)
+            if (!IsDisposed && IsHandleCreated && Visible)
                 foreach (BaseValueControl ctrl in _parameterTypeSolutionComponentPropertyPanel.ValueControls)
                     if (ctrl.Label == "Label")
                     {

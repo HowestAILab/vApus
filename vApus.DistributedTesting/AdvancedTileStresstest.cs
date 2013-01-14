@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
@@ -16,17 +17,22 @@ namespace vApus.DistributedTesting
     public class AdvancedTileStresstest : BaseItem
     {
         #region Fields
-        private Stresstest.Stresstest _defaultSettingsTo;
 
-        private int _precision = 1, _dynamicRunMultiplier = 1, _minimumDelay = 900, _maximumDelay = 1100;
-        private int[] _concurrentUsers = { 5, 5, 10, 25, 50, 100 };
-        private bool _shuffle = true;
+        private int[] _concurrency = {5, 5, 10, 25, 50, 100};
+        private Stresstest.Stresstest _defaultSettingsTo;
         private ActionAndLogEntryDistribution _distribute;
         protected internal Log _log;
-        private uint _monitorBefore, _monitorAfter;
+        private int _maximumDelay = 1100;
+        private int _minimumDelay = 900;
+        private int _monitorAfter;
+        private int _monitorBefore;
+        private int _runs = 1;
+        private bool _shuffle = true;
+
         #endregion
 
         #region Properties
+
         [Description("The log used to test the application.")]
         [SavableCloneable, PropertyControl(0)]
         public Log Log
@@ -36,7 +42,9 @@ namespace vApus.DistributedTesting
                 if (_log != null)
                 {
                     if (_log.IsEmpty)
-                        Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), vApus.SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+                        Log =
+                            GetNextOrEmptyChild(typeof (Log),
+                                                Solution.ActiveSolution.GetSolutionComponent(typeof (Logs))) as Log;
 
                     _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
                 }
@@ -52,6 +60,7 @@ namespace vApus.DistributedTesting
                 _log.ParentIsNull += _log_ParentIsNull;
             }
         }
+
         [ReadOnly(true)]
         [DisplayName("Log Rule Set")]
         public string LogRuleSet
@@ -64,50 +73,39 @@ namespace vApus.DistributedTesting
             }
         }
 
-        [Description("The count(s) of the concurrent users generated, the minimum given value equals one."), DisplayName("Concurrent Users")]
+        [Description("The count(s) of the concurrent users generated, the minimum given value equals one.")]
         [SavableCloneable, PropertyControl(1)]
-        public int[] ConcurrentUsers
+        public int[] Concurrency
         {
-            get { return _concurrentUsers; }
+            get { return _concurrency; }
             set
             {
                 if (value.Length == 0)
                     throw new ArgumentException();
                 foreach (int i in value)
                     if (i < 1)
-                        throw new ArgumentOutOfRangeException("A value in Concurrent Users cannot be smaller than one.");
-                _concurrentUsers = value;
+                        throw new ArgumentOutOfRangeException("A value in Concurrency cannot be smaller than one.");
+                _concurrency = value;
             }
         }
 
         [Description("A static multiplier of the runtime for each concurrency level. Must be greater than zero.")]
         [SavableCloneable, PropertyControl(2)]
-        public int Precision
+        public int Runs
         {
-            get { return _precision; }
+            get { return _runs; }
             set
             {
                 if (value < 1)
                     throw new ArgumentOutOfRangeException("Cannot be smaller than 1.");
-                _precision = value;
+                _runs = value;
             }
         }
 
-        [Description("Useful for tests with low or no delay. It appends the runtime for every concurrency level in a way they even out. For example: a minimum request of 10 with 5 concurrent users makes the runtime twice as long, of 15 three times."), DisplayName("Dynamic Run Multiplier")]
-        [SavableCloneable, PropertyControl(3)]
-        public int DynamicRunMultiplier
-        {
-            get { return _dynamicRunMultiplier; }
-            set
-            {
-                if (value < 1)
-                    throw new Exception("The multiplier cannot be smaller than one.");
-                _dynamicRunMultiplier = value;
-            }
-        }
-
-        [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(4)]
+        [Description(
+            "The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."
+            ), DisplayName("Minimum Delay")]
+        [PropertyControl(3)]
         public int MinimumDelay
         {
             get { return _minimumDelay; }
@@ -122,7 +120,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Only for saving and loading, should not be used.
+        ///     Only for saving and loading, should not be used.
         /// </summary>
         [SavableCloneable]
         public int MinimumDelayOverride
@@ -131,8 +129,10 @@ namespace vApus.DistributedTesting
             set { _minimumDelay = value; }
         }
 
-        [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(5)]
+        [Description(
+            "The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."
+            ), DisplayName("Maximum Delay")]
+        [PropertyControl(4)]
         public int MaximumDelay
         {
             get { return _maximumDelay; }
@@ -147,7 +147,7 @@ namespace vApus.DistributedTesting
         }
 
         /// <summary>
-        /// Only for saving and loading, should not be used.
+        ///     Only for saving and loading, should not be used.
         /// </summary>
         [SavableCloneable]
         public int MaximumDelayOverride
@@ -156,99 +156,123 @@ namespace vApus.DistributedTesting
             set { _maximumDelay = value; }
         }
 
-        [Description("The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
-        [SavableCloneable, PropertyControl(6)]
+        [Description(
+            "The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns."
+            )]
+        [SavableCloneable, PropertyControl(5)]
         public bool Shuffle
         {
             get { return _shuffle; }
             set { _shuffle = value; }
         }
 
-        [Description("Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance.")]
-        [SavableCloneable, PropertyControl(7)]
+        [Description(
+            "Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance."
+            )]
+        [SavableCloneable, PropertyControl(6)]
         public ActionAndLogEntryDistribution Distribute
         {
             get { return _distribute; }
             set { _distribute = value; }
         }
-        [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(8)]
-        public uint MonitorBefore
+
+        [Description(
+            "Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."
+            ), DisplayName("Monitor Before")]
+        [SavableCloneable, PropertyControl(7)]
+        public int MonitorBefore
         {
             get { return _monitorBefore; }
             set
             {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > 60)
                     value = 60;
                 _monitorBefore = value;
             }
         }
 
-        [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(9)]
-        public uint MonitorAfter
+        [Description(
+            "Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."
+            ), DisplayName("Monitor After")]
+        [SavableCloneable, PropertyControl(8)]
+        public int MonitorAfter
         {
             get { return _monitorAfter; }
             set
             {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > 60)
                     value = 60;
                 _monitorAfter = value;
             }
         }
+
         #endregion
 
         #region Constructors
+
         public AdvancedTileStresstest()
         {
             ShowInGui = false;
             if (Solution.ActiveSolution != null)
                 Init();
             else
-                Solution.ActiveSolutionChanged += new EventHandler<ActiveSolutionChangedEventArgs>(Solution_ActiveSolutionChanged);
+                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
+
         #endregion
 
         #region Functions
+
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
         {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             Init();
         }
+
         private void Init()
         {
-            Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            Log = GetNextOrEmptyChild(typeof (Log), Solution.ActiveSolution.GetSolutionComponent(typeof (Logs))) as Log;
 
-            SolutionComponent.SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponent_SolutionComponentChanged);
+            SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
         }
+
         private void _log_ParentIsNull(object sender, EventArgs e)
         {
             if (_log == sender)
-                Log = SolutionComponent.GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+                Log =
+                    GetNextOrEmptyChild(typeof (Log), Solution.ActiveSolution.GetSolutionComponent(typeof (Logs))) as
+                    Log;
         }
+
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
         {
             try
             {
-                if (sender != null && this.Parent != null &&
-                    (sender == this.Parent.GetParent().GetParent().GetParent() ||
-                    sender == this.Parent || sender == (this.Parent as TileStresstest).DefaultAdvancedSettingsTo))
+                if (sender != null && Parent != null &&
+                    (sender == Parent.GetParent().GetParent().GetParent() ||
+                     sender == Parent || sender == (Parent as TileStresstest).DefaultAdvancedSettingsTo))
                 {
-                    TileStresstest parent = this.Parent as TileStresstest;
+                    var parent = Parent as TileStresstest;
                     if (parent.AutomaticDefaultAdvancedSettings)
                         DefaultTo(parent.DefaultAdvancedSettingsTo);
                 }
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         private void DefaultTo(Stresstest.Stresstest stresstest)
         {
             _defaultSettingsTo = stresstest;
             Log = _defaultSettingsTo.Log;
-            _concurrentUsers = new int[_defaultSettingsTo.ConcurrentUsers.Length];
-            _defaultSettingsTo.ConcurrentUsers.CopyTo(_concurrentUsers, 0);
-            _precision = _defaultSettingsTo.Precision;
-            _dynamicRunMultiplier = _defaultSettingsTo.DynamicRunMultiplier;
+            _concurrency = new int[_defaultSettingsTo.Concurrencies.Length];
+            _defaultSettingsTo.Concurrencies.CopyTo(_concurrency, 0);
+            _runs = _defaultSettingsTo.Runs;
             _minimumDelay = _defaultSettingsTo.MinimumDelay;
             _maximumDelay = _defaultSettingsTo.MaximumDelay;
             _shuffle = _defaultSettingsTo.Shuffle;
@@ -257,20 +281,20 @@ namespace vApus.DistributedTesting
             _monitorAfter = _defaultSettingsTo.MonitorAfter;
 
             if (Solution.ActiveSolution != null)
-                this.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
+
         /// <summary>
-        /// Create a clone of this.
+        ///     Create a clone of this.
         /// </summary>
         /// <returns></returns>
         public AdvancedTileStresstest Clone()
         {
             var clone = new AdvancedTileStresstest();
             clone.Log = _log;
-            clone._concurrentUsers = new int[_concurrentUsers.Length];
-            _concurrentUsers.CopyTo(clone._concurrentUsers, 0);
-            clone.Precision = _precision;
-            clone.DynamicRunMultiplier = _dynamicRunMultiplier;
+            clone._concurrency = new int[_concurrency.Length];
+            _concurrency.CopyTo(clone._concurrency, 0);
+            clone.Runs = _runs;
             clone.MinimumDelayOverride = _minimumDelay;
             clone.MaximumDelayOverride = _maximumDelay;
             clone.Shuffle = _shuffle;
@@ -279,6 +303,7 @@ namespace vApus.DistributedTesting
             clone.MonitorAfter = _monitorAfter;
             return clone;
         }
+
         #endregion
     }
 }
