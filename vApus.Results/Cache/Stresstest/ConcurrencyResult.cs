@@ -20,7 +20,7 @@ namespace vApus.Results
         /// </summary>
         public int RunCount { get; private set; }
 
-        public DateTime StartedAt { get; private set; }
+        public DateTime StartedAt { get; internal set; }
         /// <summary>
         /// Set to DateTime.MinValue in the constructor.
         /// </summary>

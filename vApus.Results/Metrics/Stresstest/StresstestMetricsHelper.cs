@@ -173,12 +173,12 @@ namespace vApus.Results {
             metrics.MaxResponseTime = new TimeSpan();
             metrics.LogEntries = result.LogEntryResults.LongLength;
 
-            var userActionIndices = new List<string>();
+            var uniqueUserActions = new List<string>();
             TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
             foreach (LogEntryResult logEntryResult in result.LogEntryResults)
                 if (logEntryResult != null && logEntryResult.LogEntryIndex != null) {
                     ++metrics.LogEntriesProcessed;
-                    if (!userActionIndices.Contains(logEntryResult.UserAction)) userActionIndices.Add(logEntryResult.UserAction);
+                    if (!uniqueUserActions.Contains(logEntryResult.UserAction)) uniqueUserActions.Add(logEntryResult.UserAction);
 
                     var ttlb = new TimeSpan(logEntryResult.TimeToLastByteInTicks);
                     totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
@@ -191,12 +191,10 @@ namespace vApus.Results {
             if (metrics.LogEntriesProcessed != 0) {
                 metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.LogEntriesProcessed);
                 metrics.AverageDelay = new TimeSpan(totalDelay.Ticks / metrics.LogEntriesProcessed);
-                metrics.ResponsesPerSecond = ((double)metrics.LogEntriesProcessed) /
-                                             ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) /
-                                              TimeSpan.TicksPerSecond);
-                metrics.UserActionsPerSecond = ((double)userActionIndices.Count) /
-                                               ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) /
-                                                TimeSpan.TicksPerSecond);
+
+                double div = ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
+                metrics.ResponsesPerSecond = ((double)metrics.LogEntriesProcessed) / div;
+                metrics.UserActionsPerSecond = ((double)uniqueUserActions.Count) / div;
             }
             return metrics;
         }

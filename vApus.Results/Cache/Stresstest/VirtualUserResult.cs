@@ -36,7 +36,7 @@ namespace vApus.Results
         ///     Don't forget to initialize this the first time.
         ///     Can contain null!
         /// </summary>
-        public LogEntryResult[] LogEntryResults { get; private set; }
+        public LogEntryResult[] LogEntryResults { get; internal set; }
 
         public void SetLogEntryResultAt(int index, LogEntryResult result)
         {

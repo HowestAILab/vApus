@@ -43,6 +43,7 @@
             this.splitQueryData = new System.Windows.Forms.SplitContainer();
             this.pnlBorderExecute = new System.Windows.Forms.Panel();
             this.btnExecute = new System.Windows.Forms.Button();
+            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             this.dgvDetailedResults = new System.Windows.Forms.DataGridView();
             this.flpDetailedMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -51,11 +52,10 @@
             this.lblStarted = new System.Windows.Forms.Label();
             this.lblMeasuredRuntime = new System.Windows.Forms.Label();
             this.lblStopped = new System.Windows.Forms.Label();
-            this.chkReadable = new System.Windows.Forms.CheckBox();
+            this.chkAdvanced = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -176,7 +176,6 @@
             this.lbtnDescription.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lbtnDescription.VisitedLinkColor = System.Drawing.Color.Black;
             this.lbtnDescription.ActiveChanged += new System.EventHandler(this.lbtnDescription_ActiveChanged);
-            this.lbtnDescription.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lbtnDescription_LinkClicked);
             // 
             // lbtnTags
             // 
@@ -199,8 +198,7 @@
             this.lbtnTags.Text = "Tags";
             this.lbtnTags.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lbtnTags.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lbtnTags.ActiveChanged += new System.EventHandler(this.lbtnDescription_ActiveChanged);
-            this.lbtnTags.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lbtnTags_LinkClicked);
+            this.lbtnTags.ActiveChanged += new System.EventHandler(this.lbtnTags_ActiveChanged);
             // 
             // lbtnvApusInstance
             // 
@@ -223,8 +221,7 @@
             this.lbtnvApusInstance.Text = "vApus Instance";
             this.lbtnvApusInstance.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lbtnvApusInstance.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lbtnvApusInstance.ActiveChanged += new System.EventHandler(this.lbtnDescription_ActiveChanged);
-            this.lbtnvApusInstance.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lbtnvApusInstances_LinkClicked);
+            this.lbtnvApusInstance.ActiveChanged += new System.EventHandler(this.lbtnvApusInstance_ActiveChanged);
             // 
             // lbtnStresstest
             // 
@@ -247,8 +244,7 @@
             this.lbtnStresstest.Text = "Stresstest";
             this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lbtnStresstest.ActiveChanged += new System.EventHandler(this.lbtnDescription_ActiveChanged);
-            this.lbtnStresstest.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lbtnStresstest_LinkClicked);
+            this.lbtnStresstest.ActiveChanged += new System.EventHandler(this.lbtnStresstest_ActiveChanged);
             // 
             // lbtnMonitors
             // 
@@ -272,7 +268,7 @@
             this.lbtnMonitors.Text = "Monitors";
             this.lbtnMonitors.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lbtnMonitors.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lbtnMonitors.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lbtnMonitors_LinkClicked);
+            this.lbtnMonitors.ActiveChanged += new System.EventHandler(this.lbtnMonitors_ActiveChanged);
             // 
             // splitQueryData
             // 
@@ -330,6 +326,21 @@
             this.btnExecute.UseVisualStyleBackColor = false;
             this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
             // 
+            // codeTextBox
+            // 
+            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 15);
+            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
+            this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.PreferredLineWidth = 65536;
+            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
+            this.codeTextBox.TabIndex = 0;
+            this.codeTextBox.WordWrap = true;
+            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
+            // 
             // dgvDetailedResults
             // 
             this.dgvDetailedResults.AllowUserToAddRows = false;
@@ -361,7 +372,7 @@
             this.flpDetailedMetrics.Controls.Add(this.lblStarted);
             this.flpDetailedMetrics.Controls.Add(this.lblMeasuredRuntime);
             this.flpDetailedMetrics.Controls.Add(this.lblStopped);
-            this.flpDetailedMetrics.Controls.Add(this.chkReadable);
+            this.flpDetailedMetrics.Controls.Add(this.chkAdvanced);
             this.flpDetailedMetrics.Controls.Add(this.btnSaveDisplayedResults);
             this.flpDetailedMetrics.Location = new System.Drawing.Point(-1, 40);
             this.flpDetailedMetrics.Name = "flpDetailedMetrics";
@@ -440,21 +451,21 @@
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
             this.lblStopped.TabIndex = 0;
             // 
-            // chkReadable
+            // chkAdvanced
             // 
-            this.chkReadable.AutoSize = true;
-            this.chkReadable.Checked = true;
-            this.chkReadable.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkReadable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkReadable.Location = new System.Drawing.Point(267, 7);
-            this.chkReadable.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
-            this.chkReadable.Name = "chkReadable";
-            this.chkReadable.Size = new System.Drawing.Size(72, 17);
-            this.chkReadable.TabIndex = 2;
-            this.chkReadable.Text = "Advanced";
-            this.toolTip.SetToolTip(this.chkReadable, "Check this if you want to execute your own SQL script on the database.");
-            this.chkReadable.UseVisualStyleBackColor = true;
-            this.chkReadable.CheckedChanged += new System.EventHandler(this.chkReadable_CheckedChanged);
+            this.chkAdvanced.AutoSize = true;
+            this.chkAdvanced.Checked = true;
+            this.chkAdvanced.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAdvanced.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.chkAdvanced.Location = new System.Drawing.Point(267, 7);
+            this.chkAdvanced.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
+            this.chkAdvanced.Name = "chkAdvanced";
+            this.chkAdvanced.Size = new System.Drawing.Size(72, 17);
+            this.chkAdvanced.TabIndex = 2;
+            this.chkAdvanced.Text = "Advanced";
+            this.toolTip.SetToolTip(this.chkAdvanced, "Check this if you want to execute your own SQL script on the database.");
+            this.chkAdvanced.UseVisualStyleBackColor = true;
+            this.chkAdvanced.CheckedChanged += new System.EventHandler(this.chkAdvanced_CheckedChanged);
             // 
             // btnSaveDisplayedResults
             // 
@@ -485,21 +496,6 @@
             this.label1.Size = new System.Drawing.Size(126, 20);
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed Results";
-            // 
-            // codeTextBox
-            // 
-            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 15);
-            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
-            this.codeTextBox.Name = "codeTextBox";
-            this.codeTextBox.PreferredLineWidth = 65536;
-            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
-            this.codeTextBox.TabIndex = 0;
-            this.codeTextBox.WordWrap = true;
-            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
             // 
             // DetailedResultsControl
             // 
@@ -549,7 +545,7 @@
         private System.Windows.Forms.Label lblStarted;
         private System.Windows.Forms.Label lblMeasuredRuntime;
         private System.Windows.Forms.Label lblStopped;
-        private System.Windows.Forms.CheckBox chkReadable;
+        private System.Windows.Forms.CheckBox chkAdvanced;
         private System.Windows.Forms.Button btnSaveDisplayedResults;
         private System.Windows.Forms.SplitContainer splitQueryData;
         private CodeTextBox codeTextBox;

@@ -553,17 +553,15 @@ namespace vApus.Util
     public static class DataGridViewRowExtension
     {
         /// <summary>
-        /// TO CSV for example.
+        /// To CSV for example.
         /// </summary>
         /// <param name="row"></param>
         /// <param name="separator"></param>
         /// <returns></returns>
         public static string ToSV(this DataGridViewRow row, string separator)
         {
-            if (row.Cells.Count == 0)
-                return string.Empty;
-            if (row.Cells.Count == 1)
-                return row.Cells[0].Value.ToString();
+            if (row.Cells.Count == 0)  return string.Empty;
+            if (row.Cells.Count == 1)  return row.Cells[0].Value.ToString();
 
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i != row.Cells.Count - 1; i++)

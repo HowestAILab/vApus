@@ -287,7 +287,6 @@ namespace vApus.DistributedTesting {
                 btnStart.Enabled = !testTreeView.Exclamation;
 
                 tmrSchedule.Stop();
-
                 tmrProgress.Stop();
                 tmrProgressDelayCountDown.Stop();
             }
@@ -762,7 +761,16 @@ namespace vApus.DistributedTesting {
             if (_distributedTestMode == DistributedTestMode.Edit ||
                 MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Warning) == DialogResult.Yes) {
-                Stop(false);
+                tmrProgress.Stop();
+                tmrProgressDelayCountDown.Stop();
+                tmrSchedule.Stop();
+                tmrSetGui.Stop();
+
+                StopMonitors();
+
+                if (_distributedTestCore != null)
+                    try { _distributedTestCore.Stop(); }
+                    catch { }
             }
             else {
                 Solution.ActiveSolution.ExplicitCancelFormClosing = true;

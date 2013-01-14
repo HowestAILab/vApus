@@ -12,14 +12,6 @@ namespace vApus.Results
 {
     public class RunResult
     {
-        public RunResult(int run, int concurrentUsers)
-        {
-            StartedAt = DateTime.Now;
-            StoppedAt = DateTime.MinValue;
-            Run = run;
-            VirtualUserResults = new VirtualUserResult[concurrentUsers];
-        }
-
         public int Run { get; private set; }
 
         /// <summary>
@@ -33,7 +25,14 @@ namespace vApus.Results
         /// <summary>
         ///     Dont forget to set this.
         /// </summary>
-        public VirtualUserResult[] VirtualUserResults { get; private set; }
+        public VirtualUserResult[] VirtualUserResults { get; internal set; }
+
+        public RunResult(int run, int concurrentUsers) {
+            StartedAt = DateTime.Now;
+            StoppedAt = DateTime.MinValue;
+            Run = run;
+            VirtualUserResults = new VirtualUserResult[concurrentUsers];
+        }
 
         /// <summary>
         ///     Only used for break on last run ync.

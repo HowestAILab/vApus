@@ -9,13 +9,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using vApus.Util;
 using System.Linq;
+using MySql.Data.MySqlClient;
+using vApus.Util;
 
-namespace vApus.Results
-{
-    public static class ResultsHelper
-    {
+namespace vApus.Results {
+    public static class ResultsHelper {
         #region Fields
 
         private static string _databaseName;
@@ -32,8 +31,7 @@ namespace vApus.Results
 
         #endregion
 
-        public static string DatabaseName
-        {
+        public static string DatabaseName {
             get { return ResultsHelper._databaseName; }
         }
 
@@ -43,17 +41,13 @@ namespace vApus.Results
         ///     Builds the schema if needed, if no db target is found or no connection could be made an exception is returned.
         /// </summary>
         /// <returns></returns>
-        public static Exception BuildSchemaAndConnect()
-        {
-            try
-            {
+        public static Exception BuildSchemaAndConnect() {
+            try {
                 _databaseName = Schema.Build();
                 _databaseActions = Schema.GetDatabaseActionsUsingDatabase(_databaseName);
             }
-            catch (Exception ex)
-            {
-                if (_databaseActions != null)
-                {
+            catch (Exception ex) {
+                if (_databaseActions != null) {
                     _databaseActions.ReleaseConnection();
                     _databaseActions = null;
                 }
@@ -67,10 +61,8 @@ namespace vApus.Results
         /// </summary>
         /// <param name="description"></param>
         /// <param name="tags"></param>
-        public static void SetDescriptionAndTags(string description, string[] tags)
-        {
-            if (_databaseActions != null)
-            {
+        public static void SetDescriptionAndTags(string description, string[] tags) {
+            if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL("INSERT INTO Description(Description) VALUES('" + description + "')");
                 foreach (string tag in tags)
                     _databaseActions.ExecuteSQL("INSERT INTO Tags(Tag) VALUES('" + tag + "')");
@@ -85,10 +77,8 @@ namespace vApus.Results
         /// <param name="version"></param>
         /// <param name="isMaster"></param>
         /// <returns>Id of the instance.</returns>
-        public static void SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster)
-        {
-            if (_databaseActions != null)
-            {
+        public static void SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
+            if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
                         "INSERT INTO vApusInstances(HostName, IP, Port, Version, Channel, IsMaster) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
@@ -122,10 +112,8 @@ namespace vApus.Results
                                          string log, string logRuleSet, int[] concurrencies, int runs,
                                          int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle,
                                          string distribute,
-                                         int monitorBeforeInMinutes, int monitorAfterInMinutes)
-        {
-            if (_databaseActions != null)
-            {
+                                         int monitorBeforeInMinutes, int monitorAfterInMinutes) {
+            if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(@"INSERT INTO Stresstests(
 vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
@@ -152,10 +140,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     The monitor configuration id in the database, set this in the proper monitor result cache.
         ///     -1 if not connected.
         /// </returns>
-        public static long SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders)
-        {
-            if (_databaseActions != null)
-            {
+        public static long SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
+            if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
                         "INSERT INTO Monitors(StresstestId, Monitor, MonitorSource, ConnectionString, MachineConfiguration, ResultHeaders) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
@@ -177,10 +163,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     Started at datetime now.
         /// </summary>
         /// <param name="stresstestResult"></param>
-        public static void SetStresstestStarted(StresstestResult stresstestResult)
-        {
-            if (_databaseActions != null)
-            {
+        public static void SetStresstestStarted(StresstestResult stresstestResult) {
+            if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
                         "INSERT INTO StresstestResults(StresstestId, StartedAt, StoppedAt, Status, StatusMessage) VALUES('{0}', '{1}', '{2}', 'OK', '')",
@@ -197,8 +181,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="status"></param>
         /// <param name="statusMessage"></param>
         public static void SetStresstestStopped(StresstestResult stresstestResult, string status = "OK",
-                                                string statusMessage = "")
-        {
+                                                string statusMessage = "") {
             stresstestResult.StoppedAt = DateTime.Now;
             if (_databaseActions != null)
                 _databaseActions.ExecuteSQL(
@@ -217,10 +200,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// </summary>
         /// <param name="stresstestResultId"></param>
         /// <param name="concurrencyResult"></param>
-        public static void SetConcurrencyStarted(ConcurrencyResult concurrencyResult)
-        {
-            if (_databaseActions != null)
-            {
+        public static void SetConcurrencyStarted(ConcurrencyResult concurrencyResult) {
+            if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
                         "INSERT INTO ConcurrencyResults(StresstestResultId, Concurrency, StartedAt, StoppedAt) VALUES('{0}', '{1}', '{2}', '{3}')",
@@ -235,8 +216,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     Stopped at datetime now.
         /// </summary>
         /// <param name="concurrencyResult"></param>
-        public static void SetConcurrencyStopped(ConcurrencyResult concurrencyResult)
-        {
+        public static void SetConcurrencyStopped(ConcurrencyResult concurrencyResult) {
             concurrencyResult.StoppedAt = DateTime.Now;
             if (_databaseActions != null)
                 _databaseActions.ExecuteSQL(
@@ -256,10 +236,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="startedAt"></param>
         /// <param name="stoppedAt"></param>
         /// <returns>Id of the run result.</returns>
-        public static void SetRunStarted(RunResult runResult)
-        {
-            if (_databaseActions != null)
-            {
+        public static void SetRunStarted(RunResult runResult) {
+            if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
                         "INSERT INTO RunResults(ConcurrencyResultId, Run, TotalLogEntryCount, ReRunCount, StartedAt, StoppedAt) VALUES('{0}', '{1}', '0', '0', '{2}', '{3}')",
@@ -273,8 +251,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     Increase the rerun count value for the result using fx PrepareForRerun() before calling this fx.
         /// </summary>
         /// <param name="runResult"></param>
-        public static void SetRerun(RunResult runResult)
-        {
+        public static void SetRerun(RunResult runResult) {
             if (_databaseActions != null)
                 _databaseActions.ExecuteSQL(
                     string.Format("UPDATE RunResults SET ReRunCount='{1}' WHERE Id='{0}'", _runResultId,
@@ -286,14 +263,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     All the log entry results are save to the database doing this, only do this for the curent run.
         /// </summary>
         /// <param name="runResult"></param>
-        public static void SetRunStopped(RunResult runResult)
-        {
+        public static void SetRunStopped(RunResult runResult) {
             runResult.StoppedAt = DateTime.Now;
-            if (_databaseActions != null)
-            {
+            if (_databaseActions != null) {
                 ulong totalLogEntryCount = 0;
-                foreach (VirtualUserResult virtualUserResult in runResult.VirtualUserResults)
-                {
+                foreach (VirtualUserResult virtualUserResult in runResult.VirtualUserResults) {
                     totalLogEntryCount += (ulong)virtualUserResult.LogEntryResults.LongLength;
                     foreach (LogEntryResult logEntryResult in virtualUserResult.LogEntryResults)
                         //mssn de multiple insert approach gebruiken bvb insert into tbl(a) values(1),(2),(3) voegt 3 rijen toe.
@@ -301,13 +275,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         if (logEntryResult != null)
                             _databaseActions.ExecuteSQL(
                                 string.Format(@"INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error)
-VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')",
-                                              _runResultId, virtualUserResult.VirtualUser, logEntryResult.UserAction,
-                                              logEntryResult.LogEntryIndex, logEntryResult.LogEntry,
-                                              Parse(logEntryResult.SentAt),
-                                              logEntryResult.TimeToLastByteInTicks, logEntryResult.DelayInMilliseconds,
-                                              logEntryResult.Error)
-                                );
+VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')",
+                                              _runResultId, virtualUserResult.VirtualUser, logEntryResult.LogEntryIndex,
+                                              Parse(logEntryResult.SentAt), logEntryResult.TimeToLastByteInTicks, logEntryResult.DelayInMilliseconds, logEntryResult.Error)
+                                , CommandType.Text, new MySqlParameter("?userAction", logEntryResult.UserAction), new MySqlParameter("?logEntry", logEntryResult.LogEntry));
                 }
 
                 _databaseActions.ExecuteSQL(
@@ -325,11 +296,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')",
         ///     Do this at the end of the test.
         /// </summary>
         /// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
-        public static void SetMonitorResults(MonitorResultCache monitorResultCache)
-        {
+        public static void SetMonitorResults(MonitorResultCache monitorResultCache) {
             if (_databaseActions != null)
-                foreach (var row in monitorResultCache.Rows)
-                {
+                foreach (var row in monitorResultCache.Rows) {
                     var timeStamp = (DateTime)row[0];
 
                     var value = new List<float>();
@@ -348,40 +317,32 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')",
         //GET
 
         #region Configuration
-        public static string GetDescription()
-        {
-            if (_databaseActions != null)
-            {
+        public static string GetDescription() {
+            if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable("Select * FROM Description");
                 foreach (DataRow row in dt.Rows) return row.ItemArray[0] as string;
             }
             return string.Empty;
         }
-        public static List<string> GetTags()
-        {
+        public static List<string> GetTags() {
             var l = new List<string>();
-            if (_databaseActions != null)
-            {
+            if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable("Select * FROM Tags");
                 foreach (DataRow row in dt.Rows) l.Add(row.ItemArray[0] as string);
             }
             return l;
         }
-        public static List<int> GetvApusInstanceIds()
-        {
+        public static List<int> GetvApusInstanceIds() {
             var l = new List<int>();
-            if (_databaseActions != null)
-            {
+            if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable("Select Id FROM vApusInstances");
                 foreach (DataRow row in dt.Rows) l.Add((int)row.ItemArray[0]);
             }
             return l;
         }
-        public static List<KeyValuePair<string, string>> GetvApusInstance(int Id)
-        {
+        public static List<KeyValuePair<string, string>> GetvApusInstance(int Id) {
             var l = new List<KeyValuePair<string, string>>();
-            if (_databaseActions != null)
-            {
+            if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable(string.Format(
                     "Select HostName, IP, Port, Version, Channel, IsMaster FROM vApusInstances WHERE ID = '{0}'", Id));
                 object[] row = dt.Rows[0].ItemArray;
@@ -393,11 +354,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')",
             }
             return l;
         }
-        public static List<KeyValuePair<string, string>> GetStresstest(int vApusInstanceId)
-        {
+        public static List<KeyValuePair<string, string>> GetStresstest(int vApusInstanceId) {
             var l = new List<KeyValuePair<string, string>>();
-            if (_databaseActions != null)
-            {
+            if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable(string.Format(
                     @"Select Stresstest, RunSynchronization, Connection, ConnectionProxy, Log, LogRuleSet, Concurrencies,
 Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribute, MonitorBeforeInMinutes, MonitorAfterInMinutes FROM Stresstests WHERE vApusInstanceId = '{0}'", vApusInstanceId));
@@ -421,11 +380,9 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return l;
         }
-        public static List<string> GetMonitors()
-        {
+        public static List<string> GetMonitors() {
             var l = new List<string>();
-            if (_databaseActions != null)
-            {
+            if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable("Select Monitor, MonitorSource FROM Monitors");
                 foreach (DataRow dr in dt.Rows) l.Add(dr.ItemArray[0] + " (" + dr.ItemArray[1] + ")");
             }
@@ -434,98 +391,77 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         #endregion
 
         #region Procedures
-        public static DataTable GetAverageConcurrentUsers()
-        {
-            if (_databaseActions != null)
-            {
+        public static DataTable GetAverageConcurrentUsers() {
+            if (_databaseActions != null) {
                 var averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Started At", "Measured Time (ms)", "Concurrency",
                     "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
                     "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
 
+                var stresstestConfig = _databaseActions.GetDataTable("Select Runs From Stresstests WHERE vApusInstanceId=1");
+                if (stresstestConfig.Rows.Count == 0)
+                    return averageConcurrentUsers;
+                int runs = (int)stresstestConfig.Rows[0].ItemArray[0];
                 var concurrencyResults = _databaseActions.GetDataTable("SELECT Id, StartedAt, StoppedAt, Concurrency FROM ConcurrencyResults WHERE StresstestResultId=1");
-                foreach (DataRow crRow in concurrencyResults.Rows)
-                {
+                foreach (DataRow crRow in concurrencyResults.Rows) {
+                    ConcurrencyResult concurrencyResult = new ConcurrencyResult((int)crRow.ItemArray[3], runs);
+                    concurrencyResult.StartedAt = (DateTime)crRow.ItemArray[1];
+                    concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
+
+                    var rr = _databaseActions.GetDataTable(string.Format("SELECT Id, Run, TotalLogEntryCount FROM RunResults WHERE ConcurrencyResultId={0}", crRow.ItemArray[0]));
+                    foreach (DataRow rrRow in rr.Rows) {
+                        RunResult runResult = new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency);
+                        concurrencyResult.RunResults.Add(runResult);
+
+
+                        var virtualUserResults = new Dictionary<string, VirtualUserResult>();
+                        var ler = _databaseActions.GetDataTable(
+                            string.Format("Select RunResultId, VirtualUser, UserAction, LogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId={0}", rrRow.ItemArray[0]));
+
+                        foreach (DataRow lerRow in ler.Rows) {
+                            string virtualUser = (lerRow.ItemArray[1] as string);
+                            if (!virtualUserResults.ContainsKey(virtualUser)) virtualUserResults.Add(virtualUser, new VirtualUserResult(0));
+
+                            var virtualUserResult = virtualUserResults[virtualUser];
+                            var part = new List<LogEntryResult>(virtualUserResult.LogEntryResults);
+                            part.Add(new LogEntryResult() {
+                                VirtualUser = virtualUser,
+                                UserAction = lerRow.ItemArray[2] as string,
+                                LogEntryIndex = lerRow.ItemArray[3] as string,
+                                TimeToLastByteInTicks = (long)lerRow.ItemArray[4],
+                                DelayInMilliseconds = (int)lerRow.ItemArray[5]
+                            });
+                            virtualUserResult.LogEntryResults = part.ToArray();
+                        }
+                        runResult.VirtualUserResults = virtualUserResults.Values.ToArray();
+                    }
+
+                    var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult);
+
                     var row = new object[12];
-                    var startedAt = (DateTime)crRow.ItemArray[1];
-                    row[0] = startedAt;
-                    row[1] = Math.Round(((DateTime)crRow.ItemArray[2] - startedAt).TotalMilliseconds, 2);
-                    row[2] = crRow.ItemArray[3];
-
-                    var rr = _databaseActions.GetDataTable(string.Format("SELECT Id, TotalLogEntryCount FROM RunResults WHERE ConcurrencyResultId={0}", crRow.ItemArray[0]));
-
-                    ulong totalLogEntryCount = 0;
-                    var logEntryResults = new DataTable();
-                    foreach (DataRow rrRow in rr.Rows)
-                    {
-                        totalLogEntryCount += (ulong)rrRow.ItemArray[1];
-                        logEntryResults.Merge(_databaseActions.GetDataTable(
-                            string.Format("Select UserAction, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId={0}", rrRow.ItemArray[0])));
-                    }
-                    int logEntryCount = logEntryResults.Rows.Count;
-                    row[3] = logEntryCount;
-                    row[4] = totalLogEntryCount;
-
-                    var userActions = new List<string>();
-                    var totalTimeToLastByte = new TimeSpan();
-                    var totalDelay = new TimeSpan();
-                    double responsesPerSecond = 0, userActionsPerSecond = 0, avgResponseTime = 0, maxResponseTime = 0, percent95ResponseTimes = 0, avgDelay = 0;
-                    long errors = 0;
-                    var timesToLastByteInMS = new List<double>(logEntryCount); //For the 95th percentile of the max response times.
-                    foreach (DataRow ler in logEntryResults.Rows)
-                    {
-                        string userAction = ler.ItemArray[0] as string;
-                        if (!userActions.Contains(userAction)) userActions.Add(userAction);
-
-                        long timeToLastByteInTicks = (long)ler.ItemArray[1];
-                        double timeToLastByteInMS = ((double)timeToLastByteInTicks) / TimeSpan.TicksPerMillisecond;
-                        avgResponseTime += timeToLastByteInMS / logEntryCount;
-                        totalTimeToLastByte = totalTimeToLastByte.Add(new TimeSpan(timeToLastByteInTicks));
-                        timesToLastByteInMS.Add(timeToLastByteInMS);
-
-                        if (timeToLastByteInMS > maxResponseTime) maxResponseTime = timeToLastByteInMS;
-
-                        int delayInMilliseconds = (int)ler.ItemArray[2];
-                        avgDelay += ((double)delayInMilliseconds) / logEntryCount;
-                        totalDelay = totalDelay.Add(new TimeSpan(delayInMilliseconds * TimeSpan.TicksPerMillisecond));
-
-                        if ((ler.ItemArray[3] as string).Length != 0) ++errors;
-                    }
-
-                    responsesPerSecond = ((double)logEntryCount) / ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
-                    userActionsPerSecond = ((double)userActions.Count * rr.Rows.Count) //Times the run, otherwise you get a wrong result.
-                        / ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
-
-                    int percent5 = (int)(logEntryCount * 0.05);
-                    if (percent5 == 0)
-                        percent95ResponseTimes = maxResponseTime;
-                    else
-                    {
-                        timesToLastByteInMS.Sort(); //small to large.
-                        percent95ResponseTimes = timesToLastByteInMS[timesToLastByteInMS.Count - percent5 - 1];
-                    }
-
-                    row[5] = Math.Round(responsesPerSecond, 2);
-                    row[6] = Math.Round(userActionsPerSecond, 2);
-                    row[7] = Math.Round(avgResponseTime, 2);
-                    row[8] = Math.Round(maxResponseTime, 2);
-                    row[9] = Math.Round(percent95ResponseTimes, 2);
-                    row[10] = Math.Round(avgDelay, 2);
-                    row[11] = errors;
+                    row[0] = metrics.StartMeasuringRuntime;
+                    row[1] = Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2);
+                    row[2] = metrics.ConcurrentUsers;
+                    row[3] = metrics.LogEntriesProcessed;
+                    row[4] = metrics.LogEntries;
+                    row[5] = Math.Round(metrics.ResponsesPerSecond, 2);
+                    row[6] = Math.Round(metrics.UserActionsPerSecond, 2);
+                    row[7] = Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2);
+                    row[8] = Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2);
+                    row[9] = Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2);
+                    row[10] = Math.Round(metrics.AverageDelay.TotalMilliseconds, 2);
+                    row[11] = metrics.Errors;
                     averageConcurrentUsers.Rows.Add(row);
                 }
                 return averageConcurrentUsers;
             }
             return null;
         }
-        public static DataTable GetAverageUserActions()
-        {
-            if (_databaseActions != null)
-            {
+        public static DataTable GetAverageUserActions() {
+            if (_databaseActions != null) {
                 var averageUserActions = CreateEmptyDataTable("AverageUserActions", "Concurrency", "User Action", "Avg. Response Time (ms)",
     "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
                 var concurrencyResults = _databaseActions.GetDataTable("SELECT Id, Concurrency FROM ConcurrencyResults WHERE StresstestResultId=1");
-                foreach (DataRow crRow in concurrencyResults.Rows)
-                {
+                foreach (DataRow crRow in concurrencyResults.Rows) {
                     object concurrencyResultId = crRow.ItemArray[0];
                     int concurrency = (int)crRow.ItemArray[1];
 
@@ -533,14 +469,12 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     int runs = runResults.Rows.Count;
 
                     var userActions = new List<KeyValuePair<string, List<LogEntryResult>>>();
-                    foreach (DataRow rrRow in runResults.Rows)
-                    {
+                    foreach (DataRow rrRow in runResults.Rows) {
                         object runResultId = rrRow.ItemArray[0];
                         var logEntryResults = _databaseActions.GetDataTable("SELECT UserAction, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId=" + runResultId);
 
                         var uas = new Dictionary<string, List<LogEntryResult>>();
-                        foreach (DataRow lerRow in logEntryResults.Rows)
-                        {
+                        foreach (DataRow lerRow in logEntryResults.Rows) {
                             string userAction = lerRow.ItemArray[0] as string;
                             var logEntryResult = new LogEntryResult() { TimeToLastByteInTicks = (long)lerRow.ItemArray[1], DelayInMilliseconds = (int)lerRow.ItemArray[2], Error = lerRow.ItemArray[3] as string };
 
@@ -551,8 +485,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     }
 
                     var userActionResults = CreateEmptyDataTable("UserActionResults", "UserAction", "TimeToLastByteInTicks", "DelayInMilliseconds", "Errors");
-                    foreach (var kvp in userActions)
-                    {
+                    foreach (var kvp in userActions) {
                         long ttlb = 0;
                         int delay = -1;
                         long ers = 0;
@@ -560,11 +493,9 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         string userAction = kvp.Key;
                         var logEntryResults = kvp.Value;
 
-                        for (int i = logEntryResults.Count - 1; i != -1; i--)
-                        {
+                        for (int i = logEntryResults.Count - 1; i != -1; i--) {
                             var ler = logEntryResults[i];
-                            if (delay == -1)
-                            {
+                            if (delay == -1) {
                                 delay = ler.DelayInMilliseconds;
                                 ttlb = ler.TimeToLastByteInTicks;
                             }
@@ -575,8 +506,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     }
 
                     var uniqueUserActionCounts = new Dictionary<string, int>(); //To make a correct average.
-                    foreach (DataRow uarRow in userActionResults.Rows)
-                    {
+                    foreach (DataRow uarRow in userActionResults.Rows) {
                         string userAction = uarRow[0] as string;
 
                         if (uniqueUserActionCounts.ContainsKey(userAction)) ++uniqueUserActionCounts[userAction];
@@ -592,8 +522,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     var avgDelay = new Dictionary<string, double>();
                     var errors = new Dictionary<string, long>();
 
-                    foreach (DataRow uarRow in userActionResults.Rows)
-                    {
+                    foreach (DataRow uarRow in userActionResults.Rows) {
                         object[] row = uarRow.ItemArray;
                         string userAction = row[0] as string;
                         long ttlb = (long)row[1];
@@ -617,22 +546,19 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     }
 
                     //95th percentile
-                    foreach (string userAction in timeToLastBytesInTicks.Keys)
-                    {
+                    foreach (string userAction in timeToLastBytesInTicks.Keys) {
                         var l = timeToLastBytesInTicks[userAction];
 
                         int percent5 = (int)(l.Count * 0.05);
                         if (percent5 == 0)
                             percTimeToLastBytesInTicks.Add(userAction, maxTimeToLastByteInTicks[userAction]);
-                        else
-                        {
+                        else {
                             l.Sort();
                             percTimeToLastBytesInTicks.Add(userAction, l[l.Count - percent5 - 1]);
                         }
                     }
 
-                    foreach (string s in avgTimeToLastByteInTicks.Keys)
-                    {
+                    foreach (string s in avgTimeToLastByteInTicks.Keys) {
                         averageUserActions.Rows.Add(concurrency, s,
                             Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
                             Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
@@ -646,30 +572,25 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return null;
         }
 
-        public static DataTable GetAverageLogEntries()
-        {
-            if (_databaseActions != null)
-            {
+        public static DataTable GetAverageLogEntries() {
+            if (_databaseActions != null) {
                 var averageLogEntries = CreateEmptyDataTable("AverageLogEntries", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
 "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
                 var concurrencyResults = _databaseActions.GetDataTable("SELECT Id, Concurrency FROM ConcurrencyResults WHERE StresstestResultId=1");
-                foreach (DataRow crRow in concurrencyResults.Rows)
-                {
+                foreach (DataRow crRow in concurrencyResults.Rows) {
                     object concurrencyResultId = crRow.ItemArray[0];
                     int concurrency = (int)crRow.ItemArray[1];
 
                     var runResults = _databaseActions.GetDataTable("SELECT Id FROM RunResults WHERE ConcurrencyResultId=" + concurrencyResultId);
 
                     var logEntryResults = new DataTable();
-                    foreach (DataRow rrRow in runResults.Rows)
-                    {
+                    foreach (DataRow rrRow in runResults.Rows) {
                         object runResultId = rrRow.ItemArray[0];
                         logEntryResults.Merge(_databaseActions.GetDataTable("SELECT LogEntryIndex, UserAction, LogEntry, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId=" + runResultId));
                     }
 
                     var uniqueLogEntyCounts = new Dictionary<string, int>(); //To make a correct average.
-                    foreach (DataRow lerRow in logEntryResults.Rows)
-                    {
+                    foreach (DataRow lerRow in logEntryResults.Rows) {
                         string logEntryIndex = lerRow[0] as string;
 
                         if (uniqueLogEntyCounts.ContainsKey(logEntryIndex)) ++uniqueLogEntyCounts[logEntryIndex];
@@ -688,8 +609,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     var avgDelay = new Dictionary<string, double>();
                     var errors = new Dictionary<string, long>();
 
-                    foreach (DataRow lerRow in logEntryResults.Rows)
-                    {
+                    foreach (DataRow lerRow in logEntryResults.Rows) {
                         object[] row = lerRow.ItemArray;
                         string logEntryIndex = row[0] as string;
                         string userAction = row[1] as string;
@@ -719,22 +639,19 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     }
 
                     //95th percentile
-                    foreach (string logEntryIndex in timeToLastBytesInTicks.Keys)
-                    {
+                    foreach (string logEntryIndex in timeToLastBytesInTicks.Keys) {
                         var l = timeToLastBytesInTicks[logEntryIndex];
 
                         int percent5 = (int)(l.Count * 0.05);
                         if (percent5 == 0)
                             percTimeToLastBytesInTicks.Add(logEntryIndex, maxTimeToLastByteInTicks[logEntryIndex]);
-                        else
-                        {
+                        else {
                             l.Sort();
                             percTimeToLastBytesInTicks.Add(logEntryIndex, l[l.Count - percent5 - 1]);
                         }
                     }
 
-                    foreach (string s in logEntries.Keys)
-                    {
+                    foreach (string s in logEntries.Keys) {
                         averageLogEntries.Rows.Add(concurrency, userActions[s], logEntries[s],
                             Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
                             Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
@@ -747,27 +664,22 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
-        public static DataTable GetErrors()
-        {
-            if (_databaseActions != null)
-            {
+        public static DataTable GetErrors() {
+            if (_databaseActions != null) {
                 var errors = CreateEmptyDataTable("Error", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
                 var ler = _databaseActions.GetDataTable("SELECT RunResultId, VirtualUser, UserAction, LogEntry, Error FROM logEntryResults WHERE Error != ''");
 
-                foreach (DataRow ldr in ler.Rows)
-                {
+                foreach (DataRow ldr in ler.Rows) {
                     object concurrency = 0;
                     object run = 0;
                     var runResultId = ldr.ItemArray[0];
 
                     var rr = _databaseActions.GetDataTable("SELECT ConcurrencyResultId, Run FROM RunResults WHERE Id = " + runResultId);
-                    foreach (DataRow rdr in rr.Rows)
-                    {
+                    foreach (DataRow rdr in rr.Rows) {
                         var concurrencyResultId = rdr.ItemArray[0];
                         run = rdr.ItemArray[1];
                         var cr = _databaseActions.GetDataTable("SELECT Concurrency FROM ConcurrencyResults WHERE Id = " + concurrencyResultId);
-                        foreach (DataRow cdr in cr.Rows)
-                        {
+                        foreach (DataRow cdr in cr.Rows) {
                             concurrency = cdr.ItemArray[0];
                             break;
                         }
@@ -780,13 +692,11 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
-        public static DataTable ExecuteQuery(string query)
-        {
+        public static DataTable ExecuteQuery(string query) {
             if (_databaseActions == null) return null;
             return _databaseActions.GetDataTable(query);
         }
-        private static DataTable CreateEmptyDataTable(string name, string columnName1, params string[] columnNames)
-        {
+        private static DataTable CreateEmptyDataTable(string name, string columnName1, params string[] columnNames) {
             var objectType = typeof(object);
             var dataTable = new DataTable(name);
             dataTable.Columns.Add(columnName1);
@@ -798,8 +708,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        private static long GetLastInsertId()
-        {
+        private static long GetLastInsertId() {
             var dt = _databaseActions.GetDataTable("SELECT LAST_INSERT_ID()");
             foreach (DataRow dr in dt.Rows)
                 return (long)dr.ItemArray[0];
@@ -807,16 +716,14 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return 0;
         }
 
-        private static string Parse(DateTime dateTime)
-        {
+        private static string Parse(DateTime dateTime) {
             return dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff");
         }
 
         /// <summary>
         /// Remove a schema (after cancel or failed)
         /// </summary>
-        public static void RemoveDatabase()
-        {
+        public static void RemoveDatabase() {
             Schema.Drop(_databaseName, _databaseActions);
             _databaseName = null;
         }

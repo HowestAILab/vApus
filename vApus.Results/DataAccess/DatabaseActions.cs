@@ -33,8 +33,7 @@
 using System.Data;
 using MySql.Data.MySqlClient;
 
-public class DatabaseActions
-{
+public class DatabaseActions {
     #region Fields
 
     /// <summary>
@@ -55,8 +54,7 @@ public class DatabaseActions
 
     #region Functions
 
-    public IDbDataParameter CreateParameter(string name, object value)
-    {
+    public IDbDataParameter CreateParameter(string name, object value) {
         return new MySqlParameter(name, value);
     }
 
@@ -65,8 +63,7 @@ public class DatabaseActions
     /// <summary>
     ///     Gets the connection.
     /// </summary>
-    private void GetNewConnection()
-    {
+    private void GetNewConnection() {
         _connection = new MySqlConnection(ConnectionString);
         _connection.Open();
     }
@@ -74,23 +71,17 @@ public class DatabaseActions
     /// <summary>
     ///     Releases the connection.
     /// </summary>
-    public void ReleaseConnection()
-    {
-        if (_connection != null)
-        {
-            try
-            {
+    public void ReleaseConnection() {
+        if (_connection != null) {
+            try {
                 _connection.Close();
             }
-            catch
-            {
+            catch {
             }
-            try
-            {
+            try {
                 _connection.Dispose();
             }
-            catch
-            {
+            catch {
             }
             _connection = null;
         }
@@ -109,8 +100,7 @@ public class DatabaseActions
     /// <param name="parameters"></param>
     /// <returns></returns>
     private IDbCommand BuildCommand(IDbConnection connection, string commandText, CommandType commandType,
-                                    IDbDataParameter[] parameters)
-    {
+                                    IDbDataParameter[] parameters) {
         IDbCommand command = connection.CreateCommand();
 
         command.CommandType = commandType;
@@ -130,8 +120,7 @@ public class DatabaseActions
     /// <param name="commandType"></param>
     /// <param name="parameters"></param>
     /// <returns></returns>
-    private IDbCommand BuildCommand(string commandText, CommandType commandType, IDbDataParameter[] parameters)
-    {
+    private IDbCommand BuildCommand(string commandText, CommandType commandType, IDbDataParameter[] parameters) {
         if (_connection == null)
             GetNewConnection();
 
@@ -147,8 +136,7 @@ public class DatabaseActions
     /// <param name="parameters"></param>
     /// <returns></returns>
     private IDbCommand BuildCommand(IDbTransaction transaction, string commandText, CommandType commandType,
-                                    IDbDataParameter[] parameters)
-    {
+                                    IDbDataParameter[] parameters) {
         IDbConnection connection = transaction.Connection;
         IDbCommand command = BuildCommand(connection, commandText, commandType, parameters);
         return command;
@@ -162,8 +150,7 @@ public class DatabaseActions
     ///     Gets the according DataAdapter.
     /// </summary>
     /// <returns></returns>
-    private IDbDataAdapter GetNewDataAdapter()
-    {
+    private IDbDataAdapter GetNewDataAdapter() {
         return new MySqlDataAdapter();
     }
 
@@ -178,8 +165,7 @@ public class DatabaseActions
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
     public void ExecuteSQL(string commandText, CommandType commandType = CommandType.Text,
-                           params IDbDataParameter[] parameters)
-    {
+                           params IDbDataParameter[] parameters) {
         IDbCommand oCommand = BuildCommand(commandText, commandType, parameters);
         oCommand.ExecuteNonQuery();
     }
@@ -192,17 +178,19 @@ public class DatabaseActions
     /// <param name="parameters"></param>
     /// <returns></returns>
     public DataTable GetDataTable(string commandText, CommandType commandType = CommandType.Text,
-                                  params IDbDataParameter[] parameters)
-    {
-        IDbCommand command = BuildCommand(commandText, commandType, parameters);
-        IDbDataAdapter dataAdapter = GetNewDataAdapter();
-        dataAdapter.SelectCommand = command;
+                                  params IDbDataParameter[] parameters) {
+        try {
+            IDbCommand command = BuildCommand(commandText, commandType, parameters);
+            IDbDataAdapter dataAdapter = GetNewDataAdapter();
+            dataAdapter.SelectCommand = command;
 
-        var dataSet = new DataSet();
-        dataAdapter.Fill(dataSet);
+            var dataSet = new DataSet();
+            dataAdapter.Fill(dataSet);
 
-        return dataSet.Tables[0];
-        ;
+            return dataSet.Tables[0];
+        }
+        catch { }
+        return new DataTable();
     }
 
     /// <summary>
@@ -213,8 +201,7 @@ public class DatabaseActions
     /// <param name="parameters"></param>
     /// <returns></returns>
     public IDataReader GetDataReader(string commandText, CommandType commandType = CommandType.Text,
-                                     params IDbDataParameter[] parameters)
-    {
+                                     params IDbDataParameter[] parameters) {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         IDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);
 
@@ -229,8 +216,7 @@ public class DatabaseActions
     /// <param name="parameters"></param>
     /// <returns></returns>
     public object ExecuteScalar(string commandText, CommandType commandType = CommandType.Text,
-                                params IDbDataParameter[] parameters)
-    {
+                                params IDbDataParameter[] parameters) {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         return command.ExecuteScalar();
     }
@@ -243,8 +229,7 @@ public class DatabaseActions
     ///     Begins the transaction.
     /// </summary>
     /// <returns></returns>
-    public IDbTransaction BeginTransaction()
-    {
+    public IDbTransaction BeginTransaction() {
         if (_connection == null)
             GetNewConnection();
         return _connection.BeginTransaction();
@@ -258,8 +243,7 @@ public class DatabaseActions
     /// <param name="commandType">Text, stored procedure or table direct.</param>
     /// <param name="parameters"></param>
     public void ExecuteSQL(IDbTransaction transaction, string commandText, CommandType commandType = CommandType.Text,
-                           params IDbDataParameter[] parameters)
-    {
+                           params IDbDataParameter[] parameters) {
         IDbCommand command = BuildCommand(transaction, commandText, commandType, parameters);
         command.Transaction = transaction;
         command.ExecuteNonQuery();
@@ -274,8 +258,7 @@ public class DatabaseActions
     /// <param name="parameters"></param>
     /// <returns></returns>
     public DataTable GetDataTable(IDbTransaction transaction, string commandText,
-                                  CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
-    {
+                                  CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters) {
         IDbCommand command = BuildCommand(transaction, commandText, commandType, parameters);
         command.Transaction = transaction;
 
@@ -297,8 +280,7 @@ public class DatabaseActions
     /// <param name="parameters"></param>
     /// <returns></returns>
     public object ExecuteScalar(IDbTransaction transaction, string commandText,
-                                CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters)
-    {
+                                CommandType commandType = CommandType.Text, params IDbDataParameter[] parameters) {
         IDbCommand command = BuildCommand(commandText, commandType, parameters);
         command.Transaction = transaction;
         return command.ExecuteScalar();

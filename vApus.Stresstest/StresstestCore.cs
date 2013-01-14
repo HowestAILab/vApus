@@ -141,9 +141,8 @@ namespace vApus.Stresstest {
                 }
                 catch {
                 }
-
-                ObjectRegistrar.Unregister(this);
             }
+            ObjectRegistrar.Unregister(this);
         }
 
         #region Events

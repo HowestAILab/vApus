@@ -167,31 +167,24 @@ namespace vApus.DistributedTesting {
         public void SetOverallFastResults(Dictionary<TileStresstest, StresstestMetricsCache> progress) {
             _progress = progress;
 
-            RefreshRows(false);
+            RefreshRows();
             if (cboDrillDown.SelectedIndex == 0) SetOverallFastConcurrencyResults(); else SetOverallFastRunResults();
         }
-        private void RefreshRows(bool refreshAll) {
+        private void RefreshRows() {
+            _concurrencyStresstestMetricsRows.Clear();
+            _runStresstestMetricsRows.Clear();
+
+            _invalidateConcurrencyRows.Clear();
+            _invalidateRunRows.Clear();
+
             foreach (TileStresstest ts in _progress.Keys) {
-                _concurrencyStresstestMetricsRows.Clear();
-                _runStresstestMetricsRows.Clear();
-
-                _invalidateConcurrencyRows.Clear();
-                _invalidateRunRows.Clear();
-
                 _concurrencyStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), StresstestMetricsHelper.MetricsToRows(_progress[ts].GetConcurrencyMetrics(), chkReadable.Checked)));
                 _runStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), StresstestMetricsHelper.MetricsToRows(_progress[ts].GetRunMetrics(), chkReadable.Checked)));
-                if (!refreshAll) {
-                    _invalidateConcurrencyRows.Add(_concurrencyStresstestMetricsRows.Count - 1);
-                    _invalidateRunRows.Add(_runStresstestMetricsRows.Count - 1);
-                }
             }
-            if (refreshAll) {
-                for (int i = 0; i != _concurrencyStresstestMetricsRows.Count; i++)
-                    _invalidateConcurrencyRows.Add(i);
-
-                for (int i = 0; i != _runStresstestMetricsRows.Count; i++)
-                    _invalidateRunRows.Add(i);
-            }
+            for (int i = 0; i != _concurrencyStresstestMetricsRows.Count; i++)
+                _invalidateConcurrencyRows.Add(i);
+            for (int i = 0; i != _runStresstestMetricsRows.Count; i++)
+                _invalidateRunRows.Add(i);
         }
         /// <summary>
         /// Puts the tile stresstest tostring in front of the rows.
@@ -248,7 +241,7 @@ namespace vApus.DistributedTesting {
             columnHeaders = cboDrillDown.SelectedIndex == 0 ? StresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked)
                 : StresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
 
-            if (readableChanged) RefreshRows(true);
+            if (readableChanged) RefreshRows();
 
             string[] newColumnHeaders = new string[columnHeaders.LongLength + 1];
             newColumnHeaders[0] = "Tile Stresstest";

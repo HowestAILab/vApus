@@ -143,4 +143,7 @@
         +escxYk/7f6Ryd8ziYiFf07DbqHQhc1e4bHWV0/AP2Kqfr7uJUam+oP4Aay1AAAAAElFTkSuQmCC
 </value>
   </data>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
 </root>
