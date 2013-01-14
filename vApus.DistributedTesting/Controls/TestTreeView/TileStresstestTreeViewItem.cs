@@ -82,8 +82,6 @@ namespace vApus.DistributedTesting {
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
             eventProgressChart.BeginOfTimeFrame = DateTime.MinValue;
-
-            CheckIfTestCanStart();
         }
 
         #endregion
