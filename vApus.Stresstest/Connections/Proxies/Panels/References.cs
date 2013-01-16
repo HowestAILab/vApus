@@ -79,7 +79,7 @@ namespace vApus.Stresstest
                     _codeTextBox.SelectionStart = _codeTextBox.SelectionStart;
 
                     _codeTextBox.DoSelectionVisible();
-                    _codeTextBox.ForceCreateCaret();
+                    _codeTextBox.Focus();
                 }
             }
         }

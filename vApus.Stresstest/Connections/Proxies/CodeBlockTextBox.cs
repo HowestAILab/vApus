@@ -106,7 +106,7 @@ namespace vApus.Stresstest
                 fastColoredTextBox.SelectionLength = stop - start;
 
                 fastColoredTextBox.DoSelectionVisible();
-                fastColoredTextBox.ForceCreateCaret();
+                fastColoredTextBox.Focus();
             }
         }
 

@@ -4,105 +4,275 @@
         <name>FastColoredTextBox</name>
     </assembly>
     <members>
-        <member name="T:FastColoredTextBoxNS.InsertCharCommand">
+        <member name="T:FastColoredTextBoxNS.AutocompleteItem">
             <summary>
-            Insert single char
-            </summary>
-            <remarks>This operation includes also insertion of new line and removing char by backspace</remarks>
-        </member>
-        <member name="M:FastColoredTextBoxNS.InsertCharCommand.#ctor(FastColoredTextBoxNS.FastColoredTextBox,System.Char)">
-            <summary>
-            Constructor
-            </summary>
-            <param name="tb">Underlaying textbox</param>
-            <param name="c">Inserting char</param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.InsertCharCommand.Undo">
-            <summary>
-            Undo operation
+            Item of autocomplete menu
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.InsertCharCommand.Execute">
+        <member name="M:FastColoredTextBoxNS.AutocompleteItem.GetTextForReplace">
             <summary>
-            Execute operation
+            Returns text for inserting into Textbox
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.InsertCharCommand.MergeLines(System.Int32,FastColoredTextBoxNS.FastColoredTextBox)">
+        <member name="M:FastColoredTextBoxNS.AutocompleteItem.Compare(System.String)">
             <summary>
-            Merge lines i and i+1
+            Compares fragment text with this item
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.InsertTextCommand">
+        <member name="M:FastColoredTextBoxNS.AutocompleteItem.ToString">
             <summary>
-            Insert text
+            Returns text for display into popup menu
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.InsertTextCommand.#ctor(FastColoredTextBoxNS.FastColoredTextBox,System.String)">
+        <member name="M:FastColoredTextBoxNS.AutocompleteItem.OnSelected(FastColoredTextBoxNS.AutocompleteMenu,FastColoredTextBoxNS.SelectedEventArgs)">
             <summary>
-            Constructor
-            </summary>
-            <param name="tb">Underlaying textbox</param>
-            <param name="insertedText">Text for inserting</param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.InsertTextCommand.Undo">
-            <summary>
-            Undo operation
+            This method is called after item inserted into text
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.InsertTextCommand.Execute">
+        <member name="P:FastColoredTextBoxNS.AutocompleteItem.ToolTipTitle">
             <summary>
-            Execute operation
+            Title for tooltip.
+            </summary>
+            <remarks>Return null for disable tooltip for this item</remarks>
+        </member>
+        <member name="P:FastColoredTextBoxNS.AutocompleteItem.ToolTipText">
+            <summary>
+            Tooltip text.
+            </summary>
+            <remarks>For display tooltip text, ToolTipTitle must be not null</remarks>
+        </member>
+        <member name="P:FastColoredTextBoxNS.AutocompleteItem.MenuText">
+            <summary>
+            Menu text. This text is displayed in the drop-down menu.
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.ReplaceTextCommand">
+        <member name="F:FastColoredTextBoxNS.CompareResult.Hidden">
             <summary>
-            Insert text into given ranges
-            </summary>
-            <remarks>This opertaion is very heavy, because it save ALL text for undo.
-            Use this class only for ReplaceAll command</remarks>
-        </member>
-        <member name="M:FastColoredTextBoxNS.ReplaceTextCommand.#ctor(FastColoredTextBoxNS.FastColoredTextBox,System.Collections.Generic.List{FastColoredTextBoxNS.Range},System.String)">
-            <summary>
-            Constructor
-            </summary>
-            <param name="tb">Underlaying textbox</param>
-            <param name="ranges">List of ranges for replace</param>
-            <param name="insertedText">Text for inserting</param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.ReplaceTextCommand.Undo">
-            <summary>
-            Undo operation
+            Item do not appears
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.ReplaceTextCommand.Execute">
+        <member name="F:FastColoredTextBoxNS.CompareResult.Visible">
             <summary>
-            Execute operation
+            Item appears
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.ClearSelectedCommand">
+        <member name="F:FastColoredTextBoxNS.CompareResult.VisibleAndSelected">
             <summary>
-            Clear selected text
+            Item appears and will selected
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.ClearSelectedCommand.#ctor(FastColoredTextBoxNS.FastColoredTextBox)">
+        <member name="T:FastColoredTextBoxNS.SnippetAutocompleteItem">
             <summary>
-            Construstor
+            Autocomplete item for code snippets
             </summary>
-            <param name="tb">Underlaying textbox</param>
+            <remarks>Snippet can contain special char ^ for caret position.</remarks>
         </member>
-        <member name="M:FastColoredTextBoxNS.ClearSelectedCommand.Undo">
+        <member name="M:FastColoredTextBoxNS.SnippetAutocompleteItem.Compare(System.String)">
             <summary>
-            Undo operation
+            Compares fragment text with this item
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.ClearSelectedCommand.Execute">
+        <member name="T:FastColoredTextBoxNS.MethodAutocompleteItem">
             <summary>
-            Execute operation
+            This autocomplete item appears after dot
+            </summary>
+        </member>
+        <member name="T:FastColoredTextBoxNS.AutocompleteMenu">
+            <summary>
+            Popup menu for autocomplete
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.AutocompleteMenu.Show(System.Boolean)">
+            <summary>
+            Shows popup menu immediately
+            </summary>
+            <param name="forced">If True - MinFragmentLength will be ignored</param>
+        </member>
+        <member name="P:FastColoredTextBoxNS.AutocompleteMenu.SearchPattern">
+            <summary>
+            Regex pattern for serach fragment around caret
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.AutocompleteMenu.MinFragmentLength">
+            <summary>
+            Minimum fragment length for popup
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.AutocompleteMenu.Selecting">
+            <summary>
+            User selects item
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.AutocompleteMenu.Selected">
+            <summary>
+            It fires after item inserting
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.AutocompleteMenu.Opening">
+            <summary>
+            Occurs when popup menu is opening
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.AutocompleteMenu.AllowTabKey">
+            <summary>
+            Allow TAB for select menu item
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.AutocompleteMenu.AppearInterval">
+            <summary>
+            Interval of menu appear (ms)
+            </summary>
+        </member>
+        <member name="T:FastColoredTextBoxNS.Char">
+            <summary>
+            Char and style
+            </summary>
+        </member>
+        <member name="F:FastColoredTextBoxNS.Char.c">
+            <summary>
+            Unicode character
+            </summary>
+        </member>
+        <member name="F:FastColoredTextBoxNS.Char.style">
+            <summary>
+            Style bit mask
+            </summary>
+            <remarks>Bit 1 in position n means that this char will rendering by FastColoredTextBox.Styles[n]</remarks>
+        </member>
+        <member name="T:FastColoredTextBoxNS.StyleIndex">
+            <summary>
+            Style index mask
+            </summary>
+        </member>
+        <member name="T:FastColoredTextBoxNS.ExportToHTML">
+            <summary>
+            Exports colored text as HTML
+            </summary>
+            <remarks>At this time only TextStyle renderer is supported. Other styles is not exported.</remarks>
+        </member>
+        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseNbsp">
+            <summary>
+            Use nbsp; instead space
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseForwardNbsp">
+            <summary>
+            Use nbsp; instead space in beginning of line
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseOriginalFont">
+            <summary>
+            Use original font
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseStyleTag">
+            <summary>
+            Use style tag instead style attribute
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseBr">
+            <summary>
+            Use br tag instead \n
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.ExportToHTML.IncludeLineNumbers">
+            <summary>
+            Includes line numbers
+            </summary>
+        </member>
+        <member name="F:FastColoredTextBoxNS.GoToForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.GoToForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.GoToForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.HighlightSyntax(FastColoredTextBoxNS.Language,FastColoredTextBoxNS.Range)">
+            <summary>
+            Highlights syntax for given language
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.HighlightSyntax(System.String,FastColoredTextBoxNS.Range)">
+            <summary>
+            Highlights syntax for given XML description file
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.CSharpSyntaxHighlight(FastColoredTextBoxNS.Range)">
+            <summary>
+            Highlights C# code
+            </summary>
+            <param name="range"></param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.VBSyntaxHighlight(FastColoredTextBoxNS.Range)">
+            <summary>
+            Highlights VB code
+            </summary>
+            <param name="range"></param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.HTMLSyntaxHighlight(FastColoredTextBoxNS.Range)">
+            <summary>
+            Highlights HTML code
+            </summary>
+            <param name="range"></param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.SQLSyntaxHighlight(FastColoredTextBoxNS.Range)">
+            <summary>
+            Highlights SQL code
+            </summary>
+            <param name="range"></param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.PHPSyntaxHighlight(FastColoredTextBoxNS.Range)">
+            <summary>
+            Highlights PHP code
+            </summary>
+            <param name="range"></param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.JScriptSyntaxHighlight(FastColoredTextBoxNS.Range)">
+            <summary>
+            Highlights JavaScript code
+            </summary>
+            <param name="range"></param>
+        </member>
+        <member name="T:FastColoredTextBoxNS.Language">
+            <summary>
+            Language
+            </summary>
+        </member>
+        <member name="F:FastColoredTextBoxNS.ReplaceForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.ReplaceForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.ReplaceForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
             </summary>
         </member>
         <member name="T:FastColoredTextBoxNS.FastColoredTextBox">
             <summary>
             Fast colored textbox
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.#ctor">
+            <summary>
+            Constructor
             </summary>
         </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.OnVisibleRangeChanged">
@@ -116,15 +286,9 @@
             This method is thread safe and does not require Invoke.
             </summary>
         </member>
-        <member name="F:FastColoredTextBoxNS.FastColoredTextBox.Styles">
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.NeedRecalc">
             <summary>
-            Styles
-            Maximum style count is 16
-            </summary>
-        </member>
-        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.#ctor">
-            <summary>
-            Constructor
+            Call this method if the recalc of the position of lines is needed.
             </summary>
         </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.NavigateForward">
@@ -231,13 +395,13 @@
             Clears undo and redo stacks
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.InsertText(System.String)">
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.InsertText(System.String,System.Boolean)">
             <summary>
             Insert text into current selection position
             </summary>
             <param name="text"></param>
         </member>
-        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.InsertText(System.String,FastColoredTextBoxNS.Style)">
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.InsertText(System.String,FastColoredTextBoxNS.Style,System.Boolean)">
             <summary>
             Insert text into current selection position (with predefined style)
             </summary>
@@ -280,6 +444,11 @@
             </summary>
             <param name="rect"></param>
         </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.UpdateScrollbars">
+            <summary>
+            Updates scrollbar position after Value changed
+            </summary>
+        </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.DoCaretVisible">
             <summary>
             Scroll control for display caret
@@ -295,9 +464,29 @@
             Scroll control for display selection area
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.UpperLowerCase">
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.DoRangeVisible(FastColoredTextBoxNS.Range)">
             <summary>
-            Convert selected text to upper/lower case
+            Scroll control for display given range
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.MoveSelectedLinesDown">
+            <summary>
+            Moves selected lines down
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.MoveSelectedLinesUp">
+            <summary>
+            Moves selected lines up
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.UpperCase">
+            <summary>
+            Convert selected text to upper case
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.LowerCase">
+            <summary>
+            Convert selected text to lower case
             </summary>
         </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.CommentSelected">
@@ -333,11 +522,6 @@
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.OnPaint(System.Windows.Forms.PaintEventArgs)">
             <summary>
             Draw control
-            </summary>
-        </member>
-        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.ForceCreateCaret">
-            <summary>
-            Force setting the focus, needed for drawing the caret.
             </summary>
         </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.PointToPlace(System.Drawing.Point)">
@@ -389,7 +573,7 @@
             Gets absolute text position from line and char position
             </summary>
             <param name="point">Line and char position</param>
-            <returns>Index of text char</returns>
+            <returns>Point of char</returns>
         </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.PositionToPlace(System.Int32)">
             <summary>
@@ -398,11 +582,16 @@
             <param name="pos"></param>
             <returns></returns>
         </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.PositionToPoint(System.Int32)">
+            <summary>
+            Gets absolute char position from char position
+            </summary>
+        </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.PlaceToPoint(FastColoredTextBoxNS.Place)">
             <summary>
             Gets point for given line and char position
             </summary>
-            <param name="palce">Line and char position</param>
+            <param name="place">Line and char position</param>
             <returns>Coordiantes</returns>
         </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.GetRange(System.Int32,System.Int32)">
@@ -442,6 +631,12 @@
             <param name="iLine">Line index</param>
             <returns>Text</returns>
         </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.ExpandFoldedBlock(System.Int32)">
+            <summary>
+            Exapnds folded block
+            </summary>
+            <param name="iLine">Start line</param>
+        </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.ExpandBlock(System.Int32,System.Int32)">
             <summary>
             Expand collapsed block
@@ -453,11 +648,32 @@
             </summary>
             <param name="iLine">Any line inside collapsed block</param>
         </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.CollapseAllFoldingBlocks">
+            <summary>
+            Collapses all folding blocks
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.ExpandAllFoldingBlocks">
+            <summary>
+            Exapnds all folded blocks
+            </summary>
+            <param name="iLine"></param>
+        </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.CollapseFoldingBlock(System.Int32)">
             <summary>
             Collapses folding block
             </summary>
             <param name="iLine">Start folding line</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.GetLineFoldingStartMarker(System.Int32)">
+            <summary>
+            Start foilding marker for the line
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.GetLineFoldingEndMarker(System.Int32)">
+            <summary>
+            End foilding marker for the line
+            </summary>
         </member>
         <member name="M:FastColoredTextBoxNS.FastColoredTextBox.CollapseBlock(System.Int32,System.Int32)">
             <summary>
@@ -516,6 +732,80 @@
             Prints all text, without any dialog windows
             </summary>
         </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.OpenBindingFile(System.String,System.Text.Encoding)">
+            <summary>
+            Open file binding mode
+            </summary>
+            <param name="fileName"></param>
+            <param name="enc"></param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.CloseBindingFile">
+            <summary>
+            Close file binding mode
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.SaveToFile(System.String,System.Text.Encoding)">
+            <summary>
+            Save text to the file
+            </summary>
+            <param name="fileName"></param>
+            <param name="enc"></param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.SetVisibleState(System.Int32,FastColoredTextBoxNS.VisibleState)">
+            <summary>
+            Set VisibleState of line
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.GetVisibleState(System.Int32)">
+            <summary>
+            Returns VisibleState of the line
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.ShowGoToDialog">
+            <summary>
+            Shows Goto dialog form
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.OnUndoRedoStateChanged">
+            <summary>
+            Occurs when undo/redo stack is changed
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.FindLines(System.String,System.Text.RegularExpressions.RegexOptions)">
+            <summary>
+            Search lines by regex pattern
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FastColoredTextBox.RemoveLines(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Removes given lines
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.VirtualSpace">
+            <summary>
+            Enables virtual spaces
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.FindEndOfFoldingBlockStrategy">
+            <summary>
+            Strategy of search of end of folding block
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.AcceptsTab">
+            <summary>
+            Indicates if tab characters are accepted as input
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.AcceptsReturn">
+            <summary>
+            Indicates if return characters are accepted as input
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.CaretVisible">
+            <summary>
+            Shows or hides the caret
+            </summary>
+        </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.CurrentLineColor">
             <summary>
             Background color for current line
@@ -524,6 +814,11 @@
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.ChangedLineColor">
             <summary>
             Background color for highlighting of changed lines
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.ForeColor">
+            <summary>
+            Fore color (default style color)
             </summary>
         </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.CharHeight">
@@ -567,6 +862,11 @@
             Shows line numbers.
             </summary>
         </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.ShowFoldingLines">
+            <summary>
+            Shows vertical lines between folding start line and folding end line.
+            </summary>
+        </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.LineNumberColor">
             <summary>
             Color of line numbers.
@@ -582,9 +882,29 @@
             Background color of indent area
             </summary>
         </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.PaddingBackColor">
+            <summary>
+            Background color of padding area
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.DisabledColor">
+            <summary>
+            Color of disabled component
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.CaretColor">
+            <summary>
+            Color of caret
+            </summary>
+        </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.ServiceLinesColor">
             <summary>
             Color of service lines (folding lines, borders of blocks etc.)
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.Paddings">
+            <summary>
+            Padings of text area
             </summary>
         </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.FoldingIndicatorColor">
@@ -611,6 +931,12 @@
             <summary>
             This property draws vertical line after defined char position.
             Set to 0 for disable drawing of vertical line.
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.Styles">
+            <summary>
+            Styles
+            Maximum style count is 16
             </summary>
         </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.DefaultStyle">
@@ -676,93 +1002,10 @@
             This property specifies exactly which section of the text will be re-highlighted.
             This can be useful to highlight multi-line comments, for example.</remarks>
         </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.TextChanged">
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.IsReplaceMode">
             <summary>
-            TextChanged event.
-            It occurs after insert, delete, clear, undo and redo operations.
+            Is keyboard in replace mode (wide caret) ?
             </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.TextChanging">
-            <summary>
-            TextChanging event.
-            It occurs before insert, delete, clear, undo and redo operations.
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.SelectionChanged">
-            <summary>
-            SelectionChanged event.
-            It occurs after changing of selection.
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.VisibleRangeChanged">
-            <summary>
-            VisibleRangeChanged event.
-            It occurs after changing of visible range.
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.TextChangedDelayed">
-            <summary>
-            TextChangedDelayed event. 
-            It occurs after insert, delete, clear, undo and redo operations. 
-            This event occurs with a delay relative to TextChanged, and fires only once.
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.SelectionChangedDelayed">
-            <summary>
-            SelectionChangedDelayed event.
-            It occurs after changing of selection.
-            This event occurs with a delay relative to SelectionChanged, and fires only once.
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.VisibleRangeChangedDelayed">
-            <summary>
-            VisibleRangeChangedDelayed event.
-            It occurs after changing of visible range.
-            This event occurs with a delay relative to VisibleRangeChanged, and fires only once.
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.VisualMarkerClick">
-            <summary>
-            It occurs when user click on VisualMarker.
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.KeyPressing">
-            <summary>
-            It occurs when visible char is enetering (alphabetic, digit, punctuation, DEL, BACKSPACE)
-            </summary>
-            <remarks>Set Handle to True for cancel key</remarks>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.KeyPressed">
-            <summary>
-            It occurs when visible char is enetered (alphabetic, digit, punctuation, DEL, BACKSPACE)
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.AutoIndentNeeded">
-            <summary>
-            It occurs when calculates AutoIndent for new line
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.PaintLine">
-            <summary>
-            It occurs when line background is painting
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.LineInserted">
-            <summary>
-            Occurs when line was inserted/added
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.LineRemoved">
-            <summary>
-            Occurs when line was removed
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.FoldingHighlightChanged">
-            <summary>
-            Occurs when current highlighted folding area is changed.
-            Current folding area see in StartFoldingLine and EndFoldingLine.
-            </summary>
-            <remarks></remarks>
         </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.AllowSeveralTextStyleDrawing">
             <summary>
@@ -772,6 +1015,11 @@
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.AutoIndent">
             <summary>
             Allows AutoIndent. Inserts spaces before new line.
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.AutoIndentExistingLines">
+            <summary>
+            Does autoindenting in existing lines. It works only if AutoIndent is True.
             </summary>
         </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.DelayedEventsInterval">
@@ -830,6 +1078,17 @@
             End line index of current highlighted folding area. Return -1 if end of area is not found.
             </summary>
         </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.TextSource">
+            <summary>
+            TextSource
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.SourceTextBox">
+            <summary>
+            The source of the text.
+            Allows to get text from other FastColoredTextBox.
+            </summary>
+        </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.VisibleRange">
             <summary>
             Returns current visible range of text
@@ -843,6 +1102,18 @@
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.BackColor">
             <summary>
             Background color.
+            It is used if BackBrush is null.
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.BackBrush">
+            <summary>
+            Background brush.
+            If Null then BackColor is used.
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.Multiline">
+            <summary>
+            Multiline
             </summary>
         </member>
         <member name="P:FastColoredTextBoxNS.FastColoredTextBox.WordWrap">
@@ -938,6 +1209,110 @@
             Range of all text
             </summary>
         </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.TextChanged">
+            <summary>
+            TextChanged event.
+            It occurs after insert, delete, clear, undo and redo operations.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.BindingTextChanged">
+            <summary>
+            Fake event for correct data binding
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.TextChanging">
+            <summary>
+            TextChanging event.
+            It occurs before insert, delete, clear, undo and redo operations.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.SelectionChanged">
+            <summary>
+            SelectionChanged event.
+            It occurs after changing of selection.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.VisibleRangeChanged">
+            <summary>
+            VisibleRangeChanged event.
+            It occurs after changing of visible range.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.TextChangedDelayed">
+            <summary>
+            TextChangedDelayed event. 
+            It occurs after insert, delete, clear, undo and redo operations. 
+            This event occurs with a delay relative to TextChanged, and fires only once.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.SelectionChangedDelayed">
+            <summary>
+            SelectionChangedDelayed event.
+            It occurs after changing of selection.
+            This event occurs with a delay relative to SelectionChanged, and fires only once.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.VisibleRangeChangedDelayed">
+            <summary>
+            VisibleRangeChangedDelayed event.
+            It occurs after changing of visible range.
+            This event occurs with a delay relative to VisibleRangeChanged, and fires only once.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.VisualMarkerClick">
+            <summary>
+            It occurs when user click on VisualMarker.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.KeyPressing">
+            <summary>
+            It occurs when visible char is enetering (alphabetic, digit, punctuation, DEL, BACKSPACE)
+            </summary>
+            <remarks>Set Handle to True for cancel key</remarks>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.KeyPressed">
+            <summary>
+            It occurs when visible char is enetered (alphabetic, digit, punctuation, DEL, BACKSPACE)
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.AutoIndentNeeded">
+            <summary>
+            It occurs when calculates AutoIndent for new line
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.PaintLine">
+            <summary>
+            It occurs when line background is painting
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.LineInserted">
+            <summary>
+            Occurs when line was inserted/added
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.LineRemoved">
+            <summary>
+            Occurs when line was removed
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.FoldingHighlightChanged">
+            <summary>
+            Occurs when current highlighted folding area is changed.
+            Current folding area see in StartFoldingLine and EndFoldingLine.
+            </summary>
+            <remarks></remarks>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FastColoredTextBox.UndoRedoStateChanged">
+            <summary>
+            Occurs when undo/redo stack is changed
+            </summary>
+            <remarks></remarks>
+        </member>
+        <member name="P:FastColoredTextBoxNS.FastColoredTextBox.SelectionColor">
+            <summary>
+            Color of selected area
+            </summary>
+        </member>
         <member name="P:FastColoredTextBoxNS.LineInsertedEventArgs.Index">
             <summary>
             Inserted line index
@@ -978,6 +1353,11 @@
             This range contains changed area of text
             </summary>
         </member>
+        <member name="P:FastColoredTextBoxNS.TextChangingEventArgs.Cancel">
+            <summary>
+            Set to true if you want to cancel text inserting
+            </summary>
+        </member>
         <member name="F:FastColoredTextBoxNS.WordWrapMode.WordWrapControlWidth">
             <summary>
             Word wrapping by control width
@@ -996,6 +1376,30 @@
         <member name="F:FastColoredTextBoxNS.WordWrapMode.CharWrapPreferredWidth">
             <summary>
             Char wrapping by preferred line width (PreferredLineWidth)
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.PrintDialogSettings.Title">
+            <summary>
+            Title of page. If you want to print Title on the page, insert code &amp;w in Footer or Header.
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.PrintDialogSettings.Footer">
+            <summary>
+            Footer of page.
+            Here you can use special codes: &amp;w (Window title), &amp;D, &amp;d (Date), &amp;t(), &amp;4 (Time), &amp;p (Current page number), &amp;P (Total number of pages),  &amp;&amp; (A single ampersand), &amp;b (Right justify text, Center text. If &amp;b occurs once, then anything after the &amp;b is right justified. If &amp;b occurs twice, then anything between the two &amp;b is centered, and anything after the second &amp;b is right justified).
+            More detailed see <see cref="!:http://msdn.microsoft.com/en-us/library/aa969429(v=vs.85).aspx">here</see>
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.PrintDialogSettings.Header">
+            <summary>
+            Header of page
+            Here you can use special codes: &amp;w (Window title), &amp;D, &amp;d (Date), &amp;t(), &amp;4 (Time), &amp;p (Current page number), &amp;P (Total number of pages),  &amp;&amp; (A single ampersand), &amp;b (Right justify text, Center text. If &amp;b occurs once, then anything after the &amp;b is right justified. If &amp;b occurs twice, then anything between the two &amp;b is centered, and anything after the second &amp;b is right justified).
+            More detailed see <see cref="!:http://msdn.microsoft.com/en-us/library/aa969429(v=vs.85).aspx">here</see>
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.PrintDialogSettings.IncludeLineNumbers">
+            <summary>
+            Prints line numbers
             </summary>
         </member>
         <member name="P:FastColoredTextBoxNS.AutoIndentEventArgs.Shift">
@@ -1028,95 +1432,170 @@
             Highlight all (visible and invisible) text. Lowest performance.
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.Place">
+        <member name="T:FastColoredTextBoxNS.FindEndOfFoldingBlockStrategy">
             <summary>
-            Line index and char index
+            Strategy of search of end of folding block
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.Line">
+        <member name="T:FastColoredTextBoxNS.InsertCharCommand">
             <summary>
-            Line of text
+            Insert single char
+            </summary>
+            <remarks>This operation includes also insertion of new line and removing char by backspace</remarks>
+        </member>
+        <member name="M:FastColoredTextBoxNS.InsertCharCommand.#ctor(FastColoredTextBoxNS.TextSource,System.Char)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="tb">Underlaying textbox</param>
+            <param name="c">Inserting char</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.InsertCharCommand.Undo">
+            <summary>
+            Undo operation
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.Line.ClearStyle(FastColoredTextBoxNS.StyleIndex)">
+        <member name="M:FastColoredTextBoxNS.InsertCharCommand.Execute">
             <summary>
-            Clears style of chars, delete folding markers
+            Execute operation
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.Line.ClearFoldingMarkers">
+        <member name="M:FastColoredTextBoxNS.InsertCharCommand.MergeLines(System.Int32,FastColoredTextBoxNS.TextSource)">
             <summary>
-            Clears folding markers
+            Merge lines i and i+1
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.Line.GetWordWrapStringIndex(System.Int32)">
+        <member name="T:FastColoredTextBoxNS.InsertTextCommand">
             <summary>
-            Gets index of wordwrap string for given char position
+            Insert text
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.Line.CalcCutOffs(System.Int32,System.Boolean,System.Boolean)">
+        <member name="M:FastColoredTextBoxNS.InsertTextCommand.#ctor(FastColoredTextBoxNS.TextSource,System.String)">
             <summary>
-            Calculates wordwrap cutoffs
+            Constructor
+            </summary>
+            <param name="tb">Underlaying textbox</param>
+            <param name="insertedText">Text for inserting</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.InsertTextCommand.Undo">
+            <summary>
+            Undo operation
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.IsChanged">
+        <member name="M:FastColoredTextBoxNS.InsertTextCommand.Execute">
             <summary>
-            Text of line was changed
+            Execute operation
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.LastVisit">
+        <member name="T:FastColoredTextBoxNS.ReplaceTextCommand">
             <summary>
-            Time of last visit of caret in this line
-            </summary>
-            <remarks>This property can be used for forward/backward navigating</remarks>
-        </member>
-        <member name="P:FastColoredTextBoxNS.Line.VisibleState">
-            <summary>
-            Visible state
+            Insert text into given ranges
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.IndentLevel">
+        <member name="M:FastColoredTextBoxNS.ReplaceTextCommand.#ctor(FastColoredTextBoxNS.TextSource,System.Collections.Generic.List{FastColoredTextBoxNS.Range},System.String)">
             <summary>
-            AutoIndent level for this line
+            Constructor
+            </summary>
+            <param name="tb">Underlaying textbox</param>
+            <param name="ranges">List of ranges for replace</param>
+            <param name="insertedText">Text for inserting</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.ReplaceTextCommand.Undo">
+            <summary>
+            Undo operation
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.BackgroundBrush">
+        <member name="M:FastColoredTextBoxNS.ReplaceTextCommand.Execute">
             <summary>
-            Background brush.
+            Execute operation
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.Tag">
+        <member name="T:FastColoredTextBoxNS.ClearSelectedCommand">
             <summary>
-            User tag
+            Clear selected text
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.UniqueId">
+        <member name="M:FastColoredTextBoxNS.ClearSelectedCommand.#ctor(FastColoredTextBoxNS.TextSource)">
             <summary>
-            Unique ID
+            Construstor
+            </summary>
+            <param name="tb">Underlaying textbox</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.ClearSelectedCommand.Undo">
+            <summary>
+            Undo operation
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.AutoIndentSpacesNeededCount">
+        <member name="M:FastColoredTextBoxNS.ClearSelectedCommand.Execute">
             <summary>
-            Count of needed start spaces for AutoIndent
+            Execute operation
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.Text">
+        <member name="T:FastColoredTextBoxNS.ReplaceMultipleTextCommand">
             <summary>
-            Text of the line
+            Replaces text
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.CutOffPositions">
+        <member name="M:FastColoredTextBoxNS.ReplaceMultipleTextCommand.#ctor(FastColoredTextBoxNS.TextSource,System.Collections.Generic.List{FastColoredTextBoxNS.ReplaceMultipleTextCommand.ReplaceRange})">
             <summary>
-            Positions for wordwrap cutoffs
+            Constructor
+            </summary>
+            <param name="ts">Underlaying textsource</param>
+            <param name="ranges">List of ranges for replace</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.ReplaceMultipleTextCommand.Undo">
+            <summary>
+            Undo operation
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.WordWrapStringsCount">
+        <member name="M:FastColoredTextBoxNS.ReplaceMultipleTextCommand.Execute">
             <summary>
-            Count of wordwrap string count for this line
+            Execute operation
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.Line.StartSpacesCount">
+        <member name="T:FastColoredTextBoxNS.RemoveLinesCommand">
             <summary>
-            Count of start spaces
+            Removes lines
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.RemoveLinesCommand.#ctor(FastColoredTextBoxNS.TextSource,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="tb">Underlaying textbox</param>
+            <param name="ranges">List of ranges for replace</param>
+            <param name="insertedText">Text for inserting</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.RemoveLinesCommand.Undo">
+            <summary>
+            Undo operation
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.RemoveLinesCommand.Execute">
+            <summary>
+            Execute operation
+            </summary>
+        </member>
+        <member name="T:FastColoredTextBoxNS.MultiRangeCommand">
+            <summary>
+            Wrapper for multirange commands
+            </summary>
+        </member>
+        <member name="F:FastColoredTextBoxNS.FindForm.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FindForm.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.FindForm.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
             </summary>
         </member>
         <member name="T:FastColoredTextBoxNS.LimitedStack`1">
@@ -1160,197 +1639,90 @@
             Current length of stack
             </summary>
         </member>
-        <member name="F:FastColoredTextBoxNS.FindForm.components">
+        <member name="T:FastColoredTextBoxNS.Line">
             <summary>
-            Required designer variable.
+            Line of text
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.FindForm.Dispose(System.Boolean)">
+        <member name="M:FastColoredTextBoxNS.Line.ClearStyle(FastColoredTextBoxNS.StyleIndex)">
             <summary>
-            Clean up any resources being used.
-            </summary>
-            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.FindForm.InitializeComponent">
-            <summary>
-            Required method for Designer support - do not modify
-            the contents of this method with the code editor.
+            Clears style of chars, delete folding markers
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.Char">
+        <member name="M:FastColoredTextBoxNS.Line.ClearFoldingMarkers">
             <summary>
-            Char and style
+            Clears folding markers
             </summary>
         </member>
-        <member name="F:FastColoredTextBoxNS.Char.c">
+        <member name="P:FastColoredTextBoxNS.Line.IsChanged">
             <summary>
-            Unicode character
+            Text of line was changed
             </summary>
         </member>
-        <member name="F:FastColoredTextBoxNS.Char.style">
+        <member name="P:FastColoredTextBoxNS.Line.LastVisit">
             <summary>
-            Style bit mask
+            Time of last visit of caret in this line
             </summary>
-            <remarks>Bit 1 in position n means that this char will rendering by FastColoredTextBox.Styles[n]</remarks>
+            <remarks>This property can be used for forward/backward navigating</remarks>
         </member>
-        <member name="T:FastColoredTextBoxNS.StyleIndex">
+        <member name="P:FastColoredTextBoxNS.Line.BackgroundBrush">
             <summary>
-            Style index mask
-            </summary>
-        </member>
-        <member name="F:FastColoredTextBoxNS.ReplaceForm.components">
-            <summary>
-            Required designer variable.
+            Background brush.
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.ReplaceForm.Dispose(System.Boolean)">
+        <member name="P:FastColoredTextBoxNS.Line.UniqueId">
             <summary>
-            Clean up any resources being used.
-            </summary>
-            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.ReplaceForm.InitializeComponent">
-            <summary>
-            Required method for Designer support - do not modify
-            the contents of this method with the code editor.
+            Unique ID
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.HighlightSyntax(FastColoredTextBoxNS.Language,FastColoredTextBoxNS.Range)">
+        <member name="P:FastColoredTextBoxNS.Line.AutoIndentSpacesNeededCount">
             <summary>
-            Highlights syntax for given language
+            Count of needed start spaces for AutoIndent
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.HighlightSyntax(System.String,FastColoredTextBoxNS.Range)">
+        <member name="P:FastColoredTextBoxNS.Line.Text">
             <summary>
-            Highlights syntax for given XML description file
+            Text of the line
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.CSharpSyntaxHighlight(FastColoredTextBoxNS.Range)">
+        <member name="P:FastColoredTextBoxNS.Line.StartSpacesCount">
             <summary>
-            Highlights C# code
-            </summary>
-            <param name="range"></param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.VBSyntaxHighlight(FastColoredTextBoxNS.Range)">
-            <summary>
-            Highlights VB code
-            </summary>
-            <param name="range"></param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.HTMLSyntaxHighlight(FastColoredTextBoxNS.Range)">
-            <summary>
-            Highlights HTML code
-            </summary>
-            <param name="range"></param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.SQLSyntaxHighlight(FastColoredTextBoxNS.Range)">
-            <summary>
-            Highlights SQL code
-            </summary>
-            <param name="range"></param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.SyntaxHighlighter.PHPSyntaxHighlight(FastColoredTextBoxNS.Range)">
-            <summary>
-            Highlights PHP code
-            </summary>
-            <param name="range"></param>
-        </member>
-        <member name="T:FastColoredTextBoxNS.Language">
-            <summary>
-            Language
+            Count of start spaces
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.ExportToHTML">
+        <member name="P:FastColoredTextBoxNS.Line.Count">
             <summary>
-            Exports colored text as HTML
-            </summary>
-            <remarks>At this time only TextStyle renderer is supported. Other styles is not exported.</remarks>
-        </member>
-        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseNbsp">
-            <summary>
-            Use nbsp; instead space
+            Chars count
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseForwardNbsp">
+        <member name="F:FastColoredTextBoxNS.LineInfo.VisibleState">
             <summary>
-            Use nbsp; instead space in beginning of line
+            Visible state
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseOriginalFont">
+        <member name="M:FastColoredTextBoxNS.LineInfo.GetWordWrapStringIndex(System.Int32)">
             <summary>
-            Use original font
+            Gets index of wordwrap string for given char position
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseStyleTag">
+        <member name="M:FastColoredTextBoxNS.LineInfo.CalcCutOffs(System.Int32,System.Boolean,System.Boolean,FastColoredTextBoxNS.Line)">
             <summary>
-            Use style tag instead style attribute
+            Calculates wordwrap cutoffs
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.ExportToHTML.UseBr">
+        <member name="P:FastColoredTextBoxNS.LineInfo.CutOffPositions">
             <summary>
-            Use br tag instead \n
+            Positions for wordwrap cutoffs
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.Style">
+        <member name="P:FastColoredTextBoxNS.LineInfo.WordWrapStringsCount">
             <summary>
-            Style of chars
-            </summary>
-            <remarks>This is base class for all text and design renderers</remarks>
-        </member>
-        <member name="M:FastColoredTextBoxNS.Style.#ctor">
-            <summary>
-            Constructor
+            Count of wordwrap string count for this line
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.Style.Draw(System.Drawing.Graphics,System.Drawing.Point,FastColoredTextBoxNS.Range)">
+        <member name="T:FastColoredTextBoxNS.Place">
             <summary>
-            Renders given range of text
-            </summary>
-            <param name="gr">Graphics object</param>
-            <param name="position">Position of the range in absolute control coordinates</param>
-            <param name="range">Rendering range of text</param>
-        </member>
-        <member name="M:FastColoredTextBoxNS.Style.OnVisualMarkerClick(FastColoredTextBoxNS.FastColoredTextBox,FastColoredTextBoxNS.VisualMarkerEventArgs)">
-            <summary>
-            Occurs when user click on StyleVisualMarker joined to this style 
-            </summary>
-        </member>
-        <member name="M:FastColoredTextBoxNS.Style.AddVisualMarker(FastColoredTextBoxNS.FastColoredTextBox,FastColoredTextBoxNS.StyleVisualMarker)">
-            <summary>
-            Shows VisualMarker
-            Call this method in Draw method, when you need to show VisualMarker for your style
-            </summary>
-        </member>
-        <member name="P:FastColoredTextBoxNS.Style.IsExportable">
-            <summary>
-            This style is exported to outer formats (HTML for example)
-            </summary>
-        </member>
-        <member name="E:FastColoredTextBoxNS.Style.VisualMarkerClick">
-            <summary>
-            Occurs when user click on StyleVisualMarker joined to this style 
-            </summary>
-        </member>
-        <member name="T:FastColoredTextBoxNS.TextStyle">
-            <summary>
-            Style for chars rendering
-            This renderer can draws chars, with defined fore and back colors
-            </summary>
-        </member>
-        <member name="T:FastColoredTextBoxNS.FoldedBlockStyle">
-            <summary>
-            Renderer for folded block
-            </summary>
-        </member>
-        <member name="T:FastColoredTextBoxNS.SelectionStyle">
-            <summary>
-            Renderer for selection area
-            </summary>
-        </member>
-        <member name="T:FastColoredTextBoxNS.MarkerStyle">
-            <summary>
-            Marker style
-            Draws background color for text
+            Line index and char index
             </summary>
         </member>
         <member name="T:FastColoredTextBoxNS.Range">
@@ -1472,6 +1844,12 @@
             <param name="startFoldingPattern">Pattern for start folding line</param>
             <param name="finishFoldingPattern">Pattern for finish folding line</param>
         </member>
+        <member name="M:FastColoredTextBoxNS.Range.SetFoldingMarkers(System.String,System.Text.RegularExpressions.RegexOptions)">
+            <summary>
+            Sets folding markers
+            </summary>
+            <param name="startEndFoldingPattern">Pattern for start and end folding line</param>
+        </member>
         <member name="M:FastColoredTextBoxNS.Range.GetRanges(System.String)">
             <summary>
             Finds ranges for given regex pattern
@@ -1482,6 +1860,15 @@
         <member name="M:FastColoredTextBoxNS.Range.GetRanges(System.String,System.Text.RegularExpressions.RegexOptions)">
             <summary>
             Finds ranges for given regex pattern
+            </summary>
+            <param name="regexPattern">Regex pattern</param>
+            <returns>Enumeration of ranges</returns>
+        </member>
+        <member name="M:FastColoredTextBoxNS.Range.GetRangesByLines(System.String,System.Text.RegularExpressions.RegexOptions)">
+            <summary>
+            Finds ranges for given regex pattern.
+            Search is separately in each line.
+            This method requires less memory than GetRanges().
             </summary>
             <param name="regexPattern">Regex pattern</param>
             <returns>Enumeration of ranges</returns>
@@ -1546,6 +1933,16 @@
             <param name="allowedSymbolsPattern">Allowed chars pattern for fragment</param>
             <returns>Range of found fragment</returns>
         </member>
+        <member name="P:FastColoredTextBoxNS.Range.IsEmpty">
+            <summary>
+            Return true if no selected text
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.Range.ColumnSelectionMode">
+            <summary>
+            Column selection mode
+            </summary>
+        </member>
         <member name="P:FastColoredTextBoxNS.Range.Start">
             <summary>
             Start line and char position
@@ -1585,118 +1982,183 @@
             Return maximum of end.X and start.X
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.AutocompleteItem">
+        <member name="T:FastColoredTextBoxNS.Style">
             <summary>
-            Item of autocomplete menu
+            Style of chars
+            </summary>
+            <remarks>This is base class for all text and design renderers</remarks>
+        </member>
+        <member name="M:FastColoredTextBoxNS.Style.#ctor">
+            <summary>
+            Constructor
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.AutocompleteItem.GetTextForReplace">
+        <member name="M:FastColoredTextBoxNS.Style.Draw(System.Drawing.Graphics,System.Drawing.Point,FastColoredTextBoxNS.Range)">
             <summary>
-            Returns text for inserting into Textbox
+            Renders given range of text
+            </summary>
+            <param name="gr">Graphics object</param>
+            <param name="position">Position of the range in absolute control coordinates</param>
+            <param name="range">Rendering range of text</param>
+        </member>
+        <member name="M:FastColoredTextBoxNS.Style.OnVisualMarkerClick(FastColoredTextBoxNS.FastColoredTextBox,FastColoredTextBoxNS.VisualMarkerEventArgs)">
+            <summary>
+            Occurs when user click on StyleVisualMarker joined to this style 
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.AutocompleteItem.Compare(System.String)">
+        <member name="M:FastColoredTextBoxNS.Style.AddVisualMarker(FastColoredTextBoxNS.FastColoredTextBox,FastColoredTextBoxNS.StyleVisualMarker)">
             <summary>
-            Compares fragment text with this item
+            Shows VisualMarker
+            Call this method in Draw method, when you need to show VisualMarker for your style
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.AutocompleteItem.ToString">
+        <member name="M:FastColoredTextBoxNS.Style.GetCSS">
             <summary>
-            Returns text for display into popup menu
+            Returns CSS for export to HTML
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:FastColoredTextBoxNS.Style.IsExportable">
+            <summary>
+            This style is exported to outer formats (HTML for example)
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.AutocompleteItem.OnSelected(FastColoredTextBoxNS.AutocompleteMenu,FastColoredTextBoxNS.SelectedEventArgs)">
+        <member name="E:FastColoredTextBoxNS.Style.VisualMarkerClick">
             <summary>
-            This method is called after item inserted into text
+            Occurs when user click on StyleVisualMarker joined to this style 
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.AutocompleteItem.ToolTipTitle">
+        <member name="T:FastColoredTextBoxNS.TextStyle">
             <summary>
-            Title for tooltip.
-            </summary>
-            <remarks>Return null for disable tooltip for this item</remarks>
-        </member>
-        <member name="P:FastColoredTextBoxNS.AutocompleteItem.ToolTipText">
-            <summary>
-            Tooltip text.
-            </summary>
-            <remarks>For display tooltip text, ToolTipTitle must be not null</remarks>
-        </member>
-        <member name="F:FastColoredTextBoxNS.CompareResult.Hidden">
-            <summary>
-            Item do not appears
+            Style for chars rendering
+            This renderer can draws chars, with defined fore and back colors
             </summary>
         </member>
-        <member name="F:FastColoredTextBoxNS.CompareResult.Visible">
+        <member name="T:FastColoredTextBoxNS.FoldedBlockStyle">
             <summary>
-            Item appears
+            Renderer for folded block
             </summary>
         </member>
-        <member name="F:FastColoredTextBoxNS.CompareResult.VisibleAndSelected">
+        <member name="T:FastColoredTextBoxNS.SelectionStyle">
             <summary>
-            Item appears and will selected
+            Renderer for selection area
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.SnippetAutocompleteItem">
+        <member name="T:FastColoredTextBoxNS.MarkerStyle">
             <summary>
-            Autocomplete item for code snippets
-            </summary>
-            <remarks>Snippet can contain special char ^ for caret position.</remarks>
-        </member>
-        <member name="M:FastColoredTextBoxNS.SnippetAutocompleteItem.Compare(System.String)">
-            <summary>
-            Compares fragment text with this item
+            Marker style
+            Draws background color for text
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.MethodAutocompleteItem">
+        <member name="T:FastColoredTextBoxNS.ShortcutStyle">
             <summary>
-            This autocomplete item appears after dot
+            Draws small rectangle for popup menu
             </summary>
         </member>
-        <member name="T:FastColoredTextBoxNS.AutocompleteMenu">
+        <member name="T:FastColoredTextBoxNS.WavyLineStyle">
             <summary>
-            Popup menu for autocomplete
+            This style draws a wavy line below a given text range.
+            </summary>
+            <remarks>Thanks for Yallie</remarks>
+        </member>
+        <member name="T:FastColoredTextBoxNS.TextSource">
+            <summary>
+            This class contains the source text (chars and styles).
+            It stores a text lines, the manager of commands, undo/redo stack, styles.
             </summary>
         </member>
-        <member name="M:FastColoredTextBoxNS.AutocompleteMenu.Show(System.Boolean)">
+        <member name="F:FastColoredTextBoxNS.TextSource.Styles">
             <summary>
-            Shows popup menu immediately
-            </summary>
-            <param name="forced">If True - MinFragmentLength will be ignored</param>
-        </member>
-        <member name="P:FastColoredTextBoxNS.AutocompleteMenu.SearchPattern">
-            <summary>
-            Regex pattern for serach fragment around caret
+            Styles
+            Maximum style count is 16
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.AutocompleteMenu.MinFragmentLength">
+        <member name="E:FastColoredTextBoxNS.TextSource.LineInserted">
             <summary>
-            Minimum fragment length for popup
+            Occurs when line was inserted/added
             </summary>
         </member>
-        <member name="E:FastColoredTextBoxNS.AutocompleteMenu.Selecting">
+        <member name="E:FastColoredTextBoxNS.TextSource.LineRemoved">
             <summary>
-            User selects item
+            Occurs when line was removed
             </summary>
         </member>
-        <member name="E:FastColoredTextBoxNS.AutocompleteMenu.Selected">
+        <member name="E:FastColoredTextBoxNS.TextSource.TextChanged">
             <summary>
-            It fires after item inserting
+            Occurs when text was changed
             </summary>
         </member>
-        <member name="E:FastColoredTextBoxNS.AutocompleteMenu.Opening">
+        <member name="E:FastColoredTextBoxNS.TextSource.RecalcNeeded">
             <summary>
-            Occurs when popup menu is opening
+            Occurs when recalc is needed
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.AutocompleteMenu.AllowTabKey">
+        <member name="E:FastColoredTextBoxNS.TextSource.TextChanging">
             <summary>
-            Allow TAB for select menu item
+            Occurs before text changing
             </summary>
         </member>
-        <member name="P:FastColoredTextBoxNS.AutocompleteMenu.AppearInterval">
+        <member name="E:FastColoredTextBoxNS.TextSource.CurrentTBChanged">
             <summary>
-            Interval of menu appear (ms)
+            Occurs after CurrentTB was changed
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.TextSource.CurrentTB">
+            <summary>
+            Current focused FastColoredTextBox
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.TextSource.DefaultStyle">
+            <summary>
+            Default text style
+            This style is using when no one other TextStyle is not defined in Char.style
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.TextSource.Lines">
+            <summary>
+            Text lines
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.TextSource.Count">
+            <summary>
+            Lines count
+            </summary>
+        </member>
+        <member name="T:FastColoredTextBoxNS.FCTBDescriptionProvider">
+            
+             This classes is required for correct data binding to Text property of FastColoredTextbox
+             
+        </member>
+        <member name="T:FastColoredTextBoxNS.FileTextSource">
+            <summary>
+            This class contains the source text (chars and styles).
+            It stores a text lines, the manager of commands, undo/redo stack, styles.
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FileTextSource.LineNeeded">
+            <summary>
+            Occurs when need to display line in the textbox
+            </summary>
+        </member>
+        <member name="E:FastColoredTextBoxNS.FileTextSource.LinePushed">
+            <summary>
+            Occurs when need to save line in the file
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.LineNeededEventArgs.DisplayedLineText">
+            <summary>
+            This text will be displayed in textbox
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.LinePushedEventArgs.DisplayedLineText">
+            <summary>
+            This property contains only changed text.
+            If text of line is not changed, this property contains null.
+            </summary>
+        </member>
+        <member name="P:FastColoredTextBoxNS.LinePushedEventArgs.SavedText">
+            <summary>
+            This text will be saved in the file
             </summary>
         </member>
     </members>

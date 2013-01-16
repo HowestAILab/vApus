@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -15,10 +14,8 @@ using FastColoredTextBoxNS;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class ConnectionProxyCodeView : BaseSolutionComponentView
-    {
+namespace vApus.Stresstest {
+    public partial class ConnectionProxyCodeView : BaseSolutionComponentView {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -37,14 +34,12 @@ namespace vApus.Stresstest
         /// <summary>
         ///     Designer time only constructor
         /// </summary>
-        public ConnectionProxyCodeView()
-        {
+        public ConnectionProxyCodeView() {
             InitializeComponent();
         }
 
         public ConnectionProxyCodeView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args)
-        {
+            : base(solutionComponent, args) {
             InitializeComponent();
 
             _connectionProxyCode = solutionComponent as ConnectionProxyCode;
@@ -55,8 +50,7 @@ namespace vApus.Stresstest
             TextChanged += ConnectionProxyCodeView_TextChanged;
         }
 
-        private void ConnectionProxyCodeView_TextChanged(object sender, EventArgs e)
-        {
+        private void ConnectionProxyCodeView_TextChanged(object sender, EventArgs e) {
             TextChanged -= ConnectionProxyCodeView_TextChanged;
             Text = "Connection Proxy Code (" + (_connectionProxyCode.Parent as LabeledBaseItem).Label + ")";
             TextChanged += ConnectionProxyCodeView_TextChanged;
@@ -66,16 +60,15 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        private void ConnectionView_HandleCreated(object sender, EventArgs e)
-        {
+        private void ConnectionView_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= ConnectionView_HandleCreated;
             SetGui();
         }
 
-        private void SetGui()
-        {
+        private void SetGui() {
             _csharpTextStyle = new CSharpTextStyle(codeTextBox);
             codeTextBox.Text = (_connectionProxyCode.Parent as ConnectionProxy).BuildConnectionProxyClass();
+            codeTextBox.ClearUndo();
 
             references.CodeTextBox = codeTextBox;
             find.CodeTextBox = codeTextBox;
@@ -84,63 +77,48 @@ namespace vApus.Stresstest
             codeTextBox.TextChangedDelayed += codeTextBox_TextChangedDelayed;
         }
 
-        private void codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e)
-        {
-            if (_codeInitialized)
-            {
-                if (_connectionProxyCode.Code != codeTextBox.Text)
-                {
+        private void codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e) {
+            if (_codeInitialized) {
+                if (_connectionProxyCode.Code != codeTextBox.Text) {
                     _connectionProxyCode.Code = codeTextBox.Text;
                     _connectionProxyCode.InvokeSolutionComponentChangedEvent(
                         SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
-            }
-            else
-            {
+            } else {
                 _codeInitialized = true;
             }
         }
 
         #region Tools
 
-        private void find_FoundButtonClicked(object sender, FindAndReplace.FoundReplacedButtonClickedEventArgs e)
-        {
+        private void find_FoundButtonClicked(object sender, FindAndReplace.FoundReplacedButtonClickedEventArgs e) {
             codeTextBox.ClearSelection();
             codeTextBox.SelectLine(e.LineNumber);
         }
 
-        private void compile_CompileError(object sender, EventArgs e)
-        {
+        private void compile_CompileError(object sender, EventArgs e) {
             tcTools.SelectedIndex = 2;
         }
 
-        private void compile_CompileErrorButtonClicked(object sender, Compile.CompileErrorButtonClickedEventArgs e)
-        {
+        private void compile_CompileErrorButtonClicked(object sender, Compile.CompileErrorButtonClickedEventArgs e) {
             codeTextBox.ClearSelection();
             codeTextBox.SelectLine(e.LineNumber);
         }
 
-        private void btnExport_Click(object sender, EventArgs e)
-        {
-            if (sfd.ShowDialog() == DialogResult.OK)
-            {
+        private void btnExport_Click(object sender, EventArgs e) {
+            if (sfd.ShowDialog() == DialogResult.OK) {
                 using (var sw = new StreamWriter(sfd.FileName))
                     sw.Write(codeTextBox.Text);
 #pragma warning disable 0168
                 if (
                     MessageBox.Show("Do you want to open the file?", string.Empty, MessageBoxButtons.YesNo,
                                     MessageBoxIcon.Question) == DialogResult.Yes)
-                    try
-                    {
+                    try {
                         Process.Start(sfd.FileName);
-                    }
-                    catch (FileNotFoundException fnfe)
-                    {
+                    } catch (FileNotFoundException fnfe) {
                         MessageBox.Show("Could not open the file!\nThe file could not be found.", string.Empty,
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    catch
-                    {
+                    } catch {
                         MessageBox.Show(
                             "Could not open the file!\nNo Application is associated with the 'cs' extension.",
                             string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -148,19 +126,15 @@ namespace vApus.Stresstest
             }
         }
 
-        private void btnCollapseExpand_Click(object sender, EventArgs e)
-        {
-            if (btnCollapseExpand.Text == "-")
-            {
+        private void btnCollapseExpand_Click(object sender, EventArgs e) {
+            if (btnCollapseExpand.Text == "-") {
                 btnCollapseExpand.Text = "+";
                 _previousSplitterDistance = splitCode.SplitterDistance;
                 splitCode.SplitterDistance = splitCode.Height - 23;
                 splitCode.IsSplitterFixed = true;
 
                 tcTools.Hide();
-            }
-            else
-            {
+            } else {
                 btnCollapseExpand.Text = "-";
                 splitCode.SplitterDistance = _previousSplitterDistance;
                 splitCode.IsSplitterFixed = false;
@@ -169,10 +143,8 @@ namespace vApus.Stresstest
             }
         }
 
-        private void ConnectionProxyCodeView_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char) 6)
-                tcTools.SelectedIndex = 1;
+        private void ConnectionProxyCodeView_KeyPress(object sender, KeyPressEventArgs e) {
+            if (e.KeyChar == (char)6) tcTools.SelectedIndex = 1;
         }
 
         #endregion
