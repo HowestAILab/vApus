@@ -52,7 +52,7 @@ namespace vApus.Stresstest {
 
         public StresstestView(SolutionComponent solutionComponent, params object[] args)
             : base(solutionComponent, args) {
-            Solution.ActiveSolution.RegisterForCancelFormClosing(this);
+            Solution.RegisterForCancelFormClosing(this);
             _stresstest = SolutionComponent as Stresstest;
 
             InitializeComponent();
@@ -453,7 +453,8 @@ namespace vApus.Stresstest {
 
         private void monitorBeforeCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                var ts = new TimeSpan(_monitorBeforeCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
+                int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
+                var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
                 fastResultsControl.AppendMessages("The test will start in " + ts.ToShortFormattedString() +
                                                  ", monitoring first.");
 
@@ -464,7 +465,7 @@ namespace vApus.Stresstest {
                             runningMonitors++;
 
                 if (runningMonitors == 0) {
-                    _monitorBeforeCountDown.Stop();
+                    if (_monitorBeforeCountDown != null) _monitorBeforeCountDown.Stop();
                     fastResultsControl.AppendMessages("All monitors were manually closed.");
                 }
             }, null);
@@ -574,7 +575,7 @@ namespace vApus.Stresstest {
                 }
             }
             else {
-                Solution.ActiveSolution.ExplicitCancelFormClosing = true;
+                Solution.ExplicitCancelFormClosing = true;
                 e.Cancel = true;
             }
         }

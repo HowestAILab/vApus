@@ -21,10 +21,8 @@ using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Gui
-{
-    public partial class MainWindow : Form
-    {
+namespace vApus.Gui {
+    public partial class MainWindow : Form {
         #region Fields
 
         public const UInt32 FLASHW_TRAY = 2;
@@ -49,16 +47,14 @@ namespace vApus.Gui
 
         #endregion
 
-        public MainWindow(string[] args = null)
-        {
+        public MainWindow(string[] args = null) {
             _args = args;
             Init();
         }
 
         #region Init
 
-        private void Init()
-        {
+        private void Init() {
             InitializeComponent();
             mainMenu.ImageList = new ImageList { ColorDepth = ColorDepth.Depth24Bit };
             _msgHandler = new Win32WindowMessageHandler();
@@ -69,16 +65,13 @@ namespace vApus.Gui
                 HandleCreated += MainWindow_HandleCreated;
         }
 
-        private void MainWindow_HandleCreated(object sender, EventArgs e)
-        {
+        private void MainWindow_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= MainWindow_HandleCreated;
             SetGui();
         }
 
-        private void SetGui()
-        {
-            try
-            {
+        private void SetGui() {
+            try {
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
@@ -112,67 +105,53 @@ namespace vApus.Gui
                 if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
                     UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
                     //Doing stuff automatically
-                    if (Update(host, port, username, password, channel))
-                    {
+                    if (Update(host, port, username, password, channel)) {
                         StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(CloseDelayedCallback));
                     }
 
                 _progressSpammerPannel = new ProgressSpammerPanel();
                 _savingResultsPanel = new SavingResultsPanel();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
             }
         }
 
-        private void CloseDelayedCallback()
-        {
+        private void CloseDelayedCallback() {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Close(); }, null);
         }
 
         #endregion
 
-        private void SocketListenerLinker_NewTest(object sender, EventArgs e)
-        {
+        private void SocketListenerLinker_NewTest(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Text = sender.ToString(); }, null);
         }
 
-        private void MainWindow_LocationChanged(object sender, EventArgs e)
-        {
+        private void MainWindow_LocationChanged(object sender, EventArgs e) {
             RelocateLogErrorToolTip();
         }
 
-        private void MainWindow_SizeChanged(object sender, EventArgs e)
-        {
+        private void MainWindow_SizeChanged(object sender, EventArgs e) {
             RelocateLogErrorToolTip();
         }
 
-        private void RelocateLogErrorToolTip()
-        {
-            try
-            {
-                if (_logErrorToolTip.Visible)
-                {
+        private void RelocateLogErrorToolTip() {
+            try {
+                if (_logErrorToolTip.Visible) {
                     int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
                     int y = statusStrip.Location.Y - 30;
 
                     _logErrorToolTip.Location = new Point(x, y);
                 }
-            }
-            catch
-            {
+            } catch {
             }
         }
 
         #region Menu
 
-        private void SetToolStripMenuItemImage(ToolStripMenuItem item)
-        {
+        private void SetToolStripMenuItemImage(ToolStripMenuItem item) {
             var component = item.Tag as SolutionComponent;
             string componentTypeName = component.GetType().Name;
-            if (!mainMenu.ImageList.Images.Keys.Contains(componentTypeName))
-            {
+            if (!mainMenu.ImageList.Images.Keys.Contains(componentTypeName)) {
                 Image image = component.GetImage();
                 if (image != null)
                     mainMenu.ImageList.Images.Add(componentTypeName, image);
@@ -188,16 +167,13 @@ namespace vApus.Gui
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns>true if a new updater is launched.</returns>
-        private bool Update(string host, int port, string username, string password, int channel)
-        {
+        private bool Update(string host, int port, string username, string password, int channel) {
             bool launchedNewUpdater = false;
 
-            if (host != null)
-            {
+            if (host != null) {
                 Cursor = Cursors.WaitCursor;
                 string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
-                if (File.Exists(path))
-                {
+                if (File.Exists(path)) {
                     Enabled = false;
                     var process = new Process();
                     process.EnableRaisingEvents = true;
@@ -209,9 +185,7 @@ namespace vApus.Gui
                     launchedNewUpdater = process.Start();
                     if (launchedNewUpdater)
                         process.Exited += updateProcess_Exited;
-                }
-                else
-                {
+                } else {
                     MessageBox.Show("vApus could not be updated because the update tool was not found!", string.Empty,
                                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
@@ -225,19 +199,16 @@ namespace vApus.Gui
             return launchedNewUpdater;
         }
 
-        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e) {
             ShowOptionsDialog();
         }
 
         /// <summary>
         /// </summary>
         /// <param name="panelIndex">The panel to show.</param>
-        private void ShowOptionsDialog(int panelIndex = 0)
-        {
+        private void ShowOptionsDialog(int panelIndex = 0) {
             Cursor = Cursors.WaitCursor;
-            if (_optionsDialog == null)
-            {
+            if (_optionsDialog == null) {
                 _optionsDialog = new OptionsDialog();
                 _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
@@ -255,8 +226,7 @@ namespace vApus.Gui
             Cursor = Cursors.Default;
         }
 
-        private void reportToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void reportToolStripMenuItem_Click(object sender, EventArgs e) {
             string reportApp = Path.Combine(Application.StartupPath, "vApus.Report.exe");
             if (File.Exists(reportApp))
                 Process.Start(reportApp);
@@ -266,32 +236,22 @@ namespace vApus.Gui
                     string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void updateProcess_Exited(object sender, EventArgs e)
-        {
-            try
-            {
+        private void updateProcess_Exited(object sender, EventArgs e) {
+            try {
                 if (!IsDisposed)
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                        {
-                            try
-                            {
-                                Enabled = true;
-                                _msgHandler.PostMessage();
-                            }
-                            catch
-                            {
-                            }
-                        }, null);
-            }
-            catch
-            {
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                        try {
+                            Enabled = true;
+                            _msgHandler.PostMessage();
+                        } catch {
+                        }
+                    }, null);
+            } catch {
             }
         }
 
-        protected override void WndProc(ref Message m)
-        {
-            if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG)
-            {
+        protected override void WndProc(ref Message m) {
+            if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG) {
                 TopMost = true;
                 Show();
                 TopMost = false;
@@ -304,33 +264,25 @@ namespace vApus.Gui
 
         #region File
 
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             OnActiveSolutionChanged(e);
         }
 
         //Append the text if needed (show the solution name, show a * if something has changed).
-        private void OnActiveSolutionChanged(ActiveSolutionChangedEventArgs e)
-        {
-            if (Solution.ActiveSolution == null)
-            {
+        private void OnActiveSolutionChanged(ActiveSolutionChangedEventArgs e) {
+            if (Solution.ActiveSolution == null) {
                 Text = "vApus";
-            }
-            else
-            {
+            } else {
                 saveToolStripMenuItem.Enabled = true;
                 saveAsToolStripMenuItem.Enabled = true;
                 distributedToolStripMenuItem.Visible = true;
                 singleTestToolStripMenuItem.Visible = true;
 
                 StringBuilder sb;
-                if (e.ToBeSaved)
-                {
+                if (e.ToBeSaved) {
                     sb = new StringBuilder("*");
                     sb.Append(Solution.ActiveSolution.Name);
-                }
-                else
-                {
+                } else {
                     sb = new StringBuilder(Solution.ActiveSolution.Name);
                 }
 
@@ -339,35 +291,26 @@ namespace vApus.Gui
             }
         }
 
-        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (Solution.ActiveSolution != null)
-            {
-                //Look if there is nowhere a process busy (like stresstesting) that can leed to cancelling the closing of the form.
-                foreach (Form mdiChild in Solution.ActiveSolution.RegisteredForCancelFormClosing)
-                {
-                    mdiChild.Close();
-                    if (Solution.ActiveSolution.ExplicitCancelFormClosing)
-                        break;
-                }
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e) {
+            //Look if there is nowhere a process busy (like stresstesting) that can leed to cancelling the closing of the form.
+            foreach (Form mdiChild in Solution.RegisteredForCancelFormClosing) {
+                mdiChild.Close();
+                if (Solution.ExplicitCancelFormClosing) break;
+            }
 
-                if (Solution.ActiveSolution.ExplicitCancelFormClosing)
-                {
-                    e.Cancel = true;
-                    Solution.ActiveSolution.ExplicitCancelFormClosing = false;
-                    return;
-                }
+            if (Solution.ExplicitCancelFormClosing) {
+                e.Cancel = true;
+                Solution.ExplicitCancelFormClosing = false;
+                return;
             }
             if (Solution.ActiveSolution != null &&
-                (!Solution.ActiveSolution.IsSaved || Solution.ActiveSolution.FileName == null))
-            {
+                (!Solution.ActiveSolution.IsSaved || Solution.ActiveSolution.FileName == null)) {
                 DialogResult result =
                     MessageBox.Show(
                         string.Format("Do you want to save '{0}' before exiting the application?",
                                       Solution.ActiveSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel,
                         MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-                if (result == DialogResult.Yes || result == DialogResult.No)
-                {
+                if (result == DialogResult.Yes || result == DialogResult.No) {
                     if (result == DialogResult.Yes)
                         Solution.SaveActiveSolution();
                     tmrSetStatusStrip.Stop();
@@ -378,14 +321,10 @@ namespace vApus.Gui
                     _welcome.Close();
                     SolutionComponentViewManager.DisposeViews();
                     e.Cancel = false;
-                }
-                else if (result == DialogResult.Cancel)
-                {
+                } else if (result == DialogResult.Cancel) {
                     e.Cancel = true;
                 }
-            }
-            else
-            {
+            } else {
                 tmrSetStatusStrip.Stop();
 
                 _welcome.DisableFormClosingEventHandling();
@@ -397,29 +336,25 @@ namespace vApus.Gui
             }
         }
 
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void newToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             Solution.CreateNew();
             Cursor = Cursors.Default;
         }
 
-        private void newFromTemplateToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void newFromTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             Solution.CreateNewFromTemplate();
             Cursor = Cursors.Default;
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void openToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             Solution.LoadNewActiveSolution();
             Cursor = Cursors.Default;
         }
 
-        private void openRecentToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
-        {
+        private void openRecentToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
             var defaultItems = new ToolStripItem[2];
@@ -427,13 +362,10 @@ namespace vApus.Gui
                 defaultItems[i] = openRecentToolStripMenuItem.DropDownItems[i];
             openRecentToolStripMenuItem.DropDownItems.Clear();
             openRecentToolStripMenuItem.DropDownItems.AddRange(defaultItems);
-            if (recentSolutions.Count > 0)
-            {
+            if (recentSolutions.Count > 0) {
                 clearToolStripMenuItem.Enabled = true;
                 openRecentToolStripMenuItem.DropDownItems.AddRange(recentSolutions.ToArray());
-            }
-            else
-            {
+            } else {
                 clearToolStripMenuItem.Enabled = false;
                 var emptyItem = new ToolStripMenuItem("<empty>");
                 emptyItem.Enabled = false;
@@ -442,17 +374,14 @@ namespace vApus.Gui
             Cursor = Cursors.Default;
         }
 
-        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void clearToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             if (
                 MessageBox.Show("Are you sure you want to clear this?", string.Empty, MessageBoxButtons.YesNo,
-                                MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-            {
+                                MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes) {
                 clearToolStripMenuItem.Enabled = false;
                 List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
-                if (recentSolutions.Count > 0)
-                {
+                if (recentSolutions.Count > 0) {
                     Solution.ClearRecentSolutions();
                     while (openRecentToolStripMenuItem.DropDownItems.Count > 2)
                         openRecentToolStripMenuItem.DropDownItems.RemoveAt(2);
@@ -464,22 +393,19 @@ namespace vApus.Gui
             Cursor = Cursors.Default;
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             Solution.SaveActiveSolution();
             Cursor = Cursors.Default;
         }
 
-        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             Solution.SaveActiveSolutionAs();
             Cursor = Cursors.Default;
         }
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
             Close();
         }
 
@@ -487,16 +413,14 @@ namespace vApus.Gui
 
         #region View
 
-        private void welcomeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void welcomeToolStripMenuItem_Click(object sender, EventArgs e) {
             _welcome.Show(dockPanel);
             //Show it again the next time.
             Settings.Default.GreetWithWelcomePage = true;
             Settings.Default.Save();
         }
 
-        private void stresstestingSolutionExplorerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void stresstestingSolutionExplorerToolStripMenuItem_Click(object sender, EventArgs e) {
             Solution.ShowStresstestingSolutionExplorer();
         }
 
@@ -504,12 +428,10 @@ namespace vApus.Gui
 
         #region Monitors and Stresstests
 
-        private void monitorToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
-        {
+        private void monitorToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
             monitorToolStripMenuItem.DropDownItems.Clear();
             if (Solution.ActiveSolution != null)
-                foreach (BaseItem monitor in Solution.ActiveSolution.GetProject("MonitorProject"))
-                {
+                foreach (BaseItem monitor in Solution.ActiveSolution.GetProject("MonitorProject")) {
                     var item = new ToolStripMenuItem(monitor.ToString());
                     item.Tag = monitor;
                     SetToolStripMenuItemImage(item);
@@ -518,17 +440,14 @@ namespace vApus.Gui
                 }
         }
 
-        private void stresstestToolStripMenuItem_DropDownOpened(object sender, EventArgs e)
-        {
+        private void stresstestToolStripMenuItem_DropDownOpened(object sender, EventArgs e) {
             distributedToolStripMenuItem.DropDownItems.Clear();
             singleTestToolStripMenuItem.DropDownItems.Clear();
-            if (Solution.ActiveSolution != null)
-            {
+            if (Solution.ActiveSolution != null) {
                 BaseProject distributedTestingProject = Solution.ActiveSolution.GetProject("DistributedTestingProject");
                 distributedToolStripMenuItem.Tag = distributedTestingProject;
                 SetToolStripMenuItemImage(distributedToolStripMenuItem);
-                foreach (BaseItem distributedTest in distributedTestingProject)
-                {
+                foreach (BaseItem distributedTest in distributedTestingProject) {
                     var item = new ToolStripMenuItem(distributedTest.ToString());
                     item.Tag = distributedTest;
                     SetToolStripMenuItemImage(item);
@@ -539,8 +458,7 @@ namespace vApus.Gui
                 singleTestToolStripMenuItem.Tag = stresstestProject;
                 SetToolStripMenuItemImage(singleTestToolStripMenuItem);
                 foreach (BaseItem stresstest in stresstestProject)
-                    if (stresstest.Name == "Stresstest")
-                    {
+                    if (stresstest.Name == "Stresstest") {
                         var item = new ToolStripMenuItem(stresstest.ToString());
                         item.Tag = stresstest;
                         SetToolStripMenuItemImage(item);
@@ -550,8 +468,7 @@ namespace vApus.Gui
             }
         }
 
-        private void item_Click(object sender, EventArgs e)
-        {
+        private void item_Click(object sender, EventArgs e) {
             ((sender as ToolStripMenuItem).Tag as LabeledBaseItem).Activate();
         }
 
@@ -559,12 +476,10 @@ namespace vApus.Gui
 
         #region Help
 
-        private void helpToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
+        private void helpToolStripMenuItem1_Click(object sender, EventArgs e) {
         }
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
             _about.ShowDialog();
         }
 
@@ -574,10 +489,8 @@ namespace vApus.Gui
 
         #region Status Strip
 
-        private void _logPanel_LogErrorCountChanged(object sender, LogPanel.LogErrorCountChangedEventArgs e)
-        {
-            try
-            {
+        private void _logPanel_LogErrorCountChanged(object sender, LogPanel.LogErrorCountChangedEventArgs e) {
+            try {
                 //Show the error messages in a tooltip.
                 _logErrorToolTip.Hide();
 
@@ -587,19 +500,15 @@ namespace vApus.Gui
                 _logErrorToolTip.NumberOfErrorsOrFatals = e.LogErrorCount;
 
                 _logErrorToolTip.Show(this, x, y);
-            }
-            catch
-            {
+            } catch {
             }
         }
 
-        private void tmrSetStatusStrip_Tick(object sender, EventArgs e)
-        {
+        private void tmrSetStatusStrip_Tick(object sender, EventArgs e) {
             if (IsHandleCreated) SetStatusStrip();
         }
 
-        private void SetStatusStrip()
-        {
+        private void SetStatusStrip() {
             var attr =
                 typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
                                             .GetCustomAttributes(typeof(DescriptionAttribute), false) as
@@ -625,8 +534,7 @@ namespace vApus.Gui
 
             SetWarningLabel();
 
-            if (_cleanTempDataPanel != null)
-            {
+            if (_cleanTempDataPanel != null) {
                 double tempDataSizeInMB = _cleanTempDataPanel.TempDataSizeInMB;
                 lblTempDataSize.Text = tempDataSizeInMB + "MB";
 
@@ -638,8 +546,7 @@ namespace vApus.Gui
             }
         }
 
-        private void SetProcessorAffinityLabel()
-        {
+        private void SetProcessorAffinityLabel() {
             int[] cpus = ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity);
             //Make it one-based
             var oneBasedCPUs = new int[cpus.Length];
@@ -649,11 +556,9 @@ namespace vApus.Gui
             lblProcessorAffinity.Text = oneBasedCPUs.Combine(", ");
         }
 
-        private void SetWarningLabel()
-        {
+        private void SetWarningLabel() {
             DisableFirewallAutoUpdatePanel.Status status = _disableFirewallAutoUpdatePanel.CheckStatus();
-            switch (status)
-            {
+            switch (status) {
                 case DisableFirewallAutoUpdatePanel.Status.AllDisabled:
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = false;
                     break;
@@ -670,45 +575,37 @@ namespace vApus.Gui
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
             }
-            if (!lblWarning.Visible && !_savingResultsPanel.Connected)
-            {
+            if (!lblWarning.Visible && !_savingResultsPanel.Connected) {
                 lblWarning.Text = "Test results cannot be saved!";
                 lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
             }
         }
 
-        private void lblUpdateNotifier_Click(object sender, EventArgs e)
-        {
+        private void lblUpdateNotifier_Click(object sender, EventArgs e) {
             ShowOptionsDialog(0);
         }
 
-        private void lblLogLevel_Click(object sender, EventArgs e)
-        {
+        private void lblLogLevel_Click(object sender, EventArgs e) {
             ShowOptionsDialog(1);
         }
 
-        private void lblLocalization_Click(object sender, EventArgs e)
-        {
+        private void lblLocalization_Click(object sender, EventArgs e) {
             ShowOptionsDialog(2);
         }
 
-        private void lblSocketListener_Click(object sender, EventArgs e)
-        {
+        private void lblSocketListener_Click(object sender, EventArgs e) {
             ShowOptionsDialog(3);
         }
 
-        private void lblProcessorAffinity_Click(object sender, EventArgs e)
-        {
+        private void lblProcessorAffinity_Click(object sender, EventArgs e) {
             ShowOptionsDialog(4);
         }
 
-        private void lblCleanTempData_Click(object sender, EventArgs e)
-        {
+        private void lblCleanTempData_Click(object sender, EventArgs e) {
             ShowOptionsDialog(6);
         }
 
-        private void lblWarning_Click(object sender, EventArgs e)
-        {
+        private void lblWarning_Click(object sender, EventArgs e) {
             if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(7); else ShowOptionsDialog(5);
         }
 

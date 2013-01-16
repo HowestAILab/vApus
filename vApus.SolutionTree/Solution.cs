@@ -51,6 +51,8 @@ namespace vApus.SolutionTree
 
         private static DockPanel _dockPanel;
 
+        private static HashSet<Form> _registeredForCancelFormClosing = new HashSet<Form>();
+
         #endregion
 
         #region Properties
@@ -76,6 +78,21 @@ namespace vApus.SolutionTree
         {
             get { return _dockPanel; }
         }
+
+        public static Form[] RegisteredForCancelFormClosing {
+            get {
+                //Cleanup first
+                CleanupRegisteredForCancelFormClosing();
+                var mdiChilds = new Form[_registeredForCancelFormClosing.Count];
+                _registeredForCancelFormClosing.CopyTo(mdiChilds);
+                return mdiChilds;
+            }
+        }
+
+        /// <summary>
+        ///     Do not forget to set this to false when cancelling
+        /// </summary>
+        public static bool ExplicitCancelFormClosing { get; set; }
 
         #endregion
 
@@ -182,6 +199,24 @@ namespace vApus.SolutionTree
                 Settings.Default.RecentSolutions = _recentSolutions;
                 Settings.Default.Save();
             }
+        }
+
+        /// <summary>
+        ///     The will be closed before the main window is closed, they can cancel this setting ExplicitCancelFormClosing to true.
+        ///     Unregistering is not needed.
+        /// </summary>
+        /// <param name="mdiChild"></param>
+        public static void RegisterForCancelFormClosing(Form mdiChild) {
+            CleanupRegisteredForCancelFormClosing();
+            _registeredForCancelFormClosing.Add(mdiChild);
+        }
+
+        private static void CleanupRegisteredForCancelFormClosing() {
+            var newRegisteredForCancelFormClosing = new HashSet<Form>();
+            foreach (Form mdiChild in _registeredForCancelFormClosing)
+                if (mdiChild != null && !mdiChild.IsDisposed)
+                    newRegisteredForCancelFormClosing.Add(mdiChild);
+            _registeredForCancelFormClosing = newRegisteredForCancelFormClosing;
         }
 
         #region File Management
@@ -402,8 +437,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         private readonly List<BaseProject> _projects = new List<BaseProject>();
         private string _fileName;
 
-        private HashSet<Form> _registeredForCancelFormClosing = new HashSet<Form>();
-
         #endregion
 
         #region Properties
@@ -436,23 +469,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         {
             get { return _projects; }
         }
-
-        public Form[] RegisteredForCancelFormClosing
-        {
-            get
-            {
-                //Cleanup first
-                CleanupRegisteredForCancelFormClosing();
-                var mdiChilds = new Form[_registeredForCancelFormClosing.Count];
-                _registeredForCancelFormClosing.CopyTo(mdiChilds);
-                return mdiChilds;
-            }
-        }
-
-        /// <summary>
-        ///     Do not forget to set this to false when cancelling
-        /// </summary>
-        public bool ExplicitCancelFormClosing { get; set; }
 
         #endregion
 
@@ -519,26 +535,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 _activeSolution.IsSaved = false;
                 ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(true, false));
             }
-        }
-
-        /// <summary>
-        ///     The will be closed before the main window is closed, they can cancel this setting ExplicitCancelFormClosing to true.
-        ///     Unregistering is not needed.
-        /// </summary>
-        /// <param name="mdiChild"></param>
-        public void RegisterForCancelFormClosing(Form mdiChild)
-        {
-            CleanupRegisteredForCancelFormClosing();
-            _registeredForCancelFormClosing.Add(mdiChild);
-        }
-
-        private void CleanupRegisteredForCancelFormClosing()
-        {
-            var newRegisteredForCancelFormClosing = new HashSet<Form>();
-            foreach (Form mdiChild in _registeredForCancelFormClosing)
-                if (mdiChild != null && !mdiChild.IsDisposed)
-                    newRegisteredForCancelFormClosing.Add(mdiChild);
-            _registeredForCancelFormClosing = newRegisteredForCancelFormClosing;
         }
 
         /// <summary>
