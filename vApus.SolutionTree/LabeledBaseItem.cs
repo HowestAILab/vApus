@@ -12,14 +12,12 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.SolutionTree
-{
+namespace vApus.SolutionTree {
     /// <summary>
     ///     A base item with a label and the index (only LabeledBaseItemIndex) in the tostring.
     /// </summary>
     [Serializable]
-    public abstract class LabeledBaseItem : BaseItem
-    {
+    public abstract class LabeledBaseItem : BaseItem {
         #region Fields
 
         private string _label = string.Empty;
@@ -29,11 +27,9 @@ namespace vApus.SolutionTree
         #region Properties
 
         [SavableCloneable]
-        public virtual string Label
-        {
+        public virtual string Label {
             get { return _label; }
-            set
-            {
+            set {
                 if (!IsEmpty)
                     _label = value == null ? string.Empty : value;
             }
@@ -43,13 +39,10 @@ namespace vApus.SolutionTree
         ///     The one-based index of this item in the collection of its parent.
         /// </summary>
         [Description("The one-based index of this item in the collection of its parent.")]
-        public int Index
-        {
-            get
-            {
+        public int Index {
+            get {
                 int index = -1;
-                if (!IsEmpty)
-                {
+                if (!IsEmpty) {
                     index = 1;
                     if (Parent != null)
                         for (int i = 0; i != Parent.Count; i++)
@@ -70,8 +63,7 @@ namespace vApus.SolutionTree
 
         #region Functions
 
-        internal void Export_Click(object sender, EventArgs e)
-        {
+        internal void Export_Click(object sender, EventArgs e) {
             var sfd = new SaveFileDialog();
             sfd.Filter = "Xml Files (*.xml) | *.xml";
             sfd.Title = "Export to...";
@@ -80,8 +72,7 @@ namespace vApus.SolutionTree
                 GetXmlStructure().Save(sfd.FileName);
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             if (IsEmpty)
                 return "<none>";
             return _label == string.Empty ? Name + ' ' + Index : Name + ' ' + Index + ": " + _label;
@@ -90,21 +81,17 @@ namespace vApus.SolutionTree
         #endregion
     }
 
-    public class LabeledBaseItemComparer : IComparer<LabeledBaseItem>
-    {
+    public class LabeledBaseItemComparer : IComparer<LabeledBaseItem> {
         private static readonly LabeledBaseItemComparer _labeledBaseItemComparer = new LabeledBaseItemComparer();
 
-        private LabeledBaseItemComparer()
-        {
+        private LabeledBaseItemComparer() {
         }
 
-        public int Compare(LabeledBaseItem x, LabeledBaseItem y)
-        {
+        public int Compare(LabeledBaseItem x, LabeledBaseItem y) {
             return x.Label.CompareTo(y.Label);
         }
 
-        public static LabeledBaseItemComparer GetInstance()
-        {
+        public static LabeledBaseItemComparer GetInstance() {
             return _labeledBaseItemComparer;
         }
     }

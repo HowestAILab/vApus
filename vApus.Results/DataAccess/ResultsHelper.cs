@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -45,8 +44,7 @@ namespace vApus.Results {
             try {
                 _databaseName = Schema.Build();
                 _databaseActions = Schema.GetDatabaseActionsUsingDatabase(_databaseName);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 if (_databaseActions != null) {
                     _databaseActions.ReleaseConnection();
                     _databaseActions = null;
@@ -498,8 +496,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             if (delay == -1) {
                                 delay = ler.DelayInMilliseconds;
                                 ttlb = ler.TimeToLastByteInTicks;
-                            }
-                            else ttlb += ler.TimeToLastByteInTicks + ler.DelayInMilliseconds;
+                            } else ttlb += ler.TimeToLastByteInTicks + ler.DelayInMilliseconds;
                             if (!string.IsNullOrEmpty(ler.Error)) ++ers;
                         }
                         userActionResults.Rows.Add(userAction, ttlb, delay, ers);
@@ -532,8 +529,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         if (avgTimeToLastByteInTicks.ContainsKey(userAction)) avgTimeToLastByteInTicks[userAction] += (((double)ttlb) / uniqueUserActionCounts[userAction]);
                         else avgTimeToLastByteInTicks.Add(userAction, (((double)ttlb) / uniqueUserActionCounts[userAction]));
 
-                        if (maxTimeToLastByteInTicks.ContainsKey(userAction)) { if (maxTimeToLastByteInTicks[userAction] < ttlb) maxTimeToLastByteInTicks[userAction] = ttlb; }
-                        else maxTimeToLastByteInTicks.Add(userAction, ttlb);
+                        if (maxTimeToLastByteInTicks.ContainsKey(userAction)) { if (maxTimeToLastByteInTicks[userAction] < ttlb) maxTimeToLastByteInTicks[userAction] = ttlb; } else maxTimeToLastByteInTicks.Add(userAction, ttlb);
 
                         if (!timeToLastBytesInTicks.ContainsKey(userAction)) timeToLastBytesInTicks.Add(userAction, new List<long>(uniqueUserActionCounts[userAction]));
                         timeToLastBytesInTicks[userAction].Add(ttlb);
@@ -558,7 +554,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         }
                     }
 
-                    foreach (string s in avgTimeToLastByteInTicks.Keys) {
+                    List<string> sortedUserActions = avgTimeToLastByteInTicks.Keys.ToList();
+                    sortedUserActions.Sort(UserActionComparer.GetInstance);
+
+                    foreach (string s in sortedUserActions) {
                         averageUserActions.Rows.Add(concurrency, s,
                             Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
                             Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
@@ -624,8 +623,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         if (avgTimeToLastByteInTicks.ContainsKey(logEntryIndex)) avgTimeToLastByteInTicks[logEntryIndex] += (((double)ttlb) / uniqueLogEntyCounts[logEntryIndex]);
                         else avgTimeToLastByteInTicks.Add(logEntryIndex, (((double)ttlb) / uniqueLogEntyCounts[logEntryIndex]));
 
-                        if (maxTimeToLastByteInTicks.ContainsKey(logEntryIndex)) { if (maxTimeToLastByteInTicks[logEntryIndex] < ttlb) maxTimeToLastByteInTicks[logEntryIndex] = ttlb; }
-                        else maxTimeToLastByteInTicks.Add(logEntryIndex, ttlb);
+                        if (maxTimeToLastByteInTicks.ContainsKey(logEntryIndex)) { if (maxTimeToLastByteInTicks[logEntryIndex] < ttlb) maxTimeToLastByteInTicks[logEntryIndex] = ttlb; } else maxTimeToLastByteInTicks.Add(logEntryIndex, ttlb);
 
                         if (!timeToLastBytesInTicks.ContainsKey(logEntryIndex)) timeToLastBytesInTicks.Add(logEntryIndex, new List<long>(uniqueLogEntyCounts[logEntryIndex]));
                         timeToLastBytesInTicks[logEntryIndex].Add(ttlb);
@@ -651,7 +649,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         }
                     }
 
-                    foreach (string s in logEntries.Keys) {
+                    List<string> sortedLogEntryIndices = logEntries.Keys.ToList();
+                    sortedLogEntryIndices.Sort(LogEntryIndexComparer.GetInstance);
+
+                    foreach (string s in sortedLogEntryIndices) {
                         averageLogEntries.Rows.Add(concurrency, userActions[s], logEntries[s],
                             Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
                             Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
@@ -726,6 +727,55 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public static void RemoveDatabase() {
             Schema.Drop(_databaseName, _databaseActions);
             _databaseName = null;
+        }
+
+        private class UserActionComparer : IComparer<string> {
+            private static readonly UserActionComparer _userActionComparer = new UserActionComparer();
+
+            public int Compare(string x, string y) {
+                string ua = "User Action ";
+                string nd = "None defined ";
+
+                if (x.StartsWith(ua)) x = x.Substring(ua.Length);
+                else if (x.StartsWith(nd)) x = x.Substring(nd.Length);
+
+                if (y.StartsWith(ua)) y = y.Substring(ua.Length);
+                else if (y.StartsWith(nd)) y = y.Substring(nd.Length);
+
+                x = x.Split(':')[0];
+                y = y.Split(':')[0];
+
+                int i = int.Parse(x);
+                int j = int.Parse(y);
+
+                return i.CompareTo(j);
+            }
+
+            public static UserActionComparer GetInstance {
+                get { return _userActionComparer; }
+            }
+        }
+        private class LogEntryIndexComparer : IComparer<string> {
+            private static readonly LogEntryIndexComparer _logEntryIndexComparer = new LogEntryIndexComparer();
+
+            public int Compare(string x, string y) {
+                string[] split1 = x.Split('.');
+                string[] split2 = y.Split('.');
+
+                int i = int.Parse(split1[0]);
+                int j = int.Parse(split2[0]);
+                if (i > j) return 1;
+                else if (i < j) return -1;
+                else {
+                    i = int.Parse(split1[1]);
+                    j = int.Parse(split2[1]);
+                    return i.CompareTo(j);
+                }
+            }
+
+            public static LogEntryIndexComparer GetInstance {
+                get { return _logEntryIndexComparer; }
+            }
         }
     }
 }
