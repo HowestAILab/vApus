@@ -19,7 +19,7 @@ namespace vApus.Results
         /// </summary>
         public int RerunCount { get; private set; }
 
-        public DateTime StartedAt { get; private set; }
+        public DateTime StartedAt { get; internal set; }
         public DateTime StoppedAt { get; internal set; }
 
         /// <summary>

@@ -412,23 +412,23 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         RunResult runResult = new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency);
                         concurrencyResult.RunResults.Add(runResult);
 
-
                         var virtualUserResults = new Dictionary<string, VirtualUserResult>();
                         var ler = _databaseActions.GetDataTable(
-                            string.Format("Select RunResultId, VirtualUser, UserAction, LogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId={0}", rrRow.ItemArray[0]));
+                            string.Format("Select VirtualUser, UserAction, LogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId={0}", rrRow.ItemArray[0]));
 
                         foreach (DataRow lerRow in ler.Rows) {
-                            string virtualUser = (lerRow.ItemArray[1] as string);
-                            if (!virtualUserResults.ContainsKey(virtualUser)) virtualUserResults.Add(virtualUser, new VirtualUserResult(0));
+                            string virtualUser = (lerRow.ItemArray[0] as string);
+                            if (!virtualUserResults.ContainsKey(virtualUser)) virtualUserResults.Add(virtualUser, new VirtualUserResult(0) { VirtualUser = virtualUser });
 
                             var virtualUserResult = virtualUserResults[virtualUser];
                             var part = new List<LogEntryResult>(virtualUserResult.LogEntryResults);
                             part.Add(new LogEntryResult() {
                                 VirtualUser = virtualUser,
-                                UserAction = lerRow.ItemArray[2] as string,
-                                LogEntryIndex = lerRow.ItemArray[3] as string,
-                                TimeToLastByteInTicks = (long)lerRow.ItemArray[4],
-                                DelayInMilliseconds = (int)lerRow.ItemArray[5]
+                                UserAction = lerRow.ItemArray[1] as string,
+                                LogEntryIndex = lerRow.ItemArray[2] as string,
+                                TimeToLastByteInTicks = (long)lerRow.ItemArray[3],
+                                DelayInMilliseconds = (int)lerRow.ItemArray[4],
+                                Error = lerRow.ItemArray[5] as string
                             });
                             virtualUserResult.LogEntryResults = part.ToArray();
                         }
@@ -447,7 +447,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     row[6] = Math.Round(metrics.UserActionsPerSecond, 2);
                     row[7] = Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2);
                     row[8] = Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2);
-                    row[9] = Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2);
+                    row[9] = Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2);
                     row[10] = Math.Round(metrics.AverageDelay.TotalMilliseconds, 2);
                     row[11] = metrics.Errors;
                     averageConcurrentUsers.Rows.Add(row);
