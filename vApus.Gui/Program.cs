@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -17,20 +16,15 @@ using vApus.Gui.Properties;
 using vApus.Link;
 using vApus.Util;
 
-namespace vApus.Gui
-{
-    internal static class Program
-    {
+namespace vApus.Gui {
+    internal static class Program {
         /// <summary>
         ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main(string[] args)
-        {
+        private static void Main(string[] args) {
             LogWrapper.Log("vApus Started!");
-
-            try
-            {
+            try {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.ThreadException += Application_ThreadException;
@@ -50,21 +44,18 @@ namespace vApus.Gui
 
                 Application.Run(new MainWindow(args));
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 Application.ThreadException -= Application_ThreadException;
                 LogWrapper.LogByLevel(ex, LogLevel.Fatal);
                 throw;
             }
-            finally
-            {
+            finally {
                 LogWrapper.Log("Bye");
                 LogWrapper.RemoveEmptyLogs();
             }
         }
 
-        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-        {
+        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) {
             //LogWrapper.LogByLevel(e.Exception, LogLevel.Fatal);
             Debug.WriteLine(e.Exception, "Application_ThreadException");
         }

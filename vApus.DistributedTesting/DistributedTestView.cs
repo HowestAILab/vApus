@@ -188,6 +188,8 @@ namespace vApus.DistributedTesting {
                 if (_distributedTestCore != null) {
                     if (_distributedTestCore.TestProgressMessages.ContainsKey(tstvi.TileStresstest))
                         SetSlaveProgress(tstvi.TileStresstest, _distributedTestCore.TestProgressMessages[tstvi.TileStresstest]);
+                    else
+                        fastResultsControl.ClearFastResults();
                 }
             }
             else {

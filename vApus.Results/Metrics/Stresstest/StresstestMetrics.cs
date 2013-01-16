@@ -5,18 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using vApus.Util;
-using System.Collections.Generic;
-using System.Windows.Forms;
 
-namespace vApus.Results
-{
+namespace vApus.Results {
     [Serializable]
-    public class StresstestMetrics : ISerializable
-    {
+    public class StresstestMetrics : ISerializable {
         private long _logEntriesProcessed;
 
         public DateTime StartMeasuringRuntime { get; set; }
@@ -53,11 +49,9 @@ namespace vApus.Results
         /// <summary>
         ///     The setter makes sure this cannot exceed the log entries count.
         /// </summary>
-        public long LogEntriesProcessed
-        {
+        public long LogEntriesProcessed {
             get { return _logEntriesProcessed; }
-            set
-            {
+            set {
                 if (value > LogEntries) value = LogEntries;
                 _logEntriesProcessed = value;
             }
@@ -65,8 +59,7 @@ namespace vApus.Results
 
         public StresstestMetrics() { StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>(); }
 
-        public StresstestMetrics(SerializationInfo info, StreamingContext ctxt)
-        {
+        public StresstestMetrics(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr = SerializationReader.GetReader(info);
             StartMeasuringRuntime = sr.ReadDateTime();
             EstimatedTimeLeft = sr.ReadTimeSpan();
@@ -79,14 +72,15 @@ namespace vApus.Results
             LogEntries = sr.ReadInt64();
             _logEntriesProcessed = sr.ReadInt64();
             ResponsesPerSecond = sr.ReadDouble();
+            UserActionsPerSecond = sr.ReadDouble();
             AverageResponseTime = sr.ReadTimeSpan();
             MaxResponseTime = sr.ReadTimeSpan();
             Percentile95thResponseTimes = sr.ReadTimeSpan();
             AverageDelay = sr.ReadTimeSpan();
             Errors = sr.ReadInt64();
         }
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
             SerializationWriter sw = SerializationWriter.GetWriter();
             sw.Write(StartMeasuringRuntime);
             sw.Write(EstimatedTimeLeft);
@@ -98,6 +92,7 @@ namespace vApus.Results
             sw.Write(LogEntries);
             sw.Write(_logEntriesProcessed);
             sw.Write(ResponsesPerSecond);
+            sw.Write(UserActionsPerSecond);
             sw.Write(AverageResponseTime);
             sw.Write(MaxResponseTime);
             sw.Write(Percentile95thResponseTimes);

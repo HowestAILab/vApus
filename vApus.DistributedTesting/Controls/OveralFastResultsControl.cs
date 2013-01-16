@@ -268,7 +268,15 @@ namespace vApus.DistributedTesting {
         }
 
         private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
-            e.Value = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows[e.RowIndex][e.ColumnIndex] : _runStresstestMetricsRows[e.RowIndex][e.ColumnIndex];
+            try {
+                var metrics = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows;
+                if (e.RowIndex < metrics.Count) {
+                    var row = metrics[e.RowIndex];
+                    if (e.ColumnIndex < row.Length) 
+                        e.Value = row[e.ColumnIndex];
+                }
+            }
+            catch { }
         }
 
         private void dgvFastResults_Scroll(object sender, ScrollEventArgs e) {
