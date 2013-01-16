@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -22,15 +21,13 @@ using vApusSMT.Base;
 using vApusSMT.Proxy;
 using PowerState = vApusSMT.Base.PowerState;
 
-namespace vApus.Monitor
-{
-    public partial class MonitorView : BaseSolutionComponentView
-    {
+namespace vApus.Monitor {
+    public partial class MonitorView : BaseSolutionComponentView {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
         public event EventHandler<MonitorInitializedEventArgs> MonitorInitialized;
-        public event EventHandler<ErrorEventArgs> OnHandledException , OnUnhandledException;
+        public event EventHandler<ErrorEventArgs> OnHandledException, OnUnhandledException;
 
         #region Fields
 
@@ -56,13 +53,11 @@ namespace vApus.Monitor
 
         #region Properties
 
-        public Monitor Monitor
-        {
+        public Monitor Monitor {
             get { return _monitor; }
         }
 
-        public string Configuration
-        {
+        public string Configuration {
             get { return _configuration; }
         }
 
@@ -73,14 +68,12 @@ namespace vApus.Monitor
         /// <summary>
         ///     Designer time only
         /// </summary>
-        public MonitorView()
-        {
+        public MonitorView() {
             InitializeComponent();
         }
 
         public MonitorView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args)
-        {
+            : base(solutionComponent, args) {
             InitializeComponent();
 
             _monitor = solutionComponent as Monitor;
@@ -99,81 +92,67 @@ namespace vApus.Monitor
 
         #region Private
 
-        private void _monitorProxy_OnHandledException(object sender, ErrorEventArgs e)
-        {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    LogWrapper.LogByLevel(
-                        Text + ": A counter became unavailable while monitoring:\n" + e.GetException(), LogLevel.Warning);
+        private void _monitorProxy_OnHandledException(object sender, ErrorEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                LogWrapper.LogByLevel(
+                    Text + ": A counter became unavailable while monitoring:\n" + e.GetException(), LogLevel.Warning);
 
-                    if (_forStresstest && OnHandledException != null)
-                        foreach (EventHandler<ErrorEventArgs> del in OnHandledException.GetInvocationList())
-                            del.BeginInvoke(this, e, null, null);
-                }, null);
+                if (_forStresstest && OnHandledException != null)
+                    foreach (EventHandler<ErrorEventArgs> del in OnHandledException.GetInvocationList())
+                        del.BeginInvoke(this, e, null, null);
+            }, null);
         }
 
-        private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e)
-        {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    Stop();
-                    LogWrapper.LogByLevel(
-                        Text + ": An error has occured while monitoring, monitor stopped!\n" + e.GetException(),
-                        LogLevel.Error);
+        private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                Stop();
+                LogWrapper.LogByLevel(
+                    Text + ": An error has occured while monitoring, monitor stopped!\n" + e.GetException(),
+                    LogLevel.Error);
 
-                    if (_forStresstest && OnUnhandledException != null)
-                        foreach (EventHandler<ErrorEventArgs> del in OnUnhandledException.GetInvocationList())
-                            del.BeginInvoke(this, e, null, null);
-                }, null);
+                if (_forStresstest && OnUnhandledException != null)
+                    foreach (EventHandler<ErrorEventArgs> del in OnUnhandledException.GetInvocationList())
+                        del.BeginInvoke(this, e, null, null);
+            }, null);
         }
 
-        private void _monitorProxy_OnMonitor(object sender, OnMonitorEventArgs e)
-        {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    try
-                    {
-                        //Don't do this when stopped
-                        if (tmrProgressDelayCountDown.Enabled)
-                        {
-                            int refreshInS = _refreshTimeInMS/1000;
-                            lblCountDown.Tag = refreshInS;
+        private void _monitorProxy_OnMonitor(object sender, OnMonitorEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                try {
+                    //Don't do this when stopped
+                    if (tmrProgressDelayCountDown.Enabled) {
+                        int refreshInS = _refreshTimeInMS / 1000;
+                        lblCountDown.Tag = refreshInS;
 
-                            lblCountDown.Text = "Updates in " + refreshInS;
-                        }
-
-                        monitorControl.AddMonitorValues(e.MonitorValues);
-
-                        btnSaveAllMonitorCounters.Enabled = monitorControl.ColumnCount != 0;
-                        btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&
-                                                                   txtFilterMonitorControlColumns.Text.Length != 0;
-
-
-                        var schedule = btnSchedule.Tag as ExtendedSchedule;
-                        if (schedule != null && schedule.Duration.Ticks != 0)
-                        {
-                            DateTime endsAt = schedule.ScheduledAt + schedule.Duration;
-                            if (endsAt <= DateTime.Now)
-                                Stop();
-                        }
+                        lblCountDown.Text = "Updates in " + refreshInS;
                     }
-                    catch
-                    {
+
+                    monitorControl.AddMonitorValues(e.MonitorValues);
+
+                    btnSaveAllMonitorCounters.Enabled = monitorControl.ColumnCount != 0;
+                    btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&
+                                                               txtFilterMonitorControlColumns.Text.Length != 0;
+
+
+                    var schedule = btnSchedule.Tag as ExtendedSchedule;
+                    if (schedule != null && schedule.Duration.Ticks != 0) {
+                        DateTime endsAt = schedule.ScheduledAt + schedule.Duration;
+                        if (endsAt <= DateTime.Now)
+                            Stop();
                     }
-                }, null);
+                } catch {
+                }
+            }, null);
         }
 
-        private void btnGetCounters_Click(object sender, EventArgs e)
-        {
+        private void btnGetCounters_Click(object sender, EventArgs e) {
             ConnectAndGetCounters();
         }
 
-        private void ConnectAndGetCounters()
-        {
+        private void ConnectAndGetCounters() {
             Cursor = Cursors.WaitCursor;
 
-            if (_monitor.PreviousMonitorSourceIndexForCounters != _monitor.MonitorSourceIndex)
-            {
+            if (_monitor.PreviousMonitorSourceIndexForCounters != _monitor.MonitorSourceIndex) {
                 _monitor.PreviousMonitorSourceIndexForCounters = _monitor.MonitorSourceIndex;
                 //Clear this when a new is selected.
                 _monitor.Wiw.Clear();
@@ -195,8 +174,7 @@ namespace vApus.Monitor
             _activeObject.Send(_wdyhDel, _forStresstest);
         }
 
-        private void __WDYH(bool forStresstest)
-        {
+        private void __WDYH(bool forStresstest) {
             if (_monitorProxy == null)
                 _monitorProxy = CreateMonitorProxy();
 
@@ -219,57 +197,39 @@ namespace vApus.Monitor
             if (exception == null)
                 wdyh = _monitorProxy.GetWDYH(out exception);
 
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    if (exception == null)
-                    {
-                        btnConfiguration.Enabled = (configuration != null);
-                        _configuration = configuration;
-                        try
-                        {
-                            FillEntities(wdyh);
-                        }
-                        catch (Exception ex)
-                        {
-                            exception = ex;
-                        }
-                    }
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                if (exception == null) {
+                    btnConfiguration.Enabled = (configuration != null);
+                    _configuration = configuration;
+                    try { FillEntities(wdyh); } catch (Exception ex) { exception = ex; }
+                }
 
-                    btnGetCounters.Text = "Get Counters";
+                btnGetCounters.Text = "Get Counters";
 
-                    if (exception != null)
-                    {
-                        btnStart.Enabled = false;
-                        btnSchedule.Enabled = false;
+                if (exception != null) {
+                    btnStart.Enabled = btnSchedule.Enabled = false;
 
-                        string message =
-                            "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
-                        if (!forStresstest)
-                            MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
-                    }
-                    split.Panel2.Enabled = true;
-                    btnGetCounters.Enabled = true;
-                    propertyPanel.Unlock();
-                    parameterPanel.Unlock();
+                    string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
+                    if (!forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
+                }
+                split.Panel2.Enabled = btnGetCounters.Enabled = true;
+                propertyPanel.Unlock();
+                parameterPanel.Unlock();
 
-                    Cursor = Cursors.Default;
-                }, null);
+                Cursor = Cursors.Default;
+            }, null);
         }
 
-        private void SetParameters(Parameter[] parameters)
-        {
+        private void SetParameters(Parameter[] parameters) {
             _parametersWithValues.Clear();
-            if (parameters != null)
-            {
+            if (parameters != null) {
                 //Get parameter values and set the parameters
                 object[] monitorParameters = _monitor.Parameters;
-                for (int i = 0; i != parameters.Length; i++)
-                {
+                for (int i = 0; i != parameters.Length; i++) {
                     Parameter parameter = parameters[i];
                     object value = parameter.DefaultValue;
-                    if (i < monitorParameters.Length)
-                    {
+                    if (i < monitorParameters.Length) {
                         object candidate = monitorParameters[i];
                         if (candidate.GetType() == parameter.Type)
                             value = candidate;
@@ -280,8 +240,7 @@ namespace vApus.Monitor
                 var parameterValues = new object[_parametersWithValues.Count];
 
                 int valueIndex = 0;
-                foreach (Parameter key in _parametersWithValues.Keys)
-                {
+                foreach (Parameter key in _parametersWithValues.Keys) {
                     object value = _parametersWithValues[key];
                     //Take encryption into account.
                     if (key.Encrypted && value is string)
@@ -299,16 +258,14 @@ namespace vApus.Monitor
             parameterPanel.ParametersWithValues = _parametersWithValues;
         }
 
-        private void parameterPanel_ParameterValueChanged(object sender, EventArgs e)
-        {
+        private void parameterPanel_ParameterValueChanged(object sender, EventArgs e) {
             StoreParameterValues();
         }
 
         /// <summary>
         ///     Store from _parametersWithValues to the monitor object
         /// </summary>
-        private void StoreParameterValues()
-        {
+        private void StoreParameterValues() {
             var monitorParameters = new object[_parametersWithValues.Count];
             int i = 0;
             foreach (object value in _parametersWithValues.Values)
@@ -318,15 +275,13 @@ namespace vApus.Monitor
             _monitor.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void FillEntities(Dictionary<Entity, List<CounterInfo>> entitiesAndCounters)
-        {
-            foreach (Entity entity in entitiesAndCounters.Keys)
-            {
+        private void FillEntities(Dictionary<Entity, List<CounterInfo>> entitiesAndCounters) {
+            foreach (Entity entity in entitiesAndCounters.Keys) {
                 var lvwi = new ListViewItem(string.Empty);
 
                 lvwi.SubItems.Add(entity.Name);
                 lvwi.SubItems.Add("[0]");
-                lvwi.ImageIndex = (int) entity.PowerState;
+                lvwi.ImageIndex = (int)entity.PowerState;
                 lvwi.StateImageIndex = lvwi.ImageIndex;
                 lvwi.Tag = entitiesAndCounters[entity];
                 lvwi.Checked = false;
@@ -339,17 +294,14 @@ namespace vApus.Monitor
                 lvwEntities.Items[0].Selected = true;
         }
 
-        private void lvwEntities_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (lvwEntities.SelectedItems.Count != 0)
-            {
+        private void lvwEntities_SelectedIndexChanged(object sender, EventArgs e) {
+            if (lvwEntities.SelectedItems.Count != 0) {
                 lvwEntities.Tag = lvwEntities.SelectedItems[0];
                 FillCounters();
             }
         }
 
-        private void lvwEntities_ItemChecked(object sender, ItemCheckedEventArgs e)
-        {
+        private void lvwEntities_ItemChecked(object sender, ItemCheckedEventArgs e) {
             bool itemChecked = e.Item.Checked;
             e.Item.Selected = true;
 
@@ -359,13 +311,14 @@ namespace vApus.Monitor
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
 
             ExtractWIWForListViewAction();
+
+            llblUncheckAllVisible.Enabled = HasCheckedNodes();
+            llblCheckAllVisible.Enabled = HasUncheckedNodes();
         }
 
-        private void ExtractWIWForListViewAction()
-        {
+        private void ExtractWIWForListViewAction() {
             LockWindowUpdate(Handle.ToInt32());
-            try
-            {
+            try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
                 var selected = lvwEntities.Tag as ListViewItem;
 
@@ -373,14 +326,12 @@ namespace vApus.Monitor
                 var nodes = selected.Tag as TreeNode[];
                 bool selectedChecked = selected.Checked;
 
-                foreach (TreeNode counterNode in nodes)
-                {
+                foreach (TreeNode counterNode in nodes) {
                     counterNode.Checked = selectedChecked;
                     foreach (TreeNode node in counterNode.Nodes)
                         node.Checked = selectedChecked;
 
-                    if (counterNode.Tag != null)
-                    {
+                    if (counterNode.Tag != null) {
                         var counterNodes = counterNode.Tag as TreeNode[];
                         foreach (TreeNode node in counterNodes)
                             node.Checked = selectedChecked;
@@ -389,8 +340,7 @@ namespace vApus.Monitor
                     if (selectedChecked)
                         ApplyToWIW(counterNode);
                 }
-                if (!selectedChecked)
-                {
+                if (!selectedChecked) {
                     Entity entity = GetEntity(_monitor.Wiw, selected.SubItems[1].Text);
                     _monitor.Wiw.Remove(entity);
                 }
@@ -400,30 +350,23 @@ namespace vApus.Monitor
                 btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
 
                 _monitor.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
-            catch
-            {
+            } catch {
                 throw;
-            }
-            finally
-            {
+            } finally {
                 LockWindowUpdate(0);
             }
         }
 
-        private void SetChosenCountersInListViewItems()
-        {
+        private void SetChosenCountersInListViewItems() {
             var applyCountTo = new List<ListViewItem>(lvwEntities.Items.Count);
             foreach (ListViewItem lvwi in lvwEntities.Items)
                 applyCountTo.Add(lvwi);
 
-            foreach (Entity entity in _monitor.Wiw.Keys)
-            {
+            foreach (Entity entity in _monitor.Wiw.Keys) {
                 List<CounterInfo> l = _monitor.Wiw[entity];
                 int count = GetTotalCountOfCounters(l);
                 foreach (ListViewItem lvwi in lvwEntities.Items)
-                    if (lvwi.SubItems[1].Text == entity.Name)
-                    {
+                    if (lvwi.SubItems[1].Text == entity.Name) {
                         lvwi.SubItems[2].Text = "[" + count + "]";
                         applyCountTo.Remove(lvwi);
                         break;
@@ -434,11 +377,9 @@ namespace vApus.Monitor
                 lvwi.SubItems[2].Text = "[0]";
         }
 
-        private int GetTotalCountOfCounters(List<CounterInfo> list)
-        {
+        private int GetTotalCountOfCounters(List<CounterInfo> list) {
             int count = 0;
-            foreach (CounterInfo info in list)
-            {
+            foreach (CounterInfo info in list) {
                 int c = info.Instances.Count;
                 if (c == 0)
                     c = 1;
@@ -447,24 +388,18 @@ namespace vApus.Monitor
             return count;
         }
 
-        private void llblCheckAllVisible_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
+        private void llblCheckAllVisible_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             LockWindowUpdate(Handle.ToInt32());
-            try
-            {
+            try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
 
-                foreach (TreeNode counterNode in tvwCounters.Nodes)
-                {
+                foreach (TreeNode counterNode in tvwCounters.Nodes) {
                     counterNode.Checked = true;
-                    foreach (TreeNode node in counterNode.Nodes)
-                        node.Checked = true;
+                    foreach (TreeNode node in counterNode.Nodes) node.Checked = true;
 
-                    if (counterNode.Tag != null)
-                    {
+                    if (counterNode.Tag != null) {
                         var counterNodes = counterNode.Tag as TreeNode[];
-                        foreach (TreeNode node in counterNodes)
-                            node.Checked = true;
+                        foreach (TreeNode node in counterNodes) node.Checked = true;
                     }
                     ApplyToWIW(counterNode);
                 }
@@ -476,32 +411,20 @@ namespace vApus.Monitor
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                LockWindowUpdate(0);
-            }
+            } catch { throw; } finally { LockWindowUpdate(0); }
         }
 
-        private void llblUncheckAllVisible_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
+        private void llblUncheckAllVisible_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             LockWindowUpdate(Handle.ToInt32());
-            try
-            {
+            try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
 
-                foreach (TreeNode counterNode in tvwCounters.Nodes)
-                {
+                foreach (TreeNode counterNode in tvwCounters.Nodes) {
                     counterNode.Checked = false;
                     foreach (TreeNode node in counterNode.Nodes)
                         node.Checked = false;
 
-                    if (counterNode.Tag != null)
-                    {
+                    if (counterNode.Tag != null) {
                         var counterNodes = counterNode.Tag as TreeNode[];
                         foreach (TreeNode node in counterNodes)
                             node.Checked = false;
@@ -517,74 +440,55 @@ namespace vApus.Monitor
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
-            }
-            catch
-            {
+            } catch {
                 throw;
-            }
-            finally
-            {
+            } finally {
                 LockWindowUpdate(0);
             }
         }
 
-        private void tvwCounter_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
+        private void tvwCounter_BeforeExpand(object sender, TreeViewCancelEventArgs e) {
             AddNodesFromTag(e.Node);
         }
 
-        private void AddNodesFromTag(TreeNode node)
-        {
-            if (node.Tag != null)
-            {
+        private void AddNodesFromTag(TreeNode node) {
+            if (node.Tag != null) {
                 LockWindowUpdate(Handle.ToInt32());
-                try
-                {
+                try {
                     node.Nodes.AddRange(node.Tag as TreeNode[]);
                     node.Tag = null;
-                }
-                catch
-                {
+                } catch {
                     throw;
-                }
-                finally
-                {
+                } finally {
                     LockWindowUpdate(0);
                 }
             }
         }
 
-        private void tvwCounter_AfterCheck(object sender, TreeViewEventArgs e)
-        {
+        private void tvwCounter_AfterCheck(object sender, TreeViewEventArgs e) {
             ExtractWIWForTreeViewAction(e.Node);
             llblUncheckAllVisible.Enabled = HasCheckedNodes();
             llblCheckAllVisible.Enabled = HasUncheckedNodes();
         }
 
-        private void ExtractWIWForTreeViewAction(TreeNode counterNode)
-        {
+        private void ExtractWIWForTreeViewAction(TreeNode counterNode) {
             LockWindowUpdate(Handle.ToInt32());
 
             tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
-            if (counterNode.Level == 0)
-            {
+            if (counterNode.Level == 0) {
                 foreach (TreeNode node in counterNode.Nodes)
                     node.Checked = counterNode.Checked;
 
-                if (counterNode.Tag != null)
-                {
+                if (counterNode.Tag != null) {
                     var counterNodes = counterNode.Tag as TreeNode[];
                     foreach (TreeNode node in counterNodes)
                         node.Checked = counterNode.Checked;
                 }
                 ApplyToWIW(counterNode);
-            }
-            else
-            {
+            } else {
                 counterNode.Parent.Checked = false;
                 foreach (TreeNode node in counterNode.Parent.Nodes)
-                    if (node.Checked)
-                    {
+                    if (node.Checked) {
                         counterNode.Parent.Checked = true;
                         break;
                     }
@@ -603,8 +507,7 @@ namespace vApus.Monitor
         /// <summary>
         /// </summary>
         /// <param name="counterNode">Add to or remove this from WiW depending on the checkstate of the node and its children</param>
-        private void ApplyToWIW(TreeNode counterNode)
-        {
+        private void ApplyToWIW(TreeNode counterNode) {
             lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
 
             var lvwiEntity = lvwEntities.Tag as ListViewItem;
@@ -614,31 +517,25 @@ namespace vApus.Monitor
             lvwiEntity.Checked = false;
             var nodes = lvwiEntity.Tag as TreeNode[];
             foreach (TreeNode node in nodes)
-                if (node.Checked)
-                {
+                if (node.Checked) {
                     lvwiEntity.Checked = true;
                     break;
                 }
 
-            if (lvwiEntity.Checked)
-            {
-                if (_monitor.Wiw.ContainsKey(entity))
-                {
+            if (lvwiEntity.Checked) {
+                if (_monitor.Wiw.ContainsKey(entity)) {
                     foreach (CounterInfo info in _monitor.Wiw[entity])
-                        if (info.Counter == counterNode.Text)
-                        {
+                        if (info.Counter == counterNode.Text) {
                             _monitor.Wiw[entity].Remove(info);
                             break;
                         }
-                    if (counterNode.Checked)
-                    {
+                    if (counterNode.Checked) {
                         var newCounterInfo = new CounterInfo(counterNode.Text);
                         foreach (TreeNode node in counterNode.Nodes)
                             if (node.Checked)
                                 newCounterInfo.Instances.Add(node.Text);
 
-                        if (counterNode.Tag != null)
-                        {
+                        if (counterNode.Tag != null) {
                             var counterNodes = counterNode.Tag as TreeNode[];
                             foreach (TreeNode node in counterNodes)
                                 if (node.Checked)
@@ -647,17 +544,14 @@ namespace vApus.Monitor
 
                         _monitor.Wiw[entity].Add(newCounterInfo);
                     }
-                }
-                else
-                {
+                } else {
                     var counters = new List<CounterInfo>();
                     var newCounterInfo = new CounterInfo(counterNode.Text);
                     foreach (TreeNode node in counterNode.Nodes)
                         if (node.Checked)
                             newCounterInfo.Instances.Add(node.Text);
 
-                    if (counterNode.Tag != null)
-                    {
+                    if (counterNode.Tag != null) {
                         var counterNodes = counterNode.Tag as TreeNode[];
                         foreach (TreeNode node in counterNodes)
                             if (node.Checked)
@@ -669,49 +563,40 @@ namespace vApus.Monitor
                     entity = new Entity(entityName, PowerState.On);
                     _monitor.Wiw.Add(entity, counters);
                 }
-            }
-            else
+            } else
                 _monitor.Wiw.Remove(entity);
 
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
         }
 
-        private void btnConfiguration_Click(object sender, EventArgs e)
-        {
+        private void btnConfiguration_Click(object sender, EventArgs e) {
             if (_configuration != string.Empty)
                 (new ConfigurationDialog(_configuration)).ShowDialog();
         }
 
-        private void btnStart_Click(object sender, EventArgs e)
-        {
+        private void btnStart_Click(object sender, EventArgs e) {
             if (monitorControl.RowCount == 0 ||
                 (monitorControl.RowCount > 0 &&
                  MessageBox.Show(
                      "Are you sure you want to start a new monitor?\nThis will clear the previous measured performance counters.",
                      string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) ==
-                 DialogResult.Yes))
-            {
+                 DialogResult.Yes)) {
                 _forStresstest = false;
                 Start();
             }
         }
 
-        private void btnSchedule_Click(object sender, EventArgs e)
-        {
+        private void btnSchedule_Click(object sender, EventArgs e) {
             var schedule = btnSchedule.Tag as ExtendedSchedule;
             if (schedule == null)
                 schedule = new ExtendedSchedule();
 
-            if (schedule.ShowDialog() == DialogResult.OK)
-            {
-                if (schedule.ScheduledAt > DateTime.Now)
-                {
+            if (schedule.ShowDialog() == DialogResult.OK) {
+                if (schedule.ScheduledAt > DateTime.Now) {
                     btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt;
                     btnSchedule.Text += GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                     btnSchedule.Tag = schedule;
-                }
-                else
-                {
+                } else {
                     btnSchedule.Text = "Not Scheduled" + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                     btnSchedule.Tag = schedule;
                 }
@@ -720,95 +605,76 @@ namespace vApus.Monitor
             }
         }
 
-        private string GetEndsAtFormatted(DateTime scheduledAt, TimeSpan duration)
-        {
+        private string GetEndsAtFormatted(DateTime scheduledAt, TimeSpan duration) {
             if (duration.Ticks == 0)
                 return string.Empty;
 
-            if (duration.Milliseconds != 0)
-            {
-                duration = new TimeSpan(duration.Ticks - (duration.Ticks%TimeSpan.TicksPerSecond));
+            if (duration.Milliseconds != 0) {
+                duration = new TimeSpan(duration.Ticks - (duration.Ticks % TimeSpan.TicksPerSecond));
                 duration += new TimeSpan(0, 0, 1);
             }
             return "; Ends At " + (scheduledAt + duration);
         }
 
-        private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e)
-        {
+        private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) {
             //Avoid a label update when after pushed stop
-            if (tmrProgressDelayCountDown.Enabled)
-            {
-                int countDown = (int) lblCountDown.Tag - 1;
-                if (countDown > 0)
-                {
+            if (tmrProgressDelayCountDown.Enabled) {
+                int countDown = (int)lblCountDown.Tag - 1;
+                if (countDown > 0) {
                     lblCountDown.Text = "Updates in " + countDown;
                     lblCountDown.Tag = countDown;
                 }
             }
         }
 
-        private void btnStop_Click(object sender, EventArgs e)
-        {
+        private void btnStop_Click(object sender, EventArgs e) {
             Stop();
         }
 
-        private void btnSaveAllMonitorCounters_Click(object sender, EventArgs e)
-        {
+        private void btnSaveAllMonitorCounters_Click(object sender, EventArgs e) {
             if (monitorControl.MonitorResultCache.Headers != null && monitorControl.MonitorResultCache.Headers.Length != 0)
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
+                if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                     Cursor = Cursors.WaitCursor;
                     monitorControl.Save(saveFileDialog.FileName);
                     Cursor = Cursors.Default;
                 }
         }
 
-        private void btnSaveFilteredMonitoredCounters_Click(object sender, EventArgs e)
-        {
+        private void btnSaveFilteredMonitoredCounters_Click(object sender, EventArgs e) {
             if (monitorControl.MonitorResultCache.Headers != null && monitorControl.MonitorResultCache.Headers.Length != 0)
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
+                if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                     Cursor = Cursors.WaitCursor;
                     monitorControl.SaveFiltered(saveFileDialog.FileName);
                     Cursor = Cursors.Default;
                 }
         }
 
-        private void txtFilterMonitorControlColumns_TextChanged(object sender, EventArgs e)
-        {
-            try
-            {
+        private void txtFilterMonitorControlColumns_TextChanged(object sender, EventArgs e) {
+            try {
                 btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&
                                                            txtFilterMonitorControlColumns.Text.Length != 0;
-            }
-            catch
-            {
+            } catch {
             }
         }
 
-        private void txtFilterMonitorControlColumns_Leave(object sender, EventArgs e)
-        {
+        private void txtFilterMonitorControlColumns_Leave(object sender, EventArgs e) {
             SetColumnFilter();
         }
 
-        private void txtFilterMonitorControlColumns_KeyDown(object sender, KeyEventArgs e)
-        {
+        private void txtFilterMonitorControlColumns_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Return)
                 SetColumnFilter();
         }
 
-        private void picFilterMonitorControlColumns_Click(object sender, EventArgs e)
-        {
+        private void picFilterMonitorControlColumns_Click(object sender, EventArgs e) {
             SetColumnFilter();
         }
 
-        private void SetColumnFilter()
-        {
-            string[] filter = txtFilterMonitorControlColumns.Text.Split(new[] {','},
+        private void SetColumnFilter() {
+            string[] filter = txtFilterMonitorControlColumns.Text.Split(new[] { ',' },
                                                                         StringSplitOptions.RemoveEmptyEntries);
             var l = new List<string>();
-            for (int i = 0; i != filter.Length; i++)
-            {
+            for (int i = 0; i != filter.Length; i++) {
                 string entry = filter[i].Trim();
                 if (entry.Length != 0 && !l.Contains(entry))
                     l.Add(entry);
@@ -821,8 +687,7 @@ namespace vApus.Monitor
 
         #region Init
 
-        private void MonitorView_HandleCreated(object sender, EventArgs e)
-        {
+        private void MonitorView_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= MonitorView_HandleCreated;
             InitMonitorView();
         }
@@ -830,8 +695,7 @@ namespace vApus.Monitor
         /// <summary>
         ///     Sets the Gui and connects to smt.
         /// </summary>
-        private void InitMonitorView()
-        {
+        private void InitMonitorView() {
             Text = SolutionComponent.ToString();
             if (SynchronizationContextWrapper.SynchronizationContext == null)
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
@@ -846,8 +710,7 @@ namespace vApus.Monitor
             _previousMonitorSourceForParameters = _monitor.MonitorSource;
             _previousFilter = _monitor.Filter.Combine(", ");
 
-            if (exception != null)
-            {
+            if (exception != null) {
                 string message = "Could not connect to the monitor client.";
                 LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
             }
@@ -860,41 +723,29 @@ namespace vApus.Monitor
         ///     Destroys the previous one if any and returns a new one.
         /// </summary>
         /// <returns></returns>
-        private Exception InitMonitorProxy()
-        {
+        private Exception InitMonitorProxy() {
             Exception exception = null;
 
-            try
-            {
-                if (_monitorProxy != null)
-                {
-                    try
-                    {
+            try {
+                if (_monitorProxy != null) {
+                    try {
                         Exception stopEx;
                         _monitorProxy.Stop(out stopEx);
+                    } catch {
                     }
-                    catch
-                    {
-                    }
-                    try
-                    {
+                    try {
                         _monitorProxy.Dispose();
-                    }
-                    catch
-                    {
+                    } catch {
                     }
                     _monitorProxy = null;
                 }
 
                 _monitorProxy = CreateMonitorProxy();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 exception = ex;
             }
 
-            if (exception == null)
-            {
+            if (exception == null) {
                 //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
                 Directory.SetCurrentDirectory(Application.StartupPath);
 
@@ -956,8 +807,7 @@ namespace vApus.Monitor
         /// </summary>
         /// <param name="ip">If 127.0.0.1 the local one will be used, otherwise the remote one.</param>
         /// <returns></returns>
-        private IMonitorProxy CreateMonitorProxy()
-        {
+        private IMonitorProxy CreateMonitorProxy() {
             var monitorProxy = new MonitorProxy();
             monitorProxy.OnHandledException += _monitorProxy_OnHandledException;
             monitorProxy.OnUnhandledException += _monitorProxy_OnUnhandledException;
@@ -966,12 +816,9 @@ namespace vApus.Monitor
             return monitorProxy;
         }
 
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            if (sender == _monitor && IsHandleCreated)
-            {
-                if (_monitor.MonitorSource != _previousMonitorSourceForParameters)
-                {
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            if (sender == _monitor && IsHandleCreated) {
+                if (_monitor.MonitorSource != _previousMonitorSourceForParameters) {
                     _previousMonitorSourceForParameters = _monitor.MonitorSource;
 
                     Exception exception;
@@ -982,15 +829,12 @@ namespace vApus.Monitor
                     SetParameters(parameters);
                 }
                 if (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
-                    lvwEntities.Items.Count == 0)
-                {
+                    lvwEntities.Items.Count == 0) {
                     split.Panel2.Enabled = true;
                     lblMonitorSourceMismatch.Visible = false;
 
                     btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
-                }
-                else
-                {
+                } else {
                     split.Panel2.Enabled = false;
                     lblMonitorSourceMismatch.Visible = true;
 
@@ -998,8 +842,7 @@ namespace vApus.Monitor
                 }
                 //Filter the treenodes again if this is changed.
                 string filter = _monitor.Filter.Combine(", ");
-                if (filter != _previousFilter)
-                {
+                if (filter != _previousFilter) {
                     _previousFilter = filter;
                     FillCounters();
                 }
@@ -1014,10 +857,8 @@ namespace vApus.Monitor
         /// </summary>
         /// <param name="lvw">The selected item from this list view is used</param>
         /// <param name="tvw">Counters are put in this treeview</param>
-        private void FillCounters()
-        {
-            if (lvwEntities.SelectedItems.Count != 0)
-            {
+        private void FillCounters() {
+            if (lvwEntities.SelectedItems.Count != 0) {
                 lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
                 tvwCounters.Nodes.Clear();
@@ -1036,16 +877,14 @@ namespace vApus.Monitor
             }
         }
 
-        private bool HasCheckedNodes()
-        {
+        private bool HasCheckedNodes() {
             foreach (TreeNode node in tvwCounters.Nodes)
                 if (node.Checked)
                     return true;
             return false;
         }
 
-        private bool HasUncheckedNodes()
-        {
+        private bool HasUncheckedNodes() {
             foreach (TreeNode node in tvwCounters.Nodes)
                 if (!node.Checked)
                     return true;
@@ -1057,8 +896,7 @@ namespace vApus.Monitor
         /// <param name="filter">if the length == 0 the original 'nodes' is returned</param>
         /// <param name="nodes"></param>
         /// <returns></returns>
-        private TreeNode[] FilterCounters(string[] filter, TreeNode[] nodes)
-        {
+        private TreeNode[] FilterCounters(string[] filter, TreeNode[] nodes) {
             if (filter.Length == 0)
                 return nodes;
             var filtered = new List<TreeNode>();
@@ -1069,8 +907,7 @@ namespace vApus.Monitor
             return filtered.ToArray();
         }
 
-        private IEnumerable<TreeNode> Find(string text, TreeNode[] nodes)
-        {
+        private IEnumerable<TreeNode> Find(string text, TreeNode[] nodes) {
             text = Regex.Escape(text);
             text = text.Replace("\\*", ".*");
             text = "\\b" + text + "\\b";
@@ -1086,25 +923,20 @@ namespace vApus.Monitor
         /// </summary>
         /// <param name="item"></param>
         /// <param name="tvw">searches for existing nodes in this tvw</param>
-        private void ParseTag(ListViewItem item)
-        {
+        private void ParseTag(ListViewItem item) {
             //Make a gui for the data store in the tag (this tag will be switched with the gui).
-            if (item.Tag is List<CounterInfo>)
-            {
+            if (item.Tag is List<CounterInfo>) {
                 var counters = item.Tag as List<CounterInfo>;
                 var newTag = new TreeNode[counters.Count];
-                for (int i = 0; i != counters.Count; i++)
-                {
+                for (int i = 0; i != counters.Count; i++) {
                     CounterInfo counterInfo = counters[i];
                     string counter = counterInfo.Counter;
                     TreeNode counterNode = null;
 
                     //Search from end (faster) if the counter node already exists.
-                    for (int j = tvwCounters.Nodes.Count - 1; j != -1; j--)
-                    {
+                    for (int j = tvwCounters.Nodes.Count - 1; j != -1; j--) {
                         TreeNode node = tvwCounters.Nodes[j];
-                        if (node.Text == counter)
-                        {
+                        if (node.Text == counter) {
                             counterNode = node;
                             break;
                         }
@@ -1114,18 +946,15 @@ namespace vApus.Monitor
                         counterNode = new TreeNode(counter);
                     newTag[i] = counterNode;
 
-                    if (counterInfo.Instances.Count != 0)
-                    {
+                    if (counterInfo.Instances.Count != 0) {
                         //Only add the first, the rest will be added when the node expands. (tvwCounter.BeforeExpand)
                         counterNode.Nodes.Add(counterInfo.Instances[0]);
 
                         //Keep the rest in the tag.
-                        if (counterInfo.Instances.Count != 1)
-                        {
+                        if (counterInfo.Instances.Count != 1) {
                             var otherInstances = new TreeNode[counterInfo.Instances.Count - 1];
                             Parallel.For(1, counterInfo.Instances.Count,
-                                         delegate(int k)
-                                             { otherInstances[k - 1] = new TreeNode(counterInfo.Instances[k]); });
+                                         delegate(int k) { otherInstances[k - 1] = new TreeNode(counterInfo.Instances[k]); });
 
                             counterNode.Tag = otherInstances;
                         }
@@ -1140,79 +969,65 @@ namespace vApus.Monitor
         /// <param name="wiw"></param>
         /// <param name="entityName"></param>
         /// <returns>If not found a new entity with an empty name is returned</returns>
-        private Entity GetEntity(Dictionary<Entity, List<CounterInfo>> wiw, string entityName)
-        {
+        private Entity GetEntity(Dictionary<Entity, List<CounterInfo>> wiw, string entityName) {
             foreach (Entity entity in wiw.Keys)
                 if (entity.Name == entityName)
                     return entity;
             return new Entity(string.Empty, PowerState.Off);
         }
 
-        private void PushSavedWiW()
-        {
+        private void PushSavedWiW() {
             lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
             tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
 
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
             var newWIW = new Dictionary<Entity, List<CounterInfo>>();
-            foreach (ListViewItem lvwi in lvwEntities.Items)
-            {
+            foreach (ListViewItem lvwi in lvwEntities.Items) {
                 string entityName = lvwi.SubItems[1].Text;
                 Entity entity = GetEntity(_monitor.Wiw, entityName);
                 lvwi.Checked = entity.Name.Length != 0;
-                if (lvwi.Checked)
-                {
+                if (lvwi.Checked) {
                     ParseTag(lvwi);
                     newWIW.Add(entity, new List<CounterInfo>());
                 }
 
                 var nodes = lvwi.Tag as TreeNode[];
                 if (nodes != null)
-                    if (lvwi.Checked)
-                    {
+                    if (lvwi.Checked) {
                         List<CounterInfo> l = _monitor.Wiw[entity];
-                        foreach (TreeNode node in nodes)
-                        {
+                        foreach (TreeNode node in nodes) {
                             CounterInfo info = GetCounterInfo(node.Text, l);
                             CounterInfo newInfo = null;
                             node.Checked = info != null;
 
-                            if (node.Checked)
-                            {
+                            if (node.Checked) {
                                 newInfo = new CounterInfo(info.Counter,
                                                           node.Nodes.Count == 0 ? null : new List<string>());
-                                foreach (TreeNode child in node.Nodes)
-                                {
+                                foreach (TreeNode child in node.Nodes) {
                                     child.Checked = info.Instances.Contains(child.Text);
                                     if (child.Checked)
                                         newInfo.Instances.Add(child.Text);
                                 }
-                            }
-                            else
+                            } else
                                 foreach (TreeNode child in node.Nodes)
                                     child.Checked = false;
 
                             var childNodes = node.Tag as TreeNode[];
                             if (childNodes != null)
                                 if (node.Checked)
-                                    foreach (TreeNode child in childNodes)
-                                    {
+                                    foreach (TreeNode child in childNodes) {
                                         child.Checked = info.Instances.Contains(child.Text);
                                         if (child.Checked)
                                             newInfo.Instances.Add(child.Text);
-                                    }
-                                else
+                                    } else
                                     foreach (TreeNode child in childNodes)
                                         child.Checked = false;
 
                             if (newInfo != null)
                                 newWIW[entity].Add(newInfo);
                         }
-                    }
-                    else
-                    {
-                        foreach (TreeNode node in nodes)
-                        {
+                    } else {
+                        foreach (TreeNode node in nodes) {
                             node.Checked = false;
                             foreach (TreeNode child in node.Nodes)
                                 child.Checked = false;
@@ -1241,36 +1056,30 @@ namespace vApus.Monitor
             tvwCounters.AfterCheck += tvwCounter_AfterCheck;
         }
 
-        private CounterInfo GetCounterInfo(string counter, List<CounterInfo> l)
-        {
+        private CounterInfo GetCounterInfo(string counter, List<CounterInfo> l) {
             foreach (CounterInfo info in l)
                 if (info.Counter == counter)
                     return info;
             return null;
         }
 
-        private void txtFilter_Leave(object sender, EventArgs e)
-        {
+        private void txtFilter_Leave(object sender, EventArgs e) {
             SetFilter();
         }
 
-        private void txtFilter_KeyDown(object sender, KeyEventArgs e)
-        {
+        private void txtFilter_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Return)
                 SetFilter();
         }
 
-        private void picFilter_Click(object sender, EventArgs e)
-        {
+        private void picFilter_Click(object sender, EventArgs e) {
             SetFilter();
         }
 
-        private void SetFilter()
-        {
-            string[] filter = txtFilter.Text.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+        private void SetFilter() {
+            string[] filter = txtFilter.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             var l = new List<string>();
-            for (int i = 0; i != filter.Length; i++)
-            {
+            for (int i = 0; i != filter.Length; i++) {
                 string entry = filter[i].Trim();
                 if (entry.Length != 0 && !l.Contains(entry))
                     l.Add(entry);
@@ -1282,16 +1091,12 @@ namespace vApus.Monitor
             _monitor.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void SetFilterTextBox()
-        {
-            try
-            {
+        private void SetFilterTextBox() {
+            try {
                 txtFilter.Text = _monitor.Filter.Combine(", ");
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
-            }
-            catch
-            {
+            } catch {
             }
         }
 
@@ -1304,8 +1109,7 @@ namespace vApus.Monitor
         /// <summary>
         ///     Will stop the previous one first.
         /// </summary>
-        public void InitializeForStresstest()
-        {
+        public void InitializeForStresstest() {
             _forStresstest = true;
 
             Stop();
@@ -1321,36 +1125,29 @@ namespace vApus.Monitor
             ConnectAndGetCounters();
         }
 
-        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
-        {
+        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
             _activeObject.OnResult -= _activeObject_OnResult;
 
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    string errorMessage = null;
-                    if (split.Panel2.Enabled && lvwEntities.Items.Count != 0 && tvwCounters.Nodes.Count != 0)
-                    {
-                        errorMessage = Text + ": No counters were chosen.";
-                        if (_monitor.Wiw.Count != 0)
-                            foreach (Entity entity in _monitor.Wiw.Keys)
-                            {
-                                if (_monitor.Wiw[entity].Count != 0)
-                                    errorMessage = null;
-                                break;
-                            }
-                    }
-                    else
-                    {
-                        errorMessage = Text +
-                                       ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
-                    }
-                    if (MonitorInitialized != null)
-                        MonitorInitialized(this, new MonitorInitializedEventArgs(errorMessage));
-                }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                string errorMessage = null;
+                if (split.Panel2.Enabled && lvwEntities.Items.Count != 0 && tvwCounters.Nodes.Count != 0) {
+                    errorMessage = Text + ": No counters were chosen.";
+                    if (_monitor.Wiw.Count != 0)
+                        foreach (Entity entity in _monitor.Wiw.Keys) {
+                            if (_monitor.Wiw[entity].Count != 0)
+                                errorMessage = null;
+                            break;
+                        }
+                } else {
+                    errorMessage = Text +
+                                   ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
+                }
+                if (MonitorInitialized != null)
+                    MonitorInitialized(this, new MonitorInitializedEventArgs(errorMessage));
+            }, null);
         }
 
-        public void Start()
-        {
+        public void Start() {
             split.Panel2.Enabled = false;
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
@@ -1367,36 +1164,27 @@ namespace vApus.Monitor
                 StartMonitor();
         }
 
-        private void ScheduleMonitor()
-        {
+        private void ScheduleMonitor() {
             btnStop.Enabled = true;
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
             tmrSchedule.Start();
         }
 
-        private void tmrSchedule_Tick(object sender, EventArgs e)
-        {
+        private void tmrSchedule_Tick(object sender, EventArgs e) {
             var schedule = btnSchedule.Tag as ExtendedSchedule;
-            if (schedule.ScheduledAt <= DateTime.Now)
-            {
+            if (schedule.ScheduledAt <= DateTime.Now) {
                 btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt +
                                    GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                 tmrSchedule.Stop();
                 StartMonitor();
-            }
-            else
-            {
-                if (btnSchedule.Text.StartsWith("Not Scheduled"))
-                {
+            } else {
+                if (btnSchedule.Text.StartsWith("Not Scheduled")) {
                     btnSchedule.Text = "Not Scheduled" + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
-                }
-                else
-                {
+                } else {
                     TimeSpan dt = schedule.ScheduledAt - DateTime.Now;
-                    if (dt.Milliseconds != 0)
-                    {
-                        dt = new TimeSpan(dt.Ticks - (dt.Ticks%TimeSpan.TicksPerSecond));
+                    if (dt.Milliseconds != 0) {
+                        dt = new TimeSpan(dt.Ticks - (dt.Ticks % TimeSpan.TicksPerSecond));
                         dt += new TimeSpan(0, 0, 1);
                     }
                     btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString() +
@@ -1405,11 +1193,10 @@ namespace vApus.Monitor
             }
         }
 
-        private void StartMonitor()
-        {
+        private void StartMonitor() {
             Cursor = Cursors.WaitCursor;
             Exception exception;
-            string[] units = {};
+            string[] units = { };
 
             //Set the parameters and the values in the gui and in the proxy
             Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
@@ -1420,12 +1207,11 @@ namespace vApus.Monitor
             if (exception == null)
                 units = _monitorProxy.GetUnits(out exception);
 
-            if (exception == null)
-            {
+            if (exception == null) {
                 monitorControl.Init(_monitor, units);
                 btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
 
-                int refreshInS = _refreshTimeInMS/1000;
+                int refreshInS = _refreshTimeInMS / 1000;
                 lblCountDown.Tag = refreshInS;
                 lblCountDown.Text = "Updates in " + refreshInS;
 
@@ -1438,23 +1224,17 @@ namespace vApus.Monitor
                 tc.SelectedIndex = 1;
             }
 
-            if (exception == null)
-            {
+            if (exception == null) {
                 _monitorProxy.Start(out exception);
-            }
-            else
-            {
+            } else {
                 Stop();
                 string message = "Could not connect to the monitor!";
                 if (_forStresstest)
-                    if (OnUnhandledException != null)
-                    {
+                    if (OnUnhandledException != null) {
                         var e = new Exception(message);
                         foreach (EventHandler<ErrorEventArgs> del in OnUnhandledException.GetInvocationList())
                             del.BeginInvoke(this, new ErrorEventArgs(e), null, null);
-                    }
-                    else
-                    {
+                    } else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
@@ -1462,32 +1242,24 @@ namespace vApus.Monitor
             Cursor = Cursors.Default;
         }
 
-        public void Stop()
-        {
+        public void Stop() {
             Cursor = Cursors.WaitCursor;
-            try
-            {
+            try {
                 tmrProgressDelayCountDown.Stop();
 
                 if (_monitorProxy != null)
-                    try
-                    {
+                    try {
                         Exception stopEx;
                         _monitorProxy.Stop(out stopEx);
-                    }
-                    catch
-                    {
+                    } catch {
                     }
 
                 var schedule = btnSchedule.Tag as ExtendedSchedule;
-                if (btnSchedule.Text.StartsWith("Not Scheduled"))
-                {
+                if (btnSchedule.Text.StartsWith("Not Scheduled")) {
                     btnSchedule.Text = "Schedule...";
                     if (schedule != null)
                         btnSchedule.Text += GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
-                }
-                else if (btnSchedule.Text.StartsWith("Scheduled at"))
-                {
+                } else if (btnSchedule.Text.StartsWith("Scheduled at")) {
                     btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt +
                                        GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                 }
@@ -1498,8 +1270,7 @@ namespace vApus.Monitor
                 propertyPanel.Unlock();
                 parameterPanel.Unlock();
 
-                if (!toolStrip.Visible)
-                {
+                if (!toolStrip.Visible) {
                     //Releasing it from stresstest if any
                     _forStresstest = false;
 
@@ -1515,21 +1286,17 @@ namespace vApus.Monitor
                 lblCountDown.ForeColor = Color.Black;
                 lblCountDown.BackColor = Color.Orange;
                 lblCountDown.Text = "Stopped!";
-            }
-            catch
-            {
+            } catch {
             }
 
             Cursor = Cursors.Default;
         }
 
-        public MonitorResultCache GetMonitorResultCache()
-        {
+        public MonitorResultCache GetMonitorResultCache() {
             return monitorControl.MonitorResultCache;
         }
 
-        public Dictionary<DateTime, float[]> GetMonitorValues()
-        {
+        public Dictionary<DateTime, float[]> GetMonitorValues() {
             return monitorControl.GetMonitorValues();
         }
 
@@ -1537,8 +1304,7 @@ namespace vApus.Monitor
         ///     Get the connection parameters comma-separated.
         /// </summary>
         /// <returns></returns>
-        public string GetConnectionString()
-        {
+        public string GetConnectionString() {
             var connectionString = new List<string>();
             foreach (Parameter key in _parametersWithValues.Keys)
                 connectionString.Add(key.Name + "=" + _parametersWithValues[key]);
@@ -1549,12 +1315,9 @@ namespace vApus.Monitor
 
         #endregion
 
-        public class MonitorInitializedEventArgs : EventArgs
-        {
+        public class MonitorInitializedEventArgs : EventArgs {
             public readonly string ErrorMessage;
-
-            public MonitorInitializedEventArgs(string errorMessage)
-            {
+            public MonitorInitializedEventArgs(string errorMessage) {
                 ErrorMessage = errorMessage;
             }
         }

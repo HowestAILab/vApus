@@ -128,12 +128,20 @@ namespace vApus.Stresstest {
             txtUserAction.Text = txtUserAction.Text.Trim();
             if (_userAction.Label != txtUserAction.Text) {
                 _userAction.Label = txtUserAction.Text;
-                _userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                var tmr = new System.Windows.Forms.Timer() { Interval = 100 }; //Don't like it, but otherwise gui freeze.
+                tmr.Tick += tmr_Tick;
+                tmr.Start();
             }
             if (txtUserAction.Text == string.Empty) {
                 txtUserAction.Text = "Give this user action a label.";
                 txtUserAction.ForeColor = SystemColors.ControlDark;
             }
+        }
+        private void tmr_Tick(object sender, EventArgs e) {
+            try {
+                (sender as System.Windows.Forms.Timer).Stop();
+                _userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            } catch { }
         }
 
         private void btnCollapseExpand_Click(object sender, EventArgs e) { Collapsed = !Collapsed; }
