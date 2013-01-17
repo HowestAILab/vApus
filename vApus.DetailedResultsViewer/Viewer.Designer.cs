@@ -76,6 +76,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "Viewer";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "vApus Detailed Results Viewer";
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
