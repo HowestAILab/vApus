@@ -40,10 +40,10 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.grp = new System.Windows.Forms.GroupBox();
+            this.lblDescription = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
-            this.groupBox1.SuspendLayout();
+            this.grp.SuspendLayout();
             this.SuspendLayout();
             // 
             // cboConnectionString
@@ -64,7 +64,7 @@
             // txtUser
             // 
             this.txtUser.EmptyTextBoxLabel = "User";
-            this.txtUser.ForeColor = System.Drawing.Color.DimGray;
+            this.txtUser.ForeColor = System.Drawing.Color.Black;
             this.txtUser.Location = new System.Drawing.Point(6, 68);
             this.txtUser.Name = "txtUser";
             this.txtUser.Size = new System.Drawing.Size(120, 20);
@@ -75,7 +75,7 @@
             // txtHost
             // 
             this.txtHost.EmptyTextBoxLabel = "Host";
-            this.txtHost.ForeColor = System.Drawing.Color.DimGray;
+            this.txtHost.ForeColor = System.Drawing.Color.Black;
             this.txtHost.Location = new System.Drawing.Point(156, 68);
             this.txtHost.Name = "txtHost";
             this.txtHost.Size = new System.Drawing.Size(120, 20);
@@ -86,7 +86,7 @@
             // txtPassword
             // 
             this.txtPassword.EmptyTextBoxLabel = "Password";
-            this.txtPassword.ForeColor = System.Drawing.Color.DimGray;
+            this.txtPassword.ForeColor = System.Drawing.Color.Black;
             this.txtPassword.Location = new System.Drawing.Point(6, 94);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
@@ -183,48 +183,48 @@
             this.label3.TabIndex = 10;
             this.label3.Text = "(port)";
             // 
-            // groupBox1
+            // grp
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.grp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.cboConnectionString);
-            this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.txtUser);
-            this.groupBox1.Controls.Add(this.txtHost);
-            this.groupBox1.Controls.Add(this.txtPassword);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.nudPort);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(12, 63);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(444, 275);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
+            this.grp.Controls.Add(this.cboConnectionString);
+            this.grp.Controls.Add(this.label3);
+            this.grp.Controls.Add(this.txtUser);
+            this.grp.Controls.Add(this.txtHost);
+            this.grp.Controls.Add(this.txtPassword);
+            this.grp.Controls.Add(this.label1);
+            this.grp.Controls.Add(this.nudPort);
+            this.grp.Controls.Add(this.label2);
+            this.grp.Location = new System.Drawing.Point(12, 63);
+            this.grp.Name = "grp";
+            this.grp.Size = new System.Drawing.Size(444, 275);
+            this.grp.TabIndex = 0;
+            this.grp.TabStop = false;
             // 
-            // label4
+            // lblDescription
             // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label4.Location = new System.Drawing.Point(13, 13);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(443, 47);
-            this.label4.TabIndex = 10;
-            this.label4.Text = resources.GetString("label4.Text");
+            this.lblDescription.Location = new System.Drawing.Point(13, 13);
+            this.lblDescription.Name = "lblDescription";
+            this.lblDescription.Size = new System.Drawing.Size(443, 47);
+            this.lblDescription.TabIndex = 10;
+            this.lblDescription.Text = resources.GetString("lblDescription.Text");
             // 
             // SavingResultsPanel
             // 
             this.ClientSize = new System.Drawing.Size(468, 379);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.lblDescription);
+            this.Controls.Add(this.grp);
             this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnTest);
             this.Name = "SavingResultsPanel";
             this.Text = "SavingResultsPanel";
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.grp.ResumeLayout(false);
+            this.grp.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -242,7 +242,7 @@
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnDelete;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.GroupBox grp;
+        private System.Windows.Forms.Label lblDescription;
     }
 }

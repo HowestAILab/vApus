@@ -46,7 +46,7 @@ public class DatabaseActions {
     #region Properties
 
     /// <summary>
-    ///     Gets the connectionstring.
+    ///     Gets or sets the connectionstring.
     /// </summary>
     public string ConnectionString { get; set; }
 

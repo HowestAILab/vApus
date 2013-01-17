@@ -8,15 +8,12 @@
 using System;
 using System.Data;
 
-namespace vApus.Results
-{
-    public static class Schema
-    {
+namespace vApus.Results {
+    public static class Schema {
         /// <summary>
         /// </summary>
         /// <returns>The database name.</returns>
-        internal static string Build()
-        {
+        internal static string Build() {
             DatabaseActions databaseActions = GetDatabaseActions();
             string databaseName = CreateDatabase(databaseActions);
             ReleaseConnection(databaseActions);
@@ -44,27 +41,23 @@ namespace vApus.Results
         /// </summary>
         /// <param name="databaseActions"></param>
         /// <returns>Database name</returns>
-        private static string CreateDatabase(DatabaseActions databaseActions)
-        {
+        private static string CreateDatabase(DatabaseActions databaseActions) {
             string databaseName = "vApus" + DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss_fffffff");
             databaseActions.ExecuteSQL("Create Database " + databaseName);
             return databaseName;
         }
 
-        private static void CreateDescriptionTable(DatabaseActions databaseActions)
-        {
+        private static void CreateDescriptionTable(DatabaseActions databaseActions) {
             if (!TableExists("Description", databaseActions))
                 databaseActions.ExecuteSQL("Create Table Description(Description text NOT NULL)");
         }
 
-        private static void CreateTagsTable(DatabaseActions databaseActions)
-        {
+        private static void CreateTagsTable(DatabaseActions databaseActions) {
             if (!TableExists("Tags", databaseActions))
                 databaseActions.ExecuteSQL("Create Table Tags(Tag varchar(255) NOT NULL UNIQUE)");
         }
 
-        private static void CreatevApusInstancesTable(DatabaseActions databaseActions)
-        {
+        private static void CreatevApusInstancesTable(DatabaseActions databaseActions) {
             if (!TableExists("vApusInstances", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table vApusInstances(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id),
@@ -72,8 +65,7 @@ HostName varchar(255) NOT NULL, IP varchar(255) NOT NULL, Port int NOT NULL, Ver
 IsMaster bool NOT NULL)");
         }
 
-        private static void CreateStresstestsTable(DatabaseActions databaseActions)
-        {
+        private static void CreateStresstestsTable(DatabaseActions databaseActions) {
             if (!TableExists("Stresstests", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table Stresstests(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), vApusInstanceId int NOT NULL, 
@@ -82,32 +74,28 @@ ConnectionProxy varchar(255) NOT NULL, ConnectionString text NOT NULL, Log varch
 Runs int NOT NULL, MinimumDelayInMilliseconds int NOT NULL, MaximumDelayInMilliseconds int NOT NULL, Shuffle bool NOT NULL, Distribute char(4) NOT NULL, MonitorBeforeInMinutes int NOT NULL, MonitorAfterInMinutes int NOT NULL)");
         }
 
-        private static void CreateStresstestResultsTable(DatabaseActions databaseActions)
-        {
+        private static void CreateStresstestResultsTable(DatabaseActions databaseActions) {
             if (!TableExists("StresstestResults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table StresstestResults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), StresstestId int NOT NULL,
 FOREIGN KEY(StresstestId) REFERENCES Stresstests(Id), StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL, Status varchar(9) NOT NULL, StatusMessage text NOT NULL)");
         }
 
-        private static void CreateConcurrencyResultsTable(DatabaseActions databaseActions)
-        {
+        private static void CreateConcurrencyResultsTable(DatabaseActions databaseActions) {
             if (!TableExists("ConcurrencyResults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table ConcurrencyResults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (Id), StresstestResultId int NOT NULL,
 FOREIGN KEY(StresstestResultID) REFERENCES StresstestResults(Id), Concurrency int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL)");
         }
 
-        private static void CreateRunResultsTable(DatabaseActions databaseActions)
-        {
+        private static void CreateRunResultsTable(DatabaseActions databaseActions) {
             if (!TableExists("RunResults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table RunResults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), ConcurrencyResultId int NOT NULL,
 FOREIGN KEY(ConcurrencyResultId) REFERENCES ConcurrencyResults(Id), Run int NOT NULL, TotalLogEntryCount bigint UNSIGNED NOT NULL, RerunCount int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL)");
         }
 
-        private static void CreateLogEntryResultsTable(DatabaseActions databaseActions)
-        {
+        private static void CreateLogEntryResultsTable(DatabaseActions databaseActions) {
             if (!TableExists("LogEntryResults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table LogEntryResults(Id serial, PRIMARY KEY(Id), RunResultId int NOT NULL, 
@@ -115,8 +103,7 @@ FOREIGN KEY(RunResultId) REFERENCES RunResults(Id),VirtualUser varchar(255) NOT 
 SentAt datetime(6) NOT NULL, TimeToLastByteInTicks bigint NOT NULL, DelayInMilliseconds int NOT NULL, Error text NOT NULL)");
         }
 
-        private static void CreateMonitorsTable(DatabaseActions databaseActions)
-        {
+        private static void CreateMonitorsTable(DatabaseActions databaseActions) {
             if (!TableExists("Monitors", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table Monitors (Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), StresstestId int NOT NULL,
@@ -124,52 +111,42 @@ FOREIGN KEY(StresstestId) REFERENCES Stresstests(Id),Monitor varchar(255) NOT NU
 ResultHeaders text NOT NULL)");
         }
 
-        private static void CreateMonitorResultsTable(DatabaseActions databaseActions)
-        {
+        private static void CreateMonitorResultsTable(DatabaseActions databaseActions) {
             if (!TableExists("MonitorResults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table MonitorResults(Id serial, PRIMARY KEY(Id), MonitorId int NOT NULL, FOREIGN KEY(MonitorId) REFERENCES Monitors(Id),
 TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
         }
 
-        private static DatabaseActions GetDatabaseActions()
-        {
+        private static DatabaseActions GetDatabaseActions() {
             string user, host, password;
             int port;
             SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
 
-            return new DatabaseActions
-                {
-                    ConnectionString =
-                        string.Format("Server={0};Port={1};Uid={2};Pwd={3}", host, port, user, password)
-                };
+            return new DatabaseActions {
+                ConnectionString =
+                    string.Format("Server={0};Port={1};Uid={2};Pwd={3}", host, port, user, password)
+            };
         }
 
-        internal static DatabaseActions GetDatabaseActionsUsingDatabase(string databaseName)
-        {
+        internal static DatabaseActions GetDatabaseActionsUsingDatabase(string databaseName) {
             string user, host, password;
             int port;
             SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
 
-            var databaseActions = new DatabaseActions
-                {
-                    ConnectionString =
-                        string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", host, port, databaseName, user,
-                                      password)
-                };
+            var databaseActions = new DatabaseActions {
+                ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", host, port, databaseName, user, password)
+            };
 
             return databaseActions;
         }
 
-        private static void ReleaseConnection(DatabaseActions databaseActions)
-        {
-            try { databaseActions.ReleaseConnection(); }
-            catch { }
+        private static void ReleaseConnection(DatabaseActions databaseActions) {
+            try { databaseActions.ReleaseConnection(); } catch { }
             databaseActions = null;
         }
 
-        private static bool TableExists(string tableName, DatabaseActions databaseActions)
-        {
+        private static bool TableExists(string tableName, DatabaseActions databaseActions) {
             tableName = tableName.ToLower();
             DataTable tables = databaseActions.GetDataTable("Show Tables");
             foreach (DataRow row in tables.Rows)
@@ -181,8 +158,7 @@ TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
         /// Remove a schema (after cancel or failed)
         /// </summary>
         /// <param name="name"></param>
-        internal static void Drop(string databaseName, DatabaseActions databaseActions)
-        {
+        internal static void Drop(string databaseName, DatabaseActions databaseActions) {
             databaseActions.ExecuteSQL("DROP SCHEMA " + databaseName);
         }
     }

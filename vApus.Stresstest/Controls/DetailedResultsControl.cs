@@ -35,7 +35,6 @@ namespace vApus.Stresstest.Controls {
         }
 
         private void lbtnDescription_ActiveChanged(object sender, EventArgs e) {
-
             SetConfig(ResultsHelper.GetDescription());
         }
         private void lbtnTags_ActiveChanged(object sender, EventArgs e) {

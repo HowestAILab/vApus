@@ -14,6 +14,7 @@ using vApus.Util;
 
 namespace vApus.Results {
     public static class ResultsHelper {
+
         #region Fields
 
         private static string _databaseName;
@@ -154,6 +155,18 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         #endregion
 
         //SET
+
+        /// <summary>
+        /// Connect to an existing database to execute the procedures on.
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="databaseName"></param>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        public static void ConnectToDatabase(string host, int port, string databaseName, string user, string password) {
+            _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", host, port, databaseName, user, password) };
+        }
 
         #region Stresstest results
 
