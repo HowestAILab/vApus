@@ -18,14 +18,12 @@ using WeifenLuo.WinFormsUI.Docking;
 using vApus.SolutionTree.Properties;
 using vApus.Util;
 
-namespace vApus.SolutionTree
-{
+namespace vApus.SolutionTree {
     /// <summary>
     ///     The solution where everything is stored, this class also keeps its explorer and which solution that is active.
     ///     Saving, Loading, making a solution is done here, this also keeps it's own explorer.
     /// </summary>
-    public class Solution
-    {
+    public class Solution {
         #region Manage
 
         /// <summary>
@@ -61,11 +59,9 @@ namespace vApus.SolutionTree
         ///     When set, will enforce loading in the treeview.
         ///     (should only be used in load and new, the rest should be handeled with solution component changed)
         /// </summary>
-        public static Solution ActiveSolution
-        {
+        public static Solution ActiveSolution {
             get { return _activeSolution; }
-            private set
-            {
+            private set {
                 _activeSolution = value;
                 if (_activeSolution.FileName != null)
                     RegisterActiveSolutionAsRecent();
@@ -74,8 +70,7 @@ namespace vApus.SolutionTree
             }
         }
 
-        internal static DockPanel DockPanel
-        {
+        internal static DockPanel DockPanel {
             get { return _dockPanel; }
         }
 
@@ -103,8 +98,7 @@ namespace vApus.SolutionTree
         ///     This is needed to be able to make a new solution avoiding circular dependencies.
         /// </summary>
         /// <param name="t"></param>
-        public static void RegisterProjectType(Type projectType)
-        {
+        public static void RegisterProjectType(Type projectType) {
             if (_projectTypes.Contains(projectType))
                 throw new ArgumentException("A project type may be added only once.");
             _projectTypes.Add(projectType);
@@ -114,10 +108,8 @@ namespace vApus.SolutionTree
         ///     To be able to show the views for the solution components and the panel for the solution explorer.
         /// </summary>
         /// <param name="dockPanel"></param>
-        public static void RegisterDockPanel(DockPanel dockPanel)
-        {
-            if (dockPanel == null)
-                throw new ArgumentNullException("dockpanel");
+        public static void RegisterDockPanel(DockPanel dockPanel) {
+            if (dockPanel == null) throw new ArgumentNullException("dockpanel");
             _dockPanel = dockPanel;
         }
 
@@ -126,26 +118,20 @@ namespace vApus.SolutionTree
         ///     Note: call 'RegisterDockPanel(DockPanel dockPanel)' prior to this.
         /// </summary>
         /// <returns>True on success</returns>
-        public static bool ShowStresstestingSolutionExplorer()
-        {
-            try
-            {
+        public static bool ShowStresstestingSolutionExplorer() {
+            try {
                 int dockState = Settings.Default.StresstestingSolutionExplorerDockState;
-                if (dockState == -1)
-                    dockState = 8; //DockLeft
+                if (dockState == -1) dockState = 8; //DockLeft
 
-                _stresstestingSolutionExplorer.Show(_dockPanel, (DockState) dockState);
-            }
-            catch
-            {
+                _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
+            } catch {
                 //Could fail for slaves
                 return false;
             }
             return true;
         }
 
-        public static void HideStresstestingSolutionExplorer()
-        {
+        public static void HideStresstestingSolutionExplorer() {
             _stresstestingSolutionExplorer.Hide();
         }
 
@@ -153,11 +139,9 @@ namespace vApus.SolutionTree
         ///     Tooltips will be provide for the items.
         /// </summary>
         /// <returns></returns>
-        public static List<ToolStripMenuItem> GetRecentSolutionsMenuItems()
-        {
+        public static List<ToolStripMenuItem> GetRecentSolutionsMenuItems() {
             var recentSolutionsMenuItems = new List<ToolStripMenuItem>();
-            foreach (string filename in _recentSolutions)
-            {
+            foreach (string filename in _recentSolutions) {
                 var item = new ToolStripMenuItem(filename);
                 item.Click += item_Click;
                 recentSolutionsMenuItems.Add(item);
@@ -165,15 +149,11 @@ namespace vApus.SolutionTree
             return recentSolutionsMenuItems;
         }
 
-        private static void item_Click(object sender, EventArgs e)
-        {
+        private static void item_Click(object sender, EventArgs e) {
             var item = sender as ToolStripMenuItem;
-            if (File.Exists(item.Text))
-            {
+            if (File.Exists(item.Text)) {
                 LoadNewActiveSolution(item.Text);
-            }
-            else
-            {
+            } else {
                 _recentSolutions.Remove(item.Text);
                 Settings.Default.Save();
                 MessageBox.Show(string.Format("'{0}' does not exist and could therefore not be opened!", item.Text),
@@ -182,17 +162,14 @@ namespace vApus.SolutionTree
             }
         }
 
-        public static void ClearRecentSolutions()
-        {
+        public static void ClearRecentSolutions() {
             _recentSolutions.Clear();
             Settings.Default.RecentSolutions.Clear();
             Settings.Default.Save();
         }
 
-        private static void RegisterActiveSolutionAsRecent()
-        {
-            if (!_recentSolutions.Contains(_activeSolution.FileName))
-            {
+        private static void RegisterActiveSolutionAsRecent() {
+            if (!_recentSolutions.Contains(_activeSolution.FileName)) {
                 if (_recentSolutions.Count == 10)
                     _recentSolutions.RemoveAt(9);
                 _recentSolutions.Insert(0, _activeSolution.FileName);
@@ -221,10 +198,8 @@ namespace vApus.SolutionTree
 
         #region File Management
 
-        public static void CreateNew()
-        {
-            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
-            {
+        public static void CreateNew() {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
                 DialogResult result =
                     MessageBox.Show(
                         string.Format("Do you want to save '{0}' before creating a new solution?", _activeSolution.Name),
@@ -235,9 +210,7 @@ namespace vApus.SolutionTree
                 else if (result == DialogResult.No)
                     ActiveSolution = new Solution();
                 //Do nothing on cancel.
-            }
-            else
-            {
+            } else {
                 ActiveSolution = new Solution();
             }
         }
@@ -246,12 +219,10 @@ namespace vApus.SolutionTree
         ///     Returns true if it has been saved.
         /// </summary>
         /// <returns></returns>
-        public static bool SaveActiveSolution()
-        {
+        public static bool SaveActiveSolution() {
             if (_activeSolution.FileName == null)
                 return SaveActiveSolutionAs();
-            else
-            {
+            else {
                 _activeSolution.Save();
                 _activeSolution.IsSaved = true;
                 if (ActiveSolutionChanged != null)
@@ -266,10 +237,8 @@ namespace vApus.SolutionTree
         ///     Returns true if it has been saved.
         /// </summary>
         /// <returns></returns>
-        public static bool SaveActiveSolutionAs()
-        {
-            if (_sfd.ShowDialog() == DialogResult.OK)
-            {
+        public static bool SaveActiveSolutionAs() {
+            if (_sfd.ShowDialog() == DialogResult.OK) {
                 _activeSolution.FileName = _sfd.FileName;
                 return SaveActiveSolution();
             }
@@ -279,15 +248,12 @@ namespace vApus.SolutionTree
         /// <summary>
         ///     Loads a new solution as the active one. Returns true if it has been loaded.
         /// </summary>
-        public static bool LoadNewActiveSolution()
-        {
+        public static bool LoadNewActiveSolution() {
             return LoadNewActiveSolution(null);
         }
 
-        public static bool LoadNewActiveSolution(string fileName)
-        {
-            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
-            {
+        public static bool LoadNewActiveSolution(string fileName) {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
                 DialogResult result =
                     MessageBox.Show(
                         string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name),
@@ -298,21 +264,16 @@ namespace vApus.SolutionTree
                 else if (result == DialogResult.No)
                     return LoadSolution(fileName);
                 //Do nothing on cancel.
-            }
-            else
-            {
+            } else {
                 return LoadSolution(fileName);
             }
             return false;
         }
 
-        private static bool LoadSolution(string fileName)
-        {
+        private static bool LoadSolution(string fileName) {
             string errorMessage = string.Empty;
-            try
-            {
-                if (fileName != null)
-                {
+            try {
+                if (fileName != null) {
                     var sln = new Solution();
                     sln.FileName = fileName;
                     sln.Load(out errorMessage);
@@ -320,9 +281,7 @@ namespace vApus.SolutionTree
                     ActiveSolution.ResolveBranchedIndices();
                     _activeSolution.IsSaved = true;
                     return true;
-                }
-                else if (_ofd.ShowDialog() == DialogResult.OK)
-                {
+                } else if (_ofd.ShowDialog() == DialogResult.OK) {
                     var sln = new Solution();
                     sln.FileName = _ofd.FileName;
                     sln.Load(out errorMessage);
@@ -331,13 +290,9 @@ namespace vApus.SolutionTree
                     _activeSolution.IsSaved = true;
                     return true;
                 }
-            }
-            catch
-            {
+            } catch {
                 throw;
-            }
-            finally
-            {
+            } finally {
                 if (errorMessage.Length > 0)
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
@@ -350,15 +305,12 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             return false;
         }
 
-        public static bool CreateNewFromTemplate()
-        {
+        public static bool CreateNewFromTemplate() {
             return CreateNewFromTemplate(null);
         }
 
-        private static bool CreateNewFromTemplate(string fileName)
-        {
-            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
-            {
+        private static bool CreateNewFromTemplate(string fileName) {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
                 DialogResult result =
                     MessageBox.Show(
                         string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name),
@@ -369,21 +321,16 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 else if (result == DialogResult.No)
                     return LoadSolutionFromTemplate(fileName);
                 //Do nothing on cancel.
-            }
-            else
-            {
+            } else {
                 return LoadSolutionFromTemplate(fileName);
             }
             return false;
         }
 
-        private static bool LoadSolutionFromTemplate(string fileName)
-        {
+        private static bool LoadSolutionFromTemplate(string fileName) {
             string errorMessage = string.Empty;
-            try
-            {
-                if (fileName != null)
-                {
+            try {
+                if (fileName != null) {
                     var sln = new Solution();
                     sln.FileName = fileName;
                     sln.Load(out errorMessage);
@@ -391,11 +338,8 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                     ActiveSolution = sln;
                     ActiveSolution.ResolveBranchedIndices();
                     return true;
-                }
-                else
-                {
-                    if (_ofd.ShowDialog() == DialogResult.OK)
-                    {
+                } else {
+                    if (_ofd.ShowDialog() == DialogResult.OK) {
                         var sln = new Solution();
                         sln.FileName = _ofd.FileName;
                         sln.Load(out errorMessage);
@@ -405,13 +349,9 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         return true;
                     }
                 }
-            }
-            catch
-            {
+            } catch {
                 throw;
-            }
-            finally
-            {
+            } finally {
                 if (errorMessage.Length > 0)
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
@@ -441,12 +381,9 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
         #region Properties
 
-        public string Name
-        {
-            get
-            {
-                if (_fileName != null)
-                {
+        public string Name {
+            get {
+                if (_fileName != null) {
                     int index = 0;
                     for (int i = 0; i < _fileName.Length; i++)
                         if (_fileName[i] == '\\') index = i;
@@ -457,16 +394,14 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             }
         }
 
-        public string FileName
-        {
+        public string FileName {
             get { return _fileName; }
             private set { _fileName = value; }
         }
 
         public bool IsSaved { get; internal set; }
 
-        public List<BaseProject> Projects
-        {
+        public List<BaseProject> Projects {
             get { return _projects; }
         }
 
@@ -474,8 +409,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
         #region Constructors
 
-        static Solution()
-        {
+        static Solution() {
             if (Settings.Default.RecentSolutions == null)
                 Settings.Default.RecentSolutions = new StringCollection();
             _recentSolutions = Settings.Default.RecentSolutions;
@@ -490,13 +424,11 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             _stresstestingSolutionExplorer.DockStateChanged += _stresstestingSolutionExplorer_DockStateChanged;
         }
 
-        private Solution()
-        {
+        private Solution() {
             _activeSolution = null;
             ObjectExtension.ClearCache();
             _projects = new List<BaseProject>();
-            foreach (Type projectType in _projectTypes)
-            {
+            foreach (Type projectType in _projectTypes) {
                 var project = Activator.CreateInstance(projectType) as BaseProject;
                 project.Parent = this;
                 _projects.Add(project);
@@ -504,21 +436,16 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         }
 
         private Solution(string fileName)
-            : this()
-        {
+            : this() {
             FileName = fileName;
         }
 
-        private static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e)
-        {
-            if (_stresstestingSolutionExplorer.DockState == DockState.Hidden)
-            {
-                Settings.Default.StresstestingSolutionExplorerDockState = (int) DockState.DockLeftAutoHide;
+        private static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e) {
+            if (_stresstestingSolutionExplorer.DockState == DockState.Hidden) {
+                Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
                 Settings.Default.Save();
-            }
-            else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown)
-            {
-                Settings.Default.StresstestingSolutionExplorerDockState = (int) _stresstestingSolutionExplorer.DockState;
+            } else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown) {
+                Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
                 Settings.Default.Save();
             }
         }
@@ -528,10 +455,8 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         #region Functions
 
         private static void SolutionComponent_SolutionComponentChanged(object sender,
-                                                                       SolutionComponentChangedEventArgs e)
-        {
-            if (_activeSolution.FileName != null && ActiveSolutionChanged != null)
-            {
+                                                                       SolutionComponentChangedEventArgs e) {
+            if (_activeSolution.FileName != null && ActiveSolutionChanged != null) {
                 _activeSolution.IsSaved = false;
                 ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(true, false));
             }
@@ -542,8 +467,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// </summary>
         /// <param name="typeName"></param>
         /// <returns></returns>
-        public BaseProject GetProject(string typeName)
-        {
+        public BaseProject GetProject(string typeName) {
             if (typeName == null)
                 throw new ArgumentNullException(typeName);
             foreach (BaseProject project in _projects)
@@ -557,8 +481,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public BaseProject GetProject(int index)
-        {
+        public BaseProject GetProject(int index) {
             return _projects[index];
         }
 
@@ -567,13 +490,11 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public SolutionComponent GetSolutionComponent(Type type)
-        {
+        public SolutionComponent GetSolutionComponent(Type type) {
             if (type == null)
                 throw new ArgumentNullException("type");
 
-            foreach (BaseProject project in _projects)
-            {
+            foreach (BaseProject project in _projects) {
                 SolutionComponent solutionComponent = project.GetSolutionComponent(type);
                 if (solutionComponent != null)
                     return solutionComponent;
@@ -587,15 +508,13 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// <param name="type"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public SolutionComponent GetSolutionComponent(Type type, string name)
-        {
+        public SolutionComponent GetSolutionComponent(Type type, string name) {
             if (type == null)
                 throw new ArgumentNullException("type");
             if (name == null)
                 throw new ArgumentNullException("name");
 
-            foreach (BaseProject project in _projects)
-            {
+            foreach (BaseProject project in _projects) {
                 SolutionComponent solutionComponent = project.GetSolutionComponent(type, name);
                 if (solutionComponent != null)
                     return solutionComponent;
@@ -610,15 +529,13 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// <param name="index"></param>
         /// <param name="label"></param>
         /// <returns></returns>
-        public LabeledBaseItem GetLabeledBaseItem(string name, int index, string label)
-        {
+        public LabeledBaseItem GetLabeledBaseItem(string name, int index, string label) {
             if (name == null)
                 throw new ArgumentNullException("name");
             if (label == null)
                 throw new ArgumentNullException("label");
 
-            foreach (BaseProject project in _projects)
-            {
+            foreach (BaseProject project in _projects) {
                 LabeledBaseItem labeledBaseItem = project.GetLabeledBaseItem(name, index, label);
                 if (labeledBaseItem != null)
                     return labeledBaseItem;
@@ -630,8 +547,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         ///     Gets all project items as treenodes for visualization in a treeview.
         /// </summary>
         /// <returns></returns>
-        public List<TreeNode> GetTreeNodes()
-        {
+        public List<TreeNode> GetTreeNodes() {
             var treeNodes = new List<TreeNode>(_projects.Count);
             foreach (BaseProject project in _projects)
                 if (project.ShowInGui)
@@ -642,11 +558,9 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        protected void Save()
-        {
+        protected void Save() {
             Package package = Package.Open(_activeSolution.FileName, FileMode.Create, FileAccess.ReadWrite);
-            foreach (BaseProject project in _projects)
-            {
+            foreach (BaseProject project in _projects) {
                 var uri = new Uri("/" + project.GetType().Name, UriKind.Relative);
                 PackagePart part = package.CreatePart(uri, string.Empty, CompressionOption.Maximum);
                 var sw = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
@@ -658,18 +572,14 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             package.Close();
         }
 
-        protected void Load(out string errorMessage)
-        {
+        protected void Load(out string errorMessage) {
             //Error reporting.
             var sb = new StringBuilder();
-            try
-            {
+            try {
                 Package package = Package.Open(FileName, FileMode.Open, FileAccess.Read);
-                foreach (PackagePart part in package.GetParts())
-                {
+                foreach (PackagePart part in package.GetParts()) {
                     foreach (BaseProject project in _projects)
-                        if (part.Uri.ToString().EndsWith(project.GetType().Name))
-                        {
+                        if (part.Uri.ToString().EndsWith(project.GetType().Name)) {
                             var xmlDocument = new XmlDocument();
                             xmlDocument.Load(part.GetStream());
                             string projectErrorMessage;
@@ -678,16 +588,13 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         }
                 }
                 package.Close();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 sb.Append(ex);
             }
             errorMessage = sb.ToString();
         }
 
-        protected void ResolveBranchedIndices()
-        {
+        protected void ResolveBranchedIndices() {
             foreach (BaseProject project in _projects)
                 project.ResolveBranchedIndices();
         }
@@ -697,8 +604,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         #endregion
     }
 
-    public class ActiveSolutionChangedEventArgs : EventArgs
-    {
+    public class ActiveSolutionChangedEventArgs : EventArgs {
         /// <summary>
         ///     To determine of the treeview should be reloaded or not.
         /// </summary>
@@ -713,8 +619,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// </summary>
         /// <param name="toBeSaved">Not for newly opened/created solutions.</param>
         /// <param name="toBeLoaded">To determine of the treeview should be reloaded or not.</param>
-        public ActiveSolutionChangedEventArgs(bool toBeSaved, bool toBeLoaded)
-        {
+        public ActiveSolutionChangedEventArgs(bool toBeSaved, bool toBeLoaded) {
             ToBeSaved = toBeSaved;
             ToBeLoaded = toBeLoaded;
         }

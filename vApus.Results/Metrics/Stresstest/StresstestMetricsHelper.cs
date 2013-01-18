@@ -59,14 +59,14 @@ namespace vApus.Results {
                 long totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
                 long baseLogEntryCount = 0;
 
-                var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
-                int percent5 = -1;
+                //var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
+                //int percent5 = -1;
                 foreach (RunResult runResult in result.RunResults) {
                     StresstestMetrics runResultMetrics = GetMetrics(runResult, false);
 
                     metrics.StartsAndStopsRuns.Add(new KeyValuePair<DateTime, DateTime>(runResult.StartedAt, runResult.StoppedAt));
 
-                    if (percent5 == -1) percent5 = (int)(result.RunResults.Count * runResultMetrics.LogEntries * 0.05) + 1;
+                    //if (percent5 == -1) percent5 = (int)(result.RunResults.Count * runResultMetrics.LogEntries * 0.05) + 1;
 
                     metrics.AverageResponseTime = metrics.AverageResponseTime.Add(runResultMetrics.AverageResponseTime);
                     if (runResultMetrics.MaxResponseTime > metrics.MaxResponseTime) metrics.MaxResponseTime = runResultMetrics.MaxResponseTime;
@@ -80,16 +80,17 @@ namespace vApus.Results {
                     metrics.UserActionsPerSecond += runResultMetrics.UserActionsPerSecond;
                     metrics.Errors += runResultMetrics.Errors;
 
-                    foreach (var vur in runResult.VirtualUserResults)
-                        foreach (var ler in vur.LogEntryResults)
-                            if (ler != null && ler.LogEntryIndex != null) {
-                                for (int i = 0; i != timesToLastByteInTicks.Count; i++)
-                                    if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
-                                        timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
-                                        break;
-                                    }
-                                while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
-                            }
+                    //For the 95th percentile.
+                    //foreach (var vur in runResult.VirtualUserResults)
+                    //    foreach (var ler in vur.LogEntryResults)
+                    //        if (ler != null && ler.LogEntryIndex != null) {
+                    //            for (int i = 0; i != timesToLastByteInTicks.Count; i++)
+                    //                if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
+                    //                    timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
+                    //                    break;
+                    //                }
+                    //            while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
+                    //        }
                 }
                 for (int i = result.RunResults.Count; i < result.RunCount; i++)
                     metrics.LogEntries += baseLogEntryCount;
@@ -106,8 +107,8 @@ namespace vApus.Results {
 
                 metrics.EstimatedTimeLeft = GetEstimatedRuntimeLeft(metrics, result.StoppedAt == DateTime.MinValue);
 
-                long percentile95thResponseTimes = timesToLastByteInTicks[timesToLastByteInTicks.Count - 1];
-                metrics.Percentile95thResponseTimes = percentile95thResponseTimes == 0 ? metrics.MaxResponseTime : new TimeSpan(percentile95thResponseTimes);
+                //long percentile95thResponseTimes = timesToLastByteInTicks[timesToLastByteInTicks.Count - 1];
+                //metrics.Percentile95thResponseTimes = percentile95thResponseTimes == 0 ? metrics.MaxResponseTime : new TimeSpan(percentile95thResponseTimes);
             }
             return metrics;
         }
@@ -128,15 +129,15 @@ namespace vApus.Results {
             metrics.AverageDelay = new TimeSpan();
 
             int enteredUserResultsCount = 0;
-            var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
-            int percent5 = -1;
+            //var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
+            //int percent5 = -1;
             foreach (VirtualUserResult virtualUserResult in result.VirtualUserResults) {
                 if (virtualUserResult.VirtualUser != null) ++enteredUserResultsCount;
 
                 StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult);
 
-                if (calculate95thPercentileResponseTimes && percent5 == -1)
-                    percent5 = (int)(result.VirtualUserResults.Length * virtualUserMetrics.LogEntries * 0.05) + 1;
+                //if (calculate95thPercentileResponseTimes && percent5 == -1)
+                //    percent5 = (int)(result.VirtualUserResults.Length * virtualUserMetrics.LogEntries * 0.05) + 1;
 
                 metrics.AverageResponseTime = metrics.AverageResponseTime.Add(virtualUserMetrics.AverageResponseTime);
                 if (virtualUserMetrics.MaxResponseTime > metrics.MaxResponseTime) metrics.MaxResponseTime = virtualUserMetrics.MaxResponseTime;
@@ -147,24 +148,24 @@ namespace vApus.Results {
                 metrics.UserActionsPerSecond += virtualUserMetrics.UserActionsPerSecond;
                 metrics.Errors += virtualUserMetrics.Errors;
 
-                if (calculate95thPercentileResponseTimes)
-                    foreach (var ler in virtualUserResult.LogEntryResults)
-                        if (ler != null && ler.LogEntryIndex != null) {
-                            for (int i = 0; i != timesToLastByteInTicks.Count; i++)
-                                if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
-                                    timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
-                                    break;
-                                }
-                            while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
-                        }
+                //if (calculate95thPercentileResponseTimes)
+                //    foreach (var ler in virtualUserResult.LogEntryResults)
+                //        if (ler != null && ler.LogEntryIndex != null) {
+                //            for (int i = 0; i != timesToLastByteInTicks.Count; i++)
+                //                if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
+                //                    timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
+                //                    break;
+                //                }
+                //            while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
+                //        }
             }
 
             if (enteredUserResultsCount != 0) {
                 metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks / enteredUserResultsCount);
                 metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / enteredUserResultsCount);
                 metrics.EstimatedTimeLeft = GetEstimatedRuntimeLeft(metrics, result.StoppedAt == DateTime.MinValue);
-                long percentile95thResponseTimes = timesToLastByteInTicks[timesToLastByteInTicks.Count - 1];
-                metrics.Percentile95thResponseTimes = percentile95thResponseTimes == 0 ? metrics.MaxResponseTime : new TimeSpan(percentile95thResponseTimes);
+                //long percentile95thResponseTimes = timesToLastByteInTicks[timesToLastByteInTicks.Count - 1];
+                //metrics.Percentile95thResponseTimes = percentile95thResponseTimes == 0 ? metrics.MaxResponseTime : new TimeSpan(percentile95thResponseTimes);
             }
             return metrics;
         }

@@ -68,11 +68,35 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Filter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Filter.Designer.cs">
+      <DependentUpon>Filter.cs</DependentUpon>
+    </Compile>
     <Compile Include="MySQLServerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MySQLServerDialog.Designer.cs">
       <DependentUpon>MySQLServerDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewViewer.Designer.cs">
+      <DependentUpon>NewViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ResultsPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ResultsPanel.Designer.cs">
+      <DependentUpon>ResultsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SettingsPanel.Designer.cs">
+      <DependentUpon>SettingsPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Viewer.cs">
       <SubType>Form</SubType>
@@ -82,8 +106,20 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Filter.resx">
+      <DependentUpon>Filter.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MySQLServerDialog.resx">
       <DependentUpon>MySQLServerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewViewer.resx">
+      <DependentUpon>NewViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ResultsPanel.resx">
+      <DependentUpon>ResultsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SettingsPanel.resx">
+      <DependentUpon>SettingsPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Viewer.resx">
       <DependentUpon>Viewer.cs</DependentUpon>
@@ -119,6 +155,10 @@
     <ProjectReference Include="..\vApus.Stresstest\vApus.Stresstest.csproj">
       <Project>{790522ab-42d5-4c39-83be-14244d8c3f22}</Project>
       <Name>vApus.Stresstest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WeifenLuo.WinFormsUI\WeifenLuo.WinFormsUI.csproj">
+      <Project>{c75532c4-765b-418e-b09b-46d36b2abdb1}</Project>
+      <Name>WeifenLuo.WinFormsUI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
