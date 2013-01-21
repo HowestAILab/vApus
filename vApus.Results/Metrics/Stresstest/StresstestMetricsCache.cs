@@ -33,7 +33,7 @@ namespace vApus.Results
         /// <returns>The metrics for the complete resultset.</returns>
         public List<StresstestMetrics> AddOrUpdate(ConcurrencyResult result)
         {
-            __AddOrUpdate(StresstestMetricsHelper.GetMetrics(result), result);
+            __AddOrUpdate(StresstestMetricsHelper.GetMetrics(result, false), result);
             return GetConcurrencyMetrics();
         }
         /// <summary>
@@ -80,7 +80,7 @@ namespace vApus.Results
                     if (o.Result != null)
                     {
                         var cr = o.Result as ConcurrencyResult;
-                        o.Metrics = StresstestMetricsHelper.GetMetrics(cr);
+                        o.Metrics = StresstestMetricsHelper.GetMetrics(cr, false);
                         if (cr.StoppedAt != DateTime.MinValue)
                             removeResults.Add(o);
                     }
