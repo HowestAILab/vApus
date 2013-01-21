@@ -67,7 +67,7 @@
             this.singleTestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.reportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.detailedResultsViewerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
@@ -271,7 +271,7 @@
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.optionsToolStripMenuItem,
-            this.reportToolStripMenuItem});
+            this.detailedResultsViewerToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -279,16 +279,16 @@
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
             this.optionsToolStripMenuItem.Text = "Options...";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
-            // reportToolStripMenuItem
+            // detailedResultsViewerToolStripMenuItem
             // 
-            this.reportToolStripMenuItem.Name = "reportToolStripMenuItem";
-            this.reportToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
-            this.reportToolStripMenuItem.Text = "Report...";
-            this.reportToolStripMenuItem.Click += new System.EventHandler(this.reportToolStripMenuItem_Click);
+            this.detailedResultsViewerToolStripMenuItem.Name = "detailedResultsViewerToolStripMenuItem";
+            this.detailedResultsViewerToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.detailedResultsViewerToolStripMenuItem.Text = "Detailed Results Viewer...";
+            this.detailedResultsViewerToolStripMenuItem.Click += new System.EventHandler(this.detailedResultsViewerToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -428,7 +428,7 @@
             // 
             this.lblProcessorAffinity.IsLink = true;
             this.lblProcessorAffinity.Name = "lblProcessorAffinity";
-            this.lblProcessorAffinity.Size = new System.Drawing.Size(364, 17);
+            this.lblProcessorAffinity.Size = new System.Drawing.Size(580, 17);
             this.lblProcessorAffinity.Spring = true;
             this.lblProcessorAffinity.Text = "...";
             this.lblProcessorAffinity.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -596,7 +596,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
         private System.Windows.Forms.ToolStripStatusLabel lblLogLevel;
         private System.Windows.Forms.ToolStripMenuItem welcomeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem reportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem detailedResultsViewerToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
         private System.Windows.Forms.ToolStripStatusLabel lblUpdateNotifier;
         private vApus.Util.ToolStripStatusSpringLabel lblProcessorAffinity;

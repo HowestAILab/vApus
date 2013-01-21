@@ -226,8 +226,8 @@ namespace vApus.Gui {
             Cursor = Cursors.Default;
         }
 
-        private void reportToolStripMenuItem_Click(object sender, EventArgs e) {
-            string reportApp = Path.Combine(Application.StartupPath, "vApus.Report.exe");
+        private void detailedResultsViewerToolStripMenuItem_Click(object sender, EventArgs e) {
+            string reportApp = Path.Combine(Application.StartupPath, "vApus.DetailedResultsViewer.exe");
             if (File.Exists(reportApp))
                 Process.Start(reportApp);
             else
