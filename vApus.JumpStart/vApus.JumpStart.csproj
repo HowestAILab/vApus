@@ -182,11 +182,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommunicationHandler.cs" />
@@ -196,10 +191,6 @@
     <Compile Include="SocketListener.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\vApus.DistributedTesting\vApus.DistributedTesting.csproj">
-      <Project>{A766CB72-67C0-4F24-85B5-70B8EB76882A}</Project>
-      <Name>vApus.DistributedTesting</Name>
-    </ProjectReference>
     <ProjectReference Include="..\vApus.JumpStartStructures\vApus.JumpStartStructures.csproj">
       <Project>{0B87A110-73F8-496A-B656-9050272CFE7B}</Project>
       <Name>vApus.JumpStartStructures</Name>

@@ -5,18 +5,22 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using vApus.Util;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
 
 namespace vApus.Stresstest
 {
     public partial class AddReferences : Form
     {
+        public AddReferences()
+        {
+            InitializeComponent();
+        }
+
         public IEnumerable<string> References
         {
             get
@@ -25,22 +29,21 @@ namespace vApus.Stresstest
                     yield return item.Tag as string;
             }
         }
-        public AddReferences()
-        {
-            InitializeComponent();
-        }
+
         private void LoadReferences()
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
             lvwGac.Items.Clear();
-           // ConcurrentBag<object> cb = new ConcurrentBag<object>();
+            // ConcurrentBag<object> cb = new ConcurrentBag<object>();
             string gac = Path.Combine(SpecialFolder.GetPath(SpecialFolder.Folder.Windows), "assembly");
             foreach (string processorArchitecture in Directory.GetDirectories(gac))
             {
                 string trimmedProcessorArchitecture = Path.GetFileName(processorArchitecture);
                 if (!trimmedProcessorArchitecture.StartsWith("GAC", StringComparison.InvariantCultureIgnoreCase))
                     continue;
-                trimmedProcessorArchitecture = trimmedProcessorArchitecture.Length > 4 ? trimmedProcessorArchitecture.Substring(4) : string.Empty;
+                trimmedProcessorArchitecture = trimmedProcessorArchitecture.Length > 4
+                                                   ? trimmedProcessorArchitecture.Substring(4)
+                                                   : string.Empty;
                 foreach (string assemblyName in Directory.GetDirectories(processorArchitecture))
                 {
                     string trimmedAssemblyName = Path.GetFileName(assemblyName);
@@ -82,18 +85,18 @@ namespace vApus.Stresstest
                 if (clm.Width < width)
                     clm.Width = width;
             }
-            this.Cursor = Cursors.Default;
+            Cursor = Cursors.Default;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            DialogResult = DialogResult.OK;
+            Close();
         }
 
         private void lvwGac_VisibleChanged(object sender, EventArgs e)
         {
-            if (this.Visible)
+            if (Visible)
                 LoadReferences();
         }
 

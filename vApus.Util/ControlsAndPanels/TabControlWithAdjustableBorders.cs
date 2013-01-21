@@ -14,13 +14,14 @@ namespace vApus.Util
     public class TabControlWithAdjustableBorders : TabControl
     {
         private const int TCM_ADJUSTRECT = 0X1328;
-        private bool _leftVisible, _rightVisible, _topVisible, _bottomVisible;
+        private bool _bottomVisible, _leftVisible, _rightVisible, _topVisible;
 
         public bool LeftVisible
         {
             get { return _leftVisible; }
             set { _leftVisible = value; }
         }
+
         public bool RightVisible
         {
             get { return _rightVisible; }
@@ -39,15 +40,11 @@ namespace vApus.Util
             set { _bottomVisible = value; }
         }
 
-        private struct RECT
-        {
-            public int Left, Top, Right, Bottom;
-        }
         protected override void WndProc(ref Message m)
         {
             if (m.Msg == TCM_ADJUSTRECT)
             {
-                RECT rc = (RECT)m.GetLParam(typeof(RECT));
+                var rc = (RECT)m.GetLParam(typeof(RECT));
 
                 if (!_leftVisible) rc.Left -= 4;
                 if (!_rightVisible) rc.Right += 3;
@@ -57,6 +54,11 @@ namespace vApus.Util
                 Marshal.StructureToPtr(rc, m.LParam, true);
             }
             base.WndProc(ref m);
+        }
+
+        private struct RECT
+        {
+            public int Left, Top, Right, Bottom;
         }
     }
 }

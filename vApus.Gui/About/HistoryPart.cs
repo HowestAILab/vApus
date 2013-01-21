@@ -10,9 +10,10 @@ namespace vApus.Gui
 {
     public struct HistoryPart
     {
-        public string Type;
-        public int SelectionStart;
         public int Length;
+        public int SelectionStart;
+        public string Type;
+
         public HistoryPart(string type, int selectionStart, int length)
         {
             Type = type;

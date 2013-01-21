@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System.Windows.Forms;
 
 namespace vApus.LogFixer

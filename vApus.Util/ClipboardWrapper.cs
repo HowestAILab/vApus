@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -31,12 +32,13 @@ namespace vApus.Util
                 }
             }
         }
+
         public static void Clear()
         {
             Clipboard.Clear();
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="data">Must be serializable.</param>
         public static void SetDataObject(object data)
@@ -52,7 +54,9 @@ namespace vApus.Util
                 {
                     Clipboard.SetDataObject(data, true, 10, 50);
                 }
-                catch (ExternalException) { }
+                catch (ExternalException)
+                {
+                }
             }
         }
     }

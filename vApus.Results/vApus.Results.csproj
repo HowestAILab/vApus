@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D9F1BD01-09E8-4CE9-9701-2997D420B250}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>vApus.Results</RootNamespace>
+    <AssemblyName>vApus.Results</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DevelopmentBuild\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Prerequisites\Providers\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataAccess\Schema.cs" />
+    <Compile Include="DataAccess\DatabaseActions.cs" />
+    <Compile Include="DescriptionAndTagsInputDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DescriptionAndTagsInputDialog.Designer.cs">
+      <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Metrics\Monitor\MonitorMetrics.cs" />
+    <Compile Include="Metrics\Monitor\MonitorMetricsCache.cs" />
+    <Compile Include="Metrics\Monitor\MonitorMetricsHelper.cs" />
+    <Compile Include="Metrics\Stresstest\StresstestMetrics.cs" />
+    <Compile Include="Metrics\Stresstest\StresstestMetricsCache.cs" />
+    <Compile Include="Metrics\Stresstest\StresstestMetricsHelper.cs" />
+    <Compile Include="Cache\Monitor\MonitorResultCache.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="DataAccess\ResultsHelper.cs" />
+    <Compile Include="SavingResultsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SavingResultsPanel.Designer.cs">
+      <DependentUpon>SavingResultsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsManager.cs" />
+    <Compile Include="Cache\Stresstest\ConcurrencyResult.cs" />
+    <Compile Include="Cache\Stresstest\LogEntryResult.cs" />
+    <Compile Include="Cache\Stresstest\RunResult.cs" />
+    <Compile Include="Cache\Stresstest\StresstestResult.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Cache\Stresstest\VirtualUserResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
+      <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>
+      <Name>vApus.Util</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DescriptionAndTagsInputDialog.resx">
+      <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SavingResultsPanel.resx">
+      <DependentUpon>SavingResultsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

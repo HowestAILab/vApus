@@ -5,25 +5,26 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 
 namespace vApus.SolutionTree
 {
     /// <summary>
-    /// Just a form with a docked solution component property panel.
+    ///     Just a form with a docked solution component property panel.
     /// </summary>
     public partial class SolutionComponentPropertyView : BaseSolutionComponentView
     {
         /// <summary>
-        /// Design time only constructor.
+        ///     Design time only constructor.
         /// </summary>
         public SolutionComponentPropertyView()
-            : base()
         {
             InitializeComponent();
         }
+
         /// <summary>
-        /// Just a form with a docked solution component property panel.
+        ///     Just a form with a docked solution component property panel.
         /// </summary>
         /// <param name="solutionComponent"></param>
         /// <param name="args"></param>
@@ -31,17 +32,19 @@ namespace vApus.SolutionTree
             : base(solutionComponent, args)
         {
             InitializeComponent();
-            if (this.IsHandleCreated)
+            if (IsHandleCreated)
                 SetGui();
             else
-                this.HandleCreated += new EventHandler(SolutionComponentPropertyView_HandleCreated);
+                HandleCreated += SolutionComponentPropertyView_HandleCreated;
         }
+
         private void SolutionComponentPropertyView_HandleCreated(object sender, EventArgs e)
         {
             SetGui();
         }
+
         /// <summary>
-        /// This is used in the solution component view manager, please implement this always.
+        ///     This is used in the solution component view manager, please implement this always.
         /// </summary>
         public override void Refresh()
         {
@@ -49,9 +52,10 @@ namespace vApus.SolutionTree
             SetGui();
             solutionComponentPropertyPanel.Refresh();
         }
+
         private void SetGui()
         {
-            Text = "Properties for " + SolutionComponent.ToString();
+            Text = "Properties for " + SolutionComponent;
             solutionComponentPropertyPanel.SolutionComponent = SolutionComponent;
         }
     }

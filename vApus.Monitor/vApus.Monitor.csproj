@@ -166,15 +166,7 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
-    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="vApusSMT.Base, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -223,6 +215,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
+      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
+      <Name>vApus.Results</Name>
+    </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>
       <Name>vApus.SolutionTree</Name>

@@ -7,24 +7,24 @@
  */
 
 using System;
+using System.Diagnostics;
 
 namespace vApus.Util
 {
     public static class ExceptionHelper
     {
         /// <summary>
-        /// Use this to parse an exeption to an usable string. Note on this that this only gets the last frame from the stacktrace.
+        ///     Use this to parse an exeption to an usable string. Note on this that this only gets the last frame from the stacktrace.
         /// </summary>
         public static string ParseExceptionToString(Exception ex)
         {
-            System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace(ex, true);
+            var trace = new StackTrace(ex, true);
 
             string methodName = trace.GetFrame(0).GetMethod().Name;
-            string lineNumber = trace.GetFrame(0).GetFileLineNumber()+"";
-            string columnNumber = trace.GetFrame(0).GetFileColumnNumber()+"";
+            string lineNumber = trace.GetFrame(0).GetFileLineNumber() + "";
+            string columnNumber = trace.GetFrame(0).GetFileColumnNumber() + "";
 
             return "Method:" + methodName + ";Line:" + lineNumber + ";Column:" + columnNumber + ";Message:" + ex.Message;
         }
-
     }
 }

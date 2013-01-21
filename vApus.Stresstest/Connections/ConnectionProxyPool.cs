@@ -5,10 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -17,66 +17,75 @@ using vApus.Util;
 namespace vApus.Stresstest
 {
     /// <summary>
-    /// Used for stresstesting, the size of the pool must equal or be greater than the concurrent users count.
+    ///     Used for stresstesting, the size of the pool must equal or be greater than the concurrent users count.
     /// </summary>
     public class ConnectionProxyPool : IDisposable
     {
         #region Fields
-        private int _usedConnectionProxies;
+
+        [ThreadStatic] private static DisposeConnectionProxyWorkItem _disposeConnectionProxyWorkItem;
         private CompilerUnit _compilerUnit = new CompilerUnit();
         private Connection _connection;
-        private Assembly _connectionProxyAssembly;
 
         private IConnectionProxy[] _connectionProxies;
+        private Assembly _connectionProxyAssembly;
+        private bool _isDisposed;
+        private bool _isShutdown;
         private ParallelConnectionProxy[][] _parallelConnectionProxies;
-
-        private bool _isShutdown, _isDisposed;
+        private int _usedConnectionProxies;
 
         //Dispose multi threaded.
-        [ThreadStatic]
-        private static DisposeConnectionProxyWorkItem _disposeConnectionProxyWorkItem;
+
         #endregion
 
         #region Properties
+
         public IConnectionProxy this[int index]
         {
             get { return _connectionProxies[index]; }
         }
+
         /// <summary>
-        /// The connection proxies for parallely executed log entries are kept in this array.
-        /// The index of the connection proxy for the log entry that is on the start of the parallel executed range
-        /// is used to get (and set) the right connection proxies
+        ///     The connection proxies for parallely executed log entries are kept in this array.
+        ///     The index of the connection proxy for the log entry that is on the start of the parallel executed range
+        ///     is used to get (and set) the right connection proxies
         /// </summary>
         public ParallelConnectionProxy[][] ParallelConnectionProxies
         {
             get { return _parallelConnectionProxies; }
             set { _parallelConnectionProxies = value; }
         }
+
         public bool IsShutdown
         {
             get { return _isShutdown; }
         }
+
         public bool IsDisposed
         {
             get { return _isDisposed; }
         }
+
         /// <summary>
-        /// Not all connection proxies are used, set connection proxies will not remove entries, if you connect the proxies later on te ones that are not needed will be closed.
+        ///     Not all connection proxies are used, set connection proxies will not remove entries, if you connect the proxies later on te ones that are not needed will be closed.
         /// </summary>
         public int UsedConnectionProxies
         {
             get { return _usedConnectionProxies; }
         }
+
         public int PoolSize
         {
             get { return (_connectionProxies == null) ? 0 : _connectionProxies.Length; }
         }
+
         #endregion
 
         #region Con-/Destructor
+
         /// <summary>
-        /// Used for stresstesting, the size of the pool must equal or be greater than the concurrent users count.
-        /// Note, InitializeGivenConnection() must be called to be able to use this pool.
+        ///     Used for stresstesting, the size of the pool must equal or be greater than the concurrent users count.
+        ///     Note, InitializeGivenConnection() must be called to be able to use this pool.
         /// </summary>
         /// <param name="connection"></param>
         public ConnectionProxyPool(Connection connection)
@@ -85,13 +94,30 @@ namespace vApus.Stresstest
                 throw new ArgumentNullException("connection");
             _connection = connection;
         }
+
         ~ConnectionProxyPool()
         {
             Dispose();
         }
+
         #endregion
 
         #region Functions
+
+        public void Dispose()
+        {
+            if (!_isDisposed)
+            {
+                _isDisposed = true;
+                ShutDown();
+                _compilerUnit.DeleteTempFiles();
+                _compilerUnit = null;
+
+                _connection = null;
+                _connectionProxyAssembly = null;
+            }
+        }
+
         public int IndexOf(IConnectionProxy connectionProxy)
         {
             if (_connectionProxies != null) //For Test Connection
@@ -102,7 +128,7 @@ namespace vApus.Stresstest
         }
 
         /// <summary>
-        /// Use this before using everything else.
+        ///     Use this before using everything else.
         /// </summary>
         /// <param name="debug"></param>
         /// <param name="deleteTempFiles">To delete the temp files if compiled with debug == true (generates temp files). (Fx can be called afterwards)</param>
@@ -110,21 +136,25 @@ namespace vApus.Stresstest
         public CompilerResults CompileConnectionProxyClass(bool debug, bool deleteTempFiles = true)
         {
             //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
-            System.IO.Directory.SetCurrentDirectory(Application.StartupPath);
+            Directory.SetCurrentDirectory(Application.StartupPath);
 
             CompilerResults compilerResults = null;
-            _connectionProxyAssembly = _compilerUnit.Compile(_connection.BuildConnectionProxyClass(), debug, out compilerResults);
             if (deleteTempFiles)
                 _compilerUnit.DeleteTempFiles();
+
+            _connectionProxyAssembly = _compilerUnit.Compile(_connection.BuildConnectionProxyClass(), debug,
+                                                             out compilerResults);
             return compilerResults;
         }
+
         public void DeleteTempFiles()
         {
             if (_compilerUnit != null)
                 _compilerUnit.DeleteTempFiles();
         }
+
         /// <summary>
-        /// Tests if a single connection can be establisht.
+        ///     Tests if a single connection can be establisht.
         /// </summary>
         /// <param name="exception"></param>
         /// <returns></returns>
@@ -134,7 +164,8 @@ namespace vApus.Stresstest
             IConnectionProxy connectionProxy = null;
             try
             {
-                connectionProxy = _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                connectionProxy =
+                    _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
                 connectionProxy.SetParent(this);
                 connectionProxy.TestConnection(out error);
             }
@@ -147,10 +178,13 @@ namespace vApus.Stresstest
                 if (connectionProxy != null)
                     connectionProxy.Dispose();
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         /// <summary>
-        /// Will dispose the current connection proxies and open new ones.
+        ///     Will dispose the current connection proxies and open new ones.
         /// </summary>
         /// <param name="count"></param>
         /// <param name="parallelConnectionsCount">The count of how many log entries are executed in parallel and need a unique connection proxy</param>
@@ -168,7 +202,8 @@ namespace vApus.Stresstest
                 if (_isDisposed || _isShutdown)
                     return;
 
-                IConnectionProxy connectionProxy = _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                var connectionProxy =
+                    _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
                 connectionProxy.SetParent(this);
                 _connectionProxies[i] = connectionProxy;
 
@@ -184,7 +219,9 @@ namespace vApus.Stresstest
                         if (_isDisposed || _isShutdown)
                             return;
 
-                        IConnectionProxy cp = _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                        var cp =
+                            _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as
+                            IConnectionProxy;
                         cp.SetParent(this);
 
                         var pcp = new ParallelConnectionProxy(cp);
@@ -198,8 +235,8 @@ namespace vApus.Stresstest
                 }
             }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="connectionProxy"></param>
         /// <param name="index">Only used for messages, can be any value.</param>
@@ -218,8 +255,8 @@ namespace vApus.Stresstest
             }
             return null;
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="connectionProxy"></param>
         /// <param name="index">Only used for messages, can be any value.</param>
@@ -227,12 +264,17 @@ namespace vApus.Stresstest
         private Exception ReconnectOnce(IConnectionProxy connectionProxy, int index, Exception ex)
         {
             if (ex == null)
-                LogWrapper.LogByLevel("Connection for connection proxy #" + index + " could not be opened, trying to make a new one. (Expensive operation!)", LogLevel.Warning);
+                LogWrapper.LogByLevel(
+                    "Connection for connection proxy #" + index +
+                    " could not be opened, trying to make a new one. (Expensive operation!)", LogLevel.Warning);
             else
-                LogWrapper.LogByLevel("Connection for connection proxy #" + index + " could not be opened, trying to make a new one. (Expensive operation!)\n" + ex, LogLevel.Warning);
+                LogWrapper.LogByLevel(
+                    "Connection for connection proxy #" + index +
+                    " could not be opened, trying to make a new one. (Expensive operation!)\n" + ex, LogLevel.Warning);
             try
             {
-                connectionProxy = _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                connectionProxy =
+                    _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
                 connectionProxy.SetParent(this);
                 connectionProxy.OpenConnection();
                 if (!connectionProxy.IsConnectionOpen)
@@ -250,8 +292,9 @@ namespace vApus.Stresstest
             }
             return null;
         }
+
         /// <summary>
-        /// Dispose all connection proxies and clears the pool.
+        ///     Dispose all connection proxies and clears the pool.
         /// </summary>
         public void ShutDown()
         {
@@ -316,7 +359,7 @@ namespace vApus.Stresstest
         //}
 
         /// <summary>
-        /// Multi threaded solution
+        ///     Multi threaded solution
         /// </summary>
         private void DisposeConnectionProxies()
         {
@@ -325,26 +368,27 @@ namespace vApus.Stresstest
                 //Dispose multi threaded.
                 if (_connectionProxies != null)
                 {
-                    AutoResetEvent disposeWaitHandle = new AutoResetEvent(false);
+                    var disposeWaitHandle = new AutoResetEvent(false);
                     int count = _connectionProxies.Length;
                     int i = 0;
-                    foreach (var cp in _connectionProxies)
+                    foreach (IConnectionProxy cp in _connectionProxies)
                     {
-                        object[] args = new object[] { cp, i, false };
+                        var args = new object[] {cp, i, false};
 
-                        Thread t = new Thread(delegate(object state)
-                        {
-                            try
+                        var t = new Thread(delegate(object state)
                             {
-                                _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
-                                _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
-                            }
-                            catch { }
+                                try
+                                {
+                                    _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
+                                    _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
+                                }
+                                catch
+                                {
+                                }
 
-                            if (Interlocked.Increment(ref i) == count)
-                                disposeWaitHandle.Set();
-
-                        });
+                                if (Interlocked.Increment(ref i) == count)
+                                    disposeWaitHandle.Set();
+                            });
                         t.IsBackground = true;
                         t.Start(args);
                     }
@@ -356,7 +400,7 @@ namespace vApus.Stresstest
                 //Dispose multi threaded.
                 if (_parallelConnectionProxies != null)
                 {
-                    AutoResetEvent disposeWaitHandle = new AutoResetEvent(false);
+                    var disposeWaitHandle = new AutoResetEvent(false);
                     int count = 0;
                     foreach (var pcp in _parallelConnectionProxies)
                         if (pcp != null)
@@ -365,21 +409,23 @@ namespace vApus.Stresstest
                     int i = 0;
                     foreach (var pcp in _parallelConnectionProxies)
                         if (pcp != null)
-                            foreach (var pConnectionProxy in pcp)
+                            foreach (ParallelConnectionProxy pConnectionProxy in pcp)
                             {
-                                object[] args = new object[] { pConnectionProxy, i, true };
-                                Thread t = new Thread(delegate(object state)
-                                {
-                                    try
+                                var args = new object[] {pConnectionProxy, i, true};
+                                var t = new Thread(delegate(object state)
                                     {
-                                        _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
-                                        _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
-                                    }
-                                    catch { }
+                                        try
+                                        {
+                                            _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
+                                            _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
+                                        }
+                                        catch
+                                        {
+                                        }
 
-                                    if (Interlocked.Increment(ref i) == count)
-                                        disposeWaitHandle.Set();
-                                });
+                                        if (Interlocked.Increment(ref i) == count)
+                                            disposeWaitHandle.Set();
+                                    });
                                 t.IsBackground = true;
                                 t.Start(args);
                             }
@@ -389,37 +435,31 @@ namespace vApus.Stresstest
                     disposeWaitHandle = null;
                 }
             }
-            catch { }
+            catch
+            {
+            }
 
             try
             {
                 _connectionProxies = null;
             }
-            catch { }
+            catch
+            {
+            }
             try
             {
                 _parallelConnectionProxies = null;
             }
-            catch { }
-        }
-        public void Dispose()
-        {
-            if (!_isDisposed)
+            catch
             {
-                _isDisposed = true;
-                ShutDown();
-                _compilerUnit.DeleteTempFiles();
-                _compilerUnit = null;
-
-                _connection = null;
-                _connectionProxyAssembly = null;
             }
         }
+
         #endregion
 
         private class DisposeConnectionProxyWorkItem
         {
-            private static object _lock = new object();
+            private static readonly object _lock = new object();
 
             public void DisposeConnectionProxy(object[] args)
             {
@@ -427,10 +467,10 @@ namespace vApus.Stresstest
                 if (args[0] is IConnectionProxy)
                     connectionProxy = args[0] as IConnectionProxy;
                 else if (args[0] is ParallelConnectionProxy)
-                    connectionProxy = ((ParallelConnectionProxy)args[0]).ConnectionProxy;
+                    connectionProxy = ((ParallelConnectionProxy) args[0]).ConnectionProxy;
 
-                int index = (int)args[1];
-                bool parallel = (bool)args[2];
+                var index = (int) args[1];
+                var parallel = (bool) args[2];
 
                 if (connectionProxy != null)
                     try
@@ -440,22 +480,28 @@ namespace vApus.Stresstest
                             if (connectionProxy.IsConnectionOpen)
                                 connectionProxy.CloseConnection();
                         }
-                        catch { throw; }
+                        catch
+                        {
+                            throw;
+                        }
                         finally
                         {
                             if (!connectionProxy.IsDisposed)
                                 connectionProxy.Dispose();
                         }
-
                     }
                     catch (Exception ex)
                     {
                         lock (_lock)
                         {
                             if (parallel)
-                                LogWrapper.LogByLevel("Parallel connection #" + index + " could not be closed and/or disposed.\n" + ex, LogLevel.Error);
+                                LogWrapper.LogByLevel(
+                                    "Parallel connection #" + index + " could not be closed and/or disposed.\n" + ex,
+                                    LogLevel.Error);
                             else
-                                LogWrapper.LogByLevel("Connection #" + index + " could not be closed and/or disposed.\n" + ex, LogLevel.Error);
+                                LogWrapper.LogByLevel(
+                                    "Connection #" + index + " could not be closed and/or disposed.\n" + ex,
+                                    LogLevel.Error);
                         }
                     }
             }

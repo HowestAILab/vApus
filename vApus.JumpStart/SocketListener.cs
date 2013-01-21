@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -16,47 +17,52 @@ using vApus.Util;
 namespace vApus.JumpStart
 {
     /// <summary>
-    /// Built using the singleton design pattern so a reference must not be made in the Gui class.
+    ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
     /// </summary>
     public class SocketListener
     {
         #region Fields
+
+        public const int PORT = 1314;
         private static SocketListener _socketListener;
 
-        private Socket _serverSocket;
-        public const int PORT = 1314;
-
-        private int _maximumStartTries = 3;
-        private int _startTries = 0;
-
         //many to many communication
-        private HashSet<SocketWrapper> _connectedMasters = new HashSet<SocketWrapper>();
-        public AsyncCallback _onReceiveCallBack;
+        private readonly HashSet<SocketWrapper> _connectedMasters = new HashSet<SocketWrapper>();
 
         //To queue the communication
-        private object _lock = new object();
+        private readonly object _lock = new object();
+        private int _maximumStartTries = 3;
+        public AsyncCallback _onReceiveCallBack;
+        private Socket _serverSocket;
+        private int _startTries;
+
         #endregion
 
         #region Properties
+
         /// <summary>
         /// </summary>
         public int ConnectedMastersCount
         {
             get { return _connectedMasters.Count; }
         }
+
         /// <summary>
         /// </summary>
         public bool IsRunning
         {
             get { return (_serverSocket != null); }
         }
+
         #endregion
 
         #region Constructor
+
         private SocketListener()
         {
-            NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(NetworkChange_NetworkAddressChanged);
+            NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
         }
+
         #endregion
 
         #region Functions
@@ -69,17 +75,18 @@ namespace vApus.JumpStart
         }
 
         #region Start & Stop
+
         private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e)
         {
             try
             {
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    Start();
-                }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Start(); }, null);
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         /// <summary>
         /// </summary>
         public void Start()
@@ -91,7 +98,7 @@ namespace vApus.JumpStart
                 _serverSocket.Bind(new IPEndPoint(IPAddress.Any, PORT));
 
                 _serverSocket.Listen(100);
-                _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
+                _serverSocket.BeginAccept(OnAccept, null);
                 _startTries = 0;
             }
             catch
@@ -108,8 +115,8 @@ namespace vApus.JumpStart
                 }
             }
         }
+
         /// <summary>
-        /// 
         /// </summary>
         public void Stop()
         {
@@ -120,11 +127,15 @@ namespace vApus.JumpStart
                 _serverSocket = null;
                 DisconnectMasters();
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         #endregion
 
         #region Communication
+
         private SocketWrapper Get(string ip, int port)
         {
             foreach (SocketWrapper socketWrapper in _connectedMasters)
@@ -132,6 +143,7 @@ namespace vApus.JumpStart
                     return socketWrapper;
             return null;
         }
+
         private void ConnectMaster(string ip, int port, int connectTimeout, out Exception exception)
         {
             try
@@ -140,7 +152,7 @@ namespace vApus.JumpStart
                 SocketWrapper socketWrapper = Get(ip, port);
                 if (socketWrapper == null)
                 {
-                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     socketWrapper = new SocketWrapper(ip, port, socket, SocketFlags.None, SocketFlags.None);
                 }
 
@@ -152,6 +164,7 @@ namespace vApus.JumpStart
                 exception = ex;
             }
         }
+
         private void DisconnectMasters()
         {
             foreach (SocketWrapper socketWrapper in _connectedMasters)
@@ -159,6 +172,7 @@ namespace vApus.JumpStart
                     socketWrapper.Close();
             _connectedMasters.Clear();
         }
+
         private void DisconnectMaster(SocketWrapper slaveSocketWrapper)
         {
             foreach (SocketWrapper socketWrapper in _connectedMasters)
@@ -170,26 +184,31 @@ namespace vApus.JumpStart
                     break;
                 }
         }
+
         private void OnAccept(IAsyncResult ar)
         {
             try
             {
                 Socket socket = _serverSocket.EndAccept(ar);
-                SocketWrapper socketWrapper = new SocketWrapper(IPAddress.Any, 1234, socket, SocketFlags.None, SocketFlags.None);
+                var socketWrapper = new SocketWrapper(IPAddress.Any, 1234, socket, SocketFlags.None, SocketFlags.None);
                 _connectedMasters.Add(socketWrapper);
                 BeginReceive(socketWrapper);
-                _serverSocket.BeginAccept(new AsyncCallback(OnAccept), null);
+                _serverSocket.BeginAccept(OnAccept, null);
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         private void BeginReceive(SocketWrapper socketWrapper)
         {
             try
             {
                 if (_onReceiveCallBack == null)
-                    _onReceiveCallBack = new AsyncCallback(OnReceive);
+                    _onReceiveCallBack = OnReceive;
                 socketWrapper.Buffer = new byte[socketWrapper.ReceiveBufferSize];
-                socketWrapper.Socket.BeginReceive(socketWrapper.Buffer, 0, socketWrapper.ReceiveBufferSize, SocketFlags.None, _onReceiveCallBack, socketWrapper);
+                socketWrapper.Socket.BeginReceive(socketWrapper.Buffer, 0, socketWrapper.ReceiveBufferSize,
+                                                  SocketFlags.None, _onReceiveCallBack, socketWrapper);
             }
             catch (Exception ex)
             {
@@ -202,16 +221,17 @@ namespace vApus.JumpStart
                     DisconnectMaster(socketWrapper);
             }
         }
+
         private void OnReceive(IAsyncResult result)
         {
             lock (_lock)
             {
-                SocketWrapper socketWrapper = (SocketWrapper)result.AsyncState;
-                Message<Key> message = new Message<Key>();
+                var socketWrapper = (SocketWrapper) result.AsyncState;
+                var message = new Message<Key>();
                 try
                 {
                     socketWrapper.Socket.EndReceive(result);
-                    message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
+                    message = (Message<Key>) socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
 
 
                     BeginReceive(socketWrapper);
@@ -225,7 +245,9 @@ namespace vApus.JumpStart
                 }
             }
         }
+
         #endregion
+
         #endregion
     }
 }

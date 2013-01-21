@@ -5,72 +5,32 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.ComponentModel;
 
 namespace vApus.Util
 {
     /// <summary>
-    /// This is a panel to edit values of the types: string, char, bool, all numeric types and array or list of those.
-    /// Furthermore, a single object having a parent of the type IEnumerable (GetParent() in vApus.Util.ObjectExtension), can be displayed also.
-    /// The type of the property must be one of the above, or else an exception will be thrown. 
-    /// The value may not be null or an exception will be thrown.
+    ///     This is a panel to edit values of the types: string, char, bool, all numeric types and array or list of those.
+    ///     Furthermore, a single object having a parent of the type IEnumerable (GetParent() in vApus.Util.ObjectExtension), can be displayed also.
+    ///     The type of the property must be one of the above, or else an exception will be thrown.
+    ///     The value may not be null or an exception will be thrown.
     /// </summary>
     public class ValueControlPanel : FlowLayoutPanel
     {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
-        public event EventHandler<ValueChangedEventArgs> ValueChanged;
-
-        #region Fields
-        private BaseValueControl.Value[] _values = { };
-        //Filled with default controls --> these are encapsulated in ValueControls
-        //key = value type, value = BaseValueControl impl type
-        private Dictionary<Type, Type> _controlTypes;
-        protected bool _locked;
-        private bool _autoSelectControl = true;
-        #endregion
-
-        #region Properties
-        public BaseValueControl.Value[] Values
-        {
-            get { return _values; }
-        }
-        public IEnumerable ControlTypes
-        {
-            get { foreach (Type t in _controlTypes.Keys) yield return t; }
-        }
-        /// <summary>
-        /// Use this read only please.
-        /// </summary>
-        public ControlCollection ValueControls
-        {
-            get { return this.Controls; }
-        }
-        public bool Locked
-        {
-            get { return _locked; }
-        }
-        [DefaultValue(true)]
-        public bool AutoSelectControl
-        {
-            get { return _autoSelectControl; }
-            set { _autoSelectControl = value; }
-        }
-        #endregion
-
         public ValueControlPanel()
         {
             FillControlTypes();
-            this.HandleCreated += new EventHandler(ValueControlPanel_HandleCreated);
+            HandleCreated += ValueControlPanel_HandleCreated;
         }
 
         #region Functions
+
         private void ValueControlPanel_HandleCreated(object sender, EventArgs e)
         {
             if (_locked)
@@ -78,28 +38,30 @@ namespace vApus.Util
             else
                 Unlock();
         }
+
         private void FillControlTypes()
         {
             _controlTypes = new Dictionary<Type, Type>();
-            AddControlType(typeof(bool), typeof(BoolValueControl));
-            AddControlType(typeof(char), typeof(CharValueControl));
-            AddControlType(typeof(string), typeof(StringValueControl));
-            AddControlType(typeof(short), typeof(NumericValueControl));
-            AddControlType(typeof(int), typeof(NumericValueControl));
-            AddControlType(typeof(long), typeof(NumericValueControl));
-            AddControlType(typeof(ushort), typeof(NumericValueControl));
-            AddControlType(typeof(uint), typeof(NumericValueControl));
-            AddControlType(typeof(ulong), typeof(NumericValueControl));
-            AddControlType(typeof(float), typeof(NumericValueControl));
-            AddControlType(typeof(double), typeof(NumericValueControl));
-            AddControlType(typeof(decimal), typeof(NumericValueControl));
-            AddControlType(typeof(Enum), typeof(EnumValueControl));
-            AddControlType(typeof(IList), typeof(CollectionValueControl));
-            AddControlType(typeof(Array), typeof(CollectionValueControl));
-            AddControlType(typeof(object), typeof(CollectionItemValueControl));
+            AddControlType(typeof (bool), typeof (BoolValueControl));
+            AddControlType(typeof (char), typeof (CharValueControl));
+            AddControlType(typeof (string), typeof (StringValueControl));
+            AddControlType(typeof (short), typeof (NumericValueControl));
+            AddControlType(typeof (int), typeof (NumericValueControl));
+            AddControlType(typeof (long), typeof (NumericValueControl));
+            AddControlType(typeof (ushort), typeof (NumericValueControl));
+            AddControlType(typeof (uint), typeof (NumericValueControl));
+            AddControlType(typeof (ulong), typeof (NumericValueControl));
+            AddControlType(typeof (float), typeof (NumericValueControl));
+            AddControlType(typeof (double), typeof (NumericValueControl));
+            AddControlType(typeof (decimal), typeof (NumericValueControl));
+            AddControlType(typeof (Enum), typeof (EnumValueControl));
+            AddControlType(typeof (IList), typeof (CollectionValueControl));
+            AddControlType(typeof (Array), typeof (CollectionValueControl));
+            AddControlType(typeof (object), typeof (CollectionItemValueControl));
         }
+
         /// <summary>
-        /// There are a lot off dirrerent control types (ControlTypes property) already available, you can still add your own though.
+        ///     There are a lot off dirrerent control types (ControlTypes property) already available, you can still add your own though.
         /// </summary>
         /// <param name="valueType"></param>
         /// <param name="controlType"></param>
@@ -109,17 +71,15 @@ namespace vApus.Util
         }
 
         /// <summary>
-        /// Fills the panel with controls, recycles previous ones if possible.
-        /// 
-        /// Note: IList and Array -- If those types have a parent that is a collection (.SetParent()) the choice is limited to the items of that parent collection.
-        /// 
-        /// Object -- The given object must have a parent that is a collection (either Ilist or Array), the choice is limited to a value of that collection. (all items must have the collection for a parent)
+        ///     Fills the panel with controls, recycles previous ones if possible.
+        ///     Note: IList and Array -- If those types have a parent that is a collection (.SetParent()) the choice is limited to the items of that parent collection.
+        ///     Object -- The given object must have a parent that is a collection (either Ilist or Array), the choice is limited to a value of that collection. (all items must have the collection for a parent)
         /// </summary>
         /// <param name="values"></param>
         public void SetValues(params BaseValueControl.Value[] values)
         {
-            LockWindowUpdate(this.Handle.ToInt32());
-            this.Controls.Clear();
+            LockWindowUpdate(Handle.ToInt32());
+            Controls.Clear();
 
             _values = values;
             //Keep the values here before adding them.
@@ -149,7 +109,7 @@ namespace vApus.Util
                 //if (control == null)
                 //{
                 control = Activator.CreateInstance(controlType) as BaseValueControl;
-                control.ValueChanged += new EventHandler<BaseValueControl.ValueChangedEventArgs>(ValueControlPanel_ValueChanged);
+                control.ValueChanged += ValueControlPanel_ValueChanged;
                 //}
                 //else
                 //{
@@ -160,42 +120,44 @@ namespace vApus.Util
                 range.Add(control);
             }
 
-            this.Controls.Clear();
-            this.Controls.AddRange(range.ToArray());
+            Controls.Clear();
+            Controls.AddRange(range.ToArray());
 
-            this.AutoScroll = true;
+            AutoScroll = true;
 
             //Ensure it is selected when it becomes visible.
-            if (_autoSelectControl && this.Controls.Count != 0)
+            if (_autoSelectControl && Controls.Count != 0)
             {
-                Control control = this.Controls[0];
+                Control control = Controls[0];
                 if (control.IsHandleCreated && control.Visible)
                     control.Select();
                 else
-                    control.VisibleChanged += new EventHandler(ValueControl_VisibleChanged);
+                    control.VisibleChanged += ValueControl_VisibleChanged;
             }
 
             LockWindowUpdate(0);
         }
+
         /// <summary>
-        /// This allows recycling of the controls.
+        ///     This allows recycling of the controls.
         /// </summary>
         /// <param name="values"></param>
         public void Set__Values(bool collapse, params object[] values)
         {
-            LockWindowUpdate(this.Handle.ToInt32());
-            for (int i = 0; i != this.Controls.Count; i++)
+            LockWindowUpdate(Handle.ToInt32());
+            for (int i = 0; i != Controls.Count; i++)
                 Set__ValueAt(i, values[i], collapse);
             LockWindowUpdate(0);
         }
+
         /// <summary>
-        /// This allows recycling of the controls.
+        ///     This allows recycling of the controls.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="value">Must be of the correct data type for the present value control</param>
         private void Set__ValueAt(int index, object value, bool collapse)
         {
-            BaseValueControl valueControl = this.Controls[index] as BaseValueControl;
+            var valueControl = Controls[index] as BaseValueControl;
             if (collapse)
                 valueControl.Toggle(BaseValueControl.ToggleState.Collapse);
 
@@ -204,125 +166,188 @@ namespace vApus.Util
                 value != null &&
                 !valueControl.__Value.__Value.Equals(value))
                 (valueControl as IValueControl).Init(new BaseValueControl.Value
-                {
-                    __Value = value,
-                    Description = valueControl.Description,
-                    IsEncrypted = valueControl.IsEncrypted,
-                    IsReadOnly = valueControl.IsReadOnly,
-                    Label = valueControl.Label
-                });
+                    {
+                        __Value = value,
+                        Description = valueControl.Description,
+                        IsEncrypted = valueControl.IsEncrypted,
+                        IsReadOnly = valueControl.IsReadOnly,
+                        Label = valueControl.Label
+                    });
         }
+
         /// <summary>
-        /// For dynamic descriptions, will only set it if not null and if not the same as the old one.
+        ///     For dynamic descriptions, will only set it if not null and if not the same as the old one.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="description"></param>
         public void SetDescriptionAt(int index, string description)
         {
-            BaseValueControl valueControl = this.Controls[index] as BaseValueControl;
+            var valueControl = Controls[index] as BaseValueControl;
             if (valueControl.__Value.Description != null &&
                 description != null &&
                 !valueControl.__Value.Description.Equals(description))
                 (valueControl as IValueControl).Init(new BaseValueControl.Value
-                {
-                    __Value = valueControl.__Value.__Value,
-                    Description = description,
-                    IsEncrypted = valueControl.IsEncrypted,
-                    IsReadOnly = valueControl.IsReadOnly,
-                    Label = valueControl.Label
-                });
+                    {
+                        __Value = valueControl.__Value.__Value,
+                        Description = description,
+                        IsEncrypted = valueControl.IsEncrypted,
+                        IsReadOnly = valueControl.IsReadOnly,
+                        Label = valueControl.Label
+                    });
         }
+
         private void ValueControlPanel_ValueChanged(object sender, BaseValueControl.ValueChangedEventArgs e)
         {
             if (ValueChanged != null)
-                ValueChanged(this, new ValueChangedEventArgs(this.Controls.IndexOf(sender as Control), e.OldValue, e.NewValue));
+                ValueChanged(this,
+                             new ValueChangedEventArgs(Controls.IndexOf(sender as Control), e.OldValue, e.NewValue));
         }
+
         private void ValueControl_VisibleChanged(object sender, EventArgs e)
         {
-            Control control = sender as Control;
+            var control = sender as Control;
             if (control.Visible)
             {
                 control.VisibleChanged -= ValueControl_VisibleChanged;
                 control.Select();
             }
         }
+
         /// <summary>
-        /// Lock all containing "BaseValueControl"'s.
+        ///     Lock all containing "BaseValueControl"'s.
         /// </summary>
         public void Lock()
         {
             _locked = true;
             if (IsHandleCreated)
-                foreach (Control control in this.Controls)
+                foreach (Control control in Controls)
                     if (control is BaseValueControl)
                     {
                         if (control.IsHandleCreated)
                             (control as BaseValueControl).Lock();
                         else
-                            control.HandleCreated += new EventHandler(control_lock_HandleCreated);
+                            control.HandleCreated += control_lock_HandleCreated;
                     }
                     else
-                        this.HandleCreated += new EventHandler(ValueControlPanel_lock_HandleCreated);
+                        HandleCreated += ValueControlPanel_lock_HandleCreated;
         }
+
         private void ValueControlPanel_lock_HandleCreated(object sender, EventArgs e)
         {
-            this.HandleCreated -= ValueControlPanel_lock_HandleCreated;
-            foreach (Control control in this.Controls)
+            HandleCreated -= ValueControlPanel_lock_HandleCreated;
+            foreach (Control control in Controls)
                 if (control is BaseValueControl)
                 {
                     if (control.IsHandleCreated)
                         (control as BaseValueControl).Lock();
                     else
-                        control.HandleCreated += new EventHandler(control_lock_HandleCreated);
+                        control.HandleCreated += control_lock_HandleCreated;
                 }
         }
+
         private void control_lock_HandleCreated(object sender, EventArgs e)
         {
-            BaseValueControl control = sender as BaseValueControl;
+            var control = sender as BaseValueControl;
             control.HandleCreated -= control_lock_HandleCreated;
             control.Lock();
         }
+
         /// <summary>
-        /// Unlock all containing "BaseValueControl"'s.
+        ///     Unlock all containing "BaseValueControl"'s.
         /// </summary>
         public void Unlock()
         {
             _locked = false;
             if (IsHandleCreated)
-                foreach (Control control in this.Controls)
+                foreach (Control control in Controls)
                     if (control is BaseValueControl)
                     {
                         if (control.IsHandleCreated)
                             (control as BaseValueControl).Unlock();
                         else
-                            control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
+                            control.HandleCreated += control_unlock_HandleCreated;
                     }
                     else
-                        this.HandleCreated += new EventHandler(ValueControlPanel_unlock_HandleCreated);
+                        HandleCreated += ValueControlPanel_unlock_HandleCreated;
         }
+
         private void ValueControlPanel_unlock_HandleCreated(object sender, EventArgs e)
         {
-            foreach (Control control in this.Controls)
+            foreach (Control control in Controls)
                 if (control is BaseValueControl)
                 {
                     if (control.IsHandleCreated)
                         (control as BaseValueControl).Unlock();
                     else
-                        control.HandleCreated += new EventHandler(control_unlock_HandleCreated);
+                        control.HandleCreated += control_unlock_HandleCreated;
                 }
         }
+
         private void control_unlock_HandleCreated(object sender, EventArgs e)
         {
-            BaseValueControl control = sender as BaseValueControl;
+            var control = sender as BaseValueControl;
             control.HandleCreated -= control_lock_HandleCreated;
             control.Unlock();
         }
+
+        #endregion
+
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
+        public event EventHandler<ValueChangedEventArgs> ValueChanged;
+
+        #region Fields
+
+        //Filled with default controls --> these are encapsulated in ValueControls
+        //key = value type, value = BaseValueControl impl type
+        private bool _autoSelectControl = true;
+        private Dictionary<Type, Type> _controlTypes;
+        protected bool _locked;
+        private BaseValueControl.Value[] _values = {};
+
+        #endregion
+
+        #region Properties
+
+        public BaseValueControl.Value[] Values
+        {
+            get { return _values; }
+        }
+
+        public IEnumerable ControlTypes
+        {
+            get { foreach (Type t in _controlTypes.Keys) yield return t; }
+        }
+
+        /// <summary>
+        ///     Use this read only please.
+        /// </summary>
+        public ControlCollection ValueControls
+        {
+            get { return Controls; }
+        }
+
+        public bool Locked
+        {
+            get { return _locked; }
+        }
+
+        [DefaultValue(true)]
+        public bool AutoSelectControl
+        {
+            get { return _autoSelectControl; }
+            set { _autoSelectControl = value; }
+        }
+
         #endregion
 
         public class ValueChangedEventArgs : EventArgs
         {
             public readonly int Index;
-            public readonly object OldValue, NewValue;
+            public readonly object NewValue;
+            public readonly object OldValue;
+
             public ValueChangedEventArgs(int index, object oldValue, object newValue)
             {
                 Index = index;

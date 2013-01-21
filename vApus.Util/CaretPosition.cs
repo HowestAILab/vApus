@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -13,15 +14,30 @@ namespace vApus.Util
 {
     public static class CaretPosition
     {
+        /*- Retrieves information about active window or any specific GUI thread -*/
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
+        [DllImport("user32.dll", EntryPoint = "GetGUIThreadInfo")]
+        public static extern bool GetGUIThreadInfo(uint tId, out GUITHREADINFO threadInfo);
+
+        /*- Converts window specific point to screen specific -*/
+
+        [DllImport("user32.dll")]
+        public static extern bool ClientToScreen(IntPtr hWnd, out Point position);
+
+        public static Point Get()
         {
-            public uint Left;
-            public uint Top;
-            public uint Right;
-            public uint Bottom;
-        };
+            var guiInfo = new GUITHREADINFO();
+            guiInfo.cbSize = (uint) Marshal.SizeOf(guiInfo);
+
+            // Get GuiThreadInfo into guiInfo
+            GetGUIThreadInfo(0, out guiInfo);
+
+            var point = new Point((int) guiInfo.rcCaret.Left, (int) guiInfo.rcCaret.Top);
+
+            ClientToScreen(guiInfo.hwndCaret, out point);
+
+            return point;
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct GUITHREADINFO
@@ -37,27 +53,13 @@ namespace vApus.Util
             public RECT rcCaret;
         };
 
-        /*- Retrieves information about active window or any specific GUI thread -*/
-        [DllImport("user32.dll", EntryPoint = "GetGUIThreadInfo")]
-        public static extern bool GetGUIThreadInfo(uint tId, out GUITHREADINFO threadInfo);
-
-        /*- Converts window specific point to screen specific -*/
-        [DllImport("user32.dll")]
-        public static extern bool ClientToScreen(IntPtr hWnd, out Point position);
-
-        public static Point Get()
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
         {
-            GUITHREADINFO guiInfo = new GUITHREADINFO();
-            guiInfo.cbSize = (uint)Marshal.SizeOf(guiInfo);
-
-            // Get GuiThreadInfo into guiInfo
-            GetGUIThreadInfo(0, out guiInfo);
-
-            Point point = new Point((int)guiInfo.rcCaret.Left, (int)guiInfo.rcCaret.Top);
-
-            ClientToScreen(guiInfo.hwndCaret, out point);
-
-            return point;
-        }
+            public uint Left;
+            public uint Top;
+            public uint Right;
+            public uint Bottom;
+        };
     }
 }

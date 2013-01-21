@@ -38,8 +38,7 @@
             this.lblWarningInvalidAverages = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.lvwAveragesListing = new System.Windows.Forms.ListView();
-            this.clmConcurrentUsers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.clmPrecision = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.clmConcurrency = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmRun = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.clmFill = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lblUpdatesIn = new System.Windows.Forms.Label();
@@ -126,9 +125,8 @@
             this.cboDrillDownAverages.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboDrillDownAverages.FormattingEnabled = true;
             this.cboDrillDownAverages.Items.AddRange(new object[] {
-            "Concurrent Users",
-            "Precision",
-            "Run"});
+            "Concurrency",
+            "Runs"});
             this.cboDrillDownAverages.Location = new System.Drawing.Point(1, 1);
             this.cboDrillDownAverages.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboDrillDownAverages.Name = "cboDrillDownAverages";
@@ -208,8 +206,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lvwAveragesListing.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lvwAveragesListing.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.clmConcurrentUsers,
-            this.clmPrecision,
+            this.clmConcurrency,
             this.clmRun,
             this.clmFill});
             this.lvwAveragesListing.FullRowSelect = true;
@@ -222,15 +219,10 @@
             this.lvwAveragesListing.UseCompatibleStateImageBehavior = false;
             this.lvwAveragesListing.View = System.Windows.Forms.View.Details;
             // 
-            // clmConcurrentUsers
+            // clmConcurrency
             // 
-            this.clmConcurrentUsers.Text = "Concurrent Users";
-            this.clmConcurrentUsers.Width = 94;
-            // 
-            // clmPrecision
-            // 
-            this.clmPrecision.Text = "Precision";
-            this.clmPrecision.Width = 55;
+            this.clmConcurrency.Text = "Concurrency";
+            this.clmConcurrency.Width = 94;
             // 
             // clmRun
             // 
@@ -309,9 +301,8 @@
             this.cboDrillDownDetailed.FormattingEnabled = true;
             this.cboDrillDownDetailed.Items.AddRange(new object[] {
             "Stresstest",
-            "Concurrent Users",
-            "Precision",
-            "Run"});
+            "Concurrency",
+            "Runs"});
             this.cboDrillDownDetailed.Location = new System.Drawing.Point(1, 1);
             this.cboDrillDownDetailed.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboDrillDownDetailed.Name = "cboDrillDownDetailed";
@@ -488,8 +479,7 @@
         private System.Windows.Forms.ComboBox cboDrillDownAverages;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ListView lvwAveragesListing;
-        private System.Windows.Forms.ColumnHeader clmConcurrentUsers;
-        private System.Windows.Forms.ColumnHeader clmPrecision;
+        private System.Windows.Forms.ColumnHeader clmConcurrency;
         private System.Windows.Forms.ColumnHeader clmRun;
         private System.Windows.Forms.Label lblUpdatesIn;
         private System.Windows.Forms.Button btnSaveDisplayedAverages;

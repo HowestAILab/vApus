@@ -18,15 +18,12 @@ namespace vApus.Util
 {
     public partial class EventView : UserControl
     {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
-        [Description("Occurs when the cursor enters a progress event.")]
-        public event EventHandler<EventViewItemEventArgs> EventViewItemMouseEnter;
-        [Description("Occurs when the cursor leaves a progress event.")]
-        public event EventHandler<EventViewItemEventArgs> EventViewItemMouseLeave;
-
         private EventViewItem _userEntered;
+
+        public EventView()
+        {
+            InitializeComponent();
+        }
 
         public EventViewItem UserEntered
         {
@@ -38,26 +35,33 @@ namespace vApus.Util
             get { return largeList.ControlCount; }
         }
 
-        public EventView()
-        {
-            InitializeComponent();
-        }
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
+        [Description("Occurs when the cursor enters a progress event.")]
+        public event EventHandler<EventViewItemEventArgs> EventViewItemMouseEnter;
+
+        [Description("Occurs when the cursor leaves a progress event.")]
+        public event EventHandler<EventViewItemEventArgs> EventViewItemMouseLeave;
 
         public EventViewItem AddEvent(string message)
         {
             return AddEvent(EventViewEventType.Info, message);
         }
+
         public EventViewItem AddEvent(EventViewEventType eventType, string message)
         {
             return AddEvent(eventType, message, DateTime.Now);
         }
+
         public EventViewItem AddEvent(EventViewEventType eventType, string message, DateTime at, bool visible = true)
         {
             var item = new EventViewItem(largeList, eventType, message, at);
             item.Visible = visible;
 
             //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
-            bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
+            bool autoScroll = _userEntered == null &&
+                              (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
 
             largeList.Add(item);
 
@@ -69,26 +73,28 @@ namespace vApus.Util
             if (eventType == EventViewEventType.Error && _userEntered == null)
                 item.PerformMouseEnter();
 
-            item.MouseHover += new EventHandler(item_MouseHover);
-            item.MouseLeave += new EventHandler(item_MouseLeave);
+            item.MouseHover += item_MouseHover;
+            item.MouseLeave += item_MouseLeave;
 
             return item;
         }
 
         private void SetSize(EventViewItem item)
         {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(Handle.ToInt32());
 
-            int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left - item.Margin.Right - 18;
+            int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left -
+                        item.Margin.Right - 18;
 
             Size size = TextRenderer.MeasureText("I", item.Font);
-            int height = (int)size.Height + item.Padding.Top + item.Padding.Bottom;
+            int height = size.Height + item.Padding.Top + item.Padding.Bottom;
 
             item.MinimumSize = new Size(width, height);
             item.MaximumSize = new Size(width, height);
 
             LockWindowUpdate(0);
         }
+
         private void item_MouseHover(object sender, EventArgs e)
         {
             _userEntered = sender as EventViewItem;
@@ -96,6 +102,7 @@ namespace vApus.Util
             if (EventViewItemMouseEnter != null)
                 EventViewItemMouseEnter(this, new EventViewItemEventArgs(sender as EventViewItem));
         }
+
         private void item_MouseLeave(object sender, EventArgs e)
         {
             _userEntered = null;
@@ -103,6 +110,7 @@ namespace vApus.Util
             if (EventViewItemMouseLeave != null)
                 EventViewItemMouseLeave(this, new EventViewItemEventArgs(sender as EventViewItem));
         }
+
         public List<EventViewItem> GetEvents()
         {
             var l = new List<EventViewItem>(ItemCount);
@@ -110,13 +118,15 @@ namespace vApus.Util
                 l.Add(item);
             return l;
         }
+
         public void ClearEvents()
         {
             largeList.RemoveAll();
         }
+
         protected override void OnResize(EventArgs e)
         {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(Handle.ToInt32());
 
             base.OnResize(e);
 
@@ -125,10 +135,12 @@ namespace vApus.Util
 
             LockWindowUpdate(0);
         }
+
         public void PerformLargeListResize()
         {
             largeList.PerformResize(true);
         }
+
         public void PerformMouseEnter(DateTime at)
         {
             EventViewItem item = null;
@@ -142,9 +154,10 @@ namespace vApus.Util
             if (item != null)
                 PerformMouseEnter(item);
         }
+
         private void PerformMouseEnter(EventViewItem item)
         {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(Handle.ToInt32());
 
             item.PerformMouseEnter();
             largeList.ScrollIntoView(item);
@@ -172,13 +185,15 @@ namespace vApus.Util
                 }
                 catch
                 {
-                    MessageBox.Show("Could not write to '" + sfd.FileName + "'!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Could not write to '" + sfd.FileName + "'!", string.Empty, MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error);
                 }
         }
 
         public class EventViewItemEventArgs : EventArgs
         {
             public readonly EventViewItem EventViewItem;
+
             public EventViewItemEventArgs(EventViewItem eventViewItem)
             {
                 EventViewItem = eventViewItem;

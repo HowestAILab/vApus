@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,19 +15,20 @@ using vApus.SolutionTree;
 namespace vApus.Stresstest
 {
     /// <summary>
-    /// Don't forget to call VisualizeSynchronization.
+    ///     Don't forget to call VisualizeSynchronization.
     /// </summary>
     public partial class ParameterTokenSynchronization : BaseSolutionComponentView
     {
         /// <summary>
-        /// Design time constructor
+        ///     Design time constructor
         /// </summary>
         public ParameterTokenSynchronization()
         {
             InitializeComponent();
         }
+
         /// <summary>
-        /// Don't forget to call VisualizeSynchronization.
+        ///     Don't forget to call VisualizeSynchronization.
         /// </summary>
         /// <param name="solutionComponent"></param>
         /// <param name="args"></param>
@@ -35,26 +37,27 @@ namespace vApus.Stresstest
         {
             InitializeComponent();
         }
+
         /// <summary>
-        /// Visualize the synchronization
+        ///     Visualize the synchronization
         /// </summary>
         /// <param name="oldAndNewIndices"></param>
         public void VisualizeSynchronization(Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices)
         {
             lvw.Items.Clear();
 
-            List<ListViewItem> l = new List<ListViewItem>(oldAndNewIndices.Count);
+            var l = new List<ListViewItem>(oldAndNewIndices.Count);
             foreach (BaseParameter parameter in oldAndNewIndices.Keys)
             {
                 Color color = GetBackColor(parameter);
 
-                ListViewItem item = new ListViewItem(parameter.ToString());
+                var item = new ListViewItem(parameter.ToString());
                 item.UseItemStyleForSubItems = false;
                 item.Font = new Font(lvw.Font.FontFamily, 10f);
                 item.BackColor = color;
 
-                var kvp = oldAndNewIndices[parameter];
-                ListViewItem.ListViewSubItem n = new ListViewItem.ListViewSubItem(item, kvp.Key.ToString());
+                KeyValuePair<int, int> kvp = oldAndNewIndices[parameter];
+                var n = new ListViewItem.ListViewSubItem(item, kvp.Key.ToString());
                 n.BackColor = color;
                 item.SubItems.Add(n);
 

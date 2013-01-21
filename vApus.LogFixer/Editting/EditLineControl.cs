@@ -5,11 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using vApus.LogFixer.Properties;
 using vApus.Stresstest;
 using vApus.Util;
 
@@ -18,22 +19,29 @@ namespace vApus.LogFixer
     public partial class EditLineControl : UserControl
     {
         #region Events
+
         public event EventHandler ButtonClicked;
+
         #endregion
 
         #region Fields
-        private Line _line;
+
+        private readonly Line _line;
+
         #endregion
 
         #region Properties
+
         public Line Line
         {
             get { return _line; }
         }
+
         public LexicalResult LexicalResult
         {
             get { return _line.LexicalResult; }
         }
+
         public bool Collapsed
         {
             get { return splitContainer.Panel2Collapsed; }
@@ -43,27 +51,30 @@ namespace vApus.LogFixer
                 if (splitContainer.Panel2Collapsed)
                 {
                     btnCollapseExpand.Text = "+";
-                    this.Height = 30;
+                    Height = 30;
                 }
                 else
                 {
                     btnCollapseExpand.Text = "-";
-                    this.Height = 200;
+                    Height = 200;
                 }
             }
         }
+
         #endregion
 
         #region Constructors
+
         /// <summary>
-        /// An empty log entry control, aught to use only when designing.
+        ///     An empty log entry control, aught to use only when designing.
         /// </summary>
         public EditLineControl()
         {
             InitializeComponent();
         }
+
         /// <summary>
-        /// Visualizes a line.
+        ///     Visualizes a line.
         /// </summary>
         public EditLineControl(Line line)
         {
@@ -82,26 +93,30 @@ namespace vApus.LogFixer
                 picValidation.Visible = false;
                 int originalLeft = txtScrollingLogEntry.Left;
                 txtScrollingLogEntry.Left = picValidation.Left;
-                txtScrollingLogEntry.Width += btnEdit.Width + btnEdit.Margin.Left + (originalLeft - txtScrollingLogEntry.Left);
+                txtScrollingLogEntry.Width += btnEdit.Width + btnEdit.Margin.Left +
+                                              (originalLeft - txtScrollingLogEntry.Left);
                 txtScrollingLogEntry.BackColor = Color.WhiteSmoke;
                 rtxtLogEntry.BackColor = Color.WhiteSmoke;
             }
 
-            this.SizeChanged += new EventHandler(LogEntryControl_SizeChanged);
+            SizeChanged += LogEntryControl_SizeChanged;
         }
+
         #endregion
 
         #region Functions
+
         private void LogEntryControl_SizeChanged(object sender, EventArgs e)
         {
             if (Visible && splitContainer.Panel2Collapsed)
             {
-                this.SizeChanged -= LogEntryControl_SizeChanged;
+                SizeChanged -= LogEntryControl_SizeChanged;
                 splitContainer.Panel2Collapsed = false;
                 splitContainer.Panel2Collapsed = true;
-                this.SizeChanged += LogEntryControl_SizeChanged;
+                SizeChanged += LogEntryControl_SizeChanged;
             }
         }
+
         private void SetImages()
         {
             if (_line.LogEntry == null)
@@ -110,17 +125,19 @@ namespace vApus.LogFixer
                 switch (_line.LexicalResult)
                 {
                     case LexicalResult.OK:
-                        picValidation.Image = global::vApus.LogFixer.Properties.Resources.LogEntryOK;
+                        picValidation.Image = Resources.LogEntryOK;
                         break;
                     case LexicalResult.Error:
-                        picValidation.Image = global::vApus.LogFixer.Properties.Resources.LogEntryError;
+                        picValidation.Image = Resources.LogEntryError;
                         break;
                 }
         }
+
         private void btnCollapseExpand_Click(object sender, EventArgs e)
         {
             Collapsed = btnCollapseExpand.Text == "-";
         }
+
         private void btnEdit_Click(object sender, EventArgs e)
         {
             var edit = new EditLogEntry(_line.Parent.IndexOf(_line) + 1, _line.LogEntry);
@@ -135,6 +152,7 @@ namespace vApus.LogFixer
                 ApplyFix(edit.TrackedChanges);
             }
         }
+
         public void SetEdittedText(string newText)
         {
             if (_line.Comment == null)
@@ -145,11 +163,12 @@ namespace vApus.LogFixer
             txtScrollingLogEntry.Text = _line.ToString();
             rtxtLogEntry.Text = txtScrollingLogEntry.Text;
         }
+
         public void SetEdittedGui(bool applyLogRuleSet = false)
         {
             if (applyLogRuleSet)
             {
-                Log log = _line.LogEntry.Parent as Log;
+                var log = _line.LogEntry.Parent as Log;
                 log.ApplyLogRuleSet();
             }
             if (_line.Comment == null)
@@ -163,7 +182,7 @@ namespace vApus.LogFixer
                     btnEdit.Left += move;
 
                     btnRestore.Visible = false;
-                    this.BackColor = SystemColors.Control;
+                    BackColor = SystemColors.Control;
                 }
                 else if (!btnRestore.Visible)
                 {
@@ -172,22 +191,23 @@ namespace vApus.LogFixer
                     btnEdit.Left -= move;
 
                     btnRestore.Visible = true;
-                    this.BackColor = SystemColors.ControlDark;
+                    BackColor = SystemColors.ControlDark;
                 }
             }
         }
+
         private void ApplyFix(TrackedChanges trackedChanges)
         {
-            ApplyFix applyFix = new ApplyFix(_line, trackedChanges);
+            var applyFix = new ApplyFix(_line, trackedChanges);
             if (applyFix.ShowDialog() == DialogResult.OK)
             {
-                var ctrl = this.Parent;
+                Control ctrl = Parent;
                 while (!(ctrl is LargeList))
                     ctrl = ctrl.Parent;
 
-                List<EditLineControl> l = new List<EditLineControl>();
+                var l = new List<EditLineControl>();
 
-                LargeList largeList = ctrl as LargeList;
+                var largeList = ctrl as LargeList;
                 for (int view = 0; view != largeList.ViewCount; view++)
                     foreach (EditLineControl elc in largeList[view])
                         foreach (FixLineControl flc in applyFix.FixLineControls())
@@ -201,19 +221,20 @@ namespace vApus.LogFixer
                                 break;
                             }
 
-                Log log = _line.LogEntry.Parent as Log;
+                var log = _line.LogEntry.Parent as Log;
                 log.ApplyLogRuleSet();
 
                 foreach (EditLineControl elc in l)
-                        elc.SetEdittedGui();
+                    elc.SetEdittedGui();
 
                 if (ButtonClicked != null)
                     ButtonClicked(this, null);
             }
         }
+
         private void btnRestore_Click(object sender, EventArgs e)
         {
-            Log log = _line.LogEntry.Parent as Log;
+            var log = _line.LogEntry.Parent as Log;
             _line.LogEntry.LogEntryString = _line.LogEntry.LogEntryStringAsImported;
 
             log.ApplyLogRuleSet();
@@ -228,16 +249,18 @@ namespace vApus.LogFixer
             btnEdit.Left += move;
 
             btnRestore.Visible = false;
-            this.BackColor = SystemColors.Control;
+            BackColor = SystemColors.Control;
             if (ButtonClicked != null)
                 ButtonClicked(this, null);
         }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
             if (_line != null)
                 lblIndex.Text = (_line.Parent.IndexOf(_line) + 1).ToString();
         }
+
         #endregion
     }
 }

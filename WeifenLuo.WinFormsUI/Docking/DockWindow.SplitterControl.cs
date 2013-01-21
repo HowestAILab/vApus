@@ -1,9 +1,3 @@
-using System;
-using System.Collections;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-
 namespace WeifenLuo.WinFormsUI.Docking
 {
     public partial class DockWindow
@@ -17,7 +11,7 @@ namespace WeifenLuo.WinFormsUI.Docking
 
             protected override void StartDrag()
             {
-                DockWindow window = Parent as DockWindow;
+                var window = Parent as DockWindow;
                 if (window == null)
                     return;
 

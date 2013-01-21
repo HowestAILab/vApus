@@ -5,11 +5,15 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using vApus.DistributedTesting.Properties;
+using vApus.SolutionTree;
+using vApus.Stresstest;
 
 namespace vApus.DistributedTesting
 {
@@ -17,17 +21,22 @@ namespace vApus.DistributedTesting
     public partial class DistributedTestTreeViewItem : UserControl, ITreeViewItem
     {
         #region Events
+
         /// <summary>
-        /// Call unfocus for the other items in the panel.
+        ///     Call unfocus for the other items in the panel.
         /// </summary>
         public event EventHandler AfterSelect;
+
         public event EventHandler AddTileClicked;
+
         #endregion
 
         #region Fields
-        private DistributedTest _distributedTest = new DistributedTest();
+
+        private readonly DistributedTest _distributedTest = new DistributedTest();
+
         /// <summary>
-        /// Check if the ctrl key is pressed.
+        ///     Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
 
@@ -38,78 +47,117 @@ namespace vApus.DistributedTesting
         #endregion
 
         #region Properties
+
         public DistributedTest DistributedTest
         {
             get { return _distributedTest; }
         }
+
         #endregion
 
         #region Constructor
+
         public DistributedTestTreeViewItem()
         {
             InitializeComponent();
         }
+
         public DistributedTestTreeViewItem(DistributedTest distributedTest)
             : this()
         {
             _distributedTest = distributedTest;
 
             chkUseRDP.Checked = _distributedTest.UseRDP;
-            chkUseRDP.CheckedChanged += new EventHandler(chkUseRDP_CheckedChanged);
+            chkUseRDP.CheckedChanged += chkUseRDP_CheckedChanged;
 
-            cboRunSync.SelectedIndex = (int)distributedTest.RunSynchronization;
-            cboRunSync.SelectedIndexChanged += new EventHandler(cboRunSync_SelectedIndexChanged);
+            cboRunSync.SelectedIndex = (int) distributedTest.RunSynchronization;
+            cboRunSync.SelectedIndexChanged += cboRunSync_SelectedIndexChanged;
             toolTip.SetToolTip(picResultPath, "Result Path: " + _distributedTest.ResultPath);
         }
+
         #endregion
 
         #region Functions
-        private void chkUseRDP_CheckedChanged(object sender, EventArgs e)
-        {
-            _distributedTest.UseRDP = chkUseRDP.Checked;
-            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-        private void cboRunSync_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            _distributedTest.RunSynchronization = (Stresstest.RunSynchronization)cboRunSync.SelectedIndex;
-            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-        private void _Enter(object sender, EventArgs e)
-        {
-            this.BackColor = SystemColors.Control;
-            if (AfterSelect != null)
-                AfterSelect(this, null);
-        }
+
         public void Unfocus()
         {
-            this.BackColor = Color.Transparent;
+            BackColor = Color.Transparent;
         }
+
         public void SetVisibleControls()
         {
         }
+
         public void SetVisibleControls(bool visible)
         {
         }
+
         public void RefreshGui()
         {
         }
 
+        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
+        {
+            _distributedTestMode = distributedTestMode;
+            if (_distributedTestMode == DistributedTestMode.Edit)
+            {
+                chkUseRDP.Enabled =
+                    pnlRunSync.Enabled =
+                    picAddTile.Visible = true;
+
+                picStresstestStatus.Visible = false;
+            }
+            else
+            {
+                chkUseRDP.Enabled =
+                    pnlRunSync.Enabled =
+                    picAddTile.Visible = false;
+
+                _testStarted = false;
+
+                picStresstestStatus.Image = Resources.Wait;
+                toolTip.SetToolTip(picStresstestStatus, string.Empty);
+
+                picStresstestStatus.Visible = true;
+            }
+        }
+
+        private void chkUseRDP_CheckedChanged(object sender, EventArgs e)
+        {
+            _distributedTest.UseRDP = chkUseRDP.Checked;
+            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+
+        private void cboRunSync_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _distributedTest.RunSynchronization = (RunSynchronization) cboRunSync.SelectedIndex;
+            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+
+        private void _Enter(object sender, EventArgs e)
+        {
+            BackColor = SystemColors.Control;
+            if (AfterSelect != null)
+                AfterSelect(this, null);
+        }
+
         private void picAddTile_Click(object sender, EventArgs e)
         {
-            this.Focus();
+            Focus();
             if (AddTileClicked != null)
                 AddTileClicked(this, null);
         }
+
         private void _KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;
         }
+
         private void _KeyUp(object sender, KeyEventArgs e)
         {
             if (_ctrl && e.KeyCode == Keys.I && AddTileClicked != null)
                 AddTileClicked(this, null);
-
         }
 
         private void picResultPath_Click(object sender, EventArgs e)
@@ -129,7 +177,7 @@ namespace vApus.DistributedTesting
                 toolTip.SetToolTip(picResultPath, "Result Path: " + _distributedTest.ResultPath);
 
 
-                _distributedTest.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+                _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
 
@@ -140,36 +188,11 @@ namespace vApus.DistributedTesting
             {
                 _testStarted = true;
 
-                picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Busy;
+                picStresstestStatus.Image = Resources.Busy;
                 toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting");
             }
         }
 
-        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
-        {
-            _distributedTestMode = distributedTestMode;
-            if (_distributedTestMode == DistributedTestMode.Edit)
-            {
-                chkUseRDP.Enabled =
-                pnlRunSync.Enabled =
-                picAddTile.Visible = true;
-
-                picStresstestStatus.Visible = false;
-            }
-            else
-            {
-                chkUseRDP.Enabled =
-                pnlRunSync.Enabled =
-                picAddTile.Visible = false;
-
-                _testStarted = false;
-
-                picStresstestStatus.Image = vApus.DistributedTesting.Properties.Resources.Wait;
-                toolTip.SetToolTip(picStresstestStatus, string.Empty);
-
-                picStresstestStatus.Visible = true;
-            }
-        }
         #endregion
     }
 }

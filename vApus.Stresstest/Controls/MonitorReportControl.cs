@@ -104,13 +104,10 @@ namespace vApus.Stresstest
             switch (cboDrillDownAverages.SelectedIndex)
             {
                 case 0:
-                    SetConcurrentUsersAverages();
+                    SetConcurrencyAverages();
                     break;
                 case 1:
-                    SetPrecisionAverages();
-                    break;
-                case 2:
-                    SetRunAverages();
+                    SetRunsAverages();
                     break;
             }
 
@@ -125,13 +122,10 @@ namespace vApus.Stresstest
                     SetStresstestDetails();
                     break;
                 case 1:
-                    SetConcurrentUsersDetails();
+                    SetConcurrencyDetails();
                     break;
                 case 2:
-                    SetPrecisionDetails();
-                    break;
-                case 3:
-                    SetRunDetails();
+                    SetRunsDetails();
                     break;
             }
 
@@ -145,46 +139,30 @@ namespace vApus.Stresstest
         }
 
         #region Averages
-        private void SetConcurrentUsersAverages()
+        private void SetConcurrencyAverages()
         {
             if (_stresstestResults != null && _monitorValues != null)
-                foreach (ConcurrentUsersResult result in _stresstestResults.ConcurrentUsersResults)
+                foreach (ConcurrencyResult result in _stresstestResults.ConcurrencyResults)
                 {
                     List<RunResult> runResults = new List<RunResult>();
-                    foreach (PrecisionResult pr in result.PrecisionResults)
-                        foreach (RunResult rr in pr.RunResults)
-                            runResults.Add(rr);
+                    foreach (RunResult rr in result.RunResults)
+                        runResults.Add(rr);
 
                     AddAverage(runResults, result.ConcurrentUsers);
                 }
         }
-        private void SetPrecisionAverages()
+        private void SetRunsAverages()
         {
             if (_stresstestResults != null && _monitorValues != null)
-                foreach (ConcurrentUsersResult cur in _stresstestResults.ConcurrentUsersResults)
-                    foreach (PrecisionResult result in cur.PrecisionResults)
+                foreach (ConcurrencyResult cr in _stresstestResults.ConcurrencyResults)
+                    foreach (RunResult result in cr.RunResults)
                     {
                         List<RunResult> runResults = new List<RunResult>();
-                        foreach (RunResult rr in result.RunResults)
-                            runResults.Add(rr);
+                        runResults.Add(result);
 
                         // From zero based to one based
-                        AddAverage(runResults, cur.ConcurrentUsers, result.Precision + 1);
+                        AddAverage(runResults, cr.ConcurrentUsers, result.Run + 1);
                     }
-        }
-        private void SetRunAverages()
-        {
-            if (_stresstestResults != null && _monitorValues != null)
-                foreach (ConcurrentUsersResult cur in _stresstestResults.ConcurrentUsersResults)
-                    foreach (PrecisionResult pr in cur.PrecisionResults)
-                        foreach (RunResult result in pr.RunResults)
-                        {
-                            List<RunResult> runResults = new List<RunResult>();
-                            runResults.Add(result);
-
-                            // From zero based to one based
-                            AddAverage(runResults, cur.ConcurrentUsers, pr.Precision + 1, result.Run + 1);
-                        }
         }
 
         /// <summary>
@@ -192,7 +170,7 @@ namespace vApus.Stresstest
         /// Make sure the lvw is cleared.
         /// </summary>
         /// <param name="result"></param>
-        /// <param name="ids">ConcurrentUsers and/or Precision and/or Run</param>
+        /// <param name="ids">Concurrency and/or Run</param>
         private void AddAverage(List<RunResult> results, params int[] ids)
         {
             //Check if it is present already, do nothing in that case, just add it to the lvw.
@@ -267,7 +245,7 @@ namespace vApus.Stresstest
 
                         lvwi.Tag = results;
                         //Keep this in memory so it can be restored if the averages were determined once.
-                        //The tag is used to check if the lvwi exists for the run result, or results (precision has more than one for example)
+                        //The tag is used to check if the lvwi exists for the run result, or results.
                         if (_averages == null)
                             _averages = new List<ListViewItem>();
                         _averages.Add(lvwi);
@@ -301,13 +279,11 @@ namespace vApus.Stresstest
             switch (cboDrillDownAverages.SelectedIndex)
             {
                 case 0:
-                    if (!lvwAveragesListing.Columns.Contains(clmConcurrentUsers))
+                    if (!lvwAveragesListing.Columns.Contains(clmConcurrency))
                     {
-                        lvwAveragesListing.Columns.Insert(0, clmConcurrentUsers);
-                        clmConcurrentUsers.Width = -2;
+                        lvwAveragesListing.Columns.Insert(0, clmConcurrency);
+                        clmConcurrency.Width = -2;
                     }
-                    if (lvwAveragesListing.Columns.Contains(clmPrecision))
-                        lvwAveragesListing.Columns.Remove(clmPrecision);
                     if (lvwAveragesListing.Columns.Contains(clmRun))
                         lvwAveragesListing.Columns.Remove(clmRun);
 
@@ -315,55 +291,27 @@ namespace vApus.Stresstest
                     clmFill.Width = -2;
                     lvwAveragesListing.Columns.Remove(clmFill);
 
-                    SetConcurrentUsersAverages();
+                    SetConcurrencyAverages();
 
                     lvwAveragesListing.Columns.Add(clmFill);
                     clmFill.Width = -2;
                     break;
                 case 1:
-                    if (!lvwAveragesListing.Columns.Contains(clmConcurrentUsers))
+                    if (!lvwAveragesListing.Columns.Contains(clmConcurrency))
                     {
-                        lvwAveragesListing.Columns.Insert(0, clmConcurrentUsers);
-                        clmConcurrentUsers.Width = -2;
-                    }
-                    if (!lvwAveragesListing.Columns.Contains(clmPrecision))
-                    {
-                        lvwAveragesListing.Columns.Insert(1, clmPrecision);
-                        clmPrecision.Width = -2;
-                    }
-                    if (lvwAveragesListing.Columns.Contains(clmRun))
-                        lvwAveragesListing.Columns.Remove(clmRun);
-
-                    //To Fill the rest of the header, otherwise other witdths will not be correct.
-                    clmFill.Width = -2;
-                    lvwAveragesListing.Columns.Remove(clmFill);
-
-                    SetPrecisionAverages();
-
-                    lvwAveragesListing.Columns.Add(clmFill);
-                    clmFill.Width = -2;
-                    break;
-                case 2:
-                    if (!lvwAveragesListing.Columns.Contains(clmConcurrentUsers))
-                    {
-                        lvwAveragesListing.Columns.Insert(0, clmConcurrentUsers);
-                        clmConcurrentUsers.Width = -2;
-                    }
-                    if (!lvwAveragesListing.Columns.Contains(clmPrecision))
-                    {
-                        lvwAveragesListing.Columns.Insert(1, clmPrecision);
-                        clmPrecision.Width = -2;
+                        lvwAveragesListing.Columns.Insert(0, clmConcurrency);
+                        clmConcurrency.Width = -2;
                     }
                     if (!lvwAveragesListing.Columns.Contains(clmRun))
                     {
-                        lvwAveragesListing.Columns.Insert(2, clmRun);
+                        lvwAveragesListing.Columns.Insert(1, clmRun);
                         clmRun.Width = -2;
                     }
                     //To Fill the rest of the header, otherwise other witdths will not be correct.
                     clmFill.Width = -2;
                     lvwAveragesListing.Columns.Remove(clmFill);
 
-                    SetRunAverages();
+                    SetRunsAverages();
 
                     lvwAveragesListing.Columns.Add(clmFill);
                     clmFill.Width = -2;
@@ -431,60 +379,40 @@ namespace vApus.Stresstest
             if (_stresstestResults != null && _monitorValues != null)
             {
                 List<RunResult> runResults = new List<RunResult>();
-                foreach (ConcurrentUsersResult cr in _stresstestResults.ConcurrentUsersResults)
-                    foreach (PrecisionResult pr in cr.PrecisionResults)
-                        foreach (RunResult rr in pr.RunResults)
-                            runResults.Add(rr);
+                foreach (ConcurrencyResult cr in _stresstestResults.ConcurrencyResults)
+                    foreach (RunResult rr in cr.RunResults)
+                        runResults.Add(rr);
 
                 AddDetail(runResults, _stresstestResults.Stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_') + ".txt");
             }
         }
-        private void SetConcurrentUsersDetails()
+        private void SetConcurrencyDetails()
         {
             if (_stresstestResults != null && _monitorValues != null)
-                foreach (ConcurrentUsersResult result in _stresstestResults.ConcurrentUsersResults)
+                foreach (ConcurrencyResult result in _stresstestResults.ConcurrencyResults)
                 {
                     List<RunResult> runResults = new List<RunResult>();
-                    foreach (PrecisionResult pr in result.PrecisionResults)
-                        foreach (RunResult rr in pr.RunResults)
-                            runResults.Add(rr);
+                    foreach (RunResult rr in result.RunResults)
+                        runResults.Add(rr);
 
                     AddDetail(runResults, _stresstestResults.Stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_') +
                         "_Concurrent_Users_" + result.ConcurrentUsers + ".csv");
                 }
         }
-        private void SetPrecisionDetails()
+        private void SetRunsDetails()
         {
             if (_stresstestResults != null && _monitorValues != null)
-                foreach (ConcurrentUsersResult cur in _stresstestResults.ConcurrentUsersResults)
-                    foreach (PrecisionResult result in cur.PrecisionResults)
+                foreach (ConcurrencyResult cr in _stresstestResults.ConcurrencyResults)
+                    foreach (RunResult result in cr.RunResults)
                     {
                         List<RunResult> runResults = new List<RunResult>();
-                        foreach (RunResult rr in result.RunResults)
-                            runResults.Add(rr);
+                        runResults.Add(result);
 
                         //zero based to one based
                         AddDetail(runResults, _stresstestResults.Stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_') +
-                        "_Concurrent_Users_" + cur.ConcurrentUsers +
-                        "_Precision_" + (result.Precision + 1) + ".csv");
+                        "_Concurrent_Users_" + cr.ConcurrentUsers +
+                        "_Run_" + (result.Run + 1).ToString() + ".csv");
                     }
-        }
-        private void SetRunDetails()
-        {
-            if (_stresstestResults != null && _monitorValues != null)
-                foreach (ConcurrentUsersResult cur in _stresstestResults.ConcurrentUsersResults)
-                    foreach (PrecisionResult pr in cur.PrecisionResults)
-                        foreach (RunResult result in pr.RunResults)
-                        {
-                            List<RunResult> runResults = new List<RunResult>();
-                            runResults.Add(result);
-
-                            //zero based to one based
-                            AddDetail(runResults, _stresstestResults.Stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_') +
-                            "_Concurrent_Users_" + cur.ConcurrentUsers +
-                            "_Precision_" + (pr.Precision + 1) +
-                            "_Run_" + (result.Run + 1).ToString() + ".csv");
-                        }
         }
         private void AddDetail(List<RunResult> results, string text)
         {
@@ -516,13 +444,10 @@ namespace vApus.Stresstest
                     SetStresstestDetails();
                     break;
                 case 1:
-                    SetConcurrentUsersDetails();
+                    SetConcurrencyDetails();
                     break;
                 case 2:
-                    SetPrecisionDetails();
-                    break;
-                case 3:
-                    SetRunDetails();
+                    SetRunsDetails();
                     break;
             }
 

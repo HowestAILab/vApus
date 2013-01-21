@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -18,11 +19,12 @@ namespace vApus.Util
         {
             InitializeComponent();
         }
+
         /// <summary>
-        /// This inits the control with event handling.
+        ///     This inits the control with event handling.
         /// </summary>
         /// <param name="value"></param>
-        public void Init(BaseValueControl.Value value)
+        public void Init(Value value)
         {
             base.__Value = value;
 
@@ -35,8 +37,8 @@ namespace vApus.Util
                 txt = new TextBox();
                 txt.Dock = DockStyle.Fill;
 
-                txt.Leave += new EventHandler(txt_Leave);
-                txt.KeyUp += new KeyEventHandler(txt_KeyUp);
+                txt.Leave += txt_Leave;
+                txt.KeyUp += txt_KeyUp;
             }
             else
             {
@@ -50,17 +52,20 @@ namespace vApus.Util
 
         private void txt_KeyUp(object sender, KeyEventArgs e)
         {
-            TextBox txt = sender as TextBox;
+            var txt = sender as TextBox;
             base.HandleKeyUp(e.KeyCode, txt.Text);
         }
+
         private void txt_Leave(object sender, EventArgs e)
         {
             try
             {
-                TextBox txt = sender as TextBox;
+                var txt = sender as TextBox;
                 base.HandleValueChanged(txt.Text);
             }
-            catch { }
+            catch
+            {
+            }
         }
     }
 }

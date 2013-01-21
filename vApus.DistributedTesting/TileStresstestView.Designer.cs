@@ -35,7 +35,7 @@
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.tmrProgress = new System.Timers.Timer();
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
-            this.stresstestControl = new vApus.Stresstest.StresstestControl();
+            this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tmrProgress)).BeginInit();
             this.SuspendLayout();
@@ -84,21 +84,22 @@
             this.tmrProgressDelayCountDown.Interval = 1000;
             this.tmrProgressDelayCountDown.Tick += new System.EventHandler(this.tmrProgressDelayCountDown_Tick);
             // 
-            // stresstestControl
+            // fastResultsControl
             // 
-            this.stresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stresstestControl.Location = new System.Drawing.Point(0, 40);
-            this.stresstestControl.MonitorConfigurationControlVisible = false;
-            this.stresstestControl.Name = "stresstestControl";
-            this.stresstestControl.Size = new System.Drawing.Size(843, 592);
-            this.stresstestControl.TabIndex = 2;
+            this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
+            this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastResultsControl.Location = new System.Drawing.Point(0, 40);
+            this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = false;
+            this.fastResultsControl.Name = "fastResultsControl";
+            this.fastResultsControl.Size = new System.Drawing.Size(843, 592);
+            this.fastResultsControl.TabIndex = 2;
             // 
             // TileStresstestView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(843, 635);
-            this.Controls.Add(this.stresstestControl);
+            this.Controls.Add(this.fastResultsControl);
             this.Controls.Add(this.toolStrip);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "TileStresstestView";
@@ -120,7 +121,7 @@
         private System.Windows.Forms.ToolStrip toolStrip;
         private System.Timers.Timer tmrProgress;
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
-        private Stresstest.StresstestControl stresstestControl;
+        private Stresstest.FastResultsControl fastResultsControl;
 
     }
 }

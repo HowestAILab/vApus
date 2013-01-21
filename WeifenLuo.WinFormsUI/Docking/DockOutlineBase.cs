@@ -1,4 +1,3 @@
-using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -6,36 +5,35 @@ namespace WeifenLuo.WinFormsUI.Docking
 {
     internal abstract class DockOutlineBase
     {
+        private int m_contentIndex;
+        private DockStyle m_dock;
+        private Control m_dockTo;
+        private Rectangle m_floatWindowBounds;
+        private int m_oldContentIndex;
+        private DockStyle m_oldDock;
+        private Control m_oldDockTo;
+        private Rectangle m_oldFloatWindowBounds;
+
         public DockOutlineBase()
         {
             Init();
         }
 
-        private void Init()
-        {
-            SetValues(Rectangle.Empty, null, DockStyle.None, -1);
-            SaveOldValues();
-        }
-
-        private Rectangle m_oldFloatWindowBounds;
         protected Rectangle OldFloatWindowBounds
         {
             get { return m_oldFloatWindowBounds; }
         }
 
-        private Control m_oldDockTo;
         protected Control OldDockTo
         {
             get { return m_oldDockTo; }
         }
 
-        private DockStyle m_oldDock;
         protected DockStyle OldDock
         {
             get { return m_oldDock; }
         }
 
-        private int m_oldContentIndex;
         protected int OldContentIndex
         {
             get { return m_oldContentIndex; }
@@ -46,31 +44,27 @@ namespace WeifenLuo.WinFormsUI.Docking
             get
             {
                 return FloatWindowBounds == OldFloatWindowBounds &&
-                    DockTo == OldDockTo &&
-                    Dock == OldDock &&
-                    ContentIndex == OldContentIndex;
+                       DockTo == OldDockTo &&
+                       Dock == OldDock &&
+                       ContentIndex == OldContentIndex;
             }
         }
 
-        private Rectangle m_floatWindowBounds;
         public Rectangle FloatWindowBounds
         {
             get { return m_floatWindowBounds; }
         }
 
-        private Control m_dockTo;
         public Control DockTo
         {
             get { return m_dockTo; }
         }
 
-        private DockStyle m_dock;
         public DockStyle Dock
         {
             get { return m_dock; }
         }
 
-        private int m_contentIndex;
         public int ContentIndex
         {
             get { return m_contentIndex; }
@@ -81,11 +75,12 @@ namespace WeifenLuo.WinFormsUI.Docking
             get { return m_contentIndex != 0; }
         }
 
-        private bool m_flagTestDrop = false;
-        public bool FlagTestDrop
+        public bool FlagTestDrop { get; set; }
+
+        private void Init()
         {
-            get { return m_flagTestDrop; }
-            set { m_flagTestDrop = value; }
+            SetValues(Rectangle.Empty, null, DockStyle.None, -1);
+            SaveOldValues();
         }
 
         private void SaveOldValues()

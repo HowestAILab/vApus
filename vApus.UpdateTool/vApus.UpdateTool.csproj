@@ -159,25 +159,18 @@
   <ItemGroup>
     <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Prerequisites\SharpSSH\DiffieHellman.dll</HintPath>
+      <HintPath>..\Prerequisites\SharpSSH\DiffieHellman.dll</HintPath>
     </Reference>
     <Reference Include="Org.Mentalis.Security, Version=1.0.13.715, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
+      <HintPath>..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Security" />
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
     <Reference Include="Tamir.SharpSSH, Version=1.1.1.13, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Prerequisites\SharpSSH\Tamir.SharpSSH.dll</HintPath>
@@ -243,10 +236,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\vApus.Gui\vApus.Gui.csproj">
-      <Project>{C45D47EE-85F0-4621-AFEB-D4E9CADF9678}</Project>
-      <Name>vApus.Gui</Name>
-    </ProjectReference>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
       <Project>{EAFDF189-4D7D-4784-96BC-662D746DEBF8}</Project>
       <Name>vApus.Util</Name>

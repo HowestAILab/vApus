@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -21,10 +22,10 @@ namespace vApus.Util
         }
 
         /// <summary>
-        /// This inits the control with event handling.
+        ///     This inits the control with event handling.
         /// </summary>
         /// <param name="value"></param>
-        public void Init(BaseValueControl.Value value)
+        public void Init(Value value)
         {
             base.__Value = value;
 
@@ -40,9 +41,9 @@ namespace vApus.Util
                 cbo.FlatStyle = FlatStyle.Flat;
                 cbo.BackColor = Color.White;
 
-                cbo.SelectedIndexChanged += new EventHandler(cbo_SelectedIndexChanged);
-                cbo.Leave += new EventHandler(cbo_Leave);
-                cbo.KeyUp += new KeyEventHandler(cbo_KeyUp);
+                cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
+                cbo.Leave += cbo_Leave;
+                cbo.KeyUp += cbo_KeyUp;
             }
             else
             {
@@ -56,35 +57,44 @@ namespace vApus.Util
             foreach (Enum e in Enum.GetValues(valueType))
             {
                 //The description value will be used instead of the tostring of the enum, if any.
-                DescriptionAttribute[] attr = valueType.GetField(e.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+                var attr =
+                    valueType.GetField(e.ToString()).GetCustomAttributes(typeof (DescriptionAttribute), false) as
+                    DescriptionAttribute[];
                 cbo.Items.Add(attr.Length != 0 ? attr[0].Description : e.ToString());
             }
 
-            DescriptionAttribute[] attr2 = valueType.GetField(value.__Value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+            var attr2 =
+                valueType.GetField(value.__Value.ToString()).GetCustomAttributes(typeof (DescriptionAttribute), false)
+                as DescriptionAttribute[];
             cbo.SelectedItem = attr2.Length > 0 ? attr2[0].Description : value.__Value.ToString();
 
             cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
 
             base.ValueControl = cbo;
         }
+
         private void cbo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ComboBox cbo = base.ValueControl as ComboBox;
+            var cbo = base.ValueControl as ComboBox;
             base.HandleValueChanged(ExtractValue(cbo));
         }
+
         private void cbo_KeyUp(object sender, KeyEventArgs e)
         {
-            ComboBox cbo = base.ValueControl as ComboBox;
+            var cbo = base.ValueControl as ComboBox;
             base.HandleKeyUp(e.KeyCode, ExtractValue(cbo));
         }
+
         private void cbo_Leave(object sender, EventArgs e)
         {
             try
             {
-                ComboBox cbo = base.ValueControl as ComboBox;
+                var cbo = base.ValueControl as ComboBox;
                 base.HandleValueChanged(ExtractValue(cbo));
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         private object ExtractValue(ComboBox cbo)
@@ -92,7 +102,9 @@ namespace vApus.Util
             Type valueType = base.__Value.__Value.GetType();
             foreach (Enum e in Enum.GetValues(valueType))
             {
-                DescriptionAttribute[] attr = valueType.GetField(e.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+                var attr =
+                    valueType.GetField(e.ToString()).GetCustomAttributes(typeof (DescriptionAttribute), false) as
+                    DescriptionAttribute[];
                 if (cbo.SelectedItem.ToString() == (attr.Length != 0 ? attr[0].Description : e.ToString()))
                     return e;
             }

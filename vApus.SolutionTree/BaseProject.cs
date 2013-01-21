@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,16 +20,19 @@ namespace vApus.SolutionTree
     public abstract class BaseProject : SolutionComponent
     {
         #region Fields
+
         private Solution _parent;
+
         #endregion
 
         #region Properties
+
         [DisplayName("Stresstesting Solution FileName.")]
         public string StresstestingSolutionFileName
         {
             get { return _parent.FileName; }
         }
-        
+
         public Solution Parent
         {
             get { return _parent; }
@@ -39,17 +43,20 @@ namespace vApus.SolutionTree
                 _parent = value;
             }
         }
+
         #endregion
 
         #region Functions
+
         public IEnumerable<BaseProject> GetSiblings()
         {
             foreach (BaseProject project in _parent.Projects)
                 if (project != this)
                     yield return project;
         }
+
         /// <summary>
-        /// Gets a solution component by type.
+        ///     Gets a solution component by type.
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
@@ -60,8 +67,9 @@ namespace vApus.SolutionTree
 
             return GetSolutionComponent(this, type);
         }
+
         /// <summary>
-        /// Gets a solution component by type and name.
+        ///     Gets a solution component by type and name.
         /// </summary>
         /// <param name="type"></param>
         /// <param name="name"></param>
@@ -75,6 +83,7 @@ namespace vApus.SolutionTree
 
             return GetSolutionComponent(this, type, name);
         }
+
         private SolutionComponent GetSolutionComponent(SolutionComponent solutionComponent, Type type)
         {
             if (solutionComponent.GetType() == type)
@@ -87,6 +96,7 @@ namespace vApus.SolutionTree
             }
             return null;
         }
+
         private SolutionComponent GetSolutionComponent(SolutionComponent solutionComponent, Type type, string name)
         {
             if (solutionComponent.GetType() == type && name == solutionComponent.Name)
@@ -101,7 +111,7 @@ namespace vApus.SolutionTree
         }
 
         /// <summary>
-        /// Get a labeled base item by name, index and label.
+        ///     Get a labeled base item by name, index and label.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="index"></param>
@@ -116,11 +126,13 @@ namespace vApus.SolutionTree
 
             return GetLabeledBaseItem(this, name, index, label);
         }
-        private LabeledBaseItem GetLabeledBaseItem(SolutionComponent solutionComponent, string name, int index, string label)
+
+        private LabeledBaseItem GetLabeledBaseItem(SolutionComponent solutionComponent, string name, int index,
+                                                   string label)
         {
             if (solutionComponent is LabeledBaseItem)
             {
-                LabeledBaseItem labeledBaseItem = solutionComponent as LabeledBaseItem;
+                var labeledBaseItem = solutionComponent as LabeledBaseItem;
                 if (name == labeledBaseItem.Name && index == labeledBaseItem.Index && label == labeledBaseItem.Label)
                     return labeledBaseItem;
             }
@@ -132,44 +144,51 @@ namespace vApus.SolutionTree
             }
             return null;
         }
+
         /// <summary>
-        /// Gets the xml to save based on reflection and attributes.
+        ///     Gets the xml to save based on reflection and attributes.
         /// </summary>
         /// <returns></returns>
         internal XmlDocument GetXmlToSave()
         {
-            XmlDocument xmlDocument = new XmlDocument();
-            XmlElement element = xmlDocument.CreateElement(this.GetType().Name);
+            var xmlDocument = new XmlDocument();
+            XmlElement element = xmlDocument.CreateElement(GetType().Name);
             xmlDocument.AppendChild(element);
             foreach (BaseItem item in this)
                 item.GetXmlToSave(xmlDocument, element);
             return xmlDocument;
         }
+
         /// <summary>
-        /// Load 'this' and childs based on activation and reflection.
+        ///     Load 'this' and childs based on activation and reflection.
         /// </summary>
         /// <param name="xmlDocument"></param>
         internal void LoadFromXml(XmlDocument xmlDocument, out string errorMessage)
         {
             //Error reporting.
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             //The first node is the content type, we don't need this
-            XmlNode root = (xmlDocument.FirstChild.Name == this.GetType().Name) ? xmlDocument.FirstChild : xmlDocument.ChildNodes[1];
+            XmlNode root = (xmlDocument.FirstChild.Name == GetType().Name)
+                               ? xmlDocument.FirstChild
+                               : xmlDocument.ChildNodes[1];
             foreach (XmlNode childNode in root.ChildNodes)
             {
                 try
                 {
-                    BaseItem item = Activator.CreateInstance(this.GetType().Assembly.GetTypeByName(childNode.Name)) as BaseItem;
+                    var item = Activator.CreateInstance(GetType().Assembly.GetTypeByName(childNode.Name)) as BaseItem;
                     item.SetParent(this, false);
                     string childErrorMessage;
                     item.LoadFromXml(childNode, out childErrorMessage);
                     sb.Append(childErrorMessage);
-                    this.AddWhileLoading(item);
+                    AddWhileLoading(item);
                 }
                 catch (Exception ex)
                 {
                     string s = "[" + this + "] " + childNode.Name;
-                    LogWrapper.LogByLevel("Failed loading " + s + " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stresstesting works.\n" + ex, LogLevel.Warning);
+                    LogWrapper.LogByLevel(
+                        "Failed loading " + s +
+                        " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stresstesting works.\n" +
+                        ex, LogLevel.Warning);
 
                     sb.Append(s);
                     sb.Append(";");
@@ -177,20 +196,21 @@ namespace vApus.SolutionTree
             }
             errorMessage = sb.ToString();
         }
+
         internal void Import_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            var ofd = new OpenFileDialog();
             ofd.Filter = "Xml Files (*.xml) | *.xml";
             ofd.Title = "Import from...";
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                StringBuilder sb = new StringBuilder();
-                XmlDocument xmlDocument = new XmlDocument();
+                var sb = new StringBuilder();
+                var xmlDocument = new XmlDocument();
                 xmlDocument.Load(ofd.FileName);
 
                 try
                 {
-                    if (xmlDocument.FirstChild.Name == this.GetType().Name)
+                    if (xmlDocument.FirstChild.Name == GetType().Name)
                     {
                         string errorMessage;
                         LoadFromXml(xmlDocument, out errorMessage);
@@ -203,7 +223,8 @@ namespace vApus.SolutionTree
                     }
                     else
                     {
-                        MessageBox.Show("This xml file contains no valid structure to be loaded.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                        MessageBox.Show("This xml file contains no valid structure to be loaded.", string.Empty,
+                                        MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                         return;
                     }
                 }
@@ -213,60 +234,69 @@ namespace vApus.SolutionTree
                 }
                 if (sb.ToString().Length > 0)
                 {
-                    string s = "Failed loading: " + sb.ToString();
+                    string s = "Failed loading: " + sb;
                     LogWrapper.LogByLevel(s, LogLevel.Error);
-                    MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
+                                    MessageBoxDefaultButton.Button1);
                 }
             }
         }
+
         internal void Paste_Click(object sender, EventArgs e)
         {
             Paste();
         }
-        internal protected void Paste()
+
+        protected internal void Paste()
         {
             IDataObject dataObject = ClipboardWrapper.GetDataObject();
-            Type stringType = typeof(string);
+            Type stringType = typeof (string);
             if (dataObject.GetDataPresent(stringType))
             {
                 try
                 {
-                    string clipboardString = dataObject.GetData(stringType) as string;
-                    if (clipboardString.StartsWith('<' + this.GetType().Name))
+                    var clipboardString = dataObject.GetData(stringType) as string;
+                    if (clipboardString.StartsWith('<' + GetType().Name))
                     {
-                        XmlDocument xmlDocument = new XmlDocument();
+                        var xmlDocument = new XmlDocument();
                         xmlDocument.LoadXml(clipboardString);
 
                         if (xmlDocument.ChildNodes.Count > 0)
                         {
                             string errorMessage;
-                            if (xmlDocument.FirstChild.Name == this.GetType().Name)
+                            if (xmlDocument.FirstChild.Name == GetType().Name)
                                 LoadFromXml(xmlDocument, out errorMessage);
                             else
                                 return;
                             if (errorMessage.Length == 0)
                             {
                                 ResolveBranchedIndices();
-                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
+                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,
+                                                                    true);
                             }
                         }
                     }
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
+
         /// <summary>
-        /// An item's dependencies ae set using branched indices, they must be resolved to load the right values from "referenced" objects.
+        ///     An item's dependencies ae set using branched indices, they must be resolved to load the right values from "referenced" objects.
         /// </summary>
         internal void ResolveBranchedIndices()
         {
             foreach (BaseItem item in this)
                 item.ResolveBranchedIndices();
         }
+
         public override string ToString()
         {
             return Name;
         }
+
         #endregion
     }
 }

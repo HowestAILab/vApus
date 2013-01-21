@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -14,20 +15,20 @@ using System.Windows.Forms;
 namespace vApus.Util
 {
     /// <summary>
-    /// Only for Arrays or ILists (BaseTypes are fine) ; or objects (no primitives!) that have an array or IList as parent 
+    ///     Only for Arrays or ILists (BaseTypes are fine) ; or objects (no primitives!) that have an array or IList as parent
     /// </summary>
     [ToolboxItem(false)]
     public partial class CollectionValueControl : BaseValueControl, IValueControl
     {
         /// <summary>
-        /// Only for Arrays or ILists (BaseTypes are fine) ; or objects (no primitives!) that have an array or IList as parent 
+        ///     Only for Arrays or ILists (BaseTypes are fine) ; or objects (no primitives!) that have an array or IList as parent
         /// </summary>
         public CollectionValueControl()
         {
             InitializeComponent();
         }
 
-        public void Init(BaseValueControl.Value value)
+        public void Init(Value value)
         {
             base.__Value = value;
 
@@ -36,6 +37,7 @@ namespace vApus.Util
             else
                 SetDefinedCollectionControl();
         }
+
         public void SetUndefinedCollectionControl()
         {
             //Only take the value into account, the other properties are taken care off.
@@ -53,8 +55,8 @@ namespace vApus.Util
                 ucc.Height = 170;
                 ucc.Dock = DockStyle.Top;
 
-                ucc.ValueChanged += new EventHandler(ucc_ValueChanged);
-                ucc.Failed += new EventHandler(ucc_Failed);
+                ucc.ValueChanged += ucc_ValueChanged;
+                ucc.Failed += ucc_Failed;
             }
             else
             {
@@ -67,6 +69,7 @@ namespace vApus.Util
 
             base.ValueControl = ucc;
         }
+
         public void SetDefinedCollectionControl()
         {
             //Only take the value into account, the other properties are taken care off.
@@ -82,7 +85,7 @@ namespace vApus.Util
                 dcc.Height = 170;
                 dcc.Dock = DockStyle.Top;
 
-                dcc.ValueChanged += new EventHandler(dcc_ValueChanged);
+                dcc.ValueChanged += dcc_ValueChanged;
             }
             else
             {
@@ -98,18 +101,21 @@ namespace vApus.Util
 
         private void ucc_ValueChanged(object sender, EventArgs e)
         {
-            UndefinedCollectionControl cc = sender as UndefinedCollectionControl;
+            var cc = sender as UndefinedCollectionControl;
             base.HandleValueChanged(cc.Value);
         }
+
         private void dcc_ValueChanged(object sender, EventArgs e)
         {
-            DefinedCollectionControl cc = sender as DefinedCollectionControl;
+            var cc = sender as DefinedCollectionControl;
             base.HandleValueChanged(cc.Value);
         }
+
         private void ucc_Failed(object sender, EventArgs e)
         {
-            MessageBox.Show("The new value is not of the right data type.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            UndefinedCollectionControl cc = sender as UndefinedCollectionControl;
+            MessageBox.Show("The new value is not of the right data type.", string.Empty, MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+            var cc = sender as UndefinedCollectionControl;
             var ienumerable = base.__Value.__Value as IEnumerable;
 
             cc.ValueChanged -= ucc_ValueChanged;

@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -16,7 +17,7 @@ namespace vApus.Util
     public static class ProcessorAffinityCalculator
     {
         /// <summary>
-        /// to know how much cores a group contains
+        ///     to know how much cores a group contains
         /// </summary>
         /// <param name="groupNumber">the group number if any, or ALL_PROCESSOR_GROUPS (0xffff) for every group</param>
         /// <returns></returns>
@@ -24,22 +25,23 @@ namespace vApus.Util
         public static extern uint GetActiveProcessorCount(ushort groupNumber);
 
         /// <summary>
-        /// Converts from a hex bitmask to an array of cpu's this process its affinity is set to.
+        ///     Converts from a hex bitmask to an array of cpu's this process its affinity is set to.
         /// </summary>
         /// <param name="bitmask"></param>
         /// <returns></returns>
         public static int[] FromBitmaskToArray(IntPtr bitmask)
         {
             //To check if the bitmask contains the cpu's a binairy and is used.
-            List<int> cpus = new List<int>();
+            var cpus = new List<int>();
             long iBitmask = bitmask.ToInt64();
-            for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++)        //(0xFFFF) to include all processor groups
-                if ((iBitmask & (int)Math.Pow(2, i)) > 0)
+            for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) //(0xFFFF) to include all processor groups
+                if ((iBitmask & (int) Math.Pow(2, i)) > 0)
                     cpus.Add(i);
             return cpus.ToArray();
         }
+
         /// <summary>
-        /// Converts from an array of cpu's to a hex bitmask this process its affinaty is set to.
+        ///     Converts from an array of cpu's to a hex bitmask this process its affinaty is set to.
         /// </summary>
         /// <param name="array"></param>
         /// <returns></returns>
@@ -48,7 +50,7 @@ namespace vApus.Util
             //Hex = 2^(n)
             int i = 0;
             for (int j = 0; j < array.Length; j++)
-                i += (int)Math.Pow(2, array[j]);
+                i += (int) Math.Pow(2, array[j]);
             return new IntPtr(i);
         }
     }

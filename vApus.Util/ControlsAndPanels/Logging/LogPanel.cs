@@ -5,44 +5,40 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Timers;
 using System.Windows.Forms;
+using Timer = System.Timers.Timer;
 
 namespace vApus.Util
 {
     public partial class LogPanel : Panel
     {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
-        public event EventHandler<LogErrorCountChangedEventArgs> LogErrorCountChanged;
+        private readonly object _lock = new object();
+        private readonly Timer tmrFireLogChangedEvent = new Timer(5000);
         private volatile int _logErrorCountCache;
-        private System.Timers.Timer tmrFireLogChangedEvent = new System.Timers.Timer(5000);
-
-        private object _lock = new object();
 
         public LogPanel()
         {
             InitializeComponent();
-            this.HandleCreated += new EventHandler(LogPanel_HandleCreated);
-            this.VisibleChanged += new EventHandler(LogPanel_VisibleChanged);
-            LogWrapper.Default.AfterLogging += new AfterLoggingEventHandler(Default_AfterLogging);
+            HandleCreated += LogPanel_HandleCreated;
+            VisibleChanged += LogPanel_VisibleChanged;
+            LogWrapper.Default.AfterLogging += Default_AfterLogging;
 
-            tmrFireLogChangedEvent.Elapsed += new System.Timers.ElapsedEventHandler(tmrFireLogChangedEvent_Elapsed);
+            tmrFireLogChangedEvent.Elapsed += tmrFireLogChangedEvent_Elapsed;
         }
 
         #region Event Handling
+
         private void Default_AfterLogging(object source, LogEventArgs e)
         {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-            {
-                SetGui();
-            }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetGui(); }, null);
 
             if (e.LogLevel >= LogLevel.Error)
             {
@@ -52,38 +48,41 @@ namespace vApus.Util
                 tmrFireLogChangedEvent.Start();
             }
         }
-        private void tmrFireLogChangedEvent_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+
+        private void tmrFireLogChangedEvent_Elapsed(object sender, ElapsedEventArgs e)
         {
             tmrFireLogChangedEvent.Stop();
             int count = _logErrorCountCache;
             _logErrorCountCache = 0;
 
             if (LogErrorCountChanged != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    LogErrorCountChanged(this, new LogErrorCountChangedEventArgs(count));
-                }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(
+                    delegate { LogErrorCountChanged(this, new LogErrorCountChangedEventArgs(count)); }, null);
         }
+
         private void LogPanel_HandleCreated(object sender, EventArgs e)
         {
-            this.HandleCreated -= LogPanel_HandleCreated;
+            HandleCreated -= LogPanel_HandleCreated;
             SetGui();
         }
+
         private void LogPanel_VisibleChanged(object sender, EventArgs e)
         {
             SetGui();
         }
+
         #endregion
 
         #region Get the current log in the gui
+
         private void SetGui()
         {
             lock (_lock)
-                if (this.Visible && this.IsHandleCreated)
+                if (Visible && IsHandleCreated)
                 {
                     cboLogLevel.SelectedIndexChanged -= cboLogLevel_SelectedIndexChanged;
                     llblPath.Text = Logger.DEFAULT_LOCATION;
-                    cboLogLevel.SelectedIndex = (int)LogWrapper.LogLevel;
+                    cboLogLevel.SelectedIndex = (int) LogWrapper.LogLevel;
                     btnWarning.Visible = cboLogLevel.SelectedIndex > 1;
 
                     SeCurrentLog();
@@ -91,8 +90,9 @@ namespace vApus.Util
                     cboLogLevel.SelectedIndexChanged += cboLogLevel_SelectedIndexChanged;
                 }
         }
+
         /// <summary>
-        /// The current log or the latest if not available.
+        ///     The current log or the latest if not available.
         /// </summary>
         private void SeCurrentLog()
         {
@@ -122,6 +122,7 @@ namespace vApus.Util
                 llblLatestLog.Tag = fi.FullName;
             }
         }
+
         private bool IsLog(string file)
         {
             if (file.EndsWith(".txt"))
@@ -138,7 +139,7 @@ namespace vApus.Util
 
         private void SetEntries()
         {
-            string latestLog = llblLatestLog.Tag as string;
+            var latestLog = llblLatestLog.Tag as string;
             if (File.Exists(latestLog))
             {
                 //Fast read this, if it fails once it is not a problem.
@@ -150,14 +151,18 @@ namespace vApus.Util
                         while (sr.Peek() != -1)
                             lines.Add(sr.ReadLine());
                 }
-                catch { }
+                catch
+                {
+                }
                 finally
                 {
                     try
                     {
                         LogWrapper.Default.Logger.OpenOrReOpenWriter();
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
 
                 //Get the key value par controls data
@@ -169,19 +174,19 @@ namespace vApus.Util
                     flp.Controls.RemoveAt(linecount);
 
                 //Recycle the kvp's if needed, otherwise add new
-                LockWindowUpdate(this.Handle.ToInt32());
+                LockWindowUpdate(Handle.ToInt32());
                 for (int i = 0; i != linecount; i++)
                 {
-                    var lineWithMetaData = linesWithMetaData[i];
+                    KeyValuePair<string[], string> lineWithMetaData = linesWithMetaData[i];
                     if (i < flp.Controls.Count)
                     {
                         var entrieKVP = flp.Controls[i] as KeyValuePairControl;
                         if (entrieKVP.Key != lineWithMetaData.Key[0])
                         {
-                            var newEntrieKVP = GetEntrieKVP(lineWithMetaData.Key[0],
-                                 lineWithMetaData.Key[1],
-                                 lineWithMetaData.Key[2],
-                                 lineWithMetaData.Value);
+                            KeyValuePairControl newEntrieKVP = GetEntrieKVP(lineWithMetaData.Key[0],
+                                                                            lineWithMetaData.Key[1],
+                                                                            lineWithMetaData.Key[2],
+                                                                            lineWithMetaData.Value);
                             flp.Controls.Add(newEntrieKVP);
                             flp.Controls.SetChildIndex(entrieKVP, i);
 
@@ -193,11 +198,13 @@ namespace vApus.Util
                         try
                         {
                             flp.Controls.Add(GetEntrieKVP(lineWithMetaData.Key[0],
-                                lineWithMetaData.Key[1],
-                                lineWithMetaData.Key[2],
-                                lineWithMetaData.Value));
+                                                          lineWithMetaData.Key[1],
+                                                          lineWithMetaData.Key[2],
+                                                          lineWithMetaData.Value));
                         }
-                        catch { }
+                        catch
+                        {
+                        }
                     }
                     Application.DoEvents();
                 }
@@ -205,6 +212,7 @@ namespace vApus.Util
                 LockWindowUpdate(0);
             }
         }
+
         private List<KeyValuePair<string[], string>> ExtractValidLinesWithMetaData(List<string> lines)
         {
             var linesWithMetaData = new List<KeyValuePair<string[], string>>();
@@ -221,8 +229,8 @@ namespace vApus.Util
 
                     string[] timeStampSplit = entry[0].Split(',');
                     string dateTimePart = timeStampSplit[0];
-                    if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse<LogLevel>(entry[1], out logLevel))
-                        if ((int)logLevel >= cboLogLevel.SelectedIndex)
+                    if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse(entry[1], out logLevel))
+                        if ((int) logLevel >= cboLogLevel.SelectedIndex)
                         {
                             if (timeStampSplit.Length > 1)
                             {
@@ -237,7 +245,10 @@ namespace vApus.Util
                             message = message.Substring(0, message.Length - 1);
 
 
-                            linesWithMetaData.Add(new KeyValuePair<string[], string>(new string[] { timeStamp.ToString("dd/MM/yyyy HH:mm:ss.fff"), logLevel.ToString(), message }, string.Empty));
+                            linesWithMetaData.Add(
+                                new KeyValuePair<string[], string>(
+                                    new[] {timeStamp.ToString("dd/MM/yyyy HH:mm:ss.fff"), logLevel.ToString(), message},
+                                    string.Empty));
                             //Continue if valid line
                             continue;
                         }
@@ -246,21 +257,22 @@ namespace vApus.Util
                 if (linesWithMetaData.Count != 0)
                 {
                     int index = linesWithMetaData.Count - 1;
-                    var kvp = linesWithMetaData[index];
+                    KeyValuePair<string[], string> kvp = linesWithMetaData[index];
                     kvp = new KeyValuePair<string[], string>(kvp.Key, kvp.Value + '\n' + line);
                     linesWithMetaData[index] = kvp;
                 }
             }
             return linesWithMetaData;
         }
+
         private KeyValuePairControl GetEntrieKVP(string timeStamp, string logLevel, string message, string metaData)
         {
-            KeyValuePairControl kvp = new KeyValuePairControl();
+            var kvp = new KeyValuePairControl();
             kvp.Key = timeStamp;
             kvp.Tooltip = "Click for details...";
             kvp.Tag = timeStamp + ';' + logLevel + ';' + message + '\n' + metaData;
             kvp.Cursor = Cursors.Hand;
-            kvp.Click += new EventHandler(kvp_Click);
+            kvp.Click += kvp_Click;
 
             //Stupid user controls.
             foreach (Control ctrl in kvp.Controls)
@@ -291,7 +303,7 @@ namespace vApus.Util
         private void kvp_Click(object sender, EventArgs e)
         {
             var kvp = sender as Control;
-            LogMessageDialog lmd = new LogMessageDialog();
+            var lmd = new LogMessageDialog();
 
             if (kvp.BackColor == Color.FromArgb(255, 128, 0) || kvp.BackColor == Color.Red)
                 lmd.Title = "You can report this bug, be sure it is not because of a configuration problem.";
@@ -302,14 +314,21 @@ namespace vApus.Util
             lmd.StartPosition = FormStartPosition.CenterParent;
             lmd.ShowDialog(this);
         }
+
         #endregion
+
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
+        public event EventHandler<LogErrorCountChangedEventArgs> LogErrorCountChanged;
 
         private void cboLogLevel_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LogWrapper.LogLevel = (LogLevel)cboLogLevel.SelectedIndex;
+            LogWrapper.LogLevel = (LogLevel) cboLogLevel.SelectedIndex;
             flp.Controls.Clear();
             SetGui();
         }
+
         private void cboLogLevel_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (e.Index == -1)
@@ -321,7 +340,7 @@ namespace vApus.Util
                 brush = Brushes.SteelBlue;
             e.Graphics.FillRectangle(brush, e.Bounds);
 
-            LogLevel logLevel = (LogLevel)e.Index;
+            var logLevel = (LogLevel) e.Index;
             switch (logLevel)
             {
                 case LogLevel.Info:
@@ -339,32 +358,40 @@ namespace vApus.Util
             }
             e.Graphics.DrawString(cboLogLevel.Items[e.Index].ToString(), cboLogLevel.Font, brush, e.Bounds);
         }
+
         private void btnWarning_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("You are advised to keep the log level at 'Info' or 'Warning'.\nReset to 'Warning' now?",
-                string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+            if (MessageBox.Show(
+                "You are advised to keep the log level at 'Info' or 'Warning'.\nReset to 'Warning' now?",
+                string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) ==
+                DialogResult.Yes)
                 cboLogLevel.SelectedIndex = 1;
         }
+
         private void llblPath_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             if (Directory.Exists(llblPath.Text))
                 Process.Start(llblPath.Text);
             else
-                MessageBox.Show("There is not yet a log folder.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("There is not yet a log folder.", string.Empty, MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
         }
 
         private void llblLatestLog_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string latestLog = llblLatestLog.Tag as string;
+            var latestLog = llblLatestLog.Tag as string;
             if (File.Exists(latestLog))
                 Process.Start(latestLog);
             else
-                MessageBox.Show("The file does not exist anymore.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("The file does not exist anymore.", string.Empty, MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
         }
+
         private void flp_SizeChanged(object sender, EventArgs e)
         {
             SizeKVPs();
         }
+
         private void SizeKVPs()
         {
             try
@@ -374,8 +401,11 @@ namespace vApus.Util
                     kvp.MaximumSize = kvp.MinimumSize = new Size(flp.Width - 24, kvp.Height);
                 flp.ResumeLayout(true);
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         public override string ToString()
         {
             return "Application Logging";
@@ -384,6 +414,7 @@ namespace vApus.Util
         public class LogErrorCountChangedEventArgs : EventArgs
         {
             public readonly int LogErrorCount;
+
             public LogErrorCountChangedEventArgs(int logErrorCount)
             {
                 LogErrorCount = logErrorCount;

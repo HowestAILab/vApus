@@ -54,7 +54,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.pnlBorderChannel = new System.Windows.Forms.Panel();
             this.cboChannel = new System.Windows.Forms.ComboBox();
-            this.btnUpdateManually = new System.Windows.Forms.Button();
+            this.btnForceUpdate = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.pnlRefresh.SuspendLayout();
@@ -369,22 +369,22 @@
             // 
             // btnUpdateManually
             // 
-            this.btnUpdateManually.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnUpdateManually.AutoSize = true;
-            this.btnUpdateManually.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnUpdateManually.BackColor = System.Drawing.Color.White;
-            this.btnUpdateManually.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnUpdateManually.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnUpdateManually.Location = new System.Drawing.Point(12, 206);
-            this.btnUpdateManually.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
-            this.btnUpdateManually.MaximumSize = new System.Drawing.Size(1000, 24);
-            this.btnUpdateManually.Name = "btnUpdateManually";
-            this.btnUpdateManually.Size = new System.Drawing.Size(96, 24);
-            this.btnUpdateManually.TabIndex = 2;
-            this.btnUpdateManually.Text = "Force Update";
-            this.toolTip.SetToolTip(this.btnUpdateManually, "Update all files regardless if they need to be updated.");
-            this.btnUpdateManually.UseVisualStyleBackColor = false;
-            this.btnUpdateManually.Click += new System.EventHandler(this.btnUpdateManually_Click);
+            this.btnForceUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnForceUpdate.AutoSize = true;
+            this.btnForceUpdate.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnForceUpdate.BackColor = System.Drawing.Color.White;
+            this.btnForceUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnForceUpdate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnForceUpdate.Location = new System.Drawing.Point(12, 206);
+            this.btnForceUpdate.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
+            this.btnForceUpdate.MaximumSize = new System.Drawing.Size(1000, 24);
+            this.btnForceUpdate.Name = "btnUpdateManually";
+            this.btnForceUpdate.Size = new System.Drawing.Size(96, 24);
+            this.btnForceUpdate.TabIndex = 2;
+            this.btnForceUpdate.Text = "Force Update";
+            this.toolTip.SetToolTip(this.btnForceUpdate, "Update all files regardless if they need to be updated.");
+            this.btnForceUpdate.UseVisualStyleBackColor = false;
+            this.btnForceUpdate.Click += new System.EventHandler(this.btnUpdateManually_Click);
             // 
             // UpdateNotifierPanel
             // 
@@ -393,7 +393,7 @@
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnSet);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.btnUpdateManually);
+            this.Controls.Add(this.btnForceUpdate);
             this.Name = "UpdateNotifierPanel";
             this.groupBox1.ResumeLayout(false);
             this.pnlRefresh.ResumeLayout(false);
@@ -439,7 +439,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Panel pnlBorderChannel;
         private System.Windows.Forms.ComboBox cboChannel;
-        private System.Windows.Forms.Button btnUpdateManually;
+        private System.Windows.Forms.Button btnForceUpdate;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel3;

@@ -5,10 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.IO;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using vApus.Gui.Properties;
 
 namespace vApus.Gui
 {
@@ -20,7 +22,7 @@ namespace vApus.Gui
         {
             InitializeComponent();
 
-            HandleCreated += new EventHandler(Welcome_HandleCreated);
+            HandleCreated += Welcome_HandleCreated;
         }
 
         private void Welcome_HandleCreated(object sender, EventArgs e)
@@ -35,11 +37,12 @@ namespace vApus.Gui
             if (_formClosingEventHandlingEnabled)
             {
                 //Do not show the next time if you don't want to
-                global::vApus.Gui.Properties.Settings.Default.GreetWithWelcomePage =
-                     MessageBox.Show("Would you like to hide the welcome page by default?", string.Empty,
-                     MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Cancel;
+                Settings.Default.GreetWithWelcomePage =
+                    MessageBox.Show("Would you like to hide the welcome page by default?", string.Empty,
+                                    MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) ==
+                    DialogResult.Cancel;
 
-                global::vApus.Gui.Properties.Settings.Default.Save();
+                Settings.Default.Save();
             }
         }
 

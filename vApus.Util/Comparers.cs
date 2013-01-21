@@ -5,13 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 
 namespace vApus.Util
-{   
+{
     public enum SortBy
     {
         Text = 1,
@@ -19,45 +20,51 @@ namespace vApus.Util
         Name = 4,
         FullName = 8
     }
+
     /// <summary>
-    /// Compares the name of the property info's.
+    ///     Compares the name of the property info's.
     /// </summary>
     public class PropertyInfoComparer : IComparer<PropertyInfo>
     {
-        private static PropertyInfoComparer _propertyInfoComparer;
-        private PropertyInfoComparer()
-        { }
+        private static readonly PropertyInfoComparer _propertyInfoComparer;
+
         /// <summary>
-        /// Compares the name of the property info's.
+        ///     Compares the name of the property info's.
         /// </summary>
         static PropertyInfoComparer()
         {
             _propertyInfoComparer = new PropertyInfoComparer();
         }
+
+        private PropertyInfoComparer() { }
+
+        public int Compare(PropertyInfo x, PropertyInfo y)
+        {
+            return x.Name.CompareTo(y.Name);
+        }
+
         /// <summary>
-        /// Compares the name of the property info's.
+        ///     Compares the name of the property info's.
         /// </summary>
         public static PropertyInfoComparer GetInstance()
         {
             return _propertyInfoComparer;
         }
-        public int Compare(PropertyInfo x, PropertyInfo y)
-        {
-            return x.Name.CompareTo(y.Name);
-        }
     }
 
     public class ControlComparer : IComparer<Control>
     {
-        private SortBy _sortBy;
-        private SortOrder _sortOrder;
+        private readonly SortBy _sortBy;
+        private readonly SortOrder _sortOrder;
+
         public ControlComparer(SortBy sortBy, SortOrder sortOrder)
         {
             _sortBy = sortBy;
             _sortOrder = sortOrder;
         }
+
         /// <summary>
-        /// Compares by text, to string, name, full name or a combination of these. 
+        ///     Compares by text, to string, name, full name or a combination of these.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -68,7 +75,7 @@ namespace vApus.Util
             for (int i = 0; i < 4; i++)
             {
                 //Using a 'binairy and' to see what needs to be compared.
-                int containsSortBy = (int)Math.Pow(2, i);
+                var containsSortBy = (int)Math.Pow(2, i);
                 if (((int)_sortBy & containsSortBy) > 0)
                 {
                     switch (containsSortBy)

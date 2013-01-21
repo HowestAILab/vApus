@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using System;
 using System.IO;
 using System.Windows.Forms;
@@ -17,21 +18,12 @@ namespace vApus.LogFixer
         private string _logRuleSetFileName;
         private XMLTextStyle _xmlTextStyle;
 
-        public string LogRuleSetFileName
-        {
-            get { return _logRuleSetFileName; }
-            protected set
-            {
-                _logRuleSetFileName = value;
-                Text = "Edit - " + _logRuleSetFileName;
-            }
-        }
-
         public EditLogRuleSet()
         {
             InitializeComponent();
             _xmlTextStyle = new XMLTextStyle(fastColoredTextBoxEdit);
         }
+
         public EditLogRuleSet(string logRuleSetFileName)
             : this()
         {
@@ -44,6 +36,16 @@ namespace vApus.LogFixer
             fastColoredTextBoxEdit.Text = logRuleSet;
 
             SetView();
+        }
+
+        public string LogRuleSetFileName
+        {
+            get { return _logRuleSetFileName; }
+            protected set
+            {
+                _logRuleSetFileName = value;
+                Text = "Edit - " + _logRuleSetFileName;
+            }
         }
 
         private void SetView()
@@ -61,8 +63,9 @@ namespace vApus.LogFixer
             if (sfd.ShowDialog() == DialogResult.OK)
                 Save(sfd.FileName);
         }
+
         /// <summary>
-        /// Sets _logRuleSetFileName if succesfully saved.
+        ///     Sets _logRuleSetFileName if succesfully saved.
         /// </summary>
         /// <param name="filename"></param>
         private void Save(string filename)
@@ -79,7 +82,8 @@ namespace vApus.LogFixer
             }
             catch
             {
-                MessageBox.Show("Could not save the file because it is write-protected.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Could not save the file because it is write-protected.", string.Empty,
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
