@@ -22,6 +22,7 @@ using vApus.Util;
 
 namespace vApus.Gui {
     public partial class MainWindow : Form {
+
         #region Fields
 
         public const UInt32 FLASHW_TRAY = 2;

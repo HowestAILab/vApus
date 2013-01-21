@@ -117,4 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAD///8A////AP///wDb29v/wMDA/4aGhv9kZGT/ZGRk/2RkZP9SUlL/UlJS/6ioqP/Pz8///wD/AP8A
+        /wD/AP8A////AP///wDBwcH/o6Oj/7CwsP/Jycn/3t7e/9ra2v/BwcH/o6Oj/5KSkv9SUlL/UlJS/6ur
+        q///AP8A/wD/AP///wD///8Anp6e/7i4uP/Ozs7/4uLi/+3t7f/d3d3/wsLC/6ioqP+ZmZn/j4+P/25u
+        bv9SUlL//wD/AP8A/wD///8A////AKGhof+8vLz/z8/P/+Li4v/t7e3/3d3d/8LCwv+oqKj/mZmZ/4+P
+        j/9+fn7/UlJS//8A/wD/AP8A////AP///wCjo6P/vLy8/87Ozv/i4uL/7e3t/9vb2//CwsL/qKio/5mZ
+        mf+Pj4//fn5+/1JSUv//AP8A/wD/AP///wD///8ApKSk/729vf/Pz8//4uLi/+3t7f/d3d3/wsLC/6io
+        qP+ZmZn/j4+P/35+fv9SUlL//wD/AP8A/wD///8A////AKenp/+9vb3/0NDQ/+Li4v/t7e3/3d3d/8LC
+        wv+oqKj/l5eX/4+Pj/9+fn7/UlJS//8A/wD/AP8A////AP///wCpqan/vb29/9DQ0P/i4uL/7e3t/93d
+        3f/CwsL/qKio/5eXl/+Pj4//fn5+/1JSUv//AP8A/wD/AP///wD///8ArKys/729vf/Q0ND/4uLi/+3t
+        7f/d3d3/wsLC/6ioqP+ZmZn/j4+P/35+fv9SUlL//wD/AP8A/wD///8A////AK+vr/+9vb3/0NDQ/+Li
+        4v/t7e3/3d3d/8LCwv+oqKj/mZmZ/4+Pj/9+fn7/ZGRk//8A/wD/AP8A////AP///wCxsbH/vb29/9DQ
+        0P/i4uL/7e3t/93d3f/CwsL/qKio/5mZmf+Pj4//fn5+/2RkZP//AP8A/wD/AP///wD///8AtLS0/729
+        vf/Pz8//4uLi/+3t7f/d3d3/wsLC/6ioqP+ZmZn/j4+P/35+fv9kZGT//wD/AP8A/wD///8A////ALa2
+        tv/R0dH/6urq//j4+P/////////////////29vb/5eXl/8/Pz/+0tLT/fX19//8A/wD/AP8A////AP//
+        /wC4uLj//////////////////////////////////////////////////////319ff//AP8A/wD/AP//
+        /wD///8A2dnZ/87Ozv/e3t7/7Ozs//f39/////////////X19f/n5+f/1NTU/7y8vP/IyMj//wD/AP8A
+        /wD///8A////APz8/ADq6urM2dnZ/8nJyf+7u7v/srKy/66urv+0tLT/v7+//8/Pz//i4uL/+vr6//8A
+        /wD/AP8A4AcAAMADAADAAwAAwAMAAMADAADAAwAAwAMAAMADAADAAwAAwAMAAMADAADAAwAAwAMAAMAD
+        AADAAwAA4AMAAA==
+</value>
+  </data>
 </root>

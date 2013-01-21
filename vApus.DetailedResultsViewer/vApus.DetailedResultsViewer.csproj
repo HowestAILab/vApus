@@ -68,11 +68,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Filter.cs">
+    <Compile Include="FilterDatabases.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Filter.Designer.cs">
-      <DependentUpon>Filter.cs</DependentUpon>
+    <Compile Include="FilterDatabases.Designer.cs">
+      <DependentUpon>FilterDatabases.cs</DependentUpon>
     </Compile>
     <Compile Include="MySQLServerDialog.cs">
       <SubType>Form</SubType>
@@ -106,8 +106,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Filter.resx">
-      <DependentUpon>Filter.cs</DependentUpon>
+    <EmbeddedResource Include="FilterDatabases.resx">
+      <DependentUpon>FilterDatabases.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MySQLServerDialog.resx">
       <DependentUpon>MySQLServerDialog.cs</DependentUpon>
@@ -148,6 +148,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\vApus.Gui\vApus.Gui.csproj">
+      <Project>{c45d47ee-85f0-4621-afeb-d4e9cadf9678}</Project>
+      <Name>vApus.Gui</Name>
+    </ProjectReference>
     <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
       <Project>{D9F1BD01-09E8-4CE9-9701-2997D420B250}</Project>
       <Name>vApus.Results</Name>
