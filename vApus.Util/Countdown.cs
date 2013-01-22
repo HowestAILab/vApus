@@ -9,10 +9,8 @@
 using System;
 using System.Timers;
 
-namespace vApus.Util
-{
-    public class Countdown : IDisposable
-    {
+namespace vApus.Util {
+    public class Countdown : IDisposable {
         #region Events
 
         /// <summary>
@@ -43,8 +41,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="countdownTime">In ms.</param>
         /// <param name="reportProgressTime">In ms. Min 100</param>
-        public Countdown(int countdownTime, int reportProgressTime = 1000)
-        {
+        public Countdown(int countdownTime, int reportProgressTime = 1000) {
             _countdownTime = countdownTime;
             _toCountdownTime = countdownTime;
 
@@ -52,28 +49,23 @@ namespace vApus.Util
             _tmr.Elapsed += _tmr_Elapsed;
         }
 
-        public int CountdownTime
-        {
+        public int CountdownTime {
             get { return _countdownTime; }
         }
 
-        public int ToCountdownTime
-        {
+        public int ToCountdownTime {
             get { return _toCountdownTime; }
         }
 
-        public void Dispose()
-        {
-            if (!_isdisposed)
-            {
+        public void Dispose() {
+            if (!_isdisposed) {
                 _isdisposed = true;
                 _tmr.Dispose();
                 _tmr = null;
             }
         }
 
-        public void Start()
-        {
+        public void Start() {
             _tmr.Start();
 
             if (Started != null)
@@ -81,8 +73,7 @@ namespace vApus.Util
                     del.BeginInvoke(this, null, null, null);
         }
 
-        public void Stop()
-        {
+        public void Stop() {
             _tmr.Stop();
             Dispose();
 
@@ -91,11 +82,9 @@ namespace vApus.Util
                     del.BeginInvoke(this, null, null, null);
         }
 
-        private void _tmr_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            _countdownTime -= (int) _tmr.Interval;
-            if (_countdownTime <= 0)
-            {
+        private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
+            _countdownTime -= (int)_tmr.Interval;
+            if (_countdownTime <= 0) {
                 _tmr.Stop();
                 _countdownTime = 0;
             }

@@ -14,14 +14,11 @@ using System.Windows.Forms;
 using System.Xml;
 using vApus.Gui.Properties;
 
-namespace vApus.Gui
-{
-    public partial class AuthorGrid : UserControl
-    {
+namespace vApus.Gui {
+    public partial class AuthorGrid : UserControl {
         private List<XmlNode> _authors;
 
-        public AuthorGrid()
-        {
+        public AuthorGrid() {
             InitializeComponent();
 
             dataGrid.AutoGenerateColumns = false;
@@ -34,13 +31,11 @@ namespace vApus.Gui
                 HandleCreated += AuthorGrid_HandleCreated;
         }
 
-        private void AuthorGrid_HandleCreated(object sender, EventArgs e)
-        {
+        private void AuthorGrid_HandleCreated(object sender, EventArgs e) {
             SetGui();
         }
 
-        private void SetGui()
-        {
+        private void SetGui() {
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(Resources.Authors);
 
@@ -52,25 +47,20 @@ namespace vApus.Gui
             dataGrid.CellPainting += dataGrid_CellPainting;
         }
 
-        private void dataGrid_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
+        private void dataGrid_CellPainting(object sender, DataGridViewCellPaintingEventArgs e) {
+            if (e.RowIndex >= 0) {
                 Graphics g = e.Graphics;
                 var authorElement = _authors[e.RowIndex] as XmlElement;
 
-                if (e.ColumnIndex == 0)
-                {
-                    if (colImage.Width == colImage.MinimumWidth)
-                    {
+                if (e.ColumnIndex == 0) {
+                    if (colImage.Width == colImage.MinimumWidth) {
                         colImage.Width = e.CellBounds.Height;
                         return;
                     }
 
                     e.Paint(e.ClipBounds, e.PaintParts);
 
-                    try
-                    {
+                    try {
                         var image =
                             Resources.ResourceManager.GetObject(authorElement.GetAttribute("name").Replace(' ', '_')) as
                             Image;
@@ -82,13 +72,9 @@ namespace vApus.Gui
 
                         g.DrawImage(image, x, y, width, height);
                         e.Handled = true;
+                    } catch {
                     }
-                    catch
-                    {
-                    }
-                }
-                else if (e.ColumnIndex == 1)
-                {
+                } else if (e.ColumnIndex == 1) {
                     // Draw Merged Cell
                     bool selected = ((e.State & DataGridViewElementStates.Selected) ==
                                      DataGridViewElementStates.Selected);
@@ -130,39 +116,32 @@ namespace vApus.Gui
 
                     // Let them know we handled it
                     e.Handled = true;
-                }
-                else
-                {
+                } else {
                     DataGridViewCell cell = dataGrid[e.ColumnIndex, e.RowIndex];
                     cell.Tag = "http://www.linkedin.com/in/" + authorElement.GetAttribute("linkedInID");
                 }
             }
         }
 
-        private void dataGrid_SelectionChanged(object sender, EventArgs e)
-        {
+        private void dataGrid_SelectionChanged(object sender, EventArgs e) {
             if (dataGrid.SelectedCells.Count > 0)
                 if (dataGrid.SelectedCells[0].ColumnIndex == 0)
                     dataGrid[1, dataGrid.SelectedCells[0].RowIndex].Selected = true;
         }
 
-        private void dataGrid_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 2)
-            {
+        private void dataGrid_CellClick(object sender, DataGridViewCellEventArgs e) {
+            if (e.ColumnIndex == 2) {
                 DataGridViewCell cell = dataGrid[e.ColumnIndex, e.RowIndex];
                 Process.Start(cell.Tag as string);
             }
         }
 
-        private void dataGrid_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
-        {
+        private void dataGrid_CellMouseEnter(object sender, DataGridViewCellEventArgs e) {
             if (e.ColumnIndex == 2)
                 dataGrid.Cursor = Cursors.Hand;
         }
 
-        private void dataGrid_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
-        {
+        private void dataGrid_CellMouseLeave(object sender, DataGridViewCellEventArgs e) {
             dataGrid.Cursor = Cursors.Default;
         }
     }

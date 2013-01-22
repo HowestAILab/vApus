@@ -29,7 +29,7 @@ namespace vApus.DetailedResultsViewer {
             databaseToolStripMenuItem.Enabled = false;
             databaseToolStripMenuItem.DropDownItems.Clear();
 
-            if (_mySQLServerDialog.Connected) {
+            if (_mySQLServerDialog.ConnectionFilledIn) {
                 var databaseActions = new DatabaseActions() { ConnectionString = _mySQLServerDialog.ConnectionString };
                 try {
                     var dbs = databaseActions.GetDataTable("Show Databases;");

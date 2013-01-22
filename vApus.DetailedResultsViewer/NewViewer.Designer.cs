@@ -40,6 +40,7 @@
             WeifenLuo.WinFormsUI.Docking.TabGradient tabGradient7 = new WeifenLuo.WinFormsUI.Docking.TabGradient();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewViewer));
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.pnlMask = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // dockPanel
@@ -49,7 +50,7 @@
             this.dockPanel.DockBackColor = System.Drawing.SystemColors.Control;
             this.dockPanel.Location = new System.Drawing.Point(0, 0);
             this.dockPanel.Name = "dockPanel";
-            this.dockPanel.Size = new System.Drawing.Size(673, 467);
+            this.dockPanel.Size = new System.Drawing.Size(784, 562);
             dockPanelGradient1.EndColor = System.Drawing.SystemColors.ControlLight;
             dockPanelGradient1.StartColor = System.Drawing.SystemColors.ControlLight;
             autoHideStripSkin1.DockStripGradient = dockPanelGradient1;
@@ -96,14 +97,25 @@
             this.dockPanel.Skin = dockPanelSkin1;
             this.dockPanel.TabIndex = 0;
             // 
+            // pnlMask
+            // 
+            this.pnlMask.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlMask.Location = new System.Drawing.Point(708, 1);
+            this.pnlMask.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlMask.Name = "pnlMask";
+            this.pnlMask.Size = new System.Drawing.Size(75, 18);
+            this.pnlMask.TabIndex = 3;
+            // 
             // NewViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(673, 467);
+            this.ClientSize = new System.Drawing.Size(784, 562);
+            this.Controls.Add(this.pnlMask);
             this.Controls.Add(this.dockPanel);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
+            this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "NewViewer";
             this.Text = "Detailed Results Viewer";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
@@ -114,5 +126,6 @@
         #endregion
 
         private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel;
+        private System.Windows.Forms.Panel pnlMask;
     }
 }

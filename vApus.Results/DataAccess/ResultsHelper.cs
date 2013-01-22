@@ -32,7 +32,7 @@ namespace vApus.Results {
         #endregion
 
         public static string DatabaseName {
-            get { return ResultsHelper._databaseName; }
+            get { return _databaseName; }
         }
 
         #region Initialize database before stresstest

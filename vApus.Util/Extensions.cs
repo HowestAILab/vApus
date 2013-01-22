@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,39 +15,32 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-using System.Collections.Concurrent;
 
-namespace vApus.Util
-{
-    public static class AssemblyExtension
-    {
+namespace vApus.Util {
+    public static class AssemblyExtension {
         /// <summary>
         /// Gets a type by its type name.
         /// </summary>
         /// <param name="assembly"></param>
         /// <param name="typeName"></param>
         /// <returns>The type if found, otherwise null.</returns>
-        public static Type GetTypeByName(this Assembly assembly, string typeName)
-        {
+        public static Type GetTypeByName(this Assembly assembly, string typeName) {
             foreach (Type t in assembly.GetTypes())
                 if (t.Name == typeName)
                     return t;
             return null;
         }
     }
-    public static class TypeExtension
-    {
+    public static class TypeExtension {
         /// <summary>
         /// To check if a type has an indirect base type (given)
         /// </summary>
         /// <param name="t"></param>
         /// <param name="BaseType"></param>
         /// <returns></returns>
-        public static bool HasBaseType(this Type t, Type BaseType)
-        {
+        public static bool HasBaseType(this Type t, Type BaseType) {
             Type type = t;
-            while (type.BaseType != null)
-            {
+            while (type.BaseType != null) {
                 if (type.BaseType == BaseType)
                     return true;
                 type = type.BaseType;
@@ -54,39 +48,32 @@ namespace vApus.Util
             return false;
         }
     }
-    public static class TimeSpanExtension
-    {
-        public static string ToLongFormattedString(this TimeSpan timeSpan)
-        {
+    public static class TimeSpanExtension {
+        public static string ToLongFormattedString(this TimeSpan timeSpan) {
             StringBuilder sb = new StringBuilder();
-            if (timeSpan.Days != 0)
-            {
+            if (timeSpan.Days != 0) {
                 sb.Append(timeSpan.Days);
                 sb.Append(" days");
             }
-            if (timeSpan.Hours != 0)
-            {
+            if (timeSpan.Hours != 0) {
                 if (sb.ToString().Length != 0)
                     sb.Append(", ");
                 sb.Append(timeSpan.Hours);
                 sb.Append(" hours");
             }
-            if (timeSpan.Minutes != 0)
-            {
+            if (timeSpan.Minutes != 0) {
                 if (sb.ToString().Length != 0)
                     sb.Append(", ");
                 sb.Append(timeSpan.Minutes);
                 sb.Append(" minutes");
             }
-            if (timeSpan.Seconds != 0)
-            {
+            if (timeSpan.Seconds != 0) {
                 if (sb.ToString().Length != 0)
                     sb.Append(", ");
                 sb.Append(timeSpan.Seconds);
                 sb.Append(" seconds");
             }
-            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0)
-            {
+            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
                 if (sb.ToString().Length != 0)
                     sb.Append(", ");
                 sb.Append(timeSpan.Milliseconds);
@@ -94,37 +81,31 @@ namespace vApus.Util
             }
             return sb.ToString();
         }
-        public static string ToShortFormattedString(this TimeSpan timeSpan)
-        {
+        public static string ToShortFormattedString(this TimeSpan timeSpan) {
             StringBuilder sb = new StringBuilder();
-            if (timeSpan.Days != 0)
-            {
+            if (timeSpan.Days != 0) {
                 sb.Append(timeSpan.Days);
                 sb.Append(" d");
             }
-            if (timeSpan.Hours != 0)
-            {
+            if (timeSpan.Hours != 0) {
                 if (sb.ToString().Length != 0)
                     sb.Append(", ");
                 sb.Append(timeSpan.Hours);
                 sb.Append(" h");
             }
-            if (timeSpan.Minutes != 0)
-            {
+            if (timeSpan.Minutes != 0) {
                 if (sb.ToString().Length != 0)
                     sb.Append(", ");
                 sb.Append(timeSpan.Minutes);
                 sb.Append(" m");
             }
-            if (timeSpan.Seconds != 0)
-            {
+            if (timeSpan.Seconds != 0) {
                 if (sb.ToString().Length != 0)
                     sb.Append(", ");
                 sb.Append(timeSpan.Seconds);
                 sb.Append(" s");
             }
-            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0)
-            {
+            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
                 if (sb.ToString().Length != 0)
                     sb.Append(", ");
                 sb.Append(timeSpan.Milliseconds);
@@ -133,25 +114,21 @@ namespace vApus.Util
             return sb.ToString();
         }
     }
-    public static class StringExtension
-    {
-        public static bool ContainsChars(this string s, params char[] values)
-        {
+    public static class StringExtension {
+        public static bool ContainsChars(this string s, params char[] values) {
             foreach (var value in values)
                 if (!s.Contains(value))
                     return false;
             return true;
         }
-        public static string RemoveChars(this string s, params char[] values)
-        {
+        public static string RemoveChars(this string s, params char[] values) {
             StringBuilder sb = new StringBuilder();
             foreach (char c in s)
                 if (!values.Contains(c))
                     sb.Append(c);
             return sb.ToString();
         }
-        public static bool ContainsStrings(this string s, params string[] values)
-        {
+        public static bool ContainsStrings(this string s, params string[] values) {
             foreach (var value in values)
                 if (!s.Contains(value))
                     return false;
@@ -163,8 +140,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public static bool IsValidWindowsFilenameString(this string s)
-        {
+        public static bool IsValidWindowsFilenameString(this string s) {
             if (s == null || s.Length == 0)
                 return false;
             foreach (char c in s)
@@ -178,8 +154,7 @@ namespace vApus.Util
         /// <param name="s"></param>
         /// <param name="newChar"></param>
         /// <returns></returns>
-        public static string ReplaceInvalidWindowsFilenameChars(this string s, char newChar)
-        {
+        public static string ReplaceInvalidWindowsFilenameChars(this string s, char newChar) {
             StringBuilder sb = new StringBuilder(s.Length);
             if (s == null)
                 throw new ArgumentNullException("s");
@@ -194,8 +169,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public static bool IsNumeric(this string s)
-        {
+        public static bool IsNumeric(this string s) {
             ulong ul;
             double d;
             return ulong.TryParse(s, out ul) || double.TryParse(s, out d);
@@ -208,14 +182,12 @@ namespace vApus.Util
         /// <param name="password"></param>
         /// <param name="salt"></param>
         /// <returns>The encrypted string.</returns>
-        public static string Encrypt(this string s, string password, byte[] salt)
-        {
+        public static string Encrypt(this string s, string password, byte[] salt) {
             PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
             byte[] encrypted = Encrypt(System.Text.Encoding.Unicode.GetBytes(s), pdb.GetBytes(32), pdb.GetBytes(16));
             return Convert.ToBase64String(encrypted);
         }
-        private static byte[] Encrypt(byte[] toEncrypt, byte[] key, byte[] IV)
-        {
+        private static byte[] Encrypt(byte[] toEncrypt, byte[] key, byte[] IV) {
             MemoryStream ms = new MemoryStream();
             Rijndael alg = Rijndael.Create();
             alg.Key = key;
@@ -233,30 +205,25 @@ namespace vApus.Util
         /// <param name="password"></param>
         /// <param name="salt"></param>
         /// <returns>The decrypted string.</returns>
-        public static string Decrypt(this string s, string password, byte[] salt)
-        {
+        public static string Decrypt(this string s, string password, byte[] salt) {
             PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
             byte[] decrypted = Decrypt(Convert.FromBase64String(s), pdb.GetBytes(32), pdb.GetBytes(16));
             return System.Text.Encoding.Unicode.GetString(decrypted);
         }
-        private static byte[] Decrypt(byte[] toDecrypt, byte[] Key, byte[] IV)
-        {
+        private static byte[] Decrypt(byte[] toDecrypt, byte[] Key, byte[] IV) {
             MemoryStream ms = new MemoryStream();
             Rijndael alg = Rijndael.Create();
             alg.Key = Key;
             alg.IV = IV;
             CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
             cs.Write(toDecrypt, 0, toDecrypt.Length);
-            try
-            {
+            try {
                 cs.Close();
-            }
-            catch { }
+            } catch { }
             return ms.ToArray();
         }
 
-        public static ListViewItem Parse(this string s, char delimiter)
-        {
+        public static ListViewItem Parse(this string s, char delimiter) {
             ListViewItem item = new ListViewItem();
             string[] split = s.Split(delimiter);
             item.Text = split[0];
@@ -265,8 +232,7 @@ namespace vApus.Util
             return item;
         }
 
-        public static string Reverse(this string s)
-        {
+        public static string Reverse(this string s) {
             StringBuilder sb = new StringBuilder(s.Length); ;
             for (int i = s.Length - 1; i != -1; i--)
                 sb.Append(s[i]);
@@ -274,16 +240,14 @@ namespace vApus.Util
             return sb.ToString();
         }
 
-        public static object ToByteArrayToObject(this string s, string separator = ",")
-        {
+        public static object ToByteArrayToObject(this string s, string separator = ",") {
             string[] split = s.Split(new string[] { separator }, StringSplitOptions.None);
             byte[] buffer = new byte[split.Length];
             for (int i = 0; i != split.Length; i++)
                 buffer[i] = byte.Parse(split[i]);
 
             object o = null;
-            using (var ms = new MemoryStream(buffer))
-            {
+            using (var ms = new MemoryStream(buffer)) {
                 BinaryFormatter bf = new BinaryFormatter();
                 o = bf.UnsafeDeserialize(ms, null);
                 bf = null;
@@ -293,17 +257,14 @@ namespace vApus.Util
             return o;
         }
     }
-    public static class CharExtension
-    {
+    public static class CharExtension {
         /// <summary>
         /// Determines if the char is or is not \,*,/,:,<,>,?,\ or |.
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
-        public static bool IsValidWindowsFilenameChar(this char c)
-        {
-            switch ((int)c)
-            {
+        public static bool IsValidWindowsFilenameChar(this char c) {
+            switch ((int)c) {
                 case 34:  // '\"'
                 case 42:  // '*'
                 case 47:  // '/'
@@ -320,22 +281,19 @@ namespace vApus.Util
         /// <summary></summary>
         /// <param name="c"></param>
         /// <returns></returns>
-        public static bool IsLetter(this char c)
-        {
+        public static bool IsLetter(this char c) {
             int i = (int)c;
             return ((i > 64 && i < 91) || (i > 96 && i < 123));
         }
         /// <summary></summary>
         /// <param name="c"></param>
         /// <returns></returns>
-        public static bool IsDigit(this char c)
-        {
+        public static bool IsDigit(this char c) {
             int i = (int)c;
             return (i > 47 && i < 58);
         }
     }
-    public static class ObjectExtension
-    {
+    public static class ObjectExtension {
         public delegate void ParentChangedEventHandler(ParentOrTagChangedEventArgs parentOrTagChangedEventArgs);
         public delegate void TagChangedEventHandler(ParentOrTagChangedEventArgs parentOrTagChangedEventArgs);
 
@@ -359,16 +317,14 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o"></param>
         /// <param name="tag"></param>
-        public static void SetTag(this object o, object tag)
-        {
+        public static void SetTag(this object o, object tag) {
             lock (_tags.SyncRoot)
                 if (o != null)
                     if (_tags.Contains(o))
                         if (tag == null) _tags.Remove(o); else _tags[o] = tag;
                     else if (tag != null) _tags.Add(o, tag);
         }
-        public static object GetTag(this object o)
-        {
+        public static object GetTag(this object o) {
             //Threadsafe for reader threads.
             if (o == null) return null;
             return _tags.Contains(o) ? _tags[o] : null;
@@ -381,21 +337,16 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o"></param>
         /// <param name="parent"></param>
-        public static void SetParent(this object o, object parent, bool invokeParentChanged = true)
-        {
+        public static void SetParent(this object o, object parent, bool invokeParentChanged = true) {
             lock (_parents.SyncRoot)
-                if (o != null)
-                {
+                if (o != null) {
                     object previous = null;
 
-                    if (_parents.Contains(o))
-                    {
+                    if (_parents.Contains(o)) {
                         previous = _parents[o];
                         if (parent == null) _parents.Remove(o);
                         else if (previous != null && !previous.Equals(parent)) _parents[o] = parent; else return;
-                    }
-                    else
-                    {
+                    } else {
                         if (parent == null) return;
                         _parents.Add(o, parent);
                     }
@@ -405,23 +356,20 @@ namespace vApus.Util
                             del.BeginInvoke(new ParentOrTagChangedEventArgs(o, previous, parent), null, null);
                 }
         }
-        public static object GetParent(this object o)
-        {
+        public static object GetParent(this object o) {
             //Threadsafe for reader threads.
             if (o == null) return null;
             return _parents.Contains(o) ? _parents[o] : null;
         }
 
-        public static void SetDescription(this object o, string description)
-        {
+        public static void SetDescription(this object o, string description) {
             lock (_descriptions.SyncRoot)
                 if (o != null)
                     if (_descriptions.Contains(o))
                         if (description == null) _descriptions.Remove(o); else _descriptions[o] = description;
                     else if (description != null) _descriptions.Add(o, description);
         }
-        public static string GetDescription(this object o)
-        {
+        public static string GetDescription(this object o) {
             //Threadsafe for reader threads.
             if (o == null) return null;
             return (_descriptions.Contains(o) ? _descriptions[o] : null) as string;
@@ -431,13 +379,10 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o">Child</param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveParent(this object o, bool invokeParentChanged = true)
-        {
-            lock (_parents.SyncRoot)
-            {
+        public static bool RemoveParent(this object o, bool invokeParentChanged = true) {
+            lock (_parents.SyncRoot) {
                 bool removed = false;
-                if (_parents.Contains(o))
-                {
+                if (_parents.Contains(o)) {
                     object parent = _parents[o];
 
                     _parents.Remove(o);
@@ -455,12 +400,9 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o"></param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveTag(this object o)
-        {
-            lock (_tags.SyncRoot)
-            {
-                if (_tags.Contains(o))
-                {
+        public static bool RemoveTag(this object o) {
+            lock (_tags.SyncRoot) {
+                if (_tags.Contains(o)) {
                     _tags.Remove(o);
                     return true;
                 }
@@ -472,12 +414,9 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o"></param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveDescription(this object o)
-        {
-            lock (_descriptions.SyncRoot)
-            {
-                if (_descriptions.Contains(o))
-                {
+        public static bool RemoveDescription(this object o) {
+            lock (_descriptions.SyncRoot) {
+                if (_descriptions.Contains(o)) {
                     _descriptions.Remove(o);
                     return true;
                 }
@@ -488,10 +427,8 @@ namespace vApus.Util
         /// 
         /// </summary>
         /// <returns>True if the cache was not empty.</returns>
-        public static bool ClearCache(bool invokeParentChanged = true)
-        {
-            lock (_tags.SyncRoot)
-            {
+        public static bool ClearCache(bool invokeParentChanged = true) {
+            lock (_tags.SyncRoot) {
                 bool cleared = _tags.Count != 0 || _parents.Count != 0 || _descriptions.Count != 0;
 
                 if (invokeParentChanged && ParentChanged != null)
@@ -506,12 +443,10 @@ namespace vApus.Util
             }
         }
 
-        public class ParentOrTagChangedEventArgs : EventArgs
-        {
+        public class ParentOrTagChangedEventArgs : EventArgs {
             public object Child, Previous, New;
 
-            public ParentOrTagChangedEventArgs(object child, object previous, object __new)
-            {
+            public ParentOrTagChangedEventArgs(object child, object previous, object __new) {
                 Child = child;
                 Previous = previous;
                 New = __new;
@@ -523,11 +458,9 @@ namespace vApus.Util
         /// <param name="o"></param>
         /// <param name="separator"></param>
         /// <returns></returns>
-        public static string ToBinaryToString(this object o, string separator = ",")
-        {
+        public static string ToBinaryToString(this object o, string separator = ",") {
             byte[] buffer = null;
-            using (var ms = new MemoryStream(1))
-            {
+            using (var ms = new MemoryStream(1)) {
                 BinaryFormatter bf = new BinaryFormatter();
                 bf.Serialize(ms, o);
                 bf = null;
@@ -540,32 +473,27 @@ namespace vApus.Util
             return s;
         }
     }
-    public static class DataGridViewExtension
-    {
-        public static void DoubleBuffered(this DataGridView dgv, bool doubleBuffered)
-        {
+    public static class DataGridViewExtension {
+        public static void DoubleBuffered(this DataGridView dgv, bool doubleBuffered) {
             Type dgvType = dgv.GetType();
             PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             pi.SetValue(dgv, doubleBuffered, null);
         }
     }
-    public static class DataGridViewRowExtension
-    {
+    public static class DataGridViewRowExtension {
         /// <summary>
         /// To CSV for example.
         /// </summary>
         /// <param name="row"></param>
         /// <param name="separator"></param>
         /// <returns></returns>
-        public static string ToSV(this DataGridViewRow row, string separator)
-        {
-            if (row.Cells.Count == 0)  return string.Empty;
-            if (row.Cells.Count == 1)  return row.Cells[0].Value.ToString();
+        public static string ToSV(this DataGridViewRow row, string separator) {
+            if (row.Cells.Count == 0) return string.Empty;
+            if (row.Cells.Count == 1) return row.Cells[0].Value.ToString();
 
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i != row.Cells.Count - 1; i++)
-            {
+            for (int i = 0; i != row.Cells.Count - 1; i++) {
                 sb.Append(row.Cells[i].Value);
                 sb.Append(separator);
             }
@@ -573,25 +501,21 @@ namespace vApus.Util
             return sb.ToString();
         }
     }
-    public static class ArrayExtension
-    {
+    public static class ArrayExtension {
         /// <summary>
         /// Combine a one-dimensional array.
         /// </summary>
         /// <param name="array"></param>
         /// <param name="separator"></param>
         /// <returns></returns>
-        public static string Combine(this Array array, string separator, params object[] exclude)
-        {
+        public static string Combine(this Array array, string separator, params object[] exclude) {
             if (array.Length == 0) return string.Empty;
 
             StringBuilder sb = new StringBuilder();
             object value;
-            for (int i = 0; i != array.Length - 1; i++)
-            {
+            for (int i = 0; i != array.Length - 1; i++) {
                 value = array.GetValue(i);
-                if (exclude == null || !exclude.Contains(value))
-                {
+                if (exclude == null || !exclude.Contains(value)) {
                     sb.Append(value);
                     sb.Append(separator);
                 }
@@ -602,8 +526,7 @@ namespace vApus.Util
             return sb.ToString();
         }
     }
-    public static class ConcurrentBagExtension
-    {
+    public static class ConcurrentBagExtension {
         /// <summary>
         /// A thread safe implementation.
         /// </summary>
@@ -611,12 +534,10 @@ namespace vApus.Util
         /// <param name="concurrentBag"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        public static bool Contains<T>(this ConcurrentBag<T> concurrentBag, T item)
-        {
+        public static bool Contains<T>(this ConcurrentBag<T> concurrentBag, T item) {
             if (concurrentBag.GetTag() == null)
                 concurrentBag.SetTag(new object());
-            lock (concurrentBag.GetTag())
-            {
+            lock (concurrentBag.GetTag()) {
                 foreach (T i in concurrentBag)
                     if (i.Equals(item))
                         return true;

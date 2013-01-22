@@ -63,16 +63,13 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="vApus.Util">
-      <HintPath>..\vApus.Util\bin\DevelopmentBuild\vApus.Util.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FilterDatabases.cs">
+    <Compile Include="FilterResults.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FilterDatabases.Designer.cs">
-      <DependentUpon>FilterDatabases.cs</DependentUpon>
+    <Compile Include="FilterResults.Designer.cs">
+      <DependentUpon>FilterResults.cs</DependentUpon>
     </Compile>
     <Compile Include="MySQLServerDialog.cs">
       <SubType>Form</SubType>
@@ -106,8 +103,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="FilterDatabases.resx">
-      <DependentUpon>FilterDatabases.cs</DependentUpon>
+    <EmbeddedResource Include="FilterResults.resx">
+      <DependentUpon>FilterResults.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MySQLServerDialog.resx">
       <DependentUpon>MySQLServerDialog.cs</DependentUpon>
@@ -159,6 +156,10 @@
     <ProjectReference Include="..\vApus.Stresstest\vApus.Stresstest.csproj">
       <Project>{790522ab-42d5-4c39-83be-14244d8c3f22}</Project>
       <Name>vApus.Stresstest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
+      <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>
+      <Name>vApus.Util</Name>
     </ProjectReference>
     <ProjectReference Include="..\WeifenLuo.WinFormsUI\WeifenLuo.WinFormsUI.csproj">
       <Project>{c75532c4-765b-418e-b09b-46d36b2abdb1}</Project>

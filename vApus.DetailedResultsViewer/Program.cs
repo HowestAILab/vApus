@@ -20,7 +20,7 @@ namespace vApus.DetailedResultsViewer {
         static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Viewer());
+            Application.Run(new NewViewer());
         }
     }
 }

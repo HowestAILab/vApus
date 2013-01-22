@@ -16,7 +16,7 @@ namespace vApus.Results {
     public partial class SavingResultsPanel : Panel {
         private bool _showDescription = true;
 
-        public bool Connected {
+        public bool ConnectionFilledIn {
             get { return Settings.Default.ConnectionStringIndex > -1 && Settings.Default.ConnectionStringIndex < SettingsManager.GetConnectionStrings().Count; }
         }
         public string ConnectionString {
@@ -121,26 +121,20 @@ namespace vApus.Results {
         }
 
         private void btnTest_Click(object sender, EventArgs e) {
-            bool succes = true;
             var dba = new DatabaseActions {
                 ConnectionString =
-                    string.Format("Server={0};Port={1};DataBase=mysql;Uid={2};Pwd={3}", txtHost.Text,
+                    string.Format("Server={0};Port={1};Uid={2};Pwd={3}", txtHost.Text,
                                   (int)nudPort.Value, txtUser.Text, txtPassword.Text)
             };
-            try {
-                DataTable datatable = dba.GetDataTable("Show Tables", CommandType.Text);
-            } catch {
-                succes = false;
-            }
+            DataTable datatable = dba.GetDataTable("Show Databases;", CommandType.Text);
+            bool succes = datatable.Columns.Count != 0;
             dba.ReleaseConnection();
             dba = null;
 
             if (succes)
-                MessageBox.Show("The connection has been established! and closed again successfully.", string.Empty,
-                                MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+                MessageBox.Show("The connection has been established! and closed again successfully.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
             else
-                MessageBox.Show("Could not connect to the database server", string.Empty, MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                MessageBox.Show("Could not connect to the database server.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void btnSave_Click(object sender, EventArgs e) {

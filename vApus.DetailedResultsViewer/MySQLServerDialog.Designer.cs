@@ -26,11 +26,11 @@
             this.savingResultsPanel = new vApus.Results.SavingResultsPanel();
             this.SuspendLayout();
             // 
-            // savingResultsPanel1
+            // savingResultsPanel
             // 
             this.savingResultsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.savingResultsPanel.Location = new System.Drawing.Point(0, 0);
-            this.savingResultsPanel.Name = "savingResultsPanel1";
+            this.savingResultsPanel.Name = "savingResultsPanel";
             this.savingResultsPanel.ShowDescription = false;
             this.savingResultsPanel.Size = new System.Drawing.Size(484, 262);
             this.savingResultsPanel.TabIndex = 0;
@@ -49,6 +49,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Connect to a Results MySQL Server";
             this.ResumeLayout(false);
 
         }

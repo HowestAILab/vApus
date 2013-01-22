@@ -5,16 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+/*
+ ToDo: Databases mulithreaded ophalen/filteren.
+ * Alsook het ophalen van de tags, evt met een join constructie?
+ */
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using vApus.Gui;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.DetailedResultsViewer {
@@ -29,13 +25,20 @@ namespace vApus.DetailedResultsViewer {
 
         void NewViewer_HandleCreated(object sender, EventArgs e) {
             this.HandleCreated -= NewViewer_HandleCreated;
-            
+
             _settingsPanel.Show(dockPanel, DockState.DockLeft);
             _settingsPanel.CloseButtonVisible = false;
+            _settingsPanel.ResultsSelected += _settingsPanel_ResultsSelected;
 
             _resultsPanel.Show(dockPanel);
             _resultsPanel.CloseButtonVisible = false;
             _resultsPanel.FormClosing += _resultsPanel_FormClosing;
+
+            pnlMask.BringToFront();
+        }
+
+        private void _settingsPanel_ResultsSelected(object sender, SettingsPanel.ResultsSelectedEventArgs e) {
+            if (e.Database == null) _resultsPanel.ClearReport(); else _resultsPanel.RefreshReport();
         }
 
         private void _resultsPanel_FormClosing(object sender, FormClosingEventArgs e) {
