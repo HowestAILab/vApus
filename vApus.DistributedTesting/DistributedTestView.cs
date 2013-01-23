@@ -279,7 +279,7 @@ namespace vApus.DistributedTesting {
 
             if (_distributedTestMode == DistributedTestMode.TestAndReport) {
                 btnStart.Enabled = false;
-                if (scheduled) tmrSchedule.Start(); else btnSchedule.Text = "Schedule...";
+                if (scheduled) tmrSchedule.Start(); else btnSchedule.Text = string.Empty;
                 //tcTree.SelectedTab = tpTests;
             } else {
                 btnStart.Enabled = !testTreeView.Exclamation;
@@ -432,14 +432,19 @@ namespace vApus.DistributedTesting {
                     btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt;
                     btnSchedule.Tag = schedule.ScheduledAt;
                 } else {
-                    btnSchedule.Text = "Schedule...";
+                    btnSchedule.Text = string.Empty;
                     btnSchedule.Tag = null;
                 }
 
                 btnStart_Click(this, null);
             }
         }
-
+        private void btnSchedule_MouseEnter(object sender, EventArgs e) {
+            btnSchedule.Text = btnSchedule.ToolTipText;
+        }
+        private void btnSchedule_MouseLeave(object sender, EventArgs e) {
+            if (!btnSchedule.Text.StartsWith("Scheduled")) btnSchedule.Text = string.Empty;
+        }
         /// <summary>
         ///     Check if the number of runs for the different single stresstests are equal to each other.
         ///     Use this when using run synchronization.
@@ -781,7 +786,7 @@ namespace vApus.DistributedTesting {
 
             if (btnSchedule.Tag != null && tmrSchedule.Tag is DateTime) {
                 var scheduledDateTime = (DateTime)btnSchedule.Tag;
-                btnSchedule.Text = scheduledDateTime > DateTime.Now ? "Scheduled at " + scheduledDateTime : "Schedule...";
+                btnSchedule.Text = scheduledDateTime > DateTime.Now ? "Scheduled at " + scheduledDateTime : string.Empty;
             }
             if (_distributedTestCore != null)
                 try {

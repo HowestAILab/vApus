@@ -34,8 +34,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DistributedTestView));
             this.toolStrip = new System.Windows.Forms.ToolStrip();
-            this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
+            this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
             this.btnWizard = new System.Windows.Forms.ToolStripButton();
             this.tmrSetGui = new System.Windows.Forms.Timer(this.components);
@@ -72,8 +72,8 @@
             // 
             this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnStart,
             this.btnSchedule,
+            this.btnStart,
             this.btnStop,
             this.btnWizard});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
@@ -81,6 +81,20 @@
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(911, 40);
             this.toolStrip.TabIndex = 2;
+            // 
+            // btnSchedule
+            // 
+            this.btnSchedule.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSchedule.Image = ((System.Drawing.Image)(resources.GetObject("btnSchedule.Image")));
+            this.btnSchedule.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.btnSchedule.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSchedule.Name = "btnSchedule";
+            this.btnSchedule.Size = new System.Drawing.Size(23, 37);
+            this.btnSchedule.Tag = "";
+            this.btnSchedule.ToolTipText = "Schedule...";
+            this.btnSchedule.Click += new System.EventHandler(this.btnSchedule_Click);
+            this.btnSchedule.MouseEnter += new System.EventHandler(this.btnSchedule_MouseEnter);
+            this.btnSchedule.MouseLeave += new System.EventHandler(this.btnSchedule_MouseLeave);
             // 
             // btnStart
             // 
@@ -94,19 +108,6 @@
             this.btnStart.Text = "Start";
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
-            // btnSchedule
-            // 
-            this.btnSchedule.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.btnSchedule.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.btnSchedule.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnSchedule.Margin = new System.Windows.Forms.Padding(-9, 1, 0, 2);
-            this.btnSchedule.Name = "btnSchedule";
-            this.btnSchedule.Size = new System.Drawing.Size(68, 37);
-            this.btnSchedule.Tag = "";
-            this.btnSchedule.Text = "Schedule...";
-            this.btnSchedule.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.btnSchedule.Click += new System.EventHandler(this.btnSchedule_Click);
-            // 
             // btnStop
             // 
             this.btnStop.Enabled = false;
@@ -114,7 +115,6 @@
             this.btnStop.Image = ((System.Drawing.Image)(resources.GetObject("btnStop.Image")));
             this.btnStop.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnStop.Margin = new System.Windows.Forms.Padding(6, 1, 0, 2);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(90, 37);
             this.btnStop.Text = "Stop";
@@ -130,6 +130,7 @@
             this.btnWizard.Name = "btnWizard";
             this.btnWizard.Size = new System.Drawing.Size(83, 37);
             this.btnWizard.Text = "Wizard...";
+            this.btnWizard.ToolTipText = "Wizard...";
             this.btnWizard.Click += new System.EventHandler(this.btnWizard_Click);
             // 
             // tmrSetGui
@@ -236,10 +237,10 @@
             this.tpConfigureTest.BackColor = System.Drawing.Color.White;
             this.tpConfigureTest.Controls.Add(this.configureTileStresstest);
             this.tpConfigureTest.Controls.Add(this.configureSlaves);
-            this.tpConfigureTest.Location = new System.Drawing.Point(4, 19);
+            this.tpConfigureTest.Location = new System.Drawing.Point(4, 22);
             this.tpConfigureTest.Name = "tpConfigureTest";
             this.tpConfigureTest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpConfigureTest.Size = new System.Drawing.Size(601, 628);
+            this.tpConfigureTest.Size = new System.Drawing.Size(601, 625);
             this.tpConfigureTest.TabIndex = 0;
             this.tpConfigureTest.Text = "Configure";
             // 
@@ -250,7 +251,7 @@
             this.configureTileStresstest.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configureTileStresstest.Location = new System.Drawing.Point(3, 3);
             this.configureTileStresstest.Name = "configureTileStresstest";
-            this.configureTileStresstest.Size = new System.Drawing.Size(595, 622);
+            this.configureTileStresstest.Size = new System.Drawing.Size(595, 619);
             this.configureTileStresstest.TabIndex = 0;
             // 
             // configureSlaves
@@ -259,7 +260,7 @@
             this.configureSlaves.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configureSlaves.Location = new System.Drawing.Point(3, 3);
             this.configureSlaves.Name = "configureSlaves";
-            this.configureSlaves.Size = new System.Drawing.Size(595, 622);
+            this.configureSlaves.Size = new System.Drawing.Size(595, 619);
             this.configureSlaves.TabIndex = 1;
             this.configureSlaves.Visible = false;
             this.configureSlaves.GoToAssignedTest += new System.EventHandler(this.configureSlaves_GoToAssignedTest);
@@ -269,10 +270,10 @@
             this.tpStresstest.BackColor = System.Drawing.Color.White;
             this.tpStresstest.Controls.Add(this.fastResultsControl);
             this.tpStresstest.Controls.Add(this.distributedStresstestControl);
-            this.tpStresstest.Location = new System.Drawing.Point(4, 22);
+            this.tpStresstest.Location = new System.Drawing.Point(4, 19);
             this.tpStresstest.Name = "tpStresstest";
             this.tpStresstest.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStresstest.Size = new System.Drawing.Size(601, 625);
+            this.tpStresstest.Size = new System.Drawing.Size(601, 628);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
             // 
@@ -283,7 +284,7 @@
             this.fastResultsControl.Location = new System.Drawing.Point(3, 3);
             this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
             this.fastResultsControl.Name = "fastResultsControl";
-            this.fastResultsControl.Size = new System.Drawing.Size(595, 619);
+            this.fastResultsControl.Size = new System.Drawing.Size(595, 622);
             this.fastResultsControl.TabIndex = 0;
             // 
             // distributedStresstestControl
@@ -293,7 +294,7 @@
             this.distributedStresstestControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.distributedStresstestControl.Location = new System.Drawing.Point(3, 3);
             this.distributedStresstestControl.Name = "distributedStresstestControl";
-            this.distributedStresstestControl.Size = new System.Drawing.Size(595, 619);
+            this.distributedStresstestControl.Size = new System.Drawing.Size(595, 622);
             this.distributedStresstestControl.TabIndex = 1;
             // 
             // tmrSchedule
