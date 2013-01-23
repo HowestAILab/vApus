@@ -70,7 +70,9 @@
             this.lvw.CheckBoxes = true;
             this.lvw.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clmItems});
+            this.lvw.HideSelection = false;
             this.lvw.Location = new System.Drawing.Point(12, 12);
+            this.lvw.MultiSelect = false;
             this.lvw.Name = "lvw";
             this.lvw.Size = new System.Drawing.Size(460, 408);
             this.lvw.TabIndex = 0;

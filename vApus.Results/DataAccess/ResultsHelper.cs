@@ -42,6 +42,7 @@ namespace vApus.Results {
         /// </summary>
         /// <returns></returns>
         public static Exception BuildSchemaAndConnect() {
+            _databaseName = null;
             try {
                 _databaseName = Schema.Build();
                 _databaseActions = Schema.GetDatabaseActionsUsingDatabase(_databaseName);

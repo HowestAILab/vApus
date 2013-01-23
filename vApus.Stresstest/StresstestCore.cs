@@ -138,8 +138,7 @@ namespace vApus.Stresstest {
                     _testPatternsAndDelaysGenerator = null;
                     _stresstestResult = null;
                     _sw = null;
-                }
-                catch {
+                } catch {
                 }
             }
             ObjectRegistrar.Unregister(this);
@@ -194,9 +193,10 @@ namespace vApus.Stresstest {
         ///     For monitoring --> to know the time offset of the counters so a range can be linked to a run.
         /// </summary>
         private void SetRunStopped() {
-            ResultsHelper.SetRunStopped(_runResult);
             StresstestMetrics metrics = StresstestMetricsHelper.GetMetrics(_runResult);
             InvokeMessage("|----> |Run Finished in " + metrics.MeasuredRunTime + "!", Color.MediumPurple);
+            if (ResultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
+            ResultsHelper.SetRunStopped(_runResult);
 
             if (_cancel && RunStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
@@ -256,8 +256,7 @@ namespace vApus.Stresstest {
                 if (Message != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(
                         delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }
         }
@@ -272,8 +271,7 @@ namespace vApus.Stresstest {
                 InvokeMessage("Initializing the Test.");
                 InitializeLog();
                 InitializeConnectionProxyPool();
-            }
-            catch {
+            } catch {
                 _failed = true;
                 throw;
             }
@@ -313,8 +311,7 @@ namespace vApus.Stresstest {
 
                         if (logEntry.ExecuteInParallelWithPrevious)
                             ++_parallelConnectionsModifier;
-                    }
-                else if (item is LogEntry)
+                    } else if (item is LogEntry)
                     logEntries.Add(item as LogEntry);
 
             _logEntries = logEntries.ToArray();
@@ -346,8 +343,7 @@ namespace vApus.Stresstest {
             if (distribute == ActionAndLogEntryDistribution.None) {
                 log.ApplyLogRuleSet();
                 return log;
-            }
-            else {
+            } else {
                 Log newLog = log.Clone(false);
                 foreach (BaseItem item in log)
                     if (item is UserAction) {
@@ -366,8 +362,7 @@ namespace vApus.Stresstest {
 
                             newLog.AddWithoutInvokingEvent(actionClone, false);
                         }
-                    }
-                    else {
+                    } else {
                         var entry = item as LogEntry;
                         for (int i = 0; i != entry.Occurance; i++) {
                             LogEntry entryClone = entry.Clone();
@@ -448,8 +443,7 @@ namespace vApus.Stresstest {
 
                     if (_runDoneOnce) {
                         InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.White);
-                    }
-                    else {
+                    } else {
                         ++_continueCounter;
 
                         SetRunInitializedFirstTime(concurrentUsersIndex, run + 1);
@@ -469,13 +463,11 @@ namespace vApus.Stresstest {
                     //Do the actual work and invoke when the run is finished.
                     try {
                         _threadPool.DoWorkAndWaitForIdle();
-                    }
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         if (!_isDisposed)
                             InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex,
                                           Color.Red, LogLevel.Error);
-                    }
-                    finally {
+                    } finally {
                         SetRunStopped();
                     }
 
@@ -488,7 +480,7 @@ namespace vApus.Stresstest {
                         _runSynchronizationContinueWaitHandle.WaitOne();
                         InvokeMessage("Continuing...");
                     }
-                    //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
+                        //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
                     else if (_runSynchronization == RunSynchronization.BreakOnLastFinished && !_break) {
                         SetRunDoneOnce();
 
@@ -544,8 +536,7 @@ namespace vApus.Stresstest {
                             logEntryIndex = logEntry.Index.ToString();
                             userActionIndex = logEntry.Index;
                             userAction = "None defined " + userActionIndex;
-                        }
-                        else {
+                        } else {
                             logEntryIndex = parent.Index + "." + logEntry.Index;
                             userActionIndex = parent.Index;
                             userAction = parent.ToString();
@@ -569,8 +560,7 @@ namespace vApus.Stresstest {
                 InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.",
                                             _sw.Elapsed.ToLongFormattedString()));
                 _sw.Reset();
-            }
-            catch {
+            } catch {
                 if (!_cancel)
                     throw;
             }
@@ -601,11 +591,9 @@ namespace vApus.Stresstest {
             try {
                 _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnectionsModifier);
                 InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToLongFormattedString()));
-            }
-            catch {
+            } catch {
                 throw;
-            }
-            finally {
+            } finally {
                 _sw.Stop();
                 _sw.Reset();
             }
@@ -666,8 +654,7 @@ namespace vApus.Stresstest {
             if (_threadPool != null)
                 try {
                     _threadPool.Dispose(100);
-                }
-                catch {
+                } catch {
                 }
             _threadPool = null;
         }
@@ -695,8 +682,7 @@ namespace vApus.Stresstest {
                                     out incrementIndex);
                     testableLogEntryIndex += incrementIndex;
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 if (!_cancel && !_break)
                     InvokeMessage("Work failed for " + Thread.CurrentThread.Name + ".\n" + e, Color.Red, LogLevel.Error);
             }
@@ -756,8 +742,7 @@ namespace vApus.Stresstest {
                     _syncAndAsyncWorkItem.ExecuteLogEntry(this, _sleepWaitHandle, _runResult, threadIndex,
                                                           testableLogEntryIndex, testableLogEntry, connectionProxy,
                                                           delays[testableLogEntryIndex]);
-                }
-                else {
+                } else {
                     //Get the connection proxies, this first one is not a parallel one but the connection proxy for the specific user, this way data (cookies for example) kan be saved for other log entries.
                     ParallelConnectionProxy[] pcps = _connectionProxyPool.ParallelConnectionProxies[threadIndex];
                     //Only use the ones that are needed, the first one is actually not parallel.
@@ -790,26 +775,25 @@ namespace vApus.Stresstest {
                     for (int pleIndex = testableLogEntryIndex; pleIndex != exclusiveEnd; pleIndex++) {
                         //Anonymous delegate for the sake of simplicity, pleIndex in the state --> otherwise the wrong value can and will be picked
                         var pThread = new Thread(delegate(object state) {
-                                var index = (int)state;
-                                if (_syncAndAsyncWorkItem == null)
-                                    _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
+                            var index = (int)state;
+                            if (_syncAndAsyncWorkItem == null)
+                                _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
 
-                                pThreadsSignalStart.WaitOne();
+                            pThreadsSignalStart.WaitOne();
 
-                                try {
-                                    _syncAndAsyncWorkItem.ExecuteLogEntry(this, _sleepWaitHandle, _runResult,
-                                                                          threadIndex, index, testableLogEntries[index],
-                                                                          parallelConnectionProxies[
-                                                                              Interlocked.Increment(ref pcpIndex)]
-                                                                              .ConnectionProxy, delays[index]);
-                                }
-                                catch {
-                                    //when stopping a test...
-                                }
+                            try {
+                                _syncAndAsyncWorkItem.ExecuteLogEntry(this, _sleepWaitHandle, _runResult,
+                                                                      threadIndex, index, testableLogEntries[index],
+                                                                      parallelConnectionProxies[
+                                                                          Interlocked.Increment(ref pcpIndex)]
+                                                                          .ConnectionProxy, delays[index]);
+                            } catch {
+                                //when stopping a test...
+                            }
 
-                                if (Interlocked.Increment(ref finished) == parallelConnectionProxies.Length)
-                                    pThreadsSignalFinished.Set();
-                            });
+                            if (Interlocked.Increment(ref finished) == parallelConnectionProxies.Length)
+                                pThreadsSignalFinished.Set();
+                        });
 
                         //Add it to the pool, just for making sure they are kept in memory 
                         pThreads[pThreadIndex] = pThread;
@@ -862,34 +846,29 @@ namespace vApus.Stresstest {
                         exception =
                             new Exception("Connectionproxy is disposed. Metrics for this log entry (" +
                                           testableLogEntry.ParameterizedLogEntryString + ") are not correct.");
-                    }
-                    else {
+                    } else {
                         StringTree parameterizedLogEntry = testableLogEntry.ParameterizedLogEntry;
                         connectionProxy.SendAndReceive(parameterizedLogEntry, out sentAt, out timeToLastByte,
                                                        out exception);
                     }
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     if (!retried && connectionProxy != null && !connectionProxy.IsDisposed) {
                         try {
                             retried = true;
                             connectionProxy.OpenConnection();
                             goto RetryOnce;
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             exception =
                                 new Exception(
                                     "An error in the connection proxy has occured and is now disposed due to for instance a time out or a bug in the connection proxy code; I tried to reopen the connection so testing could continue for this simulated user including a retry (once) for the current log entry, but it failed; Metrics for this log entry (" +
                                     testableLogEntry.ParameterizedLogEntryString + ") are not correct:\n" + ex +
                                     "\n\nReconnect failure:\n" + e);
                         }
-                    }
-                    else {
+                    } else {
                         try {
                             if (connectionProxy != null)
                                 connectionProxy.Dispose();
-                        }
-                        catch {
+                        } catch {
                         }
                         connectionProxy = null;
                         exception =
@@ -898,8 +877,7 @@ namespace vApus.Stresstest {
                                 testableLogEntry.ParameterizedLogEntryString + ") are not correct:\n" + ex);
                     }
                     throw (exception);
-                }
-                finally {
+                } finally {
                     VirtualUserResult result = runResult.VirtualUserResults[threadIndex];
                     result.VirtualUser = Thread.CurrentThread.Name;
 

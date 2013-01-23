@@ -5,16 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public partial class SelectCollectionItemsDialog : Form
-    {
+namespace vApus.Util {
+    public partial class SelectCollectionItemsDialog : Form {
+
         #region Fields
 
         private IEnumerable _newValue;
@@ -24,17 +22,20 @@ namespace vApus.Util
 
         #region Properties
 
-        public IEnumerable NewValue
-        {
+        public IEnumerable NewValue {
             get { return _newValue; }
+        }
+
+        public bool MultipleValues {
+            get { return lvw.CheckBoxes; }
+            set { lvw.CheckBoxes = value; }
         }
 
         #endregion
 
         #region Constructor
 
-        public SelectCollectionItemsDialog()
-        {
+        public SelectCollectionItemsDialog() {
             InitializeComponent();
         }
 
@@ -42,12 +43,10 @@ namespace vApus.Util
 
         #region Functions
 
-        public void SetValue(IEnumerable value)
-        {
+        public void SetValue(IEnumerable value) {
             _value = value;
             var parent = value.GetParent() as IEnumerable;
-            foreach (object item in parent)
-            {
+            foreach (object item in parent) {
                 var lvwi = new ListViewItem(item.ToString());
                 lvwi.Tag = item;
                 lvw.Items.Add(lvwi);
@@ -55,37 +54,42 @@ namespace vApus.Util
 
             IEnumerator enumerator = _value.GetEnumerator();
             enumerator.Reset();
-            while (enumerator.MoveNext())
-            {
+            while (enumerator.MoveNext()) {
                 ListViewItem lvwi = ListViewItemHasTag(enumerator.Current);
                 if (lvwi != null)
                     lvwi.Checked = true;
             }
             enumerator.Reset();
+
+            if (lvw.Items.Count != 0) lvw.Items[0].Selected = true;
         }
 
-        private ListViewItem ListViewItemHasTag(object tag)
-        {
+        private ListViewItem ListViewItemHasTag(object tag) {
             foreach (ListViewItem item in lvw.Items)
                 if (item.Tag == tag)
                     return item;
             return null;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
-            var arrayList = new ArrayList(lvw.CheckedItems.Count);
+        private void btnOK_Click(object sender, EventArgs e) {
+            ArrayList arrayList = null;
             Type elementType = _value.AsQueryable().ElementType;
+            if (MultipleValues) {
+                 arrayList = new ArrayList(lvw.CheckedItems.Count);
 
-            foreach (ListViewItem item in lvw.CheckedItems)
-                arrayList.Add(item.Tag);
+                foreach (ListViewItem item in lvw.CheckedItems)
+                    arrayList.Add(item.Tag);
+            } else {
+                arrayList = new ArrayList(1);
 
-            if (_value is Array)
-            {
-                _newValue = arrayList.ToArray(elementType);
+                foreach (ListViewItem item in lvw.SelectedItems) {
+                    arrayList.Add(item.Tag);
+                    break;
+                }
             }
-            else if (_value is IList)
-            {
+            if (_value is Array) {
+                _newValue = arrayList.ToArray(elementType);
+            } else if (_value is IList) {
                 _newValue = Activator.CreateInstance(_value.GetType()) as IEnumerable;
                 var list = _newValue as IList;
                 for (int i = 0; i < arrayList.Count; i++)

@@ -5,31 +5,26 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     Only for Arrays or ILists (BaseTypes are fine) ; or objects (no primitives!) that have an array or IList as parent
     /// </summary>
     [ToolboxItem(false)]
-    public partial class CollectionValueControl : BaseValueControl, IValueControl
-    {
+    public partial class CollectionValueControl : BaseValueControl, IValueControl {
         /// <summary>
         ///     Only for Arrays or ILists (BaseTypes are fine) ; or objects (no primitives!) that have an array or IList as parent
         /// </summary>
-        public CollectionValueControl()
-        {
+        public CollectionValueControl() {
             InitializeComponent();
         }
 
-        public void Init(Value value)
-        {
+        public void Init(Value value) {
             base.__Value = value;
 
             if (value.__Value.GetParent() == null)
@@ -38,15 +33,13 @@ namespace vApus.Util
                 SetDefinedCollectionControl();
         }
 
-        public void SetUndefinedCollectionControl()
-        {
+        public void SetUndefinedCollectionControl() {
             //Only take the value into account, the other properties are taken care off.
             //Keep control recycling in mind.
             UndefinedCollectionControl ucc = null;
 
             var ienumerable = base.__Value.__Value as IEnumerable;
-            if (base.ValueControl == null || !(base.ValueControl is UndefinedCollectionControl))
-            {
+            if (base.ValueControl == null || !(base.ValueControl is UndefinedCollectionControl)) {
                 Type elementType = ienumerable.AsQueryable().ElementType;
 
                 ucc = new UndefinedCollectionControl(elementType);
@@ -57,9 +50,7 @@ namespace vApus.Util
 
                 ucc.ValueChanged += ucc_ValueChanged;
                 ucc.Failed += ucc_Failed;
-            }
-            else
-            {
+            } else {
                 ucc = base.ValueControl as UndefinedCollectionControl;
             }
 
@@ -70,15 +61,13 @@ namespace vApus.Util
             base.ValueControl = ucc;
         }
 
-        public void SetDefinedCollectionControl()
-        {
+        public void SetDefinedCollectionControl() {
             //Only take the value into account, the other properties are taken care off.
             //Keep control recycling in mind.
             DefinedCollectionControl dcc = null;
 
             var ienumerable = base.__Value.__Value as IEnumerable;
-            if (base.ValueControl == null || !(base.ValueControl is DefinedCollectionControl))
-            {
+            if (base.ValueControl == null || !(base.ValueControl is DefinedCollectionControl)) {
                 dcc = new DefinedCollectionControl();
 
                 //Hard coded for the purpose of simplicity.
@@ -86,9 +75,7 @@ namespace vApus.Util
                 dcc.Dock = DockStyle.Top;
 
                 dcc.ValueChanged += dcc_ValueChanged;
-            }
-            else
-            {
+            } else {
                 dcc = base.ValueControl as DefinedCollectionControl;
             }
 
@@ -99,20 +86,17 @@ namespace vApus.Util
             base.ValueControl = dcc;
         }
 
-        private void ucc_ValueChanged(object sender, EventArgs e)
-        {
+        private void ucc_ValueChanged(object sender, EventArgs e) {
             var cc = sender as UndefinedCollectionControl;
             base.HandleValueChanged(cc.Value);
         }
 
-        private void dcc_ValueChanged(object sender, EventArgs e)
-        {
+        private void dcc_ValueChanged(object sender, EventArgs e) {
             var cc = sender as DefinedCollectionControl;
             base.HandleValueChanged(cc.Value);
         }
 
-        private void ucc_Failed(object sender, EventArgs e)
-        {
+        private void ucc_Failed(object sender, EventArgs e) {
             MessageBox.Show("The new value is not of the right data type.", string.Empty, MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
             var cc = sender as UndefinedCollectionControl;
