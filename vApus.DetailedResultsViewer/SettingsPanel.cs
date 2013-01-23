@@ -70,9 +70,10 @@ namespace vApus.DetailedResultsViewer {
                 dgvDatabases.DataSource = null;
                 string[] filter = filterResults.Filter;
                 var dataSource = new DataTable("dataSource");
-                dataSource.Columns.Add(" ");
+                dataSource.Columns.Add("CreatedAt");
                 dataSource.Columns.Add("Tags");
                 dataSource.Columns.Add("Description");
+                dataSource.Columns.Add("Database");
 
                 var dbs = databaseActions.GetDataTable("Show Databases Like 'vapus%';");
                 int count = dbs.Rows.Count;
@@ -84,9 +85,9 @@ namespace vApus.DetailedResultsViewer {
                             try {
                                 if (_filterDatabasesWorkItem == null) _filterDatabasesWorkItem = new FilterDatabasesWorkItem();
 
-                                var row = _filterDatabasesWorkItem.FilterDatabase(new DatabaseActions() { ConnectionString = databaseActions.ConnectionString }, state as string, filter);
+                                var arr = _filterDatabasesWorkItem.FilterDatabase(new DatabaseActions() { ConnectionString = databaseActions.ConnectionString }, state as string, filter);
                                 lock (_lock) {
-                                    if (row != null) dataSource.Rows.Add(row);
+                                    if (arr != null) dataSource.Rows.Add(arr);
                                     ++done;
                                 }
                                 if (done == count) _waitHandle.Set();
@@ -101,12 +102,16 @@ namespace vApus.DetailedResultsViewer {
                 }
 
                 if (count != 0) _waitHandle.WaitOne();
-                dgvDatabases.DataSource = dataSource;
+                dataSource.DefaultView.Sort = "CreatedAt DESC";
+                dgvDatabases.DataSource = dataSource.DefaultView.ToTable();
+                dgvDatabases.Columns[0].HeaderText = string.Empty;
+                dgvDatabases.Columns[3].Visible = false;
                 if (dgvDatabases.Rows.Count == 0) {
                     if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null));
                 } else {
-                    dgvDatabases.Sort(dgvDatabases.Columns[0], System.ComponentModel.ListSortDirection.Descending);
+                    foreach (DataGridViewColumn clm in dgvDatabases.Columns) clm.SortMode = DataGridViewColumnSortMode.NotSortable;
                     dgvDatabases.Rows[0].Selected = true;
+
                 }
             } catch { }
             try { if (!Disposing && !IsDisposed) Cursor = Cursors.Arrow; } catch { }
@@ -116,7 +121,7 @@ namespace vApus.DetailedResultsViewer {
             DataTable dt = dgvDatabases.DataSource as DataTable;
             if (dt != null && e.RowIndex != -1 && e.RowIndex < dt.Rows.Count) {
                 DataRow row = dt.Rows[e.RowIndex];
-                string databaseName = row.GetTag() as string;
+                string databaseName = row[3] as string;
 
                 string user, host, password;
                 int port;
@@ -136,18 +141,7 @@ namespace vApus.DetailedResultsViewer {
             /// <returns>Contents of a data row.</returns>
             public object[] FilterDatabase(DatabaseActions databaseActions, string database, string[] filter) {
                 try {
-                    object[] itemArray = new object[3];
-
-                    //Get the DateTime, to be formatted later.
-                    string[] dtParts = database.Substring(5).Split('_');//vApusMM_dd_yyyy_HH_mm_ss_fffffff
-                    int month = int.Parse(dtParts[0]);
-                    int day = int.Parse(dtParts[1]);
-                    int year = int.Parse(dtParts[2]);
-                    int hour = int.Parse(dtParts[3]);
-                    int minute = int.Parse(dtParts[4]);
-                    int second = int.Parse(dtParts[5]);
-                    DateTime dt = new DateTime(year, month, day, hour, minute, second);
-                    itemArray[0] = dt.ToString();
+                    object[] itemArray = new object[4];
 
                     //Get the tags
                     var tags = databaseActions.GetDataTable("Select Tag From " + database + ".Tags");
@@ -190,7 +184,18 @@ namespace vApus.DetailedResultsViewer {
                         }
                     }
                     if (canAdd) {
-                        itemArray.SetTag(database);
+                        //Get the DateTime, to be formatted later.
+                        string[] dtParts = database.Substring(5).Split('_');//vApusMM_dd_yyyy_HH_mm_ss_fffffff
+                        int month = int.Parse(dtParts[0]);
+                        int day = int.Parse(dtParts[1]);
+                        int year = int.Parse(dtParts[2]);
+                        int hour = int.Parse(dtParts[3]);
+                        int minute = int.Parse(dtParts[4]);
+                        int second = int.Parse(dtParts[5]);
+                        DateTime dt = new DateTime(year, month, day, hour, minute, second);
+                        itemArray[0] = dt.ToString();
+
+                        itemArray[3] = database;
                         return itemArray;
                     }
                 } catch {

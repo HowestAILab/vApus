@@ -15,11 +15,11 @@ namespace vApus.DetailedResultsViewer {
         private ResultsPanel _resultsPanel = new ResultsPanel();
         public NewViewer() {
             InitializeComponent();
-            this.Shown += NewViewer_Shown;
+            HandleCreated += NewViewer_HandleCreated;
         }
 
-        private void NewViewer_Shown(object sender, EventArgs e) {
-            this.Shown -= NewViewer_Shown;
+        private void NewViewer_HandleCreated(object sender, EventArgs e) {
+            HandleCreated -= NewViewer_HandleCreated;
 
             _settingsPanel.Show(dockPanel, DockState.DockLeft);
             _settingsPanel.CloseButtonVisible = false;

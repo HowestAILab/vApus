@@ -5,11 +5,9 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using vApus.Monitor;
@@ -263,8 +261,7 @@ namespace vApus.DistributedTesting {
         #endregion
 
         public class NewTestEventArgs : EventArgs {
-            public readonly string Test;
-
+            public string Test { get; private set; }
             public NewTestEventArgs(string test) {
                 Test = test;
             }
