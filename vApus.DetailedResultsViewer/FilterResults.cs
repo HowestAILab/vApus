@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -17,33 +18,66 @@ namespace vApus.DetailedResultsViewer {
     public partial class FilterResults : UserControl {
         public event EventHandler FilterChanged;
 
-        private Timer _filterChangedDelayedTimer;
+        private System.Windows.Forms.Timer _filterChangedDelayedTimer = new System.Windows.Forms.Timer() { Interval = 1000 };
+        [ThreadStatic]
+        private static GetTagsWorkItem _getTagsWorkItem;
+
+        private AutoResetEvent _waitHandle = new AutoResetEvent(false);
+        private readonly object _lock = new object();
 
         public string[] Filter { get { return txtFilter.Text.Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries); } }
 
         public FilterResults() {
             InitializeComponent();
             ClearAvailableTags();
+            _filterChangedDelayedTimer.Tick += _filterChangedDelayedTimer_Tick;
         }
+        ~FilterResults() { try { _waitHandle.Dispose(); } catch { } }
+
         /// <summary>
         /// Duplicate tags are ignored.
         /// </summary>
         /// <param name="tags"></param>
         public void SetAvailableTags(DatabaseActions databaseActions) {
-            List<string> tags = new List<string>();
-            var dbs = databaseActions.GetDataTable("Show Databases like 'vapus%';");
-            foreach (DataRow rrDB in dbs.Rows) {
-                var t = databaseActions.GetDataTable("Select Tag from " + rrDB.ItemArray[0] + ".Tags;");
-                foreach (DataRow row in t.Rows) {
-                    string tag = (row.ItemArray[0] as string).Trim();
-                    if (tag.Length != 0 && !tags.Contains(tag)) tags.Add(tag);
+            Cursor = Cursors.WaitCursor;
+            try {
+                List<string> tags = new List<string>();
+                var dbs = databaseActions.GetDataTable("Show Databases like 'vapus%';");
+
+                int count = dbs.Rows.Count;
+                int done = 0;
+                foreach (DataRow rrDB in dbs.Rows) {
+                    string database = rrDB.ItemArray[0] as string;
+                    ThreadPool.QueueUserWorkItem((object state) => {
+                        if (done < count) {
+                            try {
+                                if (_getTagsWorkItem == null) _getTagsWorkItem = new GetTagsWorkItem();
+
+                                lock (_lock) {
+                                    foreach (string t in _getTagsWorkItem.GetTags(new DatabaseActions() { ConnectionString = databaseActions.ConnectionString }, state as string))
+                                        if (t.Length != 0 && !tags.Contains(t)) tags.Add(t);
+                                    ++done;
+                                }
+                                if (done == count) _waitHandle.Set();
+                            } catch {
+                                try {
+                                    lock (_lock) done = int.MaxValue;
+                                    _waitHandle.Set();
+                                } catch { }
+                            }
+                        }
+                    }, database);
+
                 }
-            }
-            SetAvailableTags(tags);
+                if (count != 0) _waitHandle.WaitOne();
+                SetAvailableTags(tags);
+            } catch { }
+            try { if (!Disposing && !IsDisposed) Cursor = Cursors.Arrow; } catch { }
         }
         private void SetAvailableTags(List<string> tags) {
             ClearAvailableTags();
             if (tags.Count != 0) {
+                tags.Sort();
                 foreach (string tag in tags) {
                     var kvpTag = new KeyValuePairControl(tag, string.Empty) { BackColor = SystemColors.Control };
                     kvpTag.Tooltip = "Click to add this tag to the filter.";
@@ -69,15 +103,11 @@ namespace vApus.DetailedResultsViewer {
         private void txtFilter_KeyPress(object sender, KeyPressEventArgs e) { if (e.KeyChar == '\r') e.Handled = true; }
 
         private void txtFilter_TextChanged(object sender, EventArgs e) {
-            if (_filterChangedDelayedTimer == null) {
-                _filterChangedDelayedTimer = new Timer() { Interval = 500 };
-                _filterChangedDelayedTimer.Tick += _filterChangedTimer_Tick;
-                _filterChangedDelayedTimer.Start();
-            }
+            _filterChangedDelayedTimer.Stop();
+            _filterChangedDelayedTimer.Start();
         }
-        private void _filterChangedTimer_Tick(object sender, EventArgs e) {
-            _filterChangedDelayedTimer.Dispose();
-            _filterChangedDelayedTimer = null;
+        private void _filterChangedDelayedTimer_Tick(object sender, EventArgs e) {
+            _filterChangedDelayedTimer.Stop();
             InvokeFilterChanged();
         }
         private void InvokeFilterChanged() {
@@ -86,6 +116,16 @@ namespace vApus.DetailedResultsViewer {
                 FilterChanged(this, null);
                 txtFilter.Focus();
                 txtFilter.Select(caretPosition, 0);
+            }
+        }
+
+
+        private class GetTagsWorkItem {
+            public List<string> GetTags(DatabaseActions databaseActions, string database) {
+                List<string> tags = new List<string>();
+                var t = databaseActions.GetDataTable("Select Tag from " + database + ".Tags;");
+                foreach (DataRow row in t.Rows) tags.Add((row.ItemArray[0] as string).Trim());
+                return tags;
             }
         }
     }

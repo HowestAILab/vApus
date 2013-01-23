@@ -16,8 +16,15 @@ namespace vApus.Results {
     public partial class SavingResultsPanel : Panel {
         private bool _showDescription = true;
 
-        public bool ConnectionFilledIn {
-            get { return Settings.Default.ConnectionStringIndex > -1 && Settings.Default.ConnectionStringIndex < SettingsManager.GetConnectionStrings().Count; }
+        public bool Connected {
+            get {
+                if (Settings.Default.ConnectionStringIndex > -1 && Settings.Default.ConnectionStringIndex < SettingsManager.GetConnectionStrings().Count) {
+                    var databaseActions = new DatabaseActions() { ConnectionString = this.ConnectionString };
+                    var dbs = databaseActions.GetDataTable("Show Databases;");
+                    return dbs.Columns.Count != 0;
+                }
+                return false;
+            }
         }
         public string ConnectionString {
             get {

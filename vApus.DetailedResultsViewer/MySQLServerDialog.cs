@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace vApus.DetailedResultsViewer {
     public partial class MySQLServerDialog : Form {
-        public bool ConnectionFilledIn { get { return savingResultsPanel.ConnectionFilledIn; } }
+        public bool Connected { get { return savingResultsPanel.Connected; } }
         public string ConnectionString {
             get {
                 try {
