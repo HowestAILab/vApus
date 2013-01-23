@@ -45,8 +45,7 @@ namespace vApus.DistributedTesting {
                     case Key.StopTest:
                         return HandleStopTest(message);
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 LogWrapper.LogByLevel("Communication error:\n" + ex, LogLevel.Error);
             }
             return message;
@@ -68,15 +67,12 @@ namespace vApus.DistributedTesting {
 
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                        SolutionComponentViewManager.DisposeViews();
-
-                        if (_tileStresstestView != null)
-                            try { _tileStresstestView.Close(); }
-                            catch { }
-                        try { _tileStresstestView.Dispose(); }
-                        catch { }
-                        _tileStresstestView = null;
-                    }, null);
+                    SolutionComponentViewManager.DisposeViews();
+                    if (_tileStresstestView != null)
+                        try { _tileStresstestView.Close(); } catch { }
+                    try { _tileStresstestView.Dispose(); } catch { }
+                    _tileStresstestView = null;
+                }, null);
 
                 if (_masterSocketWrapper == null) {
                     var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -90,16 +86,23 @@ namespace vApus.DistributedTesting {
                         del.BeginInvoke(null, new NewTestEventArgs(stresstestWrapper.Stresstest.ToString()), null, null);
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                    int done = 1;
+                Retry:
+                    try {
                         _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
                         _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
                         _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
-                    }, null);
-
+                    } catch {
+                        if (done != 4) {
+                            Thread.Sleep(1000 * (done++));
+                            goto Retry;
+                        }
+                    }
+                }, null);
 
                 //This is threadsafe
                 _tileStresstestView.InitializeTest();
-            }
-            catch (Exception ex) { initializeTestMessage.Exception = ex.ToString(); }
+            } catch (Exception ex) { initializeTestMessage.Exception = ex.ToString(); }
 
             initializeTestMessage.StresstestWrapper = new StresstestWrapper();
             message.Content = initializeTestMessage;
@@ -110,12 +113,10 @@ namespace vApus.DistributedTesting {
         private static Message<Key> HandleStartTest(Message<Key> message) {
             var startMessage = new StartAndStopMessage();
             if (_tileStresstestView == null) startMessage.Exception = "No Tile Stresstest View found!";
-            else
-                try {
+            else try {
                     startMessage.TileStresstestIndex = _tileStresstestView.TileStresstestIndex;
                     _tileStresstestView.StartTest();
-                }
-                catch (Exception ex) { startMessage.Exception = ex.ToString(); }
+                } catch (Exception ex) { startMessage.Exception = ex.ToString(); }
 
             message.Content = startMessage;
             return message;
@@ -217,8 +218,7 @@ namespace vApus.DistributedTesting {
                     tpm.ContextSwitchesPerSecond = LocalMonitor.ContextSwitchesPerSecond;
                     tpm.NicsSent = LocalMonitor.NicsSent;
                     tpm.NicsReceived = LocalMonitor.NicsReceived;
-                }
-                catch {
+                } catch {
                 } //Exception on false WMI. 
 
 
@@ -232,15 +232,13 @@ namespace vApus.DistributedTesting {
                 if (!_masterSocketWrapper.Connected) {
                     try {
                         if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose();
-                    }
-                    catch { }
+                    } catch { }
 
                     var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                     _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
 
-                    try { _masterSocketWrapper.Connect(1000, 3); }
-                    catch { }
+                    try { _masterSocketWrapper.Connect(1000, 3); } catch { }
                 }
 
                 if (_masterSocketWrapper.Connected) {
@@ -248,11 +246,9 @@ namespace vApus.DistributedTesting {
                     try {
                         SynchronizeBuffers(message);
                         _masterSocketWrapper.Send(message, SendType.Binary);
-                    }
-                    catch { }
+                    } catch { }
                 }
-            }
-            catch { }
+            } catch { }
         }
 
         private delegate void SendPushMessageDelegate(string tileStresstestIndex,
