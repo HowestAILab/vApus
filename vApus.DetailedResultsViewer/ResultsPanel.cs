@@ -16,10 +16,10 @@ namespace vApus.DetailedResultsViewer {
             InitializeComponent();
         }
         public void ClearReport() {
-            detailedResultsControl.ClearReport();
+            detailedResultsControl.ClearResults();
         }
         public void RefreshReport() {
-            detailedResultsControl.RefreshReport();
+            detailedResultsControl.RefreshResults();
         }
     }
 }

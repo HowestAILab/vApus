@@ -120,19 +120,20 @@
             // 
             this.tpReport.BackColor = System.Drawing.Color.White;
             this.tpReport.Controls.Add(this.detailedResultsControl);
-            this.tpReport.Location = new System.Drawing.Point(0, 19);
+            this.tpReport.Location = new System.Drawing.Point(0, 22);
             this.tpReport.Name = "tpReport";
-            this.tpReport.Size = new System.Drawing.Size(790, 497);
+            this.tpReport.Size = new System.Drawing.Size(790, 494);
             this.tpReport.TabIndex = 2;
-            this.tpReport.Text = "Report";
+            this.tpReport.Text = "Detailed Results";
             // 
             // detailedResultsControl
             // 
             this.detailedResultsControl.BackColor = System.Drawing.SystemColors.Control;
             this.detailedResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailedResultsControl.Enabled = false;
             this.detailedResultsControl.Location = new System.Drawing.Point(0, 0);
             this.detailedResultsControl.Name = "detailedResultsControl";
-            this.detailedResultsControl.Size = new System.Drawing.Size(790, 497);
+            this.detailedResultsControl.Size = new System.Drawing.Size(790, 494);
             this.detailedResultsControl.TabIndex = 0;
             // 
             // toolStrip

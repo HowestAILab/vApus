@@ -31,6 +31,9 @@ namespace vApus.Results {
 
         #endregion
 
+        /// <summary>
+        /// Returns null if not connected
+        /// </summary>
         public static string DatabaseName {
             get { return _databaseName; }
         }

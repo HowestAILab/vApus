@@ -218,7 +218,9 @@ namespace vApus.Stresstest {
             _stresstestResult = null;
             _stresstestMetricsCache = new StresstestMetricsCache();
             _monitorMetricsCache = new MonitorMetricsCache();
-            detailedResultsControl.ClearReport();
+            detailedResultsControl.ClearResults();
+            detailedResultsControl.Enabled = false;
+
 
             fastResultsControl.SetConfigurationControls(_stresstest);
 
@@ -266,7 +268,7 @@ namespace vApus.Stresstest {
                     fastResultsControl.AppendMessages("Cannot start this test because another one is still running.", LogLevel.Error);
                     ex = null;
                 }
-                Stop(ex);
+                Stop(StresstestStatus.Error, ex);
             }
             Cursor = Cursors.Default;
         }
@@ -289,7 +291,7 @@ namespace vApus.Stresstest {
                             "Cannot start this test because another one is still running.", LogLevel.Error);
                         ex = null;
                     }
-                    Stop(ex);
+                    Stop(StresstestStatus.Error, ex);
                 }
                 Cursor = Cursors.Default;
             }, null);
@@ -304,7 +306,7 @@ namespace vApus.Stresstest {
             try { stresstestStatus = _stresstestCore.ExecuteStresstest(); } catch (Exception e) { ex = e; } finally {
                 if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                        Stop(ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
+                        Stop(stresstestStatus, ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
 
                         if (_monitorViews != null)
                             foreach (MonitorView view in _monitorViews)
@@ -312,8 +314,6 @@ namespace vApus.Stresstest {
                                     try { ResultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
                                         LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
                                     }
-
-                        fastResultsControl.SetStresstestStopped(stresstestStatus);
                     }, null);
                 }
             }
@@ -377,7 +377,7 @@ namespace vApus.Stresstest {
             var monitorView = sender as MonitorView;
             monitorView.MonitorInitialized -= monitorView_MonitorInitialized;
 
-            if (e.ErrorMessage != null && e.ErrorMessage.Length != 0) Stop(new Exception(e.ErrorMessage));
+            if (e.ErrorMessage != null && e.ErrorMessage.Length != 0) Stop(StresstestStatus.Error, new Exception(e.ErrorMessage));
             else {
                 fastResultsControl.AppendMessages(monitorView.Text + " is initialized.");
                 if (++_monitorsInitialized == _stresstest.Monitors.Length) {
@@ -584,7 +584,7 @@ namespace vApus.Stresstest {
         /// <summary>
         /// </summary>
         /// <param name="ex">The exception if failed.</param>
-        private void Stop(Exception ex = null, bool monitorAfter = false) {
+        private void Stop(StresstestStatus stresstestStatus = StresstestStatus.Ok, Exception ex = null, bool monitorAfter = false) {
             if (btnStop.Enabled) {
                 Cursor = Cursors.WaitCursor;
 
@@ -606,7 +606,7 @@ namespace vApus.Stresstest {
                 btnSchedule.Enabled = true;
                 tmrSchedule.Stop();
 
-                if (ex != null) fastResultsControl.SetStresstestStopped(StresstestStatus.Error, ex);
+                fastResultsControl.SetStresstestStopped(stresstestStatus, ex);
 
                 Cursor = Cursors.Default;
 
@@ -625,8 +625,13 @@ namespace vApus.Stresstest {
                         monitorAfterCountdown.Start();
                     }
                 }
-
-                detailedResultsControl.RefreshReport();
+                if (ResultsHelper.DatabaseName == null) {
+                    detailedResultsControl.ClearResults();
+                    detailedResultsControl.Enabled = false;
+                } else {
+                    detailedResultsControl.Enabled = true;
+                    detailedResultsControl.RefreshResults();
+                }
             }
         }
 

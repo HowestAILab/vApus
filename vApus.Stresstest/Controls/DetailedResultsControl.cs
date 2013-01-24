@@ -139,7 +139,7 @@ namespace vApus.Stresstest.Controls {
         /// <summary>
         /// Clear before testing.
         /// </summary>
-        public void ClearReport() {
+        public void ClearResults() {
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[0];
 
@@ -148,7 +148,7 @@ namespace vApus.Stresstest.Controls {
         /// <summary>
         /// Refresh after testing.
         /// </summary>
-        public void RefreshReport() {
+        public void RefreshResults() {
             foreach (var ctrl in flpConfiguration.Controls)
                 if (ctrl is LinkButton) {
                     var lbtn = ctrl as LinkButton;
