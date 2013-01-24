@@ -129,7 +129,7 @@ namespace vApus.Util
             set
             {
                 _logLevel = value;
-                Settings.Default.LogLevel = ((int) _logLevel).ToString();
+                Settings.Default.LLogLevel = ((int) _logLevel).ToString();
                 Settings.Default.Save();
             }
         }
@@ -156,7 +156,7 @@ namespace vApus.Util
         {
             _logger = new Logger(loggerName);
             Logwrappers.Add(loggerName, this);
-            _logLevel = (LogLevel) int.Parse(Settings.Default.LogLevel);
+            _logLevel = (LogLevel) int.Parse(Settings.Default.LLogLevel);
         }
 
         private LogWrapper(string loggerName, LogLevel minimumLogLevel)

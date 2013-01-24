@@ -90,9 +90,9 @@ namespace vApus.Util
 
         public static void SetCredentials(string host, int port, string username, string password, int channel)
         {
-            Settings.Default.Host = host;
-            Settings.Default.Port = port;
-            Settings.Default.Username = username;
+            Settings.Default.UNHost = host;
+            Settings.Default.UNPort = port;
+            Settings.Default.UNUsername = username;
 
             password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
                                         new byte[]
@@ -100,8 +100,8 @@ namespace vApus.Util
                                                 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65,
                                                 0x76
                                             });
-            Settings.Default.Password = password;
-            Settings.Default.Channel = channel;
+            Settings.Default.UNPassword = password;
+            Settings.Default.UNChannel = channel;
             Settings.Default.Save();
 
             _refreshed = false;
@@ -117,17 +117,17 @@ namespace vApus.Util
         public static void GetCredentials(out string host, out int port, out string username, out string password,
                                           out int channel)
         {
-            host = Settings.Default.Host;
-            port = Settings.Default.Port;
-            username = Settings.Default.Username;
-            password = Settings.Default.Password;
+            host = Settings.Default.UNHost;
+            port = Settings.Default.UNPort;
+            username = Settings.Default.UNUsername;
+            password = Settings.Default.UNPassword;
             password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
                                         new byte[]
                                             {
                                                 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65,
                                                 0x76
                                             });
-            channel = Settings.Default.Channel;
+            channel = Settings.Default.UNChannel;
 
             //If there is no channel set get it from the version.ini.
             if (channel == -1)

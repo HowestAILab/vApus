@@ -39,7 +39,7 @@ namespace vApus.Gui {
         private OptionsDialog _optionsDialog;
         private ProcessorAffinityPanel _processorAffinityPanel;
 
-        private ProgressSpammerPanel _progressSpammerPannel;
+        private ProgressNotifierPanel _progressSpammerPannel;
         private SavingResultsPanel _savingResultsPanel;
         private UpdateNotifierPanel _updateNotifierPanel;
 
@@ -109,7 +109,7 @@ namespace vApus.Gui {
                         StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(CloseDelayedCallback));
                     }
 
-                _progressSpammerPannel = new ProgressSpammerPanel();
+                _progressSpammerPannel = new ProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
             } catch (Exception ex) {
                 LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
