@@ -28,6 +28,8 @@ namespace vApus.DistributedTesting {
 
         private readonly object _lock = new object();
 
+        private Schedule _schedule = null;
+
         /// <summary>
         ///     The monitors for the tests if any.
         /// </summary>
@@ -273,20 +275,22 @@ namespace vApus.DistributedTesting {
 
             _distributedTestMode = distributedTestMode;
 
-            btnSchedule.Enabled = distributedTestMode == DistributedTestMode.Edit;
-
-            btnStop.Enabled = canEnableStop && distributedTestMode == DistributedTestMode.TestAndReport;
-
             if (_distributedTestMode == DistributedTestMode.TestAndReport) {
-                btnStart.Enabled = false;
+                btnStop.Enabled = canEnableStop;
+                btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
                 if (scheduled) tmrSchedule.Start(); else btnSchedule.Text = string.Empty;
                 //tcTree.SelectedTab = tpTests;
             } else {
-                btnStart.Enabled = !testTreeView.Exclamation;
+                btnStop.Enabled = false;
+                btnStart.Enabled = btnSchedule.Enabled = !testTreeView.Exclamation;
+                btnWizard.Enabled = true;
 
                 tmrSchedule.Stop();
                 tmrProgress.Stop();
                 tmrProgressDelayCountDown.Stop();
+
+                btnSchedule.Text = string.Empty;
+                btnSchedule.Tag = null;
             }
 
             testTreeView.SetMode(_distributedTestMode, scheduled);
@@ -399,15 +403,16 @@ namespace vApus.DistributedTesting {
         }
 
         private void ScheduleTest() {
-            SetMode(DistributedTestMode.TestAndReport, false, true);
+            SetMode(DistributedTestMode.TestAndReport, true, true);
         }
 
         private void tmrSchedule_Tick(object sender, EventArgs e) {
             var scheduledAt = (DateTime)btnSchedule.Tag;
             if (scheduledAt <= DateTime.Now) {
-                btnSchedule.Text = "Scheduled at " + scheduledAt;
+                btnSchedule.Text = string.Empty;
+                btnSchedule.Tag = null;
                 tmrSchedule.Stop();
-                StartTest();
+                Start();
             } else {
                 TimeSpan dt = scheduledAt - DateTime.Now;
                 if (dt.Milliseconds != 0) {
@@ -424,26 +429,28 @@ namespace vApus.DistributedTesting {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnSchedule_Click(object sender, EventArgs e) {
-            Schedule schedule = (btnSchedule.Tag != null && btnSchedule.Tag is DateTime)
+            _schedule = (btnSchedule.Tag != null && btnSchedule.Tag is DateTime)
                                     ? new Schedule((DateTime)btnSchedule.Tag)
                                     : new Schedule();
-            if (schedule.ShowDialog() == DialogResult.OK) {
-                if (schedule.ScheduledAt > DateTime.Now) {
-                    btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt;
-                    btnSchedule.Tag = schedule.ScheduledAt;
+            if (_schedule.ShowDialog() == DialogResult.OK) {
+                if (_schedule.ScheduledAt > DateTime.Now) {
+                    btnSchedule.Tag = _schedule.ScheduledAt;
                 } else {
                     btnSchedule.Text = string.Empty;
                     btnSchedule.Tag = null;
                 }
-
+                _schedule = null;
                 btnStart_Click(this, null);
+            } else {
+                btnSchedule.Text = string.Empty;
             }
+            _schedule = null;
         }
         private void btnSchedule_MouseEnter(object sender, EventArgs e) {
             btnSchedule.Text = btnSchedule.ToolTipText;
         }
         private void btnSchedule_MouseLeave(object sender, EventArgs e) {
-            if (!btnSchedule.Text.StartsWith("Scheduled")) btnSchedule.Text = string.Empty;
+            if (!btnSchedule.Text.StartsWith("Scheduled") && _schedule == null) btnSchedule.Text = string.Empty;
         }
         /// <summary>
         ///     Check if the number of runs for the different single stresstests are equal to each other.
@@ -784,10 +791,6 @@ namespace vApus.DistributedTesting {
 
             SetMode(DistributedTestMode.Edit, canEnableStop);
 
-            if (btnSchedule.Tag != null && tmrSchedule.Tag is DateTime) {
-                var scheduledDateTime = (DateTime)btnSchedule.Tag;
-                btnSchedule.Text = scheduledDateTime > DateTime.Now ? "Scheduled at " + scheduledDateTime : string.Empty;
-            }
             if (_distributedTestCore != null)
                 try {
                     _distributedTestCore.Stop();
@@ -987,7 +990,7 @@ namespace vApus.DistributedTesting {
                             runningMonitors++;
 
                 if (runningMonitors == 0) {
-                    if(_monitorBeforeCountDown != null) _monitorBeforeCountDown.Stop();
+                    if (_monitorBeforeCountDown != null) _monitorBeforeCountDown.Stop();
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 

@@ -18,7 +18,9 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class StresstestView : BaseSolutionComponentView {
+
         #region Fields
+        private Schedule _schedule;
 
         private readonly List<MonitorView> _monitorViews = new List<MonitorView>();
         private readonly Stresstest _stresstest;
@@ -115,26 +117,27 @@ namespace vApus.Stresstest {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnSchedule_Click(object sender, EventArgs e) {
-            Schedule schedule = (btnSchedule.Tag is DateTime)
+            _schedule = (btnSchedule.Tag is DateTime)
                                     ? new Schedule((DateTime)btnSchedule.Tag)
                                     : new Schedule();
-            if (schedule.ShowDialog() == DialogResult.OK) {
-                if (schedule.ScheduledAt > DateTime.Now) {
-                    btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt;
-                    btnSchedule.Tag = schedule.ScheduledAt;
+            if (_schedule.ShowDialog() == DialogResult.OK) {
+                if (_schedule.ScheduledAt > DateTime.Now) {
+                    btnSchedule.Tag = _schedule.ScheduledAt;
                 } else {
                     btnSchedule.Text = string.Empty;
                     btnSchedule.Tag = null;
                 }
-
                 btnStart_Click(this, null);
+            } else {
+                btnSchedule.Text = string.Empty;
             }
+            _schedule = null;
         }
         private void btnSchedule_MouseEnter(object sender, EventArgs e) {
             btnSchedule.Text = btnSchedule.ToolTipText;
         }
         private void btnSchedule_MouseLeave(object sender, EventArgs e) {
-            if (!btnSchedule.Text.StartsWith("Scheduled")) btnSchedule.Text = string.Empty;
+            if (!btnSchedule.Text.StartsWith("Scheduled") && _schedule == null) btnSchedule.Text = string.Empty;
         }
         /// <summary>
         ///     Start a test with or without monitoring it.
@@ -333,7 +336,8 @@ namespace vApus.Stresstest {
         private void tmrSchedule_Tick(object sender, EventArgs e) {
             var scheduledAt = (DateTime)btnSchedule.Tag;
             if (scheduledAt <= DateTime.Now) {
-                btnSchedule.Text = "Scheduled at " + scheduledAt;
+                btnSchedule.Text = string.Empty;
+                btnSchedule.Tag = null;
                 tmrSchedule.Stop();
                 StartStresstest();
             } else {
@@ -605,6 +609,9 @@ namespace vApus.Stresstest {
                 btnStart.Enabled = true;
                 btnSchedule.Enabled = true;
                 tmrSchedule.Stop();
+                btnSchedule.Text = string.Empty;
+                btnSchedule.Tag = null;
+
 
                 fastResultsControl.SetStresstestStopped(stresstestStatus, ex);
 
