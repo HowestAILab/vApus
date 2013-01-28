@@ -109,7 +109,7 @@ namespace vApus.Util.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int PNPort {
             get {
                 return ((int)(this["PNPort"]));
@@ -140,6 +140,66 @@ namespace vApus.Util.Properties {
             }
             set {
                 this["PNPassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PNSecure {
+            get {
+                return ((bool)(this["PNSecure"]));
+            }
+            set {
+                this["PNSecure"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PNAfterEachRun {
+            get {
+                return ((bool)(this["PNAfterEachRun"]));
+            }
+            set {
+                this["PNAfterEachRun"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PNAfterEachConcurrency {
+            get {
+                return ((bool)(this["PNAfterEachConcurrency"]));
+            }
+            set {
+                this["PNAfterEachConcurrency"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PNWhenTheTestIsFinished {
+            get {
+                return ((bool)(this["PNWhenTheTestIsFinished"]));
+            }
+            set {
+                this["PNWhenTheTestIsFinished"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PNEnabled {
+            get {
+                return ((bool)(this["PNEnabled"]));
+            }
+            set {
+                this["PNEnabled"] = value;
             }
         }
     }

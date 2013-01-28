@@ -24,13 +24,28 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="PNPort" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">25</Value>
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="PNEMailAddress" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="PNPassword" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="PNSecure" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PNAfterEachRun" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PNAfterEachConcurrency" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PNWhenTheTestIsFinished" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PNEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

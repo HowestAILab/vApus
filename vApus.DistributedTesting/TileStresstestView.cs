@@ -133,7 +133,7 @@ namespace vApus.DistributedTesting {
                     _stresstestCore = new StresstestCore(_stresstest, false);
                     _stresstestCore.RunSynchronization = RunSynchronization;
                     _stresstestCore.StresstestStarted += _stresstestCore_StresstestStarted;
-                    _stresstestCore.ConcurrentUsersStarted += _stresstestCore_ConcurrentUsersStarted;
+                    _stresstestCore.ConcurrencyStarted += _stresstestCore_ConcurrentUsersStarted;
                     _stresstestCore.RunInitializedFirstTime += _stresstestCore_RunInitializedFirstTime;
                     _stresstestCore.RunDoneOnce += _stresstestCore_RunDoneOnce;
                     _stresstestCore.Message += _stresstestCore_Message;

@@ -11,57 +11,46 @@ using System.Drawing;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public class StresstestResultEventArgs : EventArgs
-    {
-        public StresstestResultEventArgs(StresstestResult stresstestResult)
-        {
+namespace vApus.Stresstest {
+    public class StresstestResultEventArgs : EventArgs {
+        public StresstestResultEventArgs(StresstestResult stresstestResult) {
             StresstestResult = stresstestResult;
         }
 
         public StresstestResult StresstestResult { private set; get; }
     }
 
-    public class ConcurrencyResultEventArgs : EventArgs
-    {
-        public ConcurrencyResultEventArgs(ConcurrencyResult result)
-        {
+    public class ConcurrencyResultEventArgs : EventArgs {
+        public ConcurrencyResultEventArgs(ConcurrencyResult result) {
             Result = result;
         }
 
         public ConcurrencyResult Result { private set; get; }
     }
 
-    public class RunResultEventArgs : EventArgs
-    {
-        public RunResultEventArgs(RunResult result)
-        {
+    public class RunResultEventArgs : EventArgs {
+        public RunResultEventArgs(RunResult result) {
             Result = result;
         }
 
         public RunResult Result { private set; get; }
     }
 
-    public class IntValueEventArgs : EventArgs
-    {
-        public IntValueEventArgs(int value)
-        {
+    public class IntValueEventArgs : EventArgs {
+        public IntValueEventArgs(int value) {
             Value = value;
         }
 
         public int Value { private set; get; }
     }
 
-    public class MessageEventArgs : EventArgs
-    {
+    public class MessageEventArgs : EventArgs {
         /// <summary>
         /// </summary>
         /// <param name="message"></param>
         /// <param name="logLevel"></param>
         /// <param name="color">Can be null</param>
-        public MessageEventArgs(string message, Color color, LogLevel logLevel)
-        {
+        public MessageEventArgs(string message, Color color, LogLevel logLevel) {
             Message = message;
             Color = color;
             LogLevel = logLevel;

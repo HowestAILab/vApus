@@ -2,10 +2,9 @@
 using vApus.Results.Properties;
 using vApus.Util;
 
-namespace vApus.Results
-{
-    public static class SettingsManager
-    {
+namespace vApus.Results {
+    public static class SettingsManager {
+
         #region Fields
 
         private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
@@ -18,46 +17,37 @@ namespace vApus.Results
 
         #endregion
 
-        public static StringCollection GetConnectionStrings()
-        {
+        public static StringCollection GetConnectionStrings() {
             StringCollection connectionStrings = Settings.Default.ConnectionStrings;
-            if (connectionStrings == null)
-                connectionStrings = new StringCollection();
+            if (connectionStrings == null) connectionStrings = new StringCollection();
 
             return connectionStrings;
         }
 
-        public static StringCollection GetPasswords()
-        {
+        public static StringCollection GetPasswords() {
             StringCollection passwords = Settings.Default.Passwords;
-            if (passwords == null)
-                passwords = new StringCollection();
+            if (passwords == null) passwords = new StringCollection();
 
             return passwords;
         }
 
-        public static void AddCredentials(string user, string host, int port, string password)
-        {
+        public static void AddCredentials(string user, string host, int port, string password) {
             EditCredentials(-1, user, host, port, password);
         }
 
         public static void EditCredentials(int connectionStringIndex, string user, string host, int port,
-                                           string password)
-        {
+                                           string password) {
             string connectionString = user + "@" + host + ":" + port;
             password = password.Encrypt(_passwordGUID, _salt);
 
             StringCollection connectionStrings = GetConnectionStrings();
             StringCollection passwords = GetPasswords();
 
-            if (connectionStringIndex == -1)
-            {
+            if (connectionStringIndex == -1) {
                 connectionStrings.Add(connectionString);
                 passwords.Add(password);
                 Settings.Default.ConnectionStringIndex = connectionStrings.IndexOf(connectionString);
-            }
-            else
-            {
+            } else {
                 connectionStrings[connectionStringIndex] = connectionString;
                 passwords[connectionStringIndex] = password;
             }
@@ -67,14 +57,12 @@ namespace vApus.Results
             Settings.Default.Save();
         }
 
-        public static void GetCurrentCredentials(out string user, out string host, out int port, out string password)
-        {
+        public static void GetCurrentCredentials(out string user, out string host, out int port, out string password) {
             GetCredentials(Settings.Default.ConnectionStringIndex, out user, out host, out port, out password);
         }
 
         public static void GetCredentials(int connectionStringIndex, out string user, out string host, out int port,
-                                          out string password)
-        {
+                                          out string password) {
             string connectionString = GetConnectionStrings()[connectionStringIndex];
             user = connectionString.Split('@')[0];
             connectionString = connectionString.Substring(user.Length + 1);
@@ -84,8 +72,7 @@ namespace vApus.Results
             password = GetPasswords()[connectionStringIndex].Decrypt(_passwordGUID, _salt);
         }
 
-        public static void DeleteCredentials(int connectionStringIndex)
-        {
+        public static void DeleteCredentials(int connectionStringIndex) {
             StringCollection connectionStrings = GetConnectionStrings();
             connectionStrings.RemoveAt(connectionStringIndex);
             Settings.Default.ConnectionStrings = connectionStrings;

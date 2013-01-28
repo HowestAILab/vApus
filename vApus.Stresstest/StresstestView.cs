@@ -259,8 +259,10 @@ namespace vApus.Stresstest {
             try {
                 _stresstestCore = new StresstestCore(_stresstest, true);
                 _stresstestCore.StresstestStarted += _stresstestCore_StresstestStarted;
-                _stresstestCore.ConcurrentUsersStarted += _stresstestCore_ConcurrentUsersStarted;
+                _stresstestCore.ConcurrencyStarted += _stresstestCore_ConcurrentUsersStarted;
+                _stresstestCore.ConcurrencyStopped += _stresstestCore_ConcurrencyStopped;
                 _stresstestCore.RunInitializedFirstTime += _stresstestCore_RunInitializedFirstTime;
+                _stresstestCore.RunStopped += _stresstestCore_RunStopped;
                 _stresstestCore.Message += _stresstestCore_Message;
                 _stresstestCore.InitializeTest();
 
@@ -318,6 +320,11 @@ namespace vApus.Stresstest {
                                         LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
                                     }
                     }, null);
+
+                    if (ex == null)
+                        ProgressNotifier.Notify(ProgressNotifier.What.TestFinished, _stresstest.ToString() + " Finished. Status: " + stresstestStatus + ".", string.Empty, 0);
+                    else
+                        ProgressNotifier.Notify(ProgressNotifier.What.TestFinished, _stresstest.ToString() + " Finished. Status: " + stresstestStatus + ". " + ex, string.Empty, 0);
                 }
             }
         }
@@ -498,7 +505,10 @@ namespace vApus.Stresstest {
             foreach (var monitorResultCache in GetMonitorResultCaches())
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
         }
-
+        private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) {
+            string message = _stresstest.ToString() + " - Concurrency " + e.Result.Concurrency + " Finished.";
+            ProgressNotifier.Notify(ProgressNotifier.What.ConcurrencyFinished, message, string.Empty, 0);
+        }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             _countDown = Stresstest.ProgressUpdateDelay;
             StopProgressDelayCountDown();
@@ -515,6 +525,11 @@ namespace vApus.Stresstest {
             tmrProgressDelayCountDown.Start();
 
             tmrProgress.Start();
+        }
+        private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) {
+            int concurrency = _stresstestResult.ConcurrencyResults[_stresstestResult.ConcurrencyResults.Count - 1].Concurrency;
+            string message = _stresstest.ToString() + " - Run " + e.Result.Run + " of concurrency " + concurrency + " Finished.";
+            ProgressNotifier.Notify(ProgressNotifier.What.RunFinished, message, string.Empty, 0);
         }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) {

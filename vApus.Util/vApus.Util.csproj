@@ -221,6 +221,7 @@
     <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.designer.cs">
       <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\ProgressNotifier\ProgressNotifier.cs" />
     <Compile Include="ControlsAndPanels\ProgressNotifier\ProgressNotifierPanel.cs">
       <SubType>Component</SubType>
     </Compile>

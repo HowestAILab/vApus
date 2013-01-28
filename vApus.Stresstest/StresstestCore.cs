@@ -19,6 +19,7 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public class StresstestCore : IDisposable {
+
         #region Fields
 
         /// <summary>
@@ -147,7 +148,8 @@ namespace vApus.Stresstest {
         #region Events
 
         public event EventHandler<StresstestResultEventArgs> StresstestStarted;
-        public event EventHandler<ConcurrencyResultEventArgs> ConcurrentUsersStarted;
+        public event EventHandler<ConcurrencyResultEventArgs> ConcurrencyStarted;
+        public event EventHandler<ConcurrencyResultEventArgs> ConcurrencyStopped;
         public event EventHandler<RunResultEventArgs> RunStarted;
         public event EventHandler<RunResultEventArgs> RunStopped;
         public event EventHandler<RunResultEventArgs> RunInitializedFirstTime;
@@ -173,9 +175,16 @@ namespace vApus.Stresstest {
                 string.Format("|-> {0} Concurrent Users... (Initializing the first run, be patient)", concurrentUsers),
                 Color.MediumPurple);
 
-            if (!_cancel && ConcurrentUsersStarted != null)
+            if (!_cancel && ConcurrencyStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
-                    delegate { ConcurrentUsersStarted(this, new ConcurrencyResultEventArgs(_concurrencyResult)); }, null);
+                    delegate { ConcurrencyStarted(this, new ConcurrencyResultEventArgs(_concurrencyResult)); }, null);
+        }
+        private void SetConcurrencyStopped() {
+            ResultsHelper.SetConcurrencyStopped(_concurrencyResult);
+
+            if (!_cancel && ConcurrencyStopped != null)
+                SynchronizationContextWrapper.SynchronizationContext.Send(
+                    delegate { ConcurrencyStopped(this, new ConcurrencyResultEventArgs(_concurrencyResult)); }, null);
         }
 
         /// <summary>
@@ -198,7 +207,7 @@ namespace vApus.Stresstest {
             if (ResultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
             ResultsHelper.SetRunStopped(_runResult);
 
-            if (_cancel && RunStopped != null)
+            if (!_cancel && RunStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate { RunStopped(this, new RunResultEventArgs(_runResult)); }, null);
         }
@@ -215,14 +224,12 @@ namespace vApus.Stresstest {
             int concurrentUsers = _stresstest.Concurrencies[concurrentUsersIndex];
 
             _runResult = new RunResult(run, concurrentUsers);
-            for (int i = 0; i < concurrentUsers; i++)
-                _runResult.VirtualUserResults[i] = new VirtualUserResult(singleUserLogEntryCount);
+            for (int i = 0; i < concurrentUsers; i++) _runResult.VirtualUserResults[i] = new VirtualUserResult(singleUserLogEntryCount);
 
             _concurrencyResult.RunResults.Add(_runResult);
 
             if (!_cancel && RunInitializedFirstTime != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(
-                    delegate { RunInitializedFirstTime(this, new RunResultEventArgs(_runResult)); }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunInitializedFirstTime(this, new RunResultEventArgs(_runResult)); }, null);
         }
 
         /// <summary>
@@ -232,18 +239,13 @@ namespace vApus.Stresstest {
             if (!_runDoneOnce) {
                 _runDoneOnce = true;
                 if (!_cancel && RunDoneOnce != null)
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, null); },
-                                                                              null);
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, null); }, null);
             }
         }
 
-        private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) {
-            InvokeMessage(e.Message, e.Color, e.LogLevel);
-        }
+        private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) { InvokeMessage(e.Message, e.Color, e.LogLevel); }
 
-        private void InvokeMessage(string message, LogLevel logLevel = LogLevel.Info) {
-            InvokeMessage(message, Color.Empty, logLevel);
-        }
+        private void InvokeMessage(string message, LogLevel logLevel = LogLevel.Info) { InvokeMessage(message, Color.Empty, logLevel); }
 
         /// <summary>
         /// </summary>
@@ -491,7 +493,7 @@ namespace vApus.Stresstest {
                         goto Rerun;
                     }
                 }
-                ResultsHelper.SetConcurrencyStopped(_concurrencyResult);
+                SetConcurrencyStopped();
             }
 
             return Completed();
