@@ -105,7 +105,6 @@
             this.txtEmailAddress.Name = "txtEmailAddress";
             this.txtEmailAddress.Size = new System.Drawing.Size(156, 20);
             this.txtEmailAddress.TabIndex = 16;
-            this.txtEmailAddress.Text = "dieter.vandroemme@gmail.com";
             this.txtEmailAddress.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtSmtp
@@ -118,7 +117,6 @@
             this.txtSmtp.Name = "txtSmtp";
             this.txtSmtp.Size = new System.Drawing.Size(156, 20);
             this.txtSmtp.TabIndex = 17;
-            this.txtSmtp.Text = "smtp.gmail.com";
             this.txtSmtp.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtPassword
@@ -130,7 +128,6 @@
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
             this.txtPassword.TabIndex = 18;
-            this.txtPassword.Text = "XQCT3q7Sh6eg";
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.txt_TextChanged);
             this.txtPassword.Enter += new System.EventHandler(this.txtPassword_Enter);
@@ -148,11 +145,6 @@
             this.nudPort.Name = "nudPort";
             this.nudPort.Size = new System.Drawing.Size(50, 20);
             this.nudPort.TabIndex = 19;
-            this.nudPort.Value = new decimal(new int[] {
-            587,
-            0,
-            0,
-            0});
             this.nudPort.ValueChanged += new System.EventHandler(this.nudPort_ValueChanged);
             // 
             // chkWhenTestFinished
@@ -277,7 +269,7 @@
             this.label4.TabIndex = 14;
             this.label4.Text = "Currently this is only available for single stresstests.";
             // 
-            // ProgressNotifierPanel
+            // TestProgressNotifierPanel
             // 
             this.ClientSize = new System.Drawing.Size(399, 357);
             this.Controls.Add(this.label4);
@@ -286,7 +278,7 @@
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnEnableDisable);
             this.Controls.Add(this.grp);
-            this.Name = "ProgressNotifierPanel";
+            this.Name = "TestProgressNotifierPanel";
             this.grp.ResumeLayout(false);
             this.grp.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();

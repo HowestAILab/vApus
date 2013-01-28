@@ -154,7 +154,7 @@ namespace vApus.Util {
                 client.UseDefaultCredentials = false;
                 client.Credentials = new NetworkCredential(txtEmailAddress.Text, txtPassword.Text);
 
-                var msg = new MailMessage("info@sizingservers.be", txtEmailAddress.Text, "A test mail", "from vApus");
+                var msg = new MailMessage("info@sizingservers.be", txtEmailAddress.Text, "A test mail", "from vApus@" + NamedObjectRegistrar.Get<string>("IP") + ":" + NamedObjectRegistrar.Get<int>("Port"));
                 msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                 msg.IsBodyHtml = true;
                 msg.Priority = MailPriority.High;

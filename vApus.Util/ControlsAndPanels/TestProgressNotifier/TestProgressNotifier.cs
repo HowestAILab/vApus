@@ -31,20 +31,8 @@ namespace vApus.Util {
                 0x62
             };
         private static readonly object _lock = new object();
-
-        private static string _vApusIP;
-        private static int _vApusPort;
         #endregion
-        /// <summary>
-        /// Set this before calling the notify fx.
-        /// Both values are used in the subject of the to be sent mail.
-        /// </summary>
-        /// <param name="vApusIP"></param>
-        /// <param name="vApusPort"></param>
-        public static void SetvApusIPAndPort(string vApusIP, int vApusPort) {
-            _vApusIP = vApusIP;
-            _vApusPort = vApusPort;
-        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -70,7 +58,7 @@ namespace vApus.Util {
                         client.UseDefaultCredentials = false;
                         client.Credentials = new NetworkCredential(Settings.Default.PNEMailAddress, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
 
-                        var msg = new MailMessage("info@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + _vApusIP + ":" + _vApusPort + " --> " + message, message + "\n" + exception);
+                        var msg = new MailMessage("info@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + NamedObjectRegistrar.Get<string>("IP") + ":" + NamedObjectRegistrar.Get<int>("Port") + " --> " + message, message + "\n" + exception);
                         msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                         msg.IsBodyHtml = true;
                         msg.Priority = MailPriority.High;

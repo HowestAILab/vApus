@@ -171,7 +171,6 @@ namespace vApus.DistributedTesting {
                     Settings.Default.Save();
                 }
 
-                TestProgressNotifier.SetvApusIPAndPort(_ip, _port);
                 NamedObjectRegistrar.RegisterOrUpdate("IP", _ip);
                 NamedObjectRegistrar.RegisterOrUpdate("Port", _port);
                 NamedObjectRegistrar.RegisterOrUpdate("HostName", Dns.GetHostEntry(_ip).HostName);
@@ -209,7 +208,6 @@ namespace vApus.DistributedTesting {
                 _serverSocket.BeginAccept(OnAccept, null);
                 _startTries = 0;
 
-                TestProgressNotifier.SetvApusIPAndPort(_ip, _port);
                 NamedObjectRegistrar.RegisterOrUpdate("IP", _ip);
                 NamedObjectRegistrar.RegisterOrUpdate("Port", _port);
                 NamedObjectRegistrar.RegisterOrUpdate("HostName", Dns.GetHostEntry(_ip).HostName);
