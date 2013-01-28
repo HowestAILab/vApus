@@ -1,4 +1,5 @@
-﻿/*
+﻿using System;
+/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -51,14 +52,14 @@ namespace vApus.Util {
         /// <param name="message"></param>
         /// <param name="vApusIP"></param>
         /// <param name="vApusPort"></param>
-        public static void Notify(What what, string message) {
+        public static void Notify(What what, string message, Exception exception = null) {
             if (vApus.Util.Properties.Settings.Default.PNEnabled) {
                 if ((what == What.RunFinished && Settings.Default.PNAfterEachRun) || (what == What.ConcurrencyFinished && Settings.Default.PNAfterEachConcurrency) ||
                     (what == What.TestFinished && Settings.Default.PNWhenTheTestIsFinished))
-                    Notify(message);
+                    Notify(message, exception);
             }
         }
-        private static void Notify(string message) {
+        private static void Notify(string message, Exception exception = null) {
             ThreadPool.QueueUserWorkItem((state) => {
                 lock (_lock)
                     try {
@@ -69,7 +70,7 @@ namespace vApus.Util {
                         client.UseDefaultCredentials = false;
                         client.Credentials = new NetworkCredential(Settings.Default.PNEMailAddress, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
 
-                        var msg = new MailMessage("info@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + _vApusIP + ":" + _vApusPort + " --> " + message, message);
+                        var msg = new MailMessage("info@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + _vApusIP + ":" + _vApusPort + " --> " + message, message + "\n" + exception);
                         msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                         msg.IsBodyHtml = true;
                         msg.Priority = MailPriority.High;

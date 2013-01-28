@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Results;
-using vApus.Util;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.DetailedResultsViewer {
@@ -25,6 +24,15 @@ namespace vApus.DetailedResultsViewer {
         private AutoResetEvent _waitHandle = new AutoResetEvent(false);
         private readonly object _lock = new object();
 
+        private ResultsHelper _resultsHelper;
+
+        public ResultsHelper ResultsHelper {
+            get { return _resultsHelper; }
+            set { _resultsHelper = value; }
+        }
+        /// <summary>
+        /// Don't forget to set ResultsHelper.
+        /// </summary>
         public SettingsPanel() {
             InitializeComponent();
             RefreshDatabases(true);
@@ -126,7 +134,7 @@ namespace vApus.DetailedResultsViewer {
                 string user, host, password;
                 int port;
                 _mySQLServerDialog.GetCurrentCredentials(out user, out host, out port, out password);
-                ResultsHelper.ConnectToDatabase(host, port, databaseName, user, password);
+                _resultsHelper.ConnectToDatabase(host, port, databaseName, user, password);
                 if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName));
             }
         }

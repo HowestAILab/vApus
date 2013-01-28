@@ -77,11 +77,11 @@
     <Compile Include="MySQLServerDialog.Designer.cs">
       <DependentUpon>MySQLServerDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="NewViewer.cs">
+    <Compile Include="Viewer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NewViewer.Designer.cs">
-      <DependentUpon>NewViewer.cs</DependentUpon>
+    <Compile Include="Viewer.Designer.cs">
+      <DependentUpon>Viewer.cs</DependentUpon>
     </Compile>
     <Compile Include="ResultsPanel.cs">
       <SubType>Form</SubType>
@@ -103,8 +103,8 @@
     <EmbeddedResource Include="MySQLServerDialog.resx">
       <DependentUpon>MySQLServerDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NewViewer.resx">
-      <DependentUpon>NewViewer.cs</DependentUpon>
+    <EmbeddedResource Include="Viewer.resx">
+      <DependentUpon>Viewer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ResultsPanel.resx">
       <DependentUpon>ResultsPanel.cs</DependentUpon>

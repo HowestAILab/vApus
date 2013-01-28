@@ -20,6 +20,7 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     public partial class TileStresstestView : BaseSolutionComponentView {
+
         #region Fields
 
         /// <summary>
@@ -48,6 +49,8 @@ namespace vApus.DistributedTesting {
         private StresstestResult _stresstestResult;
         private StresstestStatus _stresstestStatus;
         private string _tileStresstestIndex;
+
+        private ResultsHelper _resultsHelper = new ResultsHelper();
 
         #endregion
 
@@ -102,6 +105,7 @@ namespace vApus.DistributedTesting {
 
         private void SetGui() {
             Text = SolutionComponent.ToString();
+            fastResultsControl.ResultsHelper = _resultsHelper;
         }
 
         public override void Refresh() {
@@ -130,7 +134,8 @@ namespace vApus.DistributedTesting {
 
                 _countDown = Stresstest.Stresstest.ProgressUpdateDelay - 1;
                 try {
-                    _stresstestCore = new StresstestCore(_stresstest, false);
+                    _stresstestCore = new StresstestCore(_stresstest);
+                    _stresstestCore.ResultsHelper = _resultsHelper;
                     _stresstestCore.RunSynchronization = RunSynchronization;
                     _stresstestCore.StresstestStarted += _stresstestCore_StresstestStarted;
                     _stresstestCore.ConcurrencyStarted += _stresstestCore_ConcurrentUsersStarted;

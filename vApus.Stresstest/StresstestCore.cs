@@ -69,6 +69,7 @@ namespace vApus.Stresstest {
         private TestableLogEntry[][] _testableLogEntries;
         private StresstestThreadPool _threadPool;
 
+        private ResultsHelper _resultsHelper = new ResultsHelper();
         #endregion
 
         #region Properties
@@ -94,16 +95,23 @@ namespace vApus.Stresstest {
             get { return _isDisposed; }
         }
 
+
+        public ResultsHelper ResultsHelper {
+            get { return _resultsHelper; }
+            set { _resultsHelper = value; }
+        }
+
         #endregion
 
         #region Con-/Destructor
 
         /// <summary>
+        /// Don't forget to set the resultshelper if need be
         /// </summary>
         /// <param name="stresstest"></param>
         /// <param name="limitSimultaniousRunningToOne">Allow only one stresstest to run at a time.</param>
-        public StresstestCore(Stresstest stresstest, bool limitSimultaniousRunningToOne = true) {
-            ObjectRegistrar.MaxRegistered = limitSimultaniousRunningToOne ? 1 : int.MaxValue;
+        public StresstestCore(Stresstest stresstest) {
+            ObjectRegistrar.MaxRegistered =  1;
             ObjectRegistrar.Register(this);
 
             _stresstest = stresstest;
@@ -158,7 +166,7 @@ namespace vApus.Stresstest {
 
         private void SetStresstestStarted() {
             _stresstestResult = new StresstestResult();
-            ResultsHelper.SetStresstestStarted(_stresstestResult);
+            _resultsHelper.SetStresstestStarted(_stresstestResult);
             InvokeMessage("Starting the stresstest...");
 
             if (!_cancel && StresstestStarted != null)
@@ -170,7 +178,7 @@ namespace vApus.Stresstest {
             int concurrentUsers = _stresstest.Concurrencies[concurrentUsersIndex];
             _concurrencyResult = new ConcurrencyResult(concurrentUsers, _stresstest.Runs);
             _stresstestResult.ConcurrencyResults.Add(_concurrencyResult);
-            ResultsHelper.SetConcurrencyStarted(_concurrencyResult);
+            _resultsHelper.SetConcurrencyStarted(_concurrencyResult);
             InvokeMessage(
                 string.Format("|-> {0} Concurrent Users... (Initializing the first run, be patient)", concurrentUsers),
                 Color.MediumPurple);

@@ -64,6 +64,9 @@ namespace vApus.Stresstest {
         //For distributed test
         private DateTime _stresstestStartedAt = DateTime.Now;
         private TimeSpan _measuredRuntime = new TimeSpan();
+
+        private ResultsHelper _resultsHelper;
+
         #endregion
 
         #region Properties
@@ -90,10 +93,18 @@ namespace vApus.Stresstest {
         public TimeSpan MeasuredRuntime {
             get { return _measuredRuntime; }
         }
+
+        public ResultsHelper ResultsHelper {
+            get { return _resultsHelper; }
+            set { _resultsHelper = value; }
+        }
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Dont't forget to set resultshelper
+        /// </summary>
         public FastResultsControl() {
             InitializeComponent();
 
@@ -156,8 +167,7 @@ namespace vApus.Stresstest {
                 if (monitors == null || monitors.Length == 0) {
                     btnMonitor.Text = "No Monitor(s)";
                     btnMonitor.BackColor = Color.Orange;
-                }
-                else {
+                } else {
                     lbtnStresstest.Visible = true;
                     btnMonitor.Text = monitors.Combine(", ") + "...";
                     btnMonitor.BackColor = Color.LightBlue;
@@ -203,8 +213,7 @@ namespace vApus.Stresstest {
                 lblUpdatesIn.ForeColor = Color.SteelBlue;
                 lblUpdatesIn.Text = "updates in " + countDown;
                 lblUpdatesIn.Image = null;
-            }
-            else {
+            } else {
                 lblUpdatesIn.ForeColor = Color.DarkGray;
                 lblUpdatesIn.Text = "updates in  ";
                 lblUpdatesIn.Image = Resources.Wait;
@@ -231,14 +240,12 @@ namespace vApus.Stresstest {
             kvmThreadsInUse.Value = threadsInUse.ToString();
             if (cpuUsage == -1) {
                 kvmCPUUsage.Value = "N/A";
-            }
-            else {
+            } else {
                 kvmCPUUsage.Value = Math.Round(cpuUsage, 2).ToString() + " %";
 
                 if (cpuUsage < 60) {
                     kvmCPUUsage.BackColor = Color.GhostWhite;
-                }
-                else {
+                } else {
                     kvmCPUUsage.BackColor = Color.Orange;
                     AppendMessages(cpuUsage + " % CPU Usage", LogLevel.Warning);
                 }
@@ -249,39 +256,33 @@ namespace vApus.Stresstest {
 
             if (memoryUsage == -1 || totalVisibleMemory == -1) {
                 kvmMemoryUsage.Value = "N/A";
-            }
-            else {
+            } else {
                 kvmMemoryUsage.Value = memoryUsage.ToString() + " / " + totalVisibleMemory + " MB";
                 if (memoryUsage < 0.9 * totalVisibleMemory) {
                     kvmMemoryUsage.BackColor = Color.GhostWhite;
-                }
-                else if (memoryUsage != 0) {
+                } else if (memoryUsage != 0) {
                     kvmMemoryUsage.BackColor = Color.Orange;
                     AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
                 }
             }
             if (nicsSent == -1) {
                 kvmNicsSent.Value = "N/A";
-            }
-            else {
+            } else {
                 kvmNicsSent.Value = Math.Round(nicsSent, 2).ToString() + " %";
                 if (nicsSent < 90) {
                     kvmNicsSent.BackColor = Color.GhostWhite;
-                }
-                else {
+                } else {
                     kvmNicsSent.BackColor = Color.Orange;
                     AppendMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
                 }
             }
             if (nicsReceived == -1) {
                 kvmNicsReceived.Value = "N/A";
-            }
-            else {
+            } else {
                 kvmNicsReceived.Value = Math.Round(nicsReceived, 2).ToString() + " %";
                 if (nicsReceived < 90) {
                     kvmNicsReceived.BackColor = Color.GhostWhite;
-                }
-                else {
+                } else {
                     kvmNicsReceived.BackColor = Color.Orange;
                     AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
                 }
@@ -411,8 +412,7 @@ namespace vApus.Stresstest {
                         e.Value = (e.ColumnIndex < row.Length) ? row[e.ColumnIndex] : "--";
                     }
                 }
-            }
-            catch { }
+            } catch { }
         }
 
         /// <summary>
@@ -540,15 +540,13 @@ namespace vApus.Stresstest {
                         lblStopped.Text = string.Empty;
                         break;
                 }
-            }
-            catch { }
+            } catch { }
         }
         private void RemoveDatabase() {
-            if (ResultsHelper.DatabaseName != null)
+            if (_resultsHelper!= null && _resultsHelper.DatabaseName != null)
                 if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
-                    try { ResultsHelper.RemoveDatabase(); }
-                    catch { }
+                    try { _resultsHelper.RemoveDatabase(); } catch { }
         }
         public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
             var c = new[] { Color.DarkGray, Color.Orange, Color.Red };
@@ -561,8 +559,7 @@ namespace vApus.Stresstest {
         /// <param name="eventColor">a custom color if you need one</param>
         /// <param name="logLevel"></param>
         public void AppendMessages(string message, Color eventColor, LogLevel logLevel = LogLevel.Info) {
-            try { epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message); }
-            catch { }
+            try { epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message); } catch { }
         }
 
         /// <summary>
@@ -667,8 +664,7 @@ namespace vApus.Stresstest {
                         sw.Write(GetDisplayedResults());
                         sw.Flush();
                     }
-                }
-                catch {
+                } catch {
                     MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
         }
@@ -727,8 +723,7 @@ namespace vApus.Stresstest {
 
                 splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
                 BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;
-            }
-            catch { }
+            } catch { }
 
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }
@@ -740,8 +735,7 @@ namespace vApus.Stresstest {
                 splitTop.SplitterDistance = splitTop.Panel1MinSize;
                 splitTop.IsSplitterFixed = true;
                 splitTop.BackColor = Color.White;
-            }
-            else {
+            } else {
                 btnCollapseExpand.Text = "-";
                 splitTop.SplitterDistance = 85;
                 splitTop.IsSplitterFixed = false;

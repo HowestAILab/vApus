@@ -18,6 +18,7 @@ using vApus.Util;
 namespace vApus.Stresstest.Controls {
     public partial class DetailedResultsControl : UserControl {
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
+        private ResultsHelper _resultsHelper;
 
         public DetailedResultsControl() {
             InitializeComponent();
@@ -35,19 +36,19 @@ namespace vApus.Stresstest.Controls {
         }
 
         private void lbtnDescription_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(ResultsHelper.GetDescription());
+            SetConfig(_resultsHelper.GetDescription());
         }
         private void lbtnTags_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(ResultsHelper.GetTags());
+            SetConfig(_resultsHelper.GetTags());
         }
         private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(ResultsHelper.GetvApusInstance(1));
+            SetConfig(_resultsHelper.GetvApusInstance(1));
         }
         private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(ResultsHelper.GetStresstest(1));
+            SetConfig(_resultsHelper.GetStresstest(1));
         }
         private void lbtnMonitors_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(ResultsHelper.GetMonitors());
+            SetConfig(_resultsHelper.GetMonitors());
         }
         private void btnCollapseExpand_Click(object sender, EventArgs e) {
             if (btnCollapseExpand.Text == "-") {
@@ -56,8 +57,7 @@ namespace vApus.Stresstest.Controls {
                 splitContainer.SplitterDistance = splitContainer.Panel1MinSize;
                 splitContainer.IsSplitterFixed = true;
                 splitContainer.BackColor = Color.White;
-            }
-            else ExpandConfig();
+            } else ExpandConfig();
         }
 
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
@@ -71,8 +71,7 @@ namespace vApus.Stresstest.Controls {
                         sw.Write(GetDisplayedResults());
                         sw.Flush();
                     }
-                }
-                catch {
+                } catch {
                     MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
         }
@@ -124,16 +123,17 @@ namespace vApus.Stresstest.Controls {
 
         private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             dgvDetailedResults.DataSource = null;
-            if (cboShow.SelectedIndex == 0) dgvDetailedResults.DataSource = ResultsHelper.GetAverageConcurrentUsers();
-            else if (cboShow.SelectedIndex == 1) dgvDetailedResults.DataSource = ResultsHelper.GetAverageUserActions();
-            else if (cboShow.SelectedIndex == 2) dgvDetailedResults.DataSource = ResultsHelper.GetAverageLogEntries();
-            else dgvDetailedResults.DataSource = ResultsHelper.GetErrors();
+            if (_resultsHelper != null) {
+                if (cboShow.SelectedIndex == 0) dgvDetailedResults.DataSource = _resultsHelper.GetAverageConcurrentUsers();
+                else if (cboShow.SelectedIndex == 1) dgvDetailedResults.DataSource = _resultsHelper.GetAverageUserActions();
+                else if (cboShow.SelectedIndex == 2) dgvDetailedResults.DataSource = _resultsHelper.GetAverageLogEntries();
+                else dgvDetailedResults.DataSource = _resultsHelper.GetErrors();
+            }
             dgvDetailedResults.Select();
         }
 
         private void btnExecute_Click(object sender, EventArgs e) {
-            try { dgvDetailedResults.DataSource = ResultsHelper.ExecuteQuery(codeTextBox.Text); }
-            catch { }
+            try { dgvDetailedResults.DataSource = _resultsHelper.ExecuteQuery(codeTextBox.Text); } catch { }
         }
 
         /// <summary>
@@ -148,7 +148,9 @@ namespace vApus.Stresstest.Controls {
         /// <summary>
         /// Refresh after testing.
         /// </summary>
-        public void RefreshResults() {
+        /// <param name="resultsHelper">Give hte helper that made the db</param>
+        public void RefreshResults(ResultsHelper resultsHelper) {
+            _resultsHelper = resultsHelper;
             foreach (var ctrl in flpConfiguration.Controls)
                 if (ctrl is LinkButton) {
                     var lbtn = ctrl as LinkButton;

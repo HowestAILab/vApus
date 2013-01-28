@@ -7,13 +7,15 @@
  */
 using System;
 using System.Windows.Forms;
+using vApus.Results;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.DetailedResultsViewer {
-    public partial class NewViewer : Form {
+    public partial class Viewer : Form {
         private SettingsPanel _settingsPanel = new SettingsPanel();
         private ResultsPanel _resultsPanel = new ResultsPanel();
-        public NewViewer() {
+        private ResultsHelper _resultsHelper = new ResultsHelper();
+        public Viewer() {
             InitializeComponent();
             HandleCreated += NewViewer_HandleCreated;
         }
@@ -21,10 +23,12 @@ namespace vApus.DetailedResultsViewer {
         private void NewViewer_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= NewViewer_HandleCreated;
 
+            _settingsPanel.ResultsHelper = _resultsHelper;
             _settingsPanel.Show(dockPanel, DockState.DockLeft);
             _settingsPanel.CloseButtonVisible = false;
             _settingsPanel.ResultsSelected += _settingsPanel_ResultsSelected;
 
+            _resultsPanel.ResultsHelper = _resultsHelper;
             _resultsPanel.Show(dockPanel);
             _resultsPanel.CloseButtonVisible = false;
             _resultsPanel.FormClosing += _resultsPanel_FormClosing;

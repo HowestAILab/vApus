@@ -13,28 +13,28 @@ using MySql.Data.MySqlClient;
 using vApus.Util;
 
 namespace vApus.Results {
-    public static class ResultsHelper {
+    public class ResultsHelper {
 
         #region Fields
 
-        private static string _databaseName;
+        private string _databaseName;
 
-        private static DatabaseActions _databaseActions;
-        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
+        private DatabaseActions _databaseActions;
+        private string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
 
-        private static readonly byte[] _salt =
+        private readonly byte[] _salt =
             {
                 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62
             };
 
-        private static long _vApusInstanceId, _stresstestId, _stresstestResultId, _concurrencyResultId, _runResultId;
+        private long _vApusInstanceId, _stresstestId, _stresstestResultId, _concurrencyResultId, _runResultId;
 
         #endregion
 
         /// <summary>
         /// Returns null if not connected
         /// </summary>
-        public static string DatabaseName {
+        public string DatabaseName {
             get { return _databaseName; }
         }
 
@@ -44,7 +44,7 @@ namespace vApus.Results {
         ///     Builds the schema if needed, if no db target is found or no connection could be made an exception is returned.
         /// </summary>
         /// <returns></returns>
-        public static Exception BuildSchemaAndConnect() {
+        public Exception BuildSchemaAndConnect() {
             _databaseName = null;
             try {
                 _databaseName = Schema.Build();
@@ -64,7 +64,7 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="description"></param>
         /// <param name="tags"></param>
-        public static void SetDescriptionAndTags(string description, string[] tags) {
+        public void SetDescriptionAndTags(string description, string[] tags) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL("INSERT INTO Description(Description) VALUES('" + description + "')");
                 foreach (string tag in tags)
@@ -80,7 +80,7 @@ namespace vApus.Results {
         /// <param name="version"></param>
         /// <param name="isMaster"></param>
         /// <returns>Id of the instance.</returns>
-        public static void SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
+        public void SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
@@ -110,7 +110,7 @@ namespace vApus.Results {
         /// <param name="monitorBeforeInMinutes"></param>
         /// <param name="monitorAfterInMinutes"></param>
         /// <returns>Id of the stresstest.</returns>
-        public static void SetStresstest(string stresstest, string runSynchronization, string connection,
+        public void SetStresstest(string stresstest, string runSynchronization, string connection,
                                          string connectionProxy, string connectionString,
                                          string log, string logRuleSet, int[] concurrencies, int runs,
                                          int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle,
@@ -143,7 +143,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     The monitor configuration id in the database, set this in the proper monitor result cache.
         ///     -1 if not connected.
         /// </returns>
-        public static long SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
+        public long SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
@@ -168,7 +168,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="databaseName"></param>
         /// <param name="user"></param>
         /// <param name="password"></param>
-        public static void ConnectToDatabase(string host, int port, string databaseName, string user, string password) {
+        public void ConnectToDatabase(string host, int port, string databaseName, string user, string password) {
             _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", host, port, databaseName, user, password) };
         }
 
@@ -178,7 +178,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     Started at datetime now.
         /// </summary>
         /// <param name="stresstestResult"></param>
-        public static void SetStresstestStarted(StresstestResult stresstestResult) {
+        public void SetStresstestStarted(StresstestResult stresstestResult) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
@@ -195,7 +195,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="stresstestResult"></param>
         /// <param name="status"></param>
         /// <param name="statusMessage"></param>
-        public static void SetStresstestStopped(StresstestResult stresstestResult, string status = "OK",
+        public void SetStresstestStopped(StresstestResult stresstestResult, string status = "OK",
                                                 string statusMessage = "") {
             stresstestResult.StoppedAt = DateTime.Now;
             if (_databaseActions != null)
@@ -215,7 +215,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// </summary>
         /// <param name="stresstestResultId"></param>
         /// <param name="concurrencyResult"></param>
-        public static void SetConcurrencyStarted(ConcurrencyResult concurrencyResult) {
+        public void SetConcurrencyStarted(ConcurrencyResult concurrencyResult) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
@@ -231,7 +231,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     Stopped at datetime now.
         /// </summary>
         /// <param name="concurrencyResult"></param>
-        public static void SetConcurrencyStopped(ConcurrencyResult concurrencyResult) {
+        public void SetConcurrencyStopped(ConcurrencyResult concurrencyResult) {
             concurrencyResult.StoppedAt = DateTime.Now;
             if (_databaseActions != null)
                 _databaseActions.ExecuteSQL(
@@ -251,7 +251,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="startedAt"></param>
         /// <param name="stoppedAt"></param>
         /// <returns>Id of the run result.</returns>
-        public static void SetRunStarted(RunResult runResult) {
+        public void SetRunStarted(RunResult runResult) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
@@ -266,7 +266,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     Increase the rerun count value for the result using fx PrepareForRerun() before calling this fx.
         /// </summary>
         /// <param name="runResult"></param>
-        public static void SetRerun(RunResult runResult) {
+        public void SetRerun(RunResult runResult) {
             if (_databaseActions != null)
                 _databaseActions.ExecuteSQL(
                     string.Format("UPDATE RunResults SET ReRunCount='{1}' WHERE Id='{0}'", _runResultId,
@@ -278,7 +278,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     All the log entry results are save to the database doing this, only do this for the curent run.
         /// </summary>
         /// <param name="runResult"></param>
-        public static void SetRunStopped(RunResult runResult) {
+        public void SetRunStopped(RunResult runResult) {
             runResult.StoppedAt = DateTime.Now;
             if (_databaseActions != null) {
                 ulong totalLogEntryCount = 0;
@@ -311,7 +311,7 @@ VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')"
         ///     Do this at the end of the test.
         /// </summary>
         /// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
-        public static void SetMonitorResults(MonitorResultCache monitorResultCache) {
+        public void SetMonitorResults(MonitorResultCache monitorResultCache) {
             if (_databaseActions != null)
                 foreach (var row in monitorResultCache.Rows) {
                     var timeStamp = (DateTime)row[0];
@@ -332,14 +332,14 @@ VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')"
         //GET
 
         #region Configuration
-        public static string GetDescription() {
+        public string GetDescription() {
             if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable("Select * FROM Description");
                 foreach (DataRow row in dt.Rows) return row.ItemArray[0] as string;
             }
             return string.Empty;
         }
-        public static List<string> GetTags() {
+        public List<string> GetTags() {
             var l = new List<string>();
             if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable("Select * FROM Tags");
@@ -347,7 +347,7 @@ VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')"
             }
             return l;
         }
-        public static List<int> GetvApusInstanceIds() {
+        public List<int> GetvApusInstanceIds() {
             var l = new List<int>();
             if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable("Select Id FROM vApusInstances");
@@ -355,7 +355,7 @@ VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')"
             }
             return l;
         }
-        public static List<KeyValuePair<string, string>> GetvApusInstance(int Id) {
+        public List<KeyValuePair<string, string>> GetvApusInstance(int Id) {
             var l = new List<KeyValuePair<string, string>>();
             if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable(string.Format(
@@ -369,7 +369,7 @@ VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')"
             }
             return l;
         }
-        public static List<KeyValuePair<string, string>> GetStresstest(int vApusInstanceId) {
+        public List<KeyValuePair<string, string>> GetStresstest(int vApusInstanceId) {
             var l = new List<KeyValuePair<string, string>>();
             if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable(string.Format(
@@ -395,7 +395,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return l;
         }
-        public static List<string> GetMonitors() {
+        public List<string> GetMonitors() {
             var l = new List<string>();
             if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable("Select Monitor, MonitorSource FROM Monitors");
@@ -406,7 +406,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         #endregion
 
         #region Procedures
-        public static DataTable GetAverageConcurrentUsers() {
+        public DataTable GetAverageConcurrentUsers() {
             if (_databaseActions != null) {
                 var averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Started At", "Measured Time (ms)", "Concurrency",
                     "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
@@ -471,7 +471,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
-        public static DataTable GetAverageUserActions() {
+        public DataTable GetAverageUserActions() {
             if (_databaseActions != null) {
                 var averageUserActions = CreateEmptyDataTable("AverageUserActions", "Concurrency", "User Action", "Avg. Response Time (ms)",
     "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
@@ -600,7 +600,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return null;
         }
 
-        public static DataTable GetAverageLogEntries() {
+        public DataTable GetAverageLogEntries() {
             if (_databaseActions != null) {
                 var averageLogEntries = CreateEmptyDataTable("AverageLogEntries", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
 "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
@@ -698,7 +698,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
-        public static DataTable GetErrors() {
+        public DataTable GetErrors() {
             if (_databaseActions != null) {
                 var errors = CreateEmptyDataTable("Error", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
 
@@ -730,11 +730,11 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
-        public static DataTable ExecuteQuery(string query) {
+        public DataTable ExecuteQuery(string query) {
             if (_databaseActions == null) return null;
             return _databaseActions.GetDataTable(query);
         }
-        private static DataTable CreateEmptyDataTable(string name, string columnName1, params string[] columnNames) {
+        private DataTable CreateEmptyDataTable(string name, string columnName1, params string[] columnNames) {
             var objectType = typeof(object);
             var dataTable = new DataTable(name);
             dataTable.Columns.Add(columnName1);
@@ -746,7 +746,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        private static long GetLastInsertId() {
+        private long GetLastInsertId() {
             var dt = _databaseActions.GetDataTable("SELECT LAST_INSERT_ID()");
             foreach (DataRow dr in dt.Rows)
                 return (long)dr.ItemArray[0];
@@ -754,12 +754,12 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return 0;
         }
 
-        private static string Parse(DateTime dateTime) { return dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff"); }
+        private string Parse(DateTime dateTime) { return dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff"); }
 
         /// <summary>
         /// Remove a schema (after cancel or failed)
         /// </summary>
-        public static void RemoveDatabase() {
+        public void RemoveDatabase() {
             Schema.Drop(_databaseName, _databaseActions);
             _databaseName = null;
         }
