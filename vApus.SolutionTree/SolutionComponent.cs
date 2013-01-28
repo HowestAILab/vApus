@@ -20,12 +20,113 @@ namespace vApus.SolutionTree {
     /// </summary>
     [Serializable]
     public abstract class SolutionComponent : Object, ICollection<BaseItem> {
+        public static event EventHandler<SolutionComponentChangedEventArgs> SolutionComponentChanged;
+
+        /// <summary>
+        ///     When creating a empty base item, it checks if the parent becomes null. (Happens when removed from a collection, don't set the parent null yourself)
+        ///     Call SolutionComponent.GetNextChild when this happens, don't forget to suscribe to this event again for the new item.
+        ///     Note: this event is fired on another thread.
+        /// </summary>
+        public event EventHandler ParentIsNull;
+
+        #region Fields
+
+        private bool _isDefaultItem, _isEmpty;
+        protected List<BaseItem> _items = new List<BaseItem>();
+        private bool _noImage, _showInGui = true;
+
+        private InvokeSolutionComponentChangedEventDelegate _invokeSolutionComponentChangedEventDelegate;
+        #endregion
+
+        #region Properties
+
+        [Description("The name of this item.")]
+        public string Name {
+            get {
+                if (_isEmpty) {
+                    return null;
+                } else {
+                    object[] attributes = GetType().GetCustomAttributes(typeof(DisplayNameAttribute), true);
+                    return attributes.Length != 0 ? (attributes[0] as DisplayNameAttribute).DisplayName : GetType().Name;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The count of the child items (where the parent of those items is null or not this).
+        /// </summary>
+        [Description("The count of the child items (where the parent of those items is null or not this).")]
+        public int CountOfParentLess {
+            get {
+                int count = 0;
+                foreach (object item in _items)
+                    if (item.GetParent() != this)
+                        ++count;
+
+                return count;
+            }
+        }
+
+        public BaseItem this[int index] {
+            get { return _items[index]; }
+        }
+
+        [SavableCloneable]
+        public bool ShowInGui {
+            get { return _showInGui; }
+            set { _showInGui = value; }
+        }
+
+        [SavableCloneable]
+        public bool IsDefaultItem {
+            get { return _isDefaultItem; }
+            set { _isDefaultItem = value; }
+        }
+
+        [SavableCloneable]
+        public bool IsEmpty {
+            get { return _isEmpty; }
+            set { _isEmpty = value; }
+        }
+
+        /// <summary>
+        ///     The count of the child items (regardless the parent of those items).
+        /// </summary>
+        [Description("The count of the child items (regardless the parent of those items).")]
+        public int Count {
+            get { return _items.Count; }
+        }
+
+        public bool IsReadOnly {
+            get { return false; }
+        }
+
+        /// <summary>
+        ///     The count of the child items that are of a derived type from BaseItem (where the parent is this).
+        /// </summary>
+        /// <param name="derivedType"></param>
+        /// <returns></returns>
+        [Description("The count of the child items that are of a derived type from BaseItem (where the parent is this)."
+            )]
+        public int CountOf(Type derivedType) {
+            int count = 0;
+            foreach (object item in _items)
+                if (item.GetType() == derivedType && item.GetParent() == this)
+                    ++count;
+
+            return count;
+        }
+
+        #endregion
+
         public SolutionComponent() {
             /// <summary>
             /// To Check if the parent has become null.
             /// 
             /// That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
             ObjectExtension.ParentChanged += ObjectExtension_ParentChanged;
+
+            _invokeSolutionComponentChangedEventDelegate = InvokeSolutionComponentChangedEventCallback;
         }
 
         #region Functions
@@ -183,8 +284,7 @@ namespace vApus.SolutionTree {
         /// </summary>
         /// <param name="index"></param>
         /// <param name="collection"></param>
-        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection,
-                                                   bool invokeParentChanged = true) {
+        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection, bool invokeParentChanged = true) {
             _items.InsertRange(index, collection);
 
             foreach (BaseItem item in collection) {
@@ -384,120 +484,25 @@ namespace vApus.SolutionTree {
             SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView));
         }
 
-        public void InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction doneAction) {
-            if (SolutionComponentChanged != null && Solution.ActiveSolution != null)
-                SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction));
-        }
-
         /// <summary>
         /// </summary>
         /// <param name="doneAction"></param>
         /// <param name="arg">true or false for added one or multiple; the removed solution component.</param>
-        public void InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction doneAction,
-                                                        object arg) {
-            if (SolutionComponentChanged != null && Solution.ActiveSolution != null)
-                SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction, arg));
+        public void InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg = null) {
+            //Fairly complicated setup to avoid gui freezes.
+            try { StaticActiveObjectWrapper.ActiveObject.Send(_invokeSolutionComponentChangedEventDelegate, doneAction, arg); } catch { }
         }
-
+        private void InvokeSolutionComponentChangedEventCallback(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg) {
+            try {
+                if (SolutionComponentChanged != null && Solution.ActiveSolution != null)
+                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                        try { SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch { }
+                    }, null);
+            } catch { }
+        }
         #endregion
 
-        public static event EventHandler<SolutionComponentChangedEventArgs> SolutionComponentChanged;
-
-        /// <summary>
-        ///     When creating a empty base item, it checks if the parent becomes null. (Happens when removed from a collection, don't set the parent null yourself)
-        ///     Call SolutionComponent.GetNextChild when this happens, don't forget to suscribe to this event again for the new item.
-        ///     Note: this event is fired on another thread.
-        /// </summary>
-        public event EventHandler ParentIsNull;
-
-        #region Fields
-
-        private bool _isDefaultItem, _isEmpty;
-        protected List<BaseItem> _items = new List<BaseItem>();
-        private bool _noImage, _showInGui = true;
-
-        #endregion
-
-        #region Properties
-
-        [Description("The name of this item.")]
-        public string Name {
-            get {
-                if (_isEmpty) {
-                    return null;
-                } else {
-                    object[] attributes = GetType().GetCustomAttributes(typeof(DisplayNameAttribute), true);
-                    return attributes.Length != 0 ? (attributes[0] as DisplayNameAttribute).DisplayName : GetType().Name;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     The count of the child items (where the parent of those items is null or not this).
-        /// </summary>
-        [Description("The count of the child items (where the parent of those items is null or not this).")]
-        public int CountOfParentLess {
-            get {
-                int count = 0;
-                foreach (object item in _items)
-                    if (item.GetParent() != this)
-                        ++count;
-
-                return count;
-            }
-        }
-
-        public BaseItem this[int index] {
-            get { return _items[index]; }
-        }
-
-        [SavableCloneable]
-        public bool ShowInGui {
-            get { return _showInGui; }
-            set { _showInGui = value; }
-        }
-
-        [SavableCloneable]
-        public bool IsDefaultItem {
-            get { return _isDefaultItem; }
-            set { _isDefaultItem = value; }
-        }
-
-        [SavableCloneable]
-        public bool IsEmpty {
-            get { return _isEmpty; }
-            set { _isEmpty = value; }
-        }
-
-        /// <summary>
-        ///     The count of the child items (regardless the parent of those items).
-        /// </summary>
-        [Description("The count of the child items (regardless the parent of those items).")]
-        public int Count {
-            get { return _items.Count; }
-        }
-
-        public bool IsReadOnly {
-            get { return false; }
-        }
-
-        /// <summary>
-        ///     The count of the child items that are of a derived type from BaseItem (where the parent is this).
-        /// </summary>
-        /// <param name="derivedType"></param>
-        /// <returns></returns>
-        [Description("The count of the child items that are of a derived type from BaseItem (where the parent is this)."
-            )]
-        public int CountOf(Type derivedType) {
-            int count = 0;
-            foreach (object item in _items)
-                if (item.GetType() == derivedType && item.GetParent() == this)
-                    ++count;
-
-            return count;
-        }
-
-        #endregion
+        private delegate void InvokeSolutionComponentChangedEventDelegate(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg);
     }
 
     public class SolutionComponentChangedEventArgs : EventArgs {
@@ -521,12 +526,8 @@ namespace vApus.SolutionTree {
         public readonly object Arg;
         public readonly DoneAction __DoneAction;
 
-        public SolutionComponentChangedEventArgs(DoneAction doneAction) {
+        public SolutionComponentChangedEventArgs(DoneAction doneAction, object arg) {
             __DoneAction = doneAction;
-        }
-
-        public SolutionComponentChangedEventArgs(DoneAction doneAction, object arg)
-            : this(doneAction) {
             Arg = arg;
         }
     }

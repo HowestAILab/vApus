@@ -22,6 +22,7 @@ namespace vApus.SolutionTree {
     ///     The value of the property may not be null or an exception will be thrown.
     /// </summary>
     public partial class SolutionComponentPropertyPanel : ValueControlPanel {
+
         #region Fields
 
         private readonly LinkLabel _showHideAdvancedSettings = new LinkLabel();
@@ -117,19 +118,7 @@ namespace vApus.SolutionTree {
             }
             //Very needed, for when leaving when disposed, or key up == enter while creating.
             if (invokeEvent)
-                try {
-                    //var attributes = _propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
-                    //if (attributes.Length != 0)
-                    var tmr = new System.Windows.Forms.Timer() { Interval = 100 }; //Don't like it, but otherwise gui freeze.
-                    tmr.Tick += tmr_Tick;
-                    tmr.Start();
-                } catch { }
-        }
-        private void tmr_Tick(object sender, EventArgs e) {
-            try {
-                (sender as System.Windows.Forms.Timer).Stop();
-                _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            } catch { }
+                try { _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); } catch { }
         }
 
         private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e) { SetGui(); }

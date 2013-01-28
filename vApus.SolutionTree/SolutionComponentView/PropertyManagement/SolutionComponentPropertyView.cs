@@ -8,18 +8,15 @@
 
 using System;
 
-namespace vApus.SolutionTree
-{
+namespace vApus.SolutionTree {
     /// <summary>
     ///     Just a form with a docked solution component property panel.
     /// </summary>
-    public partial class SolutionComponentPropertyView : BaseSolutionComponentView
-    {
+    public partial class SolutionComponentPropertyView : BaseSolutionComponentView {
         /// <summary>
         ///     Design time only constructor.
         /// </summary>
-        public SolutionComponentPropertyView()
-        {
+        public SolutionComponentPropertyView() {
             InitializeComponent();
         }
 
@@ -29,8 +26,7 @@ namespace vApus.SolutionTree
         /// <param name="solutionComponent"></param>
         /// <param name="args"></param>
         public SolutionComponentPropertyView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args)
-        {
+            : base(solutionComponent, args) {
             InitializeComponent();
             if (IsHandleCreated)
                 SetGui();
@@ -38,23 +34,20 @@ namespace vApus.SolutionTree
                 HandleCreated += SolutionComponentPropertyView_HandleCreated;
         }
 
-        private void SolutionComponentPropertyView_HandleCreated(object sender, EventArgs e)
-        {
+        private void SolutionComponentPropertyView_HandleCreated(object sender, EventArgs e) {
             SetGui();
         }
 
         /// <summary>
         ///     This is used in the solution component view manager, please implement this always.
         /// </summary>
-        public override void Refresh()
-        {
+        public override void Refresh() {
             base.Refresh();
             SetGui();
             solutionComponentPropertyPanel.Refresh();
         }
 
-        private void SetGui()
-        {
+        private void SetGui() {
             Text = "Properties for " + SolutionComponent;
             solutionComponentPropertyPanel.SolutionComponent = SolutionComponent;
         }
