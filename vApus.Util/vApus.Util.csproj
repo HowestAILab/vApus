@@ -221,12 +221,12 @@
     <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.designer.cs">
       <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\ProgressNotifier\ProgressNotifier.cs" />
-    <Compile Include="ControlsAndPanels\ProgressNotifier\ProgressNotifierPanel.cs">
+    <Compile Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifier.cs" />
+    <Compile Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\ProgressNotifier\ProgressNotifierPanel.Designer.cs">
-      <DependentUpon>ProgressNotifierPanel.cs</DependentUpon>
+    <Compile Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.Designer.cs">
+      <DependentUpon>TestProgressNotifierPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\TabControlWithAdjustableBorders.cs">
       <SubType>Component</SubType>
@@ -486,8 +486,8 @@
     <EmbeddedResource Include="ControlsAndPanels\ProcessorAffinityPanel.resx">
       <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\ProgressNotifier\ProgressNotifierPanel.resx">
-      <DependentUpon>ProgressNotifierPanel.cs</DependentUpon>
+    <EmbeddedResource Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.resx">
+      <DependentUpon>TestProgressNotifierPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.resx">
       <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>

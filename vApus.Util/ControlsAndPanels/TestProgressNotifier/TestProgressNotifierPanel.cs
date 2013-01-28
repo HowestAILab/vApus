@@ -15,10 +15,10 @@ using System.Windows.Forms;
 using vApus.Util.Properties;
 
 namespace vApus.Util {
-    public partial class ProgressNotifierPanel : Panel {
+    public partial class TestProgressNotifierPanel : Panel {
 
         #region Constructor
-        public ProgressNotifierPanel() {
+        public TestProgressNotifierPanel() {
             InitializeComponent();
             LoadSettings();
         }
@@ -117,7 +117,7 @@ namespace vApus.Util {
             chkWhenTestFinished.CheckedChanged -= chk_CheckedChanged;
 
             txtEmailAddress.Text = Settings.Default.PNEMailAddress;
-            txtPassword.Text = Settings.Default.PNPassword.Decrypt(ProgressNotifier.PasswordGUID, ProgressNotifier.Salt);
+            txtPassword.Text = Settings.Default.PNPassword.Decrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
             txtSmtp.Text = Settings.Default.PNSMTP;
             nudPort.Value = Settings.Default.PNPort;
             chkSecure.Checked = Settings.Default.PNSecure;
@@ -167,7 +167,7 @@ namespace vApus.Util {
         }
         private void SaveSettings() {
             Settings.Default.PNEMailAddress = txtEmailAddress.Text.Trim();
-            Settings.Default.PNPassword = txtPassword.Text.Encrypt(ProgressNotifier.PasswordGUID, ProgressNotifier.Salt);
+            Settings.Default.PNPassword = txtPassword.Text.Encrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
             Settings.Default.PNSMTP = txtSmtp.Text.Trim();
             Settings.Default.PNPort = (int)nudPort.Value;
             Settings.Default.PNSecure = chkSecure.Checked;
@@ -207,7 +207,7 @@ namespace vApus.Util {
             txtSmtp.TextChanged += txt_TextChanged;
         }
 
-        public override string ToString() { return "Progress Notifier"; }
+        public override string ToString() { return "Test Progress Notifier"; }
         #endregion
     }
 }

@@ -10,10 +10,8 @@ using System;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
-    public partial class SocketListenerManagerPanel : Panel
-    {
+namespace vApus.DistributedTesting {
+    public partial class SocketListenerManagerPanel : Panel {
         #region Fields
 
         private readonly SocketListener _socketListener;
@@ -22,8 +20,7 @@ namespace vApus.DistributedTesting
 
         #region Constructor
 
-        public SocketListenerManagerPanel()
-        {
+        public SocketListenerManagerPanel() {
             _socketListener = SocketListener.GetInstance();
 
             InitializeComponent();
@@ -37,70 +34,56 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        private void Init()
-        {
+        private void Init() {
             CheckRunning();
             _socketListener.IPChanged += SocketListener_IPChanged;
             btnSet.Enabled = false;
         }
 
-        private void SocketListenerManager_HandleCreated(object sender, EventArgs e)
-        {
+        private void SocketListenerManager_HandleCreated(object sender, EventArgs e) {
             Init();
         }
 
-        private void SocketListener_IPChanged(object sender, IPChangedEventArgs e)
-        {
+        private void SocketListener_IPChanged(object sender, IPChangedEventArgs e) {
             CheckRunning();
         }
 
-        private void btnStart_Click(object sender, EventArgs e)
-        {
+        private void btnStart_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            try
-            {
+            try {
                 _socketListener.Start();
                 CheckRunning();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 StatusStopped(true);
                 MessageBox.Show(ex.Message);
             }
             Cursor = Cursors.Default;
         }
 
-        private void btnRestart_Click(object sender, EventArgs e)
-        {
+        private void btnRestart_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            try
-            {
+            try {
                 StatusStopped(true);
                 btnStart.Enabled = false;
                 _socketListener.Restart();
                 CheckRunning();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 MessageBox.Show(ex.Message);
             }
             Cursor = Cursors.Default;
         }
 
-        private void btnStop_Click(object sender, EventArgs e)
-        {
+        private void btnStop_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             StatusStopped(true);
             _socketListener.Stop();
             Cursor = Cursors.Default;
         }
 
-        private void CheckRunning()
-        {
+        private void CheckRunning() {
             chkPreferred.Text = "Preferred (now -> " + _socketListener.PreferredIP + ":" + _socketListener.PreferredPort +
                                 ")";
-            if (_socketListener.IsRunning)
-            {
+            if (_socketListener.IsRunning) {
                 Cursor = Cursors.WaitCursor;
                 lblStatus.Text = "Status: Started";
                 cboIP.Items.Clear();
@@ -120,15 +103,12 @@ namespace vApus.DistributedTesting
                     !(_socketListener.IP == _socketListener.PreferredIP &&
                       _socketListener.Port == _socketListener.PreferredPort);
                 Cursor = Cursors.Default;
-            }
-            else
-            {
+            } else {
                 StatusStopped(true);
             }
         }
 
-        private void StatusStopped(bool clearCBO)
-        {
+        private void StatusStopped(bool clearCBO) {
             Cursor = Cursors.WaitCursor;
             lblStatus.Text = "Status: Stopped";
 
@@ -144,37 +124,30 @@ namespace vApus.DistributedTesting
             Cursor = Cursors.Default;
         }
 
-        private void cbo_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cbo_SelectedIndexChanged(object sender, EventArgs e) {
             btnSet.Enabled = true;
             chkPreferred.Checked = _socketListener.CheckAgainstPreferred(cboIP.SelectedItem.ToString(),
-                                                                         (int) nudPort.Value);
+                                                                         (int)nudPort.Value);
         }
 
         //Copy the ip to the clipboard.
-        private void btnCopyIP_Click(object sender, EventArgs e)
-        {
+        private void btnCopyIP_Click(object sender, EventArgs e) {
             ClipboardWrapper.SetDataObject(cboIP.SelectedItem.ToString());
         }
 
-        private void nudPort_ValueChanged(object sender, EventArgs e)
-        {
+        private void nudPort_ValueChanged(object sender, EventArgs e) {
             btnSet.Enabled = true;
             chkPreferred.Checked = _socketListener.CheckAgainstPreferred(cboIP.SelectedItem.ToString(),
-                                                                         (int) nudPort.Value);
+                                                                         (int)nudPort.Value);
         }
 
-        private void btnSet_Click(object sender, EventArgs e)
-        {
+        private void btnSet_Click(object sender, EventArgs e) {
             _socketListener.IPChanged -= SocketListener_IPChanged;
             StatusStopped(false);
             btnStart.Enabled = false;
-            try
-            {
-                _socketListener.SetIPAndPort(cboIP.SelectedItem.ToString(), (int) nudPort.Value, chkPreferred.Checked);
-            }
-            catch
-            {
+            try {
+                _socketListener.SetIPAndPort(cboIP.SelectedItem.ToString(), (int)nudPort.Value, chkPreferred.Checked);
+            } catch {
                 MessageBox.Show(
                     string.Format("The socketlistening could not be bound to port {0} on IP {1}!", nudPort.Value,
                                   cboIP.SelectedItem), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning,
@@ -183,14 +156,13 @@ namespace vApus.DistributedTesting
             }
             CheckRunning();
             chkPreferred.Checked = _socketListener.CheckAgainstPreferred(cboIP.SelectedItem.ToString(),
-                                                                         (int) nudPort.Value);
+                                                                         (int)nudPort.Value);
             btnSet.Enabled = false;
             _socketListener.IPChanged += SocketListener_IPChanged;
         }
 
-        private void chkPreferred_CheckedChanged(object sender, EventArgs e)
-        {
-            if (cboIP.SelectedItem.ToString() == _socketListener.IP && (int) nudPort.Value == _socketListener.Port)
+        private void chkPreferred_CheckedChanged(object sender, EventArgs e) {
+            if (cboIP.SelectedItem.ToString() == _socketListener.IP && (int)nudPort.Value == _socketListener.Port)
                 chkPreferred.Enabled =
                     !(_socketListener.IP == _socketListener.PreferredIP &&
                       _socketListener.Port == _socketListener.PreferredPort);
@@ -200,8 +172,7 @@ namespace vApus.DistributedTesting
                 btnSet.Enabled = true;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return "Socket Listener Manager";
         }
 

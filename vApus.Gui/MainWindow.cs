@@ -39,7 +39,7 @@ namespace vApus.Gui {
         private OptionsDialog _optionsDialog;
         private ProcessorAffinityPanel _processorAffinityPanel;
 
-        private ProgressNotifierPanel _progressSpammerPannel;
+        private TestProgressNotifierPanel _progressNotifierPannel;
         private SavingResultsPanel _savingResultsPanel;
         private UpdateNotifierPanel _updateNotifierPanel;
 
@@ -109,7 +109,7 @@ namespace vApus.Gui {
                         StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(CloseDelayedCallback));
                     }
 
-                _progressSpammerPannel = new ProgressNotifierPanel();
+                _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
             } catch (Exception ex) {
                 LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
@@ -218,7 +218,7 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_savingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
-                _optionsDialog.AddOptionsPanel(_progressSpammerPannel);
+                _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.ShowDialog(this);

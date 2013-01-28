@@ -15,7 +15,7 @@ namespace vApus.Util {
     /// <summary>
     /// Notifies test progress.
     /// </summary>
-    public static class ProgressNotifier {
+    public static class TestProgressNotifier {
         public enum What {
             RunFinished = 0,
             ConcurrencyFinished,
@@ -30,8 +30,20 @@ namespace vApus.Util {
                 0x62
             };
         private static readonly object _lock = new object();
-        #endregion
 
+        private static string _vApusIP;
+        private static int _vApusPort;
+        #endregion
+        /// <summary>
+        /// Set this before calling the notify fx.
+        /// Both values are used in the subject of the to be sent mail.
+        /// </summary>
+        /// <param name="vApusIP"></param>
+        /// <param name="vApusPort"></param>
+        public static void SetvApusIPAndPort(string vApusIP, int vApusPort) {
+            _vApusIP = vApusIP;
+            _vApusPort = vApusPort;
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -39,14 +51,14 @@ namespace vApus.Util {
         /// <param name="message"></param>
         /// <param name="vApusIP"></param>
         /// <param name="vApusPort"></param>
-        public static void Notify(What what, string message, string vApusIP, int vApusPort) {
+        public static void Notify(What what, string message) {
             if (vApus.Util.Properties.Settings.Default.PNEnabled) {
                 if ((what == What.RunFinished && Settings.Default.PNAfterEachRun) || (what == What.ConcurrencyFinished && Settings.Default.PNAfterEachConcurrency) ||
                     (what == What.TestFinished && Settings.Default.PNWhenTheTestIsFinished))
-                    Notify(message, vApusIP, vApusPort);
+                    Notify(message);
             }
         }
-        private static void Notify(string message, string vApusIP, int vApusPort) {
+        private static void Notify(string message) {
             ThreadPool.QueueUserWorkItem((state) => {
                 lock (_lock)
                     try {
@@ -57,7 +69,7 @@ namespace vApus.Util {
                         client.UseDefaultCredentials = false;
                         client.Credentials = new NetworkCredential(Settings.Default.PNEMailAddress, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
 
-                        var msg = new MailMessage("info@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + vApusIP + ":" + vApusPort + " --> " + message, message);
+                        var msg = new MailMessage("info@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + _vApusIP + ":" + _vApusPort + " --> " + message, message);
                         msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                         msg.IsBodyHtml = true;
                         msg.Priority = MailPriority.High;

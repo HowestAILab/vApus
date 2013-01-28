@@ -15,13 +15,11 @@ using System.Windows.Forms;
 using vApus.DistributedTesting.Properties;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
+namespace vApus.DistributedTesting {
     /// <summary>
     ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
     /// </summary>
-    public class SocketListener
-    {
+    public class SocketListener {
         #region Events
 
         /// <summary>
@@ -57,25 +55,21 @@ namespace vApus.DistributedTesting
         ///     The currenctly used IP.
         ///     Setting an invalid IP will throw an exception.
         /// </summary>
-        public string IP
-        {
+        public string IP {
             get { return _ip; }
         }
 
         /// <summary>
         ///     All possible IPs.
         /// </summary>
-        public string[] AvailableIPs
-        {
+        public string[] AvailableIPs {
             get { return _availableIps.ToArray(); }
         }
 
         /// <summary>
         /// </summary>
-        public string Network
-        {
-            get
-            {
+        public string Network {
+            get {
                 string network = string.Empty;
                 string[] parts = _ip.Split(new[] { '.' });
                 for (int i = 0; i < 3; i++)
@@ -87,32 +81,27 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     Setting an invalid port will throw an exception.
         /// </summary>
-        public int Port
-        {
+        public int Port {
             get { return _port; }
         }
 
         /// <summary>
         /// </summary>
-        public int ConnectedMastersCount
-        {
+        public int ConnectedMastersCount {
             get { return _connectedMasters.Count; }
         }
 
         /// <summary>
         /// </summary>
-        public bool IsRunning
-        {
+        public bool IsRunning {
             get { return (_serverSocket != null); }
         }
 
-        public string PreferredIP
-        {
+        public string PreferredIP {
             get { return Settings.Default.PreferredIP; }
         }
 
-        public int PreferredPort
-        {
+        public int PreferredPort {
             get { return Settings.Default.PreferredPort; }
         }
 
@@ -120,8 +109,7 @@ namespace vApus.DistributedTesting
 
         #region Constructor
 
-        private SocketListener()
-        {
+        private SocketListener() {
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
             SlaveSideCommunicationHandler.NewTest += SlaveSideCommunicationHandler_NewTest;
         }
@@ -130,78 +118,66 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        public static SocketListener GetInstance()
-        {
+        public static SocketListener GetInstance() {
             if (_socketListener == null)
                 _socketListener = new SocketListener();
             return _socketListener;
         }
 
         private void SlaveSideCommunicationHandler_NewTest(object sender,
-                                                           SlaveSideCommunicationHandler.NewTestEventArgs e)
-        {
+                                                           SlaveSideCommunicationHandler.NewTestEventArgs e) {
             if (NewTest != null)
                 foreach (EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> del in NewTest.GetInvocationList()
                     )
                     del.BeginInvoke(this, e, null, null);
         }
 
-        public bool CheckAgainstPreferred(string ip, int port)
-        {
+        public bool CheckAgainstPreferred(string ip, int port) {
             return Settings.Default.PreferredIP == ip && Settings.Default.PreferredPort == port;
         }
 
         #region Start & Stop
 
-        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e)
-        {
+        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e) {
             if (_ip == "127.0.0.1") return;
 
-            try
-            {
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                    {
+            try {
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         string ip = _availableIps[FillPossibleIPs()];
                         int port = Settings.Default.PreferredPort;
-                        if (!_availableIps.Contains(_ip))
-                        {
+                        if (!_availableIps.Contains(_ip)) {
                             MessageBox.Show(
-                                "The IP " + _ip +
-                                " is no longer available, therefore the socketlistening will be bound to IP " + ip + ".",
+                                "The IP " + _ip + " is no longer available, therefore the socketlistening will be bound to IP " + ip + ".",
                                 string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information,
                                 MessageBoxDefaultButton.Button1);
                             SetIPAndPort(ip, _port, false);
                         }
                     }, null);
-            }
-            catch { }
+            } catch { }
         }
 
-        public void SetIPAndPort(string ip, int port, bool preferred = false)
-        {
+        public void SetIPAndPort(string ip, int port, bool preferred = false) {
             Stop();
-            try
-            {
+            try {
                 _ip = ip;
                 _port = port;
                 _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), _port));
                 _serverSocket.Listen(100);
                 _serverSocket.BeginAccept(OnAccept, null);
-                if (preferred)
-                {
+                if (preferred) {
                     Settings.Default.PreferredIP = _ip;
                     Settings.Default.PreferredPort = _port;
                     Settings.Default.Save();
                 }
+
+                TestProgressNotifier.SetvApusIPAndPort(_ip, _port);
                 NamedObjectRegistrar.RegisterOrUpdate("IP", _ip);
                 NamedObjectRegistrar.RegisterOrUpdate("Port", _port);
                 NamedObjectRegistrar.RegisterOrUpdate("HostName", Dns.GetHostEntry(_ip).HostName);
                 if (IPChanged != null)
                     IPChanged.Invoke(null, new IPChangedEventArgs(_ip));
-            }
-            catch
-            {
+            } catch {
                 Stop();
                 throw;
             }
@@ -211,29 +187,21 @@ namespace vApus.DistributedTesting
         ///     Will determine it's port from the DEFAULTPORT (1337) to int.MaxValue.
         ///     The maximum number of connections is 100.
         /// </summary>
-        public void Start()
-        {
-            try
-            {
+        public void Start() {
+            try {
                 _ip = _availableIps[FillPossibleIPs()];
                 _port = Settings.Default.PreferredPort;
-                try
-                {
+                try {
                     _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), _port));
-                }
-                catch
-                {
+                } catch {
                     for (int port = DEFAULTPORT; port <= int.MaxValue; port++)
-                        try
-                        {
+                        try {
                             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                             _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), port));
                             _port = port;
                             break;
-                        }
-                        catch
-                        {
+                        } catch {
                         }
                 }
 
@@ -241,12 +209,11 @@ namespace vApus.DistributedTesting
                 _serverSocket.BeginAccept(OnAccept, null);
                 _startTries = 0;
 
+                TestProgressNotifier.SetvApusIPAndPort(_ip, _port);
                 NamedObjectRegistrar.RegisterOrUpdate("IP", _ip);
                 NamedObjectRegistrar.RegisterOrUpdate("Port", _port);
                 NamedObjectRegistrar.RegisterOrUpdate("HostName", Dns.GetHostEntry(_ip).HostName);
-            }
-            catch
-            {
+            } catch {
                 _startTries++;
                 if (_startTries <= _maximumStartTries)
                     Start();
@@ -259,18 +226,15 @@ namespace vApus.DistributedTesting
         ///     Fills the collection of possible valid ips and returns an entryindex suggesting the ip to bind to.
         /// </summary>
         /// <returns></returns>
-        private int FillPossibleIPs()
-        {
+        private int FillPossibleIPs() {
             IPHostEntry entry = Dns.GetHostByName(Dns.GetHostName());
             _availableIps.Clear();
             int entryindex = 0;
             var p = new Ping();
 
             //Ping to make sure it is a connected device you can use.
-            for (int i = 0; i < entry.AddressList.Length; i++)
-            {
-                if ((p.Send(entry.AddressList[i])).Status == IPStatus.Success)
-                {
+            for (int i = 0; i < entry.AddressList.Length; i++) {
+                if ((p.Send(entry.AddressList[i])).Status == IPStatus.Success) {
                     string ip = entry.AddressList[i].ToString();
                     if (!_availableIps.Contains(ip))
                         _availableIps.Add(ip);
@@ -282,8 +246,7 @@ namespace vApus.DistributedTesting
             int preferredIPIndex = _availableIps.IndexOf(Settings.Default.PreferredIP);
             if (preferredIPIndex > -1)
                 entryindex = preferredIPIndex;
-            else if (Settings.Default.PreferredIP == string.Empty)
-            {
+            else if (Settings.Default.PreferredIP == string.Empty) {
                 Settings.Default.PreferredIP = _availableIps[entryindex];
                 Settings.Default.Save();
             }
@@ -292,17 +255,13 @@ namespace vApus.DistributedTesting
 
         /// <summary>
         /// </summary>
-        public void Stop()
-        {
-            try
-            {
+        public void Stop() {
+            try {
                 if (_serverSocket != null)
                     _serverSocket.Close();
                 _serverSocket = null;
                 DisconnectMasters();
-            }
-            catch
-            {
+            } catch {
             }
         }
 
@@ -310,8 +269,7 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="minimumPort"></param>
         /// <param name="maximumPort"></param>
-        public void Restart()
-        {
+        public void Restart() {
             Stop();
             Start();
         }
@@ -320,48 +278,39 @@ namespace vApus.DistributedTesting
 
         #region Communication
 
-        private SocketWrapper Get(string ip, int port)
-        {
+        private SocketWrapper Get(string ip, int port) {
             foreach (SocketWrapper socketWrapper in _connectedMasters)
                 if (socketWrapper.IP.ToString() == ip && socketWrapper.Port == port)
                     return socketWrapper;
             return null;
         }
 
-        private void ConnectMaster(string ip, int port, int connectTimeout, out Exception exception)
-        {
-            try
-            {
+        private void ConnectMaster(string ip, int port, int connectTimeout, out Exception exception) {
+            try {
                 exception = null;
                 SocketWrapper socketWrapper = Get(ip, port);
-                if (socketWrapper == null)
-                {
+                if (socketWrapper == null) {
                     var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     socketWrapper = new SocketWrapper(ip, port, socket, SocketFlags.None, SocketFlags.None);
                 }
 
                 if (!socketWrapper.Connected)
                     socketWrapper.Connect(connectTimeout);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 exception = ex;
             }
         }
 
-        private void DisconnectMasters()
-        {
+        private void DisconnectMasters() {
             foreach (SocketWrapper socketWrapper in _connectedMasters)
                 if (socketWrapper != null && socketWrapper.Connected)
                     socketWrapper.Close();
             _connectedMasters.Clear();
         }
 
-        private void DisconnectMaster(SocketWrapper masterSocketWrapper)
-        {
+        private void DisconnectMaster(SocketWrapper masterSocketWrapper) {
             foreach (SocketWrapper socketWrapper in _connectedMasters)
-                if (socketWrapper == masterSocketWrapper)
-                {
+                if (socketWrapper == masterSocketWrapper) {
                     if (socketWrapper != null && socketWrapper.Connected)
                         socketWrapper.Close();
                     _connectedMasters.Remove(socketWrapper);
@@ -369,42 +318,31 @@ namespace vApus.DistributedTesting
                 }
         }
 
-        private void OnAccept(IAsyncResult ar)
-        {
-            try
-            {
+        private void OnAccept(IAsyncResult ar) {
+            try {
                 Socket socket = _serverSocket.EndAccept(ar);
                 var socketWrapper = new SocketWrapper(_ip, 1234, socket, SocketFlags.None, SocketFlags.None);
                 _connectedMasters.Add(socketWrapper);
                 BeginReceive(socketWrapper);
                 _serverSocket.BeginAccept(OnAccept, null);
-            }
-            catch
-            {
+            } catch {
             }
         }
 
-        private void BeginReceive(SocketWrapper socketWrapper)
-        {
-            try
-            {
+        private void BeginReceive(SocketWrapper socketWrapper) {
+            try {
                 if (_onReceiveCallBack == null)
                     _onReceiveCallBack = OnReceive;
                 socketWrapper.Buffer = new byte[socketWrapper.ReceiveBufferSize];
                 socketWrapper.Socket.BeginReceive(socketWrapper.Buffer, 0, socketWrapper.ReceiveBufferSize,
                                                   SocketFlags.None, _onReceiveCallBack, socketWrapper);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Exception exception = ex;
                 //Reconnect on network hiccup.
                 ConnectMaster(socketWrapper.IP.ToString(), socketWrapper.Port, 1000, out exception);
-                if (exception == null)
-                {
+                if (exception == null) {
                     BeginReceive(socketWrapper);
-                }
-                else
-                {
+                } else {
                     DisconnectMaster(socketWrapper);
                     SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
                     //The test cannot be valid without a master, stop the test if any.
@@ -419,30 +357,23 @@ namespace vApus.DistributedTesting
             }
         }
 
-        private void OnReceive(IAsyncResult result)
-        {
+        private void OnReceive(IAsyncResult result) {
             var socketWrapper = (SocketWrapper)result.AsyncState;
             var message = new Message<Key>();
-            try
-            {
+            try {
                 socketWrapper.Socket.EndReceive(result);
                 message = (Message<Key>)socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
 
-                if (message.Key == Key.SynchronizeBuffers)
-                {
+                if (message.Key == Key.SynchronizeBuffers) {
                     socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)message.Content).BufferSize;
                     BeginReceive(socketWrapper);
                     socketWrapper.Socket.SendBufferSize = socketWrapper.ReceiveBufferSize;
-                }
-                else
-                {
+                } else {
                     BeginReceive(socketWrapper);
                     message = SlaveSideCommunicationHandler.HandleMessage(socketWrapper, message);
                 }
                 socketWrapper.Send(message, SendType.Binary);
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 DisconnectMaster(socketWrapper);
                 SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
                 //The test cannot be valid without a master, stop the test if any.

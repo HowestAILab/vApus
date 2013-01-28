@@ -10,10 +10,8 @@ using System;
 using vApus.DistributedTesting;
 using vApus.Util;
 
-namespace vApus.Link
-{
-    public static class SocketListenerLinker
-    {
+namespace vApus.Link {
+    public static class SocketListenerLinker {
         /// <summary>
         ///     Use this for instance to show the test name in the title bar of the main window.
         ///     The title of the test is the sender.
@@ -28,18 +26,15 @@ namespace vApus.Link
 
         #region Properties
 
-        public static bool SocketListenerIsRunning
-        {
+        public static bool SocketListenerIsRunning {
             get { return _socketListener.IsRunning; }
         }
 
-        public static string SocketListenerIP
-        {
+        public static string SocketListenerIP {
             get { return _socketListener.IP; }
         }
 
-        public static int SocketListenerPort
-        {
+        public static int SocketListenerPort {
             get { return _socketListener.Port; }
         }
 
@@ -47,8 +42,7 @@ namespace vApus.Link
 
         #region Constructor
 
-        static SocketListenerLinker()
-        {
+        static SocketListenerLinker() {
             _socketListener = SocketListener.GetInstance();
             _socketListener.NewTest += _socketListener_NewTest;
         }
@@ -57,25 +51,21 @@ namespace vApus.Link
 
         #region Functions
 
-        private static void _socketListener_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e)
-        {
+        private static void _socketListener_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e) {
             if (NewTest != null)
                 foreach (EventHandler del in NewTest.GetInvocationList())
                     del.BeginInvoke(e.Test, null, null, null);
         }
 
-        public static void StartSocketListener()
-        {
+        public static void StartSocketListener() {
             _socketListener.Start();
         }
 
-        public static void SetIPAndPort(string ip, int port, bool preferred = false)
-        {
+        public static void SetIPAndPort(string ip, int port, bool preferred = false) {
             _socketListener.SetIPAndPort(ip, port, preferred);
         }
 
-        public static void AddSocketListenerManagerPanel(OptionsDialog optionsDialog)
-        {
+        public static void AddSocketListenerManagerPanel(OptionsDialog optionsDialog) {
             optionsDialog.AddOptionsPanel(new SocketListenerManagerPanel());
         }
 

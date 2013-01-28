@@ -1,6 +1,6 @@
 ﻿namespace vApus.Util
 {
-    partial class ProgressNotifierPanel
+    partial class TestProgressNotifierPanel
     {
         /// <summary>
         /// Required designer variable.
@@ -44,6 +44,7 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.btnEnableDisable = new System.Windows.Forms.Button();
             this.btnTest = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
             this.grp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
             this.SuspendLayout();
@@ -65,9 +66,9 @@
             this.grp.Controls.Add(this.chkAfterRun);
             this.grp.Controls.Add(this.label2);
             this.grp.Enabled = false;
-            this.grp.Location = new System.Drawing.Point(12, 12);
+            this.grp.Location = new System.Drawing.Point(12, 25);
             this.grp.Name = "grp";
-            this.grp.Size = new System.Drawing.Size(375, 303);
+            this.grp.Size = new System.Drawing.Size(375, 290);
             this.grp.TabIndex = 1;
             this.grp.TabStop = false;
             // 
@@ -75,7 +76,7 @@
             // 
             this.chkSecure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkSecure.AutoSize = true;
-            this.chkSecure.Location = new System.Drawing.Point(271, 67);
+            this.chkSecure.Location = new System.Drawing.Point(266, 47);
             this.chkSecure.Name = "chkSecure";
             this.chkSecure.Size = new System.Drawing.Size(60, 17);
             this.chkSecure.TabIndex = 21;
@@ -88,7 +89,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.Color.DimGray;
-            this.label1.Location = new System.Drawing.Point(234, 68);
+            this.label1.Location = new System.Drawing.Point(229, 48);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(31, 13);
             this.label1.TabIndex = 20;
@@ -100,7 +101,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtEmailAddress.EmptyTextBoxLabel = "E-Mail Address";
             this.txtEmailAddress.ForeColor = System.Drawing.Color.Black;
-            this.txtEmailAddress.Location = new System.Drawing.Point(16, 39);
+            this.txtEmailAddress.Location = new System.Drawing.Point(11, 19);
             this.txtEmailAddress.Name = "txtEmailAddress";
             this.txtEmailAddress.Size = new System.Drawing.Size(156, 20);
             this.txtEmailAddress.TabIndex = 16;
@@ -113,7 +114,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSmtp.EmptyTextBoxLabel = "SMTP Server:";
             this.txtSmtp.ForeColor = System.Drawing.Color.Black;
-            this.txtSmtp.Location = new System.Drawing.Point(16, 65);
+            this.txtSmtp.Location = new System.Drawing.Point(11, 45);
             this.txtSmtp.Name = "txtSmtp";
             this.txtSmtp.Size = new System.Drawing.Size(156, 20);
             this.txtSmtp.TabIndex = 17;
@@ -125,7 +126,7 @@
             this.txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPassword.EmptyTextBoxLabel = "Password";
             this.txtPassword.ForeColor = System.Drawing.Color.Black;
-            this.txtPassword.Location = new System.Drawing.Point(178, 39);
+            this.txtPassword.Location = new System.Drawing.Point(173, 19);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
             this.txtPassword.TabIndex = 18;
@@ -138,7 +139,7 @@
             // nudPort
             // 
             this.nudPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.nudPort.Location = new System.Drawing.Point(178, 65);
+            this.nudPort.Location = new System.Drawing.Point(173, 45);
             this.nudPort.Maximum = new decimal(new int[] {
             99999,
             0,
@@ -157,7 +158,7 @@
             // chkWhenTestFinished
             // 
             this.chkWhenTestFinished.AutoSize = true;
-            this.chkWhenTestFinished.Location = new System.Drawing.Point(97, 165);
+            this.chkWhenTestFinished.Location = new System.Drawing.Point(92, 145);
             this.chkWhenTestFinished.Name = "chkWhenTestFinished";
             this.chkWhenTestFinished.Size = new System.Drawing.Size(207, 17);
             this.chkWhenTestFinished.TabIndex = 4;
@@ -168,7 +169,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 166);
+            this.label3.Location = new System.Drawing.Point(8, 146);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(39, 13);
             this.label3.TabIndex = 15;
@@ -177,7 +178,7 @@
             // chkAfterConcurrency
             // 
             this.chkAfterConcurrency.AutoSize = true;
-            this.chkAfterConcurrency.Location = new System.Drawing.Point(97, 136);
+            this.chkAfterConcurrency.Location = new System.Drawing.Point(92, 116);
             this.chkAfterConcurrency.Name = "chkAfterConcurrency";
             this.chkAfterConcurrency.Size = new System.Drawing.Size(113, 17);
             this.chkAfterConcurrency.TabIndex = 2;
@@ -188,7 +189,7 @@
             // chkAfterRun
             // 
             this.chkAfterRun.AutoSize = true;
-            this.chkAfterRun.Location = new System.Drawing.Point(97, 113);
+            this.chkAfterRun.Location = new System.Drawing.Point(92, 93);
             this.chkAfterRun.Name = "chkAfterRun";
             this.chkAfterRun.Size = new System.Drawing.Size(69, 17);
             this.chkAfterRun.TabIndex = 1;
@@ -199,7 +200,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 114);
+            this.label2.Location = new System.Drawing.Point(8, 94);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(32, 13);
             this.label2.TabIndex = 12;
@@ -267,9 +268,19 @@
             this.btnTest.UseVisualStyleBackColor = false;
             this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(12, 9);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(244, 13);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "Currently this is only available for single stresstests.";
+            // 
             // ProgressNotifierPanel
             // 
             this.ClientSize = new System.Drawing.Size(399, 357);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.btnTest);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnSave);
@@ -280,6 +291,7 @@
             this.grp.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -301,6 +313,7 @@
         private System.Windows.Forms.Button btnEnableDisable;
         private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.CheckBox chkSecure;
+        private System.Windows.Forms.Label label4;
 
     }
 }

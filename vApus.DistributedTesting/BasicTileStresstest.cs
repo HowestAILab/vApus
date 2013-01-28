@@ -15,6 +15,7 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     public class BasicTileStresstest : BaseItem {
+
         #region Fields
         protected internal Connection _connection;
         private Monitor.MonitorProject _monitorProject;
@@ -167,8 +168,7 @@ namespace vApus.DistributedTesting {
 
                         return _slavesParent;
                     }
-                }
-                catch { }
+                } catch { }
                 return null;
             }
         }
@@ -216,8 +216,7 @@ namespace vApus.DistributedTesting {
                         l.Add(monitor);
 
                 Monitors = l.ToArray();
-            }
-            else //Cleanup slaves
+            } else //Cleanup slaves
             {
                 var slavesParent = SlavesParent;
                 if (slavesParent != null && (sender == slavesParent || sender is Client || sender is Slave)) {
