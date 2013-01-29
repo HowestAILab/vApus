@@ -206,7 +206,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void _KeyUp(object sender, KeyEventArgs e) {
-            if (_distributedTestMode == DistributedTestMode.TestAndReport) {
+            if (_distributedTestMode == DistributedTestMode.Test) {
                 _ctrl = false;
                 return;
             }
@@ -225,7 +225,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void _KeyDown(object sender, KeyEventArgs e) {
-            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+            if (_distributedTestMode == DistributedTestMode.Test)
                 return;
 
             if (e.KeyCode == Keys.ControlKey)

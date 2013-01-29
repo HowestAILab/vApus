@@ -11,6 +11,6 @@ namespace vApus.DistributedTesting
     public enum DistributedTestMode
     {
         Edit = 0,
-        TestAndReport
+        Test
     }
 }

@@ -174,7 +174,7 @@ namespace vApus.DistributedTesting {
                 LockWindowUpdate(Handle.ToInt32());
                 _distributedTestMode = distributedTestMode;
 
-                txtHostName.ReadOnly = txtIP.ReadOnly = txtUserName.ReadOnly = txtPassword.ReadOnly = txtDomain.ReadOnly = _distributedTestMode == DistributedTestMode.TestAndReport;
+                txtHostName.ReadOnly = txtIP.ReadOnly = txtUserName.ReadOnly = txtPassword.ReadOnly = txtDomain.ReadOnly = _distributedTestMode == DistributedTestMode.Test;
                 picAddSlave.Enabled = picClearSlaves.Enabled = picSort.Enabled = _distributedTestMode == DistributedTestMode.Edit;
 
                 foreach (SlaveTile st in flp.Controls) st.SetMode(_distributedTestMode);

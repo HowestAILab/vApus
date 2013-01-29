@@ -194,10 +194,22 @@ namespace vApus.DistributedTesting {
                    tstvi.TileStresstest.AdvancedTileStresstest.MonitorAfter);
 
                 if (_distributedTestCore != null) {
-                    if (_distributedTestCore.TestProgressMessages.ContainsKey(tstvi.TileStresstest))
+                    if (_distributedTestCore.TestProgressMessages.ContainsKey(tstvi.TileStresstest)) {
                         SetSlaveProgress(tstvi.TileStresstest, _distributedTestCore.TestProgressMessages[tstvi.TileStresstest]);
-                    else
+
+                        if (_resultsHelper.DatabaseName == null || _distributedTestMode == DistributedTestMode.Test || !_tileStresstestsWithDbIds.ContainsKey(tstvi.TileStresstest)) {
+                            detailedResultsControl.ClearResults();
+                            detailedResultsControl.Enabled = false;
+                        } else {
+                            detailedResultsControl.Enabled = true;
+                            _resultsHelper.StresstestId = _tileStresstestsWithDbIds[tstvi.TileStresstest];
+                            detailedResultsControl.RefreshResults(_resultsHelper);
+                        }
+                    } else {
                         fastResultsControl.ClearFastResults();
+                        detailedResultsControl.ClearResults();
+                        detailedResultsControl.Enabled = false;
+                    }
                 }
             } else {
                 bool showDescriptions = false;
@@ -214,6 +226,9 @@ namespace vApus.DistributedTesting {
 
                 fastResultsControl.Visible = false;
                 distributedStresstestControl.Visible = true;
+
+                detailedResultsControl.ClearResults();
+                detailedResultsControl.Enabled = false;
 
                 SetOverallProgress();
             }
@@ -281,7 +296,7 @@ namespace vApus.DistributedTesting {
 
             _distributedTestMode = distributedTestMode;
 
-            if (_distributedTestMode == DistributedTestMode.TestAndReport) {
+            if (_distributedTestMode == DistributedTestMode.Test) {
                 btnStop.Enabled = canEnableStop;
                 btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
                 if (scheduled) tmrSchedule.Start(); else btnSchedule.Text = string.Empty;
@@ -380,7 +395,7 @@ namespace vApus.DistributedTesting {
         private void Start() {
             try {
                 Cursor = Cursors.WaitCursor;
-                SetMode(DistributedTestMode.TestAndReport);
+                SetMode(DistributedTestMode.Test);
 
                 tcTest.SelectedIndex = 1;
 
@@ -459,7 +474,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void ScheduleTest() {
-            SetMode(DistributedTestMode.TestAndReport, true, true);
+            SetMode(DistributedTestMode.Test, true, true);
         }
 
         private void tmrSchedule_Tick(object sender, EventArgs e) {
@@ -537,11 +552,13 @@ namespace vApus.DistributedTesting {
                 _distributedTestCore.Initialize();
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                     fastResultsControl.SetStresstestInitialized();
-                    // stresstestReportControl.ClearReport();
 
                     //Initialize the monitors.
                     _monitorViews.Clear();
                     _monitorMetricsCaches.Clear();
+                    detailedResultsControl.ClearResults();
+                    detailedResultsControl.Enabled = false;
+
                     foreach (TileStresstest tileStresstest in _distributedTestCore.UsedTileStresstests)
                         for (int i = 0; i != tileStresstest.BasicTileStresstest.Monitors.Length; i++)
                             ShowAndInitMonitorView(tileStresstest, tileStresstest.BasicTileStresstest.Monitors[i]);
@@ -773,9 +790,9 @@ namespace vApus.DistributedTesting {
 
             Stop(true, e.Cancelled == 0 && e.Error == 0);
             try {
-                distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK,  _distributedTestCore.Cancelled,
-                                                                 _distributedTestCore.Failed, LocalMonitor.CPUUsage,  LocalMonitor.ContextSwitchesPerSecond,
-                                                                 (int)LocalMonitor.MemoryUsage,  (int)LocalMonitor.TotalVisibleMemory,
+                distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled,
+                                                                 _distributedTestCore.Failed, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
+                                                                 (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
                                                                  LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
             } catch { } //Exception on false WMI. 
         }
@@ -879,6 +896,17 @@ namespace vApus.DistributedTesting {
                 monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
                 monitorAfterCountdown.Start();
             } else { StopMonitors(); }
+
+            //Update the detailed results in the gui if any.
+            var tstvi = _selectedTestItem as TileStresstestTreeViewItem;
+            if (tstvi == null || _resultsHelper.DatabaseName == null || _distributedTestMode == DistributedTestMode.Test || !_tileStresstestsWithDbIds.ContainsKey(tstvi.TileStresstest)) {
+                detailedResultsControl.ClearResults();
+                detailedResultsControl.Enabled = false;
+            } else {
+                detailedResultsControl.Enabled = true;
+                _resultsHelper.StresstestId = _tileStresstestsWithDbIds[tstvi.TileStresstest];
+                detailedResultsControl.RefreshResults(_resultsHelper);
+            }
         }
 
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {

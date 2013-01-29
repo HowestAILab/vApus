@@ -162,7 +162,7 @@ namespace vApus.DistributedTesting
 
         private void picResultPath_Click(object sender, EventArgs e)
         {
-            if (_distributedTestMode == DistributedTestMode.TestAndReport)
+            if (_distributedTestMode == DistributedTestMode.Test)
                 return;
 
             if (Directory.Exists(_distributedTest.ResultPath))

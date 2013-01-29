@@ -516,17 +516,18 @@ namespace vApus.DistributedTesting {
                 AutoResetEvent waitHandle = new AutoResetEvent(false);
                 int handled = 0;
                 for (int i = 0; i != length; i++) {
-                    Thread t = new Thread(delegate(object parameter) {
+                    //Thread t = new Thread(delegate(object parameter) {
                         _initializeTestWorkItem = new InitializeTestWorkItem();
+                        object parameter = i;
                         int index = (int)parameter;
                         exceptions.Add(_initializeTestWorkItem.InitializeTest(tileStresstests[index], stresstestIdsInDb[index], databaseName, runSynchronization));
                         _initializeTestWorkItem = null;
 
                         if (Interlocked.Increment(ref handled) == tileStresstests.Length)
                             waitHandle.Set();
-                    });
-                    t.IsBackground = true;
-                    t.Start(i);
+                    //});
+                    //t.IsBackground = true;
+                    //t.Start(i);
                 }
 
                 waitHandle.WaitOne();
@@ -669,14 +670,17 @@ namespace vApus.DistributedTesting {
 
                         //message = SendAndReceive(socketWrapper, message);
                         socketWrapper.Send(message, SendType.Binary);
-                        message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
+                        object o = socketWrapper.Receive(SendType.Binary);
+                        message = (Message<Key>)o;// socketWrapper.Receive(SendType.Binary);
 
                         initializeTestMessage = (InitializeTestMessage)message.Content;
 
                         //Reset the buffers to keep the messages as small as possible.
                         ResetBuffers(socketWrapper);
                         if (initializeTestMessage.Exception != null) throw new Exception(initializeTestMessage.Exception);
-                    } catch (Exception ex) { exception = ex; }
+                    } catch (Exception ex) {
+                        exception = ex;
+                    }
                 // InvokeTestInitialized(tileStresstest, exception);
 
                 return exception;

@@ -305,6 +305,8 @@ namespace vApus.Stresstest {
         }
 
         public void ClearFastResults() {
+            lblUpdatesIn.Text = lblStarted.Text = lblMeasuredRuntime.Text = lblStopped.Text = string.Empty;
+
             dgvFastResults.RowCount = 0;
 
             _concurrencyStresstestMetrics = new List<StresstestMetrics>();
@@ -543,7 +545,7 @@ namespace vApus.Stresstest {
             } catch { }
         }
         private void RemoveDatabase() {
-            if (_resultsHelper!= null && _resultsHelper.DatabaseName != null)
+            if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
                 if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
                     try { _resultsHelper.RemoveDatabase(); } catch { }
