@@ -6,6 +6,10 @@ namespace vApus.Results {
     public static class SettingsManager {
 
         #region Fields
+        /// <summary>
+        /// Currently ony used for getting the credentials.
+        /// </summary>
+        private static readonly object _lock = new object();
 
         private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
 
@@ -61,15 +65,24 @@ namespace vApus.Results {
             GetCredentials(Settings.Default.ConnectionStringIndex, out user, out host, out port, out password);
         }
 
-        public static void GetCredentials(int connectionStringIndex, out string user, out string host, out int port,
-                                          out string password) {
-            string connectionString = GetConnectionStrings()[connectionStringIndex];
-            user = connectionString.Split('@')[0];
-            connectionString = connectionString.Substring(user.Length + 1);
-            host = connectionString.Split(':')[0];
-            port = int.Parse(connectionString.Substring(host.Length + 1));
+        public static void GetCredentials(int connectionStringIndex, out string user, out string host, out int port, out string password) {
+            lock (_lock) {
+                var connectionStrings = GetConnectionStrings();
+                if (connectionStrings.Count == 0) {
+                    user = null;
+                    host = null;
+                    port = 0;
+                    password = null;
+                } else {
+                    string connectionString = connectionStrings[connectionStringIndex];
+                    user = connectionString.Split('@')[0];
+                    connectionString = connectionString.Substring(user.Length + 1);
+                    host = connectionString.Split(':')[0];
+                    port = int.Parse(connectionString.Substring(host.Length + 1));
 
-            password = GetPasswords()[connectionStringIndex].Decrypt(_passwordGUID, _salt);
+                    password = GetPasswords()[connectionStringIndex].Decrypt(_passwordGUID, _salt);
+                }
+            }
         }
 
         public static void DeleteCredentials(int connectionStringIndex) {

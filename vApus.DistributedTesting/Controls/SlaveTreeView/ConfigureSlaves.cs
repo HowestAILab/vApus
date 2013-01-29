@@ -14,10 +14,8 @@ using vApus.DistributedTesting.Properties;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
-    public partial class ConfigureSlaves : UserControl
-    {
+namespace vApus.DistributedTesting {
+    public partial class ConfigureSlaves : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -47,8 +45,7 @@ namespace vApus.DistributedTesting
 
         #region Constructor
 
-        public ConfigureSlaves()
-        {
+        public ConfigureSlaves() {
             InitializeComponent();
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
@@ -60,31 +57,22 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            if (_clientTreeViewItem != null && sender == _clientTreeViewItem.Client)
-                SetClient();
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            if (_clientTreeViewItem != null && sender == _clientTreeViewItem.Client) SetClient();
         }
 
-        public void SetDistributedTest(DistributedTest distributedTest)
-        {
-            _distributedTest = distributedTest;
-        }
+        public void SetDistributedTest(DistributedTest distributedTest) { _distributedTest = distributedTest; }
 
         /// <summary>
         ///     Sets the client and refreshes the gui.
         /// </summary>
         /// <param name="client"></param>
-        public void SetClient(ClientTreeViewItem clientTreeViewItem)
-        {
+        public void SetClient(ClientTreeViewItem clientTreeViewItem) {
             _clientTreeViewItem = clientTreeViewItem;
-            if (_clientTreeViewItem.Online)
-            {
+            if (_clientTreeViewItem.Online) {
                 picStatus.Image = Resources.OK;
                 toolTip.SetToolTip(picStatus, "Client Online");
-            }
-            else
-            {
+            } else {
                 picStatus.Image = Resources.Cancelled;
                 toolTip.SetToolTip(picStatus, "Client Offline");
             }
@@ -92,12 +80,10 @@ namespace vApus.DistributedTesting
             SetClient();
         }
 
-        private void SetClient()
-        {
+        private void SetClient() {
             lblUsage.Visible = false;
 
-            pnlSettings.Visible =
-                flp.Visible = true;
+            pnlSettings.Visible = flp.Visible = true;
 
             txtHostName.Text = _clientTreeViewItem.Client.HostName;
             txtIP.Text = _clientTreeViewItem.Client.IP;
@@ -106,18 +92,14 @@ namespace vApus.DistributedTesting
             txtPassword.Text = _clientTreeViewItem.Client.Password;
             txtDomain.Text = _clientTreeViewItem.Client.Domain;
 
-            if (IsHandleCreated)
-                LockWindowUpdate(Handle.ToInt32());
+            if (IsHandleCreated) LockWindowUpdate(Handle.ToInt32());
 
-            if (flp.Controls.Count < _clientTreeViewItem.Client.Count)
-            {
+            if (flp.Controls.Count < _clientTreeViewItem.Client.Count) {
                 var slaveTiles = new Control[_clientTreeViewItem.Client.Count - flp.Controls.Count];
                 for (int i = 0; i != slaveTiles.Length; i++)
                     slaveTiles[i] = CreateSlaveTile();
                 flp.Controls.AddRange(slaveTiles);
-            }
-            else
-            {
+            } else {
                 var slaveTiles = new Control[flp.Controls.Count - _clientTreeViewItem.Client.Count];
                 for (int i = _clientTreeViewItem.Client.Count; i != flp.Controls.Count; i++)
                     slaveTiles[i - _clientTreeViewItem.Client.Count] = flp.Controls[i];
@@ -128,10 +110,8 @@ namespace vApus.DistributedTesting
             }
 
 
-            if (flp.Controls.Count != 0)
-            {
-                for (int i = 0; i != _clientTreeViewItem.Client.Count; i++)
-                {
+            if (flp.Controls.Count != 0) {
+                for (int i = 0; i != _clientTreeViewItem.Client.Count; i++) {
                     var st = flp.Controls[i] as SlaveTile;
                     st.SetSlave(_clientTreeViewItem.Client[i] as Slave);
                     st.SetMode(_distributedTestMode);
@@ -141,8 +121,7 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private SlaveTile CreateSlaveTile()
-        {
+        private SlaveTile CreateSlaveTile() {
             var st = new SlaveTile(_distributedTest);
             st.DuplicateClicked += st_DuplicateClicked;
             st.DeleteClicked += st_DeleteClicked;
@@ -150,110 +129,78 @@ namespace vApus.DistributedTesting
             return st;
         }
 
-        private void st_DuplicateClicked(object sender, EventArgs e)
-        {
+        private void st_DuplicateClicked(object sender, EventArgs e) {
             var st = sender as SlaveTile;
 
             Slave clone = st.Slave.Clone();
             //Choose another port so every new slave has a unique port.
-            for (int port = clone.Port; port != int.MaxValue; port++)
-            {
+            for (int port = clone.Port; port != int.MaxValue; port++) {
                 bool portPresent = false;
                 foreach (Slave sl in st.Slave.Parent)
-                    if (sl.Port == port)
-                    {
+                    if (sl.Port == port) {
                         portPresent = true;
                         break;
                     }
 
-                if (!portPresent)
-                {
+                if (!portPresent) {
                     st.Slave.Port = port;
                     break;
                 }
             }
             _clientTreeViewItem.Client.InsertWithoutInvokingEvent(_clientTreeViewItem.Client.IndexOf(st.Slave), clone);
-            _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(
-                SolutionComponentChangedEventArgs.DoneAction.Added, true);
+            _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
         }
 
-        private void st_DeleteClicked(object sender, EventArgs e)
-        {
+        private void st_DeleteClicked(object sender, EventArgs e) {
             var st = sender as SlaveTile;
             _clientTreeViewItem.Client.Remove(st.Slave);
         }
 
-        private void st_GoToAssignedTest(object sender, EventArgs e)
-        {
-            if (GoToAssignedTest != null)
-                GoToAssignedTest(sender, e);
+        private void st_GoToAssignedTest(object sender, EventArgs e) {
+            if (GoToAssignedTest != null) GoToAssignedTest(sender, e);
         }
 
-        public void ClearClient()
-        {
+        public void ClearClient() {
             lblUsage.Visible = true;
-
-            pnlSettings.Visible =
-                flp.Visible = false;
+            pnlSettings.Visible = flp.Visible = false;
         }
 
         /// <summary>
         ///     Set this if you start or stop the distributed test.
         /// </summary>
         /// <param name="distributedTestMode"></param>
-        public void SetMode(DistributedTestMode distributedTestMode)
-        {
-            if (_distributedTestMode != distributedTestMode)
-            {
+        public void SetMode(DistributedTestMode distributedTestMode) {
+            if (_distributedTestMode != distributedTestMode) {
                 LockWindowUpdate(Handle.ToInt32());
                 _distributedTestMode = distributedTestMode;
 
-                txtHostName.ReadOnly =
-                    txtIP.ReadOnly =
-                    txtUserName.ReadOnly =
-                    txtPassword.ReadOnly =
-                    txtDomain.ReadOnly =
-                    _distributedTestMode == DistributedTestMode.TestAndReport;
+                txtHostName.ReadOnly = txtIP.ReadOnly = txtUserName.ReadOnly = txtPassword.ReadOnly = txtDomain.ReadOnly = _distributedTestMode == DistributedTestMode.TestAndReport;
+                picAddSlave.Enabled = picClearSlaves.Enabled = picSort.Enabled = _distributedTestMode == DistributedTestMode.Edit;
 
-                picAddSlave.Enabled =
-                    picClearSlaves.Enabled =
-                    picSort.Enabled =
-                    _distributedTestMode == DistributedTestMode.Edit;
-
-                foreach (SlaveTile st in flp.Controls)
-                    st.SetMode(_distributedTestMode);
+                foreach (SlaveTile st in flp.Controls) st.SetMode(_distributedTestMode);
                 LockWindowUpdate(0);
             }
         }
 
-        private void txtHostName_KeyUp(object sender, KeyEventArgs e)
-        {
+        private void txtHostName_KeyUp(object sender, KeyEventArgs e) {
             _ipChanged = false;
-            if (e.KeyCode == Keys.Return)
-                SetHostNameAndIP();
+            if (e.KeyCode == Keys.Return) SetHostNameAndIP();
         }
 
-        private void txtIP_KeyUp(object sender, KeyEventArgs e)
-        {
+        private void txtIP_KeyUp(object sender, KeyEventArgs e) {
             _ipChanged = true;
-            if (e.KeyCode == Keys.Return)
-                SetHostNameAndIP();
+            if (e.KeyCode == Keys.Return) SetHostNameAndIP();
         }
 
-        private void picStatus_Click(object sender, EventArgs e)
-        {
-            SetHostNameAndIP();
-        }
+        private void picStatus_Click(object sender, EventArgs e) { SetHostNameAndIP(); }
 
         /// <summary>
         ///     IP or Host Name can be filled in in txtclient.
         /// </summary>
         /// <returns>False if it was already busy doing it.</returns>
-        public bool SetHostNameAndIP()
-        {
+        public bool SetHostNameAndIP() {
             //Make sure this can not happen multiple times at the same time.
-            if (!txtHostName.Enabled || !IsHandleCreated)
-                return false;
+            if (!txtHostName.Enabled || !IsHandleCreated) return false;
 
             SettingHostNameAndIP(false);
             _clientTreeViewItem.SettingHostNameAndIP(false);
@@ -270,84 +217,64 @@ namespace vApus.DistributedTesting
             return true;
         }
 
-        private void SetHostNameAndIP_Callback(out string ip, out string hostname, out bool online)
-        {
+        private void SetHostNameAndIP_Callback(out string ip, out string hostname, out bool online) {
             online = false;
             ip = string.Empty;
             hostname = string.Empty;
 
             if (!IsDisposed)
-                try
-                {
+                try {
                     IPAddress address;
-                    if (_ipChanged && IPAddress.TryParse(txtIP.Text, out address))
-                    {
+                    if (_ipChanged && IPAddress.TryParse(txtIP.Text, out address)) {
                         ip = address.ToString();
-                        try
-                        {
+                        try {
                             hostname = Dns.GetHostByAddress(ip).HostName;
                             hostname = (hostname == null) ? string.Empty : hostname.ToLower();
                             online = true;
+                        } catch {
                         }
-                        catch
-                        {
-                        }
-                    }
-                    else
-                    {
+                    } else {
                         hostname = txtHostName.Text.ToLower();
-                        IPAddress[] addresses = {};
-                        try
-                        {
-                            if (hostname.Length != 0)
-                                addresses = Dns.GetHostByName(hostname.Split('.')[0]).AddressList;
-                        }
-                        catch
-                        {
+                        IPAddress[] addresses = { };
+                        try {
+                            if (hostname.Length != 0) addresses = Dns.GetHostByName(hostname.Split('.')[0]).AddressList;
+                        } catch {
                         }
 
-                        if (addresses != null && addresses.Length != 0)
-                        {
+                        if (addresses != null && addresses.Length != 0) {
                             ip = addresses[0].ToString();
                             online = true;
                         }
                     }
-                }
-                catch
-                {
+                } catch {
                 }
         }
 
-        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
-        {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    if (!IsDisposed)
-                        try
-                        {
-                            var ip = e.Arguments[0] as string;
-                            var hostname = e.Arguments[1] as string;
-                            var online = (bool) e.Arguments[2];
-                            bool changed = false;
+        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                if (!IsDisposed)
+                    try {
+                        var ip = e.Arguments[0] as string;
+                        var hostname = e.Arguments[1] as string;
+                        var online = (bool)e.Arguments[2];
+                        bool changed = false;
 
-                            if (_clientTreeViewItem.Client.IP != ip || _clientTreeViewItem.Client.HostName != hostname)
-                                changed = true;
+                        if (_clientTreeViewItem.Client.IP != ip || _clientTreeViewItem.Client.HostName != hostname)
+                            changed = true;
 
-                            _clientTreeViewItem.Client.IP = txtIP.Text = ip;
-                            _clientTreeViewItem.Client.HostName = txtHostName.Text = hostname;
+                        _clientTreeViewItem.Client.IP = txtIP.Text = ip;
+                        _clientTreeViewItem.Client.HostName = txtHostName.Text = hostname;
 
-                            if (changed && !IsDisposed)
-                                _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(
-                                    SolutionComponentChangedEventArgs.DoneAction.Edited);
+                        if (changed && !IsDisposed)
+                            _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(
+                                SolutionComponentChangedEventArgs.DoneAction.Edited);
 
 
-                            _clientTreeViewItem.SettingHostNameAndIP(true, online);
-                            SettingHostNameAndIP(true, online);
-                        }
-                        catch
-                        {
-                        }
-                }, null);
+                        _clientTreeViewItem.SettingHostNameAndIP(true, online);
+                        SettingHostNameAndIP(true, online);
+                    } catch {
+                    }
+            }, null);
         }
 
         /// <summary>
@@ -355,23 +282,16 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="enabled"></param>
         /// <param name="online"></param>
-        public void SettingHostNameAndIP(bool enabled, bool online = false)
-        {
-            if (enabled)
-            {
-                if (online)
-                {
+        public void SettingHostNameAndIP(bool enabled, bool online = false) {
+            if (enabled) {
+                if (online) {
                     picStatus.Image = Resources.OK;
                     toolTip.SetToolTip(picStatus, "Client Online");
-                }
-                else
-                {
+                } else {
                     picStatus.Image = Resources.Cancelled;
                     toolTip.SetToolTip(picStatus, "Client Offline");
                 }
-            }
-            else
-            {
+            } else {
                 picStatus.Image = Resources.Busy;
             }
 
@@ -379,19 +299,13 @@ namespace vApus.DistributedTesting
                 flp.Enabled = enabled;
         }
 
-        private void txtRDC_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-                SetRDC();
+        private void txtRDC_KeyUp(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) SetRDC();
         }
 
-        private void txtRDC_Leave(object sender, EventArgs e)
-        {
-            SetRDC();
-        }
+        private void txtRDC_Leave(object sender, EventArgs e) { SetRDC(); }
 
-        private void SetRDC()
-        {
+        private void SetRDC() {
             _clientTreeViewItem.Client.UserName = txtUserName.Text;
             _clientTreeViewItem.Client.Password = txtPassword.Text;
             _clientTreeViewItem.Client.Domain = txtDomain.Text;
@@ -400,67 +314,51 @@ namespace vApus.DistributedTesting
                 SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void picShowRD_Click(object sender, EventArgs e)
-        {
-            var rdc =
-                SolutionComponentViewManager.Show(_distributedTest, typeof (RemoteDesktopClient)) as RemoteDesktopClient;
+        private void picShowRD_Click(object sender, EventArgs e) {
+            var rdc = SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
             rdc.Text = "Remote Desktop Client";
-            rdc.ShowRemoteDesktop(_clientTreeViewItem.Client.HostName, _clientTreeViewItem.Client.IP,
-                                  _clientTreeViewItem.Client.UserName, _clientTreeViewItem.Client.Password,
-                                  _clientTreeViewItem.Client.Domain);
+            rdc.ShowRemoteDesktop(_clientTreeViewItem.Client.HostName, _clientTreeViewItem.Client.IP, _clientTreeViewItem.Client.UserName, _clientTreeViewItem.Client.Password, _clientTreeViewItem.Client.Domain);
         }
 
 
-        private void picAddSlave_Click(object sender, EventArgs e)
-        {
+        private void picAddSlave_Click(object sender, EventArgs e) {
             LockWindowUpdate(Handle.ToInt32());
 
             var slave = new Slave();
             //Choose another port so every new slave has a unique port.
-            for (int port = slave.Port; port != int.MaxValue; port++)
-            {
+            for (int port = slave.Port; port != int.MaxValue; port++) {
                 bool portPresent = false;
                 foreach (Slave sl in _clientTreeViewItem.Client)
-                    if (sl.Port == port)
-                    {
+                    if (sl.Port == port) {
                         portPresent = true;
                         break;
                     }
 
-                if (!portPresent)
-                {
+                if (!portPresent) {
                     slave.Port = port;
                     break;
                 }
             }
             _clientTreeViewItem.Client.AddWithoutInvokingEvent(slave, false);
-            _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(
-                SolutionComponentChangedEventArgs.DoneAction.Added, true);
+            _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
 
             LockWindowUpdate(0);
         }
 
-        private void picClearSlaves_Click(object sender, EventArgs e)
-        {
+        private void picClearSlaves_Click(object sender, EventArgs e) {
             if (
-                MessageBox.Show("Are you sure you want to clear the slaves?", string.Empty, MessageBoxButtons.YesNo,
-                                MessageBoxIcon.Question) == DialogResult.Yes)
-            {
+                MessageBox.Show("Are you sure you want to clear the slaves?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                 LockWindowUpdate(Handle.ToInt32());
                 flp.Controls.Clear();
 
                 _clientTreeViewItem.Client.ClearWithoutInvokingEvent(false);
-                _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(
-                    SolutionComponentChangedEventArgs.DoneAction.Cleared);
+                _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Cleared);
 
                 LockWindowUpdate(0);
             }
         }
 
-        private void picSort_Click(object sender, EventArgs e)
-        {
-            _clientTreeViewItem.Client.Sort();
-        }
+        private void picSort_Click(object sender, EventArgs e) { _clientTreeViewItem.Client.Sort(); }
 
         #endregion
     }

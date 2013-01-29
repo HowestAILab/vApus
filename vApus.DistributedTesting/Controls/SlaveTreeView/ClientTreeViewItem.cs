@@ -15,11 +15,10 @@ using vApus.DistributedTesting.Properties;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
+namespace vApus.DistributedTesting {
     [ToolboxItem(false)]
-    public partial class ClientTreeViewItem : UserControl, ITreeViewItem
-    {
+    public partial class ClientTreeViewItem : UserControl, ITreeViewItem {
+
         #region Events
 
         /// <summary>
@@ -60,18 +59,11 @@ namespace vApus.DistributedTesting
 
         #region Properties
 
-        public Client Client
-        {
-            get { return _client; }
-        }
+        public Client Client { get { return _client; } }
 
-        public bool Online
-        {
-            get { return _online; }
-        }
+        public bool Online { get { return _online; } }
 
-        public ConfigureSlaves ConfigureSlaves
-        {
+        public ConfigureSlaves ConfigureSlaves {
             get { return _configureSlaves; }
             set { _configureSlaves = value; }
         }
@@ -80,8 +72,7 @@ namespace vApus.DistributedTesting
 
         #region Constructors
 
-        public ClientTreeViewItem()
-        {
+        public ClientTreeViewItem() {
             InitializeComponent();
 
             _SetHostNameAndIPDel = SetHostNameAndIP_Callback;
@@ -89,8 +80,7 @@ namespace vApus.DistributedTesting
         }
 
         public ClientTreeViewItem(DistributedTest distributedTest, Client client)
-            : this()
-        {
+            : this() {
             _distributedTest = distributedTest;
             _client = client;
             RefreshGui();
@@ -102,94 +92,69 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        public void Unfocus()
-        {
+        public void Unfocus() {
             BackColor = Color.Transparent;
             SetVisibleControls();
         }
 
-        public void SetVisibleControls(bool visible)
-        {
-            if (_distributedTestMode == DistributedTestMode.Edit)
-            {
+        public void SetVisibleControls(bool visible) {
+            if (_distributedTestMode == DistributedTestMode.Edit) {
                 picDuplicate.Visible = picDelete.Visible = visible;
                 lblClient.Text = _client + "  -  (" + _client.UsedSlaveCount + "/" + _client.Count + ")";
             }
         }
 
-        public void SetVisibleControls()
-        {
-            if (IsDisposed)
-                return;
+        public void SetVisibleControls() {
+            if (IsDisposed) return;
 
-            if (BackColor == SystemColors.Control)
-                SetVisibleControls(true);
-            else
-                SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
+            if (BackColor == SystemColors.Control) SetVisibleControls(true);
+            else SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
         }
 
-        public void RefreshGui()
-        {
+        public void RefreshGui() {
             lblClient.Text = _client + "  -  (" + _client.UsedSlaveCount + "/" + _client.Count + ")";
         }
 
-        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
-        {
+        public void SetDistributedTestMode(DistributedTestMode distributedTestMode) {
             _distributedTestMode = distributedTestMode;
-
-            picDuplicate.Visible =
-                picDelete.Visible = _distributedTestMode == DistributedTestMode.Edit;
+            picDuplicate.Visible = picDelete.Visible = _distributedTestMode == DistributedTestMode.Edit;
         }
 
-        private void _Enter(object sender, EventArgs e)
-        {
+        private void _Enter(object sender, EventArgs e) {
             BackColor = SystemColors.Control;
             SetVisibleControls();
 
-            if (AfterSelect != null)
-                AfterSelect(this, null);
+            if (AfterSelect != null) AfterSelect(this, null);
         }
 
-        private void _MouseEnter(object sender, EventArgs e)
-        {
-            SetVisibleControls();
-        }
+        private void _MouseEnter(object sender, EventArgs e) { SetVisibleControls(); }
 
-        private void _MouseLeave(object sender, EventArgs e)
-        {
-            SetVisibleControls();
-        }
+        private void _MouseLeave(object sender, EventArgs e) { SetVisibleControls(); }
 
-        private void _KeyUp(object sender, KeyEventArgs e)
-        {
-            if (_distributedTestMode == DistributedTestMode.TestAndReport)
-            {
+        private void _KeyUp(object sender, KeyEventArgs e) {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport) {
                 _ctrl = false;
                 return;
             }
 
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
-            else if (_ctrl)
-            {
+            else if (_ctrl) {
                 if (e.KeyCode == Keys.R && DeleteClicked != null)
                     DeleteClicked(this, null);
                 else if (e.KeyCode == Keys.D && DuplicateClicked != null)
                     DuplicateClicked(this, null);
             }
-            if (e.KeyCode == Keys.F5)
-                SetHostNameAndIP();
+            if (e.KeyCode == Keys.F5) SetHostNameAndIP();
         }
 
         /// <summary>
         ///     IP or Host Name can be filled in in txtclient.
         /// </summary>
         /// <returns>False if it was already busy doing it.</returns>
-        public bool SetHostNameAndIP()
-        {
+        public bool SetHostNameAndIP() {
             //Make sure this can not happen multiple times at the same time.
-            if (!Controls[0].Enabled || !IsHandleCreated)
-                return false;
+            if (!Controls[0].Enabled || !IsHandleCreated) return false;
 
             SettingHostNameAndIP(false);
             if (_configureSlaves != null)
@@ -204,50 +169,38 @@ namespace vApus.DistributedTesting
             return true;
         }
 
-        private void SetHostNameAndIP_Callback(out string ip, out string hostname, out bool online)
-        {
+        private void SetHostNameAndIP_Callback(out string ip, out string hostname, out bool online) {
             online = false;
             ip = _client.IP;
             hostname = string.Empty;
 
             if (!IsDisposed)
-                try
-                {
+                try {
                     hostname = Dns.GetHostByAddress(ip).HostName;
                     hostname = (hostname == null) ? string.Empty : hostname.ToLower();
                     online = true;
-                }
-                catch
-                {
-                }
+                } catch { }
         }
 
-        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
-        {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    if (!IsDisposed)
-                        try
-                        {
-                            var ip = e.Arguments[0] as string;
-                            var hostname = e.Arguments[1] as string;
-                            var online = (bool) e.Arguments[2];
+        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                if (!IsDisposed)
+                    try {
+                        var ip = e.Arguments[0] as string;
+                        var hostname = e.Arguments[1] as string;
+                        var online = (bool)e.Arguments[2];
 
-                            _client.IP = ip;
-                            _client.HostName = hostname;
+                        _client.IP = ip;
+                        _client.HostName = hostname;
 
 
-                            if (HostNameAndIPSet != null)
-                                HostNameAndIPSet(this, null);
+                        if (HostNameAndIPSet != null) HostNameAndIPSet(this, null);
 
-                            if (_configureSlaves != null)
-                                _configureSlaves.SettingHostNameAndIP(true, online);
-                            SettingHostNameAndIP(true, online);
-                        }
-                        catch
-                        {
-                        }
-                }, null);
+                        if (_configureSlaves != null) _configureSlaves.SettingHostNameAndIP(true, online);
+                        SettingHostNameAndIP(true, online);
+                    } catch {
+                    }
+            }, null);
         }
 
         /// <summary>
@@ -255,25 +208,18 @@ namespace vApus.DistributedTesting
         ///     This way the next item in the panel does not auto get the focus.
         /// </summary>
         /// <param name="enabled"></param>
-        public void SettingHostNameAndIP(bool enabled, bool online = false)
-        {
-            if (enabled)
-            {
-                if (online)
-                {
+        public void SettingHostNameAndIP(bool enabled, bool online = false) {
+            if (enabled) {
+                if (online) {
                     _online = true;
                     picStatus.Image = Resources.OK;
                     toolTip.SetToolTip(picStatus, "Client Online <f5>");
-                }
-                else
-                {
+                } else {
                     _online = false;
                     picStatus.Image = Resources.Cancelled;
                     toolTip.SetToolTip(picStatus, "Client Offline <f5>");
                 }
-            }
-            else
-            {
+            } else {
                 picStatus.Image = Resources.Busy;
             }
 
@@ -282,39 +228,27 @@ namespace vApus.DistributedTesting
                     ctrl.Enabled = enabled;
         }
 
-        private void _KeyDown(object sender, KeyEventArgs e)
-        {
-            if (_distributedTestMode == DistributedTestMode.TestAndReport)
-                return;
-
-            if (e.KeyCode == Keys.ControlKey)
-                _ctrl = true;
+        private void _KeyDown(object sender, KeyEventArgs e) {
+            if (_distributedTestMode == DistributedTestMode.TestAndReport) return;
+            if (e.KeyCode == Keys.ControlKey) _ctrl = true;
         }
 
-        private void picDuplicate_Click(object sender, EventArgs e)
-        {
-            if (DuplicateClicked != null)
-                DuplicateClicked(this, null);
+        private void picDuplicate_Click(object sender, EventArgs e) {
+            if (DuplicateClicked != null) DuplicateClicked(this, null);
         }
 
-        private void picDelete_Click(object sender, EventArgs e)
-        {
-            if (DeleteClicked != null)
-                DeleteClicked(this, null);
+        private void picDelete_Click(object sender, EventArgs e) {
+            if (DeleteClicked != null) DeleteClicked(this, null);
         }
 
-        private void picStatus_Click(object sender, EventArgs e)
-        {
+        private void picStatus_Click(object sender, EventArgs e) {
             SetHostNameAndIP();
         }
 
-        private void picRemoteDesktop_Click(object sender, EventArgs e)
-        {
-            var rdc =
-                SolutionComponentViewManager.Show(_distributedTest, typeof (RemoteDesktopClient)) as RemoteDesktopClient;
+        private void picRemoteDesktop_Click(object sender, EventArgs e) {
+            var rdc = SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
             rdc.Text = "Remote Desktop Client";
-            rdc.ShowRemoteDesktop(_client.HostName, _client.IP,
-                                  _client.UserName, _client.Password, _client.Domain);
+            rdc.ShowRemoteDesktop(_client.HostName, _client.IP, _client.UserName, _client.Password, _client.Domain);
         }
 
         #endregion

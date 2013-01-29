@@ -52,7 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataAccess\Schema.cs" />
-    <Compile Include="DataAccess\DatabaseActions.cs" />
     <Compile Include="DescriptionAndTagsInputDialog.cs">
       <SubType>Form</SubType>
     </Compile>

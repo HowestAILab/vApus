@@ -150,27 +150,20 @@ namespace vApus.Stresstest {
         /// <param name="e"></param>
         private void btnStart_Click(object sender, EventArgs e) {
             if (fastResultsControl.HasResults &&
-                MessageBox.Show("Starting the test will clear the previous fast results.\nDo you want to continue?",
+                MessageBox.Show("Starting the test will clear the previous results.\nDo you want to continue?",
                                 string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 return;
 
             if (InitDatabase()) {
                 StopProgressDelayCountDown();
 
-                _resultsHelper.SetvApusInstance(NamedObjectRegistrar.Get<string>("HostName"),
-                    NamedObjectRegistrar.Get<string>("IP"),
-                    NamedObjectRegistrar.Get<int>("Port"),
-                    NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty,
-                    NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
+                _resultsHelper.SetvApusInstance(NamedObjectRegistrar.Get<string>("HostName"), NamedObjectRegistrar.Get<string>("IP"), NamedObjectRegistrar.Get<int>("Port"),
+                    NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty, NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
                     false);
 
-                _resultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(),
-                                            _stresstest.ConnectionProxy, _stresstest.Connection.ConnectionString,
-                                            _stresstest.Log.ToString(),
-                                            _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs,
-                                            _stresstest.MinimumDelay, _stresstest.MaximumDelay,
-                                            _stresstest.Shuffle, _stresstest.Distribute.ToString(),
-                                            _stresstest.MonitorBefore, _stresstest.MonitorAfter);
+                _resultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(), _stresstest.ConnectionProxy, _stresstest.Connection.ConnectionString,
+                                            _stresstest.Log.ToString(), _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay,
+                                            _stresstest.MaximumDelay, _stresstest.Shuffle, _stresstest.Distribute.ToString(), _stresstest.MonitorBefore, _stresstest.MonitorAfter);
 
 
                 if (_stresstest.Monitors.Length == 0) {
@@ -207,9 +200,7 @@ namespace vApus.Stresstest {
                 return true;
             } else {
                 LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
-                if (MessageBox.Show(
-                    "Could not connect to MySQL!\nDo you want to proceed anyway? No report will be made.", string.Empty,
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                if (MessageBox.Show("Could not connect to MySQL!\nDo you want to proceed anyway? No report will be made.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                     return true;
             }
             return false;
@@ -439,8 +430,7 @@ namespace vApus.Stresstest {
 
                             monitorView.GetMonitorResultCache().MonitorConfigurationId =
                                 _resultsHelper.SetMonitor(monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
-                                                         monitorView.GetConnectionString(), monitorView.Configuration,
-                                                         monitorView.GetMonitorResultCache().Headers);
+                                monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
 
                             fastResultsControl.AppendMessages(monitorView.Text + " is started.");
                             ++runningMonitors;

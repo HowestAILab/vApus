@@ -95,12 +95,10 @@ namespace vApus.Stresstest {
             get { return _isDisposed; }
         }
 
-
         public ResultsHelper ResultsHelper {
             get { return _resultsHelper; }
             set { _resultsHelper = value; }
         }
-
         #endregion
 
         #region Con-/Destructor
@@ -188,7 +186,7 @@ namespace vApus.Stresstest {
                     delegate { ConcurrencyStarted(this, new ConcurrencyResultEventArgs(_concurrencyResult)); }, null);
         }
         private void SetConcurrencyStopped() {
-            ResultsHelper.SetConcurrencyStopped(_concurrencyResult);
+            _resultsHelper.SetConcurrencyStopped(_concurrencyResult);
 
             if (!_cancel && ConcurrencyStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
@@ -200,7 +198,7 @@ namespace vApus.Stresstest {
         ///     The current run result (_runResult) is also given with in the event's event args.
         /// </summary>
         private void SetRunStarted() {
-            ResultsHelper.SetRunStarted(_runResult);
+            _resultsHelper.SetRunStarted(_runResult);
             if (_cancel && RunStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate { RunStarted(this, new RunResultEventArgs(_runResult)); }, null);
@@ -212,8 +210,8 @@ namespace vApus.Stresstest {
         private void SetRunStopped() {
             StresstestMetrics metrics = StresstestMetricsHelper.GetMetrics(_runResult);
             InvokeMessage("|----> |Run Finished in " + metrics.MeasuredRunTime + "!", Color.MediumPurple);
-            if (ResultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
-            ResultsHelper.SetRunStopped(_runResult);
+            if (_resultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
+            _resultsHelper.SetRunStopped(_runResult);
 
             if (!_cancel && RunStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
@@ -497,7 +495,7 @@ namespace vApus.Stresstest {
                         InvokeMessage("Initializing Rerun...");
                         //Increase resultset
                         _runResult.PrepareForRerun();
-                        ResultsHelper.SetRerun(_runResult);
+                        _resultsHelper.SetRerun(_runResult);
                         goto Rerun;
                     }
                 }
@@ -637,14 +635,14 @@ namespace vApus.Stresstest {
             _connectionProxyPool.Dispose();
 
             if (_cancel) {
-                ResultsHelper.SetStresstestStopped(_stresstestResult, "Cancelled");
+                _resultsHelper.SetStresstestStopped(_stresstestResult, "Cancelled");
                 return StresstestStatus.Cancelled;
             }
             if (_failed) {
-                ResultsHelper.SetStresstestStopped(_stresstestResult, "Failed");
+                _resultsHelper.SetStresstestStopped(_stresstestResult, "Failed");
                 return StresstestStatus.Error;
             }
-            ResultsHelper.SetStresstestStopped(_stresstestResult);
+            _resultsHelper.SetStresstestStopped(_stresstestResult);
             return StresstestStatus.Ok;
         }
 

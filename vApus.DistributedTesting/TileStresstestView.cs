@@ -69,7 +69,13 @@ namespace vApus.DistributedTesting {
         public StresstestResult StresstestResult {
             get { return _stresstestResult; }
         }
-
+        /// <summary>
+        /// For adding results to the database.
+        /// </summary>
+        public long StresstestIdInDb {
+            get { return _resultsHelper.StresstestId; }
+            set { _resultsHelper.StresstestId = value; }
+        }
         #endregion
 
         #region Constructor
@@ -105,7 +111,7 @@ namespace vApus.DistributedTesting {
 
         private void SetGui() {
             Text = SolutionComponent.ToString();
-            fastResultsControl.ResultsHelper = _resultsHelper;
+            // fastResultsControl.ResultsHelper = _resultsHelper;
         }
 
         public override void Refresh() {
@@ -116,7 +122,9 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Start
-
+        public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
+            _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
+        }
         /// <summary>
         ///     Thread safe
         /// </summary>
@@ -124,7 +132,8 @@ namespace vApus.DistributedTesting {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 Cursor = Cursors.WaitCursor;
                 btnStop.Enabled = true;
-                try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); } catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
+                try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); } 
+                catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
                 tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
 
                 fastResultsControl.SetStresstestInitialized();

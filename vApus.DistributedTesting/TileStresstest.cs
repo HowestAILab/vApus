@@ -16,7 +16,13 @@ namespace vApus.DistributedTesting
     public class TileStresstest : LabeledBaseItem
     {
         #region Fields
-
+        //For encrypting the mysql password
+        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
+        private static readonly byte[] _salt =
+            {
+                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03,
+                0x62
+            };
         private bool _automaticDefaultAdvancedSettings = true;
 
         /// <summary>
@@ -168,8 +174,13 @@ namespace vApus.DistributedTesting
             return clone;
         }
 
-        //This is sent to a slave.
-        public StresstestWrapper GetStresstestWrapper(RunSynchronization runSynchronization)
+        /// <summary>
+        /// This is sent to a slave.
+        /// </summary>
+        /// <param name="stresstestIdInDb">-1 for none</param>
+        /// <param name="runSynchronization"></param>
+        /// <returns></returns>
+        public StresstestWrapper GetStresstestWrapper(long stresstestIdInDb, string databaseName, RunSynchronization runSynchronization)
         {
             string tileStresstestIndex = TileStresstestIndex;
             var stresstest = new Stresstest.Stresstest();
@@ -177,7 +188,7 @@ namespace vApus.DistributedTesting
             stresstest.ForDistributedTest = true;
             stresstest.ShowInGui = false;
             stresstest.Distribute = AdvancedTileStresstest.Distribute;
-            stresstest.Concurrencies = AdvancedTileStresstest.Concurrency;
+            stresstest.Concurrencies = AdvancedTileStresstest.Concurrencies;
 
             var connections = new Connections();
             var connection = BasicTileStresstest._connection.Clone();
@@ -214,7 +225,13 @@ namespace vApus.DistributedTesting
 
             stresstest.ForceSettingChildsParent();
 
-            return new StresstestWrapper { Stresstest = stresstest, TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization };
+            string user, host, password;
+            int port;
+            vApus.Results.SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+
+            return new StresstestWrapper { StresstestIdInDb = stresstestIdInDb, Stresstest = stresstest, TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization,
+                                           MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password.Encrypt(_passwordGUID, _salt)
+            };
         }
 
         #endregion

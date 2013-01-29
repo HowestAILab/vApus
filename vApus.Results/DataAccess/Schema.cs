@@ -7,9 +7,13 @@
  */
 using System;
 using System.Data;
+using vApus.Util;
 
 namespace vApus.Results {
-    public static class Schema {
+    /// <summary>
+    /// Only used for building a new results database.
+    /// </summary>
+    internal static class Schema {
         /// <summary>
         /// </summary>
         /// <returns>The database name.</returns>
@@ -123,6 +127,8 @@ TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
             int port;
             SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
 
+            if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
+
             return new DatabaseActions {
                 ConnectionString =
                     string.Format("Server={0};Port={1};Uid={2};Pwd={3}", host, port, user, password)
@@ -133,6 +139,8 @@ TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
             string user, host, password;
             int port;
             SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+
+            if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
 
             var databaseActions = new DatabaseActions {
                 ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", host, port, databaseName, user, password)

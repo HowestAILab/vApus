@@ -11,22 +11,20 @@ using System.Linq;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
-    public class Slave : BaseItem
-    {
+namespace vApus.DistributedTesting {
+    public class Slave : BaseItem {
+
         #region Fields
 
         private int _port = 1337;
-        private int[] _processorAffinity = {};
+        private int[] _processorAffinity = { };
 
         #endregion
 
         #region Properties
 
         [SavableCloneable]
-        public int Port
-        {
+        public int Port {
             get { return _port; }
             set { _port = value; }
         }
@@ -34,13 +32,20 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     Get the ip from the client.
         /// </summary>
-        public string IP
-        {
-            get
-            {
-                if (Parent == null)
-                    return null;
+        public string IP {
+            get {
+                if (Parent == null)   return null;
                 return (Parent as Client).IP;
+            }
+        }
+
+        /// <summary>
+        ///     Get the hostname from the client.
+        /// </summary>
+        public string HostName {
+            get {
+                if (Parent == null)   return null;
+                return (Parent as Client).HostName;
             }
         }
 
@@ -48,31 +53,23 @@ namespace vApus.DistributedTesting
         ///     Search the slaves for this.
         ///     Use AssigneTileStresstest to set.
         /// </summary>
-        public TileStresstest TileStresstest
-        {
-            get
-            {
-                try
-                {
+        public TileStresstest TileStresstest {
+            get {
+                try {
                     foreach (TileStresstest ts in TileStesstests)
                         if (ts.BasicTileStresstest.Slaves.Contains(this))
                             return ts;
-                }
-                catch
-                {
+                } catch {
                 }
                 return null;
             }
         }
 
-        private IEnumerable<TileStresstest> TileStesstests
-        {
-            get
-            {
+        private IEnumerable<TileStresstest> TileStesstests {
+            get {
                 if (Parent != null &&
                     Parent.GetParent() != null &&
-                    Parent.GetParent().GetParent() != null)
-                {
+                    Parent.GetParent().GetParent() != null) {
                     var dt = Parent.GetParent().GetParent() as DistributedTest;
                     foreach (Tile t in dt.Tiles)
                         foreach (TileStresstest ts in t)
@@ -85,8 +82,7 @@ namespace vApus.DistributedTesting
         ///     One-based.
         /// </summary>
         [SavableCloneable]
-        public int[] ProcessorAffinity
-        {
+        public int[] ProcessorAffinity {
             get { return _processorAffinity; }
             set { _processorAffinity = value; }
         }
@@ -95,8 +91,7 @@ namespace vApus.DistributedTesting
 
         #region Constructor
 
-        public Slave()
-        {
+        public Slave() {
             ShowInGui = false;
             if (Solution.ActiveSolution != null)
                 Init();
@@ -108,26 +103,22 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             Init();
         }
 
-        private void Init()
-        {
+        private void Init() {
         }
 
         /// <summary>
         ///     Clears the stresstest if it is null.
         /// </summary>
         /// <param name="tileStresstest"></param>
-        public void AssignTileStresstest(TileStresstest tileStresstest)
-        {
+        public void AssignTileStresstest(TileStresstest tileStresstest) {
             ClearTileStresstest();
 
-            if (tileStresstest != null)
-            {
+            if (tileStresstest != null) {
                 var slaves = new List<Slave>(tileStresstest.BasicTileStresstest.Slaves);
 
                 slaves.Add(this);
@@ -135,20 +126,17 @@ namespace vApus.DistributedTesting
             }
         }
 
-        private void ClearTileStresstest()
-        {
+        private void ClearTileStresstest() {
             //Remove it from the tile stresstests (can be used only once atm).
             foreach (TileStresstest ts in TileStesstests)
-                if (ts.BasicTileStresstest.Slaves.Contains(this))
-                {
+                if (ts.BasicTileStresstest.Slaves.Contains(this)) {
                     var sl = new List<Slave>(ts.BasicTileStresstest.Slaves);
                     sl.Remove(this);
                     ts.BasicTileStresstest.Slaves = sl.ToArray();
                 }
         }
 
-        public Slave Clone()
-        {
+        public Slave Clone() {
             var clone = new Slave();
             clone.Port = _port;
 
@@ -159,8 +147,7 @@ namespace vApus.DistributedTesting
             return clone;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             object parent = Parent;
             if (parent != null)
                 return parent + " - " + _port;
@@ -170,21 +157,17 @@ namespace vApus.DistributedTesting
 
         #endregion
 
-        public class SlaveComparer : IComparer<Slave>
-        {
+        public class SlaveComparer : IComparer<Slave> {
             private static readonly SlaveComparer _labeledBaseItemComparer = new SlaveComparer();
 
-            private SlaveComparer()
-            {
+            private SlaveComparer() {
             }
 
-            public int Compare(Slave x, Slave y)
-            {
+            public int Compare(Slave x, Slave y) {
                 return x.Port.CompareTo(y.Port);
             }
 
-            public static SlaveComparer GetInstance()
-            {
+            public static SlaveComparer GetInstance() {
                 return _labeledBaseItemComparer;
             }
         }

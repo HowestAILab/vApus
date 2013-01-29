@@ -19,6 +19,13 @@ using vApus.Util;
 namespace vApus.DistributedTesting {
     public static class SlaveSideCommunicationHandler {
         private static readonly object _lock = new object();
+        //For encrypting the mysql password
+        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
+        private static readonly byte[] _salt =
+            {
+                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03,
+                0x62
+            };
 
         #region Message Handling
 
@@ -90,6 +97,10 @@ namespace vApus.DistributedTesting {
                         _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
                         _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
                         _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
+                        if (!string.IsNullOrEmpty(stresstestWrapper.MySqlHost))
+                            _tileStresstestView.ConnectToExistingDatabase(stresstestWrapper.MySqlHost, stresstestWrapper.MySqlPort, stresstestWrapper.MySqlDatabaseName, stresstestWrapper.MySqlUser,
+                                stresstestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
+                        _tileStresstestView.StresstestIdInDb = stresstestWrapper.StresstestIdInDb;
                     } catch {
                         if (done != 4) {
                             Thread.Sleep(1000 * (done++));

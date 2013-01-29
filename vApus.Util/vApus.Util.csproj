@@ -171,6 +171,10 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Prerequisites\Providers\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="Org.Mentalis.Security, Version=1.0.13.715, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
@@ -179,6 +183,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.Windows.Forms" />
@@ -365,6 +370,7 @@
     </Compile>
     <Compile Include="CookieDecoder.cs" />
     <Compile Include="Countdown.cs" />
+    <Compile Include="DatabaseActions.cs" />
     <Compile Include="Dialogs\LogMessageDialog.cs">
       <SubType>Form</SubType>
     </Compile>

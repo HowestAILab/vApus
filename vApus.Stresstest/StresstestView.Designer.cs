@@ -30,27 +30,26 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StresstestView));
             this.solutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.tpStresstest = new System.Windows.Forms.TabPage();
             this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
-            this.tpReport = new System.Windows.Forms.TabPage();
+            this.tpDetailedResults = new System.Windows.Forms.TabPage();
             this.detailedResultsControl = new vApus.Stresstest.Controls.DetailedResultsControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
-            this.tmrProgress = new System.Windows.Forms.Timer(this.components);
-            this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
-            this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
+            this.tmrProgress = new System.Windows.Forms.Timer();
+            this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer();
+            this.tmrSchedule = new System.Windows.Forms.Timer();
             this.sfd = new System.Windows.Forms.SaveFileDialog();
             this.tc.SuspendLayout();
             this.tpConfigure.SuspendLayout();
             this.tpStresstest.SuspendLayout();
-            this.tpReport.SuspendLayout();
+            this.tpDetailedResults.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -73,7 +72,7 @@
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpConfigure);
             this.tc.Controls.Add(this.tpStresstest);
-            this.tc.Controls.Add(this.tpReport);
+            this.tc.Controls.Add(this.tpDetailedResults);
             this.tc.LeftVisible = false;
             this.tc.Location = new System.Drawing.Point(0, 43);
             this.tc.Name = "tc";
@@ -112,19 +111,20 @@
             this.fastResultsControl.Margin = new System.Windows.Forms.Padding(0);
             this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
             this.fastResultsControl.Name = "fastResultsControl";
+            this.fastResultsControl.ResultsHelper = null;
             this.fastResultsControl.Size = new System.Drawing.Size(790, 497);
             this.fastResultsControl.TabIndex = 0;
             this.fastResultsControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
             // 
-            // tpReport
+            // tpDetailedResults
             // 
-            this.tpReport.BackColor = System.Drawing.Color.White;
-            this.tpReport.Controls.Add(this.detailedResultsControl);
-            this.tpReport.Location = new System.Drawing.Point(0, 22);
-            this.tpReport.Name = "tpReport";
-            this.tpReport.Size = new System.Drawing.Size(790, 494);
-            this.tpReport.TabIndex = 2;
-            this.tpReport.Text = "Detailed Results";
+            this.tpDetailedResults.BackColor = System.Drawing.Color.White;
+            this.tpDetailedResults.Controls.Add(this.detailedResultsControl);
+            this.tpDetailedResults.Location = new System.Drawing.Point(0, 22);
+            this.tpDetailedResults.Name = "tpDetailedResults";
+            this.tpDetailedResults.Size = new System.Drawing.Size(790, 494);
+            this.tpDetailedResults.TabIndex = 2;
+            this.tpDetailedResults.Text = "Detailed Results";
             // 
             // detailedResultsControl
             // 
@@ -213,7 +213,7 @@
             this.tc.ResumeLayout(false);
             this.tpConfigure.ResumeLayout(false);
             this.tpStresstest.ResumeLayout(false);
-            this.tpReport.ResumeLayout(false);
+            this.tpDetailedResults.ResumeLayout(false);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             this.ResumeLayout(false);
@@ -234,7 +234,7 @@
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
         private System.Windows.Forms.ToolStripButton btnSchedule;
         private System.Windows.Forms.Timer tmrSchedule;
-        private System.Windows.Forms.TabPage tpReport;
+        private System.Windows.Forms.TabPage tpDetailedResults;
         private System.Windows.Forms.SaveFileDialog sfd;
         private FastResultsControl fastResultsControl;
         private Controls.DetailedResultsControl detailedResultsControl;

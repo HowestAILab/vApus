@@ -11,6 +11,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using vApus.Results.Properties;
+using vApus.Util;
 
 namespace vApus.Results {
     public partial class SavingResultsPanel : Panel {
@@ -31,6 +32,8 @@ namespace vApus.Results {
                 string user, host, password;
                 int port;
                 SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+
+                if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
 
                 return string.Format("Server={0};Port={1};Uid={2};Pwd={3}", host, port, user, password);
             }

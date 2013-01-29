@@ -9,10 +9,9 @@
 using System.Collections.Generic;
 using vApus.SolutionTree;
 
-namespace vApus.DistributedTesting
-{
-    public class Client : BaseItem
-    {
+namespace vApus.DistributedTesting {
+    public class Client : BaseItem {
+
         #region Fields
 
         private string _domain = string.Empty;
@@ -28,36 +27,31 @@ namespace vApus.DistributedTesting
         #region Properties
 
         [SavableCloneable]
-        public string HostName
-        {
+        public string HostName {
             get { return _hostName; }
             set { _hostName = value; }
         }
 
         [SavableCloneable]
-        public string IP
-        {
+        public string IP {
             get { return _ip; }
             set { _ip = value; }
         }
 
         [SavableCloneable]
-        public string UserName
-        {
+        public string UserName {
             get { return _userName; }
             set { _userName = value; }
         }
 
         [SavableCloneable(true)]
-        public string Password
-        {
+        public string Password {
             get { return _password; }
             set { _password = value; }
         }
 
         [SavableCloneable]
-        public string Domain
-        {
+        public string Domain {
             get { return _domain; }
             set { _domain = value; }
         }
@@ -65,19 +59,14 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     The count of the slaves that are used.
         /// </summary>
-        public int UsedSlaveCount
-        {
-            get
-            {
+        public int UsedSlaveCount {
+            get {
                 int count = 0;
-                try
-                {
+                try {
                     foreach (Slave s in this)
                         if (s.TileStresstest != null)
                             ++count;
-                }
-                catch
-                {
+                } catch {
                 }
                 return count;
             }
@@ -87,23 +76,17 @@ namespace vApus.DistributedTesting
 
         #region Constructors
 
-        public Client()
-        {
-            ShowInGui = false;
-        }
+        public Client() { ShowInGui = false; }
 
         #endregion
 
         #region Functions
 
-        public void Sort()
-        {
+        public void Sort() {
             var slaves = new List<Slave>();
-            foreach (Slave slave in this)
-                slaves.Add(slave);
+            foreach (Slave slave in this) slaves.Add(slave);
 
-            if (!IsSorted(slaves))
-            {
+            if (!IsSorted(slaves)) {
                 slaves.Sort(Slave.SlaveComparer.GetInstance());
 
                 ClearWithoutInvokingEvent();
@@ -111,30 +94,26 @@ namespace vApus.DistributedTesting
             }
         }
 
-        private bool IsSorted(List<Slave> slaves)
-        {
+        private bool IsSorted(List<Slave> slaves) {
             for (int i = 0; i < slaves.Count - 1; i++)
                 if (slaves[i].Port.CompareTo(slaves[i + 1].Port) > 0)
                     return false;
             return true;
         }
 
-        public Client Clone()
-        {
+        public Client Clone() {
             var clone = new Client();
             clone.ClearWithoutInvokingEvent();
 
             clone.HostName = _hostName;
             clone.IP = _ip;
 
-            foreach (Slave slave in this)
-                clone.AddWithoutInvokingEvent(slave.Clone());
+            foreach (Slave slave in this) clone.AddWithoutInvokingEvent(slave.Clone());
 
             return clone;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             string hostname = (_hostName.Length == 0) ? string.Empty : _hostName;
             string ip = (_ip.Length == 0) ? string.Empty : _ip;
 

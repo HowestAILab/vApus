@@ -12,19 +12,22 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 
-namespace vApus.DistributedTesting
-{
-    [ContextMenu(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {"Edit", "Remove", "Copy", "Cut", "Duplicate"})]
-    [Hotkeys(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D)})]
+namespace vApus.DistributedTesting {
+    [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
+    [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [DisplayName("Distributed Test")]
-    public class DistributedTest : LabeledBaseItem
-    {
+    public class DistributedTest : LabeledBaseItem {
+
         #region Fields
 
         private string _resultPath;
         private RunSynchronization _runSynchronization = RunSynchronization.BreakOnFirstFinished;
+
+        //For in the results database
+        private string _description = string.Empty;
+        private string[] _tags = new string[0];
 
         #endregion
 
@@ -47,8 +50,7 @@ namespace vApus.DistributedTesting
         /// </summary>
         [SavableCloneable]
         [DisplayName("Run Synchronization")]
-        public RunSynchronization RunSynchronization
-        {
+        public RunSynchronization RunSynchronization {
             get { return _runSynchronization; }
             set { _runSynchronization = value; }
         }
@@ -57,10 +59,8 @@ namespace vApus.DistributedTesting
         ///     The path where to the results are saved.
         /// </summary>
         [SavableCloneable]
-        public string ResultPath
-        {
-            get
-            {
+        public string ResultPath {
+            get {
                 if (_resultPath != DefaultResultPath || !Directory.Exists(_resultPath))
                     _resultPath = DefaultResultPath;
                 return _resultPath;
@@ -68,18 +68,27 @@ namespace vApus.DistributedTesting
             set { _resultPath = value; }
         }
 
-        private string DefaultResultPath
-        {
+        private string DefaultResultPath {
             get { return Path.Combine(Application.StartupPath, "DistributedTestResults"); }
         }
 
-        public Tiles Tiles
-        {
+        [SavableCloneable]
+        public string Description {
+            get { return _description; }
+            set { _description = value; }
+        }
+
+        [SavableCloneable]
+        public string[] Tags {
+            get { return _tags; }
+            set { _tags = value; }
+        }
+
+        public Tiles Tiles {
             get { return this[0] as Tiles; }
         }
 
-        public Clients Clients
-        {
+        public Clients Clients {
             get { return this[1] as Clients; }
         }
 
@@ -87,8 +96,7 @@ namespace vApus.DistributedTesting
 
         #region Constructor
 
-        public DistributedTest()
-        {
+        public DistributedTest() {
             _resultPath = DefaultResultPath;
 
             AddAsDefaultItem(new Tiles());
@@ -99,9 +107,8 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        public override void Activate()
-        {
-            SolutionComponentViewManager.Show(this, typeof (DistributedTestView));
+        public override void Activate() {
+            SolutionComponentViewManager.Show(this, typeof(DistributedTestView));
         }
 
         #endregion

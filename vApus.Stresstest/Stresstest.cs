@@ -15,15 +15,13 @@ using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     [Serializable]
-    [ContextMenu(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {"Edit", "Remove", "Copy", "Cut", "Duplicate"})]
-    [Hotkeys(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D)})]
-    public class Stresstest : LabeledBaseItem
-    {
+    [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
+    [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
+    public class Stresstest : LabeledBaseItem {
         #region Fields
 
         /// <summary>
@@ -33,15 +31,18 @@ namespace vApus.Stresstest
 
         private string _solution; //For the results.
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100;
-        private int[] _concurrencies = {5, 5, 10, 25, 50, 100};
+        private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
         private ActionAndLogEntryDistribution _distribute;
         private Connection _connection;
         private Log _log;
         //This will be saved, I don't want to extend the save logic so I hack around it.
-        [NonSerialized] private MonitorProject _monitorProject;
-        [NonSerialized] private int[] _monitorIndices = {};
-        [NonSerialized] private Monitor.Monitor[] _monitors = {};
+        [NonSerialized]
+        private MonitorProject _monitorProject;
+        [NonSerialized]
+        private int[] _monitorIndices = { };
+        [NonSerialized]
+        private Monitor.Monitor[] _monitors = { };
         private int _monitorBefore;
         private int _monitorAfter;
 
@@ -63,10 +64,8 @@ namespace vApus.Stresstest
         /// <summary>
         ///     For the stresstest results.
         /// </summary>
-        public string Solution
-        {
-            get
-            {
+        public string Solution {
+            get {
                 if (_solution == null && SolutionTree.Solution.ActiveSolution != null)
                     _solution = SolutionTree.Solution.ActiveSolution.FileName;
                 return _solution;
@@ -75,23 +74,20 @@ namespace vApus.Stresstest
 
         [Description("The connection to the application to test.")]
         [SavableCloneable, PropertyControl(0)]
-        public Connection Connection
-        {
-            get
-            {
+        public Connection Connection {
+            get {
                 if (_connection.IsEmpty)
                     Connection =
-                        GetNextOrEmptyChild(typeof (Connection),
+                        GetNextOrEmptyChild(typeof(Connection),
                                             SolutionTree.Solution.ActiveSolution.GetSolutionComponent(
-                                                typeof (Connections))) as Connection;
+                                                typeof(Connections))) as Connection;
 
                 if (_connection != null)
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
 
                 return _connection;
             }
-            set
-            {
+            set {
                 if (value == null)
                     return;
                 value.ParentIsNull -= _connection_ParentIsNull;
@@ -102,10 +98,8 @@ namespace vApus.Stresstest
 
         [ReadOnly(true)]
         [DisplayName("Connection Proxy")]
-        public string ConnectionProxy
-        {
-            get
-            {
+        public string ConnectionProxy {
+            get {
                 if (_connection == null || _connection.IsEmpty || _connection.ConnectionProxy.IsEmpty)
                     return "Connection Proxy: <none>";
                 return _connection.ConnectionProxy.ToString();
@@ -114,14 +108,12 @@ namespace vApus.Stresstest
 
         [Description("The log used to test the application.")]
         [SavableCloneable, PropertyControl(1)]
-        public Log Log
-        {
-            get
-            {
+        public Log Log {
+            get {
                 if (_log.IsEmpty)
                     Log =
-                        GetNextOrEmptyChild(typeof (Log),
-                                            SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof (Logs))) as
+                        GetNextOrEmptyChild(typeof(Log),
+                                            SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as
                         Log;
 
                 if (_log != null)
@@ -129,8 +121,7 @@ namespace vApus.Stresstest
 
                 return _log;
             }
-            set
-            {
+            set {
                 if (value == null)
                     return;
                 value.ParentIsNull -= _log_ParentIsNull;
@@ -141,10 +132,8 @@ namespace vApus.Stresstest
 
         [ReadOnly(true)]
         [DisplayName("Log Rule Set")]
-        public string LogRuleSet
-        {
-            get
-            {
+        public string LogRuleSet {
+            get {
                 if (_log == null || _log.IsEmpty || _log.LogRuleSet.IsEmpty)
                     return "Log Rule Set: <none>";
                 return _log.LogRuleSet.ToString();
@@ -152,20 +141,16 @@ namespace vApus.Stresstest
         }
 
         [SavableCloneable]
-        public int[] MonitorIndices
-        {
+        public int[] MonitorIndices {
             get { return _monitorIndices; }
-            set
-            {
+            set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
 
                 _monitorIndices = value;
-                if (_monitorProject != null)
-                {
+                if (_monitorProject != null) {
                     var l = new List<Monitor.Monitor>(_monitorIndices.Length);
-                    foreach (int index in _monitorIndices)
-                    {
+                    foreach (int index in _monitorIndices) {
                         var monitor = _monitorProject[index] as Monitor.Monitor;
                         if (index < _monitorProject.Count && !l.Contains(monitor))
                             l.Add(monitor);
@@ -178,19 +163,16 @@ namespace vApus.Stresstest
 
         [Description("The monitors used to link stresstest results to performance counters. Maximum 5 allowed.")]
         [PropertyControl(2)]
-        public Monitor.Monitor[] Monitors
-        {
+        public Monitor.Monitor[] Monitors {
             get { return _monitors; }
-            set
-            {
+            set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
                 if (value.Length > 5)
                     throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
 
                 _monitors = value;
-                if (_monitorProject != null)
-                {
+                if (_monitorProject != null) {
                     _monitors.SetParent(_monitorProject);
 
 
@@ -206,11 +188,9 @@ namespace vApus.Stresstest
 
         [Description("The count(s) of the concurrent users generated, the minimum given value equals one.")]
         [SavableCloneable, PropertyControl(3)]
-        public int[] Concurrencies
-        {
+        public int[] Concurrencies {
             get { return _concurrencies; }
-            set
-            {
+            set {
                 if (value.Length == 0)
                     throw new ArgumentException();
                 foreach (int i in value)
@@ -222,11 +202,9 @@ namespace vApus.Stresstest
 
         [Description("A static multiplier of the runtime for each concurrency. Must be greater than zero.")]
         [SavableCloneable, PropertyControl(4)]
-        public int Runs
-        {
+        public int Runs {
             get { return _runs; }
-            set
-            {
+            set {
                 if (value < 1)
                     throw new ArgumentOutOfRangeException("Cannot be smaller than 1.");
                 _runs = value;
@@ -237,11 +215,9 @@ namespace vApus.Stresstest
             "The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."
             ), DisplayName("Minimum Delay")]
         [PropertyControl(5, true)]
-        public int MinimumDelay
-        {
+        public int MinimumDelay {
             get { return _minimumDelay; }
-            set
-            {
+            set {
                 if (value < 0)
                     throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > _maximumDelay)
@@ -254,8 +230,7 @@ namespace vApus.Stresstest
         ///     Only for saving and loading, should not be used.
         /// </summary>
         [SavableCloneable]
-        public int MinimumDelayOverride
-        {
+        public int MinimumDelayOverride {
             get { return _minimumDelay; }
             set { _minimumDelay = value; }
         }
@@ -264,11 +239,9 @@ namespace vApus.Stresstest
             "The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."
             ), DisplayName("Maximum Delay")]
         [PropertyControl(6, true)]
-        public int MaximumDelay
-        {
+        public int MaximumDelay {
             get { return _maximumDelay; }
-            set
-            {
+            set {
                 if (value < 0)
                     throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value < _minimumDelay)
@@ -281,8 +254,7 @@ namespace vApus.Stresstest
         ///     Only for saving and loading, should not be used.
         /// </summary>
         [SavableCloneable]
-        public int MaximumDelayOverride
-        {
+        public int MaximumDelayOverride {
             get { return _maximumDelay; }
             set { _maximumDelay = value; }
         }
@@ -291,8 +263,7 @@ namespace vApus.Stresstest
             "The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns."
             )]
         [SavableCloneable, PropertyControl(7)]
-        public bool Shuffle
-        {
+        public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
         }
@@ -301,8 +272,7 @@ namespace vApus.Stresstest
             "Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance."
             )]
         [SavableCloneable, PropertyControl(8, true)]
-        public ActionAndLogEntryDistribution Distribute
-        {
+        public ActionAndLogEntryDistribution Distribute {
             get { return _distribute; }
             set { _distribute = value; }
         }
@@ -310,11 +280,9 @@ namespace vApus.Stresstest
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."),
          DisplayName("Monitor Before")]
         [SavableCloneable, PropertyControl(9, true)]
-        public int MonitorBefore
-        {
+        public int MonitorBefore {
             get { return _monitorBefore; }
-            set
-            {
+            set {
                 if (value < 0)
                     throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > 60)
@@ -326,11 +294,9 @@ namespace vApus.Stresstest
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."),
          DisplayName("Monitor After")]
         [SavableCloneable, PropertyControl(10, true)]
-        public int MonitorAfter
-        {
+        public int MonitorAfter {
             get { return _monitorAfter; }
-            set
-            {
+            set {
                 if (value < 0)
                     throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
                 if (value > 60)
@@ -340,15 +306,13 @@ namespace vApus.Stresstest
         }
 
         [SavableCloneable]
-        public string Description
-        {
+        public string Description {
             get { return _description; }
             set { _description = value; }
         }
 
         [SavableCloneable]
-        public string[] Tags
-        {
+        public string[] Tags {
             get { return _tags; }
             set { _tags = value; }
         }
@@ -358,8 +322,7 @@ namespace vApus.Stresstest
         [Description("If this equals false then the parallel switch for log entries is ignored."),
          DisplayName("Use Parallel Execution of Log Entries")]
         [SavableCloneable, PropertyControl(int.MaxValue, true)]
-        public bool UseParallelExecutionOfLogEntries
-        {
+        public bool UseParallelExecutionOfLogEntries {
             get { return _useParallelExecutionOfLogEntries; }
             set { _useParallelExecutionOfLogEntries = value; }
         }
@@ -375,8 +338,7 @@ namespace vApus.Stresstest
         /// <summary>
         ///     Let for instance the gui behave differently if this is true.
         /// </summary>
-        public bool ForDistributedTest
-        {
+        public bool ForDistributedTest {
             get { return _forDistributedTest; }
             set { _forDistributedTest = value; }
         }
@@ -385,8 +347,7 @@ namespace vApus.Stresstest
 
         #region Constructors
 
-        public Stresstest()
-        {
+        public Stresstest() {
             if (SolutionTree.Solution.ActiveSolution != null)
                 Init();
             else
@@ -397,23 +358,21 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             SolutionTree.Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             Init();
         }
 
-        private void Init()
-        {
+        private void Init() {
             Log =
-                GetNextOrEmptyChild(typeof (Log),
-                                    SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof (Logs))) as Log;
+                GetNextOrEmptyChild(typeof(Log),
+                                    SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
             Connection =
-                GetNextOrEmptyChild(typeof (Connection),
-                                    SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof (Connections))) as
+                GetNextOrEmptyChild(typeof(Connection),
+                                    SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as
                 Connection;
             _monitorProject =
-                SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof (MonitorProject)) as MonitorProject;
+                SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(MonitorProject)) as MonitorProject;
 
             var l = new List<Monitor.Monitor>(_monitorIndices.Length);
             foreach (int index in _monitorIndices)
@@ -426,29 +385,25 @@ namespace vApus.Stresstest
             SolutionComponentChanged += SolutionComponentChanged_SolutionComponentChanged;
         }
 
-        private void _connection_ParentIsNull(object sender, EventArgs e)
-        {
+        private void _connection_ParentIsNull(object sender, EventArgs e) {
             if (_connection == sender)
                 Connection =
-                    GetNextOrEmptyChild(typeof (Connection),
-                                        SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof (Connections)))
+                    GetNextOrEmptyChild(typeof(Connection),
+                                        SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections)))
                     as Connection;
         }
 
-        private void _log_ParentIsNull(object sender, EventArgs e)
-        {
+        private void _log_ParentIsNull(object sender, EventArgs e) {
             if (_log == sender)
                 Log =
-                    GetNextOrEmptyChild(typeof (Log),
-                                        SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof (Logs))) as Log;
+                    GetNextOrEmptyChild(typeof(Log),
+                                        SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
 
         private void SolutionComponentChanged_SolutionComponentChanged(object sender,
-                                                                       SolutionComponentChangedEventArgs e)
-        {
+                                                                       SolutionComponentChangedEventArgs e) {
             //Cleanup _monitors if _monitorProject Changed
-            if (sender == _monitorProject || sender is Monitor.Monitor)
-            {
+            if (sender == _monitorProject || sender is Monitor.Monitor) {
                 var l = new List<Monitor.Monitor>(_monitorProject.Count);
                 foreach (Monitor.Monitor monitor in _monitors)
                     if (!l.Contains(monitor) && _monitorProject.Contains(monitor))
@@ -458,8 +413,7 @@ namespace vApus.Stresstest
             }
         }
 
-        public override void Activate()
-        {
+        public override void Activate() {
             SolutionComponentViewManager.Show(this);
         }
 
@@ -467,14 +421,12 @@ namespace vApus.Stresstest
         ///     For the stresstest results.
         ///     Sets the solution field to the active one.
         /// </summary>
-        public void SetSolution()
-        {
+        public void SetSolution() {
             if (SolutionTree.Solution.ActiveSolution != null)
                 _solution = SolutionTree.Solution.ActiveSolution.FileName;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             if (_forDistributedTest)
                 return Label;
             return base.ToString();
