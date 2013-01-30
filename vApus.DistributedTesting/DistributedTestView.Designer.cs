@@ -1,7 +1,5 @@
-﻿namespace vApus.DistributedTesting
-{
-    partial class DistributedTestView
-    {
+﻿namespace vApus.DistributedTesting {
+    partial class DistributedTestView {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -11,10 +9,8 @@
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
+        protected override void Dispose(bool disposing) {
+            if (disposing && (components != null)) {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -29,8 +25,7 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DistributedTestView));
             this.toolStrip = new System.Windows.Forms.ToolStrip();
@@ -38,7 +33,7 @@
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
             this.btnWizard = new System.Windows.Forms.ToolStripButton();
-            this.tmrSetGui = new System.Windows.Forms.Timer(this.components);
+            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             this.split = new System.Windows.Forms.SplitContainer();
             this.tcTree = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpTests = new System.Windows.Forms.TabPage();
@@ -136,16 +131,16 @@
             this.btnWizard.ToolTipText = "Wizard...";
             this.btnWizard.Click += new System.EventHandler(this.btnWizard_Click);
             // 
-            // tmrSetGui
+            // tmrRefreshGui
             // 
-            this.tmrSetGui.Enabled = true;
-            this.tmrSetGui.Interval = 1000;
-            this.tmrSetGui.Tick += new System.EventHandler(this.tmrSetGui_Tick);
+            this.tmrRefreshGui.Enabled = true;
+            this.tmrRefreshGui.Interval = 500;
+            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
             // 
             // split
             // 
-            this.split.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.split.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.split.BackColor = System.Drawing.Color.White;
             this.split.Location = new System.Drawing.Point(0, 43);
@@ -198,7 +193,7 @@
             this.testTreeView.Size = new System.Drawing.Size(294, 619);
             this.testTreeView.TabIndex = 0;
             this.testTreeView.AfterSelect += new System.EventHandler(this.testTreeView_AfterSelect);
-            this.testTreeView.EventClicked += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.testTreeView_EventClicked);
+            this.testTreeView.EventClicked += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.testTreeView_ProgressEventClicked);
             // 
             // tpSlaves
             // 
@@ -381,7 +376,7 @@
         private Stresstest.FastResultsControl fastResultsControl;
         private ConfigureTileStresstest configureTileStresstest;
         private SlaveTreeView slaveTreeView;
-        private System.Windows.Forms.Timer tmrSetGui;
+        private System.Windows.Forms.Timer tmrRefreshGui;
         private vApus.DistributedTesting.ConfigureSlaves configureSlaves;
         private OveralFastResultsControl distributedStresstestControl;
         private System.Windows.Forms.Timer tmrSchedule;
