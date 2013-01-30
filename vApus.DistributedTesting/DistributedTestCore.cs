@@ -246,7 +246,7 @@ namespace vApus.DistributedTesting {
             foreach (var ts in _usedTileStresstests)
                 stresstestIdsInDb.Add(_tileStresstestsWithDbIds.ContainsKey(ts) ? _tileStresstestsWithDbIds[ts] : -1);
 
-            Exception[] exceptions = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests.ToArray(), stresstestIdsInDb.ToArray(), _resultsHelper.DatabaseName, _distributedTest.RunSynchronization);
+            Exception[] exceptions = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests, stresstestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization);
             if (exceptions.Length != 0) {
                 var ex = new Exception("Could not initialize one or more tests!\n" + exceptions.Combine("\n"));
                 InvokeMessage(ex.ToString(), LogLevel.Error);

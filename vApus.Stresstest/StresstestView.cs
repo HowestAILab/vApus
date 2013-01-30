@@ -631,6 +631,7 @@ namespace vApus.Stresstest {
 
 
                 fastResultsControl.SetStresstestStopped(stresstestStatus, ex);
+                if (stresstestStatus == StresstestStatus.Cancelled || stresstestStatus == StresstestStatus.Error) RemoveDatabase();
 
                 Cursor = Cursors.Default;
 
@@ -658,7 +659,12 @@ namespace vApus.Stresstest {
                 }
             }
         }
-
+        private void RemoveDatabase() {
+            if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
+                if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                    == DialogResult.Yes)
+                    try { _resultsHelper.RemoveDatabase(); } catch { }
+        }
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 var monitorAfterCountDown = sender as Countdown;

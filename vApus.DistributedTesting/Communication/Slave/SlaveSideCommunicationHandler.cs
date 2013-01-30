@@ -97,10 +97,12 @@ namespace vApus.DistributedTesting {
                         _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
                         _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
                         _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
-                        if (!string.IsNullOrEmpty(stresstestWrapper.MySqlHost))
+
+                        if (_tileStresstestView.StresstestIdInDb != -1 && !string.IsNullOrEmpty(stresstestWrapper.MySqlHost)) {
                             _tileStresstestView.ConnectToExistingDatabase(stresstestWrapper.MySqlHost, stresstestWrapper.MySqlPort, stresstestWrapper.MySqlDatabaseName, stresstestWrapper.MySqlUser,
                                 stresstestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
-                        _tileStresstestView.StresstestIdInDb = stresstestWrapper.StresstestIdInDb;
+                            _tileStresstestView.StresstestIdInDb = stresstestWrapper.StresstestIdInDb;
+                        }
                     } catch {
                         if (done != 4) {
                             Thread.Sleep(1000 * (done++));

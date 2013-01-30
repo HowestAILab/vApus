@@ -409,6 +409,7 @@ namespace vApus.DistributedTesting {
             } catch {
                 //Only one test can run at the same time.
                 distributedStresstestControl.AppendMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
+                RemoveDatabase();
                 Stop(true);
             }
         }
@@ -461,6 +462,7 @@ namespace vApus.DistributedTesting {
                             distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                             LogWrapper.LogByLevel(message, LogLevel.Error);
                         }
+                        RemoveDatabase();
                         Stop(true);
                     }
                 } catch {
@@ -717,8 +719,7 @@ namespace vApus.DistributedTesting {
 
                 fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage,
                                                       testProgressMessage.ContextSwitchesPerSecond, (int)testProgressMessage.MemoryUsage,
-                                                      (int)testProgressMessage.TotalVisibleMemory,
-                                                      testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
+                                                      (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
             }
         }
         private void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -907,6 +908,12 @@ namespace vApus.DistributedTesting {
                 _resultsHelper.StresstestId = _tileStresstestsWithDbIds[tstvi.TileStresstest];
                 detailedResultsControl.RefreshResults(_resultsHelper);
             }
+        }
+        private void RemoveDatabase() {
+            if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
+                if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                    == DialogResult.Yes)
+                    try { _resultsHelper.RemoveDatabase(); } catch { }
         }
 
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {

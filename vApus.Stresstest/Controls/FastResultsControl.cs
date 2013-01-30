@@ -519,8 +519,6 @@ namespace vApus.Stresstest {
                             lblStopped.Text = lblStoppedText;
 
                             SetStresstestStopped();
-
-                            RemoveDatabase();
                         }
                         break;
                     case StresstestStatus.Cancelled:
@@ -534,8 +532,6 @@ namespace vApus.Stresstest {
                             AppendMessages(message, Color.Orange);
 
                             SetStresstestStopped();
-
-                            RemoveDatabase();
                         }
                         break;
                     default:
@@ -543,12 +539,6 @@ namespace vApus.Stresstest {
                         break;
                 }
             } catch { }
-        }
-        private void RemoveDatabase() {
-            if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
-                if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
-                    == DialogResult.Yes)
-                    try { _resultsHelper.RemoveDatabase(); } catch { }
         }
         public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
             var c = new[] { Color.DarkGray, Color.Orange, Color.Red };

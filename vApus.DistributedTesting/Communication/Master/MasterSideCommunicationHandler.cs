@@ -508,26 +508,29 @@ namespace vApus.DistributedTesting {
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public static Exception[] InitializeTests(TileStresstest[] tileStresstests, long[] stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization) {
+        public static Exception[] InitializeTests(List<TileStresstest> tileStresstests, List<long> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization) {
             ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
-            int length = tileStresstests.Length;
+            var initiatlizeTestData = new InitializeTestWorkItem.InitiatlizeTestData[tileStresstests.Count];
+            for (int i = 0; i != initiatlizeTestData.Length; i++)
+                initiatlizeTestData[i] = new InitializeTestWorkItem.InitiatlizeTestData() {
+                    TileStresstest = tileStresstests[i],
+                    StresstestIdInDb = stresstestIdsInDb[i],
+                    DatabaseName = databaseName,
+                    RunSynchronization = runSynchronization
+                };
 
-            if (length != 0) {
+            if (initiatlizeTestData.Length != 0) {
                 AutoResetEvent waitHandle = new AutoResetEvent(false);
                 int handled = 0;
-                for (int i = 0; i != length; i++) {
-                    //Thread t = new Thread(delegate(object parameter) {
-                        _initializeTestWorkItem = new InitializeTestWorkItem();
-                        object parameter = i;
-                        int index = (int)parameter;
-                        exceptions.Add(_initializeTestWorkItem.InitializeTest(tileStresstests[index], stresstestIdsInDb[index], databaseName, runSynchronization));
+                for (int i = 0; i != initiatlizeTestData.Length; i++) {
+                    ThreadPool.QueueUserWorkItem((state) => {
+                        if (_initializeTestWorkItem == null) _initializeTestWorkItem = new InitializeTestWorkItem();
+                        exceptions.Add(_initializeTestWorkItem.InitializeTest(initiatlizeTestData[(int)state]));
                         _initializeTestWorkItem = null;
 
-                        if (Interlocked.Increment(ref handled) == tileStresstests.Length)
+                        if (Interlocked.Increment(ref handled) == initiatlizeTestData.Length)
                             waitHandle.Set();
-                    //});
-                    //t.IsBackground = true;
-                    //t.Start(i);
+                    }, i);
                 }
 
                 waitHandle.WaitOne();
@@ -537,8 +540,7 @@ namespace vApus.DistributedTesting {
 
             List<Exception> l = new List<Exception>();
             foreach (Exception ex in exceptions)
-                if (ex != null)
-                    l.Add(ex);
+                if (ex != null)  l.Add(ex);
 
             return l.ToArray();
         }
@@ -647,15 +649,15 @@ namespace vApus.DistributedTesting {
             /// <param name="stresstestIdInDb">-1 for none.</param>
             /// <param name="runSynchronization"></param>
             /// <returns></returns>
-            public Exception InitializeTest(TileStresstest tileStresstest, long stresstestIdInDb, string databaseName, RunSynchronization runSynchronization) {
+            public Exception InitializeTest(InitiatlizeTestData initiatlizeTestData) {
                 Exception exception = null;
 
 #warning Allow multiple slaves for work distribution
-                var slave = tileStresstest.BasicTileStresstest.Slaves[0];
+                var slave = initiatlizeTestData.TileStresstest.BasicTileStresstest.Slaves[0];
                 var socketWrapper = Get(slave.IP, slave.Port, out exception);
                 if (exception == null)
                     try {
-                        var stresstestWrapper = tileStresstest.GetStresstestWrapper(stresstestIdInDb, databaseName, runSynchronization);
+                        var stresstestWrapper = initiatlizeTestData.TileStresstest.GetStresstestWrapper(initiatlizeTestData.StresstestIdInDb, initiatlizeTestData.DatabaseName, initiatlizeTestData.RunSynchronization);
 
                         var initializeTestMessage = new InitializeTestMessage() { StresstestWrapper = stresstestWrapper };
 
@@ -732,6 +734,16 @@ namespace vApus.DistributedTesting {
                 socketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage), SendType.Binary);
                 socketWrapper.Receive(SendType.Binary);
                 socketWrapper.ReceiveTimeout = receiveTimeout;
+            }
+
+            public struct InitiatlizeTestData {
+                public TileStresstest TileStresstest;
+                /// <summary>
+                /// -1 for none
+                /// </summary>
+                public long StresstestIdInDb;
+                public string DatabaseName;
+                public RunSynchronization RunSynchronization;
             }
         }
         private class StopTestWorkItem {
