@@ -178,6 +178,32 @@ namespace vApus.SolutionTree {
             }
             return false;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <returns>True for one or more items removed.</returns>
+        public bool RemoveRange(IEnumerable<BaseItem> collection) {
+            bool removed = false;
+            //foreach (var item in collection)
+            //    if (RemoveWithoutInvokingEvent(item)) removed = true;
+            //if (removed)
+            //    InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            foreach (var item in collection) if(Remove(item)) removed = true;
+            return removed;
+        }
+        public bool RemoveWithoutInvokingEvent(BaseItem item) {
+            if (item == this)
+                throw new Exception("Use Parent.Remove(this) instead of Remove(this).");
+            if (_items.Remove(item)) {
+                item.Parent = null;
+                item.RemoveTag();
+                item = null;
+
+                return true;
+            }
+            return false;
+        }
 
         public IEnumerator<BaseItem> GetEnumerator() {
             return _items.GetEnumerator();
@@ -310,19 +336,6 @@ namespace vApus.SolutionTree {
             return _items.IndexOf(item);
         }
 
-        public bool RemoveWithoutInvokingEvent(BaseItem item) {
-            if (item == this)
-                throw new Exception("Use Parent.Remove(this) instead of Remove(this).");
-            if (_items.Remove(item)) {
-                item.Parent = null;
-                item.RemoveTag();
-                item = null;
-
-                return true;
-            }
-            return false;
-        }
-
         /// <summary>
         ///     Gets the tree nodes for the childs.
         /// </summary>
@@ -414,12 +427,13 @@ namespace vApus.SolutionTree {
                 Clear();
         }
 
+        internal void SortItemsByLabel_Click(object sender, EventArgs e) {
+            SortItemsByLabel();
+        }
         /// <summary>
         ///     Only the labeled ones are sorted, (BaseItems are put at the start of the collections, but they should always be there anyways).
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        internal void SortItemsByLabel_Click(object sender, EventArgs e) {
+        public void SortItemsByLabel() {
             var items = new List<BaseItem>();
             var labeledBaseItems = new List<LabeledBaseItem>();
             foreach (BaseItem item in _items)

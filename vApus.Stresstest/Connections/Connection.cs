@@ -20,6 +20,7 @@ namespace vApus.Stresstest {
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     public class Connection : LabeledBaseItem, ISerializable {
+
         #region Fields
 
         private ConnectionProxy _connectionProxy;
@@ -61,10 +62,8 @@ namespace vApus.Stresstest {
                 value = value.Trim();
                 var lexicalResult = LexicalResult.OK;
                 ASTNode output = null;
-                if (_connectionProxy != null && !_connectionProxy.IsEmpty &&
-                    !_connectionProxy.ConnectionProxyRuleSet.IsEmpty)
-                    lexicalResult = _connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters,
-                                                                                               out output);
+                if (value.Length != 0 && _connectionProxy != null && !_connectionProxy.IsEmpty && !_connectionProxy.ConnectionProxyRuleSet.IsEmpty)
+                    lexicalResult = _connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters, out output);
 
                 if (lexicalResult == LexicalResult.OK)
                     _connectionString = value;

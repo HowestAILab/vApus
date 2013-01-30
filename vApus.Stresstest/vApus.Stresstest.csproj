@@ -183,6 +183,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Connections\ConnectionsView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Connections\ConnectionsView.Designer.cs">
+      <DependentUpon>ConnectionsView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Connections\ParallelConnectionProxy.cs" />
     <Compile Include="Connections\Proxies\CodeTextBox.cs">
       <SubType>UserControl</SubType>
@@ -427,6 +433,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Connections\ConnectionsView.resx">
+      <DependentUpon>ConnectionsView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Connections\ConnectionView.resx">
       <DependentUpon>ConnectionView.cs</DependentUpon>
     </EmbeddedResource>

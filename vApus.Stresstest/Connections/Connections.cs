@@ -11,35 +11,30 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     [ContextMenu(
-        new[] {"Add_Click", "Import_Click", "Test_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click"},
-        new[] {"Add Connection", "Import Connection(s)", "Test All Connections", "Sort", "Clear", "Paste"})]
-    [Hotkeys(new[] {"Add_Click", "Paste_Click"}, new[] {Keys.Insert, (Keys.Control | Keys.V)})]
-    public class Connections : BaseItem
-    {
-        public Connections()
-        {
+        new[] { "Activate_Click", "Add_Click", "Import_Click", "Test_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
+        new[] { "Table View", "Add Connection", "Import Connection(s)", "Test All Connections", "Sort", "Clear", "Paste" })]
+    [Hotkeys(new[] { "Activate_Click", "Add_Click", "Paste_Click" }, new[] { Keys.Enter, Keys.Insert, (Keys.Control | Keys.V) })]
+    public class Connections : BaseItem {
+        public Connections() {
             AddAsDefaultItem(new ConnectionProxies());
         }
-
-        private void Add_Click(object sender, EventArgs e)
-        {
+        public override void Activate() {
+            SolutionComponentViewManager.Show(this);
+        }
+        private void Add_Click(object sender, EventArgs e) {
             Add(new Connection());
         }
 
-        private void Test_Click(object sender, EventArgs e)
-        {
-            SolutionComponentViewManager.Show(this, typeof (TestAllConnections));
+        private void Test_Click(object sender, EventArgs e) {
+            SolutionComponentViewManager.Show(this, typeof(TestAllConnections));
         }
 
-        public override void Clear()
-        {
+        public override void Clear() {
             var itemsCopy = new List<BaseItem>();
             foreach (BaseItem item in this)
-                if (!(item is Connection))
-                    itemsCopy.Add(item);
+                if (!(item is Connection)) itemsCopy.Add(item);
             base.Clear();
             AddRange(itemsCopy);
         }
