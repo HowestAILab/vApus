@@ -32,8 +32,6 @@ namespace vApus.Stresstest {
             _dataSource.Columns.Add("Connection Proxy");
             _dataSource.Columns.Add("Connection String");
 
-            foreach (DataGridViewColumn clm in dgvConnections.Columns) clm.SortMode = DataGridViewColumnSortMode.NotSortable;
-
             FillConnectionsDatagrid();
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
@@ -63,6 +61,8 @@ namespace vApus.Stresstest {
                     try {
                         dgvConnections.Rows[_preferedRowToSelect].Selected = true;
                     } catch { dgvConnections.Rows[0].Selected = true; }
+
+                foreach (DataGridViewColumn clm in dgvConnections.Columns) clm.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
         }
         private void dgvConnections_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) {
