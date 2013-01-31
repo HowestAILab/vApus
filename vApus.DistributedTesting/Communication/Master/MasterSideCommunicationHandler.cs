@@ -523,14 +523,16 @@ namespace vApus.DistributedTesting {
                 AutoResetEvent waitHandle = new AutoResetEvent(false);
                 int handled = 0;
                 for (int i = 0; i != initiatlizeTestData.Length; i++) {
-                    ThreadPool.QueueUserWorkItem((state) => {
-                        if (_initializeTestWorkItem == null) _initializeTestWorkItem = new InitializeTestWorkItem();
-                        exceptions.Add(_initializeTestWorkItem.InitializeTest(initiatlizeTestData[(int)state]));
+                    Thread t = new Thread(delegate(object parameter) {
+                        _initializeTestWorkItem = new InitializeTestWorkItem();
+                        exceptions.Add(_initializeTestWorkItem.InitializeTest((InitializeTestWorkItem.InitiatlizeTestData)parameter));
                         _initializeTestWorkItem = null;
 
                         if (Interlocked.Increment(ref handled) == initiatlizeTestData.Length)
                             waitHandle.Set();
-                    }, i);
+                    });
+                    t.IsBackground = true;
+                    t.Start(initiatlizeTestData[i]);
                 }
 
                 waitHandle.WaitOne();
@@ -540,7 +542,7 @@ namespace vApus.DistributedTesting {
 
             List<Exception> l = new List<Exception>();
             foreach (Exception ex in exceptions)
-                if (ex != null)  l.Add(ex);
+                if (ex != null) l.Add(ex);
 
             return l.ToArray();
         }

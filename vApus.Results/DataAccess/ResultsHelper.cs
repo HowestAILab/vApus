@@ -197,7 +197,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="user"></param>
         /// <param name="password"></param>
         public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
-            _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", host, port, databaseName, user, password) };
+            try {
+                _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", host, port, databaseName, user, password) };
+                if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to MySQL could not be made!");
+            } catch {
+                _databaseActions = null;
+                throw;
+            }
         }
 
         #region Stresstest results
