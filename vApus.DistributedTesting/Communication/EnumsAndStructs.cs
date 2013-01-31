@@ -12,11 +12,9 @@ using vApus.Results;
 using vApus.Stresstest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
+namespace vApus.DistributedTesting {
     [Serializable]
-    public enum Key
-    {
+    public enum Key {
         SynchronizeBuffers,
 
         /// <summary>
@@ -42,14 +40,12 @@ namespace vApus.DistributedTesting
     }
 
     [Serializable]
-    public struct PollMessage
-    {
+    public struct PollMessage {
         public int ProcessID;
     }
 
     [Serializable]
-    public struct InitializeTestMessage
-    {
+    public struct InitializeTestMessage {
         public string Exception;
 
         /// <summary>
@@ -66,8 +62,7 @@ namespace vApus.DistributedTesting
     }
 
     [Serializable]
-    public struct StresstestWrapper
-    {
+    public struct StresstestWrapper {
         public long StresstestIdInDb;
         public string MySqlHost;
         public int MySqlPort;
@@ -86,8 +81,7 @@ namespace vApus.DistributedTesting
     }
 
     [Serializable]
-    public struct TestProgressMessage
-    {
+    public struct TestProgressMessage {
         public float CPUUsage, ContextSwitchesPerSecond;
         public List<EventPanelEvent> Events;
         public string Exception;
@@ -104,7 +98,7 @@ namespace vApus.DistributedTesting
         public StresstestStatus StresstestStatus;
         public DateTime StartedAt;
         public TimeSpan MeasuredRuntime;
-        
+
         public int ThreadsInUse;
         public string TileStresstestIndex;
         public StresstestMetricsCache StresstestMetricsCache;
@@ -116,28 +110,24 @@ namespace vApus.DistributedTesting
     }
 
     [Serializable]
-    public struct SynchronizeBuffersMessage
-    {
+    public struct SynchronizeBuffersMessage {
         public int BufferSize;
         public string Exception;
     }
 
     [Serializable]
-    public struct StartAndStopMessage
-    {
+    public struct StartAndStopMessage {
         public string Exception;
         public string TileStresstestIndex;
     }
 
     [Serializable]
-    public struct ContinueMessage
-    {
+    public struct ContinueMessage {
         public int ContinueCounter;
     }
 
     [Serializable]
-    public struct ResultsMessage
-    {
+    public struct ResultsMessage {
         public string Exception;
         public string TileStresstestIndex;
         public byte[] TorrentInfo;

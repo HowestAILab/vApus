@@ -295,6 +295,7 @@ namespace vApus.DistributedTesting {
                 if (!socketWrapper.Connected)
                     socketWrapper.Connect(connectTimeout);
             } catch (Exception ex) {
+                MessageBox.Show(ex.ToString());
                 exception = ex;
             }
         }

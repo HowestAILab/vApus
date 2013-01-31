@@ -63,7 +63,7 @@ namespace vApus.DistributedTesting {
 
         private static Message<Key> HandleInitializeTest(Message<Key> message) {
             SynchronizationContextWrapper.SynchronizationContext.Send(
-                delegate { Solution.HideStresstestingSolutionExplorer(); }, null);
+                delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
             //init the send queue for push messages.
             _sendQueue = new ActiveObject();
 
@@ -120,6 +120,7 @@ namespace vApus.DistributedTesting {
             initializeTestMessage.StresstestWrapper = new StresstestWrapper();
             message.Content = initializeTestMessage;
 
+            Thread.Sleep(1000);
             return message;
         }
 

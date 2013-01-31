@@ -511,48 +511,54 @@ namespace vApus.DistributedTesting {
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
         public static Exception[] InitializeTests(List<TileStresstest> tileStresstests, List<long> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization) {
-            ConcurrentBag<Exception> exceptions = new ConcurrentBag<Exception>();
-            var initiatlizeTestData = new InitializeTestWorkItem.InitiatlizeTestData[tileStresstests.Count];
-            for (int i = 0; i != initiatlizeTestData.Length; i++)
-                initiatlizeTestData[i] = new InitializeTestWorkItem.InitiatlizeTestData() {
-                    TileStresstest = tileStresstests[i], StresstestIdInDb = stresstestIdsInDb[i], DatabaseName = databaseName, RunSynchronization = runSynchronization
+            var exceptions = new List<Exception>();
+            var initializeTestData = new InitializeTestWorkItem.InitializeTestData[tileStresstests.Count];
+            for (int i = 0; i != initializeTestData.Length; i++) {
+                var slave = tileStresstests[i].BasicTileStresstest.Slaves[0];
+                Exception ex;
+                var socketWrapper = Get(slave.IP, slave.Port, out ex);
+                if (ex != null) {
+                    exceptions.Add(ex);
+                    break;
+                }
+                var masterSocketWrapper = _connectedSlaves[socketWrapper];
+                var initializeTestMessage = new InitializeTestMessage() {
+                    StresstestWrapper = tileStresstests[i].GetStresstestWrapper(stresstestIdsInDb[i], databaseName, runSynchronization),
+                    PushIP = masterSocketWrapper.IP.ToString(), PushPort = masterSocketWrapper.Port
                 };
 
-            if (initiatlizeTestData.Length != 0) {
+                initializeTestData[i] = new InitializeTestWorkItem.InitializeTestData() { SocketWrapper = socketWrapper, InitializeTestMessage = initializeTestMessage };
+            }
+
+            if (initializeTestData.Length != 0 && exceptions.Count == 0) {
                 AutoResetEvent waitHandle = new AutoResetEvent(false);
-                //var threads = new List<Thread>();
-                int handled = 0;
-                for (int i = 0; i != initiatlizeTestData.Length; i++) {
-                    //Thread t = new Thread(delegate(object parameter) {
-                    //if (_initializeTestWorkItem == null)
-                    _initializeTestWorkItem = new InitializeTestWorkItem();
-                    exceptions.Add(_initializeTestWorkItem.InitializeTest(initiatlizeTestData[i]));
-                    _initializeTestWorkItem = null;
+                int count = initializeTestData.Length;
+                int done = 0;
+                for (int i = 0; i != count; i++) {
+                    Thread t = new Thread(delegate(object parameter) {
+                        int index = (int)parameter;
+                        Thread.Sleep(index * 1000); //Not pretty, I don't get it to work otherwise.
+                        if (_initializeTestWorkItem == null)
+                            _initializeTestWorkItem = new InitializeTestWorkItem();
+                        var exception = _initializeTestWorkItem.InitializeTest(initializeTestData[index]);
 
-                    if (Interlocked.Increment(ref handled) == initiatlizeTestData.Length)
-                        waitHandle.Set();
-                    // });
-                    //t.IsBackground = true;
-                    //threads.Add(t);
+                        lock (_lock) {
+                            if (exception != null) exceptions.Add(exception);
+                            ++done;
+                        }
+                        if (done == count) waitHandle.Set();
+                    });
+                    t.IsBackground = true;
+                    t.Start(i);
+
                 }
-
-                //for (int i = 0; i != initiatlizeTestData.Length; i++) {
-                //    Thread t = threads[i];
-                //    var o = initiatlizeTestData[i];
-
-                //    t.Start(o);
-                //}
 
                 waitHandle.WaitOne();
                 waitHandle.Dispose();
                 waitHandle = null;
             }
 
-            List<Exception> l = new List<Exception>();
-            foreach (Exception ex in exceptions)
-                if (ex != null) l.Add(ex);
-
-            return l.ToArray();
+            return exceptions.ToArray();
         }
 
         /// <summary>
@@ -619,9 +625,8 @@ namespace vApus.DistributedTesting {
                         foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
                             if (!stopped.Contains(socketWrapper)) {
                                 Thread t = new Thread(delegate(object parameter) {
-                                    _stopTestWorkItem = new StopTestWorkItem();
+                                    if (_stopTestWorkItem == null) _stopTestWorkItem = new StopTestWorkItem();
                                     _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
-                                    _stopTestWorkItem = null;
 
                                     if (Interlocked.Increment(ref handled) == length && waitHandle != null)
                                         waitHandle.Set();
@@ -659,38 +664,27 @@ namespace vApus.DistributedTesting {
             /// <param name="stresstestIdInDb">-1 for none.</param>
             /// <param name="runSynchronization"></param>
             /// <returns></returns>
-            public Exception InitializeTest(InitiatlizeTestData initiatlizeTestData) {
+            public Exception InitializeTest(InitializeTestWorkItem.InitializeTestData initializeTestData) {
                 Exception exception = null;
+                try {
+                    var socketWrapper = initializeTestData.SocketWrapper;
+                    var initializeTestMessage = initializeTestData.InitializeTestMessage;
+                    var message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
 
-#warning Allow multiple slaves for work distribution
-                var slave = initiatlizeTestData.TileStresstest.BasicTileStresstest.Slaves[0];
-                var socketWrapper = Get(slave.IP, slave.Port, out exception);
-                if (exception == null)
-                    try {
-                        var stresstestWrapper = initiatlizeTestData.TileStresstest.GetStresstestWrapper(initiatlizeTestData.StresstestIdInDb, initiatlizeTestData.DatabaseName, initiatlizeTestData.RunSynchronization);
+                    //Increases the buffer size, never decreases it.
+                    SynchronizeBuffers(socketWrapper, message);
 
-                        var initializeTestMessage = new InitializeTestMessage() { StresstestWrapper = stresstestWrapper };
+                    socketWrapper.Send(message, SendType.Binary);
+                    message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
 
-                        var masterSocketWrapper = _connectedSlaves[socketWrapper];
-                        initializeTestMessage.PushIP = masterSocketWrapper.IP.ToString();
-                        initializeTestMessage.PushPort = masterSocketWrapper.Port;
+                    initializeTestMessage = (InitializeTestMessage)message.Content;
 
-                        var message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
-
-                        //Increases the buffer size, never decreases it.
-                        SynchronizeBuffers(socketWrapper, message);
-
-                        socketWrapper.Send(message, SendType.Binary);
-                        message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
-
-                        initializeTestMessage = (InitializeTestMessage)message.Content;
-
-                        //Reset the buffers to keep the messages as small as possible.
-                        ResetBuffers(socketWrapper);
-                        if (initializeTestMessage.Exception != null) throw new Exception(initializeTestMessage.Exception);
-                    } catch (Exception ex) {
-                        exception = ex;
-                    }
+                    //Reset the buffers to keep the messages as small as possible.
+                    ResetBuffers(socketWrapper);
+                    if (initializeTestMessage.Exception != null) throw new Exception(initializeTestMessage.Exception);
+                } catch (Exception ex) {
+                    exception = ex;
+                }
                 // InvokeTestInitialized(tileStresstest, exception);
 
                 return exception;
@@ -744,14 +738,9 @@ namespace vApus.DistributedTesting {
                 socketWrapper.ReceiveTimeout = receiveTimeout;
             }
 
-            public struct InitiatlizeTestData {
-                public TileStresstest TileStresstest;
-                /// <summary>
-                /// -1 for none
-                /// </summary>
-                public long StresstestIdInDb;
-                public string DatabaseName;
-                public RunSynchronization RunSynchronization;
+            public class InitializeTestData {
+                public SocketWrapper SocketWrapper;
+                public InitializeTestMessage InitializeTestMessage;
             }
         }
         private class StopTestWorkItem {
