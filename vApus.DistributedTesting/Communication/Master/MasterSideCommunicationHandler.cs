@@ -165,15 +165,17 @@ namespace vApus.DistributedTesting {
         /// <param name="exception"></param>
         /// <returns></returns>
         private static SocketWrapper Get(string ip, int port, out Exception exception) {
-            exception = null;
-            int processID;
-            SocketWrapper socketWrapper = Get(ip, port);
-            if (socketWrapper != null && !socketWrapper.Connected)
-                ConnectSlave(socketWrapper, out processID, out exception);
+            lock (_lock) {
+                exception = null;
+                int processID;
+                SocketWrapper socketWrapper = Get(ip, port);
+                if (socketWrapper != null && !socketWrapper.Connected)
+                    ConnectSlave(socketWrapper, out processID, out exception);
 
-            if (socketWrapper == null || !socketWrapper.Connected)
-                exception = new Exception(string.Format("Not connected to {0}:{1}.", ip, port));
-            return socketWrapper;
+                if (socketWrapper == null || !socketWrapper.Connected)
+                    exception = new Exception(string.Format("Not connected to {0}:{1}.", ip, port));
+                return socketWrapper;
+            }
         }
         /// <summary>
         /// </summary>
@@ -513,27 +515,33 @@ namespace vApus.DistributedTesting {
             var initiatlizeTestData = new InitializeTestWorkItem.InitiatlizeTestData[tileStresstests.Count];
             for (int i = 0; i != initiatlizeTestData.Length; i++)
                 initiatlizeTestData[i] = new InitializeTestWorkItem.InitiatlizeTestData() {
-                    TileStresstest = tileStresstests[i],
-                    StresstestIdInDb = stresstestIdsInDb[i],
-                    DatabaseName = databaseName,
-                    RunSynchronization = runSynchronization
+                    TileStresstest = tileStresstests[i], StresstestIdInDb = stresstestIdsInDb[i], DatabaseName = databaseName, RunSynchronization = runSynchronization
                 };
 
             if (initiatlizeTestData.Length != 0) {
                 AutoResetEvent waitHandle = new AutoResetEvent(false);
+                //var threads = new List<Thread>();
                 int handled = 0;
                 for (int i = 0; i != initiatlizeTestData.Length; i++) {
-                    Thread t = new Thread(delegate(object parameter) {
-                        _initializeTestWorkItem = new InitializeTestWorkItem();
-                        exceptions.Add(_initializeTestWorkItem.InitializeTest((InitializeTestWorkItem.InitiatlizeTestData)parameter));
-                        _initializeTestWorkItem = null;
+                    //Thread t = new Thread(delegate(object parameter) {
+                    //if (_initializeTestWorkItem == null)
+                    _initializeTestWorkItem = new InitializeTestWorkItem();
+                    exceptions.Add(_initializeTestWorkItem.InitializeTest(initiatlizeTestData[i]));
+                    _initializeTestWorkItem = null;
 
-                        if (Interlocked.Increment(ref handled) == initiatlizeTestData.Length)
-                            waitHandle.Set();
-                    });
-                    t.IsBackground = true;
-                    t.Start(initiatlizeTestData[i]);
+                    if (Interlocked.Increment(ref handled) == initiatlizeTestData.Length)
+                        waitHandle.Set();
+                    // });
+                    //t.IsBackground = true;
+                    //threads.Add(t);
                 }
+
+                //for (int i = 0; i != initiatlizeTestData.Length; i++) {
+                //    Thread t = threads[i];
+                //    var o = initiatlizeTestData[i];
+
+                //    t.Start(o);
+                //}
 
                 waitHandle.WaitOne();
                 waitHandle.Dispose();
@@ -672,10 +680,8 @@ namespace vApus.DistributedTesting {
                         //Increases the buffer size, never decreases it.
                         SynchronizeBuffers(socketWrapper, message);
 
-                        //message = SendAndReceive(socketWrapper, message);
                         socketWrapper.Send(message, SendType.Binary);
-                        object o = socketWrapper.Receive(SendType.Binary);
-                        message = (Message<Key>)o;// socketWrapper.Receive(SendType.Binary);
+                        message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
 
                         initializeTestMessage = (InitializeTestMessage)message.Content;
 

@@ -34,6 +34,8 @@ namespace vApus.DistributedTesting
         private Stresstest.Stresstest _defaultAdvancedSettingsTo;
         private bool _use = true;
 
+        private readonly object _lock = new object();
+
         #endregion
 
         #region Properties
@@ -180,58 +182,60 @@ namespace vApus.DistributedTesting
         /// <param name="stresstestIdInDb">-1 for none</param>
         /// <param name="runSynchronization"></param>
         /// <returns></returns>
-        public StresstestWrapper GetStresstestWrapper(long stresstestIdInDb, string databaseName, RunSynchronization runSynchronization)
-        {
-            string tileStresstestIndex = TileStresstestIndex;
-            var stresstest = new Stresstest.Stresstest();
-            stresstest.SetSolution();
-            stresstest.ForDistributedTest = true;
-            stresstest.ShowInGui = false;
-            stresstest.Distribute = AdvancedTileStresstest.Distribute;
-            stresstest.Concurrencies = AdvancedTileStresstest.Concurrencies;
+        public StresstestWrapper GetStresstestWrapper(long stresstestIdInDb, string databaseName, RunSynchronization runSynchronization) {
+            lock (_lock) {
+                string tileStresstestIndex = TileStresstestIndex;
+                var stresstest = new Stresstest.Stresstest();
+                stresstest.SetSolution();
+                stresstest.ForDistributedTest = true;
+                stresstest.ShowInGui = false;
+                stresstest.Distribute = AdvancedTileStresstest.Distribute;
+                stresstest.Concurrencies = AdvancedTileStresstest.Concurrencies;
 
-            var connections = new Connections();
-            var connection = BasicTileStresstest._connection.Clone();
+                var connections = new Connections();
+                var connection = BasicTileStresstest._connection.Clone();
 
-            connection.RemoveDescription();
-            connections.AddWithoutInvokingEvent(connection, false);
-            connection.ForceSettingChildsParent();
+                connection.RemoveDescription();
+                connections.AddWithoutInvokingEvent(connection, false);
+                connection.ForceSettingChildsParent();
 
-            stresstest.Connection = connection;
+                stresstest.Connection = connection;
 
-            stresstest.Label = ToString();
+                stresstest.Label = ToString();
 
-            var logs = new Logs();
-            var log = AdvancedTileStresstest._log;//.Clone();
+                var logs = new Logs();
+                var log = AdvancedTileStresstest._log;//.Clone();
 
-            log.RemoveDescription();
-            logs.AddWithoutInvokingEvent(log);
-            log.ForceSettingChildsParent();
+                log.RemoveDescription();
+                logs.AddWithoutInvokingEvent(log);
+                log.ForceSettingChildsParent();
 
-            stresstest.Log = log;
+                stresstest.Log = log;
 
-            //Nothing happens with this on the other side
-            //var monitors = Monitors;
-            //stresstest.Monitors = new Monitor.Monitor[monitors.Length];
-            //for (int i = 0; i != monitors.Length; i++)
-            //    stresstest.Monitors[i] = monitors[i];
+                //Nothing happens with this on the other side
+                //var monitors = Monitors;
+                //stresstest.Monitors = new Monitor.Monitor[monitors.Length];
+                //for (int i = 0; i != monitors.Length; i++)
+                //    stresstest.Monitors[i] = monitors[i];
 
-            stresstest.MinimumDelayOverride = AdvancedTileStresstest.MinimumDelay;
-            stresstest.MaximumDelayOverride = AdvancedTileStresstest.MaximumDelay;
-            stresstest.Runs = AdvancedTileStresstest.Runs;
-            stresstest.Shuffle = AdvancedTileStresstest.Shuffle;
-            stresstest.UseParallelExecutionOfLogEntries = false;
-            // AdvancedTileStresstest.useParallelExecutionOfLogEntries;
+                stresstest.MinimumDelayOverride = AdvancedTileStresstest.MinimumDelay;
+                stresstest.MaximumDelayOverride = AdvancedTileStresstest.MaximumDelay;
+                stresstest.Runs = AdvancedTileStresstest.Runs;
+                stresstest.Shuffle = AdvancedTileStresstest.Shuffle;
+                stresstest.UseParallelExecutionOfLogEntries = false;
+                // AdvancedTileStresstest.useParallelExecutionOfLogEntries;
 
-            stresstest.ForceSettingChildsParent();
+                stresstest.ForceSettingChildsParent();
 
-            string user, host, password;
-            int port;
-            vApus.Results.SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+                string user, host, password;
+                int port;
+                vApus.Results.SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
 
-            return new StresstestWrapper { StresstestIdInDb = stresstestIdInDb, Stresstest = stresstest, TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization,
-                                           MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password.Encrypt(_passwordGUID, _salt)
-            };
+                return new StresstestWrapper {
+                    StresstestIdInDb = stresstestIdInDb, Stresstest = stresstest, TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization,
+                    MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password.Encrypt(_passwordGUID, _salt)
+                };
+            }
         }
 
         #endregion

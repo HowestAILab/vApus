@@ -146,11 +146,8 @@ namespace vApus.Stresstest {
                                      stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
 
-        public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy,
-                                             Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
-                                             int runs, int minimumDelay, int maximumDelay, bool shuffle,
-                                             ActionAndLogEntryDistribution distribute, int monitorBefore,
-                                             int monitorAfter) {
+        public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
+                                             int runs, int minimumDelay, int maximumDelay, bool shuffle,  ActionAndLogEntryDistribution distribute, int monitorBefore,  int monitorAfter) {
             kvpStresstest.Key = stresstest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
@@ -195,6 +192,8 @@ namespace vApus.Stresstest {
             kvpDistribute.Value = distribute.ToString();
             kvpMonitorBefore.Value = monitorBefore + (monitorBefore == 1 ? " minute" : " minutes");
             kvpMonitorAfter.Value = monitorAfter + (monitorAfter == 1 ? " minute" : " minutes");
+
+            flpConfiguration.ScrollControlIntoView(pnlScrollConfigTo);
 
             //Reinit the datagridview.
             SetFastResultsOnGuiInteraction();

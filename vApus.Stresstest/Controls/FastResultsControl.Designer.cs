@@ -34,7 +34,7 @@
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
-            this.label3 = new System.Windows.Forms.Label();
+            this.lblConfiguration = new System.Windows.Forms.Label();
             this.kvpStresstest = new vApus.Util.KeyValuePairControl();
             this.kvpConnection = new vApus.Util.KeyValuePairControl();
             this.kvpConnectionProxy = new vApus.Util.KeyValuePairControl();
@@ -75,6 +75,7 @@
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnExport = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.pnlScrollConfigTo = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -173,7 +174,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpConfiguration.AutoScroll = true;
             this.flpConfiguration.BackColor = System.Drawing.Color.White;
-            this.flpConfiguration.Controls.Add(this.label3);
+            this.flpConfiguration.Controls.Add(this.pnlScrollConfigTo);
+            this.flpConfiguration.Controls.Add(this.lblConfiguration);
             this.flpConfiguration.Controls.Add(this.kvpStresstest);
             this.flpConfiguration.Controls.Add(this.kvpConnection);
             this.flpConfiguration.Controls.Add(this.kvpConnectionProxy);
@@ -192,17 +194,17 @@
             this.flpConfiguration.Size = new System.Drawing.Size(866, 85);
             this.flpConfiguration.TabIndex = 0;
             // 
-            // label3
+            // lblConfiguration
             // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.ForeColor = System.Drawing.Color.Black;
-            this.label3.Location = new System.Drawing.Point(3, 6);
-            this.label3.Margin = new System.Windows.Forms.Padding(3, 6, 6, 3);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(104, 20);
-            this.label3.TabIndex = 16;
-            this.label3.Text = "Configuration";
+            this.lblConfiguration.AutoSize = true;
+            this.lblConfiguration.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblConfiguration.ForeColor = System.Drawing.Color.Black;
+            this.lblConfiguration.Location = new System.Drawing.Point(3, 6);
+            this.lblConfiguration.Margin = new System.Windows.Forms.Padding(3, 6, 6, 3);
+            this.lblConfiguration.Name = "lblConfiguration";
+            this.lblConfiguration.Size = new System.Drawing.Size(104, 20);
+            this.lblConfiguration.TabIndex = 16;
+            this.lblConfiguration.Text = "Configuration";
             // 
             // kvpStresstest
             // 
@@ -281,7 +283,7 @@
             this.btnMonitor.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnMonitor.Name = "btnMonitor";
             this.btnMonitor.Size = new System.Drawing.Size(73, 24);
-            this.btnMonitor.TabIndex = 18;
+            this.btnMonitor.TabIndex = 0;
             this.btnMonitor.Text = "Monitor...";
             this.toolTip.SetToolTip(this.btnMonitor, "The monitors used to link stresstest results to performance counters. Maximum 5 a" +
         "llowed.");
@@ -776,6 +778,14 @@
             this.btnExport.UseVisualStyleBackColor = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
+            // pnlScrollConfigTo
+            // 
+            this.pnlScrollConfigTo.Location = new System.Drawing.Point(0, 0);
+            this.pnlScrollConfigTo.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlScrollConfigTo.Name = "pnlScrollConfigTo";
+            this.pnlScrollConfigTo.Size = new System.Drawing.Size(0, 0);
+            this.pnlScrollConfigTo.TabIndex = 0;
+            // 
             // FastResultsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -814,7 +824,7 @@
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.SplitContainer splitTop;
         private System.Windows.Forms.FlowLayoutPanel flpConfiguration;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lblConfiguration;
         private vApus.Util.KeyValuePairControl kvpStresstest;
         private vApus.Util.KeyValuePairControl kvpConnection;
         private vApus.Util.KeyValuePairControl kvpConnectionProxy;
@@ -857,5 +867,6 @@
         private System.Windows.Forms.FlowLayoutPanel flpFastResultsHeader;
         private System.Windows.Forms.Panel pnlBorderCollapse;
         private System.Windows.Forms.Button btnCollapseExpand;
+        private System.Windows.Forms.Panel pnlScrollConfigTo;
     }
 }
