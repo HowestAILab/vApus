@@ -127,7 +127,9 @@ namespace vApus.Stresstest.Controls {
                 if (cboShow.SelectedIndex == 0) dgvDetailedResults.DataSource = _resultsHelper.GetAverageConcurrentUsers();
                 else if (cboShow.SelectedIndex == 1) dgvDetailedResults.DataSource = _resultsHelper.GetAverageUserActions();
                 else if (cboShow.SelectedIndex == 2) dgvDetailedResults.DataSource = _resultsHelper.GetAverageLogEntries();
-                else dgvDetailedResults.DataSource = _resultsHelper.GetErrors();
+                else if (cboShow.SelectedIndex == 3) dgvDetailedResults.DataSource = _resultsHelper.GetErrors();
+                else if (cboShow.SelectedIndex == 4) dgvDetailedResults.DataSource = _resultsHelper.GetMachineConfigurations();
+                else if (cboShow.SelectedIndex == 5) dgvDetailedResults.DataSource = _resultsHelper.GetAverageMonitorResults();
             }
             dgvDetailedResults.Select();
         }

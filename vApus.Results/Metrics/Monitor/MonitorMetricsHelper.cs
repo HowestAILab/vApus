@@ -11,6 +11,7 @@ using vApus.Util;
 
 namespace vApus.Results {
     public static class MonitorMetricsHelper {
+
         #region Fields
         //private static string[] _metricsHeadersConcurrency, _metricsHeadersRun;
         #endregion
@@ -66,7 +67,7 @@ namespace vApus.Results {
                 foreach (var key in part.Keys) if (!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
             }
 
-            SetAverageMonitorResults(metrics, monitorValues);
+            SetAverageMonitorResultsToMetrics(metrics, monitorValues);
 
             return metrics;
         }
@@ -85,7 +86,7 @@ namespace vApus.Results {
                 foreach (var key in part.Keys) if (!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
             }
 
-            SetAverageMonitorResults(metrics, monitorValues);
+            SetAverageMonitorResultsToMetrics(metrics, monitorValues);
 
             return metrics;
         }
@@ -98,7 +99,7 @@ namespace vApus.Results {
             metrics.Run = result.Run;
             metrics.Headers = monitorResultCache.Headers;
 
-            SetAverageMonitorResults(metrics, GetMonitorValues(result.StartedAt, result.StoppedAt == DateTime.MinValue ? DateTime.MaxValue : result.StoppedAt, monitorResultCache));
+            SetAverageMonitorResultsToMetrics(metrics, GetMonitorValues(result.StartedAt, result.StoppedAt == DateTime.MinValue ? DateTime.MaxValue : result.StoppedAt, monitorResultCache));
 
             return metrics;
         }
@@ -113,7 +114,7 @@ namespace vApus.Results {
             metrics.Headers = monitorResultCache.Headers;
 
             var stoppedAt = runMetrics.StartMeasuringRuntime + runMetrics.MeasuredRunTime;
-            SetAverageMonitorResults(metrics, GetMonitorValues(runMetrics.StartMeasuringRuntime, stoppedAt == runMetrics.StartMeasuringRuntime ? DateTime.MaxValue : stoppedAt, monitorResultCache));
+            SetAverageMonitorResultsToMetrics(metrics, GetMonitorValues(runMetrics.StartMeasuringRuntime, stoppedAt == runMetrics.StartMeasuringRuntime ? DateTime.MaxValue : stoppedAt, monitorResultCache));
 
             return metrics;
         }
@@ -138,15 +139,15 @@ namespace vApus.Results {
             }
             return monitorValues;
         }
-        private static void SetAverageMonitorResults(MonitorMetrics metrics, Dictionary<DateTime, float[]> values) {
+        private static void SetAverageMonitorResultsToMetrics(MonitorMetrics metrics, Dictionary<DateTime, float[]> monitorValues) {
             metrics.AverageMonitorResults = new float[0];
-            if (values.Count != 0) {
+            if (monitorValues.Count != 0) {
                 //Average divider
-                int valueCount = values.Count;
+                int valueCount = monitorValues.Count;
                 metrics.AverageMonitorResults = new float[valueCount];
 
-                foreach (var key in values.Keys) {
-                    var floats = values[key];
+                foreach (var key in monitorValues.Keys) {
+                    var floats = monitorValues[key];
 
                     // The averages length must be the same as the floats length.
                     if (metrics.AverageMonitorResults.Length != floats.Length) metrics.AverageMonitorResults = new float[floats.Length];

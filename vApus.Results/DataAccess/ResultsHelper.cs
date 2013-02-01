@@ -786,6 +786,119 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return null;
         }
 
+        public DataTable GetMachineConfigurations() {
+            if (_databaseActions != null) {
+                var dt = _databaseActions.GetDataTable("Select Monitor, MonitorSource as 'Monitor Source', MachineConfiguration as 'Machine Configuration' from monitors");
+                if (dt.Rows.Count != 0) return dt;
+            }
+            return null;
+        }
+        public DataTable GetAverageMonitorResults() {
+            if (_databaseActions != null) {
+                var stresstests = _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests");
+                if (stresstests.Rows.Count == 0) return null;
+
+                var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
+                foreach (DataRow stresstestsRow in stresstests.Rows) {
+                    object stresstestId = stresstestsRow.ItemArray[0];
+                    string stresstest = (string)stresstestsRow.ItemArray[1] + " " + stresstestsRow.ItemArray[2];
+
+                    var stresstestResults = _databaseActions.GetDataTable("Select Id From StresstestResults WHERE StresstestId=" + stresstestId);
+                    if (stresstestResults.Rows.Count == 0) continue;
+                    object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+
+                    //Get the monitors + values
+                    var monitors = _databaseActions.GetDataTable("Select Id, Monitor, ResultHeaders From Monitors WHERE StresstestId=" + stresstestId);
+                    if (monitors.Rows.Count == 0) continue;
+
+                    //Get the timestamps to calculate the averages
+                    var concurrencyResults = _databaseActions.GetDataTable("SELECT Id, Concurrency, StartedAt, StoppedAt FROM ConcurrencyResults WHERE StresstestResultId=" + stresstestResultId);
+                    var delimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                    var runDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                    foreach (DataRow crRow in concurrencyResults.Rows) {
+                        int concurrency = (int)crRow.ItemArray[1];
+                        delimiters.Add(concurrency, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
+                        var runResults = _databaseActions.GetDataTable(string.Format("SELECT StartedAt, StoppedAt FROM RunResults WHERE ConcurrencyResultId={0}", crRow.ItemArray[0]));
+                        var d = new Dictionary<DateTime, DateTime>(runResults.Rows.Count);
+                        foreach (DataRow rrRow in runResults.Rows) {
+                            var start = (DateTime)rrRow.ItemArray[0];
+                            if (!d.ContainsKey(start)) d.Add(start, (DateTime)rrRow.ItemArray[1]);
+                        }
+                        runDelimiters.Add(concurrency, d);
+                    }
+
+                    //Calcullate the averages
+                    foreach (int concurrency in runDelimiters.Keys) {
+                        var delimiterValues = runDelimiters[concurrency];
+                        foreach (DataRow monitorRow in monitors.Rows) {
+                            object monitorId = monitorRow.ItemArray[0];
+                            object monitor = monitorRow.ItemArray[1];
+                            object headers = monitorRow.ItemArray[2];
+
+                            var monitorResults = _databaseActions.GetDataTable("Select TimeStamp, Value From MonitorResults WHERE MonitorId=" + monitorId);
+                            var monitorValues = new Dictionary<DateTime, float[]>(monitorResults.Rows.Count);
+                            foreach (DataRow monitorResultsRow in monitorResults.Rows) {
+                                var timeStamp = (DateTime)monitorResultsRow[0];
+
+                                bool canAdd = false;
+                                foreach (var start in delimiterValues.Keys)
+                                    if (timeStamp >= start && timeStamp <= delimiterValues[start]) {
+                                        canAdd = true;
+                                        break;
+                                    }
+
+                                if (canAdd) {
+                                    string[] splittedValue = (monitorResultsRow[1] as string).Split(';');
+                                    float[] values = new float[splittedValue.Length];
+
+                                    for (long l = 0; l != splittedValue.LongLength; l++) values[l] = float.Parse(splittedValue[l].Trim());
+                                    monitorValues.Add(timeStamp, values);
+                                }
+                            }
+
+                            string averages = GetAverageMonitorResults(monitorValues).Combine("; ");
+
+                            var startedAt = delimiters[concurrency].Key;
+                            var measuredRunTime = Math.Round((delimiters[concurrency].Value - startedAt).TotalMilliseconds, 2);
+                            averageMonitorResults.Rows.Add(stresstest, monitor, startedAt, measuredRunTime, concurrency, headers, averages);
+                        }
+                    }
+                }
+
+                return averageMonitorResults;
+            }
+            return null;
+        }
+        /// <summary>
+        /// From a 2 dimensional collection to an array of floats.
+        /// </summary>
+        /// <param name="monitorValues"></param>
+        /// <returns></returns>
+        private float[] GetAverageMonitorResults(Dictionary<DateTime, float[]> monitorValues) {
+            var averageMonitorResults = new float[0];
+            if (monitorValues.Count != 0) {
+                //Average divider
+                int valueCount = monitorValues.Count;
+                averageMonitorResults = new float[valueCount];
+
+                foreach (var key in monitorValues.Keys) {
+                    var floats = monitorValues[key];
+
+                    // The averages length must be the same as the floats length.
+                    if (averageMonitorResults.Length != floats.Length) averageMonitorResults = new float[floats.Length];
+
+                    for (long l = 0; l != floats.LongLength; l++) {
+                        float value = floats[l], average = averageMonitorResults[l];
+
+                        if (value == -1) //Detect invalid values.
+                            averageMonitorResults[l] = -1;
+                        else if (average != -1) //Add the value to the averages at the same index (i), divide it first (no overflow).
+                            averageMonitorResults[l] = average + (value / valueCount);
+                    }
+                }
+            }
+            return averageMonitorResults;
+        }
         public DataTable ExecuteQuery(string query) {
             if (_databaseActions == null) return null;
             return _databaseActions.GetDataTable(query);

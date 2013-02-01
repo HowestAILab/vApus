@@ -328,14 +328,20 @@
             // 
             // codeTextBox
             // 
+            this.codeTextBox.AllowDrop = true;
             this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 15);
+            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.codeTextBox.BackBrush = null;
             this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.codeTextBox.IsReplaceMode = false;
             this.codeTextBox.Location = new System.Drawing.Point(30, 0);
             this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
             this.codeTextBox.PreferredLineWidth = 65536;
+            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
             this.codeTextBox.Size = new System.Drawing.Size(864, 100);
             this.codeTextBox.TabIndex = 0;
             this.codeTextBox.WordWrap = true;
@@ -412,7 +418,9 @@
             "Average Concurrency Results",
             "Average User Actions",
             "Average Log Entries",
-            "Errors"});
+            "Errors",
+            "Machine Configurations",
+            "Average Monitor Results"});
             this.cboShow.Location = new System.Drawing.Point(1, 1);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboShow.Name = "cboShow";

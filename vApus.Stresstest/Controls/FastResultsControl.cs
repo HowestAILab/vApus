@@ -147,7 +147,7 @@ namespace vApus.Stresstest {
         }
 
         public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
-                                             int runs, int minimumDelay, int maximumDelay, bool shuffle,  ActionAndLogEntryDistribution distribute, int monitorBefore,  int monitorAfter) {
+                                             int runs, int minimumDelay, int maximumDelay, bool shuffle, ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter) {
             kvpStresstest.Key = stresstest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
@@ -229,13 +229,8 @@ namespace vApus.Stresstest {
         /// <param name="threadContentionsPerSecond"></param>
         /// <param name="memoryUsage"></param>
         /// <param name="totalVisibleMemory"></param>
-        public void SetClientMonitoring(int threadsInUse = 0,
-                                        float cpuUsage = -1f,
-                                        float contextSwitchesPerSecond = -1f,
-                                        int memoryUsage = -1,
-                                        int totalVisibleMemory = -1,
-                                        float nicsSent = -1,
-                                        float nicsReceived = -1) {
+        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, float contextSwitchesPerSecond = -1f, int memoryUsage = -1,
+                                        int totalVisibleMemory = -1, float nicsSent = -1, float nicsReceived = -1) {
             kvmThreadsInUse.Value = threadsInUse.ToString();
             if (cpuUsage == -1) {
                 kvmCPUUsage.Value = "N/A";
@@ -342,6 +337,7 @@ namespace vApus.Stresstest {
         /// <param name="monitorToString"></param>
         /// <param name="metrics"></param>
         public void UpdateFastConcurrencyResults(string monitorToString, List<MonitorMetrics> metrics) {
+            if (monitorToString == null) return;
             if (_concurrencyMonitorMetrics.ContainsKey(monitorToString)) _concurrencyMonitorMetrics[monitorToString] = metrics;
             else _concurrencyMonitorMetrics.Add(monitorToString, metrics);
 
@@ -383,6 +379,7 @@ namespace vApus.Stresstest {
         /// <param name="monitorToString"></param>
         /// <param name="metrics"></param>
         public void UpdateFastRunResults(string monitorToString, List<MonitorMetrics> metrics) {
+            if (monitorToString == null) return;
             if (_runMonitorMetrics.ContainsKey(monitorToString)) _runMonitorMetrics[monitorToString] = metrics;
             else _runMonitorMetrics.Add(monitorToString, metrics);
 
