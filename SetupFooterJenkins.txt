@@ -30,7 +30,7 @@ var
   ResultCode: integer;
 begin
 	if not IsJavaDetected() then begin
-		Exec(ExpandConstant('{app}\JavaSetup7u7.exe'), '', '', SW_SHOW,
+		Exec(ExpandConstant('{app}\JavaSetup7u11.exe'), '', '', SW_SHOW,
 			ewWaitUntilTerminated, ResultCode)
 	end;
     	if IsDotNetDetected() then begin
