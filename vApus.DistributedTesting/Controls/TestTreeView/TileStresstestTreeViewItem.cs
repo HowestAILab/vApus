@@ -122,8 +122,7 @@ namespace vApus.DistributedTesting {
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit) {
                 if (_tileStresstest.Use) chk.Visible = true; else Visible = true;
-            }
-            else {
+            } else {
                 if (_tileStresstest.Use) {
                     chk.Visible = picDelete.Visible = picDuplicate.Visible = false;
 
@@ -131,8 +130,7 @@ namespace vApus.DistributedTesting {
 
                     picStresstestStatus.Image = null;
                     toolTip.SetToolTip(picStresstestStatus, string.Empty);
-                }
-                else Visible = false;
+                } else Visible = false;
             }
         }
 
@@ -148,8 +146,7 @@ namespace vApus.DistributedTesting {
 
                     CheckIfTestCanStart();
                 }
-            }
-            else if (sender == _tileStresstest.BasicTileStresstest || sender == _tileStresstest.AdvancedTileStresstest) {
+            } else if (sender == _tileStresstest.BasicTileStresstest || sender == _tileStresstest.AdvancedTileStresstest) {
                 CheckIfTestCanStart();
             }
         }
@@ -215,8 +212,9 @@ namespace vApus.DistributedTesting {
 
         public void SetStresstestStarted(DateTime start) { eventProgressChart.BeginOfTimeFrame = start; }
 
-        public void SetEstimatedRunTimeLeft(TimeSpan estimatedRuntimeLeft) {
-            eventProgressChart.SetEndOfTimeFrameTo(eventProgressChart.BeginOfTimeFrame + estimatedRuntimeLeft);
+        public void SetEstimatedRunTimeLeft(TimeSpan measuredRunTime, TimeSpan estimatedRuntimeLeft) {
+            if (estimatedRuntimeLeft.Ticks != 0)
+                eventProgressChart.SetEndOfTimeFrameTo(eventProgressChart.BeginOfTimeFrame + measuredRunTime + estimatedRuntimeLeft);
         }
 
         public void SetStresstestStatus(StresstestStatus stresstestStatus) {
@@ -252,8 +250,7 @@ namespace vApus.DistributedTesting {
             if (exclamation.Length != 0) {
                 if (toolTip.GetToolTip(lblExclamation) != exclamation) toolTip.SetToolTip(lblExclamation, exclamation);
                 _exclamation = lblExclamation.Visible = true;
-            }
-            else {
+            } else {
                 _exclamation = lblExclamation.Visible = false;
             }
         }

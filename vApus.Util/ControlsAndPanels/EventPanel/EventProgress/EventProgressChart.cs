@@ -328,7 +328,9 @@ namespace vApus.Util {
         }
         public void SetEndOfTimeFrameTo(DateTime dateTime) {
             _endOfTimeFrame = dateTime;
-            if (_behaveAsBar)
+            if (BehaveAsBar)
+                _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, DateTime.Now);
+            else
                 _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
             Invalidate();
         }

@@ -198,7 +198,7 @@ namespace vApus.DistributedTesting {
                                            List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange) {
             lock (_lock) {
                 _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
-                                stresstestStatus, startedAt, measuredRuntime, stresstestCore, events, concurrentUsersStateChange);
+                                stresstestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stresstestCore, events, concurrentUsersStateChange);
             }
         }
 

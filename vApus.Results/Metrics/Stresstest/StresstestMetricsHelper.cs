@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using vApus.Util;
 
 namespace vApus.Results {
@@ -203,16 +204,74 @@ namespace vApus.Results {
             }
             return metrics;
         }
-        private static TimeSpan GetEstimatedRuntimeLeft(StresstestMetrics metrics, bool stopped) {
+        private static TimeSpan GetEstimatedRuntimeLeft(StresstestMetrics metrics, bool running) {
             long estimatedRuntimeLeft = 0;
-            if (stopped) //For run sync first this must be 0.
-            {
-                estimatedRuntimeLeft =
-                    (long)
-                    (((DateTime.Now - metrics.StartMeasuringRuntime).TotalMilliseconds / metrics.LogEntriesProcessed) *
-                     (metrics.LogEntries - metrics.LogEntriesProcessed) * 10000);
+            if (running && metrics.LogEntriesProcessed != 0) {
+                estimatedRuntimeLeft = (long)(((DateTime.Now - metrics.StartMeasuringRuntime).Ticks / metrics.LogEntriesProcessed) * (metrics.LogEntries - metrics.LogEntriesProcessed));
                 if (estimatedRuntimeLeft < 0) estimatedRuntimeLeft = 0;
             }
+            return new TimeSpan(estimatedRuntimeLeft);
+        }
+        /// <summary>
+        /// Get estimated runtime left for the whole stresstest (this is not a precise estimation).
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="concurrencies"></param>
+        /// <param name="runs"></param>
+        /// <returns></returns>
+        public static TimeSpan GetEstimatedRuntimeLeft(StresstestResult result, int concurrencies, int runs) {
+            long estimatedRuntimeLeft = 0;
+            try {
+                if (result != null && result.StoppedAt == DateTime.MinValue) {
+                    var now = DateTime.Now;
+                    RunResult lastStoppedRun = null;
+
+                    long logEntriesProcessed = 0, logEntries = 0;
+
+                    runs *= concurrencies; //Get the total of runs
+                    foreach (var cur in result.ConcurrencyResults) {
+                        foreach (var rr in cur.RunResults) {
+                            --runs; //Use to get the erl for the next, not commenced yet, runs
+                            if (rr.StoppedAt == DateTime.MinValue) {
+                                for (int vur = 0; vur != rr.VirtualUserResults.Length; vur++) {
+                                    var virtualUserResult = rr.VirtualUserResults[vur];
+                                    if (virtualUserResult != null) {
+                                        var logEntryResults = virtualUserResult.LogEntryResults;
+                                        for (int ler = 0; ler != logEntryResults.Length; ler++) {
+                                            ++logEntries;
+                                            if (logEntryResults[ler] != null) ++logEntriesProcessed;
+                                        }
+                                    }
+                                }
+
+                                if (logEntriesProcessed == 0) {
+                                    ++runs;
+                                }
+                                else {
+                                    var measuredTime = (now - rr.StartedAt).Ticks;
+                                    estimatedRuntimeLeft = (long)((measuredTime / logEntriesProcessed) * (logEntries - logEntriesProcessed));
+                                    if (estimatedRuntimeLeft < 0) estimatedRuntimeLeft = 0;
+
+                                    //Get the estimated time left for the other runs, here we need the the already measured time.
+                                    if (runs > 0) {
+                                        var nextErl = estimatedRuntimeLeft + measuredTime;
+                                        estimatedRuntimeLeft +=(nextErl * runs);
+                                        runs = 0;
+                                    }
+                                }
+                                break;
+                            } else {
+                                lastStoppedRun = rr;
+                            }
+                        }
+                    }
+                    //Calculate the erl when the current tun is stopped.
+                    if (runs > 0 && lastStoppedRun != null)
+                        estimatedRuntimeLeft = (lastStoppedRun.StoppedAt - lastStoppedRun.StartedAt).Ticks * runs;
+                }
+            } catch {
+            }
+            Debug.WriteLine(estimatedRuntimeLeft);
             return new TimeSpan(estimatedRuntimeLeft);
         }
 

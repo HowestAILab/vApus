@@ -232,11 +232,12 @@ namespace vApus.DistributedTesting {
             tmrProgress.Stop();
 
             //Purge the previous concurrent user results from memory, we don't need it anymore.
-            foreach (var concurrencyResult in _stresstestResult.ConcurrencyResults)
-                if (concurrencyResult.StoppedAt != DateTime.MinValue) {
-                    _stresstestResult.ConcurrencyResults.Remove(concurrencyResult);
-                    break;
-                }
+            // Edit: For estimated runtime left we do need this.
+            //foreach (var concurrencyResult in _stresstestResult.ConcurrencyResults)
+            //    if (concurrencyResult.StoppedAt != DateTime.MinValue) {
+            //        _stresstestResult.ConcurrencyResults.Remove(concurrencyResult);
+            //        break;
+            //    }
 
             //Update the metrics.
             fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.AddOrUpdate(e.Result));
@@ -289,9 +290,9 @@ namespace vApus.DistributedTesting {
         /// <param name="concurrentUsersStateChange"></param>
         private void SendPushMessage(RunStateChange concurrentUsersStateChange) {
             if (!_finishedSent) {
-                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt, fastResultsControl.MeasuredRuntime, fastResultsControl.MeasuredRuntime, _stresstestCore, fastResultsControl.GetEvents(), concurrentUsersStateChange);
+                var estimatedRuntimeLeft = StresstestMetricsHelper.GetEstimatedRuntimeLeft(_stresstestResult, _stresstest.Concurrencies.Length, _stresstest.Runs);
+                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt, fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, fastResultsControl.GetEvents(), concurrentUsersStateChange);
                 if (_stresstestStatus != StresstestStatus.Busy) _finishedSent = true;
-                // fastResultsControl.EstimatedRuntimeLeft
             }
         }
 

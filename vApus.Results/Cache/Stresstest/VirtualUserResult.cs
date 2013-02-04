@@ -15,6 +15,10 @@ namespace vApus.Results
         /// </summary>
         private readonly long _baseLogEntryCount;
 
+        public long BaseLogEntryCount {
+            get { return _baseLogEntryCount; }
+        } 
+
         /// <summary>
         ///     For break on last runsync.
         /// </summary>
