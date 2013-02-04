@@ -107,10 +107,10 @@ namespace vApus.Util {
                 var l = new List<EventPanelEvent>(eventProgressBar.EventCount);
 
                 List<EventViewItem> evEvents = eventView.GetEvents();
-                List<ProgressEvent> epbEvents = eventProgressBar.GetEvents();
+                List<ChartProgressEvent> epbEvents = eventProgressBar.GetEvents();
                 for (int i = 0; i != eventProgressBar.EventCount; i++) {
                     EventViewEventType type = evEvents[i].EventType;
-                    ProgressEvent pe = epbEvents[i];
+                    ChartProgressEvent pe = epbEvents[i];
                     l.Add(new EventPanelEvent(type, pe.Color, pe.Message, pe.At));
                 }
                 return l;
@@ -124,7 +124,7 @@ namespace vApus.Util {
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at) {
             LockWindowUpdate(Handle.ToInt32());
 
-            ProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
+            ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
             EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter);
 
             if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {

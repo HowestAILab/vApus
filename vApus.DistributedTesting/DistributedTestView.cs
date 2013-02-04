@@ -732,7 +732,7 @@ namespace vApus.DistributedTesting {
                     //Build and add fast results.
                     if (testProgressMessage.StresstestMetricsCache != null) {
                         tileStresstestTreeViewItem.SetStresstestStarted(testProgressMessage.StartedAt);
-                        tileStresstestTreeViewItem.SetMeasuredRunTime(testProgressMessage.MeasuredRuntime);
+                        tileStresstestTreeViewItem.SetEstimatedRunTimeLeft(testProgressMessage.EstimatedRuntimeLeft);
 
                         //Set the distributed test tree view item
                         distributedTestTreeViewItem.SetStresstestStarted();

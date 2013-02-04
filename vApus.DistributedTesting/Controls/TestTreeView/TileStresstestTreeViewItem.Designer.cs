@@ -135,6 +135,7 @@
             this.eventProgressChart.TabIndex = 21;
             this.eventProgressChart.EventClick += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
             this.eventProgressChart.Enter += new System.EventHandler(this._Enter);
+            this.eventProgressChart.BehaveAsBar = true;
             // 
             // lblExclamation
             // 

@@ -98,6 +98,7 @@ namespace vApus.DistributedTesting {
         public StresstestStatus StresstestStatus;
         public DateTime StartedAt;
         public TimeSpan MeasuredRuntime;
+        public TimeSpan EstimatedRuntimeLeft;
 
         public int ThreadsInUse;
         public string TileStresstestIndex;

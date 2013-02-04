@@ -215,8 +215,8 @@ namespace vApus.DistributedTesting {
 
         public void SetStresstestStarted(DateTime start) { eventProgressChart.BeginOfTimeFrame = start; }
 
-        public void SetMeasuredRunTime(TimeSpan measuredRuntime) {
-            eventProgressChart.SetEndOfTimeFrameTo(eventProgressChart.BeginOfTimeFrame + measuredRuntime);
+        public void SetEstimatedRunTimeLeft(TimeSpan estimatedRuntimeLeft) {
+            eventProgressChart.SetEndOfTimeFrameTo(eventProgressChart.BeginOfTimeFrame + estimatedRuntimeLeft);
         }
 
         public void SetStresstestStatus(StresstestStatus stresstestStatus) {

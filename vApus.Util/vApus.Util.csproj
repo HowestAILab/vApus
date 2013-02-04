@@ -243,10 +243,10 @@
       <DependentUpon>EventPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\EventPanel\EventPanelEvent.cs" />
-    <Compile Include="ControlsAndPanels\EventPanel\EventProgressChart\EventProgressChart.cs">
+    <Compile Include="ControlsAndPanels\EventPanel\EventProgress\EventProgressChart.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\EventPanel\EventProgressChart\ProgressEvent.cs" />
+    <Compile Include="ControlsAndPanels\EventPanel\EventProgress\ChartProgressEvent.cs" />
     <Compile Include="ControlsAndPanels\EventPanel\EventView\EventViewEventType.cs" />
     <Compile Include="ControlsAndPanels\EventPanel\EventView\EventView.cs">
       <SubType>UserControl</SubType>

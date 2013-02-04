@@ -21,11 +21,7 @@ namespace vApus.DistributedTesting {
         private static readonly object _lock = new object();
         //For encrypting the mysql password
         private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private static readonly byte[] _salt =
-            {
-                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03,
-                0x62
-            };
+        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
 
         #region Message Handling
 
@@ -197,14 +193,9 @@ namespace vApus.DistributedTesting {
         /// <param name="stresstestCore"></param>
         /// <param name="events"></param>
         /// <param name="concurrentUsersStateChange"></param>
-        public static void SendPushMessage(string tileStresstestIndex,
-                                           StresstestMetricsCache stresstestMetricsCache,
-                                           StresstestStatus stresstestStatus,
-                                           DateTime startedAt,
-                                           TimeSpan measuredRuntime,
-                                           StresstestCore stresstestCore,
-                                           List<EventPanelEvent> events,
-                                           RunStateChange concurrentUsersStateChange) {
+        public static void SendPushMessage(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus,
+                                           DateTime startedAt, TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore,
+                                           List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange) {
             lock (_lock) {
                 _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
                                 stresstestStatus, startedAt, measuredRuntime, stresstestCore, events, concurrentUsersStateChange);
@@ -212,13 +203,9 @@ namespace vApus.DistributedTesting {
         }
 
         private static void SendQueuedPushMessage(string tileStresstestIndex,
-                                                  StresstestMetricsCache stresstestMetricsCache,
-                                                  StresstestStatus stresstestStatus,
-                                                  DateTime startedAt,
-                                                  TimeSpan measuredRuntime,
-                                                  StresstestCore stresstestCore,
-                                                  List<EventPanelEvent> events,
-                                                  RunStateChange concurrentUsersStateChange) {
+                                                  StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt,
+                                                  TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore,
+                                                  List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange) {
             try {
                 var tpm = new TestProgressMessage();
                 tpm.TileStresstestIndex = tileStresstestIndex;
@@ -241,6 +228,7 @@ namespace vApus.DistributedTesting {
                 tpm.StresstestStatus = stresstestStatus;
                 tpm.StartedAt = startedAt;
                 tpm.MeasuredRuntime = measuredRuntime;
+                tpm.EstimatedRuntimeLeft = estimatedRuntimeLeft;
                 tpm.RunStateChange = concurrentUsersStateChange;
 
                 if (!_masterSocketWrapper.Connected) {
@@ -266,7 +254,7 @@ namespace vApus.DistributedTesting {
         }
 
         private delegate void SendPushMessageDelegate(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt,
-                                                      TimeSpan measuredRuntime, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange);
+                                                      TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange);
 
         #endregion
 

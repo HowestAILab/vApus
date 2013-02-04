@@ -13,14 +13,11 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     public class TileStresstest : LabeledBaseItem {
+
         #region Fields
         //For encrypting the mysql password
         private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private static readonly byte[] _salt =
-            {
-                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03,
-                0x62
-            };
+        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
         private bool _automaticDefaultAdvancedSettings = true;
 
         /// <summary>
@@ -213,7 +210,8 @@ namespace vApus.DistributedTesting {
                 return new StresstestWrapper {
                     StresstestIdInDb = stresstestIdInDb,
                     Stresstest = stresstest, TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization
-                    , MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password.Encrypt(_passwordGUID, _salt)
+                    ,
+                    MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
                 };
             }
         }

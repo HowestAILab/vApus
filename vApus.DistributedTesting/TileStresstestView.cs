@@ -132,8 +132,7 @@ namespace vApus.DistributedTesting {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 Cursor = Cursors.WaitCursor;
                 btnStop.Enabled = true;
-                try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); } 
-                catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
+                try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); } catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
                 tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
 
                 fastResultsControl.SetStresstestInitialized();
@@ -290,10 +289,12 @@ namespace vApus.DistributedTesting {
         /// <param name="concurrentUsersStateChange"></param>
         private void SendPushMessage(RunStateChange concurrentUsersStateChange) {
             if (!_finishedSent) {
-                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt, fastResultsControl.MeasuredRuntime, _stresstestCore, fastResultsControl.GetEvents(), concurrentUsersStateChange);
+                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt, fastResultsControl.MeasuredRuntime, fastResultsControl.MeasuredRuntime, _stresstestCore, fastResultsControl.GetEvents(), concurrentUsersStateChange);
                 if (_stresstestStatus != StresstestStatus.Busy) _finishedSent = true;
+                // fastResultsControl.EstimatedRuntimeLeft
             }
         }
+
         /// <summary>
         ///     Refreshes the results for a selected node and refreshes the listed results.
         /// </summary>
@@ -307,9 +308,7 @@ namespace vApus.DistributedTesting {
         #region Stop
 
         private void TileStresstestView_FormClosing(object sender, FormClosingEventArgs e) {
-            if (!btnStop.Enabled ||
-                MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo,
-                                MessageBoxIcon.Warning) == DialogResult.Yes) {
+            if (!btnStop.Enabled || MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 StopStresstest();
 
                 tmrProgress.Stop();

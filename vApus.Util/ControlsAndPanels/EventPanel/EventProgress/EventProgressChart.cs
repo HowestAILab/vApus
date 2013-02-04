@@ -18,19 +18,6 @@ namespace vApus.Util {
     ///     Makes it able to show events in time while changing the value of the progress chart.
     /// </summary>
     public class EventProgressChart : Panel {
-        /// <summary>
-        ///     Makes it able to show events in time while changing the value of the progress chart.
-        /// </summary>
-        public EventProgressChart() {
-            Height = 15;
-
-            toolTip.UseAnimation = false;
-            toolTip.UseFading = false;
-
-            SetStyle(
-                ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer |
-                ControlStyles.ResizeRedraw, true);
-        }
 
         [Description("Occurs when the cursor enters a progress event.")]
         public event EventHandler<ProgressEventEventArgs> EventMouseEnter;
@@ -44,7 +31,7 @@ namespace vApus.Util {
         #region Fields
 
         private readonly SolidBrush _brush = new SolidBrush(Color.LightSteelBlue);
-        private readonly List<ProgressEvent> _progressEvents = new List<ProgressEvent>();
+        private readonly List<ChartProgressEvent> _progressEvents = new List<ChartProgressEvent>();
 
         private readonly ToolTip toolTip = new ToolTip();
 
@@ -54,16 +41,41 @@ namespace vApus.Util {
         /// <summary>
         ///     To set the progressbar to 'now'.
         /// </summary>
-        private ProgressEvent _nowProgressEvent;
+        private ChartProgressEvent _nowProgressEvent;
 
-        private ProgressEvent _previouslyHovered;
+        private ChartProgressEvent _previouslyHovered;
 
-        private List<ProgressEvent> _sortedProgressEvents = new List<ProgressEvent>();
+        private List<ChartProgressEvent> _sortedProgressEvents = new List<ChartProgressEvent>();
         //Sorted on importance, to draw the lines.
 
         private bool _toolTipThisShown;
 
+        private bool _behaveAsBar = false;
+
+        /// <summary>
+        /// If true, when the end of time frame is set the current time is remembered, thus creating a progress bar.
+        /// (SetEndOfTimeFrameTo(DateTime))
+        /// </summary>
+        public bool BehaveAsBar {
+            get { return _behaveAsBar; }
+            set { _behaveAsBar = value; }
+        }
+
         #endregion
+
+        /// <summary>
+        ///     Makes it able to show events in time while changing the value of the progress chart.
+        /// </summary>
+        public EventProgressChart() {
+            Height = 15;
+
+            toolTip.UseAnimation = false;
+            toolTip.UseFading = false;
+
+            SetStyle(
+                ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.ResizeRedraw, true);
+        }
 
         #region Properties
 
@@ -110,14 +122,14 @@ namespace vApus.Util {
         #endregion
 
         public class ProgressEventEventArgs : EventArgs {
-            public readonly ProgressEvent ProgressEvent;
+            public readonly ChartProgressEvent ProgressEvent;
 
-            public ProgressEventEventArgs(ProgressEvent progressEvent) {
+            public ProgressEventEventArgs(ChartProgressEvent progressEvent) {
                 ProgressEvent = progressEvent;
             }
         }
 
-        private ProgressEvent GetEventAt(int index) {
+        private ChartProgressEvent GetEventAt(int index) {
             return _progressEvents[index];
         }
 
@@ -127,8 +139,8 @@ namespace vApus.Util {
         /// <param name="color"></param>
         /// <param name="message"></param>
         /// <param name="at"></param>
-        public ProgressEvent AddEvent(Color color, string message, DateTime at) {
-            var pe = new ProgressEvent(this, color, message, at);
+        public ChartProgressEvent AddEvent(Color color, string message, DateTime at) {
+            var pe = new ChartProgressEvent(this, color, message, at);
             pe.MouseEnter += pe_MouseEnter;
             pe.MouseLeave += pe_MouseLeave;
             pe.Click += pe_Click;
@@ -146,21 +158,20 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="progressEvents"></param>
         /// <returns></returns>
-        private List<ProgressEvent> Sort(List<ProgressEvent> progressEvents) {
-            var pes = new List<ProgressEvent>(progressEvents.Count);
-            var sorter = new Dictionary<Color, List<ProgressEvent>>();
+        private List<ChartProgressEvent> Sort(List<ChartProgressEvent> progressEvents) {
+            var pes = new List<ChartProgressEvent>(progressEvents.Count);
+            var sorter = new Dictionary<Color, List<ChartProgressEvent>>();
 
-            foreach (ProgressEvent pe in progressEvents)
+            foreach (ChartProgressEvent pe in progressEvents)
                 if (sorter.ContainsKey(pe.Color)) {
                     sorter[pe.Color].Add(pe);
-                }
-                else {
-                    var value = new List<ProgressEvent>();
+                } else {
+                    var value = new List<ChartProgressEvent>();
                     value.Add(pe);
                     sorter.Add(pe.Color, value);
                 }
 
-            var sorted = new Dictionary<Color, List<ProgressEvent>>(sorter.Count);
+            var sorted = new Dictionary<Color, List<ChartProgressEvent>>(sorter.Count);
 
             while (sorter.Count != 0) {
                 Color smallestCount = Color.Empty;
@@ -180,7 +191,7 @@ namespace vApus.Util {
             return pes;
         }
 
-        public List<ProgressEvent> GetEvents() {
+        public List<ChartProgressEvent> GetEvents() {
             return _progressEvents;
         }
 
@@ -191,17 +202,17 @@ namespace vApus.Util {
 
         private void pe_MouseEnter(object sender, EventArgs e) {
             if (EventMouseEnter != null)
-                EventMouseEnter(this, new ProgressEventEventArgs(sender as ProgressEvent));
+                EventMouseEnter(this, new ProgressEventEventArgs(sender as ChartProgressEvent));
         }
 
         private void pe_MouseLeave(object sender, EventArgs e) {
             if (EventMouseLeave != null)
-                EventMouseLeave(this, new ProgressEventEventArgs(sender as ProgressEvent));
+                EventMouseLeave(this, new ProgressEventEventArgs(sender as ChartProgressEvent));
         }
 
         private void pe_Click(object sender, EventArgs e) {
             if (EventClick != null)
-                EventClick(this, new ProgressEventEventArgs(sender as ProgressEvent));
+                EventClick(this, new ProgressEventEventArgs(sender as ChartProgressEvent));
         }
 
         protected override void OnPaint(PaintEventArgs e) {
@@ -211,12 +222,12 @@ namespace vApus.Util {
                 Graphics g = e.Graphics;
                 g.SmoothingMode = SmoothingMode.HighSpeed;
 
-                DrawProgressBar(g);
-                ProgressEvent entered = null;
+                DrawBackground(g);
+                ChartProgressEvent entered = null;
 
                 //Do this in reversed order --> the most important are drawn last.
                 for (int i = _sortedProgressEvents.Count - 1; i != -1; i--) {
-                    ProgressEvent pe = _sortedProgressEvents[i];
+                    ChartProgressEvent pe = _sortedProgressEvents[i];
                     if (pe.Entered)
                         entered = pe;
                     else
@@ -224,13 +235,15 @@ namespace vApus.Util {
                 }
                 if (entered != null)
                     entered.Draw(g);
-            }
-            catch {
+            } catch {
             }
         }
-
-        private void DrawProgressBar(Graphics g) {
-            ProgressEvent pe = null;
+        /// <summary>
+        /// Fill a rectangle to the now progress event location.
+        /// </summary>
+        /// <param name="g"></param>
+        private void DrawBackground(Graphics g) {
+            ChartProgressEvent pe = null;
             if (_sortedProgressEvents.Count != 0) {
                 pe = _sortedProgressEvents[_sortedProgressEvents.Count - 1];
                 if (_nowProgressEvent == null || _nowProgressEvent.At < pe.At)
@@ -238,46 +251,24 @@ namespace vApus.Util {
             }
 
             if (_nowProgressEvent != null)
-                g.FillRectangle(_brush, 0, 0, _nowProgressEvent.Location.X + ProgressEvent.WIDTH, Bounds.Height);
-
-            SetValueInTB();
-        }
-
-        private Form FindOwnerForm() {
-            Form ownerform = FindForm();
-            while (ownerform != null) {
-                Form f = ownerform.ParentForm;
-                if (f == null)
-                    break;
-                ownerform = f;
-            }
-
-            return ownerform;
-        }
-
-        private void SetValueInTB() {
-            Form ownerform = FindOwnerForm();
-            if (ownerform != null && ownerform.IsHandleCreated) {
-                var maximum = (ulong)(Width);
-                var progress = (ulong)(_nowProgressEvent == null ? 0 : _nowProgressEvent.Location.X);
-            }
+                g.FillRectangle(_brush, 0, 0, _nowProgressEvent.Location.X + ChartProgressEvent.WIDTH, Bounds.Height);
         }
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            ProgressEvent pe = GetHoveredProgressEvent();
+            ChartProgressEvent pe = GetHoveredProgressEvent();
             PerformMouseEnter(pe, _eventToolTip);
         }
 
         public void PerformMouseEnter(DateTime at, bool showToolTip) {
-            foreach (ProgressEvent pe in _sortedProgressEvents)
+            foreach (ChartProgressEvent pe in _sortedProgressEvents)
                 if (pe.At == at) {
                     PerformMouseEnter(pe, showToolTip);
                     break;
                 }
         }
 
-        private void PerformMouseEnter(ProgressEvent pe, bool showToolTip) {
+        private void PerformMouseEnter(ChartProgressEvent pe, bool showToolTip) {
             if (pe == null) {
                 if (!_toolTipThisShown) {
                     if (_previouslyHovered != null)
@@ -286,8 +277,7 @@ namespace vApus.Util {
                     _toolTipThisShown = true;
                     toolTip.Show("Time frame: " + _beginOfTimeFrame + " - " + _endOfTimeFrame, this);
                 }
-            }
-            else if (pe != _previouslyHovered) {
+            } else if (pe != _previouslyHovered) {
                 _toolTipThisShown = false;
                 PerformMouseLeave(false);
 
@@ -308,17 +298,17 @@ namespace vApus.Util {
         protected override void OnClick(EventArgs e) {
             base.OnClick(e);
 
-            ProgressEvent pe = GetHoveredProgressEvent();
+            ChartProgressEvent pe = GetHoveredProgressEvent();
             if (pe != null)
                 pe.PerformClick();
         }
 
-        private ProgressEvent GetHoveredProgressEvent() {
+        private ChartProgressEvent GetHoveredProgressEvent() {
             Point p = PointToClient(Cursor.Position);
-            foreach (ProgressEvent pe in _sortedProgressEvents) {
+            foreach (ChartProgressEvent pe in _sortedProgressEvents) {
                 Point location = pe.Location;
                 if (p.X >= location.X &&
-                    p.X <= location.X + ProgressEvent.WIDTH)
+                    p.X <= location.X + ChartProgressEvent.WIDTH)
                     return pe;
             }
             return null;
@@ -333,11 +323,13 @@ namespace vApus.Util {
         }
 
         public void SetEndOfTimeFrameToNow() {
-            SetEndOfTimeFrameTo(DateTime.Now);
+            _endOfTimeFrame = DateTime.Now;
+            _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
         }
         public void SetEndOfTimeFrameTo(DateTime dateTime) {
             _endOfTimeFrame = dateTime;
-            _nowProgressEvent = new ProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
+            if (_behaveAsBar)
+                _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
             Invalidate();
         }
     }
