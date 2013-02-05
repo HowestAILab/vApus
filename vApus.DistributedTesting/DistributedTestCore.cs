@@ -237,6 +237,7 @@ namespace vApus.DistributedTesting {
             _sw.Stop();
             InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
+           // Thread.Sleep(10000);
         }
 
         private void SendAndReceiveInitializeTest() {
@@ -246,9 +247,9 @@ namespace vApus.DistributedTesting {
             foreach (var ts in _usedTileStresstests)
                 stresstestIdsInDb.Add(_tileStresstestsWithDbIds.ContainsKey(ts) ? _tileStresstestsWithDbIds[ts] : -1);
 
-            Exception[] exceptions = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests, stresstestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization);
-            if (exceptions.Length != 0) {
-                var ex = new Exception("Could not initialize one or more tests!\n" + exceptions.Combine("\n"));
+            Exception exception = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests, stresstestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization);
+            if (exception != null) {
+                var ex = new Exception("Could not initialize one or more tests!\n" + exception);
                 InvokeMessage(ex.ToString(), LogLevel.Error);
                 throw ex;
             }

@@ -58,65 +58,64 @@ namespace vApus.DistributedTesting {
         }
 
         private static Message<Key> HandleInitializeTest(Message<Key> message) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(
-                delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
-            //init the send queue for push messages.
-            _sendQueue = new ActiveObject();
-
-            var initializeTestMessage = (InitializeTestMessage)message.Content;
-            StresstestWrapper stresstestWrapper = initializeTestMessage.StresstestWrapper;
-
             try {
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    SolutionComponentViewManager.DisposeViews();
-                    if (_tileStresstestView != null)
-                        try { _tileStresstestView.Close(); } catch { }
-                    try { _tileStresstestView.Dispose(); } catch { }
-                    _tileStresstestView = null;
-                }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(
+                    delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
+                //init the send queue for push messages.
+                _sendQueue = new ActiveObject();
 
-                if (_masterSocketWrapper == null) {
+                var initializeTestMessage = (InitializeTestMessage)message.Content;
+                var stresstestWrapper = initializeTestMessage.StresstestWrapper;
+
+                try {
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                        try { SolutionComponentViewManager.DisposeViews(); } catch { }
+                    }, null);
+
                     var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
                     _masterSocketWrapper = new SocketWrapper(initializeTestMessage.PushIP, initializeTestMessage.PushPort, socket);
-                    _masterSocketWrapper.Connect(1000, 3);
+                    _masterSocketWrapper.Connect(3000, 3);
+
+                    if (NewTest != null)
+                        foreach (EventHandler<NewTestEventArgs> del in NewTest.GetInvocationList())
+                            del.BeginInvoke(null, new NewTestEventArgs(stresstestWrapper.Stresstest.ToString()), null, null);
+
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                        int done = 1;
+                    Retry:
+                        try {
+                            _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
+                            _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
+                            _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
+
+                            if (stresstestWrapper.StresstestIdInDb != -1 && !string.IsNullOrEmpty(stresstestWrapper.MySqlHost)) {
+                                _tileStresstestView.ConnectToExistingDatabase(stresstestWrapper.MySqlHost, stresstestWrapper.MySqlPort, stresstestWrapper.MySqlDatabaseName, stresstestWrapper.MySqlUser,
+                                    stresstestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
+                                _tileStresstestView.StresstestIdInDb = stresstestWrapper.StresstestIdInDb;
+                            }
+                        } catch {
+                            if (done != 4) {
+                                Thread.Sleep(1000 * (done++));
+                                goto Retry;
+                            }
+                            _tileStresstestView = null;
+                            throw;
+                        }
+                    }, null);
+
+                    //This is threadsafe
+                    _tileStresstestView.InitializeTest();
+                } catch (Exception ex) {
+                    initializeTestMessage.Exception = ex.ToString();
                 }
 
-                if (NewTest != null)
-                    foreach (EventHandler<NewTestEventArgs> del in NewTest.GetInvocationList())
-                        del.BeginInvoke(null, new NewTestEventArgs(stresstestWrapper.Stresstest.ToString()), null, null);
-
+                initializeTestMessage.StresstestWrapper = null;
+                message.Content = initializeTestMessage;
+            } catch (Exception ex) {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    int done = 1;
-                Retry:
-                    try {
-                        _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
-                        _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
-                        _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
-
-                        if (stresstestWrapper.StresstestIdInDb != -1 && !string.IsNullOrEmpty(stresstestWrapper.MySqlHost)) {
-                            _tileStresstestView.ConnectToExistingDatabase(stresstestWrapper.MySqlHost, stresstestWrapper.MySqlPort, stresstestWrapper.MySqlDatabaseName, stresstestWrapper.MySqlUser,
-                                stresstestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
-                            _tileStresstestView.StresstestIdInDb = stresstestWrapper.StresstestIdInDb;
-                        }
-                    } catch {
-                        if (done != 4) {
-                            Thread.Sleep(1000 * (done++));
-                            goto Retry;
-                        }
-                        _tileStresstestView = null;
-                        throw;
-                    }
+                    System.Windows.Forms.MessageBox.Show(ex.ToString());
                 }, null);
-
-                //This is threadsafe
-                _tileStresstestView.InitializeTest();
-            } catch (Exception ex) { initializeTestMessage.Exception = ex.ToString(); }
-
-            initializeTestMessage.StresstestWrapper = new StresstestWrapper();
-            message.Content = initializeTestMessage;
-
-            Thread.Sleep(1000);
+            }
             return message;
         }
 
@@ -181,7 +180,6 @@ namespace vApus.DistributedTesting {
         private static readonly SendPushMessageDelegate _sendPushMessageDelegate = SendQueuedPushMessage;
         private static ActiveObject _sendQueue;
 
-
         /// <summary>
         ///     Queues the messages to send in queues per stresstest (vApus.Util.ActiveObject), thread safe.
         ///     Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
@@ -197,8 +195,9 @@ namespace vApus.DistributedTesting {
                                            DateTime startedAt, TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore,
                                            List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange) {
             lock (_lock) {
-                _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
-                                stresstestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stresstestCore, events, concurrentUsersStateChange);
+                if (_sendQueue != null)
+                    _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
+                                    stresstestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stresstestCore, events, concurrentUsersStateChange);
             }
         }
 
@@ -206,51 +205,53 @@ namespace vApus.DistributedTesting {
                                                   StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt,
                                                   TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore,
                                                   List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange) {
-            try {
-                var tpm = new TestProgressMessage();
-                tpm.TileStresstestIndex = tileStresstestIndex;
-
-                tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed
-                                       ? stresstestCore.BusyThreadCount : 0;
+            if (_masterSocketWrapper != null)
                 try {
-                    tpm.CPUUsage = LocalMonitor.CPUUsage;
-                    tpm.MemoryUsage = LocalMonitor.MemoryUsage;
-                    tpm.TotalVisibleMemory = LocalMonitor.TotalVisibleMemory;
-                    tpm.ContextSwitchesPerSecond = LocalMonitor.ContextSwitchesPerSecond;
-                    tpm.NicsSent = LocalMonitor.NicsSent;
-                    tpm.NicsReceived = LocalMonitor.NicsReceived;
-                } catch {
-                } //Exception on false WMI. 
+                    var tpm = new TestProgressMessage();
+                    tpm.TileStresstestIndex = tileStresstestIndex;
 
-
-                tpm.StresstestMetricsCache = stresstestMetricsCache;
-                tpm.Events = events;
-                tpm.StresstestStatus = stresstestStatus;
-                tpm.StartedAt = startedAt;
-                tpm.MeasuredRuntime = measuredRuntime;
-                tpm.EstimatedRuntimeLeft = estimatedRuntimeLeft;
-                tpm.RunStateChange = concurrentUsersStateChange;
-
-                if (!_masterSocketWrapper.Connected) {
+                    tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed
+                                           ? stresstestCore.BusyThreadCount : 0;
                     try {
-                        if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose();
-                    } catch { }
+                        tpm.CPUUsage = LocalMonitor.CPUUsage;
+                        tpm.MemoryUsage = LocalMonitor.MemoryUsage;
+                        tpm.TotalVisibleMemory = LocalMonitor.TotalVisibleMemory;
+                        tpm.ContextSwitchesPerSecond = LocalMonitor.ContextSwitchesPerSecond;
+                        tpm.NicsSent = LocalMonitor.NicsSent;
+                        tpm.NicsReceived = LocalMonitor.NicsReceived;
+                    } catch {
+                    } //Exception on false WMI. 
 
-                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-                    _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
+                    tpm.StresstestMetricsCache = stresstestMetricsCache;
+                    tpm.Events = events;
+                    tpm.StresstestStatus = stresstestStatus;
+                    tpm.StartedAt = startedAt;
+                    tpm.MeasuredRuntime = measuredRuntime;
+                    tpm.EstimatedRuntimeLeft = estimatedRuntimeLeft;
+                    tpm.RunStateChange = concurrentUsersStateChange;
 
-                    try { _masterSocketWrapper.Connect(1000, 3); } catch { }
-                }
+                    if (!_masterSocketWrapper.Connected) {
+                        try {
+                            if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose();
+                        } catch {
+                        }
 
-                if (_masterSocketWrapper.Connected) {
-                    var message = new Message<Key>(Key.Push, tpm);
-                    try {
+                        var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                        _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
+
+                        try { _masterSocketWrapper.Connect(1000, 3); } catch {
+                        }
+                    }
+
+                    if (_masterSocketWrapper.Connected) {
+                        var message = new Message<Key>(Key.Push, tpm);
                         SynchronizeBuffers(message);
                         _masterSocketWrapper.Send(message, SendType.Binary);
-                    } catch { }
+                    }
+                } catch {
                 }
-            } catch { }
         }
 
         private delegate void SendPushMessageDelegate(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt,

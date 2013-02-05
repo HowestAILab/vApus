@@ -510,15 +510,15 @@ namespace vApus.DistributedTesting {
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public static Exception[] InitializeTests(List<TileStresstest> tileStresstests, List<long> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization) {
-            var exceptions = new List<Exception>();
+        public static Exception InitializeTests(List<TileStresstest> tileStresstests, List<long> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization) {
+            Exception exception = null;
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[tileStresstests.Count];
             for (int i = 0; i != initializeTestData.Length; i++) {
                 var slave = tileStresstests[i].BasicTileStresstest.Slaves[0];
                 Exception ex;
                 var socketWrapper = Get(slave.IP, slave.Port, out ex);
                 if (ex != null) {
-                    exceptions.Add(ex);
+                    exception = ex;
                     break;
                 }
                 var masterSocketWrapper = _connectedSlaves[socketWrapper];
@@ -530,27 +530,30 @@ namespace vApus.DistributedTesting {
                 initializeTestData[i] = new InitializeTestWorkItem.InitializeTestData() { SocketWrapper = socketWrapper, InitializeTestMessage = initializeTestMessage };
             }
 
-            if (initializeTestData.Length != 0 && exceptions.Count == 0) {
+            if (initializeTestData.Length != 0 && exception == null) {
                 AutoResetEvent waitHandle = new AutoResetEvent(false);
                 int count = initializeTestData.Length;
                 int done = 0;
                 for (int i = 0; i != count; i++) {
                     Thread t = new Thread(delegate(object parameter) {
                         int index = (int)parameter;
-                        Thread.Sleep(index * 1000); //Not pretty, I don't get it to work otherwise.
-                        if (_initializeTestWorkItem == null)
-                            _initializeTestWorkItem = new InitializeTestWorkItem();
-                        var exception = _initializeTestWorkItem.InitializeTest(initializeTestData[index]);
+
+                        _initializeTestWorkItem = new InitializeTestWorkItem();
+                        var ex = _initializeTestWorkItem.InitializeTest(initializeTestData[index]);
 
                         lock (_lock) {
-                            if (exception != null) exceptions.Add(exception);
-                            ++done;
+                            if (ex == null) {
+                                ++done;
+                            } else {
+                                exception = ex;
+                                done = count;
+                            }
                         }
-                        if (done == count) waitHandle.Set();
+                        if (done >= count) waitHandle.Set();
                     });
                     t.IsBackground = true;
+                    t.Priority = ThreadPriority.Highest;
                     t.Start(i);
-
                 }
 
                 waitHandle.WaitOne();
@@ -558,7 +561,7 @@ namespace vApus.DistributedTesting {
                 waitHandle = null;
             }
 
-            return exceptions.ToArray();
+            return exception;
         }
 
         /// <summary>
@@ -656,7 +659,7 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Work items
-        private class InitializeTestWorkItem {
+        public class InitializeTestWorkItem {
             /// <summary>
             /// 
             /// </summary>

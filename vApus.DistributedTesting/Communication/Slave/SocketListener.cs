@@ -369,6 +369,7 @@ namespace vApus.DistributedTesting {
                 }
                 socketWrapper.Send(message, SendType.Binary);
             } catch (Exception exception) {
+                //MessageBox.Show(exception.ToString());
                 DisconnectMaster(socketWrapper);
                 SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
                 //The test cannot be valid without a master, stop the test if any.

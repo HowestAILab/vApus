@@ -27,6 +27,7 @@ namespace vApus.SolutionTree {
         ///     Call SolutionComponent.GetNextChild when this happens, don't forget to suscribe to this event again for the new item.
         ///     Note: this event is fired on another thread.
         /// </summary>
+        [field: NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
         public event EventHandler ParentIsNull;
 
         #region Fields
@@ -35,6 +36,7 @@ namespace vApus.SolutionTree {
         protected List<BaseItem> _items = new List<BaseItem>();
         private bool _noImage, _showInGui = true;
 
+        [NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
         private InvokeSolutionComponentChangedEventDelegate _invokeSolutionComponentChangedEventDelegate;
         #endregion
 

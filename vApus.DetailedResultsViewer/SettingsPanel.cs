@@ -27,6 +27,8 @@ namespace vApus.DetailedResultsViewer {
 
         private ResultsHelper _resultsHelper;
 
+        private bool _initing = true;
+
         public ResultsHelper ResultsHelper {
             get { return _resultsHelper; }
             set { _resultsHelper = value; }
@@ -37,6 +39,7 @@ namespace vApus.DetailedResultsViewer {
         public SettingsPanel() {
             InitializeComponent();
             RefreshDatabases(true);
+            _initing = false;
         }
         ~SettingsPanel() { try { _waitHandle.Dispose(); } catch { } }
 
@@ -68,7 +71,7 @@ namespace vApus.DetailedResultsViewer {
                 return new DatabaseActions() { ConnectionString = _mySQLServerDialog.ConnectionString };
             }
 
-            MessageBox.Show("Could not connect to the database server.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (!_initing) MessageBox.Show("Could not connect to the database server.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             return null;
 
         }

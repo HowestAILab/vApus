@@ -209,8 +209,8 @@ namespace vApus.DistributedTesting {
 
                 return new StresstestWrapper {
                     StresstestIdInDb = stresstestIdInDb,
-                    Stresstest = stresstest, TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization
-                    ,
+                    Stresstest = stresstest, 
+                    TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization,
                     MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
                 };
             }

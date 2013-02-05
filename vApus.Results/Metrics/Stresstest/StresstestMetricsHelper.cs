@@ -271,7 +271,6 @@ namespace vApus.Results {
                 }
             } catch {
             }
-            Debug.WriteLine(estimatedRuntimeLeft);
             return new TimeSpan(estimatedRuntimeLeft);
         }
 
