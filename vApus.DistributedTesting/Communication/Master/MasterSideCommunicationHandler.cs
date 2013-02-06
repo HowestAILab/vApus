@@ -536,20 +536,25 @@ namespace vApus.DistributedTesting {
                 int done = 0;
                 for (int i = 0; i != count; i++) {
                     Thread t = new Thread(delegate(object parameter) {
-                        int index = (int)parameter;
+                        if (done < count) try {
+                                int index = (int)parameter;
 
-                        _initializeTestWorkItem = new InitializeTestWorkItem();
-                        var ex = _initializeTestWorkItem.InitializeTest(initializeTestData[index]);
+                                if (_initializeTestWorkItem == null) _initializeTestWorkItem = new InitializeTestWorkItem();
+                                var ex = _initializeTestWorkItem.InitializeTest(initializeTestData[index]);
 
-                        lock (_lock) {
-                            if (ex == null) {
-                                ++done;
-                            } else {
-                                exception = ex;
-                                done = count;
-                            }
-                        }
-                        if (done >= count) waitHandle.Set();
+                                lock (_lock) {
+                                    if (ex == null) {
+                                        ++done;
+                                    } else {
+                                        exception = ex;
+                                        done = count;
+                                    }
+                                }
+                                if (done >= count) try {
+                                        if (waitHandle != null)
+                                            waitHandle.Set();
+                                    } catch { }
+                            } catch { }
                     });
                     t.IsBackground = true;
                     t.Priority = ThreadPriority.Highest;

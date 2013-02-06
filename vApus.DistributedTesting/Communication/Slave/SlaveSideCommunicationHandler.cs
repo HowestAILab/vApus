@@ -109,7 +109,7 @@ namespace vApus.DistributedTesting {
                     initializeTestMessage.Exception = ex.ToString();
                 }
 
-                initializeTestMessage.StresstestWrapper = null;
+                initializeTestMessage.StresstestWrapper = new StresstestWrapper();
                 message.Content = initializeTestMessage;
             } catch (Exception ex) {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {

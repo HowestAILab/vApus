@@ -134,7 +134,7 @@ namespace vApus.Stresstest {
             lblStopped.Text = string.Empty;
 
 
-            ClearFastResults();
+            ClearFastResults(true);
         }
 
         public void SetConfigurationControls(Stresstest stresstest) {
@@ -298,8 +298,12 @@ namespace vApus.Stresstest {
             btnRerunning.Visible = rerun;
         }
 
-        public void ClearFastResults() {
-            lblUpdatesIn.Text = lblStarted.Text = lblMeasuredRuntime.Text = lblStopped.Text = string.Empty;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clearLabels">Don,t clear those when updating results.</param>
+        public void ClearFastResults(bool clearLabels) {
+            if (clearLabels) lblUpdatesIn.Text = lblStarted.Text = lblMeasuredRuntime.Text = lblStopped.Text = string.Empty;
 
             dgvFastResults.RowCount = 0;
 
