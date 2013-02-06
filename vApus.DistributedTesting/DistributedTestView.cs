@@ -230,7 +230,7 @@ namespace vApus.DistributedTesting {
                             detailedResultsControl.RefreshResults(_resultsHelper);
                         }
                     } else {
-                        fastResultsControl.ClearFastResults(true);
+                        fastResultsControl.ClearFastResults();
                         detailedResultsControl.ClearResults();
                         detailedResultsControl.Enabled = false;
                     }
@@ -682,7 +682,7 @@ namespace vApus.DistributedTesting {
         private void SetSlaveProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
             lock (_lock) {
                 //Build and add fast results.
-                fastResultsControl.ClearFastResults(false);
+                fastResultsControl.ClearFastResults();
                 if (testProgressMessage.StresstestMetricsCache != null) {
                     fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics());
                     fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics());

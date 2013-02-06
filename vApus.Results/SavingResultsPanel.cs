@@ -22,7 +22,9 @@ namespace vApus.Results {
                 if (Settings.Default.ConnectionStringIndex > -1 && Settings.Default.ConnectionStringIndex < SettingsManager.GetConnectionStrings().Count) {
                     var databaseActions = new DatabaseActions() { ConnectionString = this.ConnectionString };
                     var dbs = databaseActions.GetDataTable("Show Databases;");
-                    return dbs.Columns.Count != 0;
+                    bool connected =dbs.Columns.Count != 0;
+                    databaseActions.ReleaseConnection();
+                    return connected;
                 }
                 return false;
             }
@@ -35,7 +37,7 @@ namespace vApus.Results {
 
                 if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
 
-                return string.Format("Server={0};Port={1};Uid={2};Pwd={3}", host, port, user, password);
+                return string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;", host, port, user, password);
             }
         }
         public void GetCurrentCredentials(out string user, out string host, out int port, out string password) {

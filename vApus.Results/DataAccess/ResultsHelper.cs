@@ -122,9 +122,12 @@ namespace vApus.Results {
         /// <param name="monitorBeforeInMinutes"></param>
         /// <param name="monitorAfterInMinutes"></param>
         /// <returns>Id of the stresstest.</returns>
-        public ulong SetStresstest(string stresstest, string runSynchronization, string connection, string connectionProxy, string connectionString,
-                                         string log, string logRuleSet, int[] concurrencies, int runs, int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle,
-                                         string distribute, int monitorBeforeInMinutes, int monitorAfterInMinutes) {
+        public ulong SetStresstest(string stresstest, string runSynchronization, string connection,
+                                         string connectionProxy, string connectionString,
+                                         string log, string logRuleSet, int[] concurrencies, int runs,
+                                         int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle,
+                                         string distribute,
+                                         int monitorBeforeInMinutes, int monitorAfterInMinutes) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(@"INSERT INTO Stresstests(
@@ -174,7 +177,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     string.Format(
                         "INSERT INTO Monitors(StresstestId, Monitor, MonitorSource, ConnectionString, MachineConfiguration, ResultHeaders) VALUES('{0}', ?Monitor, ?MonitorSource, ?ConnectionString, ?MachineConfiguration, ?ResultHeaders)", stresstestId),
                         CommandType.Text, new MySqlParameter("?Monitor", monitor), new MySqlParameter("?MonitorSource", monitorSource), new MySqlParameter("?ConnectionString", connectionString.Encrypt(_passwordGUID, _salt)),
-                        new MySqlParameter("?MachineConfiguration", machineConfiguration), new MySqlParameter("?ResultHeaders", resultHeaders.Combine("; ", string.Empty))
+                            new MySqlParameter("?MachineConfiguration", machineConfiguration), new MySqlParameter("?ResultHeaders", resultHeaders.Combine("; ", string.Empty))
                     );
                 return _databaseActions.GetLastInsertId();
             }
@@ -195,9 +198,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="password"></param>
         public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
             try {
-                _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4}", host, port, databaseName, user, password) };
+                _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;", host, port, databaseName, user, password) };
                 if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to MySQL could not be made!");
             } catch {
+                try { _databaseActions.ReleaseConnection(); } catch { }
                 _databaseActions = null;
                 throw;
             }
@@ -226,7 +230,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="stresstestResult"></param>
         /// <param name="status"></param>
         /// <param name="statusMessage"></param>
-        public void SetStresstestStopped(StresstestResult stresstestResult, string status = "OK", string statusMessage = "") {
+        public void SetStresstestStopped(StresstestResult stresstestResult, string status = "OK",
+                                                string statusMessage = "") {
             stresstestResult.StoppedAt = DateTime.Now;
             if (_databaseActions != null)
                 _databaseActions.ExecuteSQL(
@@ -350,8 +355,8 @@ VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')"
 
                     _databaseActions.ExecuteSQL(
                         string.Format(
-                            "INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES('{0}', ?TimeStamp, ?Value)",
-                            monitorResultCache.MonitorConfigurationId), CommandType.Text, new MySqlParameter("?TimeStamp", Parse(timeStamp)),  new MySqlParameter("?Value", value.ToArray().Combine("; "))
+                            "INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES('{0}', '{1}', '{2}')",
+                            monitorResultCache.MonitorConfigurationId, Parse(timeStamp), value.ToArray().Combine("; "))
                         );
                 }
         }

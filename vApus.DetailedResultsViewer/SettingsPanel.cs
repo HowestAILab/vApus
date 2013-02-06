@@ -97,11 +97,13 @@ namespace vApus.DetailedResultsViewer {
                             try {
                                 if (_filterDatabasesWorkItem == null) _filterDatabasesWorkItem = new FilterDatabasesWorkItem();
 
-                                var arr = _filterDatabasesWorkItem.FilterDatabase(new DatabaseActions() { ConnectionString = databaseActions.ConnectionString }, state as string, filter);
+                                var das = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
+                                var arr = _filterDatabasesWorkItem.FilterDatabase(das, state as string, filter);
                                 lock (_lock) {
                                     if (arr != null) dataSource.Rows.Add(arr);
                                     ++done;
                                 }
+                                das.ReleaseConnection();
                                 if (done == count) _waitHandle.Set();
                             } catch {
                                 try {

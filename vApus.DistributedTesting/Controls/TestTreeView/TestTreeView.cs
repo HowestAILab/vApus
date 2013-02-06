@@ -107,15 +107,15 @@ namespace vApus.DistributedTesting {
             SetGui();
 
             //select the first stresstest tvi if any
-            bool selected = false;
-            foreach (Control control in largeList.AllControls)
-                if (control is TileStresstestTreeViewItem) {
-                    control.Select();
-                    selected = true;
-                    break;
-                }
+            //bool selected = false;
+            //foreach (Control control in largeList.AllControls)
+            //    if (control is TileStresstestTreeViewItem) {
+            //        control.Select();
+            //        selected = true;
+            //        break;
+            //    }
 
-            if (!selected) dttvi.Select();
+            //if (!selected) dttvi.Select();
 
             LockWindowUpdate(0);
         }
