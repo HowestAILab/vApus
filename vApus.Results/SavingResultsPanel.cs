@@ -20,7 +20,7 @@ namespace vApus.Results {
         public bool Connected {
             get {
                 if (Settings.Default.ConnectionStringIndex > -1 && Settings.Default.ConnectionStringIndex < SettingsManager.GetConnectionStrings().Count) {
-                    var databaseActions = new DatabaseActions() { ConnectionString = this.ConnectionString };
+                    var databaseActions = new DatabaseActions() { ConnectionString = this.ConnectionString, CommandTimeout = 10 };
                     var dbs = databaseActions.GetDataTable("Show Databases;");
                     bool connected =dbs.Columns.Count != 0;
                     databaseActions.ReleaseConnection();

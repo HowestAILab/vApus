@@ -42,6 +42,7 @@ namespace vApus.Util {
         ///     The connection.
         /// </summary>
         private MySqlConnection _connection;
+        private int _commandTimeout = 60; //Default 1 minute.
 
         #endregion
 
@@ -51,7 +52,13 @@ namespace vApus.Util {
         ///     Gets or sets the connectionstring.
         /// </summary>
         public string ConnectionString { get; set; }
-
+        /// <summary>
+        /// Default 60 seconds.
+        /// </summary>
+        public int CommandTimeout {
+            get { return _commandTimeout; }
+            set { _commandTimeout = value; }
+        }
         #endregion
 
         #region Functions
@@ -95,6 +102,7 @@ namespace vApus.Util {
             var command = connection.CreateCommand();
             command.CommandType = commandType;
             command.CommandText = commandText;
+            command.CommandTimeout = _commandTimeout;
 
             if (parameters != null)
                 foreach (var parameter in parameters)

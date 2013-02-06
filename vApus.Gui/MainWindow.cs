@@ -574,10 +574,10 @@ namespace vApus.Gui {
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
             }
-            if (!lblWarning.Visible && !_savingResultsPanel.Connected) {
-                lblWarning.Text = "Test results cannot be saved!";
-                lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
-            }
+            //if (!lblWarning.Visible && !_savingResultsPanel.Connected) {
+            //    lblWarning.Text = "Test results cannot be saved!";
+            //    lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
+            //}
         }
 
         private void lblUpdateNotifier_Click(object sender, EventArgs e) {
