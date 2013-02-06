@@ -260,9 +260,9 @@ namespace vApus.Util {
         /// Returns the last inserted ID, unique for the connection.
         /// </summary>
         /// <returns></returns>
-        public long GetLastInsertId() {
+        public ulong GetLastInsertId() {
             var dt = GetDataTable("SELECT LAST_INSERT_ID()");
-            foreach (DataRow dr in dt.Rows) return (long)dr.ItemArray[0];
+            foreach (DataRow dr in dt.Rows) return (ulong)dr.ItemArray[0];
 
             return 0;
         }

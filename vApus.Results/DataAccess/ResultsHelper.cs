@@ -27,7 +27,7 @@ namespace vApus.Results {
                 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62
             };
 
-        private long _vApusInstanceId, _stresstestId, _stresstestResultId, _concurrencyResultId, _runResultId;
+        private ulong _vApusInstanceId, _stresstestId, _stresstestResultId, _concurrencyResultId, _runResultId;
 
         #endregion
 
@@ -41,7 +41,7 @@ namespace vApus.Results {
         /// <summary>
         /// You can change this value for when you are distributed testing, so the right dataset is chosen.
         /// </summary>
-        public long StresstestId {
+        public ulong StresstestId {
             get { return _stresstestId; }
             set { _stresstestId = value; }
         }
@@ -89,7 +89,7 @@ namespace vApus.Results {
         /// <param name="version"></param>
         /// <param name="isMaster"></param>
         /// <returns>Id of the instance.</returns>
-        public long SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
+        public ulong SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
@@ -99,7 +99,7 @@ namespace vApus.Results {
                 _vApusInstanceId = _databaseActions.GetLastInsertId();
                 return _vApusInstanceId;
             }
-            return -1;
+            return 0;
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace vApus.Results {
         /// <param name="monitorBeforeInMinutes"></param>
         /// <param name="monitorAfterInMinutes"></param>
         /// <returns>Id of the stresstest.</returns>
-        public long SetStresstest(string stresstest, string runSynchronization, string connection,
+        public ulong SetStresstest(string stresstest, string runSynchronization, string connection,
                                          string connectionProxy, string connectionString,
                                          string log, string logRuleSet, int[] concurrencies, int runs,
                                          int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle,
@@ -143,7 +143,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 _stresstestId = _databaseActions.GetLastInsertId();
                 return _stresstestId;
             }
-            return -1;
+            return 0;
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     The monitor configuration id in the database, set this in the proper monitor result cache.
         ///     -1 if not connected.
         /// </returns>
-        public long SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
+        public ulong SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
             return SetMonitor(_stresstestId, monitor, monitorSource, connectionString, machineConfiguration, resultHeaders);
         }
         /// <summary>
@@ -171,7 +171,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="machineConfiguration"></param>
         /// <param name="resultHeaders"></param>
         /// <returns></returns>
-        public long SetMonitor(long stresstestId, string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
+        public ulong SetMonitor(ulong stresstestId, string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
             if (_databaseActions != null) {
                 _databaseActions.ExecuteSQL(
                     string.Format(
@@ -181,7 +181,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     );
                 return _databaseActions.GetLastInsertId();
             }
-            return -1;
+            return 0;
         }
 
         #endregion

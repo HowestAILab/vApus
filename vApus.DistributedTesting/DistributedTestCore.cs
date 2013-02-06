@@ -24,7 +24,7 @@ namespace vApus.DistributedTesting {
         #region Fields
 
         private readonly DistributedTest _distributedTest;
-        private readonly Dictionary<TileStresstest, long> _tileStresstestsWithDbIds;
+        private readonly Dictionary<TileStresstest, ulong> _tileStresstestsWithDbIds;
         private readonly object _lock = new object();
 
         private volatile string[] _cancelled = new string[] { };
@@ -121,7 +121,7 @@ namespace vApus.DistributedTesting {
         #region Con-/Destructor
 
         //Only one test can run at the same time, if this is called and another test (stresstest core or distributed test core) exists (not disposed) an argument out of range exception will be thrown.
-        public DistributedTestCore(DistributedTest distributedTest, ResultsHelper resultsHelper, Dictionary<TileStresstest, long> tileStresstestsWithDbIds) {
+        public DistributedTestCore(DistributedTest distributedTest, ResultsHelper resultsHelper, Dictionary<TileStresstest, ulong> tileStresstestsWithDbIds) {
             ObjectRegistrar.MaxRegistered = 1;
             ObjectRegistrar.Register(this);
 
@@ -243,9 +243,9 @@ namespace vApus.DistributedTesting {
         private void SendAndReceiveInitializeTest() {
             InvokeMessage("Initializing tests on slaves [Please, be patient]...");
             _sw.Start();
-            List<long> stresstestIdsInDb = new List<long>(_usedTileStresstests.Count);
+            List<ulong> stresstestIdsInDb = new List<ulong>(_usedTileStresstests.Count);
             foreach (var ts in _usedTileStresstests)
-                stresstestIdsInDb.Add(_tileStresstestsWithDbIds.ContainsKey(ts) ? _tileStresstestsWithDbIds[ts] : -1);
+                stresstestIdsInDb.Add(_tileStresstestsWithDbIds.ContainsKey(ts) ? _tileStresstestsWithDbIds[ts] : 0);
 
             Exception exception = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests, stresstestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization);
             if (exception != null) {

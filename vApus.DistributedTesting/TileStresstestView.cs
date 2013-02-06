@@ -72,7 +72,7 @@ namespace vApus.DistributedTesting {
         /// <summary>
         /// For adding results to the database.
         /// </summary>
-        public long StresstestIdInDb {
+        public ulong StresstestIdInDb {
             get { return _resultsHelper.StresstestId; }
             set { _resultsHelper.StresstestId = value; }
         }

@@ -18,7 +18,7 @@ namespace vApus.Results
         /// <summary>
         ///     For linking the right results to the right configuration.
         /// </summary>
-        public long MonitorConfigurationId { get; set; }
+        public ulong MonitorConfigurationId { get; set; }
         /// <summary>
         ///     Set this when stresstesting.
         /// </summary>

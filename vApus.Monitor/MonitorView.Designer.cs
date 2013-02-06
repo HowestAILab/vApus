@@ -158,7 +158,7 @@
             this.tpConfigure.Location = new System.Drawing.Point(0, 22);
             this.tpConfigure.Name = "tpConfigure";
             this.tpConfigure.Padding = new System.Windows.Forms.Padding(3);
-            this.tpConfigure.Size = new System.Drawing.Size(1007, 695);
+            this.tpConfigure.Size = new System.Drawing.Size(1007, 659);
             this.tpConfigure.TabIndex = 0;
             this.tpConfigure.Text = "Configure";
             this.tpConfigure.UseVisualStyleBackColor = true;
@@ -187,8 +187,8 @@
             this.split.Panel2.Controls.Add(this.panel1);
             this.split.Panel2.Controls.Add(this.lvwEntities);
             this.split.Panel2.Controls.Add(this.tvwCounters);
-            this.split.Size = new System.Drawing.Size(1001, 689);
-            this.split.SplitterDistance = 344;
+            this.split.Size = new System.Drawing.Size(1001, 653);
+            this.split.SplitterDistance = 326;
             this.split.SplitterWidth = 2;
             this.split.TabIndex = 0;
             // 
@@ -199,7 +199,7 @@
             this.lblMonitorSourceMismatch.AutoEllipsis = true;
             this.lblMonitorSourceMismatch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.lblMonitorSourceMismatch.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMonitorSourceMismatch.Location = new System.Drawing.Point(362, 323);
+            this.lblMonitorSourceMismatch.Location = new System.Drawing.Point(362, 305);
             this.lblMonitorSourceMismatch.Name = "lblMonitorSourceMismatch";
             this.lblMonitorSourceMismatch.Size = new System.Drawing.Size(636, 13);
             this.lblMonitorSourceMismatch.TabIndex = 9;
@@ -230,7 +230,7 @@
             this.parameterPanel.Location = new System.Drawing.Point(597, 23);
             this.parameterPanel.Name = "parameterPanel";
             this.parameterPanel.ParametersWithValues = null;
-            this.parameterPanel.Size = new System.Drawing.Size(404, 291);
+            this.parameterPanel.Size = new System.Drawing.Size(404, 273);
             this.parameterPanel.TabIndex = 1;
             this.parameterPanel.ParameterValueChanged += new System.EventHandler(this.parameterPanel_ParameterValueChanged);
             // 
@@ -244,7 +244,7 @@
             this.propertyPanel.Location = new System.Drawing.Point(3, 3);
             this.propertyPanel.Margin = new System.Windows.Forms.Padding(0);
             this.propertyPanel.Name = "propertyPanel";
-            this.propertyPanel.Size = new System.Drawing.Size(594, 311);
+            this.propertyPanel.Size = new System.Drawing.Size(594, 293);
             this.propertyPanel.SolutionComponent = null;
             this.propertyPanel.TabIndex = 0;
             // 
@@ -257,7 +257,7 @@
             this.btnConfiguration.Enabled = false;
             this.btnConfiguration.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnConfiguration.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnConfiguration.Location = new System.Drawing.Point(262, 317);
+            this.btnConfiguration.Location = new System.Drawing.Point(262, 299);
             this.btnConfiguration.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.btnConfiguration.MaximumSize = new System.Drawing.Size(94, 24);
             this.btnConfiguration.Name = "btnConfiguration";
@@ -273,7 +273,7 @@
             this.btnGetCounters.BackColor = System.Drawing.SystemColors.Control;
             this.btnGetCounters.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGetCounters.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGetCounters.Location = new System.Drawing.Point(3, 317);
+            this.btnGetCounters.Location = new System.Drawing.Point(3, 299);
             this.btnGetCounters.Name = "btnGetCounters";
             this.btnGetCounters.Size = new System.Drawing.Size(253, 24);
             this.btnGetCounters.TabIndex = 2;
@@ -391,7 +391,7 @@
             this.lvwEntities.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lvwEntities.MultiSelect = false;
             this.lvwEntities.Name = "lvwEntities";
-            this.lvwEntities.Size = new System.Drawing.Size(353, 346);
+            this.lvwEntities.Size = new System.Drawing.Size(353, 325);
             this.lvwEntities.SmallImageList = this.imgListEntityState;
             this.lvwEntities.TabIndex = 0;
             this.lvwEntities.UseCompatibleStateImageBehavior = false;
@@ -432,7 +432,7 @@
             this.tvwCounters.Location = new System.Drawing.Point(359, 33);
             this.tvwCounters.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.tvwCounters.Name = "tvwCounters";
-            this.tvwCounters.Size = new System.Drawing.Size(642, 316);
+            this.tvwCounters.Size = new System.Drawing.Size(642, 292);
             this.tvwCounters.TabIndex = 2;
             this.tvwCounters.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwCounter_AfterCheck);
             this.tvwCounters.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwCounter_BeforeExpand);
@@ -448,7 +448,7 @@
             this.tpMonitor.Controls.Add(this.monitorControl);
             this.tpMonitor.Location = new System.Drawing.Point(0, 22);
             this.tpMonitor.Name = "tpMonitor";
-            this.tpMonitor.Size = new System.Drawing.Size(1007, 695);
+            this.tpMonitor.Size = new System.Drawing.Size(1007, 659);
             this.tpMonitor.TabIndex = 1;
             this.tpMonitor.Text = "Monitor";
             // 
@@ -569,7 +569,7 @@
             this.monitorControl.ReadOnly = true;
             this.monitorControl.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.monitorControl.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.monitorControl.Size = new System.Drawing.Size(1007, 615);
+            this.monitorControl.Size = new System.Drawing.Size(1007, 579);
             this.monitorControl.TabIndex = 3;
             this.monitorControl.VirtualMode = true;
             // 
@@ -586,7 +586,7 @@
             this.tc.Name = "tc";
             this.tc.RightVisible = false;
             this.tc.SelectedIndex = 0;
-            this.tc.Size = new System.Drawing.Size(1008, 718);
+            this.tc.Size = new System.Drawing.Size(1008, 682);
             this.tc.TabIndex = 1;
             this.tc.TopVisible = true;
             // 
@@ -609,7 +609,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1008, 762);
+            this.ClientSize = new System.Drawing.Size(1008, 726);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.tc);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));

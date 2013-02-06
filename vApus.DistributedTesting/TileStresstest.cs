@@ -158,7 +158,7 @@ namespace vApus.DistributedTesting {
         /// <param name="stresstestIdInDb">-1 for none</param>
         /// <param name="runSynchronization"></param>
         /// <returns></returns>
-        public StresstestWrapper GetStresstestWrapper(long stresstestIdInDb, string databaseName, RunSynchronization runSynchronization) {
+        public StresstestWrapper GetStresstestWrapper(ulong stresstestIdInDb, string databaseName, RunSynchronization runSynchronization) {
             lock (_lock) {
                 string tileStresstestIndex = TileStresstestIndex;
                 var stresstest = new Stresstest.Stresstest();

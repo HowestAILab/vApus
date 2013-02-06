@@ -40,7 +40,7 @@ namespace vApus.DistributedTesting {
         /// <summary>
         /// For adding and getting results.
         /// </summary>
-        private readonly Dictionary<TileStresstest, long> _tileStresstestsWithDbIds = new Dictionary<TileStresstest, long>();
+        private readonly Dictionary<TileStresstest, ulong> _tileStresstestsWithDbIds = new Dictionary<TileStresstest, ulong>();
 
         /// <summary>
         ///     Countdown for the update.
@@ -401,7 +401,7 @@ namespace vApus.DistributedTesting {
                         if (ts.Use && ts.BasicTileStresstest.Slaves.Length != 0) {
                             var slave = ts.BasicTileStresstest.Slaves[0];
                             _resultsHelper.SetvApusInstance(slave.HostName, slave.IP, slave.Port, string.Empty, string.Empty, false);
-                            long id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
+                            ulong id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
                                       ts.BasicTileStresstest.Connection.ConnectionString, ts.AdvancedTileStresstest.Log.ToString(), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
                                       ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.Distribute.ToString(),
                                       ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);

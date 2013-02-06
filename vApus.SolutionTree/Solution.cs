@@ -155,6 +155,7 @@ namespace vApus.SolutionTree {
                 LoadNewActiveSolution(item.Text);
             } else {
                 _recentSolutions.Remove(item.Text);
+                Settings.Default.RecentSolutions = _recentSolutions;
                 Settings.Default.Save();
                 MessageBox.Show(string.Format("'{0}' does not exist and could therefore not be opened!", item.Text),
                                 string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning,

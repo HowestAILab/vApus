@@ -510,7 +510,7 @@ namespace vApus.DistributedTesting {
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public static Exception InitializeTests(List<TileStresstest> tileStresstests, List<long> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization) {
+        public static Exception InitializeTests(List<TileStresstest> tileStresstests, List<ulong> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization) {
             Exception exception = null;
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[tileStresstests.Count];
             for (int i = 0; i != initializeTestData.Length; i++) {
