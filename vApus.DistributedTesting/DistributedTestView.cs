@@ -226,8 +226,7 @@ namespace vApus.DistributedTesting {
                             detailedResultsControl.Enabled = false;
                         } else {
                             detailedResultsControl.Enabled = true;
-                            _resultsHelper.StresstestId = _tileStresstestsWithDbIds[tstvi.TileStresstest];
-                            detailedResultsControl.RefreshResults(_resultsHelper);
+                            detailedResultsControl.RefreshResults(_resultsHelper, _tileStresstestsWithDbIds[tstvi.TileStresstest]);
                         }
                     } else {
                         fastResultsControl.ClearFastResults();
@@ -869,8 +868,7 @@ namespace vApus.DistributedTesting {
                 detailedResultsControl.Enabled = false;
             } else {
                 detailedResultsControl.Enabled = true;
-                _resultsHelper.StresstestId = _tileStresstestsWithDbIds[tstvi.TileStresstest];
-                detailedResultsControl.RefreshResults(_resultsHelper);
+                detailedResultsControl.RefreshResults(_resultsHelper, _tileStresstestsWithDbIds[tstvi.TileStresstest]);
             }
         }
         #endregion

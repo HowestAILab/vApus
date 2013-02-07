@@ -20,6 +20,8 @@ namespace vApus.Stresstest.Controls {
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
 
+        private ulong[] _stresstestIds = new ulong[0];
+
         public DetailedResultsControl() {
             InitializeComponent();
 
@@ -31,25 +33,14 @@ namespace vApus.Stresstest.Controls {
             cboShow.SelectedIndex = 0;
         }
 
-        private void chkAdvanced_CheckedChanged(object sender, EventArgs e) {
-            splitQueryData.Panel1Collapsed = !chkAdvanced.Checked;
-        }
+        private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
 
-        private void lbtnDescription_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(_resultsHelper.GetDescription());
-        }
-        private void lbtnTags_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(_resultsHelper.GetTags());
-        }
-        private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(_resultsHelper.GetvApusInstance(1));
-        }
-        private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(_resultsHelper.GetStresstest(1));
-        }
-        private void lbtnMonitors_ActiveChanged(object sender, EventArgs e) {
-            SetConfig(_resultsHelper.GetMonitors());
-        }
+        private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetDescription()); }
+        private void lbtnTags_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetTags()); }
+        private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetvApusInstance(1)); }
+        private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetStresstest(1)); }
+        private void lbtnMonitors_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetMonitors()); }
+
         private void btnCollapseExpand_Click(object sender, EventArgs e) {
             if (btnCollapseExpand.Text == "-") {
                 btnCollapseExpand.Text = "+";
@@ -124,12 +115,12 @@ namespace vApus.Stresstest.Controls {
         private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             dgvDetailedResults.DataSource = null;
             if (_resultsHelper != null) {
-                if (cboShow.SelectedIndex == 0) dgvDetailedResults.DataSource = _resultsHelper.GetAverageConcurrentUsers();
-                else if (cboShow.SelectedIndex == 1) dgvDetailedResults.DataSource = _resultsHelper.GetAverageUserActions();
-                else if (cboShow.SelectedIndex == 2) dgvDetailedResults.DataSource = _resultsHelper.GetAverageLogEntries();
-                else if (cboShow.SelectedIndex == 3) dgvDetailedResults.DataSource = _resultsHelper.GetErrors();
-                else if (cboShow.SelectedIndex == 4) dgvDetailedResults.DataSource = _resultsHelper.GetMachineConfigurations();
-                else if (cboShow.SelectedIndex == 5) dgvDetailedResults.DataSource = _resultsHelper.GetAverageMonitorResults();
+                if (cboShow.SelectedIndex == 0) dgvDetailedResults.DataSource = _resultsHelper.GetAverageConcurrentUsers(_stresstestIds);
+                else if (cboShow.SelectedIndex == 1) dgvDetailedResults.DataSource = _resultsHelper.GetAverageUserActions(_stresstestIds);
+                else if (cboShow.SelectedIndex == 2) dgvDetailedResults.DataSource = _resultsHelper.GetAverageLogEntries(_stresstestIds);
+                else if (cboShow.SelectedIndex == 3) dgvDetailedResults.DataSource = _resultsHelper.GetErrors(_stresstestIds);
+                else if (cboShow.SelectedIndex == 4) dgvDetailedResults.DataSource = _resultsHelper.GetMachineConfigurations(_stresstestIds);
+                else if (cboShow.SelectedIndex == 5) dgvDetailedResults.DataSource = _resultsHelper.GetAverageMonitorResults(_stresstestIds);
             }
             dgvDetailedResults.Select();
         }
@@ -151,8 +142,10 @@ namespace vApus.Stresstest.Controls {
         /// Refresh after testing.
         /// </summary>
         /// <param name="resultsHelper">Give hte helper that made the db</param>
-        public void RefreshResults(ResultsHelper resultsHelper) {
+        /// <param name="stresstestIds">Filter on one or more stresstests, if this is empty no filter is applied.</param>
+        public void RefreshResults(ResultsHelper resultsHelper, params ulong[] stresstestIds) {
             _resultsHelper = resultsHelper;
+            _stresstestIds = stresstestIds;
             foreach (var ctrl in flpConfiguration.Controls)
                 if (ctrl is LinkButton) {
                     var lbtn = ctrl as LinkButton;

@@ -40,6 +40,7 @@ namespace vApus.Results {
 
         /// <summary>
         /// You can change this value for when you are distributed testing, so the right dataset is chosen.
+        /// This value is not used when filtering results in the procedures eg GetAverageConcurrentUsers.
         /// </summary>
         public ulong StresstestId {
             get { return _stresstestId; }
@@ -440,14 +441,21 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         #endregion
 
         #region Procedures
-        public DataTable GetAverageConcurrentUsers() {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public DataTable GetAverageConcurrentUsers(params ulong[] stresstestIds) {
             if (_databaseActions != null) {
-                var stresstests = _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests");
+                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests;") :
+                _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN(" + stresstestIds.Combine(", ") + ");");
                 if (stresstests.Rows.Count == 0) return null;
 
                 var averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
     "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
     "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+
 
                 foreach (DataRow stresstestsRow in stresstests.Rows) {
                     object stresstestId = stresstestsRow.ItemArray[0];
@@ -504,9 +512,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
-        public DataTable GetAverageUserActions() {
+        public DataTable GetAverageUserActions(params ulong[] stresstestIds) {
             if (_databaseActions != null) {
-                var stresstests = _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests");
+                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
+                _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN(" + stresstestIds.Combine(", ") + ");");
                 if (stresstests.Rows.Count == 0) return null;
 
                 var averageUserActions = CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
@@ -642,9 +651,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return null;
         }
 
-        public DataTable GetAverageLogEntries() {
+        public DataTable GetAverageLogEntries(params ulong[] stresstestIds) {
             if (_databaseActions != null) {
-                var stresstests = _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests");
+                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
+                _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN(" + stresstestIds.Combine(", ") + ");");
                 if (stresstests.Rows.Count == 0) return null;
 
                 var averageLogEntries = CreateEmptyDataTable("AverageLogEntries", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
@@ -749,9 +759,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
-        public DataTable GetErrors() {
+        public DataTable GetErrors(params ulong[] stresstestIds) {
             if (_databaseActions != null) {
-                var stresstests = _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests");
+                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
+                _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN(" + stresstestIds.Combine(", ") + ");");
                 if (stresstests.Rows.Count == 0) return null;
 
                 var errors = CreateEmptyDataTable("Error", "Stresstest", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
@@ -787,16 +798,29 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return null;
         }
 
-        public DataTable GetMachineConfigurations() {
+        public DataTable GetMachineConfigurations(params ulong[] stresstestIds) {
             if (_databaseActions != null) {
-                var dt = _databaseActions.GetDataTable("Select Monitor, MonitorSource as 'Monitor Source', MachineConfiguration as 'Machine Configuration' from monitors");
-                if (dt.Rows.Count != 0) return dt;
+                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
+                _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests WHERE Id IN(" + stresstestIds.Combine(", ") + ");");
+                if (stresstests.Rows.Count == 0) return null;
+
+                var machineConfigurations = CreateEmptyDataTable("MachineConfigurations", "Stresstest", "Monitor", "Monitor Source", "Machine Configuration");
+                foreach (DataRow stresstestsRow in stresstests.Rows) {
+                    object stresstestId = stresstestsRow.ItemArray[0];
+                    string stresstest = (string)stresstestsRow.ItemArray[1] + " " + stresstestsRow.ItemArray[2];
+
+                    var monitors = _databaseActions.GetDataTable("Select Monitor, MonitorSource, MachineConfiguration from monitors WHERE StresstestId = " + stresstestId);
+                    foreach (DataRow monitorRow in monitors.Rows) machineConfigurations.Rows.Add(stresstest, monitorRow.ItemArray);
+                }
+
+                return machineConfigurations;
             }
             return null;
         }
-        public DataTable GetAverageMonitorResults() {
+        public DataTable GetAverageMonitorResults(params ulong[] stresstestIds) {
             if (_databaseActions != null) {
-                var stresstests = _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests");
+                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
+                _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN(" + stresstestIds.Combine(", ") + ");");
                 if (stresstests.Rows.Count == 0) return null;
 
                 var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
