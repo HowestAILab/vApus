@@ -6,9 +6,11 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using vApus.Util;
 
@@ -440,6 +442,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         }
         #endregion
 
+        private readonly object _lock = new object();
         #region Procedures
         /// <summary>
         /// 
@@ -473,30 +476,40 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
 
                         var rr = _databaseActions.GetDataTable(string.Format("SELECT Id, Run, TotalLogEntryCount FROM RunResults WHERE ConcurrencyResultId={0}", crRow.ItemArray[0]));
+                        var runResultIds = new List<int>(rr.Rows.Count);
                         foreach (DataRow rrRow in rr.Rows) {
-                            RunResult runResult = new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency);
-                            concurrencyResult.RunResults.Add(runResult);
+                            runResultIds.Add((int)rrRow.ItemArray[0]);
+                            concurrencyResult.RunResults.Add(new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency));
+                        }
 
-                            var virtualUserResults = new Dictionary<string, VirtualUserResult>();
-                            var ler = _databaseActions.GetDataTable(
-                                string.Format("Select VirtualUser, UserAction, LogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId={0}", rrRow.ItemArray[0]));
+                        var ler = _databaseActions.GetDataTable("Select RunResultId, VirtualUser, UserAction, LogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId IN(" + runResultIds.ToArray().Combine(", ") + ");");
 
+                        for (int i = 0; i != concurrencyResult.RunResults.Count; i++) {
+                            var runResult = concurrencyResult.RunResults[i];
+                            int runResultId = runResultIds[i];
+                            var virtualUserResults = new ConcurrentDictionary<string, VirtualUserResult>();
+                            var logEntryResults = new ConcurrentDictionary<string, List<LogEntryResult>>(); //Key == virtual user.
+
+                            //Parallel.ForEach(ler.AsEnumerable(), (lerRow) => {
                             foreach (DataRow lerRow in ler.Rows) {
-                                string virtualUser = (lerRow.ItemArray[0] as string);
-                                if (!virtualUserResults.ContainsKey(virtualUser)) virtualUserResults.Add(virtualUser, new VirtualUserResult(0) { VirtualUser = virtualUser });
+                                if ((int)lerRow.ItemArray[0] == runResultId) {
+                                    string virtualUser = (lerRow.ItemArray[1] as string);
+                                    virtualUserResults.TryAdd(virtualUser, new VirtualUserResult(0) { VirtualUser = virtualUser });
+                                    logEntryResults.TryAdd(virtualUser, new List<LogEntryResult>());
 
-                                var virtualUserResult = virtualUserResults[virtualUser];
-                                var part = new List<LogEntryResult>(virtualUserResult.LogEntryResults);
-                                part.Add(new LogEntryResult() {
-                                    VirtualUser = virtualUser,
-                                    UserAction = lerRow.ItemArray[1] as string,
-                                    LogEntryIndex = lerRow.ItemArray[2] as string,
-                                    TimeToLastByteInTicks = (long)lerRow.ItemArray[3],
-                                    DelayInMilliseconds = (int)lerRow.ItemArray[4],
-                                    Error = lerRow.ItemArray[5] as string
-                                });
-                                virtualUserResult.LogEntryResults = part.ToArray();
+                                    var virtualUserResult = virtualUserResults[virtualUser];
+                                    logEntryResults[virtualUser].Add(new LogEntryResult() {
+                                        VirtualUser = virtualUser, UserAction = lerRow.ItemArray[2] as string, LogEntryIndex = lerRow.ItemArray[3] as string,
+                                        TimeToLastByteInTicks = (long)lerRow.ItemArray[4], DelayInMilliseconds = (int)lerRow.ItemArray[5], Error = lerRow.ItemArray[6] as string
+                                    });
+                                }
                             }
+                            //});
+
+                            Parallel.ForEach(logEntryResults, (item, loopState) => {
+                                virtualUserResults[item.Key].LogEntryResults = item.Value.ToArray();
+                            });
+
                             runResult.VirtualUserResults = virtualUserResults.Values.ToArray();
                         }
 
