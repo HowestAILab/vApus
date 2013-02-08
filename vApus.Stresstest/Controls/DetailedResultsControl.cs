@@ -11,7 +11,9 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Results;
@@ -19,12 +21,17 @@ using vApus.Util;
 
 namespace vApus.Stresstest.Controls {
     public partial class DetailedResultsControl : UserControl {
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
 
         private ulong[] _stresstestIds = new ulong[0];
 
         private int _currentSelectedIndex = -1; //The event is raised even when the index stays the same, this is used to avoid it;
+
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
         public DetailedResultsControl() {
             InitializeComponent();
@@ -39,11 +46,11 @@ namespace vApus.Stresstest.Controls {
 
         private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
 
-        private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetDescription()); }
-        private void lbtnTags_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetTags()); }
-        private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetvApusInstance(1)); }
-        private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetStresstest(1)); }
-        private void lbtnMonitors_ActiveChanged(object sender, EventArgs e) { SetConfig(_resultsHelper.GetMonitors()); }
+        private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { if (lbtnDescription.Active) SetConfig(_resultsHelper.GetDescription()); }
+        private void lbtnTags_ActiveChanged(object sender, EventArgs e) { if (lbtnTags.Active)  SetConfig(_resultsHelper.GetTags()); }
+        private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) { if (lbtnvApusInstance.Active)  SetConfig(_resultsHelper.GetvApusInstances()); }
+        private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) { if (lbtnStresstest.Active)  SetConfig(_resultsHelper.GetStresstests()); }
+        private void lbtnMonitors_ActiveChanged(object sender, EventArgs e) { if (lbtnMonitors.Active)  SetConfig(_resultsHelper.GetMonitors()); }
 
         private void btnCollapseExpand_Click(object sender, EventArgs e) {
             if (btnCollapseExpand.Text == "-") {
@@ -109,56 +116,68 @@ namespace vApus.Stresstest.Controls {
             flpConfiguration.Controls.AddRange(_config);
         }
         private void SetConfig(List<KeyValuePair<string, string>> keyValues) {
+            LockWindowUpdate(this.Handle.ToInt32());
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[keyValues.Count];
             int i = 0;
             foreach (var kvp in keyValues) _config[i++] = new KeyValuePairControl(kvp.Key, kvp.Value) { BackColor = SystemColors.Control };
             flpConfiguration.Controls.AddRange(_config);
+            LockWindowUpdate(0);
         }
 
         async private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             if (cboShow.SelectedIndex != _currentSelectedIndex) {
                 _currentSelectedIndex = cboShow.SelectedIndex;
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource = new CancellationTokenSource();
+
                 dgvDetailedResults.DataSource = null;
 
-                this.Enabled = false;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = false;
                 lblLoading.Visible = true;
-               
-                if (_resultsHelper != null)
-                    try { dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => GetDataSource()); } catch { }
+
+                if (_resultsHelper != null) {
+                    DataTable dt = null;
+                    try { dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token), _cancellationTokenSource.Token); } catch { }
+
+                    //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview.
+                    if (dt != null) dgvDetailedResults.DataSource = dt;
+                }
 
                 lblLoading.Visible = false;
-                this.Enabled = true;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = true;
                 dgvDetailedResults.Select();
             }
         }
-        private DataTable GetDataSource() {
-            switch (_currentSelectedIndex) {
-                case 0: return _resultsHelper.GetAverageConcurrentUsers(_stresstestIds);
-                case 1: return _resultsHelper.GetAverageUserActions(_stresstestIds);
-                case 2: return _resultsHelper.GetAverageLogEntries(_stresstestIds);
-                case 3: return _resultsHelper.GetErrors(_stresstestIds);
-                case 4: return _resultsHelper.GetMachineConfigurations(_stresstestIds);
-                case 5: return _resultsHelper.GetAverageMonitorResults(_stresstestIds);
-            }
+        private DataTable GetDataSource(CancellationToken cancellationToken) {
+            if (!cancellationToken.IsCancellationRequested)
+                switch (_currentSelectedIndex) {
+                    case 0: return _resultsHelper.GetAverageConcurrentUsers(cancellationToken, _stresstestIds);
+                    case 1: return _resultsHelper.GetAverageUserActions(cancellationToken, _stresstestIds);
+                    case 2: return _resultsHelper.GetAverageLogEntries(cancellationToken, _stresstestIds);
+                    case 3: return _resultsHelper.GetErrors(cancellationToken, _stresstestIds);
+                    case 4: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
+                    case 5: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
+                }
 
             return null;
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {
-            this.Enabled = false;
-            lblLoading.Visible = true;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = false;
 
-            try { dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => _resultsHelper.ExecuteQuery(codeTextBox.Text)); } catch { }
+            try { dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => _resultsHelper.ExecuteQuery(codeTextBox.Text), _cancellationTokenSource.Token); } catch { }
 
             lblLoading.Visible = false;
-            this.Enabled = true;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = true;
         }
 
         /// <summary>
         /// Clear before testing.
         /// </summary>
         public void ClearResults() {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[0];
 

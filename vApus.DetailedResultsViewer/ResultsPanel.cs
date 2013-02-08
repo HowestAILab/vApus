@@ -23,10 +23,14 @@ namespace vApus.DetailedResultsViewer {
             InitializeComponent();
         }
         public void ClearReport() {
+            this.Enabled = false;
             detailedResultsControl.ClearResults();
+            this.Enabled = true;
         }
         public void RefreshReport() {
+            this.Enabled = false;
             detailedResultsControl.RefreshResults(_resultsHelper);
+            this.Enabled = true;
         }
     }
 }
