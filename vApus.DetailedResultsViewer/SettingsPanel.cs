@@ -92,7 +92,15 @@ namespace vApus.DetailedResultsViewer {
                 _dataSource.Columns.Add("Description");
                 _dataSource.Columns.Add("Database");
 
-                var dbs = databaseActions.GetDataTable("Show Databases Like 'vapus%';");
+                DataTable dbs = new DataTable("dbs");
+                dbs.Columns.Add("db");
+
+                var temp = databaseActions.GetDataTable("Show Databases;");
+                foreach (DataRow rrDB in temp.Rows) {
+                    string db = rrDB.ItemArray[0] as string;
+                    if (db.StartsWith("vapus", StringComparison.InvariantCultureIgnoreCase)) dbs.Rows.Add(db);
+                } 
+                
                 int count = dbs.Rows.Count;
                 int done = 0;
                 foreach (DataRow dbsr in dbs.Rows) {
