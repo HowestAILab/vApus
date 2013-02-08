@@ -105,7 +105,7 @@
             this.dgvDatabases.Size = new System.Drawing.Size(502, 284);
             this.dgvDatabases.TabIndex = 2;
             this.dgvDatabases.VirtualMode = true;
-            this.dgvDatabases.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDatabases_CellEnter);
+            this.dgvDatabases.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDatabases_RowEnter);
             // 
             // llblRefresh
             // 
@@ -116,6 +116,7 @@
             this.llblRefresh.Name = "llblRefresh";
             this.llblRefresh.Size = new System.Drawing.Size(44, 13);
             this.llblRefresh.TabIndex = 12;
+            this.llblRefresh.TabStop = true;
             this.llblRefresh.Text = "Refresh";
             this.llblRefresh.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblRefresh_LinkClicked);
             // 

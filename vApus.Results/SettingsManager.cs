@@ -39,8 +39,7 @@ namespace vApus.Results {
             EditCredentials(-1, user, host, port, password);
         }
 
-        public static void EditCredentials(int connectionStringIndex, string user, string host, int port,
-                                           string password) {
+        public static void EditCredentials(int connectionStringIndex, string user, string host, int port, string password) {
             string connectionString = user + "@" + host + ":" + port;
             password = password.Encrypt(_passwordGUID, _salt);
 
@@ -50,13 +49,13 @@ namespace vApus.Results {
             if (connectionStringIndex == -1) {
                 connectionStrings.Add(connectionString);
                 passwords.Add(password);
-                Settings.Default.ConnectionStringIndex = connectionStrings.IndexOf(connectionString);
             } else {
                 connectionStrings[connectionStringIndex] = connectionString;
                 passwords[connectionStringIndex] = password;
             }
 
             Settings.Default.ConnectionStrings = connectionStrings;
+            Settings.Default.ConnectionStringIndex = connectionStrings.IndexOf(connectionString);
             Settings.Default.Passwords = passwords;
             Settings.Default.Save();
         }

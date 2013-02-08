@@ -29,6 +29,9 @@ namespace vApus.DetailedResultsViewer {
 
         private bool _initing = true;
 
+        private DataTable _dataSource = null;
+        private DataRow _currentRow = null; //RowEnter happens multiple times for some strange reason, use this to not execute the refresh code when not needed.
+
         public ResultsHelper ResultsHelper {
             get { return _resultsHelper; }
             set { _resultsHelper = value; }
@@ -53,6 +56,7 @@ namespace vApus.DetailedResultsViewer {
         private void RefreshDatabases(bool setAvailableTags) {
             var databaseActions = SetServerConnectStateInGui();
 
+            _dataSource = null;
             dgvDatabases.DataSource = null;
             if (databaseActions == null || setAvailableTags) filterResults.ClearAvailableTags();
             if (databaseActions != null) {
@@ -79,13 +83,14 @@ namespace vApus.DetailedResultsViewer {
         private void FillDatabasesDataGridView(DatabaseActions databaseActions) {
             Cursor = Cursors.WaitCursor;
             try {
+                _dataSource = null;
                 dgvDatabases.DataSource = null;
                 string[] filter = filterResults.Filter;
-                var dataSource = new DataTable("dataSource");
-                dataSource.Columns.Add("CreatedAt");
-                dataSource.Columns.Add("Tags");
-                dataSource.Columns.Add("Description");
-                dataSource.Columns.Add("Database");
+                _dataSource = new DataTable("dataSource");
+                _dataSource.Columns.Add("CreatedAt");
+                _dataSource.Columns.Add("Tags");
+                _dataSource.Columns.Add("Description");
+                _dataSource.Columns.Add("Database");
 
                 var dbs = databaseActions.GetDataTable("Show Databases Like 'vapus%';");
                 int count = dbs.Rows.Count;
@@ -100,7 +105,7 @@ namespace vApus.DetailedResultsViewer {
                                 var das = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
                                 var arr = _filterDatabasesWorkItem.FilterDatabase(das, state as string, filter);
                                 lock (_lock) {
-                                    if (arr != null) dataSource.Rows.Add(arr);
+                                    if (arr != null) _dataSource.Rows.Add(arr);
                                     ++done;
                                 }
                                 das.ReleaseConnection();
@@ -116,25 +121,27 @@ namespace vApus.DetailedResultsViewer {
                 }
 
                 if (count != 0) _waitHandle.WaitOne();
-                dataSource.DefaultView.Sort = "CreatedAt DESC";
-                dgvDatabases.DataSource = dataSource.DefaultView.ToTable();
+                _dataSource.DefaultView.Sort = "CreatedAt DESC";
+                _dataSource = _dataSource.DefaultView.ToTable();
+                dgvDatabases.DataSource = _dataSource;
+                
                 dgvDatabases.Columns[0].HeaderText = string.Empty;
                 dgvDatabases.Columns[3].Visible = false;
+
                 if (dgvDatabases.Rows.Count == 0) {
                     if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null));
                 } else {
                     foreach (DataGridViewColumn clm in dgvDatabases.Columns) clm.SortMode = DataGridViewColumnSortMode.NotSortable;
-                    dgvDatabases.Rows[0].Selected = true;
-
+                    if (dgvDatabases.Rows.Count != 0) dgvDatabases.Rows[0].Selected = true;
                 }
             } catch { }
             try { if (!Disposing && !IsDisposed) Cursor = Cursors.Arrow; } catch { }
         }
 
-        private void dgvDatabases_CellEnter(object sender, DataGridViewCellEventArgs e) {
-            DataTable dt = dgvDatabases.DataSource as DataTable;
-            if (dt != null && e.RowIndex != -1 && e.RowIndex < dt.Rows.Count) {
-                DataRow row = dt.Rows[e.RowIndex];
+        private void dgvDatabases_RowEnter(object sender, DataGridViewCellEventArgs e) {
+            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] != _currentRow) {
+                DataRow row = _dataSource.Rows[e.RowIndex];
+                _currentRow = row;
                 string databaseName = row[3] as string;
 
                 string user, host, password;

@@ -22,7 +22,7 @@ namespace vApus.Results {
                 if (Settings.Default.ConnectionStringIndex > -1 && Settings.Default.ConnectionStringIndex < SettingsManager.GetConnectionStrings().Count) {
                     var databaseActions = new DatabaseActions() { ConnectionString = this.ConnectionString, CommandTimeout = 10 };
                     var dbs = databaseActions.GetDataTable("Show Databases;");
-                    bool connected =dbs.Columns.Count != 0;
+                    bool connected = dbs.Columns.Count != 0;
                     databaseActions.ReleaseConnection();
                     return connected;
                 }
@@ -73,11 +73,12 @@ namespace vApus.Results {
 
             cboConnectionString.Items.Add("<New>");
             cboConnectionString.SelectedIndex = Settings.Default.ConnectionStringIndex;
+            btnSave.Enabled = false;
         }
 
         private void cboConnectionStrings_SelectedIndexChanged(object sender, EventArgs e) {
-            btnSave.Enabled = false;
             if (cboConnectionString.SelectedIndex == cboConnectionString.Items.Count - 1) {
+                btnSave.Enabled = false;
                 txtUser.Text = txtHost.Text = txtPassword.Text = string.Empty;
                 nudPort.Value = 3306;
 
@@ -91,15 +92,14 @@ namespace vApus.Results {
 
                 string user, host, password;
                 int port;
-                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port,
-                                               out password);
+                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
 
                 txtUser.Text = user;
                 txtHost.Text = host;
                 nudPort.Value = port;
                 txtPassword.Text = password;
 
-                btnTest.Enabled = btnDelete.Enabled = true;
+                btnSave.Enabled = btnTest.Enabled = btnDelete.Enabled = true;
             }
         }
 
@@ -134,9 +134,7 @@ namespace vApus.Results {
 
         private void btnTest_Click(object sender, EventArgs e) {
             var dba = new DatabaseActions {
-                ConnectionString =
-                    string.Format("Server={0};Port={1};Uid={2};Pwd={3}", txtHost.Text,
-                                  (int)nudPort.Value, txtUser.Text, txtPassword.Text)
+                ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3}", txtHost.Text, (int)nudPort.Value, txtUser.Text, txtPassword.Text)
             };
             DataTable datatable = dba.GetDataTable("Show Databases;", CommandType.Text);
             bool succes = datatable.Columns.Count != 0;
@@ -153,8 +151,7 @@ namespace vApus.Results {
             if (cboConnectionString.SelectedIndex == cboConnectionString.Items.Count - 1)
                 SettingsManager.AddCredentials(txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
             else
-                SettingsManager.EditCredentials(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text,
-                                                (int)nudPort.Value, txtPassword.Text);
+                SettingsManager.EditCredentials(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
             SetGui();
         }
 
