@@ -7,10 +7,12 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
@@ -21,6 +23,8 @@ namespace vApus.Stresstest.Controls {
         private ResultsHelper _resultsHelper;
 
         private ulong[] _stresstestIds = new ulong[0];
+
+        private int _currentSelectedIndex = -1; //The event is raised even when the index stays the same, this is used to avoid it;
 
         public DetailedResultsControl() {
             InitializeComponent();
@@ -112,21 +116,43 @@ namespace vApus.Stresstest.Controls {
             flpConfiguration.Controls.AddRange(_config);
         }
 
-        private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
-            dgvDetailedResults.DataSource = null;
-            if (_resultsHelper != null) {
-                if (cboShow.SelectedIndex == 0) dgvDetailedResults.DataSource = _resultsHelper.GetAverageConcurrentUsers(_stresstestIds);
-                else if (cboShow.SelectedIndex == 1) dgvDetailedResults.DataSource = _resultsHelper.GetAverageUserActions(_stresstestIds);
-                else if (cboShow.SelectedIndex == 2) dgvDetailedResults.DataSource = _resultsHelper.GetAverageLogEntries(_stresstestIds);
-                else if (cboShow.SelectedIndex == 3) dgvDetailedResults.DataSource = _resultsHelper.GetErrors(_stresstestIds);
-                else if (cboShow.SelectedIndex == 4) dgvDetailedResults.DataSource = _resultsHelper.GetMachineConfigurations(_stresstestIds);
-                else if (cboShow.SelectedIndex == 5) dgvDetailedResults.DataSource = _resultsHelper.GetAverageMonitorResults(_stresstestIds);
+        async private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
+            if (cboShow.SelectedIndex != _currentSelectedIndex) {
+                _currentSelectedIndex = cboShow.SelectedIndex;
+                dgvDetailedResults.DataSource = null;
+
+                this.Enabled = false;
+                lblLoading.Visible = true;
+               
+                if (_resultsHelper != null)
+                    try { dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => GetDataSource()); } catch { }
+
+                lblLoading.Visible = false;
+                this.Enabled = true;
+                dgvDetailedResults.Select();
             }
-            dgvDetailedResults.Select();
+        }
+        private DataTable GetDataSource() {
+            switch (_currentSelectedIndex) {
+                case 0: return _resultsHelper.GetAverageConcurrentUsers(_stresstestIds);
+                case 1: return _resultsHelper.GetAverageUserActions(_stresstestIds);
+                case 2: return _resultsHelper.GetAverageLogEntries(_stresstestIds);
+                case 3: return _resultsHelper.GetErrors(_stresstestIds);
+                case 4: return _resultsHelper.GetMachineConfigurations(_stresstestIds);
+                case 5: return _resultsHelper.GetAverageMonitorResults(_stresstestIds);
+            }
+
+            return null;
         }
 
-        private void btnExecute_Click(object sender, EventArgs e) {
-            try { dgvDetailedResults.DataSource = _resultsHelper.ExecuteQuery(codeTextBox.Text); } catch { }
+        async private void btnExecute_Click(object sender, EventArgs e) {
+            this.Enabled = false;
+            lblLoading.Visible = true;
+
+            try { dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => _resultsHelper.ExecuteQuery(codeTextBox.Text)); } catch { }
+
+            lblLoading.Visible = false;
+            this.Enabled = true;
         }
 
         /// <summary>
@@ -154,6 +180,7 @@ namespace vApus.Stresstest.Controls {
                         break;
                     }
                 }
+            _currentSelectedIndex = -1;
             cboShow_SelectedIndexChanged(null, null);
         }
     }

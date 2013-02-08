@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DetailedResultsControl));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
@@ -55,7 +54,8 @@
             this.chkAdvanced = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.toolTip = new System.Windows.Forms.ToolTip();
+            this.lblLoading = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -380,6 +380,7 @@
             this.flpDetailedMetrics.Controls.Add(this.lblStopped);
             this.flpDetailedMetrics.Controls.Add(this.chkAdvanced);
             this.flpDetailedMetrics.Controls.Add(this.btnSaveDisplayedResults);
+            this.flpDetailedMetrics.Controls.Add(this.lblLoading);
             this.flpDetailedMetrics.Location = new System.Drawing.Point(-1, 40);
             this.flpDetailedMetrics.Name = "flpDetailedMetrics";
             this.flpDetailedMetrics.Size = new System.Drawing.Size(899, 60);
@@ -505,6 +506,20 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed Results";
             // 
+            // lblLoading
+            // 
+            this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLoading.Location = new System.Drawing.Point(513, 7);
+            this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
+            this.lblLoading.Name = "lblLoading";
+            this.lblLoading.Size = new System.Drawing.Size(170, 13);
+            this.lblLoading.TabIndex = 10;
+            this.lblLoading.Text = "Loading, please be patient...";
+            this.toolTip.SetToolTip(this.lblLoading, "These counters are not valid for the chosen monitor source, undo your previous ac" +
+        "tion or \'get\' the counters again.");
+            this.lblLoading.Visible = false;
+            // 
             // DetailedResultsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -562,5 +577,6 @@
         private System.Windows.Forms.Panel pnlBorderExecute;
         private System.Windows.Forms.ToolTip toolTip;
         private Util.LinkButton lbtnMonitors;
+        private System.Windows.Forms.Label lblLoading;
     }
 }
