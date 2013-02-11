@@ -32,10 +32,14 @@
             this.dgvDatabases = new System.Windows.Forms.DataGridView();
             this.llblRefresh = new System.Windows.Forms.LinkLabel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.pnlBorderStresstest = new System.Windows.Forms.Panel();
+            this.cboStresstest = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.filterResults = new vApus.DetailedResultsViewer.FilterResults();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDatabases)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDatabases)).BeginInit();
+            this.pnlBorderStresstest.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblConnectToMySQL
@@ -85,8 +89,7 @@
             // 
             this.dgvDatabases.AllowUserToAddRows = false;
             this.dgvDatabases.AllowUserToDeleteRows = false;
-            this.dgvDatabases.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.dgvDatabases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvDatabases.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvDatabases.BackgroundColor = System.Drawing.Color.White;
@@ -102,7 +105,7 @@
             this.dgvDatabases.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvDatabases.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvDatabases.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDatabases.Size = new System.Drawing.Size(502, 284);
+            this.dgvDatabases.Size = new System.Drawing.Size(502, 200);
             this.dgvDatabases.TabIndex = 2;
             this.dgvDatabases.VirtualMode = true;
             this.dgvDatabases.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDatabases_RowEnter);
@@ -119,6 +122,43 @@
             this.llblRefresh.TabStop = true;
             this.llblRefresh.Text = "Refresh";
             this.llblRefresh.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblRefresh_LinkClicked);
+            // 
+            // pnlBorderStresstest
+            // 
+            this.pnlBorderStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlBorderStresstest.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
+            this.pnlBorderStresstest.Location = new System.Drawing.Point(158, 407);
+            this.pnlBorderStresstest.Name = "pnlBorderStresstest";
+            this.pnlBorderStresstest.Size = new System.Drawing.Size(377, 23);
+            this.pnlBorderStresstest.TabIndex = 13;
+            // 
+            // cboStresstest
+            // 
+            this.cboStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboStresstest.BackColor = System.Drawing.Color.White;
+            this.cboStresstest.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboStresstest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboStresstest.FormattingEnabled = true;
+            this.cboStresstest.Location = new System.Drawing.Point(1, 1);
+            this.cboStresstest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboStresstest.Name = "cboStresstest";
+            this.cboStresstest.Size = new System.Drawing.Size(375, 21);
+            this.cboStresstest.TabIndex = 0;
+            this.cboStresstest.SelectedIndexChanged += new System.EventHandler(this.cboStresstest_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(33, 411);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(119, 16);
+            this.label1.TabIndex = 14;
+            this.label1.Text = "Select a Stresstest";
             // 
             // filterResults
             // 
@@ -138,6 +178,8 @@
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(546, 497);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.pnlBorderStresstest);
             this.Controls.Add(this.llblRefresh);
             this.Controls.Add(this.dgvDatabases);
             this.Controls.Add(this.picDatabases);
@@ -152,6 +194,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDatabases)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDatabases)).EndInit();
+            this.pnlBorderStresstest.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -167,5 +210,8 @@
         private System.Windows.Forms.DataGridView dgvDatabases;
         private System.Windows.Forms.LinkLabel llblRefresh;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.Panel pnlBorderStresstest;
+        private System.Windows.Forms.ComboBox cboStresstest;
+        private System.Windows.Forms.Label label1;
     }
 }

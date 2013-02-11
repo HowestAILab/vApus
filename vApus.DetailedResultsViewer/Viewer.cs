@@ -37,7 +37,7 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void _settingsPanel_ResultsSelected(object sender, SettingsPanel.ResultsSelectedEventArgs e) {
-            if (e.Database == null) _resultsPanel.ClearReport(); else _resultsPanel.RefreshReport();
+            if (e.Database == null) _resultsPanel.ClearReport(); else _resultsPanel.RefreshReport(e.StresstestId);
         }
 
         private void _resultsPanel_FormClosing(object sender, FormClosingEventArgs e) {

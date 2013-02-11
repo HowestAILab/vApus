@@ -99,8 +99,8 @@ namespace vApus.DetailedResultsViewer {
                 foreach (DataRow rrDB in temp.Rows) {
                     string db = rrDB.ItemArray[0] as string;
                     if (db.StartsWith("vapus", StringComparison.InvariantCultureIgnoreCase)) dbs.Rows.Add(db);
-                } 
-                
+                }
+
                 int count = dbs.Rows.Count;
                 int done = 0;
                 foreach (DataRow dbsr in dbs.Rows) {
@@ -132,12 +132,12 @@ namespace vApus.DetailedResultsViewer {
                 _dataSource.DefaultView.Sort = "CreatedAt DESC";
                 _dataSource = _dataSource.DefaultView.ToTable();
                 dgvDatabases.DataSource = _dataSource;
-                
+
                 dgvDatabases.Columns[0].HeaderText = string.Empty;
                 dgvDatabases.Columns[3].Visible = false;
 
                 if (dgvDatabases.Rows.Count == 0) {
-                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null));
+                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
                 } else {
                     foreach (DataGridViewColumn clm in dgvDatabases.Columns) clm.SortMode = DataGridViewColumnSortMode.NotSortable;
                     if (dgvDatabases.Rows.Count != 0) dgvDatabases.Rows[0].Selected = true;
@@ -156,8 +156,28 @@ namespace vApus.DetailedResultsViewer {
                 int port;
                 _mySQLServerDialog.GetCurrentCredentials(out user, out host, out port, out password);
                 _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
-                if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName));
+
+                //Fill the stresstest cbo
+                cboStresstest.SelectedIndexChanged -= cboStresstest_SelectedIndexChanged;
+                cboStresstest.Items.Clear();
+                var stresstests = _resultsHelper.GetStresstests();
+                if (stresstests.Rows.Count == 0) {
+                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
+                } else {
+                    cboStresstest.Items.Add("<All>");
+                    foreach (DataRow stresstestRow in stresstests.Rows)
+                        cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
+
+                    cboStresstest.SelectedIndex = 1;
+
+                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, (ulong)cboStresstest.SelectedIndex));
+                }
+
+                cboStresstest.SelectedIndexChanged += cboStresstest_SelectedIndexChanged;
             }
+        }
+        private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
+            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, (ulong)cboStresstest.SelectedIndex));
         }
 
         private class FilterDatabasesWorkItem {
@@ -235,8 +255,18 @@ namespace vApus.DetailedResultsViewer {
 
         public class ResultsSelectedEventArgs : EventArgs {
             public string Database { get; private set; }
-            public ResultsSelectedEventArgs(string database) {
+            /// <summary>
+            /// 0 for all
+            /// </summary>
+            public ulong StresstestId { get; private set; }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="database"></param>
+            /// <param name="stresstestId">0 for all</param>
+            public ResultsSelectedEventArgs(string database, ulong stresstestId) {
                 Database = database;
+                StresstestId = stresstestId;
             }
         }
     }

@@ -27,9 +27,13 @@ namespace vApus.DetailedResultsViewer {
             detailedResultsControl.ClearResults();
             this.Enabled = true;
         }
-        public void RefreshReport() {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stresstestId">0 for all</param>
+        public void RefreshReport(ulong stresstestId) {
             this.Enabled = false;
-            detailedResultsControl.RefreshResults(_resultsHelper);
+            if (stresstestId == 0) detailedResultsControl.RefreshResults(_resultsHelper); else detailedResultsControl.RefreshResults(_resultsHelper, stresstestId);
             this.Enabled = true;
         }
     }

@@ -407,7 +407,7 @@ VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')"
             }
             return l;
         }
-        public List<KeyValuePair<string, string>> GetStresstests() {
+        public List<KeyValuePair<string, string>> GetStresstestConfigurations() {
             var l = new List<KeyValuePair<string, string>>();
             if (_databaseActions != null) {
                 var dt = _databaseActions.GetDataTable(@"Select Stresstest, RunSynchronization, Connection, ConnectionProxy, Log, LogRuleSet, Concurrencies,
@@ -444,6 +444,16 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
         private readonly object _lock = new object();
         #region Procedures
+        /// <summary>
+        /// Get all the stresstests: ID, Stresstest, Connection
+        /// </summary>
+        /// <returns></returns>
+        public DataTable GetStresstests() {
+            if (_databaseActions != null)
+                return _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;");
+            return null;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -884,7 +894,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             object runResultId = rrRow.ItemArray[0];
                             object run = rrRow.ItemArray[1];
 
-                            var ler = _databaseActions.GetDataTable("SELECT RunResultId, VirtualUser, UserAction, LogEntry, Error FROM logEntryResults WHERE RunResultId = " + runResultId + " AND  Error != ''");
+                            var ler = _databaseActions.GetDataTable("SELECT RunResultId, VirtualUser, UserAction, LogEntry, Error FROM logEntryResults WHERE RunResultId = " + runResultId + " AND CHAR_LENGTH(Error) != 0");
 
                             foreach (DataRow ldr in ler.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
