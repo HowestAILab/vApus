@@ -35,9 +35,9 @@ namespace vApus.Results {
                 int port;
                 SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
 
-                if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
+                if (string.IsNullOrEmpty(host)) throw new Exception("No MySQL connection was set.");
 
-                return string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;", host, port, user, password);
+                return string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;", host, port, user, password);
             }
         }
         public void GetCurrentCredentials(out string user, out string host, out int port, out string password) {
@@ -134,7 +134,7 @@ namespace vApus.Results {
 
         private void btnTest_Click(object sender, EventArgs e) {
             var dba = new DatabaseActions {
-                ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3}", txtHost.Text, (int)nudPort.Value, txtUser.Text, txtPassword.Text)
+                ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;", txtHost.Text, (int)nudPort.Value, txtUser.Text, txtPassword.Text)
             };
             DataTable datatable = dba.GetDataTable("Show Databases;", CommandType.Text);
             bool succes = datatable.Columns.Count != 0;

@@ -22,36 +22,30 @@ namespace vApus.Util
         private string _emptyTextBoxLabel = "Label";
         private bool _settingLabel;
 
-        public LabeledTextBox()
-        {
-            ForeColor = Color.DimGray;
-        }
-
-        public string EmptyTextBoxLabel
-        {
+        public string EmptyTextBoxLabel {
             get { return _emptyTextBoxLabel; }
-            set
-            {
+            set {
                 _settingLabel = true;
                 _emptyTextBoxLabel = value;
                 _toolTip.SetToolTip(this, _emptyTextBoxLabel);
-                if (Text.Length == 0)
-                {
+                if (Text.Length == 0) {
                     ForeColor = Color.DimGray;
                     Text = EmptyTextBoxLabel;
                 }
                 _settingLabel = false;
             }
         }
-
-        public override string Text
-        {
+        public override string Text {
             get { return base.Text; }
-            set
-            {
+            set {
                 if (!_settingLabel) ForeColor = Color.Black;
                 base.Text = value;
             }
+        }
+
+        public LabeledTextBox()
+        {
+            ForeColor = Color.DimGray;
         }
 
         protected override void OnEnter(EventArgs e)

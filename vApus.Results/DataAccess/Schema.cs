@@ -129,7 +129,7 @@ TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
 
             if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
 
-            return new DatabaseActions { ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;", host, port, user, password) };
+            return new DatabaseActions { ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;", host, port, user, password) };
         }
 
         internal static DatabaseActions GetDatabaseActionsUsingDatabase(string databaseName) {
@@ -140,7 +140,7 @@ TimeStamp datetime(6) NOT NULL, Value text NOT NULL)");
             if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
 
             var databaseActions = new DatabaseActions {
-                ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;", host, port, databaseName, user, password)
+                ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password)
             };
 
             return databaseActions;

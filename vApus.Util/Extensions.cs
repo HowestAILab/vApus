@@ -511,7 +511,7 @@ namespace vApus.Util {
         public static string Combine(this Array array, string separator, params object[] exclude) {
             if (array.Length == 0) return string.Empty;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             object value;
             for (int i = 0; i != array.Length - 1; i++) {
                 value = array.GetValue(i);
@@ -521,8 +521,8 @@ namespace vApus.Util {
                 }
             }
             value = array.GetValue(array.Length - 1);
-            if (exclude == null || !exclude.Contains(value))
-                sb.Append(value);
+            if (exclude == null || !exclude.Contains(value)) sb.Append(value);
+
             return sb.ToString();
         }
     }
