@@ -63,6 +63,8 @@ namespace vApus.Util {
         private void txtPassword_Enter(object sender, EventArgs e) {
             if (txtPassword.Text.Length == 0)
                 txtPassword.UseSystemPasswordChar = true;
+            else if (txtPassword.ForeColor != Color.DimGray && !txtPassword.UseSystemPasswordChar)
+                txtPassword.Text = string.Empty;
         }
         private void txtPassword_Leave(object sender, EventArgs e) {
             if (txtPassword.ForeColor == Color.DimGray)
@@ -119,6 +121,14 @@ namespace vApus.Util {
             txtEmailAddress.Text = Settings.Default.PNEMailAddress;
             txtPassword.Text = Settings.Default.PNPassword.Decrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
             txtSmtp.Text = Settings.Default.PNSMTP;
+
+            txtEmailAddress.EmptyTextBoxLabel = "E-Mail Address";
+            txtPassword.EmptyTextBoxLabel = "Password";
+            txtSmtp.EmptyTextBoxLabel = "SMTP Server:";
+
+            if (txtPassword.ForeColor == Color.DimGray)
+                txtPassword.UseSystemPasswordChar = false;
+
             nudPort.Value = Settings.Default.PNPort;
             chkSecure.Checked = Settings.Default.PNSecure;
             chkAfterRun.Checked = Settings.Default.PNAfterEachRun;
@@ -166,9 +176,9 @@ namespace vApus.Util {
             return false;
         }
         private void SaveSettings() {
-            Settings.Default.PNEMailAddress = txtEmailAddress.Text.Trim();
-            Settings.Default.PNPassword = txtPassword.Text.Encrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
-            Settings.Default.PNSMTP = txtSmtp.Text.Trim();
+            Settings.Default.PNEMailAddress = (txtEmailAddress.ForeColor == Color.DimGray) ? string.Empty : txtEmailAddress.Text.Trim();
+            Settings.Default.PNPassword = (txtPassword.ForeColor == Color.DimGray) ? string.Empty : txtPassword.Text.Encrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
+            Settings.Default.PNSMTP = (txtSmtp.ForeColor == Color.DimGray) ? string.Empty : txtSmtp.Text.Trim();
             Settings.Default.PNPort = (int)nudPort.Value;
             Settings.Default.PNSecure = chkSecure.Checked;
             Settings.Default.PNAfterEachRun = chkAfterRun.Checked;
@@ -190,6 +200,14 @@ namespace vApus.Util {
             chkWhenTestFinished.CheckedChanged -= chk_CheckedChanged;
 
             txtEmailAddress.Text = txtPassword.Text = txtSmtp.Text = string.Empty;
+
+            txtEmailAddress.EmptyTextBoxLabel = "E-Mail Address";
+            txtPassword.EmptyTextBoxLabel = "Password";
+            txtSmtp.EmptyTextBoxLabel = "SMTP Server:";
+
+            if (txtPassword.ForeColor == Color.DimGray)
+                txtPassword.UseSystemPasswordChar = false;
+
             nudPort.Value = 0;
             chkSecure.Checked = chkAfterRun.Checked = chkAfterConcurrency.Checked = chkWhenTestFinished.Checked = false;
 

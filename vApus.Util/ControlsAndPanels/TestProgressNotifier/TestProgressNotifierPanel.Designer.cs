@@ -69,7 +69,7 @@
             this.grp.Location = new System.Drawing.Point(12, 25);
             this.grp.Name = "grp";
             this.grp.Size = new System.Drawing.Size(375, 290);
-            this.grp.TabIndex = 1;
+            this.grp.TabIndex = 0;
             this.grp.TabStop = false;
             // 
             // chkSecure
@@ -79,7 +79,7 @@
             this.chkSecure.Location = new System.Drawing.Point(266, 47);
             this.chkSecure.Name = "chkSecure";
             this.chkSecure.Size = new System.Drawing.Size(60, 17);
-            this.chkSecure.TabIndex = 21;
+            this.chkSecure.TabIndex = 4;
             this.chkSecure.Text = "Secure";
             this.chkSecure.UseVisualStyleBackColor = true;
             this.chkSecure.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
@@ -104,7 +104,7 @@
             this.txtEmailAddress.Location = new System.Drawing.Point(11, 19);
             this.txtEmailAddress.Name = "txtEmailAddress";
             this.txtEmailAddress.Size = new System.Drawing.Size(156, 20);
-            this.txtEmailAddress.TabIndex = 16;
+            this.txtEmailAddress.TabIndex = 0;
             this.txtEmailAddress.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtSmtp
@@ -116,7 +116,7 @@
             this.txtSmtp.Location = new System.Drawing.Point(11, 45);
             this.txtSmtp.Name = "txtSmtp";
             this.txtSmtp.Size = new System.Drawing.Size(156, 20);
-            this.txtSmtp.TabIndex = 17;
+            this.txtSmtp.TabIndex = 2;
             this.txtSmtp.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtPassword
@@ -127,7 +127,7 @@
             this.txtPassword.Location = new System.Drawing.Point(173, 19);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
-            this.txtPassword.TabIndex = 18;
+            this.txtPassword.TabIndex = 1;
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.txt_TextChanged);
             this.txtPassword.Enter += new System.EventHandler(this.txtPassword_Enter);
@@ -144,7 +144,7 @@
             0});
             this.nudPort.Name = "nudPort";
             this.nudPort.Size = new System.Drawing.Size(50, 20);
-            this.nudPort.TabIndex = 19;
+            this.nudPort.TabIndex = 3;
             this.nudPort.ValueChanged += new System.EventHandler(this.nudPort_ValueChanged);
             // 
             // chkWhenTestFinished
@@ -153,7 +153,7 @@
             this.chkWhenTestFinished.Location = new System.Drawing.Point(92, 145);
             this.chkWhenTestFinished.Name = "chkWhenTestFinished";
             this.chkWhenTestFinished.Size = new System.Drawing.Size(207, 17);
-            this.chkWhenTestFinished.TabIndex = 4;
+            this.chkWhenTestFinished.TabIndex = 7;
             this.chkWhenTestFinished.Text = "The test is finished or an error occured";
             this.chkWhenTestFinished.UseVisualStyleBackColor = true;
             this.chkWhenTestFinished.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
@@ -173,7 +173,7 @@
             this.chkAfterConcurrency.Location = new System.Drawing.Point(92, 116);
             this.chkAfterConcurrency.Name = "chkAfterConcurrency";
             this.chkAfterConcurrency.Size = new System.Drawing.Size(113, 17);
-            this.chkAfterConcurrency.TabIndex = 2;
+            this.chkAfterConcurrency.TabIndex = 6;
             this.chkAfterConcurrency.Text = "Each concurrency";
             this.chkAfterConcurrency.UseVisualStyleBackColor = true;
             this.chkAfterConcurrency.CheckedChanged += new System.EventHandler(this.chkAfterConcurrency_CheckedChanged);
@@ -184,7 +184,7 @@
             this.chkAfterRun.Location = new System.Drawing.Point(92, 93);
             this.chkAfterRun.Name = "chkAfterRun";
             this.chkAfterRun.Size = new System.Drawing.Size(69, 17);
-            this.chkAfterRun.TabIndex = 1;
+            this.chkAfterRun.TabIndex = 5;
             this.chkAfterRun.Text = "Each run";
             this.chkAfterRun.UseVisualStyleBackColor = true;
             this.chkAfterRun.CheckedChanged += new System.EventHandler(this.chkAfterRun_CheckedChanged);
@@ -208,7 +208,7 @@
             this.btnClear.Location = new System.Drawing.Point(312, 322);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 23);
-            this.btnClear.TabIndex = 12;
+            this.btnClear.TabIndex = 4;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = false;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
@@ -223,7 +223,7 @@
             this.btnSave.Location = new System.Drawing.Point(231, 322);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 11;
+            this.btnSave.TabIndex = 3;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
@@ -239,7 +239,7 @@
             this.btnEnableDisable.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnEnableDisable.Name = "btnEnableDisable";
             this.btnEnableDisable.Size = new System.Drawing.Size(61, 24);
-            this.btnEnableDisable.TabIndex = 10;
+            this.btnEnableDisable.TabIndex = 1;
             this.btnEnableDisable.Text = "Enable";
             this.btnEnableDisable.UseVisualStyleBackColor = false;
             this.btnEnableDisable.Click += new System.EventHandler(this.btnEnableDisable_Click);
@@ -255,7 +255,7 @@
             this.btnTest.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(61, 24);
-            this.btnTest.TabIndex = 13;
+            this.btnTest.TabIndex = 2;
             this.btnTest.Text = "Test";
             this.btnTest.UseVisualStyleBackColor = false;
             this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
