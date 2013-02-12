@@ -90,7 +90,7 @@
             this.txtPassword.Location = new System.Drawing.Point(6, 94);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
-            this.txtPassword.TabIndex = 3;
+            this.txtPassword.TabIndex = 4;
             this.txtPassword.Text = "Password";
             this.txtPassword.TextChanged += new System.EventHandler(this.txt_TextChanged);
             this.txtPassword.Enter += new System.EventHandler(this.txtPassword_Enter);
@@ -124,7 +124,7 @@
             0});
             this.nudPort.Name = "nudPort";
             this.nudPort.Size = new System.Drawing.Size(50, 20);
-            this.nudPort.TabIndex = 6;
+            this.nudPort.TabIndex = 3;
             this.nudPort.Value = new decimal(new int[] {
             3306,
             0,
@@ -140,7 +140,7 @@
             this.btnTest.Location = new System.Drawing.Point(12, 344);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(75, 23);
-            this.btnTest.TabIndex = 7;
+            this.btnTest.TabIndex = 1;
             this.btnTest.Text = "Test";
             this.btnTest.UseVisualStyleBackColor = false;
             this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
@@ -154,7 +154,7 @@
             this.btnSave.Location = new System.Drawing.Point(300, 344);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 8;
+            this.btnSave.TabIndex = 2;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
@@ -168,7 +168,7 @@
             this.btnDelete.Location = new System.Drawing.Point(381, 344);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(75, 23);
-            this.btnDelete.TabIndex = 9;
+            this.btnDelete.TabIndex = 3;
             this.btnDelete.Text = "Delete";
             this.btnDelete.UseVisualStyleBackColor = false;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
@@ -228,6 +228,8 @@
             this.ResumeLayout(false);
 
         }
+
+
 
         #endregion
 

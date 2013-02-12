@@ -106,13 +106,14 @@ namespace vApus.Results {
         private void txtPassword_Enter(object sender, EventArgs e) {
             if (txtPassword.Text.Length == 0)
                 txtPassword.UseSystemPasswordChar = true;
+            else if (txtPassword.ForeColor != Color.DimGray && !txtPassword.UseSystemPasswordChar)
+                txtPassword.Text = string.Empty;
         }
 
         private void txtPassword_Leave(object sender, EventArgs e) {
             if (txtPassword.ForeColor == Color.DimGray)
                 txtPassword.UseSystemPasswordChar = false;
         }
-
         private void txt_TextChanged(object sender, EventArgs e) {
             btnTest.Enabled = btnSave.Enabled =
                               (txtUser.ForeColor != Color.DimGray && txtUser.Text.Trim().Length != 0) &&
