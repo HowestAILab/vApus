@@ -447,7 +447,9 @@ namespace vApus.DistributedTesting {
             } catch {
                 //Only one test can run at the same time.
                 distributedStresstestControl.AppendMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
+
                 RemoveDatabase();
+
                 Stop(true);
             }
         }
@@ -499,6 +501,7 @@ namespace vApus.DistributedTesting {
                             distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                             LogWrapper.LogByLevel(message, LogLevel.Error);
                         }
+
                         RemoveDatabase();
                         Stop(true);
                     }
@@ -762,8 +765,8 @@ namespace vApus.DistributedTesting {
         }
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
-                distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled,  _distributedTestCore.Failed,
-                    LocalMonitor.CPUUsage,  LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage,  (int)LocalMonitor.TotalVisibleMemory,  LocalMonitor.NicsSent, 
+                distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed,
+                    LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent,
                     LocalMonitor.NicsReceived);
             } catch { } //Exception on false WMI. 
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
@@ -798,7 +801,7 @@ namespace vApus.DistributedTesting {
 
         private void DistributedTestView_FormClosing(object sender, FormClosingEventArgs e) {
             if (_distributedTestMode == DistributedTestMode.Edit ||
-                MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo,  MessageBoxIcon.Warning) == DialogResult.Yes) {
+                MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 tmrProgress.Stop();
                 tmrProgressDelayCountDown.Stop();
                 tmrSchedule.Stop();

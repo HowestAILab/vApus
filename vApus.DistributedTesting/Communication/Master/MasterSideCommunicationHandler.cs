@@ -536,20 +536,23 @@ namespace vApus.DistributedTesting {
                 int done = 0;
                 for (int i = 0; i != count; i++) {
                     Thread t = new Thread(delegate(object parameter) {
-                        int index = (int)parameter;
+                        try {
+                            int index = (int)parameter;
 
-                        _initializeTestWorkItem = new InitializeTestWorkItem();
-                        var ex = _initializeTestWorkItem.InitializeTest(initializeTestData[index]);
+                            _initializeTestWorkItem = new InitializeTestWorkItem();
+                            var ex = _initializeTestWorkItem.InitializeTest(initializeTestData[index]);
 
-                        lock (_lock) {
-                            if (ex == null) {
-                                ++done;
-                            } else {
-                                exception = ex;
-                                done = count;
+                            lock (_lock) {
+                                if (ex == null) {
+                                    ++done;
+                                } else {
+                                    exception = ex;
+                                    done = count;
+                                }
                             }
-                        }
-                        if (done >= count) waitHandle.Set();
+                            if (done >= count && waitHandle != null)
+                                try { waitHandle.Set(); } catch { }
+                        } catch { }
                     });
                     t.IsBackground = true;
                     t.Priority = ThreadPriority.Highest;
@@ -628,11 +631,13 @@ namespace vApus.DistributedTesting {
                         foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
                             if (!stopped.Contains(socketWrapper)) {
                                 Thread t = new Thread(delegate(object parameter) {
-                                    if (_stopTestWorkItem == null) _stopTestWorkItem = new StopTestWorkItem();
-                                    _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
+                                    try {
+                                        if (_stopTestWorkItem == null) _stopTestWorkItem = new StopTestWorkItem();
+                                        _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
 
-                                    if (Interlocked.Increment(ref handled) == length && waitHandle != null)
-                                        waitHandle.Set();
+                                        if (Interlocked.Increment(ref handled) == length && waitHandle != null)
+                                            try { waitHandle.Set(); } catch { }
+                                    } catch { }
                                 });
                                 t.IsBackground = true;
                                 t.Start(socketWrapper);

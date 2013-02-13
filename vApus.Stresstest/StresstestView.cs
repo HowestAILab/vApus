@@ -631,7 +631,9 @@ namespace vApus.Stresstest {
 
 
                 fastResultsControl.SetStresstestStopped(stresstestStatus, ex);
-                if (stresstestStatus == StresstestStatus.Cancelled || stresstestStatus == StresstestStatus.Error) RemoveDatabase();
+                if (stresstestStatus == StresstestStatus.Cancelled || stresstestStatus == StresstestStatus.Error)
+                    RemoveDatabase();
+
 
                 Cursor = Cursors.Default;
 
