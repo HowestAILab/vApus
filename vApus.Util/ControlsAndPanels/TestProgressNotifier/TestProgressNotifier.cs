@@ -55,10 +55,13 @@ namespace vApus.Util {
                         client.EnableSsl = Settings.Default.PNSecure;
                         client.Timeout = 10000;
                         client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                        client.UseDefaultCredentials = false;
-                        client.Credentials = new NetworkCredential(Settings.Default.PNEMailAddress, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
 
-                        var msg = new MailMessage("info@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + NamedObjectRegistrar.Get<string>("IP") + ":" + NamedObjectRegistrar.Get<int>("Port") + " --> " + message, message + "\n" + exception);
+                        if (!string.IsNullOrWhiteSpace(Settings.Default.PNUsername) && !string.IsNullOrWhiteSpace(Settings.Default.PNPassword)) {
+                            client.UseDefaultCredentials = false;
+                            client.Credentials = new NetworkCredential(Settings.Default.PNUsername, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
+                        }
+
+                        var msg = new MailMessage("vapus@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + NamedObjectRegistrar.Get<string>("IP") + ":" + NamedObjectRegistrar.Get<int>("Port") + " --> " + message, message + "\n" + exception);
                         msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                         msg.IsBodyHtml = true;
                         msg.Priority = MailPriority.High;

@@ -202,5 +202,17 @@ namespace vApus.Util.Properties {
                 this["PNEnabled"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PNUsername {
+            get {
+                return ((string)(this["PNUsername"]));
+            }
+            set {
+                this["PNUsername"] = value;
+            }
+        }
     }
 }

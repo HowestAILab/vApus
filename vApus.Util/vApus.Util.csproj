@@ -228,7 +228,7 @@
     </Compile>
     <Compile Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifier.cs" />
     <Compile Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.cs">
-      <SubType>Form</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.Designer.cs">
       <DependentUpon>TestProgressNotifierPanel.cs</DependentUpon>

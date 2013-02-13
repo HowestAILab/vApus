@@ -91,26 +91,26 @@ namespace vApus.Util {
         private void btnClear_Click(object sender, EventArgs e) { ClearSettings(); }
 
         private void EnableOrDisableSavebtn() {
-            btnSave.Enabled = (btnEnableDisable.Text == "Disable" && (txtEmailAddress.ForeColor != Color.DimGray &&
-                Regex.IsMatch(txtEmailAddress.Text.Trim(), @"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", RegexOptions.IgnoreCase)) &&
-                (txtSmtp.ForeColor != Color.DimGray && txtSmtp.Text.Trim().Length != 0) &&
-                (txtPassword.ForeColor != Color.DimGray && txtPassword.Text.Trim().Length != 0));
+            btnSave.Enabled = (btnEnableDisable.Text == "Disable" && (txtUsername.ForeColor != Color.DimGray &&
+                Regex.IsMatch(txtEmailaddress.Text.Trim(), @"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", RegexOptions.IgnoreCase)) &&
+                (txtSmtp.ForeColor != Color.DimGray && txtSmtp.Text.Trim().Length != 0));
         }
         private void EnableOrDisableTestbtn() {
-            btnTest.Enabled = (btnEnableDisable.Text == "Disable" && (txtEmailAddress.ForeColor != Color.DimGray &&
-                Regex.IsMatch(txtEmailAddress.Text.Trim(), @"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", RegexOptions.IgnoreCase)) &&
-                (txtSmtp.ForeColor != Color.DimGray && txtSmtp.Text.Trim().Length != 0) &&
-                (txtPassword.ForeColor != Color.DimGray && txtPassword.Text.Trim().Length != 0));
+            btnTest.Enabled = (btnEnableDisable.Text == "Disable" && (txtUsername.ForeColor != Color.DimGray &&
+                Regex.IsMatch(txtEmailaddress.Text.Trim(), @"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", RegexOptions.IgnoreCase)) &&
+                (txtSmtp.ForeColor != Color.DimGray && txtSmtp.Text.Trim().Length != 0));
         }
         private void EnableOrDisableClearbtn() {
-            btnClear.Enabled = btnEnableDisable.Text == "Disable" && ((txtEmailAddress.ForeColor != Color.DimGray && txtEmailAddress.Text.Trim().Length != 0) ||
+            btnClear.Enabled = btnEnableDisable.Text == "Disable" && ((txtEmailaddress.ForeColor != Color.DimGray && txtEmailaddress.Text.Trim().Length != 0) ||
                 (txtSmtp.ForeColor != Color.DimGray && txtSmtp.Text.Trim().Length != 0) ||
+                (txtUsername.ForeColor != Color.DimGray && txtUsername.Text.Trim().Length != 0) ||
                 (txtPassword.ForeColor != Color.DimGray && txtPassword.Text.Trim().Length != 0) ||
                 (nudPort.Value != 0) || chkSecure.Checked || chkAfterRun.Checked || chkAfterConcurrency.Checked || chkWhenTestFinished.Checked);
         }
 
         private void LoadSettings() {
-            txtEmailAddress.TextChanged -= txt_TextChanged;
+            txtEmailaddress.TextChanged -= txt_TextChanged;
+            txtUsername.TextChanged -= txt_TextChanged;
             txtPassword.TextChanged -= txt_TextChanged;
             txtSmtp.TextChanged -= txt_TextChanged;
 
@@ -118,13 +118,15 @@ namespace vApus.Util {
             chkAfterConcurrency.CheckedChanged -= chk_CheckedChanged;
             chkWhenTestFinished.CheckedChanged -= chk_CheckedChanged;
 
-            txtEmailAddress.Text = Settings.Default.PNEMailAddress;
+            txtEmailaddress.Text = Settings.Default.PNEMailAddress;
+            txtUsername.Text = Settings.Default.PNUsername;
             txtPassword.Text = Settings.Default.PNPassword.Decrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
             txtSmtp.Text = Settings.Default.PNSMTP;
 
-            txtEmailAddress.EmptyTextBoxLabel = "E-Mail Address";
-            txtPassword.EmptyTextBoxLabel = "Password";
-            txtSmtp.EmptyTextBoxLabel = "SMTP Server:";
+            txtEmailaddress.EmptyTextBoxLabel = "E-Mail Address";
+            txtSmtp.EmptyTextBoxLabel = "smtp.foo.bar";
+            txtUsername.EmptyTextBoxLabel = "Username (optional)";
+            txtPassword.EmptyTextBoxLabel = "Password (optional)";
 
             if (txtPassword.ForeColor == Color.DimGray)
                 txtPassword.UseSystemPasswordChar = false;
@@ -150,10 +152,10 @@ namespace vApus.Util {
             chkAfterConcurrency.CheckedChanged += chk_CheckedChanged;
             chkWhenTestFinished.CheckedChanged += chk_CheckedChanged;
 
-            txtEmailAddress.TextChanged += txt_TextChanged;
+            txtEmailaddress.TextChanged += txt_TextChanged;
+            txtUsername.TextChanged += txt_TextChanged;
             txtPassword.TextChanged += txt_TextChanged;
             txtSmtp.TextChanged += txt_TextChanged;
-
         }
         private bool TestSettings() {
             try {
@@ -161,10 +163,13 @@ namespace vApus.Util {
                 client.EnableSsl = chkSecure.Checked;
                 client.Timeout = 10000;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential(txtEmailAddress.Text, txtPassword.Text);
-
-                var msg = new MailMessage("info@sizingservers.be", txtEmailAddress.Text, "A test mail", "from vApus@" + NamedObjectRegistrar.Get<string>("IP") + ":" + NamedObjectRegistrar.Get<int>("Port"));
+                
+                if (txtUsername.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0) {
+                    client.UseDefaultCredentials = false;
+                    client.Credentials = new NetworkCredential(txtUsername.Text, txtPassword.Text);
+                }
+                
+                var msg = new MailMessage("vapus@sizingservers.be", txtEmailaddress.Text, "A test mail", "from vApus@" + NamedObjectRegistrar.Get<string>("IP") + ":" + NamedObjectRegistrar.Get<int>("Port"));
                 msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                 msg.IsBodyHtml = true;
                 msg.Priority = MailPriority.High;
@@ -176,9 +181,10 @@ namespace vApus.Util {
             return false;
         }
         private void SaveSettings() {
-            Settings.Default.PNEMailAddress = (txtEmailAddress.ForeColor == Color.DimGray) ? string.Empty : txtEmailAddress.Text.Trim();
-            Settings.Default.PNPassword = (txtPassword.ForeColor == Color.DimGray) ? string.Empty : txtPassword.Text.Encrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
+            Settings.Default.PNEMailAddress = (txtEmailaddress.ForeColor == Color.DimGray) ? string.Empty : txtEmailaddress.Text.Trim();
             Settings.Default.PNSMTP = (txtSmtp.ForeColor == Color.DimGray) ? string.Empty : txtSmtp.Text.Trim();
+            Settings.Default.PNUsername = (txtUsername.ForeColor == Color.DimGray) ? string.Empty : txtUsername.Text.Trim();
+            Settings.Default.PNPassword = (txtPassword.ForeColor == Color.DimGray) ? string.Empty : txtPassword.Text.Encrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
             Settings.Default.PNPort = (int)nudPort.Value;
             Settings.Default.PNSecure = chkSecure.Checked;
             Settings.Default.PNAfterEachRun = chkAfterRun.Checked;
@@ -191,7 +197,8 @@ namespace vApus.Util {
             btnSave.Enabled = false;
         }
         private void ClearSettings() {
-            txtEmailAddress.TextChanged -= txt_TextChanged;
+            txtEmailaddress.TextChanged -= txt_TextChanged;
+            txtUsername.TextChanged -= txt_TextChanged;
             txtPassword.TextChanged -= txt_TextChanged;
             txtSmtp.TextChanged -= txt_TextChanged;
 
@@ -199,11 +206,12 @@ namespace vApus.Util {
             chkAfterConcurrency.CheckedChanged -= chk_CheckedChanged;
             chkWhenTestFinished.CheckedChanged -= chk_CheckedChanged;
 
-            txtEmailAddress.Text = txtPassword.Text = txtSmtp.Text = string.Empty;
+            txtEmailaddress.Text = txtUsername.Text = txtPassword.Text = txtSmtp.Text = string.Empty;
 
-            txtEmailAddress.EmptyTextBoxLabel = "E-Mail Address";
-            txtPassword.EmptyTextBoxLabel = "Password";
-            txtSmtp.EmptyTextBoxLabel = "SMTP Server:";
+            txtEmailaddress.EmptyTextBoxLabel = "E-Mail Address";
+            txtSmtp.EmptyTextBoxLabel = "smtp.foo.bar";
+            txtUsername.EmptyTextBoxLabel = "Username (optional)";
+            txtPassword.EmptyTextBoxLabel = "Password (optional)";
 
             if (txtPassword.ForeColor == Color.DimGray)
                 txtPassword.UseSystemPasswordChar = false;
@@ -220,7 +228,8 @@ namespace vApus.Util {
             chkAfterConcurrency.CheckedChanged += chk_CheckedChanged;
             chkWhenTestFinished.CheckedChanged += chk_CheckedChanged;
 
-            txtEmailAddress.TextChanged += txt_TextChanged;
+            txtEmailaddress.TextChanged += txt_TextChanged;
+            txtUsername.TextChanged += txt_TextChanged;
             txtPassword.TextChanged += txt_TextChanged;
             txtSmtp.TextChanged += txt_TextChanged;
         }

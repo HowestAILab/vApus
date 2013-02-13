@@ -29,9 +29,12 @@
         private void InitializeComponent()
         {
             this.grp = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtEmailaddress = new vApus.Util.LabeledTextBox();
             this.chkSecure = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.txtEmailAddress = new vApus.Util.LabeledTextBox();
+            this.txtUsername = new vApus.Util.LabeledTextBox();
             this.txtSmtp = new vApus.Util.LabeledTextBox();
             this.txtPassword = new vApus.Util.LabeledTextBox();
             this.nudPort = new System.Windows.Forms.NumericUpDown();
@@ -54,9 +57,12 @@
             this.grp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grp.Controls.Add(this.label6);
+            this.grp.Controls.Add(this.label5);
+            this.grp.Controls.Add(this.txtEmailaddress);
             this.grp.Controls.Add(this.chkSecure);
             this.grp.Controls.Add(this.label1);
-            this.grp.Controls.Add(this.txtEmailAddress);
+            this.grp.Controls.Add(this.txtUsername);
             this.grp.Controls.Add(this.txtSmtp);
             this.grp.Controls.Add(this.txtPassword);
             this.grp.Controls.Add(this.nudPort);
@@ -72,15 +78,46 @@
             this.grp.TabIndex = 0;
             this.grp.TabStop = false;
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(11, 79);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(55, 13);
+            this.label6.TabIndex = 23;
+            this.label6.Text = "Mailserver";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(11, 20);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(56, 13);
+            this.label5.TabIndex = 22;
+            this.label5.Text = "Recepient";
+            // 
+            // txtEmailaddress
+            // 
+            this.txtEmailaddress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtEmailaddress.EmptyTextBoxLabel = "E-Mail Address";
+            this.txtEmailaddress.ForeColor = System.Drawing.Color.Black;
+            this.txtEmailaddress.Location = new System.Drawing.Point(14, 36);
+            this.txtEmailaddress.Name = "txtEmailaddress";
+            this.txtEmailaddress.Size = new System.Drawing.Size(156, 20);
+            this.txtEmailaddress.TabIndex = 0;
+            this.txtEmailaddress.Text = "E-Mail Address";
+            this.txtEmailaddress.TextChanged += new System.EventHandler(this.txt_TextChanged);
+            // 
             // chkSecure
             // 
             this.chkSecure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkSecure.AutoSize = true;
-            this.chkSecure.Location = new System.Drawing.Point(266, 47);
+            this.chkSecure.Location = new System.Drawing.Point(269, 97);
             this.chkSecure.Name = "chkSecure";
-            this.chkSecure.Size = new System.Drawing.Size(60, 17);
-            this.chkSecure.TabIndex = 4;
-            this.chkSecure.Text = "Secure";
+            this.chkSecure.Size = new System.Drawing.Size(71, 17);
+            this.chkSecure.TabIndex = 3;
+            this.chkSecure.Text = "TLS/SSL";
             this.chkSecure.UseVisualStyleBackColor = true;
             this.chkSecure.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
             // 
@@ -89,45 +126,48 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.Color.DimGray;
-            this.label1.Location = new System.Drawing.Point(229, 48);
+            this.label1.Location = new System.Drawing.Point(232, 98);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(31, 13);
             this.label1.TabIndex = 20;
             this.label1.Text = "(port)";
             // 
-            // txtEmailAddress
+            // txtUsername
             // 
-            this.txtEmailAddress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEmailAddress.EmptyTextBoxLabel = "E-Mail Address";
-            this.txtEmailAddress.ForeColor = System.Drawing.Color.Black;
-            this.txtEmailAddress.Location = new System.Drawing.Point(11, 19);
-            this.txtEmailAddress.Name = "txtEmailAddress";
-            this.txtEmailAddress.Size = new System.Drawing.Size(156, 20);
-            this.txtEmailAddress.TabIndex = 0;
-            this.txtEmailAddress.TextChanged += new System.EventHandler(this.txt_TextChanged);
+            this.txtUsername.EmptyTextBoxLabel = "Username (optional)";
+            this.txtUsername.ForeColor = System.Drawing.Color.Black;
+            this.txtUsername.Location = new System.Drawing.Point(14, 121);
+            this.txtUsername.Name = "txtUsername";
+            this.txtUsername.Size = new System.Drawing.Size(156, 20);
+            this.txtUsername.TabIndex = 4;
+            this.txtUsername.Text = "Username (optional)";
+            this.txtUsername.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtSmtp
             // 
             this.txtSmtp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSmtp.EmptyTextBoxLabel = "SMTP Server:";
+            this.txtSmtp.EmptyTextBoxLabel = "smtp.foo.bar";
             this.txtSmtp.ForeColor = System.Drawing.Color.Black;
-            this.txtSmtp.Location = new System.Drawing.Point(11, 45);
+            this.txtSmtp.Location = new System.Drawing.Point(14, 95);
             this.txtSmtp.Name = "txtSmtp";
             this.txtSmtp.Size = new System.Drawing.Size(156, 20);
-            this.txtSmtp.TabIndex = 2;
+            this.txtSmtp.TabIndex = 1;
+            this.txtSmtp.Text = "smtp.foo.bar";
             this.txtSmtp.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtPassword
             // 
             this.txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtPassword.EmptyTextBoxLabel = "Password";
+            this.txtPassword.EmptyTextBoxLabel = "Password (optional)";
             this.txtPassword.ForeColor = System.Drawing.Color.Black;
-            this.txtPassword.Location = new System.Drawing.Point(173, 19);
+            this.txtPassword.Location = new System.Drawing.Point(176, 121);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
-            this.txtPassword.TabIndex = 1;
+            this.txtPassword.TabIndex = 5;
+            this.txtPassword.Text = "Password (optional)";
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.txt_TextChanged);
             this.txtPassword.Enter += new System.EventHandler(this.txtPassword_Enter);
@@ -136,7 +176,7 @@
             // nudPort
             // 
             this.nudPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.nudPort.Location = new System.Drawing.Point(173, 45);
+            this.nudPort.Location = new System.Drawing.Point(176, 95);
             this.nudPort.Maximum = new decimal(new int[] {
             99999,
             0,
@@ -144,16 +184,21 @@
             0});
             this.nudPort.Name = "nudPort";
             this.nudPort.Size = new System.Drawing.Size(50, 20);
-            this.nudPort.TabIndex = 3;
+            this.nudPort.TabIndex = 2;
+            this.nudPort.Value = new decimal(new int[] {
+            25,
+            0,
+            0,
+            0});
             this.nudPort.ValueChanged += new System.EventHandler(this.nudPort_ValueChanged);
             // 
             // chkWhenTestFinished
             // 
             this.chkWhenTestFinished.AutoSize = true;
-            this.chkWhenTestFinished.Location = new System.Drawing.Point(92, 145);
+            this.chkWhenTestFinished.Location = new System.Drawing.Point(92, 226);
             this.chkWhenTestFinished.Name = "chkWhenTestFinished";
             this.chkWhenTestFinished.Size = new System.Drawing.Size(207, 17);
-            this.chkWhenTestFinished.TabIndex = 7;
+            this.chkWhenTestFinished.TabIndex = 8;
             this.chkWhenTestFinished.Text = "The test is finished or an error occured";
             this.chkWhenTestFinished.UseVisualStyleBackColor = true;
             this.chkWhenTestFinished.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
@@ -161,7 +206,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(8, 146);
+            this.label3.Location = new System.Drawing.Point(8, 227);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(39, 13);
             this.label3.TabIndex = 15;
@@ -170,10 +215,10 @@
             // chkAfterConcurrency
             // 
             this.chkAfterConcurrency.AutoSize = true;
-            this.chkAfterConcurrency.Location = new System.Drawing.Point(92, 116);
+            this.chkAfterConcurrency.Location = new System.Drawing.Point(92, 197);
             this.chkAfterConcurrency.Name = "chkAfterConcurrency";
             this.chkAfterConcurrency.Size = new System.Drawing.Size(113, 17);
-            this.chkAfterConcurrency.TabIndex = 6;
+            this.chkAfterConcurrency.TabIndex = 7;
             this.chkAfterConcurrency.Text = "Each concurrency";
             this.chkAfterConcurrency.UseVisualStyleBackColor = true;
             this.chkAfterConcurrency.CheckedChanged += new System.EventHandler(this.chkAfterConcurrency_CheckedChanged);
@@ -181,10 +226,10 @@
             // chkAfterRun
             // 
             this.chkAfterRun.AutoSize = true;
-            this.chkAfterRun.Location = new System.Drawing.Point(92, 93);
+            this.chkAfterRun.Location = new System.Drawing.Point(92, 174);
             this.chkAfterRun.Name = "chkAfterRun";
             this.chkAfterRun.Size = new System.Drawing.Size(69, 17);
-            this.chkAfterRun.TabIndex = 5;
+            this.chkAfterRun.TabIndex = 6;
             this.chkAfterRun.Text = "Each run";
             this.chkAfterRun.UseVisualStyleBackColor = true;
             this.chkAfterRun.CheckedChanged += new System.EventHandler(this.chkAfterRun_CheckedChanged);
@@ -192,7 +237,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(8, 94);
+            this.label2.Location = new System.Drawing.Point(8, 175);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(32, 13);
             this.label2.TabIndex = 12;
@@ -296,7 +341,7 @@
         private System.Windows.Forms.CheckBox chkAfterRun;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private LabeledTextBox txtEmailAddress;
+        private LabeledTextBox txtUsername;
         private LabeledTextBox txtSmtp;
         private LabeledTextBox txtPassword;
         private System.Windows.Forms.NumericUpDown nudPort;
@@ -306,6 +351,9 @@
         private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.CheckBox chkSecure;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label5;
+        private LabeledTextBox txtEmailaddress;
 
     }
 }
