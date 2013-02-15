@@ -109,7 +109,7 @@ namespace vApus.Stresstest {
         /// <param name="stresstest"></param>
         /// <param name="limitSimultaniousRunningToOne">Allow only one stresstest to run at a time.</param>
         public StresstestCore(Stresstest stresstest) {
-            ObjectRegistrar.MaxRegistered =  1;
+            ObjectRegistrar.MaxRegistered = 1;
             ObjectRegistrar.Register(this);
 
             _stresstest = stresstest;
