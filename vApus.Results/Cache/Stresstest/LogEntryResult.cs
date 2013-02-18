@@ -25,5 +25,10 @@ namespace vApus.Results
         public long TimeToLastByteInTicks { get; set; }
         public int DelayInMilliseconds { get; set; }
         public string Error { get; set; }
+
+        /// <summary>
+        /// 0 for all but break on last runs.
+        /// </summary>
+        public int Rerun { get; set; }
     }
 }

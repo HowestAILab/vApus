@@ -55,6 +55,7 @@ namespace vApus.Stresstest {
 
         /// <summary> Needed for break on last. </summary>
         private volatile bool _runDoneOnce;
+        private volatile int _rerun = 0;
 
         private RunResult _runResult;
         private RunSynchronization _runSynchronization;
@@ -239,7 +240,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     For run sync (break on last finished)
+        ///     For run sync (break on first and last finished)
         /// </summary>
         private void SetRunDoneOnce() {
             if (!_runDoneOnce) {
@@ -436,6 +437,7 @@ namespace vApus.Stresstest {
                 for (int run = 0; run != _stresstest.Runs; run++) {
                     if (_cancel) break;
                     _runDoneOnce = false;
+                    _rerun = 0;
 
                 Rerun:
                     //Initialize all for a new test.
@@ -461,28 +463,26 @@ namespace vApus.Stresstest {
                             _runSynchronizationContinueWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
                         }
+
+                        //Set this run started, used for for instance monitoring --> the range for this run can be determined this way.
+                        SetRunStarted();
                     }
 
                     if (_cancel) break;
-
-                    //Set this run started, used for for instance monitoring --> the range for this run can be determined this way.
-                    SetRunStarted();
 
                     //Do the actual work and invoke when the run is finished.
                     try {
                         _threadPool.DoWorkAndWaitForIdle();
                     } catch (Exception ex) {
                         if (!_isDisposed)
-                            InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex,
-                                          Color.Red, LogLevel.Error);
-                    } finally {
-                        SetRunStopped();
+                            InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, LogLevel.Error);
                     }
 
                     //Wait here when the run is broken untill the master sends continue when using run sync.
                     if (_runSynchronization == RunSynchronization.BreakOnFirstFinished) {
                         ++_continueCounter;
                         SetRunDoneOnce();
+                        SetRunStopped();
 
                         InvokeMessage("Waiting for Continue Message from Master...");
                         _runSynchronizationContinueWaitHandle.WaitOne();
@@ -490,6 +490,7 @@ namespace vApus.Stresstest {
                     }
                         //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
                     else if (_runSynchronization == RunSynchronization.BreakOnLastFinished && !_break) {
+                        ++_rerun;
                         SetRunDoneOnce();
 
                         InvokeMessage("Initializing Rerun...");
@@ -497,6 +498,8 @@ namespace vApus.Stresstest {
                         _runResult.PrepareForRerun();
                         _resultsHelper.SetRerun(_runResult);
                         goto Rerun;
+                    } else {
+                        SetRunStopped();
                     }
                 }
                 SetConcurrencyStopped();
@@ -553,7 +556,7 @@ namespace vApus.Stresstest {
                         tle[index++] = new TestableLogEntry(logEntryIndex, parameterizedLogEntry, userActionIndex,
                                                             userAction,
                                                             logEntry.ExecuteInParallelWithPrevious,
-                                                            logEntry.ParallelOffsetInMs);
+                                                            logEntry.ParallelOffsetInMs, _rerun);
                     }
 
                     testableLogEntries.Add(tle);
@@ -890,7 +893,8 @@ namespace vApus.Stresstest {
                         SentAt = sentAt,
                         TimeToLastByteInTicks = timeToLastByte.Ticks,
                         DelayInMilliseconds = delayInMilliseconds,
-                        Error = (exception == null) ? string.Empty : exception.ToString()
+                        Error = (exception == null) ? string.Empty : exception.ToString(),
+                        Rerun = testableLogEntry.Rerun
                     };
                     result.SetLogEntryResultAt(testableLogEntryIndex, logEntryResult);
 
@@ -935,6 +939,10 @@ namespace vApus.Stresstest {
             ///     Should be log.IndexOf(LogEntry) or log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry), this must be unique
             /// </summary>
             public readonly string UserAction;
+            /// <summary>
+            /// 0 for all but Break on last runs
+            /// </summary>
+            public readonly int Rerun;
 
             /// <summary>
             ///     Log entry with metadata.
@@ -946,7 +954,7 @@ namespace vApus.Stresstest {
             /// <param name="generateWhileTestingParameterTokens">The needed ones will be filtered.</param>
             public TestableLogEntry(string logEntryIndex, StringTree parameterizedLogEntry, int userActionIndex,
                                     string userAction,
-                                    bool executeInParallelWithPrevious, int parallelOffsetInMs) {
+                                    bool executeInParallelWithPrevious, int parallelOffsetInMs, int rerun) {
                 if (userAction == null)
                     throw new ArgumentNullException("userAction");
 
@@ -957,6 +965,8 @@ namespace vApus.Stresstest {
                 UserAction = userAction;
                 ExecuteInParallelWithPrevious = executeInParallelWithPrevious;
                 ParallelOffsetInMs = parallelOffsetInMs;
+
+                Rerun = rerun;
             }
         }
     }

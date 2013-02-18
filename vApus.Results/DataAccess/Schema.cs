@@ -104,7 +104,7 @@ FOREIGN KEY(ConcurrencyResultId) REFERENCES ConcurrencyResults(Id), Run int NOT 
                 databaseActions.ExecuteSQL(
                     @"Create Table LogEntryResults(Id serial, PRIMARY KEY(Id), RunResultId int NOT NULL, 
 FOREIGN KEY(RunResultId) REFERENCES RunResults(Id),VirtualUser varchar(255) NOT NULL, UserAction text NOT NULL, LogEntryIndex varchar(255) NOT NULL, LogEntry text NOT NULL,
-SentAt datetime(6) NOT NULL, TimeToLastByteInTicks bigint NOT NULL, DelayInMilliseconds int NOT NULL, Error text NOT NULL)");
+SentAt datetime(6) NOT NULL, TimeToLastByteInTicks bigint NOT NULL, DelayInMilliseconds int NOT NULL, Error text NOT NULL, Rerun int NOT NULL)");
         }
 
         private static void CreateMonitorsTable(DatabaseActions databaseActions) {

@@ -347,12 +347,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             sb.Append(logEntryResult.DelayInMilliseconds);
                             sb.Append("', '");
                             sb.Append(logEntryResult.Error);
+                            sb.Append("', '");
+                            sb.Append(logEntryResult.Rerun);
                             sb.Append("')");
                             rowsToInsert.Add(sb.ToString());
                         }
 
                     _databaseActions.ExecuteSQL(
-                        string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error) Values {0};",
+                        string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) Values {0};",
                         rowsToInsert.ToArray().Combine(", "))
                         );
                 }
@@ -619,7 +621,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         object concurrencyResultId = crRow.ItemArray[0];
                         int concurrency = (int)crRow.ItemArray[1];
 
-                        var runResults = _databaseActions.GetDataTable(string.Format("SELECT Id FROM RunResults WHERE ConcurrencyResultId={0}", concurrencyResultId));
+                        var runResults = _databaseActions.GetDataTable(string.Format("SELECT Id, RerunCount FROM RunResults WHERE ConcurrencyResultId={0}", concurrencyResultId));
                         var runResultIds = new List<int>(runResults.Rows.Count);
                         foreach (DataRow rrRow in runResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
@@ -628,7 +630,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         }
 
                         var logEntryResults = _databaseActions.GetDataTable(
-                            string.Format("SELECT RunResultId, VirtualUser, UserAction, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
+                            string.Format("SELECT RunResultId, VirtualUser, UserAction, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
 
                         //Place the log entry results under the right virtual user and the right user action
                         var userActions = new List<KeyValuePair<string, Dictionary<string, List<LogEntryResult>>>>(); // <VirtualUser,<UserAction, LogEntryResult
@@ -637,27 +639,33 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                             int runResultId = (int)rrRow.ItemArray[0];
 
-                            var uas = new Dictionary<string, Dictionary<string, List<LogEntryResult>>>(); // <VirtualUser,<UserAction, LogEntryResult
-                            foreach (DataRow lerRow in logEntryResults.Rows) {
+                            //Keeping reruns in mind (break on last)
+                            int runs = ((int)rrRow.ItemArray[1]) + 1;
+                            for (int reRun = 0; reRun != runs; reRun++) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                if ((int)lerRow.ItemArray[0] == runResultId) {
-                                    string virtualUser = lerRow.ItemArray[1] as string;
-                                    string userAction = lerRow.ItemArray[2] as string;
-                                    var logEntryResult = new LogEntryResult() { TimeToLastByteInTicks = (long)lerRow.ItemArray[3], DelayInMilliseconds = (int)lerRow.ItemArray[4], Error = lerRow.ItemArray[5] as string };
+                                var uas = new Dictionary<string, Dictionary<string, List<LogEntryResult>>>(); // <VirtualUser,<UserAction, LogEntryResult
+                                foreach (DataRow lerRow in logEntryResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                                    if (!uas.ContainsKey(virtualUser)) uas.Add(virtualUser, new Dictionary<string, List<LogEntryResult>>());
-                                    if (!uas[virtualUser].ContainsKey(userAction)) uas[virtualUser].Add(userAction, new List<LogEntryResult>());
+                                    if ((int)lerRow.ItemArray[0] == runResultId && (int)lerRow.ItemArray[6] == reRun) {
+                                        string virtualUser = lerRow.ItemArray[1] as string;
+                                        string userAction = lerRow.ItemArray[2] as string;
+                                        var logEntryResult = new LogEntryResult() { TimeToLastByteInTicks = (long)lerRow.ItemArray[3], DelayInMilliseconds = (int)lerRow.ItemArray[4], Error = lerRow.ItemArray[5] as string };
 
-                                    uas[virtualUser][userAction].Add(logEntryResult);
+                                        if (!uas.ContainsKey(virtualUser)) uas.Add(virtualUser, new Dictionary<string, List<LogEntryResult>>());
+                                        if (!uas[virtualUser].ContainsKey(userAction)) uas[virtualUser].Add(userAction, new List<LogEntryResult>());
+
+                                        uas[virtualUser][userAction].Add(logEntryResult);
+                                    }
                                 }
-                            }
-                            foreach (string virtualUser in uas.Keys) {
-                                if (cancellationToken.IsCancellationRequested) return null;
+                                foreach (string virtualUser in uas.Keys) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                                var kvp = new KeyValuePair<string, Dictionary<string, List<LogEntryResult>>>(virtualUser, new Dictionary<string, List<LogEntryResult>>());
-                                foreach (string userAction in uas[virtualUser].Keys) kvp.Value.Add(userAction, uas[virtualUser][userAction]);
-                                userActions.Add(kvp);
+                                    var kvp = new KeyValuePair<string, Dictionary<string, List<LogEntryResult>>>(virtualUser, new Dictionary<string, List<LogEntryResult>>());
+                                    foreach (string userAction in uas[virtualUser].Keys) kvp.Value.Add(userAction, uas[virtualUser][userAction]);
+                                    userActions.Add(kvp);
+                                }
                             }
                         }
 
@@ -770,6 +778,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
+     
         public DataTable GetAverageLogEntries(params ulong[] stresstestIds) {
             return GetAverageLogEntries(new CancellationToken(), stresstestIds);
         }
