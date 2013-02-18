@@ -540,13 +540,16 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         concurrencyResult.StartedAt = (DateTime)crRow.ItemArray[1];
                         concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
 
-                        var rr = _databaseActions.GetDataTable(string.Format("SELECT Id, Run, TotalLogEntryCount FROM RunResults WHERE ConcurrencyResultId={0});", crRow.ItemArray[0]));
+                        var rr = _databaseActions.GetDataTable(string.Format("SELECT Id, Run, TotalLogEntryCount FROM RunResults WHERE ConcurrencyResultId={0};", crRow.ItemArray[0]));
                         var runResultIds = new List<int>(rr.Rows.Count);
+                        var totalLogEntryCountsPerUser = new List<ulong>(rr.Rows.Count);
                         foreach (DataRow rrRow in rr.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
                             runResultIds.Add((int)rrRow.ItemArray[0]);
                             concurrencyResult.RunResults.Add(new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency));
+
+                            totalLogEntryCountsPerUser.Add((ulong)rrRow.ItemArray[2] / (ulong)concurrencyResult.Concurrency);
                         }
 
                         var ler = _databaseActions.GetDataTable(
@@ -576,6 +579,15 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 }
                             }
 
+                            //Add empty ones for broken runs.
+                            Parallel.ForEach(logEntryResults, (item, loopState) => {
+                                if (cancellationToken.IsCancellationRequested) loopState.Break();
+
+                                while ((ulong)item.Value.Count < totalLogEntryCountsPerUser[i])
+                                    item.Value.Add(new LogEntryResult());
+                            });
+
+                            //Add the log entry result to the virtual users.
                             Parallel.ForEach(logEntryResults, (item, loopState) => {
                                 if (cancellationToken.IsCancellationRequested) loopState.Break();
 

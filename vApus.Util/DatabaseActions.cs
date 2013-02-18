@@ -30,6 +30,7 @@
 
 //Stripped for the purpose of simplicity (@ 12/10/2012)
 
+using System;
 using System.Data;
 using MySql.Data.MySqlClient;
 
@@ -175,7 +176,8 @@ namespace vApus.Util {
                 dataAdapter.Fill(dataSet);
 
                 return dataSet.Tables[0];
-            } catch { }
+            } catch {
+            }
             return new DataTable();
         }
 
