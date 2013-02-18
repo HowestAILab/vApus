@@ -326,8 +326,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 foreach (VirtualUserResult virtualUserResult in runResult.VirtualUserResults) {
                     totalLogEntryCount += (ulong)virtualUserResult.LogEntryResults.LongLength;
 
-                    var rowsToInsert = new ConcurrentBag<string>(); //Insert multiple values at once.
-                    Parallel.ForEach(virtualUserResult.LogEntryResults, (logEntryResult) => {
+                    var rowsToInsert = new List<string>(); //Insert multiple values at once.
+                    foreach (var logEntryResult in virtualUserResult.LogEntryResults)
                         if (logEntryResult != null && logEntryResult.LogEntryIndex != null) {
                             var sb = new StringBuilder("('");
                             sb.Append(_runResultId);
@@ -350,20 +350,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             sb.Append("')");
                             rowsToInsert.Add(sb.ToString());
                         }
-                    });
+
                     _databaseActions.ExecuteSQL(
                         string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error) Values {0};",
                         rowsToInsert.ToArray().Combine(", "))
                         );
-
-                    //                    foreach (LogEntryResult logEntryResult in virtualUserResult.LogEntryResults)
-                    //                        if (logEntryResult != null)
-                    //                            _databaseActions.ExecuteSQL(
-                    //                                string.Format(@"INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error)
-                    //VALUES('{0}', '{1}', ?userAction, '{2}', ?logEntry, '{3}', '{4}', '{5}', '{6}')",
-                    //                                              _runResultId, virtualUserResult.VirtualUser, logEntryResult.LogEntryIndex,
-                    //                                              Parse(logEntryResult.SentAt), logEntryResult.TimeToLastByteInTicks, logEntryResult.DelayInMilliseconds, logEntryResult.Error)
-                    //                                , CommandType.Text, new MySqlParameter("?userAction", logEntryResult.UserAction), new MySqlParameter("?logEntry", logEntryResult.LogEntry));
                 }
 
                 _databaseActions.ExecuteSQL(
@@ -382,8 +373,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public void SetMonitorResults(MonitorResultCache monitorResultCache) {
             if (_databaseActions != null) {
                 ulong monitorConfigurationId = monitorResultCache.MonitorConfigurationId;
-                var rowsToInsert = new ConcurrentBag<string>(); //Insert multiple values at once.
-                Parallel.ForEach(monitorResultCache.Rows, (row) => {
+                var rowsToInsert = new List<string>(); //Insert multiple values at once.
+                foreach (var row in monitorResultCache.Rows) {
                     var value = new List<float>();
                     for (int i = 1; i < row.Length; i++) value.Add((float)row[i]);
 
@@ -396,21 +387,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     sb.Append("')");
                     rowsToInsert.Add(sb.ToString());
 
-                });
+                }
 
                 _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.ToArray().Combine(", ")));
-
-                //foreach (var row in monitorResultCache.Rows) {
-                //    var timeStamp = (DateTime)row[0];
-
-                //    var value = new List<float>();
-                //    for (int i = 1; i < row.Length; i++) value.Add((float)row[i]);
-
-                //    _databaseActions.ExecuteSQL(
-                //        string.Format(
-                //            "INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES('{0}', '{1}', '{2}')", monitorResultCache.MonitorConfigurationId, Parse(timeStamp), value.ToArray().Combine("; "))
-                //        );
-                //}
             }
         }
 

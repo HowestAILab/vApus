@@ -825,14 +825,8 @@ namespace vApus.Stresstest {
         private class SyncAndAsyncWorkItem {
             public void ExecuteLogEntry
                 (
-                StresstestCore stresstestCore,
-                AutoResetEvent sleepWaitHandle,
-                RunResult runResult,
-                int threadIndex,
-                int testableLogEntryIndex,
-                TestableLogEntry testableLogEntry,
-                IConnectionProxy connectionProxy,
-                int delayInMilliseconds
+                StresstestCore stresstestCore, AutoResetEvent sleepWaitHandle, RunResult runResult, int threadIndex, int testableLogEntryIndex,
+                TestableLogEntry testableLogEntry, IConnectionProxy connectionProxy, int delayInMilliseconds
                 ) {
                 DateTime sentAt = DateTime.Now;
                 var timeToLastByte = new TimeSpan();
