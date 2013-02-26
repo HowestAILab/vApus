@@ -26,4 +26,5 @@ Name: {group}\vApus; Filename: {app}\vApus.exe
 Name: {group}\Detailed Results Viewer; Filename: {app}\vApus.DetailedResultsViewer.exe
 Name: {group}\Uninstall; Filename: {app}\unins000.exe
 Name: {group}\Log Fixer; Filename: {app}\vApus.LogFixer.exe
+Name: {group}\Old Report Viewer; Filename: {app}\OldReportViewer\vApus.Report.exe
 Name: {commonstartup}\vApus JumpStart; Filename: {app}\vApus.JumpStart.exe

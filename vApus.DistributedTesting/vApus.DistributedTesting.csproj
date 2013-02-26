@@ -159,9 +159,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MonoTorrent">
-      <HintPath>..\Prerequisites\MonoTorrent.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -175,10 +172,8 @@
     <Compile Include="BasicTileStresstest.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Communication\EnumsAndStructs.cs" />
-    <Compile Include="Communication\Master\TorrentClient.cs" />
     <Compile Include="Communication\Slave\SlaveSideCommunicationHandler.cs" />
     <Compile Include="Communication\Slave\SocketListener.cs" />
-    <Compile Include="Communication\Slave\TorrentServer.cs" />
     <Compile Include="Controls\TestTreeView\DefaultAdvancedSettingsToControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
