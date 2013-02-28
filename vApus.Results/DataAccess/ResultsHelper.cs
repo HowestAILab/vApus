@@ -945,7 +945,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             object runResultId = rrRow.ItemArray[0];
                             object run = rrRow.ItemArray[1];
 
-                            var ler = _databaseActions.GetDataTable(string.Format("SELECT RunResultId, VirtualUser, UserAction, LogEntry, Error FROM logEntryResults WHERE RunResultId={0} AND CHAR_LENGTH(Error) != 0;", runResultId));
+                            var ler = _databaseActions.GetDataTable(string.Format("SELECT RunResultId, VirtualUser, UserAction, LogEntry, Error FROM LogEntryResults WHERE RunResultId={0} AND CHAR_LENGTH(Error) != 0;", runResultId));
 
                             foreach (DataRow ldr in ler.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
@@ -976,7 +976,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     object stresstestId = stresstestsRow.ItemArray[0];
                     string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
 
-                    var monitors = _databaseActions.GetDataTable(string.Format("Select Monitor, MonitorSource, MachineConfiguration from monitors WHERE StresstestId={0}", stresstestId));
+                    var monitors = _databaseActions.GetDataTable(string.Format("Select Monitor, MonitorSource, MachineConfiguration from Monitors WHERE StresstestId={0}", stresstestId));
                     foreach (DataRow monitorRow in monitors.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
