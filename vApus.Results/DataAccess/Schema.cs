@@ -46,7 +46,7 @@ namespace vApus.Results {
         /// <param name="databaseActions"></param>
         /// <returns>Database name</returns>
         private static string CreateDatabase(DatabaseActions databaseActions) {
-            string databaseName = "vApus" + DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss_fffffff");
+            string databaseName = "vapus" + DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss_fffffff");
             databaseActions.ExecuteSQL("Create Database " + databaseName);
             return databaseName;
         }
