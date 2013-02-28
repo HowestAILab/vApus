@@ -1,4 +1,4 @@
-﻿namespace vApus.Util
+﻿namespace vApus.Gui
 {
     partial class LocalizationPanel
     {

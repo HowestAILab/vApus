@@ -7,7 +7,9 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -20,6 +22,13 @@ namespace vApus.DetailedResultsViewer {
         static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            //Use ISO 8601 for DateTime formatting.
+            var cultureInfo = new CultureInfo(Thread.CurrentThread.CurrentCulture.Name);
+            cultureInfo.DateTimeFormat.ShortDatePattern = "yyyy'-'MM'-'dd";
+            cultureInfo.DateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fffffff";
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+
             Application.Run(new Viewer());
         }
     }

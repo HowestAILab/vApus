@@ -31,8 +31,15 @@ namespace vApus.Gui {
 
                 //Mainly for the ToString() of floating point numbers and of DateTime().
                 string culture = Settings.Default.Culture;
-                if (!string.IsNullOrEmpty(culture))
+                if (!string.IsNullOrEmpty(culture)) {
                     Thread.CurrentThread.CurrentCulture = new CultureInfo(culture);
+                }
+                //Use ISO 8601 for DateTime formatting.
+                var cultureInfo = new CultureInfo(Thread.CurrentThread.CurrentCulture.Name);
+                cultureInfo.DateTimeFormat.ShortDatePattern = "yyyy'-'MM'-'dd";
+                cultureInfo.DateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fffffff";
+                Thread.CurrentThread.CurrentCulture = cultureInfo;
+
                 Linker.Link();
 
                 //Work around for the jump start to work.
@@ -43,13 +50,11 @@ namespace vApus.Gui {
                 Directory.SetCurrentDirectory(Application.StartupPath);
 
                 Application.Run(new MainWindow(args));
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 Application.ThreadException -= Application_ThreadException;
                 LogWrapper.LogByLevel(ex, LogLevel.Fatal);
                 throw;
-            }
-            finally {
+            } finally {
                 LogWrapper.Log("Bye");
                 LogWrapper.RemoveEmptyLogs();
             }
