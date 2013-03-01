@@ -355,11 +355,15 @@ namespace vApus.DistributedTesting {
         private bool CheckNumberOfRuns() {
             int numberOfRuns = -1;
             foreach (Tile t in _distributedTest.Tiles)
-                foreach (TileStresstest ts in t)
-                    if (ts.Use) {
-                        if (numberOfRuns == -1) numberOfRuns = ts.AdvancedTileStresstest.Runs;
-                        else if (numberOfRuns != ts.AdvancedTileStresstest.Runs) return false;
-                    }
+                if (t.Use) {
+                    foreach (TileStresstest ts in t)
+                        if (ts.Use) {
+                            if (numberOfRuns == -1)
+                                numberOfRuns = ts.AdvancedTileStresstest.Concurrencies.Length * ts.AdvancedTileStresstest.Runs;
+                            else if (numberOfRuns != ts.AdvancedTileStresstest.Concurrencies.Length * ts.AdvancedTileStresstest.Runs)
+                                return false;
+                        }
+                }
             return true;
         }
 
