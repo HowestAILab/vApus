@@ -371,7 +371,8 @@ namespace vApus.DistributedTesting {
             Exception ex = _resultsHelper.BuildSchemaAndConnect();
             if (ex == null) {
                 var dialog = new DescriptionAndTagsInputDialog { Description = _distributedTest.Description, Tags = _distributedTest.Tags, ResultsHelper = _resultsHelper };
-                dialog.ShowDialog();
+                if (dialog.ShowDialog() == DialogResult.Cancel)
+                    return false;
 
                 bool edited = false;
                 if (_distributedTest.Description != dialog.Description) {

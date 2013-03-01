@@ -184,7 +184,8 @@ namespace vApus.Stresstest {
             Exception ex = _resultsHelper.BuildSchemaAndConnect();
             if (ex == null) {
                 var dialog = new DescriptionAndTagsInputDialog { Description = _stresstest.Description, Tags = _stresstest.Tags, ResultsHelper = _resultsHelper };
-                dialog.ShowDialog();
+                if (dialog.ShowDialog() == DialogResult.Cancel)
+                    return false;
 
                 bool edited = false;
                 if (_stresstest.Description != dialog.Description) {

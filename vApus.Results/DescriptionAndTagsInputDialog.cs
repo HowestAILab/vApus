@@ -76,8 +76,13 @@ namespace vApus.Results {
             } catch (Exception ex) {
                 LogWrapper.LogByLevel("Could not add the description and tags to the database.\n" + ex, LogLevel.Error);
             }
-
+            DialogResult = DialogResult.OK;
             try { Close(); } catch { }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e) {
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
     }
 }
