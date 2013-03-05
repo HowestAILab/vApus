@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DetailedResultsControl));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
@@ -53,9 +54,9 @@
             this.lblStopped = new System.Windows.Forms.Label();
             this.chkAdvanced = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.toolTip = new System.Windows.Forms.ToolTip();
             this.lblLoading = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -403,7 +404,7 @@
             this.pnlBorderShow.Controls.Add(this.cboShow);
             this.pnlBorderShow.Location = new System.Drawing.Point(49, 3);
             this.pnlBorderShow.Name = "pnlBorderShow";
-            this.pnlBorderShow.Size = new System.Drawing.Size(200, 23);
+            this.pnlBorderShow.Size = new System.Drawing.Size(300, 23);
             this.pnlBorderShow.TabIndex = 1;
             // 
             // cboShow
@@ -420,12 +421,14 @@
             "Average User Actions",
             "Average Log Entries",
             "Errors",
+            "User Action Composition",
+            "Average Responsetimes and Throughput",
             "Machine Configurations",
             "Average Monitor Results"});
             this.cboShow.Location = new System.Drawing.Point(1, 1);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboShow.Name = "cboShow";
-            this.cboShow.Size = new System.Drawing.Size(198, 21);
+            this.cboShow.Size = new System.Drawing.Size(298, 21);
             this.cboShow.TabIndex = 0;
             this.cboShow.SelectedIndexChanged += new System.EventHandler(this.cboShow_SelectedIndexChanged);
             // 
@@ -433,7 +436,7 @@
             // 
             this.lblStarted.AutoSize = true;
             this.lblStarted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStarted.Location = new System.Drawing.Point(252, 6);
+            this.lblStarted.Location = new System.Drawing.Point(352, 6);
             this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblStarted.Name = "lblStarted";
             this.lblStarted.Size = new System.Drawing.Size(0, 16);
@@ -443,7 +446,7 @@
             // 
             this.lblMeasuredRuntime.AutoSize = true;
             this.lblMeasuredRuntime.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMeasuredRuntime.Location = new System.Drawing.Point(252, 6);
+            this.lblMeasuredRuntime.Location = new System.Drawing.Point(352, 6);
             this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
             this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
@@ -454,7 +457,7 @@
             this.lblStopped.AutoSize = true;
             this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
             this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStopped.Location = new System.Drawing.Point(258, 3);
+            this.lblStopped.Location = new System.Drawing.Point(358, 3);
             this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
             this.lblStopped.Name = "lblStopped";
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
@@ -466,7 +469,7 @@
             this.chkAdvanced.Checked = true;
             this.chkAdvanced.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAdvanced.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkAdvanced.Location = new System.Drawing.Point(267, 7);
+            this.chkAdvanced.Location = new System.Drawing.Point(367, 7);
             this.chkAdvanced.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
             this.chkAdvanced.Name = "chkAdvanced";
             this.chkAdvanced.Size = new System.Drawing.Size(72, 17);
@@ -485,7 +488,7 @@
             this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(342, 3);
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(442, 3);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
@@ -493,6 +496,20 @@
             this.btnSaveDisplayedResults.Text = "Save Displayed Results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
+            // 
+            // lblLoading
+            // 
+            this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLoading.Location = new System.Drawing.Point(613, 7);
+            this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
+            this.lblLoading.Name = "lblLoading";
+            this.lblLoading.Size = new System.Drawing.Size(170, 13);
+            this.lblLoading.TabIndex = 10;
+            this.lblLoading.Text = "Loading, please be patient...";
+            this.toolTip.SetToolTip(this.lblLoading, "These counters are not valid for the chosen monitor source, undo your previous ac" +
+        "tion or \'get\' the counters again.");
+            this.lblLoading.Visible = false;
             // 
             // label1
             // 
@@ -505,20 +522,6 @@
             this.label1.Size = new System.Drawing.Size(126, 20);
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed Results";
-            // 
-            // lblLoading
-            // 
-            this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoading.Location = new System.Drawing.Point(513, 7);
-            this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
-            this.lblLoading.Name = "lblLoading";
-            this.lblLoading.Size = new System.Drawing.Size(170, 13);
-            this.lblLoading.TabIndex = 10;
-            this.lblLoading.Text = "Loading, please be patient...";
-            this.toolTip.SetToolTip(this.lblLoading, "These counters are not valid for the chosen monitor source, undo your previous ac" +
-        "tion or \'get\' the counters again.");
-            this.lblLoading.Visible = false;
             // 
             // DetailedResultsControl
             // 

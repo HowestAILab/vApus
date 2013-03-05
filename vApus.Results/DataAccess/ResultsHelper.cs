@@ -778,7 +778,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return null;
         }
-     
+
         public DataTable GetAverageLogEntries(params ulong[] stresstestIds) {
             return GetAverageLogEntries(new CancellationToken(), stresstestIds);
         }
@@ -960,6 +960,127 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return null;
         }
 
+        /// <summary>
+        /// Get the user actions and the log entries within, these are asked for the first user of the first run, so if you cancel a test it will not be correct.
+        /// However, this is the fastest way to do this and there are no problems with a finished test.
+        /// </summary>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetUserActionComposition(params ulong[] stresstestIds) {
+            return GetUserActionComposition(new CancellationToken(), stresstestIds);
+        }
+        /// <summary>
+        /// Get the user actions and the log entries within, these are asked for the first user of the first run, so if you cancel a test it will not be correct.
+        /// However, this is the fastest way to do this and there are no problems with a finished test.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetUserActionComposition(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+            if (_databaseActions == null) return null;
+
+            var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
+            _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
+            if (stresstests.Rows.Count == 0) return null;
+
+            var userActionComposition = CreateEmptyDataTable("UserActionComposition", "Stresstest", "User Action", "Log Entry");
+
+            foreach (DataRow stresstestsRow in stresstests.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                object stresstestId = stresstestsRow.ItemArray[0];
+
+                var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
+                if (stresstestResults.Rows.Count == 0) continue;
+                object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+
+                string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
+
+                foreach (DataRow crRow in concurrencyResults.Rows) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    var rr = _databaseActions.GetDataTable(string.Format("SELECT Id FROM RunResults WHERE ConcurrencyResultId={0};", crRow.ItemArray[0]));
+                    foreach (DataRow rrRow in rr.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        var ler = _databaseActions.GetDataTable(string.Format("Select UserAction, LogEntry FROM LogEntryResults WHERE RunResultId={0} and VirtualUser='vApus Thread Pool Thread #1';", rrRow.ItemArray[0]));
+
+                        var userActions = new Dictionary<string, List<string>>();
+                        foreach (DataRow lerRow in ler.Rows) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            string userAction = lerRow.ItemArray[0] as string;
+                            string logEntry = lerRow.ItemArray[1] as string;
+                            if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
+                            if (!userActions[userAction].Contains(logEntry)) userActions[userAction].Add(logEntry);
+                        }
+
+                        //Sort the user actions
+                        List<string> sortedUserActions = userActions.Keys.ToList();
+                        sortedUserActions.Sort(UserActionComparer.GetInstance);
+
+                        foreach (string userAction in sortedUserActions) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            foreach (string logEntry in userActions[userAction]) {
+                                if (cancellationToken.IsCancellationRequested) return null;
+
+                                userActionComposition.Rows.Add(stresstest, userAction, logEntry);
+                            }
+                        }
+                        break;
+                    }
+                    break;
+                }
+                break;
+            }
+            return userActionComposition;
+        }
+
+        public DataTable GetAverageResponseTimesAndThroughput(params ulong[] stresstestIds) {
+            return GetAverageResponseTimesAndThroughput(new CancellationToken(), stresstestIds);
+        }
+        public DataTable GetAverageResponseTimesAndThroughput(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+            if (_databaseActions == null) return null;
+            var averageUserActions = GetAverageUserActions(new CancellationToken(), stresstestIds);
+            if (averageUserActions == null) return null;
+
+            var averageConcurrentUsers = GetAverageConcurrentUsers(new CancellationToken(), stresstestIds);
+            if (averageConcurrentUsers == null) return null;
+
+            var averageResponseTimesAndThroughput = CreateEmptyDataTable("AverageResponseTimesAndThroughput", "Stresstest", "Concurrency");
+            int range = 0; //The range of values (avg response times) to place under the right user action
+            foreach (DataRow uaRow in averageUserActions.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                string userAction = uaRow.ItemArray[2] as string;
+                if (!averageResponseTimesAndThroughput.Columns.Contains(userAction)) {
+                    averageResponseTimesAndThroughput.Columns.Add(userAction);
+                    range++;
+                }
+            }
+            averageResponseTimesAndThroughput.Columns.Add("Throughput (responses / s)");
+
+            for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                var row = new List<object>(range + 3);
+                row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
+                row.Add(averageUserActions.Rows[offset].ItemArray[1]); //Add concurrency
+                for (int i = offset; i != offset + range; i++) { //Add the avg response times
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[3] : 0);
+                }
+                row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
+                averageResponseTimesAndThroughput.Rows.Add(row.ToArray());
+            }
+
+
+            return averageResponseTimesAndThroughput;
+        }
+
         public DataTable GetMachineConfigurations(params ulong[] stresstestIds) {
             return GetMachineConfigurations(new CancellationToken(), stresstestIds);
         }
@@ -1125,6 +1246,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return averageMonitorResults;
         }
+
         public DataTable ExecuteQuery(string query) {
             if (_databaseActions == null) return null;
             return _databaseActions.GetDataTable(query);
