@@ -30,27 +30,31 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StresstestView));
             this.solutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.tpStresstest = new System.Windows.Forms.TabPage();
-            this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
             this.tpDetailedResults = new System.Windows.Forms.TabPage();
-            this.detailedResultsControl = new vApus.Stresstest.Controls.DetailedResultsControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
-            this.tmrProgress = new System.Windows.Forms.Timer();
-            this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer();
-            this.tmrSchedule = new System.Windows.Forms.Timer();
+            this.tmrProgress = new System.Windows.Forms.Timer(this.components);
+            this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
+            this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
             this.sfd = new System.Windows.Forms.SaveFileDialog();
+            this.tpCharts = new System.Windows.Forms.TabPage();
+            this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
+            this.detailedResultsControl = new vApus.Stresstest.Controls.DetailedResultsControl();
+            this.chartsControl = new vApus.Stresstest.ChartsControl();
             this.tc.SuspendLayout();
             this.tpConfigure.SuspendLayout();
             this.tpStresstest.SuspendLayout();
             this.tpDetailedResults.SuspendLayout();
             this.toolStrip.SuspendLayout();
+            this.tpCharts.SuspendLayout();
             this.SuspendLayout();
             // 
             // solutionComponentPropertyPanel
@@ -73,6 +77,7 @@
             this.tc.Controls.Add(this.tpConfigure);
             this.tc.Controls.Add(this.tpStresstest);
             this.tc.Controls.Add(this.tpDetailedResults);
+            this.tc.Controls.Add(this.tpCharts);
             this.tc.LeftVisible = false;
             this.tc.Location = new System.Drawing.Point(0, 43);
             this.tc.Name = "tc";
@@ -97,24 +102,11 @@
             // 
             this.tpStresstest.BackColor = System.Drawing.Color.White;
             this.tpStresstest.Controls.Add(this.fastResultsControl);
-            this.tpStresstest.Location = new System.Drawing.Point(0, 19);
+            this.tpStresstest.Location = new System.Drawing.Point(0, 22);
             this.tpStresstest.Name = "tpStresstest";
-            this.tpStresstest.Size = new System.Drawing.Size(790, 497);
+            this.tpStresstest.Size = new System.Drawing.Size(790, 494);
             this.tpStresstest.TabIndex = 1;
             this.tpStresstest.Text = "Stresstest";
-            // 
-            // fastResultsControl
-            // 
-            this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
-            this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fastResultsControl.Location = new System.Drawing.Point(0, 0);
-            this.fastResultsControl.Margin = new System.Windows.Forms.Padding(0);
-            this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
-            this.fastResultsControl.Name = "fastResultsControl";
-            this.fastResultsControl.ResultsHelper = null;
-            this.fastResultsControl.Size = new System.Drawing.Size(790, 497);
-            this.fastResultsControl.TabIndex = 0;
-            this.fastResultsControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
             // 
             // tpDetailedResults
             // 
@@ -125,16 +117,6 @@
             this.tpDetailedResults.Size = new System.Drawing.Size(790, 494);
             this.tpDetailedResults.TabIndex = 2;
             this.tpDetailedResults.Text = "Detailed Results";
-            // 
-            // detailedResultsControl
-            // 
-            this.detailedResultsControl.BackColor = System.Drawing.SystemColors.Control;
-            this.detailedResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.detailedResultsControl.Enabled = false;
-            this.detailedResultsControl.Location = new System.Drawing.Point(0, 0);
-            this.detailedResultsControl.Name = "detailedResultsControl";
-            this.detailedResultsControl.Size = new System.Drawing.Size(790, 494);
-            this.detailedResultsControl.TabIndex = 0;
             // 
             // toolStrip
             // 
@@ -199,6 +181,49 @@
             // 
             this.tmrSchedule.Tick += new System.EventHandler(this.tmrSchedule_Tick);
             // 
+            // tpCharts
+            // 
+            this.tpCharts.Controls.Add(this.chartsControl);
+            this.tpCharts.Location = new System.Drawing.Point(0, 22);
+            this.tpCharts.Name = "tpCharts";
+            this.tpCharts.Padding = new System.Windows.Forms.Padding(3);
+            this.tpCharts.Size = new System.Drawing.Size(790, 494);
+            this.tpCharts.TabIndex = 3;
+            this.tpCharts.Text = "Charts";
+            this.tpCharts.UseVisualStyleBackColor = true;
+            // 
+            // fastResultsControl
+            // 
+            this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
+            this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastResultsControl.Location = new System.Drawing.Point(0, 0);
+            this.fastResultsControl.Margin = new System.Windows.Forms.Padding(0);
+            this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
+            this.fastResultsControl.Name = "fastResultsControl";
+            this.fastResultsControl.ResultsHelper = null;
+            this.fastResultsControl.Size = new System.Drawing.Size(790, 494);
+            this.fastResultsControl.TabIndex = 0;
+            this.fastResultsControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);
+            // 
+            // detailedResultsControl
+            // 
+            this.detailedResultsControl.BackColor = System.Drawing.SystemColors.Control;
+            this.detailedResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailedResultsControl.Enabled = false;
+            this.detailedResultsControl.Location = new System.Drawing.Point(0, 0);
+            this.detailedResultsControl.Name = "detailedResultsControl";
+            this.detailedResultsControl.Size = new System.Drawing.Size(790, 494);
+            this.detailedResultsControl.TabIndex = 0;
+            // 
+            // chartsControl
+            // 
+            this.chartsControl.BackColor = System.Drawing.Color.White;
+            this.chartsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chartsControl.Location = new System.Drawing.Point(3, 3);
+            this.chartsControl.Name = "chartsControl";
+            this.chartsControl.Size = new System.Drawing.Size(784, 488);
+            this.chartsControl.TabIndex = 0;
+            // 
             // StresstestView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -216,6 +241,7 @@
             this.tpDetailedResults.ResumeLayout(false);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
+            this.tpCharts.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -238,6 +264,8 @@
         private System.Windows.Forms.SaveFileDialog sfd;
         private FastResultsControl fastResultsControl;
         private Controls.DetailedResultsControl detailedResultsControl;
+        private System.Windows.Forms.TabPage tpCharts;
+        private ChartsControl chartsControl;
 
     }
 }
