@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest.Controls
+﻿namespace vApus.Stresstest
 {
     partial class DetailedResultsControl
     {
@@ -54,6 +54,7 @@
             this.lblStopped = new System.Windows.Forms.Label();
             this.chkAdvanced = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
+            this.btnSaveCharts = new System.Windows.Forms.Button();
             this.lblLoading = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -381,6 +382,7 @@
             this.flpDetailedMetrics.Controls.Add(this.lblStopped);
             this.flpDetailedMetrics.Controls.Add(this.chkAdvanced);
             this.flpDetailedMetrics.Controls.Add(this.btnSaveDisplayedResults);
+            this.flpDetailedMetrics.Controls.Add(this.btnSaveCharts);
             this.flpDetailedMetrics.Controls.Add(this.lblLoading);
             this.flpDetailedMetrics.Location = new System.Drawing.Point(-1, 40);
             this.flpDetailedMetrics.Name = "flpDetailedMetrics";
@@ -422,7 +424,7 @@
             "Average Log Entries",
             "Errors",
             "User Action Composition",
-            "Average Responsetimes and Throughput",
+            "Cummulative Response Times vs Achieved Throughput",
             "Machine Configurations",
             "Average Monitor Results"});
             this.cboShow.Location = new System.Drawing.Point(1, 1);
@@ -497,11 +499,29 @@
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
             // 
+            // btnSaveCharts
+            // 
+            this.btnSaveCharts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSaveCharts.AutoSize = true;
+            this.btnSaveCharts.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnSaveCharts.BackColor = System.Drawing.SystemColors.Control;
+            this.btnSaveCharts.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnSaveCharts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSaveCharts.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSaveCharts.Location = new System.Drawing.Point(613, 3);
+            this.btnSaveCharts.MaximumSize = new System.Drawing.Size(165, 24);
+            this.btnSaveCharts.Name = "btnSaveCharts";
+            this.btnSaveCharts.Size = new System.Drawing.Size(100, 24);
+            this.btnSaveCharts.TabIndex = 4;
+            this.btnSaveCharts.Text = "Save Charts...";
+            this.btnSaveCharts.UseVisualStyleBackColor = false;
+            this.btnSaveCharts.Click += new System.EventHandler(this.btnSaveCharts_Click);
+            // 
             // lblLoading
             // 
             this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoading.Location = new System.Drawing.Point(613, 7);
+            this.lblLoading.Location = new System.Drawing.Point(719, 7);
             this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
             this.lblLoading.Name = "lblLoading";
             this.lblLoading.Size = new System.Drawing.Size(170, 13);
@@ -581,5 +601,6 @@
         private System.Windows.Forms.ToolTip toolTip;
         private Util.LinkButton lbtnMonitors;
         private System.Windows.Forms.Label lblLoading;
+        private System.Windows.Forms.Button btnSaveCharts;
     }
 }

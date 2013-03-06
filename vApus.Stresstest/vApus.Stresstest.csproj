@@ -209,17 +209,23 @@
     <Compile Include="Connections\TestAllConnections.Designer.cs">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ChartsControl.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="Controls\ChartDialog.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\ChartsControl.Designer.cs">
-      <DependentUpon>ChartsControl.cs</DependentUpon>
+    <Compile Include="Controls\ChartDialog.Designer.cs">
+      <DependentUpon>ChartDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\DetailedResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\DetailedResultsControl.Designer.cs">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SaveChartsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\SaveChartsDialog.Designer.cs">
+      <DependentUpon>SaveChartsDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
@@ -477,14 +483,17 @@
     <EmbeddedResource Include="Connections\TestAllConnections.resx">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ChartsControl.resx">
-      <DependentUpon>ChartsControl.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\ChartDialog.resx">
+      <DependentUpon>ChartDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\DetailedResultsControl.resx">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\FastResultsControl.resx">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SaveChartsDialog.resx">
+      <DependentUpon>SaveChartsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\AddEditLogEntry.resx">
       <DependentUpon>AddEditLogEntry.cs</DependentUpon>

@@ -48,7 +48,7 @@
             this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
             this.distributedStresstestControl = new vApus.DistributedTesting.OveralFastResultsControl();
             this.tpDetailedResults = new System.Windows.Forms.TabPage();
-            this.detailedResultsControl = new vApus.Stresstest.Controls.DetailedResultsControl();
+            this.detailedResultsControl = new vApus.Stresstest.DetailedResultsControl();
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
@@ -384,6 +384,6 @@
         private System.Windows.Forms.Timer tmrProgress;
         private System.Windows.Forms.ToolStripButton btnWizard;
         private System.Windows.Forms.TabPage tpDetailedResults;
-        private Stresstest.Controls.DetailedResultsControl detailedResultsControl;
+        private Stresstest.DetailedResultsControl detailedResultsControl;
     }
 }

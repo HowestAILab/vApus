@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResultsPanel));
-            this.detailedResultsControl = new vApus.Stresstest.Controls.DetailedResultsControl();
+            this.detailedResultsControl = new vApus.Stresstest.DetailedResultsControl();
             this.SuspendLayout();
             // 
             // detailedResultsControl
@@ -52,7 +52,7 @@
 
         #endregion
 
-        private Stresstest.Controls.DetailedResultsControl detailedResultsControl;
+        private Stresstest.DetailedResultsControl detailedResultsControl;
 
     }
 }

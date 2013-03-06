@@ -19,7 +19,7 @@ using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.Stresstest.Controls {
+namespace vApus.Stresstest {
     public partial class DetailedResultsControl : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
@@ -157,7 +157,7 @@ namespace vApus.Stresstest.Controls {
                     case 2: return _resultsHelper.GetAverageLogEntries(cancellationToken, _stresstestIds);
                     case 3: return _resultsHelper.GetErrors(cancellationToken, _stresstestIds);
                     case 4: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
-                    case 5: return _resultsHelper.GetAverageResponseTimesAndThroughput(cancellationToken, _stresstestIds);
+                    case 5: return _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(cancellationToken, _stresstestIds);
                     case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
                     case 7: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
                 }
@@ -203,6 +203,12 @@ namespace vApus.Stresstest.Controls {
                 }
             _currentSelectedIndex = -1;
             cboShow_SelectedIndexChanged(null, null);
+        }
+
+        private void btnSaveCharts_Click(object sender, EventArgs e) {
+            var dialog = new SaveChartsDialog();
+            dialog.Init(_resultsHelper, _stresstestIds);
+            dialog.ShowDialog();
         }
     }
 }

@@ -1039,9 +1039,9 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         }
 
         public DataTable GetAverageResponseTimesAndThroughput(params ulong[] stresstestIds) {
-            return GetAverageResponseTimesAndThroughput(new CancellationToken(), stresstestIds);
+            return GetCummulativeResponseTimesVsAchievedThroughput(new CancellationToken(), stresstestIds);
         }
-        public DataTable GetAverageResponseTimesAndThroughput(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        public DataTable GetCummulativeResponseTimesVsAchievedThroughput(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             if (_databaseActions == null) return null;
             var averageUserActions = GetAverageUserActions(new CancellationToken(), stresstestIds);
             if (averageUserActions == null) return null;
