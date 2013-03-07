@@ -406,7 +406,7 @@
             this.pnlBorderShow.Controls.Add(this.cboShow);
             this.pnlBorderShow.Location = new System.Drawing.Point(49, 3);
             this.pnlBorderShow.Name = "pnlBorderShow";
-            this.pnlBorderShow.Size = new System.Drawing.Size(300, 23);
+            this.pnlBorderShow.Size = new System.Drawing.Size(400, 23);
             this.pnlBorderShow.TabIndex = 1;
             // 
             // cboShow
@@ -430,7 +430,7 @@
             this.cboShow.Location = new System.Drawing.Point(1, 1);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboShow.Name = "cboShow";
-            this.cboShow.Size = new System.Drawing.Size(298, 21);
+            this.cboShow.Size = new System.Drawing.Size(398, 21);
             this.cboShow.TabIndex = 0;
             this.cboShow.SelectedIndexChanged += new System.EventHandler(this.cboShow_SelectedIndexChanged);
             // 
@@ -438,7 +438,7 @@
             // 
             this.lblStarted.AutoSize = true;
             this.lblStarted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStarted.Location = new System.Drawing.Point(352, 6);
+            this.lblStarted.Location = new System.Drawing.Point(452, 6);
             this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblStarted.Name = "lblStarted";
             this.lblStarted.Size = new System.Drawing.Size(0, 16);
@@ -448,7 +448,7 @@
             // 
             this.lblMeasuredRuntime.AutoSize = true;
             this.lblMeasuredRuntime.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMeasuredRuntime.Location = new System.Drawing.Point(352, 6);
+            this.lblMeasuredRuntime.Location = new System.Drawing.Point(452, 6);
             this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
             this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
@@ -459,7 +459,7 @@
             this.lblStopped.AutoSize = true;
             this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
             this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStopped.Location = new System.Drawing.Point(358, 3);
+            this.lblStopped.Location = new System.Drawing.Point(458, 3);
             this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
             this.lblStopped.Name = "lblStopped";
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
@@ -471,7 +471,7 @@
             this.chkAdvanced.Checked = true;
             this.chkAdvanced.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAdvanced.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkAdvanced.Location = new System.Drawing.Point(367, 7);
+            this.chkAdvanced.Location = new System.Drawing.Point(467, 7);
             this.chkAdvanced.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
             this.chkAdvanced.Name = "chkAdvanced";
             this.chkAdvanced.Size = new System.Drawing.Size(72, 17);
@@ -490,7 +490,7 @@
             this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(442, 3);
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(542, 3);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
@@ -508,7 +508,7 @@
             this.btnSaveCharts.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveCharts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveCharts.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveCharts.Location = new System.Drawing.Point(613, 3);
+            this.btnSaveCharts.Location = new System.Drawing.Point(713, 3);
             this.btnSaveCharts.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveCharts.Name = "btnSaveCharts";
             this.btnSaveCharts.Size = new System.Drawing.Size(100, 24);
@@ -521,7 +521,7 @@
             // 
             this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoading.Location = new System.Drawing.Point(719, 7);
+            this.lblLoading.Location = new System.Drawing.Point(3, 37);
             this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
             this.lblLoading.Name = "lblLoading";
             this.lblLoading.Size = new System.Drawing.Size(170, 13);

@@ -1038,11 +1038,30 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return userActionComposition;
         }
 
+        /// <summary>
+        /// Only works for the first stresstest.
+        /// </summary>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
         public DataTable GetCummulativeResponseTimesVsAchievedThroughput(params ulong[] stresstestIds) {
             return GetCummulativeResponseTimesVsAchievedThroughput(new CancellationToken(), stresstestIds);
         }
+        /// <summary>
+        /// Only works for the first stresstest.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
         public DataTable GetCummulativeResponseTimesVsAchievedThroughput(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             if (_databaseActions == null) return null;
+            if (stresstestIds.Length == 0) {
+                var stresstests = _databaseActions.GetDataTable("Select Id From Stresstests;");
+                if (stresstests.Rows.Count == 0) return null;
+                stresstestIds = new ulong[] { Convert.ToUInt64(stresstests.Rows[0].ItemArray[0]) };
+            } else {
+                stresstestIds = new ulong[] { stresstestIds[0] };
+            }
+
             var averageUserActions = GetAverageUserActions(new CancellationToken(), stresstestIds);
             if (averageUserActions == null) return null;
 
@@ -1054,13 +1073,13 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             foreach (DataRow uaRow in averageUserActions.Rows) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                string userAction = uaRow.ItemArray[2] as string;
+                string userAction = (uaRow.ItemArray[2] as string).Substring(12); //Trim 'User Action: '
                 if (!averageResponseTimesAndThroughput.Columns.Contains(userAction)) {
                     averageResponseTimesAndThroughput.Columns.Add(userAction);
                     range++;
                 }
             }
-            averageResponseTimesAndThroughput.Columns.Add("Throughput (responses / s)");
+            averageResponseTimesAndThroughput.Columns.Add("Throughput");
 
             for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
                 if (cancellationToken.IsCancellationRequested) return null;
@@ -1071,7 +1090,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 for (int i = offset; i != offset + range; i++) { //Add the avg response times
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[3] : 0);
+                    row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[3] : 0d);
                 }
                 row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
                 averageResponseTimesAndThroughput.Rows.Add(row.ToArray());

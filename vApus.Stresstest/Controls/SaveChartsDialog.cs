@@ -19,15 +19,24 @@ using vApus.Util;
 namespace vApus.Stresstest {
     public partial class SaveChartsDialog : Form {
         private ResultsHelper _resultsHelper;
-        private ulong[] _stresstestIds = new ulong[0];
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
         public SaveChartsDialog() {
             InitializeComponent();
         }
-        public void Init(ResultsHelper resultsHelper, params ulong[] stresstestIds) {
+        public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;
-            _stresstestIds = stresstestIds;
+
+            var stresstests = _resultsHelper.GetStresstests();
+            if (stresstests.Rows.Count == 0) {
+                btnSaveCharts.Enabled = false;
+            } else {
+                cboStresstest.Items.Add("<All>");
+                foreach (DataRow stresstestRow in stresstests.Rows)
+                    cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
+
+                cboStresstest.SelectedIndex = 1;
+            }
         }
 
         async private void btnSaveCharts_Click(object sender, EventArgs e) {
@@ -39,13 +48,44 @@ namespace vApus.Stresstest {
                     try {
                         var doc = new SLDocument();
 
-                        //For some strange reason the doubles are changed to string.
-                        var overview = _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(_cancellationTokenSource.Token, _stresstestIds);
+                        //Make different sheets per test.
+                        var stresstests = new Dictionary<ulong, string>();
+                        var stresstestsDt = _resultsHelper.GetStresstests();
+                        if (cboStresstest.SelectedIndex == 0) {
+                            foreach (DataRow row in stresstestsDt.Rows) {
+                                string stresstest = row.ItemArray[1] as string;
+                                if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1];
+                                stresstest += " " + (row.ItemArray[2] as string);
+                                stresstests.Add(Convert.ToUInt64(row.ItemArray[0]), stresstest);
+                            }
+                        } else {
+                            ulong stresstestId = (ulong)cboStresstest.SelectedIndex;
+                            foreach (DataRow row in stresstestsDt.Rows) {
+                                ulong ul = Convert.ToUInt64(row.ItemArray[0]);
+                                if (stresstestId == ul) {
+                                    string stresstest = row.ItemArray[1] as string;
+                                    if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1].TrimStart();
+                                    stresstest += " " + (row.ItemArray[2] as string);
+                                    stresstests.Add(ul, stresstest);
+                                    break;
+                                }
+                            }
+                        }
 
-                        MakeCummulativeResponseTimesVsAchievedThroughputChart(doc, overview);
-                        MakeTop5HeaviestUserActionsChart(doc, overview);
+                        string firstWorksheet = null;
+                        int worksheetIndex = 0;
+                        foreach (ulong stresstestId in stresstests.Keys) {
+                            //For some strange reason the doubles are changed to string.
+                            var overview = _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(_cancellationTokenSource.Token, stresstestId);
 
-                        doc.SelectWorksheet("Overview");
+                            string stresstest = stresstests[stresstestId];
+                            string fws = MakeCummulativeResponseTimesVsAchievedThroughputChart(doc, overview, worksheetIndex++, stresstest);
+                            if (firstWorksheet == null) firstWorksheet = fws;
+
+                            MakeTop5HeaviestUserActionsChart(doc, overview, worksheetIndex++, stresstest);
+                        }
+
+                        try { doc.SelectWorksheet(firstWorksheet); } catch { }
                         try { doc.DeleteWorksheet("Sheet1"); } catch { }
                         try { doc.SaveAs(saveFileDialog.FileName); } catch {
                             MessageBox.Show("Failed to save the charts because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -59,28 +99,47 @@ namespace vApus.Stresstest {
                 btnSaveCharts.Enabled = true;
             }
         }
-        private void MakeCummulativeResponseTimesVsAchievedThroughputChart(SLDocument doc, DataTable dt) {
-            doc.AddWorksheet("Overview");
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="dt"></param>
+        /// <param name="stresstest"></param>
+        /// <returns>the worksheet name</returns>
+        private string MakeCummulativeResponseTimesVsAchievedThroughputChart(SLDocument doc, DataTable dt, int worksheetIndex, string stresstest) {
+            //max 31 chars
+            string worksheet = worksheetIndex + ") " + stresstest.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
+            if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
+            doc.AddWorksheet(worksheet);
 
-            //Add data to the worksheet
             int rangeWidth = dt.Columns.Count, rangeHeight = dt.Rows.Count + 1;
-            for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++)
-                doc.SetCellValue(1, clmIndex + 1, dt.Columns[clmIndex].ColumnName);
+
+            //string formattedStresstest = stresstest.Contains(": ") ? stresstest.Split(':')[1].TrimStart() : stresstest;
+            //Add data to the worksheet
+            for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++) {
+                string clmName = dt.Columns[clmIndex].ColumnName;
+                if (clmName.StartsWith("User Action ")) clmName = clmName.Substring(12);
+                else if (clmName.StartsWith("Throughput")) clmName = "Throughput";
+                doc.SetCellValue(1, clmIndex + 1, clmName);
+            }
 
             for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
                 var row = dt.Rows[rowIndex].ItemArray;
                 for (int clmIndex = 0; clmIndex != row.Length; clmIndex++) {
                     var value = row[clmIndex];
+
+                    int rowInSheet = rowIndex + 2;
+                    int clmInSheet = clmIndex + 1;
                     if (value is string) {
                         string s = value as string;
                         if (s.IsNumeric())
-                            doc.SetCellValue(rowIndex + 2, clmIndex + 1, double.Parse(s));
+                            doc.SetCellValue(rowInSheet, clmInSheet, double.Parse(s));
                         else
-                            doc.SetCellValue(rowIndex + 2, clmIndex + 1, s);
+                            doc.SetCellValue(rowInSheet, clmInSheet, s);
                     } else if (value is int) {
-                        doc.SetCellValue(rowIndex + 2, clmIndex + 1, (int)value);
+                        doc.SetCellValue(rowInSheet, clmInSheet, (int)value);
                     } else {
-                        doc.SetCellValue(rowIndex + 2, clmIndex + 1, (double)value);
+                        doc.SetCellValue(rowInSheet, clmInSheet, (double)value);
                     }
                 }
             }
@@ -89,13 +148,13 @@ namespace vApus.Stresstest {
             var chart = doc.CreateChart(1, 2, rangeHeight, rangeWidth, false, false);
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-            chart.SetChartPosition(rangeHeight + 1, 0, 35, 20);
+            chart.SetChartPosition(rangeHeight + 1, 0, rangeHeight + 30, 20);
 
             //Plot the throughput
             chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 2, SLChartDataDisplayType.Normal, false);
 
             //Set the titles
-            chart.Title.SetTitle("Cummulative Response Times vs Achieved Throughput");
+            chart.Title.SetTitle(stresstest + " Cummulative Response Times vs Achieved Throughput");
             chart.ShowChartTitle(false);
             chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
             chart.PrimaryTextAxis.ShowTitle = true;
@@ -105,9 +164,21 @@ namespace vApus.Stresstest {
             chart.SecondaryValueAxis.ShowTitle = true;
 
             doc.InsertChart(chart);
+
+            return worksheet;
         }
-        private void MakeTop5HeaviestUserActionsChart(SLDocument doc, DataTable dt) {
-            doc.AddWorksheet("Heaviest User Actions");
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="dt"></param>
+        /// <param name="stresstest"></param>
+        /// <returns>the worksheet name</returns>
+        private string MakeTop5HeaviestUserActionsChart(SLDocument doc, DataTable dt, int worksheetIndex, string stresstest) {
+            //max 31 chars
+            string worksheet = worksheetIndex + ") " + stresstest.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
+            if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
+            doc.AddWorksheet(worksheet);
 
             //Sort the acions, only the last row is used for this
             var sortedColumns = new List<int>();
@@ -146,8 +217,11 @@ namespace vApus.Stresstest {
                 //Add data to the worksheet, only the first two columns and the 5 heaviest actions
                 int rangeWidth = sortedColumns.Count, rangeHeight = dt.Rows.Count + 1;
 
-                for (int i = 0; i < sortedColumns.Count; i++)
-                    doc.SetCellValue(1, i + 1, dt.Columns[sortedColumns[i]].ColumnName);
+                for (int i = 0; i < sortedColumns.Count; i++) {
+                    string clmName = dt.Columns[sortedColumns[i]].ColumnName;
+                    if (clmName.StartsWith("User Action ")) clmName = clmName.Substring(12);
+                    doc.SetCellValue(1, i + 1, clmName);
+                }
 
                 for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
                     var row = dt.Rows[rowIndex].ItemArray;
@@ -174,7 +248,7 @@ namespace vApus.Stresstest {
                 chart.SetChartPosition(rangeHeight + 1, 0, 35, 20);
 
                 //Set the titles
-                chart.Title.SetTitle("Top 5 Heaviest User Actions");
+                chart.Title.SetTitle(stresstest + " - Top 5 Heaviest User Actions");
                 chart.ShowChartTitle(false);
                 chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
                 chart.PrimaryTextAxis.ShowTitle = true;
@@ -184,6 +258,27 @@ namespace vApus.Stresstest {
 
                 doc.InsertChart(chart);
             }
+
+            return worksheet;
+        }
+
+        /// <summary>
+        /// string = stresstest, int1 = start row index, int2 = number of rows
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        private Dictionary<string, KeyValuePair<int, int>> GetRowRangesPerStresstest(DataTable dt) {
+            var rowRangesPerStresstest = new Dictionary<string, KeyValuePair<int, int>>(); //string = stresstest, int1 = start row index, int2 = number of rows
+            foreach (DataRow row in dt.Rows) {
+                string stresstest = row.ItemArray[0] as string;
+                if (rowRangesPerStresstest.ContainsKey(stresstest)) {
+                    var kvp = rowRangesPerStresstest[stresstest];
+                    rowRangesPerStresstest[stresstest] = new KeyValuePair<int, int>(kvp.Key, kvp.Value + 1);
+                } else {
+                    rowRangesPerStresstest.Add(stresstest, new KeyValuePair<int, int>(rowRangesPerStresstest.Count, 1));
+                }
+            }
+            return rowRangesPerStresstest;
         }
         private void pic_Click(object sender, EventArgs e) {
             var dialog = new ChartDialog((sender as PictureBox).Image);

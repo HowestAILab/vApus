@@ -32,9 +32,15 @@
             this.picTop5HeaviestUserActions = new System.Windows.Forms.PictureBox();
             this.lblDescription = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.pnlBorderStresstest = new System.Windows.Forms.Panel();
+            this.cboStresstest = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).BeginInit();
             this.flpCharts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            this.pnlBorderStresstest.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnSaveCharts
@@ -110,12 +116,61 @@
             this.lblDescription.Text = "Charts will be saved in an Excel file.\r\nBelow you can see examples of the differe" +
     "nt chart types that the spreadsheet will contain.";
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+            this.pictureBox2.Location = new System.Drawing.Point(15, 249);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(16, 16);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox2.TabIndex = 18;
+            this.pictureBox2.TabStop = false;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(37, 249);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(119, 16);
+            this.label1.TabIndex = 17;
+            this.label1.Text = "Select a Stresstest";
+            // 
+            // pnlBorderStresstest
+            // 
+            this.pnlBorderStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlBorderStresstest.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
+            this.pnlBorderStresstest.Location = new System.Drawing.Point(162, 245);
+            this.pnlBorderStresstest.Name = "pnlBorderStresstest";
+            this.pnlBorderStresstest.Size = new System.Drawing.Size(200, 23);
+            this.pnlBorderStresstest.TabIndex = 16;
+            // 
+            // cboStresstest
+            // 
+            this.cboStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboStresstest.BackColor = System.Drawing.Color.White;
+            this.cboStresstest.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboStresstest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboStresstest.FormattingEnabled = true;
+            this.cboStresstest.Location = new System.Drawing.Point(1, 1);
+            this.cboStresstest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboStresstest.Name = "cboStresstest";
+            this.cboStresstest.Size = new System.Drawing.Size(198, 21);
+            this.cboStresstest.TabIndex = 0;
+            // 
             // SaveChartsDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(572, 280);
+            this.Controls.Add(this.pictureBox2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.pnlBorderStresstest);
             this.Controls.Add(this.lblDescription);
             this.Controls.Add(this.flpCharts);
             this.Controls.Add(this.btnSaveCharts);
@@ -132,6 +187,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).EndInit();
             this.flpCharts.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            this.pnlBorderStresstest.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -146,5 +203,9 @@
         private System.Windows.Forms.Label lblDescription;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picTop5HeaviestUserActions;
+        private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel pnlBorderStresstest;
+        private System.Windows.Forms.ComboBox cboStresstest;
     }
 }

@@ -133,7 +133,7 @@ namespace vApus.Stresstest {
 
                 dgvDetailedResults.DataSource = null;
 
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = false;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
                 lblLoading.Visible = true;
 
                 if (_resultsHelper != null) {
@@ -145,7 +145,7 @@ namespace vApus.Stresstest {
                 }
 
                 lblLoading.Visible = false;
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = true;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
                 dgvDetailedResults.Select();
             }
         }
@@ -166,12 +166,12 @@ namespace vApus.Stresstest {
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = false;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
 
             try { dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => _resultsHelper.ExecuteQuery(codeTextBox.Text), _cancellationTokenSource.Token); } catch { }
 
             lblLoading.Visible = false;
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = true;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace vApus.Stresstest {
 
         private void btnSaveCharts_Click(object sender, EventArgs e) {
             var dialog = new SaveChartsDialog();
-            dialog.Init(_resultsHelper, _stresstestIds);
+            dialog.Init(_resultsHelper);
             dialog.ShowDialog();
         }
     }
