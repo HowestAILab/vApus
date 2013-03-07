@@ -17,5 +17,9 @@ namespace vApus.Stresstest {
             : this() {
             pic.Image = chart;
         }
+
+        private void pic_Click(object sender, System.EventArgs e) {
+            this.Close();
+        }
     }
 }

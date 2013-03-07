@@ -1038,7 +1038,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return userActionComposition;
         }
 
-        public DataTable GetAverageResponseTimesAndThroughput(params ulong[] stresstestIds) {
+        public DataTable GetCummulativeResponseTimesVsAchievedThroughput(params ulong[] stresstestIds) {
             return GetCummulativeResponseTimesVsAchievedThroughput(new CancellationToken(), stresstestIds);
         }
         public DataTable GetCummulativeResponseTimesVsAchievedThroughput(CancellationToken cancellationToken, params ulong[] stresstestIds) {

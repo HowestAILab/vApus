@@ -23,12 +23,15 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            this.components = new System.ComponentModel.Container();
             this.pic = new System.Windows.Forms.PictureBox();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pic)).BeginInit();
             this.SuspendLayout();
             // 
             // pic
             // 
+            this.pic.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pic.Location = new System.Drawing.Point(0, 0);
             this.pic.Margin = new System.Windows.Forms.Padding(0);
             this.pic.Name = "pic";
@@ -36,6 +39,8 @@
             this.pic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pic.TabIndex = 7;
             this.pic.TabStop = false;
+            this.toolTip.SetToolTip(this.pic, "Click to close");
+            this.pic.Click += new System.EventHandler(this.pic_Click);
             // 
             // ChartDialog
             // 
@@ -45,7 +50,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(707, 445);
             this.Controls.Add(this.pic);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ChartDialog";
@@ -62,5 +67,6 @@
         #endregion
 
         private System.Windows.Forms.PictureBox pic;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }
