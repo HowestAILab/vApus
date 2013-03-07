@@ -52,11 +52,11 @@
             this.btnSaveCharts.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveCharts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveCharts.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveCharts.Location = new System.Drawing.Point(460, 244);
+            this.btnSaveCharts.Location = new System.Drawing.Point(560, 244);
             this.btnSaveCharts.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnSaveCharts.Name = "btnSaveCharts";
             this.btnSaveCharts.Size = new System.Drawing.Size(100, 24);
-            this.btnSaveCharts.TabIndex = 0;
+            this.btnSaveCharts.TabIndex = 1;
             this.btnSaveCharts.Text = "Save Charts...";
             this.btnSaveCharts.UseVisualStyleBackColor = false;
             this.btnSaveCharts.Click += new System.EventHandler(this.btnSaveCharts_Click);
@@ -83,12 +83,15 @@
             // 
             // flpCharts
             // 
+            this.flpCharts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.flpCharts.AutoScroll = true;
             this.flpCharts.Controls.Add(this.picOverview);
             this.flpCharts.Controls.Add(this.picTop5HeaviestUserActions);
             this.flpCharts.Location = new System.Drawing.Point(12, 63);
             this.flpCharts.Name = "flpCharts";
-            this.flpCharts.Size = new System.Drawing.Size(548, 175);
+            this.flpCharts.Size = new System.Drawing.Size(648, 175);
             this.flpCharts.TabIndex = 7;
             // 
             // picTop5HeaviestUserActions
@@ -118,6 +121,7 @@
             // 
             // pictureBox2
             // 
+            this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
             this.pictureBox2.Location = new System.Drawing.Point(15, 249);
             this.pictureBox2.Name = "pictureBox2";
@@ -128,6 +132,7 @@
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(37, 249);
@@ -138,14 +143,14 @@
             // 
             // pnlBorderStresstest
             // 
-            this.pnlBorderStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.pnlBorderStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlBorderStresstest.BackColor = System.Drawing.Color.Silver;
             this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
             this.pnlBorderStresstest.Location = new System.Drawing.Point(162, 245);
             this.pnlBorderStresstest.Name = "pnlBorderStresstest";
-            this.pnlBorderStresstest.Size = new System.Drawing.Size(200, 23);
-            this.pnlBorderStresstest.TabIndex = 16;
+            this.pnlBorderStresstest.Size = new System.Drawing.Size(300, 23);
+            this.pnlBorderStresstest.TabIndex = 0;
             // 
             // cboStresstest
             // 
@@ -159,7 +164,7 @@
             this.cboStresstest.Location = new System.Drawing.Point(1, 1);
             this.cboStresstest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboStresstest.Name = "cboStresstest";
-            this.cboStresstest.Size = new System.Drawing.Size(198, 21);
+            this.cboStresstest.Size = new System.Drawing.Size(298, 21);
             this.cboStresstest.TabIndex = 0;
             // 
             // SaveChartsDialog
@@ -167,7 +172,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(572, 280);
+            this.ClientSize = new System.Drawing.Size(672, 280);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnlBorderStresstest);

@@ -43,6 +43,7 @@ namespace vApus.Stresstest {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnSaveCharts.Enabled = false;
                 btnSaveCharts.Text = "Saving, can take a while...";
+                ulong selectedIndex = (ulong)cboStresstest.SelectedIndex;
 
                 await Task.Run(() => {
                     try {
@@ -51,7 +52,7 @@ namespace vApus.Stresstest {
                         //Make different sheets per test.
                         var stresstests = new Dictionary<ulong, string>();
                         var stresstestsDt = _resultsHelper.GetStresstests();
-                        if (cboStresstest.SelectedIndex == 0) {
+                        if (selectedIndex == 0) {
                             foreach (DataRow row in stresstestsDt.Rows) {
                                 string stresstest = row.ItemArray[1] as string;
                                 if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1];
@@ -59,10 +60,9 @@ namespace vApus.Stresstest {
                                 stresstests.Add(Convert.ToUInt64(row.ItemArray[0]), stresstest);
                             }
                         } else {
-                            ulong stresstestId = (ulong)cboStresstest.SelectedIndex;
                             foreach (DataRow row in stresstestsDt.Rows) {
                                 ulong ul = Convert.ToUInt64(row.ItemArray[0]);
-                                if (stresstestId == ul) {
+                                if (selectedIndex == ul) {
                                     string stresstest = row.ItemArray[1] as string;
                                     if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1].TrimStart();
                                     stresstest += " " + (row.ItemArray[2] as string);
