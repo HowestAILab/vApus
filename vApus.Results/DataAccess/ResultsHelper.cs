@@ -390,8 +390,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     rowsToInsert.Add(sb.ToString());
 
                 }
-
-                _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.ToArray().Combine(", ")));
+                if (rowsToInsert.Count != 0)
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.ToArray().Combine(", ")));
             }
         }
 
@@ -598,7 +598,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetAverageUserActions(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             if (_databaseActions != null) {
                 var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
+                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                 if (stresstests.Rows.Count == 0) return null;
 
                 var averageUserActions = CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
@@ -785,7 +785,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetAverageLogEntries(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             if (_databaseActions != null) {
                 var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
+                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                 if (stresstests.Rows.Count == 0) return null;
 
                 var averageLogEntries = CreateEmptyDataTable("AverageLogEntries", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
@@ -915,7 +915,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetErrors(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             if (_databaseActions != null) {
                 var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
+                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                 if (stresstests.Rows.Count == 0) return null;
 
                 var errors = CreateEmptyDataTable("Error", "Stresstest", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
@@ -1133,102 +1133,103 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             return GetAverageMonitorResults(new CancellationToken(), stresstestIds);
         }
         public DataTable GetAverageMonitorResults(CancellationToken cancellationToken, params ulong[] stresstestIds) {
-            if (_databaseActions != null) {
-                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                if (stresstests.Rows.Count == 0) return null;
+            if (_databaseActions == null) return null;
 
-                var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
-                foreach (DataRow stresstestsRow in stresstests.Rows) {
+            var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
+                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
+            if (stresstests.Rows.Count == 0) return null;
+
+            var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
+            foreach (DataRow stresstestsRow in stresstests.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                object stresstestId = stresstestsRow.ItemArray[0];
+                string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+
+                var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
+                if (stresstestResults.Rows.Count == 0) continue;
+                object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+
+                //Get the monitors + values
+                var monitors = _databaseActions.GetDataTable(string.Format("Select Id, Monitor, ResultHeaders From Monitors WHERE StresstestId={0};", stresstestId));
+                if (monitors.Rows.Count == 0) continue;
+
+                //Get the timestamps to calculate the averages
+                var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id, Concurrency, StartedAt, StoppedAt FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
+                var delimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                var runDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                var concurrencies = new Dictionary<int, int>();
+                foreach (DataRow crRow in concurrencyResults.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    object stresstestId = stresstestsRow.ItemArray[0];
-                    string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-
-                    var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
-                    if (stresstestResults.Rows.Count == 0) continue;
-                    object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
-
-                    //Get the monitors + values
-                    var monitors = _databaseActions.GetDataTable(string.Format("Select Id, Monitor, ResultHeaders From Monitors WHERE StresstestId={0};", stresstestId));
-                    if (monitors.Rows.Count == 0) continue;
-
-                    //Get the timestamps to calculate the averages
-                    var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id, Concurrency, StartedAt, StoppedAt FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
-                    var delimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
-                    var runDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
-                    var concurrencies = new Dictionary<int, int>();
-                    foreach (DataRow crRow in concurrencyResults.Rows) {
+                    int concurrencyId = (int)crRow.ItemArray[0];
+                    int concurrency = (int)crRow.ItemArray[1];
+                    delimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
+                    var runResults = _databaseActions.GetDataTable(string.Format("SELECT StartedAt, StoppedAt FROM RunResults WHERE ConcurrencyResultId={0};", crRow.ItemArray[0]));
+                    var d = new Dictionary<DateTime, DateTime>(runResults.Rows.Count);
+                    foreach (DataRow rrRow in runResults.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        int concurrencyId = (int)crRow.ItemArray[0];
-                        int concurrency = (int)crRow.ItemArray[1];
-                        delimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
-                        var runResults = _databaseActions.GetDataTable(string.Format("SELECT StartedAt, StoppedAt FROM RunResults WHERE ConcurrencyResultId={0};", crRow.ItemArray[0]));
-                        var d = new Dictionary<DateTime, DateTime>(runResults.Rows.Count);
-                        foreach (DataRow rrRow in runResults.Rows) {
+                        var start = (DateTime)rrRow.ItemArray[0];
+                        if (!d.ContainsKey(start)) d.Add(start, (DateTime)rrRow.ItemArray[1]);
+                    }
+                    runDelimiters.Add(concurrencyId, d);
+                    concurrencies.Add(concurrencyId, concurrency);
+                }
+
+                //Calcullate the averages
+                foreach (int concurrencyId in runDelimiters.Keys) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    var delimiterValues = runDelimiters[concurrencyId];
+                    foreach (DataRow monitorRow in monitors.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        object monitorId = monitorRow.ItemArray[0];
+                        object monitor = monitorRow.ItemArray[1];
+                        object headers = monitorRow.ItemArray[2];
+
+                        var monitorResults = _databaseActions.GetDataTable(string.Format("Select TimeStamp, Value From MonitorResults WHERE MonitorId={0};", monitorId));
+                        var monitorValues = new Dictionary<DateTime, float[]>(monitorResults.Rows.Count);
+                        foreach (DataRow monitorResultsRow in monitorResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var start = (DateTime)rrRow.ItemArray[0];
-                            if (!d.ContainsKey(start)) d.Add(start, (DateTime)rrRow.ItemArray[1]);
-                        }
-                        runDelimiters.Add(concurrencyId, d);
-                        concurrencies.Add(concurrencyId, concurrency);
-                    }
+                            var timeStamp = (DateTime)monitorResultsRow[0];
 
-                    //Calcullate the averages
-                    foreach (int concurrencyId in runDelimiters.Keys) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        var delimiterValues = runDelimiters[concurrencyId];
-                        foreach (DataRow monitorRow in monitors.Rows) {
-                            object monitorId = monitorRow.ItemArray[0];
-                            object monitor = monitorRow.ItemArray[1];
-                            object headers = monitorRow.ItemArray[2];
-
-                            var monitorResults = _databaseActions.GetDataTable(string.Format("Select TimeStamp, Value From MonitorResults WHERE MonitorId={0};", monitorId));
-                            var monitorValues = new Dictionary<DateTime, float[]>(monitorResults.Rows.Count);
-                            foreach (DataRow monitorResultsRow in monitorResults.Rows) {
+                            bool canAdd = false;
+                            foreach (var start in delimiterValues.Keys) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                var timeStamp = (DateTime)monitorResultsRow[0];
-
-                                bool canAdd = false;
-                                foreach (var start in delimiterValues.Keys) {
-                                    if (cancellationToken.IsCancellationRequested) return null;
-
-                                    if (timeStamp >= start && timeStamp <= delimiterValues[start]) {
-                                        canAdd = true;
-                                        break;
-                                    }
-                                }
-
-                                if (canAdd) {
-                                    string[] splittedValue = (monitorResultsRow[1] as string).Split(';');
-                                    float[] values = new float[splittedValue.Length];
-
-                                    for (long l = 0; l != splittedValue.LongLength; l++) {
-                                        if (cancellationToken.IsCancellationRequested) return null;
-
-                                        values[l] = float.Parse(splittedValue[l].Trim());
-                                    }
-                                    monitorValues.Add(timeStamp, values);
+                                if (timeStamp >= start && timeStamp <= delimiterValues[start]) {
+                                    canAdd = true;
+                                    break;
                                 }
                             }
 
-                            string averages = GetAverageMonitorResults(cancellationToken, monitorValues).Combine("; ");
-                            if (cancellationToken.IsCancellationRequested) return null;
+                            if (canAdd) {
+                                string[] splittedValue = (monitorResultsRow[1] as string).Split(';');
+                                float[] values = new float[splittedValue.Length];
 
-                            var startedAt = delimiters[concurrencyId].Key;
-                            var measuredRunTime = Math.Round((delimiters[concurrencyId].Value - startedAt).TotalMilliseconds, 2);
-                            averageMonitorResults.Rows.Add(stresstest, monitor, startedAt, measuredRunTime, concurrencies[concurrencyId], headers, averages);
+                                for (long l = 0; l != splittedValue.LongLength; l++) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    values[l] = float.Parse(splittedValue[l].Trim());
+                                }
+                                monitorValues.Add(timeStamp, values);
+                            }
                         }
+
+                        string averages = GetAverageMonitorResults(cancellationToken, monitorValues).Combine("; ");
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        var startedAt = delimiters[concurrencyId].Key;
+                        var measuredRunTime = Math.Round((delimiters[concurrencyId].Value - startedAt).TotalMilliseconds, 2);
+                        averageMonitorResults.Rows.Add(stresstest, monitor, startedAt, measuredRunTime, concurrencies[concurrencyId], headers, averages);
                     }
                 }
-
-                return averageMonitorResults;
             }
-            return null;
+
+            return averageMonitorResults;
         }
 
         /// <summary>
@@ -1264,6 +1265,65 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 }
             }
             return averageMonitorResults;
+        }
+
+        public List<DataTable> GetMonitorResults(params ulong[] stresstestIds) {
+            return GetMonitorResults(new CancellationToken(), stresstestIds);
+        }
+        public List<DataTable> GetMonitorResults(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+            if (_databaseActions == null) return null;
+
+            var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
+               _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
+            if (stresstests.Rows.Count == 0) return null;
+
+            var dts = new List<DataTable>();
+
+            foreach (DataRow stresstestsRow in stresstests.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                object stresstestId = stresstestsRow.ItemArray[0];
+                string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+
+                var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
+                if (stresstestResults.Rows.Count == 0) continue;
+                object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+
+                //Get the monitors + values
+                var monitors = _databaseActions.GetDataTable(string.Format("Select Id, Monitor, ResultHeaders From Monitors WHERE StresstestId={0};", stresstestId));
+                if (monitors.Rows.Count == 0) continue;
+
+                foreach (DataRow monitorRow in monitors.Rows) {
+                    object monitorId = monitorRow.ItemArray[0];
+                    object monitor = monitorRow.ItemArray[1];
+                    string[] headers = (monitorRow.ItemArray[2] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+
+                    var columns = new List<string>();
+                    columns.AddRange("Monitor", "Timestamp");
+                    columns.AddRange(headers);
+
+                    var monitorResults = CreateEmptyDataTable("MonitorResults", "Stresstest", columns.ToArray());
+
+                    var mrs = _databaseActions.GetDataTable(string.Format("Select TimeStamp, Value From MonitorResults WHERE MonitorId={0};", monitorId));
+                    var monitorValues = new Dictionary<DateTime, float[]>(mrs.Rows.Count);
+                    foreach (DataRow monitorResultsRow in mrs.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        string[] values = (monitorResultsRow.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+
+                        var row = new List<object>();
+                        row.Add(stresstest);
+                        row.Add(monitor);
+                        row.Add(monitorResultsRow.ItemArray[0]);
+                        row.AddRange(values);
+
+                        monitorResults.Rows.Add(row.ToArray());
+                    }
+
+                    dts.Add(monitorResults);
+                }
+            }
+            return dts;
         }
 
         public DataTable ExecuteQuery(string query) {

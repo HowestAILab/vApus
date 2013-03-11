@@ -41,7 +41,7 @@ namespace vApus.Stresstest {
 
         async private void btnSaveCharts_Click(object sender, EventArgs e) {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                btnSaveCharts.Enabled = false;
+                btnSaveCharts.Enabled = cboStresstest.Enabled = false;
                 btnSaveCharts.Text = "Saving, can take a while...";
                 ulong selectedIndex = (ulong)cboStresstest.SelectedIndex;
 
@@ -73,16 +73,19 @@ namespace vApus.Stresstest {
                         }
 
                         string firstWorksheet = null;
-                        int worksheetIndex = 0;
+                        int worksheetIndex = 1; //Just for a unique sheet name
                         foreach (ulong stresstestId in stresstests.Keys) {
                             //For some strange reason the doubles are changed to string.
                             var overview = _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(_cancellationTokenSource.Token, stresstestId);
+                            var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
 
                             string stresstest = stresstests[stresstestId];
                             string fws = MakeCummulativeResponseTimesVsAchievedThroughputChart(doc, overview, worksheetIndex++, stresstest);
                             if (firstWorksheet == null) firstWorksheet = fws;
 
                             MakeTop5HeaviestUserActionsChart(doc, overview, worksheetIndex++, stresstest);
+
+                            foreach (DataTable monitorDt in monitors) MakeMonitorChart(doc, monitorDt, worksheetIndex++, stresstest);
                         }
 
                         try { doc.SelectWorksheet(firstWorksheet); } catch { }
@@ -96,7 +99,7 @@ namespace vApus.Stresstest {
                 }, _cancellationTokenSource.Token);
 
                 btnSaveCharts.Text = "Save Charts...";
-                btnSaveCharts.Enabled = true;
+                btnSaveCharts.Enabled = cboStresstest.Enabled = true;
             }
         }
         /// <summary>
@@ -114,14 +117,9 @@ namespace vApus.Stresstest {
 
             int rangeWidth = dt.Columns.Count, rangeHeight = dt.Rows.Count + 1;
 
-            //string formattedStresstest = stresstest.Contains(": ") ? stresstest.Split(':')[1].TrimStart() : stresstest;
             //Add data to the worksheet
-            for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++) {
-                string clmName = dt.Columns[clmIndex].ColumnName;
-                if (clmName.StartsWith("User Action ")) clmName = clmName.Substring(12);
-                else if (clmName.StartsWith("Throughput")) clmName = "Throughput";
-                doc.SetCellValue(1, clmIndex + 1, clmName);
-            }
+            for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++)
+                doc.SetCellValue(1, clmIndex + 1, dt.Columns[clmIndex].ColumnName);
 
             for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
                 var row = dt.Rows[rowIndex].ItemArray;
@@ -160,6 +158,7 @@ namespace vApus.Stresstest {
             chart.PrimaryTextAxis.ShowTitle = true;
             chart.PrimaryValueAxis.Title.SetTitle("Cummulative Response Time (ms)");
             chart.PrimaryValueAxis.ShowTitle = true;
+            chart.PrimaryValueAxis.ShowMinorGridlines = true;
             chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
             chart.SecondaryValueAxis.ShowTitle = true;
 
@@ -217,11 +216,8 @@ namespace vApus.Stresstest {
                 //Add data to the worksheet, only the first two columns and the 5 heaviest actions
                 int rangeWidth = sortedColumns.Count, rangeHeight = dt.Rows.Count + 1;
 
-                for (int i = 0; i < sortedColumns.Count; i++) {
-                    string clmName = dt.Columns[sortedColumns[i]].ColumnName;
-                    if (clmName.StartsWith("User Action ")) clmName = clmName.Substring(12);
-                    doc.SetCellValue(1, i + 1, clmName);
-                }
+                for (int i = 0; i < sortedColumns.Count; i++)
+                    doc.SetCellValue(1, i + 1, dt.Columns[sortedColumns[i]].ColumnName);
 
                 for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
                     var row = dt.Rows[rowIndex].ItemArray;
@@ -245,7 +241,7 @@ namespace vApus.Stresstest {
                 var chart = doc.CreateChart(1, 2, rangeHeight, rangeWidth, false, false);
                 chart.SetChartType(SLColumnChartType.ClusteredColumn);
                 chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-                chart.SetChartPosition(rangeHeight + 1, 0, 35, 20);
+                chart.SetChartPosition(rangeHeight + 1, 0, rangeHeight + 30, 20);
 
                 //Set the titles
                 chart.Title.SetTitle(stresstest + " - Top 5 Heaviest User Actions");
@@ -254,10 +250,73 @@ namespace vApus.Stresstest {
                 chart.PrimaryTextAxis.ShowTitle = true;
                 chart.PrimaryValueAxis.Title.SetTitle("Response Time (ms)");
                 chart.PrimaryValueAxis.ShowTitle = true;
-
+                chart.PrimaryValueAxis.ShowMinorGridlines = true;
 
                 doc.InsertChart(chart);
             }
+
+            return worksheet;
+        }
+
+        private string MakeMonitorChart(SLDocument doc, DataTable dt, int worksheetIndex, string stresstest) {
+            //max 31 chars
+            string worksheet = worksheetIndex + ") " + stresstest.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
+            if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
+            doc.AddWorksheet(worksheet);
+
+            int rangeWidth = dt.Columns.Count, rangeHeight = dt.Rows.Count + 1;
+
+            //Add data to the worksheet
+            for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++)
+                doc.SetCellValue(1, clmIndex + 1, dt.Columns[clmIndex].ColumnName);
+
+            string monitor = null;
+            for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
+                var row = dt.Rows[rowIndex].ItemArray;
+                for (int clmIndex = 0; clmIndex != row.Length; clmIndex++) {
+                    var value = row[clmIndex];
+
+                    int rowInSheet = rowIndex + 2;
+                    int clmInSheet = clmIndex + 1;
+                    if (value is string) {
+                        string s = value as string;
+                        if (s.IsNumeric())
+                            doc.SetCellValue(rowInSheet, clmInSheet, double.Parse(s));
+                        else {
+                            doc.SetCellValue(rowInSheet, clmInSheet, s);
+
+                            if (clmInSheet == 2 && monitor == null)
+                                monitor = s;
+                        }
+                    } else if (value is int) {
+                        doc.SetCellValue(rowInSheet, clmInSheet, (int)value);
+                    } else if (value is double) {
+                        doc.SetCellValue(rowInSheet, clmInSheet, (double)value);
+                    } else if (value is DateTime) {
+                        doc.SetCellValue(rowInSheet, clmInSheet, ((DateTime)value).ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff"));
+                    } else {
+                        doc.SetCellValue(rowInSheet, clmInSheet, value.ToString());
+                    }
+                }
+            }
+
+            //Plot the monitor values
+            var chart = doc.CreateChart(1, 3, rangeHeight, rangeWidth, false, false);
+            chart.SetChartType(SLLineChartType.Line);
+            chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
+            chart.SetChartPosition(rangeHeight + 1, 0, rangeHeight + 30, 20);
+
+            //Set the titles
+            chart.Title.SetTitle(stresstest + " - " + monitor);
+            chart.ShowChartTitle(false);
+            
+            chart.PrimaryTextAxis.Title.SetTitle("Timestamp");
+            chart.PrimaryTextAxis.ShowTitle = true;
+            //chart.PrimaryValueAxis.Title.SetTitle("Cummulative Response Time (ms)");
+            //chart.PrimaryValueAxis.ShowTitle = true;
+            chart.PrimaryValueAxis.ShowMinorGridlines = true;
+
+            doc.InsertChart(chart);
 
             return worksheet;
         }

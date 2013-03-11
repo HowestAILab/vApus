@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -543,6 +544,12 @@ namespace vApus.Util {
                         return true;
                 return false;
             }
+        }
+    }
+    public static class ListExtension {
+        public static void AddRange<T>(this List<T> list, T item1, params T[] items) {
+            list.Add(item1);
+            foreach (T item in items) list.Add(item);
         }
     }
 }

@@ -30,6 +30,7 @@
             this.picOverview = new System.Windows.Forms.PictureBox();
             this.flpCharts = new System.Windows.Forms.FlowLayoutPanel();
             this.picTop5HeaviestUserActions = new System.Windows.Forms.PictureBox();
+            this.picMonitor = new System.Windows.Forms.PictureBox();
             this.lblDescription = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -39,6 +40,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).BeginInit();
             this.flpCharts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picMonitor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.pnlBorderStresstest.SuspendLayout();
             this.SuspendLayout();
@@ -89,6 +91,7 @@
             this.flpCharts.AutoScroll = true;
             this.flpCharts.Controls.Add(this.picOverview);
             this.flpCharts.Controls.Add(this.picTop5HeaviestUserActions);
+            this.flpCharts.Controls.Add(this.picMonitor);
             this.flpCharts.Location = new System.Drawing.Point(12, 63);
             this.flpCharts.Name = "flpCharts";
             this.flpCharts.Size = new System.Drawing.Size(648, 175);
@@ -107,6 +110,20 @@
             this.picTop5HeaviestUserActions.TabStop = false;
             this.toolTip.SetToolTip(this.picTop5HeaviestUserActions, "Top 5 Heaviest User Actions Example");
             this.picTop5HeaviestUserActions.Click += new System.EventHandler(this.pic_Click);
+            // 
+            // picMonitor
+            // 
+            this.picMonitor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picMonitor.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picMonitor.Image = ((System.Drawing.Image)(resources.GetObject("picMonitor.Image")));
+            this.picMonitor.Location = new System.Drawing.Point(297, 3);
+            this.picMonitor.Name = "picMonitor";
+            this.picMonitor.Size = new System.Drawing.Size(141, 89);
+            this.picMonitor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picMonitor.TabIndex = 8;
+            this.picMonitor.TabStop = false;
+            this.toolTip.SetToolTip(this.picMonitor, "Monitor Example");
+            this.picMonitor.Click += new System.EventHandler(this.pic_Click);
             // 
             // lblDescription
             // 
@@ -192,6 +209,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).EndInit();
             this.flpCharts.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picMonitor)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.pnlBorderStresstest.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -212,5 +230,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel pnlBorderStresstest;
         private System.Windows.Forms.ComboBox cboStresstest;
+        private System.Windows.Forms.PictureBox picMonitor;
     }
 }
