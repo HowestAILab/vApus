@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -550,6 +551,13 @@ namespace vApus.Util {
         public static void AddRange<T>(this List<T> list, T item1, params T[] items) {
             list.Add(item1);
             foreach (T item in items) list.Add(item);
+        }
+    }
+    public static class DataColumnCollectionExtension {
+        public static void AddRange(this DataColumnCollection dataColumnCollection, string column1, params string[] columns) {
+            dataColumnCollection.Add(column1);
+            foreach (string column in columns)
+                dataColumnCollection.Add(column);
         }
     }
 }

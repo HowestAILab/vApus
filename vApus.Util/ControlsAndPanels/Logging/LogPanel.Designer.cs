@@ -37,9 +37,10 @@
             this.btnWarning = new System.Windows.Forms.Button();
             this.llblLatestLog = new System.Windows.Forms.LinkLabel();
             this.label3 = new System.Windows.Forms.Label();
-            this.flp = new System.Windows.Forms.FlowLayoutPanel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.dgv = new System.Windows.Forms.DataGridView();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv)).BeginInit();
             this.SuspendLayout();
             // 
             // cboLogLevel
@@ -59,7 +60,7 @@
             "Fatal"});
             this.cboLogLevel.Location = new System.Drawing.Point(80, 13);
             this.cboLogLevel.Name = "cboLogLevel";
-            this.cboLogLevel.Size = new System.Drawing.Size(145, 21);
+            this.cboLogLevel.Size = new System.Drawing.Size(313, 21);
             this.cboLogLevel.TabIndex = 0;
             this.toolTip.SetToolTip(this.cboLogLevel, "Selecting another item will change the log level immediately.");
             this.cboLogLevel.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.cboLogLevel_DrawItem);
@@ -99,17 +100,17 @@
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.dgv);
             this.groupBox1.Controls.Add(this.btnWarning);
             this.groupBox1.Controls.Add(this.llblLatestLog);
             this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.flp);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.cboLogLevel);
             this.groupBox1.Controls.Add(this.llblPath);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(260, 238);
+            this.groupBox1.Size = new System.Drawing.Size(428, 312);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             // 
@@ -122,7 +123,7 @@
             this.btnWarning.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnWarning.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnWarning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnWarning.Location = new System.Drawing.Point(231, 11);
+            this.btnWarning.Location = new System.Drawing.Point(399, 11);
             this.btnWarning.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
             this.btnWarning.MaximumSize = new System.Drawing.Size(176, 24);
             this.btnWarning.Name = "btnWarning";
@@ -155,27 +156,39 @@
             this.label3.TabIndex = 6;
             this.label3.Text = "Current Log:";
             // 
-            // flp
+            // dgv
             // 
-            this.flp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.dgv.AllowUserToAddRows = false;
+            this.dgv.AllowUserToDeleteRows = false;
+            this.dgv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.flp.AutoScroll = true;
-            this.flp.BackColor = System.Drawing.Color.White;
-            this.flp.Location = new System.Drawing.Point(9, 92);
-            this.flp.Name = "flp";
-            this.flp.Size = new System.Drawing.Size(245, 140);
-            this.flp.TabIndex = 4;
-            this.flp.SizeChanged += new System.EventHandler(this.flp_SizeChanged);
+            this.dgv.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgv.BackgroundColor = System.Drawing.Color.White;
+            this.dgv.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgv.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
+            this.dgv.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            this.dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgv.EnableHeadersVisualStyles = false;
+            this.dgv.Font = new System.Drawing.Font("Consolas", 9.75F);
+            this.dgv.Location = new System.Drawing.Point(6, 85);
+            this.dgv.Name = "dgv";
+            this.dgv.ReadOnly = true;
+            this.dgv.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dgv.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.dgv.Size = new System.Drawing.Size(416, 221);
+            this.dgv.TabIndex = 7;
+            this.dgv.VirtualMode = true;
             // 
             // LogPanel
             // 
-            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.ClientSize = new System.Drawing.Size(452, 336);
             this.Controls.Add(this.groupBox1);
             this.Name = "LogPanel";
             this.Text = "LogPanel";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -187,10 +200,10 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.LinkLabel llblPath;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.FlowLayoutPanel flp;
         private System.Windows.Forms.LinkLabel llblLatestLog;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnWarning;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.DataGridView dgv;
     }
 }
