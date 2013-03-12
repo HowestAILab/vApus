@@ -53,7 +53,7 @@ namespace vApus.Results {
             var metrics = new StresstestMetrics();
             metrics.StartMeasuringRuntime = result.StartedAt;
             metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
-            metrics.ConcurrentUsers = result.Concurrency;
+            metrics.Concurrency = result.Concurrency;
             metrics.AverageResponseTime = new TimeSpan();
             metrics.MaxResponseTime = new TimeSpan();
             metrics.AverageDelay = new TimeSpan();
@@ -126,7 +126,7 @@ namespace vApus.Results {
             var metrics = new StresstestMetrics();
             metrics.StartMeasuringRuntime = result.StartedAt;
             metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
-            metrics.ConcurrentUsers = result.VirtualUserResults.Length;
+            metrics.Concurrency = result.VirtualUserResults.Length;
             metrics.Run = result.Run;
             metrics.RerunCount = result.RerunCount;
             metrics.AverageResponseTime = new TimeSpan();
@@ -290,7 +290,7 @@ namespace vApus.Results {
                         metrics.StartMeasuringRuntime.ToString(),
                         metrics.EstimatedTimeLeft.ToShortFormattedString(),
                         metrics.MeasuredRunTime.ToShortFormattedString(),
-                        metrics.ConcurrentUsers,
+                        metrics.Concurrency,
                         metrics.LogEntriesProcessed + " / " +
                         (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
                         Math.Round(metrics.ResponsesPerSecond, 2),
@@ -306,7 +306,7 @@ namespace vApus.Results {
                     metrics.StartMeasuringRuntime.ToString(),
                     metrics.EstimatedTimeLeft.ToShortFormattedString(),
                     metrics.MeasuredRunTime.ToShortFormattedString(),
-                    metrics.ConcurrentUsers,
+                    metrics.Concurrency,
                     metrics.Run,
                     metrics.LogEntriesProcessed + " / " +
                     (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
@@ -326,7 +326,7 @@ namespace vApus.Results {
                         metrics.StartMeasuringRuntime.ToString(),
                         Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
                         Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
-                        metrics.ConcurrentUsers,
+                        metrics.Concurrency,
                         metrics.LogEntriesProcessed,
                         metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
                         Math.Round(metrics.ResponsesPerSecond, 2),
@@ -342,7 +342,7 @@ namespace vApus.Results {
                     metrics.StartMeasuringRuntime.ToString(),
                     Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
                     Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
-                    metrics.ConcurrentUsers,
+                    metrics.Concurrency,
                     metrics.Run,
                     metrics.LogEntriesProcessed,
                     metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),

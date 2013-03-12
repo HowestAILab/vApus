@@ -18,7 +18,7 @@ namespace vApus.Results {
         public DateTime StartMeasuringRuntime { get; set; }
         public TimeSpan EstimatedTimeLeft { get; set; }
         public TimeSpan MeasuredRunTime { get; set; }
-        public int ConcurrentUsers { get; set; }
+        public int Concurrency { get; set; }
 
         /// <summary>
         ///     Stays 0 for concurrency level metrics.
@@ -64,7 +64,7 @@ namespace vApus.Results {
             StartMeasuringRuntime = sr.ReadDateTime();
             EstimatedTimeLeft = sr.ReadTimeSpan();
             MeasuredRunTime = sr.ReadTimeSpan();
-            ConcurrentUsers = sr.ReadInt32();
+            Concurrency = sr.ReadInt32();
             Run = sr.ReadInt32();
             RerunCount = sr.ReadInt32();
             StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>();
@@ -85,7 +85,7 @@ namespace vApus.Results {
             sw.Write(StartMeasuringRuntime);
             sw.Write(EstimatedTimeLeft);
             sw.Write(MeasuredRunTime);
-            sw.Write(ConcurrentUsers);
+            sw.Write(Concurrency);
             sw.Write(Run);
             sw.Write(RerunCount);
             sw.Write(StartsAndStopsRuns);

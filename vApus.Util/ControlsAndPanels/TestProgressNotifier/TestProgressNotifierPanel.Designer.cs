@@ -72,9 +72,9 @@
             this.grp.Controls.Add(this.chkAfterRun);
             this.grp.Controls.Add(this.label2);
             this.grp.Enabled = false;
-            this.grp.Location = new System.Drawing.Point(12, 25);
+            this.grp.Location = new System.Drawing.Point(12, 38);
             this.grp.Name = "grp";
-            this.grp.Size = new System.Drawing.Size(375, 290);
+            this.grp.Size = new System.Drawing.Size(375, 277);
             this.grp.TabIndex = 0;
             this.grp.TabStop = false;
             // 
@@ -106,7 +106,6 @@
             this.txtEmailaddress.Name = "txtEmailaddress";
             this.txtEmailaddress.Size = new System.Drawing.Size(156, 20);
             this.txtEmailaddress.TabIndex = 0;
-            this.txtEmailaddress.Text = "E-Mail Address";
             this.txtEmailaddress.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // chkSecure
@@ -142,7 +141,6 @@
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(156, 20);
             this.txtUsername.TabIndex = 4;
-            this.txtUsername.Text = "Username (optional)";
             this.txtUsername.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtSmtp
@@ -155,7 +153,6 @@
             this.txtSmtp.Name = "txtSmtp";
             this.txtSmtp.Size = new System.Drawing.Size(156, 20);
             this.txtSmtp.TabIndex = 1;
-            this.txtSmtp.Text = "smtp.foo.bar";
             this.txtSmtp.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtPassword
@@ -167,7 +164,6 @@
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
             this.txtPassword.TabIndex = 5;
-            this.txtPassword.Text = "Password (optional)";
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.txt_TextChanged);
             this.txtPassword.Enter += new System.EventHandler(this.txtPassword_Enter);
@@ -310,9 +306,10 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(12, 9);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(244, 13);
+            this.label4.Size = new System.Drawing.Size(305, 26);
             this.label4.TabIndex = 14;
-            this.label4.Text = "Currently this is only available for single stresstests.";
+            this.label4.Text = "A digest is send for events that happen shortly after each other.\r\nThe minimum la" +
+    "tency is 30 seconds.";
             // 
             // TestProgressNotifierPanel
             // 

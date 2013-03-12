@@ -87,6 +87,7 @@ namespace vApus.Gui {
                 _logPanel = new LogPanel();
                 _logPanel.LogErrorCountChanged += _logPanel_LogErrorCountChanged;
                 _logErrorToolTip = new LogErrorToolTip { AutoPopDelay = 10000 };
+                _logErrorToolTip.Click += lblLogLevel_Click;
 
                 _localizationPanel = new LocalizationPanel();
                 _processorAffinityPanel = new ProcessorAffinityPanel();

@@ -76,7 +76,7 @@ namespace vApus.Results {
             metrics.Monitor = monitor;
             metrics.StartMeasuringRuntime = concurrencyMetrics.StartMeasuringRuntime;
             metrics.MeasuredRunTime = concurrencyMetrics.MeasuredRunTime;
-            metrics.ConcurrentUsers = concurrencyMetrics.ConcurrentUsers;
+            metrics.ConcurrentUsers = concurrencyMetrics.Concurrency;
             metrics.Headers = monitorResultCache.Headers;
 
             //Done this way to strip the monitor values during vApus think times between the runs.
@@ -109,7 +109,7 @@ namespace vApus.Results {
             metrics.Monitor = monitor;
             metrics.StartMeasuringRuntime = runMetrics.StartMeasuringRuntime;
             metrics.MeasuredRunTime = runMetrics.MeasuredRunTime;
-            metrics.ConcurrentUsers = runMetrics.ConcurrentUsers;
+            metrics.ConcurrentUsers = runMetrics.Concurrency;
             metrics.Run = runMetrics.Run;
             metrics.Headers = monitorResultCache.Headers;
 

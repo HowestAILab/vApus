@@ -324,10 +324,10 @@ namespace vApus.Stresstest {
                     }, null);
 
                     if (ex == null) {
-                        TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, _stresstest.ToString() + " finished. Status: " + stresstestStatus + ".");
+                        TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", stresstestStatus, "."));
                     } else {
                         LogWrapper.LogByLevel(_stresstest.ToString() + " Failed.\n" + ex, LogLevel.Error);
-                        TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, _stresstest.ToString() + " finished. Status: " + stresstestStatus + ".", ex);
+                        TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", stresstestStatus, "."), ex);
                     }
                 }
             }
@@ -509,7 +509,7 @@ namespace vApus.Stresstest {
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
         }
         private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) {
-            string message = _stresstest.ToString() + " - Concurrency " + e.Result.Concurrency + " finished.";
+            string message = string.Concat(_stresstest.ToString(), " - Concurrency ", e.Result.Concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
@@ -531,7 +531,7 @@ namespace vApus.Stresstest {
         }
         private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) {
             int concurrency = _stresstestResult.ConcurrencyResults[_stresstestResult.ConcurrencyResults.Count - 1].Concurrency;
-            string message = _stresstest.ToString() + " - Run " + e.Result.Run + " of concurrency " + concurrency + " finished.";
+            string message = string.Concat(_stresstest.ToString(), " - Run ", e.Result.Run, " of concurrency ", concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
         }
 

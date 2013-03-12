@@ -48,14 +48,16 @@ namespace vApus.Util {
         }
 
         private void tmrFireLogChangedEvent_Elapsed(object sender, ElapsedEventArgs e) {
-            if (_tmrFireLogChangedEvent != null) {
-                _tmrFireLogChangedEvent.Stop();
-                int count = _logErrorCountCache;
-                _logErrorCountCache = 0;
+            lock (_lock) {
+                if (_tmrFireLogChangedEvent != null) {
+                    _tmrFireLogChangedEvent.Stop();
+                    int count = _logErrorCountCache;
+                    _logErrorCountCache = 0;
 
-                if (LogErrorCountChanged != null)
-                    SynchronizationContextWrapper.SynchronizationContext.Send(
-                        delegate { LogErrorCountChanged(this, new LogErrorCountChangedEventArgs(count)); }, null);
+                    if (LogErrorCountChanged != null)
+                        SynchronizationContextWrapper.SynchronizationContext.Send(
+                            delegate { LogErrorCountChanged(this, new LogErrorCountChangedEventArgs(count)); }, null);
+                }
             }
         }
 

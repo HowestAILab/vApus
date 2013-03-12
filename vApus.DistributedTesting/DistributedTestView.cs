@@ -633,6 +633,23 @@ namespace vApus.DistributedTesting {
 
             SetOverallProgress();
             SetSlaveProgressInTreeView(tileStresstest, testProgressMessage);
+
+            //Notify by mail if set in the options panel.
+            if (testProgressMessage.StresstestStatus == StresstestStatus.Busy) {
+                if (testProgressMessage.RunFinished) {
+                    var l = testProgressMessage.StresstestMetricsCache.GetRunMetrics();
+                    var runMetrics = l[l.Count - 1];
+                    string message = string.Concat(tileStresstest.ToString(), " - Run ", runMetrics.Run, " of concurrency ", runMetrics.Concurrency, " finished.");
+                    TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
+                } else if (testProgressMessage.ConcurrencyFinished) {
+                    var l = testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics();
+                    var concurrencyMetrics = l[l.Count - 1];
+                    string message = string.Concat(tileStresstest.ToString(), " - Concurrency ", concurrencyMetrics.Concurrency, " finished.");
+                    TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
+                }
+            } else {
+                TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(tileStresstest.ToString(), " finished. Status: ", testProgressMessage.StresstestStatus, "."));
+            }
         }
 
         private void UpdateMonitorMetricsCaches(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -709,12 +726,12 @@ namespace vApus.DistributedTesting {
                 fastResultsControl.SetStresstestStarted(testProgressMessage.StartedAt);
                 if (testProgressMessage.StresstestStatus == StresstestStatus.Busy)
                     fastResultsControl.SetMeasuredRuntime(testProgressMessage.MeasuredRuntime);
-                else
+                else {
                     fastResultsControl.SetStresstestStopped(testProgressMessage.StresstestStatus, testProgressMessage.MeasuredRuntime);
+                }
 
-                fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage,
-                                                      testProgressMessage.ContextSwitchesPerSecond, (int)testProgressMessage.MemoryUsage,
-                                                      (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
+                fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage, testProgressMessage.ContextSwitchesPerSecond,
+                    (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
             }
         }
         private void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -843,8 +860,7 @@ namespace vApus.DistributedTesting {
                                                                          LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                     } catch { } //Exception on false WMI. 
                 } catch (Exception ex) {
-                    string message = string.Format("The stresstest threw an exception:{0}{1}", Environment.NewLine,
-                                                   ex.Message);
+                    string message = string.Format("The stresstest threw an exception:{0}{1}", Environment.NewLine, ex.Message);
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                     monitorAfter = false;
                 }

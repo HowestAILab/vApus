@@ -582,7 +582,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, true);
 
                         averageConcurrentUsers.Rows.Add(stresstest, metrics.StartMeasuringRuntime, Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
-                            metrics.ConcurrentUsers, metrics.LogEntriesProcessed, metrics.LogEntries, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
+                            metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
                             Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2), Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
                             Math.Round(metrics.AverageDelay.TotalMilliseconds, 2), metrics.Errors);
                     }

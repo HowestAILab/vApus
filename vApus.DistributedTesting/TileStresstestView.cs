@@ -147,8 +147,10 @@ namespace vApus.DistributedTesting {
                     _stresstestCore.RunSynchronization = RunSynchronization;
                     _stresstestCore.StresstestStarted += _stresstestCore_StresstestStarted;
                     _stresstestCore.ConcurrencyStarted += _stresstestCore_ConcurrentUsersStarted;
+                    _stresstestCore.ConcurrencyStopped += _stresstestCore_ConcurrencyStopped;
                     _stresstestCore.RunInitializedFirstTime += _stresstestCore_RunInitializedFirstTime;
                     _stresstestCore.RunDoneOnce += _stresstestCore_RunDoneOnce;
+                    _stresstestCore.RunStopped += _stresstestCore_RunStopped;
                     _stresstestCore.Message += _stresstestCore_Message;
                     _stresstestCore.InitializeTest();
 
@@ -161,6 +163,7 @@ namespace vApus.DistributedTesting {
                 Cursor = Cursors.Default;
             }, null);
         }
+
 
         /// <summary>
         ///     Thread safe
@@ -244,6 +247,8 @@ namespace vApus.DistributedTesting {
             fastResultsControl.SetRerunning(false);
         }
 
+
+        private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) { SendPushMessage(RunStateChange.None, false, true); }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
             StopProgressDelayCountDown();
@@ -252,7 +257,7 @@ namespace vApus.DistributedTesting {
             fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.AddOrUpdate(e.Result));
             fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), false);
 
-            SendPushMessage(RunStateChange.ToRunInitializedFirstTime);
+            SendPushMessage(RunStateChange.ToRunInitializedFirstTime, false, false);
 
             fastResultsControl.SetRerunning(false);
 
@@ -262,7 +267,9 @@ namespace vApus.DistributedTesting {
             tmrProgress.Start();
         }
 
-        private void _stresstestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce); }
+        private void _stresstestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce, false, false); }
+        private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) { SendPushMessage(RunStateChange.None, true, false); }
+
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_countDown--); }
 
         private void tmrProgress_Tick(object sender, ElapsedEventArgs e) {
@@ -282,16 +289,17 @@ namespace vApus.DistributedTesting {
 
             _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
 
-            SendPushMessage(RunStateChange.None);
+            SendPushMessage(RunStateChange.None, false, false);
         }
 
         /// <summary>
         /// </summary>
-        /// <param name="concurrentUsersStateChange"></param>
-        private void SendPushMessage(RunStateChange concurrentUsersStateChange) {
+        /// <param name="runStateChange"></param>
+        private void SendPushMessage(RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (!_finishedSent) {
                 var estimatedRuntimeLeft = StresstestMetricsHelper.GetEstimatedRuntimeLeft(_stresstestResult, _stresstest.Concurrencies.Length, _stresstest.Runs);
-                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt, fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, fastResultsControl.GetEvents(), concurrentUsersStateChange);
+                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt, 
+                    fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, fastResultsControl.GetEvents(), runStateChange, runFinished, concurrencyFinished);
                 if (_stresstestStatus != StresstestStatus.Busy) _finishedSent = true;
             }
         }
@@ -321,7 +329,7 @@ namespace vApus.DistributedTesting {
                     _stresstestCore = null;
                 }
 
-                SendPushMessage(RunStateChange.None);
+                SendPushMessage(RunStateChange.None, false, false);
             } else {
                 Solution.ExplicitCancelFormClosing = true;
                 e.Cancel = true;
@@ -362,7 +370,7 @@ namespace vApus.DistributedTesting {
                 _stresstestCore = null;
             }
 
-            SendPushMessage(RunStateChange.None);
+            SendPushMessage(RunStateChange.None, false, false);
 
             Cursor = Cursors.Default;
         }

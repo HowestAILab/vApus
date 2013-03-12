@@ -193,25 +193,24 @@ namespace vApus.DistributedTesting {
         /// <param name="concurrentUsersStateChange"></param>
         public static void SendPushMessage(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus,
                                            DateTime startedAt, TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore,
-                                           List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange) {
+                                           List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
                 if (_sendQueue != null)
                     _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
-                                    stresstestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stresstestCore, events, concurrentUsersStateChange);
+                        stresstestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stresstestCore, events, concurrentUsersStateChange, runFinished, concurrencyFinished);
             }
         }
 
         private static void SendQueuedPushMessage(string tileStresstestIndex,
                                                   StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt,
                                                   TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore,
-                                                  List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange) {
+                                                  List<EventPanelEvent> events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (_masterSocketWrapper != null)
                 try {
                     var tpm = new TestProgressMessage();
                     tpm.TileStresstestIndex = tileStresstestIndex;
 
-                    tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed
-                                           ? stresstestCore.BusyThreadCount : 0;
+                    tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed ? stresstestCore.BusyThreadCount : 0;
                     try {
                         tpm.CPUUsage = LocalMonitor.CPUUsage;
                         tpm.MemoryUsage = LocalMonitor.MemoryUsage;
@@ -229,20 +228,18 @@ namespace vApus.DistributedTesting {
                     tpm.StartedAt = startedAt;
                     tpm.MeasuredRuntime = measuredRuntime;
                     tpm.EstimatedRuntimeLeft = estimatedRuntimeLeft;
-                    tpm.RunStateChange = concurrentUsersStateChange;
+                    tpm.RunStateChange = runStateChange;
+                    tpm.RunFinished = runFinished;
+                    tpm.ConcurrencyFinished = concurrencyFinished;
 
                     if (!_masterSocketWrapper.Connected) {
-                        try {
-                            if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose();
-                        } catch {
-                        }
+                        try { if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose(); } catch { }
 
                         var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                         _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
 
-                        try { _masterSocketWrapper.Connect(1000, 3); } catch {
-                        }
+                        try { _masterSocketWrapper.Connect(1000, 3); } catch { }
                     }
 
                     if (_masterSocketWrapper.Connected) {
@@ -250,20 +247,17 @@ namespace vApus.DistributedTesting {
                         SynchronizeBuffers(message);
                         _masterSocketWrapper.Send(message, SendType.Binary);
                     }
-                } catch {
-                }
+                } catch { }
         }
 
-        private delegate void SendPushMessageDelegate(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt,
-                                                      TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange);
+        private delegate void SendPushMessageDelegate(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+            TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
 
         #endregion
 
         public class NewTestEventArgs : EventArgs {
             public string Test { get; private set; }
-            public NewTestEventArgs(string test) {
-                Test = test;
-            }
+            public NewTestEventArgs(string test) { Test = test; }
         }
     }
 }
