@@ -435,26 +435,53 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        private void Start() {
+        async private void Start() {
             try {
                 Cursor = Cursors.WaitCursor;
                 SetMode(DistributedTestMode.Test);
 
                 tcTest.SelectedIndex = 1;
 
-                distributedStresstestControl.ClearFastResults();
-
                 if (_distributedTest.UseRDP) ShowRemoteDesktop();
 
+                distributedStresstestControl.ClearFastResults();
+
+                //Smart update
+                UpdateNotifier.Refresh();
+                string host, username, password;
+                int port, channel;
+                bool smartUpdate;
+                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+
+                if (smartUpdate) {
+                    if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound) {
+                        MessageBox.Show("In order to be able to update the used slaves the master must be up to date as well.\nPlease update vApus, then you can start the test.", "Smart Update Slaves", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        throw new Exception();
+                    } else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.UpToDate) {
+                        distributedStresstestControl.AppendMessages("Updating the slaves, this can take a while...");
+                        var exceptions = await JumpStart.SmartUpdate(_distributedTest);
+
+                        if (exceptions.Length != 0) {
+                            foreach (Exception ex in exceptions)
+                                distributedStresstestControl.AppendMessages(ex.Message, LogLevel.Error);
+
+                            throw new Exception();
+                        }
+                    }
+                }
+
                 distributedStresstestControl.AppendMessages("Jump Starting the slaves...");
-                //Jumpstart the slaves first.
-                JumpStart.Do(_distributedTest);
+                try {
+                    //Jumpstart the slaves first, an event will be fired when this is done and the test will start
+                    JumpStart.Do(_distributedTest);
+                } catch {
+                    //Only one test can run at the same time.
+                    distributedStresstestControl.AppendMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
+                    throw;
+                }
+
             } catch {
-                //Only one test can run at the same time.
-                distributedStresstestControl.AppendMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
-
-                RemoveDatabase();
-
+                RemoveDatabase(false);
                 Stop(true);
             }
         }
@@ -838,9 +865,9 @@ namespace vApus.DistributedTesting {
                 e.Cancel = true;
             }
         }
-        private void RemoveDatabase() {
+        private void RemoveDatabase(bool confirm = true) {
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
-                if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                if (!confirm || MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
                     try { _resultsHelper.RemoveDatabase(); } catch { }
         }

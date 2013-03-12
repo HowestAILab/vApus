@@ -11,18 +11,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 
-namespace vApus.UpdateToolLoader
-{
-    internal static class Program
-    {
+namespace vApus.UpdateToolLoader {
+    internal static class Program {
         /// <summary>
         ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main(string[] args)
-        {
-            if (args != null && args.Length != 0)
-            {
+        private static void Main(string[] args) {
+            if (args != null && args.Length != 0) {
                 var from = new[]
                     {
                         Path.Combine(Application.StartupPath, "vApus.UpdateTool.exe"),
@@ -45,15 +41,13 @@ namespace vApus.UpdateToolLoader
                         Path.Combine(cachePath, "vApus.Util.dll")
                     };
 
-                try
-                {
+                try {
                     if (!Directory.Exists(cachePath))
                         Directory.CreateDirectory(cachePath);
 
                     string readme = Path.Combine(cachePath, "README.TXT");
                     if (!File.Exists(readme))
-                        using (var sw = new StreamWriter(readme))
-                        {
+                        using (var sw = new StreamWriter(readme)) {
                             sw.Write(
                                 "This is a cache folder where the updater will run from (files in use cannot be overwritten aka updated therefore this workaround), this folder can be removed safely after the updater process exited.");
                             sw.Flush();
@@ -69,20 +63,15 @@ namespace vApus.UpdateToolLoader
 
                     Process p = Process.Start(to[0], arguments);
                     p.WaitForExit();
-                }
-                catch
-                {
+                } catch {
                     MessageBox.Show(
                         "The update tool could not be started because the previously cached files where locked!",
                         string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                try
-                {
+                try {
                     Directory.Delete(cachePath, true);
-                }
-                catch
-                {
+                } catch {
                     //Will break when multiple shadow copies are alive.
                 }
             }

@@ -31,6 +31,8 @@ namespace vApus.JumpStart {
                         return HandleKill(message);
                     case Key.CpuCoreCount:
                         return HandleCpuCoreCount(message);
+                    case Key.SmartUpdate:
+                        return HandleSmartUpdate(message);
                 }
             } catch { }
             return message;
@@ -86,6 +88,38 @@ namespace vApus.JumpStart {
         private static Message<Key> HandleCpuCoreCount(Message<Key> message) {
             var cpuCoreCountMessage = new CpuCoreCountMessage(Environment.ProcessorCount);
             message.Content = cpuCoreCountMessage;
+            return message;
+        }
+        /// <summary>
+        /// If the content of the returned message is empty it is failed.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        private static Message<Key> HandleSmartUpdate(Message<Key> message) {
+            var smartUpdateMessage = (SmartUpdateMessage)message.Content;
+            UpdateNotifier.Refresh();
+            string currentVersion = UpdateNotifier.CurrentVersion;
+            string currentChannel = UpdateNotifier.CurrentChannel.ToLower();
+
+            string channel = smartUpdateMessage.Channel == 0 ? "stable" : "nightly";
+            if (currentVersion != smartUpdateMessage.Version || currentChannel != channel) {
+                if (smartUpdateMessage.Host != null) {
+                    string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
+                    if (File.Exists(path)) {
+                        var process = new Process();
+                        process.EnableRaisingEvents = true;
+                        process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + smartUpdateMessage.Host + " " +
+                                                                 smartUpdateMessage.Port + " " + smartUpdateMessage.Username + " " + smartUpdateMessage.Password + " " + smartUpdateMessage.Channel +
+                                                                 " " + false);
+
+                        process.Start();
+                        process.WaitForExit();
+                    } else {
+                        message.Content = null;
+                    }
+                }
+            }
+
             return message;
         }
 

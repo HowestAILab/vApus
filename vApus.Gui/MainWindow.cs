@@ -99,7 +99,8 @@ namespace vApus.Gui {
 
                 string host, username, password;
                 int port, channel;
-                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
+                bool smartUpdate;
+                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
 
                 UpdateNotifier.Refresh();
 

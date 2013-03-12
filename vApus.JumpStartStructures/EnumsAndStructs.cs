@@ -8,19 +8,17 @@
 
 using System;
 
-namespace vApus.JumpStartStructures
-{
+namespace vApus.JumpStartStructures {
     [Serializable]
-    public enum Key
-    {
+    public enum Key {
         JumpStart,
         Kill,
-        CpuCoreCount
+        CpuCoreCount,
+        SmartUpdate
     }
 
     [Serializable]
-    public struct JumpStartMessage
-    {
+    public struct JumpStartMessage {
         public string IP;
 
         /// <summary>
@@ -38,8 +36,7 @@ namespace vApus.JumpStartStructures
         /// <param name="ip"></param>
         /// <param name="port">can be multiple ports divided by a comma.</param>
         /// <param name="processID"></param>
-        public JumpStartMessage(string ip, string port, string processorAffinity)
-        {
+        public JumpStartMessage(string ip, string port, string processorAffinity) {
             IP = ip;
             Port = port;
             ProcessorAffinity = processorAffinity;
@@ -47,8 +44,7 @@ namespace vApus.JumpStartStructures
     }
 
     [Serializable]
-    public struct KillMessage
-    {
+    public struct KillMessage {
         //The master port for example
         public int ExcludeProcessID;
 
@@ -57,20 +53,23 @@ namespace vApus.JumpStartStructures
         /// <param name="excludeIP"></param>
         /// <param name="excludeProcessID"></param>
         /// <param name="processID"></param>
-        public KillMessage(int excludeProcessID)
-        {
+        public KillMessage(int excludeProcessID) {
             ExcludeProcessID = excludeProcessID;
         }
     }
 
     [Serializable]
-    public struct CpuCoreCountMessage
-    {
+    public struct CpuCoreCountMessage {
         public int CpuCoreCount;
 
-        public CpuCoreCountMessage(int cpuCoreCount)
-        {
+        public CpuCoreCountMessage(int cpuCoreCount) {
             CpuCoreCount = cpuCoreCount;
         }
+    }
+
+    [Serializable]
+    public struct SmartUpdateMessage {
+        public string Version, Host, Username, Password; //Credentials vApus update server.
+        public int Port, Channel;
     }
 }

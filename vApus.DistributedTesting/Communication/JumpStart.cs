@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using vApus.JumpStartStructures;
 using vApus.Util;
 
@@ -23,6 +24,64 @@ namespace vApus.DistributedTesting {
         [ThreadStatic]
         private static WorkItem _workItem;
         public static event EventHandler<DoneEventArgs> Done;
+
+        /// <summary>
+        /// The update notifier must be refreshed before calling this.
+        /// Use await keyword when calling this.
+        /// </summary>
+        /// <param name="distributedTest"></param>
+        /// <returns></returns>
+        public static Task<Exception[]> SmartUpdate(DistributedTest distributedTest) {
+            return Task<Exception[]>.Run(() => {
+                lock (_lock) {
+                    var ips = new List<string>();
+                    foreach (Tile t in distributedTest.Tiles)
+                        if (t.Use)
+                            foreach (TileStresstest ts in t)
+                                if (ts.Use)
+                                    foreach (var slave in ts.BasicTileStresstest.Slaves) {
+                                        string ip = slave.IP;
+                                        if (!ips.Contains(ip))
+                                            ips.Add(ip);
+                                    }
+
+                    string version, host, username, password;
+                    int port, channel;
+                    bool smartUpdate;
+                    version = UpdateNotifier.CurrentVersion;
+                    UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+
+                    var exs = new ConcurrentBag<Exception>();
+                    int count = ips.Count;
+                    if (count != 0) {
+                        int i = 0;
+                        var waithandle = new AutoResetEvent(false);
+
+                        foreach (string ip in ips) {
+                            var t = new Thread(delegate(object state) {
+                                _workItem = new WorkItem();
+                                _workItem.DoSmartUpdate(state as string, version, host, username, password, port, channel);
+
+                                if (Interlocked.Increment(ref i) == count) waithandle.Set();
+                            });
+                            t.IsBackground = true;
+                            t.Start(ip);
+                        }
+                        waithandle.WaitOne();
+                        waithandle.Dispose();
+                        waithandle = null;
+
+                        //Be sure they are jump started before trying to connect to them.
+                        Thread.Sleep(10000);
+                    }
+                    var l = new List<Exception>();
+                    foreach (Exception ex in exs)
+                        if (ex != null) l.Add(ex);
+
+                    return l.ToArray();
+                }
+            });
+        }
 
         /// <summary>
         ///     Jump start the used slaves in the test. Kill all slaves on the used clients first.
@@ -242,6 +301,43 @@ namespace vApus.DistributedTesting {
                     socketWrapper = null;
                 }
             }
+            /// <summary>
+            /// Ip is the ip of the client, the rest are update credentials.
+            /// </summary>
+            /// <param name="ip"></param>
+            /// <param name="version"></param>
+            /// <param name="host"></param>
+            /// <param name="username"></param>
+            /// <param name="password"></param>
+            /// <param name="port"></param>
+            /// <param name="channel"></param>
+            /// <returns></returns>
+            public Exception DoSmartUpdate(string ip, string version, string host, string username, string password, int port, int channel) {
+                SocketWrapper socketWrapper = null;
+                Exception exception = null;
+                try {
+                    socketWrapper = Connect(ip);
+                    if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
+
+                    var smartUpdateMessage = new SmartUpdateMessage() { Version = version, Host = host, Username = username, Password = password, Channel = channel, Port = port };
+                    var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.SmartUpdate, smartUpdateMessage);
+
+                    socketWrapper.Send(message, SendType.Binary);
+                    message = (Message<JumpStartStructures.Key>)socketWrapper.Receive(SendType.Binary);
+
+                    if (message.Content == null)
+                        throw new Exception();
+                } catch {
+                    exception = new Exception(string.Concat("Failed to update vApus@", ip));
+                }
+
+                if (socketWrapper != null) {
+                    try { if (socketWrapper.Connected)  socketWrapper.Close(); } catch { }
+                    socketWrapper = null;
+                }
+
+                return exception;
+            }
 
             private SocketWrapper Connect(string ip) {
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -250,7 +346,7 @@ namespace vApus.DistributedTesting {
 
                 var socketWrapper = new SocketWrapper(ip, port, socket);
                 socketWrapper.SendTimeout = 3000;
-                socketWrapper.ReceiveTimeout = 120000;
+                socketWrapper.ReceiveTimeout = 300000;
 
                 try { socketWrapper.Connect(3000, 2); } catch { }
 

@@ -214,5 +214,17 @@ namespace vApus.Util.Properties {
                 this["PNUsername"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UNSmartUpdate {
+            get {
+                return ((bool)(this["UNSmartUpdate"]));
+            }
+            set {
+                this["UNSmartUpdate"] = value;
+            }
+        }
     }
 }
