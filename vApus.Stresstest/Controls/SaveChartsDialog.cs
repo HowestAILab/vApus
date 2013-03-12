@@ -300,23 +300,24 @@ namespace vApus.Stresstest {
                 }
             }
 
-            //Plot the monitor values
-            var chart = doc.CreateChart(1, 3, rangeHeight, rangeWidth, false, false);
-            chart.SetChartType(SLLineChartType.Line);
-            chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-            chart.SetChartPosition(rangeHeight + 1, 0, rangeHeight + 30, 20);
+            //Since monitor charts are not particulary usefull (heterogeneous data) those are not added.
+            ////Plot the monitor values
+            //var chart = doc.CreateChart(1, 3, rangeHeight, rangeWidth, false, false);
+            //chart.SetChartType(SLLineChartType.Line);
+            //chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
+            //chart.SetChartPosition(rangeHeight + 1, 0, rangeHeight + 30, 20);
 
-            //Set the titles
-            chart.Title.SetTitle(stresstest + " - " + monitor);
-            chart.ShowChartTitle(false);
+            ////Set the titles
+            //chart.Title.SetTitle(stresstest + " - " + monitor);
+            //chart.ShowChartTitle(false);
             
-            chart.PrimaryTextAxis.Title.SetTitle("Timestamp");
-            chart.PrimaryTextAxis.ShowTitle = true;
-            //chart.PrimaryValueAxis.Title.SetTitle("Cummulative Response Time (ms)");
-            //chart.PrimaryValueAxis.ShowTitle = true;
-            chart.PrimaryValueAxis.ShowMinorGridlines = true;
+            //chart.PrimaryTextAxis.Title.SetTitle("Timestamp");
+            //chart.PrimaryTextAxis.ShowTitle = true;
+            ////chart.PrimaryValueAxis.Title.SetTitle("Cummulative Response Time (ms)");
+            ////chart.PrimaryValueAxis.ShowTitle = true;
+            //chart.PrimaryValueAxis.ShowMinorGridlines = true;
 
-            doc.InsertChart(chart);
+            //doc.InsertChart(chart);
 
             return worksheet;
         }

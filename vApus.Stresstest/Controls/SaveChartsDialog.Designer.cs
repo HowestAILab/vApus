@@ -122,7 +122,8 @@
             this.picMonitor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picMonitor.TabIndex = 8;
             this.picMonitor.TabStop = false;
-            this.toolTip.SetToolTip(this.picMonitor, "Monitor Example");
+            this.toolTip.SetToolTip(this.picMonitor, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
+        "e manually");
             this.picMonitor.Click += new System.EventHandler(this.pic_Click);
             // 
             // lblDescription
