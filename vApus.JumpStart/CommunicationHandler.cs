@@ -46,8 +46,7 @@ namespace vApus.JumpStart {
             for (int i = 0; i != ports.Length; i++) {
                 var t = new Thread(delegate(object state) {
                     _handleJumpStartWorkItem = new HandleJumpStartWorkItem();
-                    _handleJumpStartWorkItem.HandleJumpStart(jumpStartMessage.IP, int.Parse(ports[(int)state]),
-                                                             processorAffinity[(int)state]);
+                    _handleJumpStartWorkItem.HandleJumpStart(jumpStartMessage.IP, int.Parse(ports[(int)state]), processorAffinity[(int)state]);
                     if (Interlocked.Increment(ref j) == ports.Length)
                         waithandle.Set();
                 });
@@ -99,10 +98,9 @@ namespace vApus.JumpStart {
                     string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
 
                     if (processorAffinity.Length == 0)
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port);
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-ipp ", ip, ":", port));
                     else
-                        p.StartInfo = new ProcessStartInfo(vApusLocation,
-                                                           "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-ipp ", ip, ":", port, " -pa ", processorAffinity));
 
                     p.Start();
                     if (!p.WaitForInputIdle(10000))

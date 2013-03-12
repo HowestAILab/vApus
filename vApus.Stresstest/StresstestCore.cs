@@ -210,7 +210,7 @@ namespace vApus.Stresstest {
         /// </summary>
         private void SetRunStopped() {
             StresstestMetrics metrics = StresstestMetricsHelper.GetMetrics(_runResult);
-            InvokeMessage("|----> |Run Finished in " + metrics.MeasuredRunTime + "!", Color.MediumPurple);
+            InvokeMessage("|----> |Run Finished in " + metrics.MeasuredTime + "!", Color.MediumPurple);
             if (_resultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
             _resultsHelper.SetRunStopped(_runResult);
 

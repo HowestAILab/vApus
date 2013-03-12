@@ -35,7 +35,7 @@ namespace vApus.Results {
             };
         private static readonly string[] _calculatableMetricsHeadersRun =
             {
-                "Started At", "Time Left (ms)", "Measured Time (ms", "Concurrency", "Run", "Log Entries Processed",
+                "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Run", "Log Entries Processed",
                 "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
                 "Avg. Delay (ms)", "Errors"
             };
@@ -52,7 +52,7 @@ namespace vApus.Results {
         public static StresstestMetrics GetMetrics(ConcurrencyResult result, bool calculate95thPercentileResponseTimes = true) {
             var metrics = new StresstestMetrics();
             metrics.StartMeasuringRuntime = result.StartedAt;
-            metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
+            metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
             metrics.Concurrency = result.Concurrency;
             metrics.AverageResponseTime = new TimeSpan();
             metrics.MaxResponseTime = new TimeSpan();
@@ -125,7 +125,7 @@ namespace vApus.Results {
         public static StresstestMetrics GetMetrics(RunResult result, bool calculate95thPercentileResponseTimes = true) {
             var metrics = new StresstestMetrics();
             metrics.StartMeasuringRuntime = result.StartedAt;
-            metrics.MeasuredRunTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
+            metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringRuntime;
             metrics.Concurrency = result.VirtualUserResults.Length;
             metrics.Run = result.Run;
             metrics.RerunCount = result.RerunCount;
@@ -289,7 +289,7 @@ namespace vApus.Results {
                     {
                         metrics.StartMeasuringRuntime.ToString(),
                         metrics.EstimatedTimeLeft.ToShortFormattedString(),
-                        metrics.MeasuredRunTime.ToShortFormattedString(),
+                        metrics.MeasuredTime.ToShortFormattedString(),
                         metrics.Concurrency,
                         metrics.LogEntriesProcessed + " / " +
                         (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
@@ -305,7 +305,7 @@ namespace vApus.Results {
                 {
                     metrics.StartMeasuringRuntime.ToString(),
                     metrics.EstimatedTimeLeft.ToShortFormattedString(),
-                    metrics.MeasuredRunTime.ToShortFormattedString(),
+                    metrics.MeasuredTime.ToShortFormattedString(),
                     metrics.Concurrency,
                     metrics.Run,
                     metrics.LogEntriesProcessed + " / " +
@@ -325,7 +325,7 @@ namespace vApus.Results {
                     {
                         metrics.StartMeasuringRuntime.ToString(),
                         Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
-                        Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
+                        Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
                         metrics.Concurrency,
                         metrics.LogEntriesProcessed,
                         metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
@@ -341,7 +341,7 @@ namespace vApus.Results {
                 {
                     metrics.StartMeasuringRuntime.ToString(),
                     Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
-                    Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2),
+                    Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
                     metrics.Concurrency,
                     metrics.Run,
                     metrics.LogEntriesProcessed,

@@ -17,7 +17,10 @@ namespace vApus.Results {
 
         public DateTime StartMeasuringRuntime { get; set; }
         public TimeSpan EstimatedTimeLeft { get; set; }
-        public TimeSpan MeasuredRunTime { get; set; }
+        /// <summary>
+        /// For run sync break on last is this not only the run time, think time between the reruns are included. 
+        /// </summary>
+        public TimeSpan MeasuredTime { get; set; }
         public int Concurrency { get; set; }
 
         /// <summary>
@@ -63,7 +66,7 @@ namespace vApus.Results {
             SerializationReader sr = SerializationReader.GetReader(info);
             StartMeasuringRuntime = sr.ReadDateTime();
             EstimatedTimeLeft = sr.ReadTimeSpan();
-            MeasuredRunTime = sr.ReadTimeSpan();
+            MeasuredTime = sr.ReadTimeSpan();
             Concurrency = sr.ReadInt32();
             Run = sr.ReadInt32();
             RerunCount = sr.ReadInt32();
@@ -84,7 +87,7 @@ namespace vApus.Results {
             SerializationWriter sw = SerializationWriter.GetWriter();
             sw.Write(StartMeasuringRuntime);
             sw.Write(EstimatedTimeLeft);
-            sw.Write(MeasuredRunTime);
+            sw.Write(MeasuredTime);
             sw.Write(Concurrency);
             sw.Write(Run);
             sw.Write(RerunCount);
