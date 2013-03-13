@@ -20,6 +20,7 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     public static class AssemblyExtension {
+        private static readonly object _lock = new object();
         /// <summary>
         /// Gets a type by its type name.
         /// </summary>
@@ -27,13 +28,16 @@ namespace vApus.Util {
         /// <param name="typeName"></param>
         /// <returns>The type if found, otherwise null.</returns>
         public static Type GetTypeByName(this Assembly assembly, string typeName) {
-            foreach (Type t in assembly.GetTypes())
-                if (t.Name == typeName)
-                    return t;
-            return null;
+            lock (_lock) {
+                foreach (Type t in assembly.GetTypes())
+                    if (t.Name == typeName)
+                        return t;
+                return null;
+            }
         }
     }
     public static class TypeExtension {
+        private static readonly object _lock = new object();
         /// <summary>
         /// To check if a type has an indirect base type (given)
         /// </summary>
@@ -41,100 +45,116 @@ namespace vApus.Util {
         /// <param name="BaseType"></param>
         /// <returns></returns>
         public static bool HasBaseType(this Type t, Type BaseType) {
-            Type type = t;
-            while (type.BaseType != null) {
-                if (type.BaseType == BaseType)
-                    return true;
-                type = type.BaseType;
+            lock (_lock) {
+                Type type = t;
+                while (type.BaseType != null) {
+                    if (type.BaseType == BaseType)
+                        return true;
+                    type = type.BaseType;
+                }
+                return false;
             }
-            return false;
         }
     }
     public static class TimeSpanExtension {
+        private static readonly object _lock = new object();
+
         public static string ToLongFormattedString(this TimeSpan timeSpan) {
-            StringBuilder sb = new StringBuilder();
-            if (timeSpan.Days != 0) {
-                sb.Append(timeSpan.Days);
-                sb.Append(" days");
+            lock (_lock) {
+                StringBuilder sb = new StringBuilder();
+                if (timeSpan.Days != 0) {
+                    sb.Append(timeSpan.Days);
+                    sb.Append(" days");
+                }
+                if (timeSpan.Hours != 0) {
+                    if (sb.ToString().Length != 0)
+                        sb.Append(", ");
+                    sb.Append(timeSpan.Hours);
+                    sb.Append(" hours");
+                }
+                if (timeSpan.Minutes != 0) {
+                    if (sb.ToString().Length != 0)
+                        sb.Append(", ");
+                    sb.Append(timeSpan.Minutes);
+                    sb.Append(" minutes");
+                }
+                if (timeSpan.Seconds != 0) {
+                    if (sb.ToString().Length != 0)
+                        sb.Append(", ");
+                    sb.Append(timeSpan.Seconds);
+                    sb.Append(" seconds");
+                }
+                if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
+                    if (sb.ToString().Length != 0)
+                        sb.Append(", ");
+                    sb.Append(timeSpan.Milliseconds);
+                    sb.Append(" milliseconds");
+                }
+                return sb.ToString();
             }
-            if (timeSpan.Hours != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
-                sb.Append(timeSpan.Hours);
-                sb.Append(" hours");
-            }
-            if (timeSpan.Minutes != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
-                sb.Append(timeSpan.Minutes);
-                sb.Append(" minutes");
-            }
-            if (timeSpan.Seconds != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
-                sb.Append(timeSpan.Seconds);
-                sb.Append(" seconds");
-            }
-            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
-                sb.Append(timeSpan.Milliseconds);
-                sb.Append(" milliseconds");
-            }
-            return sb.ToString();
         }
         public static string ToShortFormattedString(this TimeSpan timeSpan) {
-            StringBuilder sb = new StringBuilder();
-            if (timeSpan.Days != 0) {
-                sb.Append(timeSpan.Days);
-                sb.Append(" d");
+            lock (_lock) {
+                StringBuilder sb = new StringBuilder();
+                if (timeSpan.Days != 0) {
+                    sb.Append(timeSpan.Days);
+                    sb.Append(" d");
+                }
+                if (timeSpan.Hours != 0) {
+                    if (sb.ToString().Length != 0)
+                        sb.Append(", ");
+                    sb.Append(timeSpan.Hours);
+                    sb.Append(" h");
+                }
+                if (timeSpan.Minutes != 0) {
+                    if (sb.ToString().Length != 0)
+                        sb.Append(", ");
+                    sb.Append(timeSpan.Minutes);
+                    sb.Append(" m");
+                }
+                if (timeSpan.Seconds != 0) {
+                    if (sb.ToString().Length != 0)
+                        sb.Append(", ");
+                    sb.Append(timeSpan.Seconds);
+                    sb.Append(" s");
+                }
+                if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
+                    if (sb.ToString().Length != 0)
+                        sb.Append(", ");
+                    sb.Append(timeSpan.Milliseconds);
+                    sb.Append(" ms");
+                }
+                return sb.ToString();
             }
-            if (timeSpan.Hours != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
-                sb.Append(timeSpan.Hours);
-                sb.Append(" h");
-            }
-            if (timeSpan.Minutes != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
-                sb.Append(timeSpan.Minutes);
-                sb.Append(" m");
-            }
-            if (timeSpan.Seconds != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
-                sb.Append(timeSpan.Seconds);
-                sb.Append(" s");
-            }
-            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
-                sb.Append(timeSpan.Milliseconds);
-                sb.Append(" ms");
-            }
-            return sb.ToString();
         }
     }
     public static class StringExtension {
+        private static readonly object _lock = new object();
+
         public static bool ContainsChars(this string s, params char[] values) {
-            foreach (var value in values)
-                if (!s.Contains(value))
-                    return false;
-            return true;
+            lock (_lock) {
+                foreach (var value in values)
+                    if (!s.Contains(value))
+                        return false;
+                return true;
+            }
         }
         public static string RemoveChars(this string s, params char[] values) {
-            StringBuilder sb = new StringBuilder();
-            foreach (char c in s)
-                if (!values.Contains(c))
-                    sb.Append(c);
-            return sb.ToString();
+            lock (_lock) {
+                StringBuilder sb = new StringBuilder();
+                foreach (char c in s)
+                    if (!values.Contains(c))
+                        sb.Append(c);
+                return sb.ToString();
+            }
         }
         public static bool ContainsStrings(this string s, params string[] values) {
-            foreach (var value in values)
-                if (!s.Contains(value))
-                    return false;
-            return true;
+            lock (_lock) {
+                foreach (var value in values)
+                    if (!s.Contains(value))
+                        return false;
+                return true;
+            }
         }
 
         /// <summary>
@@ -143,12 +163,14 @@ namespace vApus.Util {
         /// <param name="s"></param>
         /// <returns></returns>
         public static bool IsValidWindowsFilenameString(this string s) {
-            if (s == null || s.Length == 0)
-                return false;
-            foreach (char c in s)
-                if (!c.IsValidWindowsFilenameChar())
+            lock (_lock) {
+                if (s == null || s.Length == 0)
                     return false;
-            return true;
+                foreach (char c in s)
+                    if (!c.IsValidWindowsFilenameChar())
+                        return false;
+                return true;
+            }
         }
         /// <summary>
         /// Replaces \,*,/,:,<,>,?,\ and | with the given character in a new string.
@@ -157,24 +179,28 @@ namespace vApus.Util {
         /// <param name="newChar"></param>
         /// <returns></returns>
         public static string ReplaceInvalidWindowsFilenameChars(this string s, char newChar) {
-            StringBuilder sb = new StringBuilder(s.Length);
-            if (s == null)
-                throw new ArgumentNullException("s");
-            foreach (char c in s)
-                if (c.IsValidWindowsFilenameChar())
-                    sb.Append(c);
-                else
-                    sb.Append(newChar);
-            return sb.ToString();
+            lock (_lock) {
+                StringBuilder sb = new StringBuilder(s.Length);
+                if (s == null)
+                    throw new ArgumentNullException("s");
+                foreach (char c in s)
+                    if (c.IsValidWindowsFilenameChar())
+                        sb.Append(c);
+                    else
+                        sb.Append(newChar);
+                return sb.ToString();
+            }
         }
         /// <summary>
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
         public static bool IsNumeric(this string s) {
-            ulong ul;
-            double d;
-            return ulong.TryParse(s, out ul) || double.TryParse(s, out d);
+            lock (_lock) {
+                ulong ul;
+                double d;
+                return ulong.TryParse(s, out ul) || double.TryParse(s, out d);
+            }
         }
         /// <summary>
         /// A simple way to encrypt a string.
@@ -185,9 +211,11 @@ namespace vApus.Util {
         /// <param name="salt"></param>
         /// <returns>The encrypted string.</returns>
         public static string Encrypt(this string s, string password, byte[] salt) {
-            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
-            byte[] encrypted = Encrypt(System.Text.Encoding.Unicode.GetBytes(s), pdb.GetBytes(32), pdb.GetBytes(16));
-            return Convert.ToBase64String(encrypted);
+            lock (_lock) {
+                PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
+                byte[] encrypted = Encrypt(System.Text.Encoding.Unicode.GetBytes(s), pdb.GetBytes(32), pdb.GetBytes(16));
+                return Convert.ToBase64String(encrypted);
+            }
         }
         private static byte[] Encrypt(byte[] toEncrypt, byte[] key, byte[] IV) {
             MemoryStream ms = new MemoryStream();
@@ -208,9 +236,11 @@ namespace vApus.Util {
         /// <param name="salt"></param>
         /// <returns>The decrypted string.</returns>
         public static string Decrypt(this string s, string password, byte[] salt) {
-            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
-            byte[] decrypted = Decrypt(Convert.FromBase64String(s), pdb.GetBytes(32), pdb.GetBytes(16));
-            return System.Text.Encoding.Unicode.GetString(decrypted);
+            lock (_lock) {
+                PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
+                byte[] decrypted = Decrypt(Convert.FromBase64String(s), pdb.GetBytes(32), pdb.GetBytes(16));
+                return System.Text.Encoding.Unicode.GetString(decrypted);
+            }
         }
         private static byte[] Decrypt(byte[] toDecrypt, byte[] Key, byte[] IV) {
             MemoryStream ms = new MemoryStream();
@@ -226,73 +256,86 @@ namespace vApus.Util {
         }
 
         public static ListViewItem Parse(this string s, char delimiter) {
-            ListViewItem item = new ListViewItem();
-            string[] split = s.Split(delimiter);
-            item.Text = split[0];
-            for (int i = 1; i < split.Length; i++)
-                item.SubItems.Add(split[i]);
-            return item;
+            lock (_lock) {
+                ListViewItem item = new ListViewItem();
+                string[] split = s.Split(delimiter);
+                item.Text = split[0];
+                for (int i = 1; i < split.Length; i++)
+                    item.SubItems.Add(split[i]);
+                return item;
+            }
         }
 
         public static string Reverse(this string s) {
-            StringBuilder sb = new StringBuilder(s.Length); ;
-            for (int i = s.Length - 1; i != -1; i--)
-                sb.Append(s[i]);
+            lock (_lock) {
+                StringBuilder sb = new StringBuilder(s.Length); ;
+                for (int i = s.Length - 1; i != -1; i--)
+                    sb.Append(s[i]);
 
-            return sb.ToString();
+                return sb.ToString();
+            }
         }
 
         public static object ToByteArrayToObject(this string s, string separator = ",") {
-            string[] split = s.Split(new string[] { separator }, StringSplitOptions.None);
-            byte[] buffer = new byte[split.Length];
-            for (int i = 0; i != split.Length; i++)
-                buffer[i] = byte.Parse(split[i]);
+            lock (_lock) {
+                string[] split = s.Split(new string[] { separator }, StringSplitOptions.None);
+                byte[] buffer = new byte[split.Length];
+                for (int i = 0; i != split.Length; i++)
+                    buffer[i] = byte.Parse(split[i]);
 
-            object o = null;
-            using (var ms = new MemoryStream(buffer)) {
-                BinaryFormatter bf = new BinaryFormatter();
-                o = bf.UnsafeDeserialize(ms, null);
-                bf = null;
+                object o = null;
+                using (var ms = new MemoryStream(buffer)) {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    o = bf.UnsafeDeserialize(ms, null);
+                    bf = null;
+                }
+                buffer = null;
+
+                return o;
             }
-            buffer = null;
-
-            return o;
         }
     }
     public static class CharExtension {
+        private static readonly object _lock = new object();
         /// <summary>
         /// Determines if the char is or is not \,*,/,:,<,>,?,\ or |.
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
         public static bool IsValidWindowsFilenameChar(this char c) {
-            switch ((int)c) {
-                case 34:  // '\"'
-                case 42:  // '*'
-                case 47:  // '/'
-                case 58:  // ':'
-                case 60:  // '<'
-                case 62:  // '>'
-                case 63:  // '?'
-                case 92:  // '\\'
-                case 124: // '|'
-                    return false;
+            lock (_lock) {
+                switch ((int)c) {
+                    case 34:  // '\"'
+                    case 42:  // '*'
+                    case 47:  // '/'
+                    case 58:  // ':'
+                    case 60:  // '<'
+                    case 62:  // '>'
+                    case 63:  // '?'
+                    case 92:  // '\\'
+                    case 124: // '|'
+                        return false;
+                }
+                return true;
             }
-            return true;
         }
         /// <summary></summary>
         /// <param name="c"></param>
         /// <returns></returns>
         public static bool IsLetter(this char c) {
-            int i = (int)c;
-            return ((i > 64 && i < 91) || (i > 96 && i < 123));
+            lock (_lock) {
+                int i = (int)c;
+                return ((i > 64 && i < 91) || (i > 96 && i < 123));
+            }
         }
         /// <summary></summary>
         /// <param name="c"></param>
         /// <returns></returns>
         public static bool IsDigit(this char c) {
-            int i = (int)c;
-            return (i > 47 && i < 58);
+            lock (_lock) {
+                int i = (int)c;
+                return (i > 47 && i < 58);
+            }
         }
     }
     public static class ObjectExtension {
@@ -476,14 +519,18 @@ namespace vApus.Util {
         }
     }
     public static class DataGridViewExtension {
+        private static readonly object _lock = new object();
         public static void DoubleBuffered(this DataGridView dgv, bool doubleBuffered) {
-            Type dgvType = dgv.GetType();
-            PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            pi.SetValue(dgv, doubleBuffered, null);
+            lock (_lock) {
+                Type dgvType = dgv.GetType();
+                PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                pi.SetValue(dgv, doubleBuffered, null);
+            }
         }
     }
     public static class DataGridViewRowExtension {
+        private static readonly object _lock = new object();
         /// <summary>
         /// To CSV for example.
         /// </summary>
@@ -491,19 +538,22 @@ namespace vApus.Util {
         /// <param name="separator"></param>
         /// <returns></returns>
         public static string ToSV(this DataGridViewRow row, string separator) {
-            if (row.Cells.Count == 0) return string.Empty;
-            if (row.Cells.Count == 1) return row.Cells[0].Value.ToString();
+            lock (_lock) {
+                if (row.Cells.Count == 0) return string.Empty;
+                if (row.Cells.Count == 1) return row.Cells[0].Value.ToString();
 
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i != row.Cells.Count - 1; i++) {
-                sb.Append(row.Cells[i].Value);
-                sb.Append(separator);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i != row.Cells.Count - 1; i++) {
+                    sb.Append(row.Cells[i].Value);
+                    sb.Append(separator);
+                }
+                sb.Append(row.Cells[row.Cells.Count - 1].Value);
+                return sb.ToString();
             }
-            sb.Append(row.Cells[row.Cells.Count - 1].Value);
-            return sb.ToString();
         }
     }
     public static class ArrayExtension {
+        private static readonly object _lock = new object();
         /// <summary>
         /// Combine a one-dimensional array.
         /// </summary>
@@ -511,21 +561,23 @@ namespace vApus.Util {
         /// <param name="separator"></param>
         /// <returns></returns>
         public static string Combine(this Array array, string separator, params object[] exclude) {
-            if (array.Length == 0) return string.Empty;
+            lock (_lock) {
+                if (array.Length == 0) return string.Empty;
 
-            var sb = new StringBuilder();
-            object value;
-            for (int i = 0; i != array.Length - 1; i++) {
-                value = array.GetValue(i);
-                if (exclude == null || !exclude.Contains(value)) {
-                    sb.Append(value);
-                    sb.Append(separator);
+                var sb = new StringBuilder();
+                object value;
+                for (int i = 0; i != array.Length - 1; i++) {
+                    value = array.GetValue(i);
+                    if (exclude == null || !exclude.Contains(value)) {
+                        sb.Append(value);
+                        sb.Append(separator);
+                    }
                 }
-            }
-            value = array.GetValue(array.Length - 1);
-            if (exclude == null || !exclude.Contains(value)) sb.Append(value);
+                value = array.GetValue(array.Length - 1);
+                if (exclude == null || !exclude.Contains(value)) sb.Append(value);
 
-            return sb.ToString();
+                return sb.ToString();
+            }
         }
     }
     public static class ConcurrentBagExtension {
@@ -548,16 +600,22 @@ namespace vApus.Util {
         }
     }
     public static class ListExtension {
+        private static readonly object _lock = new object();
         public static void AddRange<T>(this List<T> list, T item1, params T[] items) {
-            list.Add(item1);
-            foreach (T item in items) list.Add(item);
+            lock (_lock) {
+                list.Add(item1);
+                foreach (T item in items) list.Add(item);
+            }
         }
     }
     public static class DataColumnCollectionExtension {
+        private static readonly object _lock = new object();
         public static void AddRange(this DataColumnCollection dataColumnCollection, string column1, params string[] columns) {
-            dataColumnCollection.Add(column1);
-            foreach (string column in columns)
-                dataColumnCollection.Add(column);
+            lock (_lock) {
+                dataColumnCollection.Add(column1);
+                foreach (string column in columns)
+                    dataColumnCollection.Add(column);
+            }
         }
     }
 }

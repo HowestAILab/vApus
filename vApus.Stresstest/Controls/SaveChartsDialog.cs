@@ -45,8 +45,11 @@ namespace vApus.Stresstest {
                 btnSaveCharts.Text = "Saving, can take a while...";
                 ulong selectedIndex = (ulong)cboStresstest.SelectedIndex;
 
+                var cultureInfo = Thread.CurrentThread.CurrentCulture;
                 await Task.Run(() => {
                     try {
+                        Thread.CurrentThread.CurrentCulture = cultureInfo;
+
                         var doc = new SLDocument();
 
                         //Make different sheets per test.
@@ -310,7 +313,7 @@ namespace vApus.Stresstest {
             ////Set the titles
             //chart.Title.SetTitle(stresstest + " - " + monitor);
             //chart.ShowChartTitle(false);
-            
+
             //chart.PrimaryTextAxis.Title.SetTitle("Timestamp");
             //chart.PrimaryTextAxis.ShowTitle = true;
             ////chart.PrimaryValueAxis.Title.SetTitle("Cummulative Response Time (ms)");

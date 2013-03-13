@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -39,14 +40,6 @@ namespace vApus.Stresstest {
         public DetailedResultsControl() {
             InitializeComponent();
 
-            this.VisibleChanged += DetailedResultsControl_VisibleChanged;
-        }
-
-        private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
-            this.VisibleChanged -= DetailedResultsControl_VisibleChanged;
-
-            SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
-
             //Double buffer the datagridview.
             (dgvDetailedResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvDetailedResults, true);
 
@@ -55,6 +48,14 @@ namespace vApus.Stresstest {
             cboShow.SelectedIndex = 0;
 
             _tmr.Elapsed += _tmr_Elapsed;
+
+            this.VisibleChanged += DetailedResultsControl_VisibleChanged;
+        }
+
+        private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
+            dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            SizeColumns();
         }
 
         private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
@@ -150,12 +151,21 @@ namespace vApus.Stresstest {
                 flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
                 lblLoading.Visible = true;
 
+                int retry = 0;
+            Retry:
                 if (_resultsHelper != null) {
                     DataTable dt = null;
-                    try { dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token), _cancellationTokenSource.Token); } catch { }
+                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
+                    try {
+                        dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token, cultureInfo), _cancellationTokenSource.Token);
+                    } catch {
+                    }
 
                     //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview.
-                    if (dt != null) {
+                    if (dt == null) {
+                        if (retry++ < 2)
+                            goto Retry;
+                    } else {
                         dgvDetailedResults.DataSource = dt;
                     }
                 }
@@ -167,8 +177,9 @@ namespace vApus.Stresstest {
                 dgvDetailedResults.Select();
             }
         }
-        private DataTable GetDataSource(CancellationToken cancellationToken) {
-            if (!cancellationToken.IsCancellationRequested)
+        private DataTable GetDataSource(CancellationToken cancellationToken, CultureInfo cultureInfo) {
+            if (!cancellationToken.IsCancellationRequested) {
+                Thread.CurrentThread.CurrentCulture = cultureInfo;
                 switch (_currentSelectedIndex) {
                     case 0: return _resultsHelper.GetAverageConcurrentUsers(cancellationToken, _stresstestIds);
                     case 1: return _resultsHelper.GetAverageUserActions(cancellationToken, _stresstestIds);
@@ -179,7 +190,7 @@ namespace vApus.Stresstest {
                     case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
                     case 7: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
                 }
-
+            }
             return null;
         }
 
@@ -187,14 +198,19 @@ namespace vApus.Stresstest {
             flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
 
             dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            var cultureInfo = Thread.CurrentThread.CurrentCulture;
             try {
-                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => _resultsHelper.ExecuteQuery(codeTextBox.Text), _cancellationTokenSource.Token);
+                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => ExecuteQuery(codeTextBox.Text, cultureInfo), _cancellationTokenSource.Token);
             } catch { }
 
             SizeColumns();
 
             lblLoading.Visible = false;
             flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
+        }
+        private DataTable ExecuteQuery(string query, CultureInfo cultureInfo) {
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+            return _resultsHelper.ExecuteQuery(query);
         }
         private void SizeColumns() {
             if (_tmr != null) {
