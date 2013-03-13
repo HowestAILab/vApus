@@ -33,8 +33,19 @@ namespace vApus.Stresstest {
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
+        private System.Timers.Timer _tmr = new System.Timers.Timer(500);
+        private readonly object _lock = new object();
+
         public DetailedResultsControl() {
             InitializeComponent();
+
+            this.VisibleChanged += DetailedResultsControl_VisibleChanged;
+        }
+
+        private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
+            this.VisibleChanged -= DetailedResultsControl_VisibleChanged;
+
+            SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
 
             //Double buffer the datagridview.
             (dgvDetailedResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvDetailedResults, true);
@@ -42,6 +53,8 @@ namespace vApus.Stresstest {
             btnCollapseExpand.PerformClick();
             chkAdvanced.Checked = false;
             cboShow.SelectedIndex = 0;
+
+            _tmr.Elapsed += _tmr_Elapsed;
         }
 
         private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
@@ -132,6 +145,7 @@ namespace vApus.Stresstest {
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 dgvDetailedResults.DataSource = null;
+                dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
                 flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
                 lblLoading.Visible = true;
@@ -141,8 +155,12 @@ namespace vApus.Stresstest {
                     try { dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token), _cancellationTokenSource.Token); } catch { }
 
                     //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview.
-                    if (dt != null) dgvDetailedResults.DataSource = dt;
+                    if (dt != null) {
+                        dgvDetailedResults.DataSource = dt;
+                    }
                 }
+
+                SizeColumns();
 
                 lblLoading.Visible = false;
                 flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
@@ -168,12 +186,37 @@ namespace vApus.Stresstest {
         async private void btnExecute_Click(object sender, EventArgs e) {
             flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
 
-            try { dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => _resultsHelper.ExecuteQuery(codeTextBox.Text), _cancellationTokenSource.Token); } catch { }
+            dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            try {
+                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => _resultsHelper.ExecuteQuery(codeTextBox.Text), _cancellationTokenSource.Token);
+            } catch { }
+
+            SizeColumns();
 
             lblLoading.Visible = false;
             flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
         }
-
+        private void SizeColumns() {
+            if (_tmr != null) {
+                _tmr.Stop();
+                _tmr.Start();
+            }
+        }
+        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            lock (_lock) {
+                _tmr.Stop();
+                SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
+                    int[] widths = new int[dgvDetailedResults.ColumnCount];
+                    for (int i = 0; i != widths.Length; i++) {
+                        int width = dgvDetailedResults.Columns[i].Width;
+                        widths[i] = width > 500 ? 500 : width;
+                    }
+                    dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                    for (int i = 0; i != widths.Length; i++)
+                        dgvDetailedResults.Columns[i].Width = widths[i];
+                }, null);
+            }
+        }
         /// <summary>
         /// Clear before testing.
         /// </summary>

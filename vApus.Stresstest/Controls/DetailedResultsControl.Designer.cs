@@ -43,7 +43,6 @@
             this.splitQueryData = new System.Windows.Forms.SplitContainer();
             this.pnlBorderExecute = new System.Windows.Forms.Panel();
             this.btnExecute = new System.Windows.Forms.Button();
-            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             this.dgvDetailedResults = new System.Windows.Forms.DataGridView();
             this.flpDetailedMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -58,6 +57,7 @@
             this.lblLoading = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -328,27 +328,6 @@
             this.btnExecute.UseVisualStyleBackColor = false;
             this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
             // 
-            // codeTextBox
-            // 
-            this.codeTextBox.AllowDrop = true;
-            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
-            this.codeTextBox.BackBrush = null;
-            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.codeTextBox.IsReplaceMode = false;
-            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
-            this.codeTextBox.Name = "codeTextBox";
-            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
-            this.codeTextBox.PreferredLineWidth = 65536;
-            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
-            this.codeTextBox.TabIndex = 0;
-            this.codeTextBox.WordWrap = true;
-            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
-            // 
             // dgvDetailedResults
             // 
             this.dgvDetailedResults.AllowUserToAddRows = false;
@@ -542,6 +521,27 @@
             this.label1.Size = new System.Drawing.Size(126, 20);
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed Results";
+            // 
+            // codeTextBox
+            // 
+            this.codeTextBox.AllowDrop = true;
+            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.codeTextBox.BackBrush = null;
+            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.codeTextBox.IsReplaceMode = false;
+            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
+            this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
+            this.codeTextBox.PreferredLineWidth = 65536;
+            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
+            this.codeTextBox.TabIndex = 0;
+            this.codeTextBox.WordWrap = true;
+            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
             // 
             // DetailedResultsControl
             // 
