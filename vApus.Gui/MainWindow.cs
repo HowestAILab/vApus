@@ -182,7 +182,7 @@ namespace vApus.Gui {
                     process.StartInfo = new ProcessStartInfo(path,
                                                              "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " +
                                                              port + " " + username + " " + password + " " + channel +
-                                                             " " + false);
+                                                             " " + false + " " + false);
 
                     launchedNewUpdater = process.Start();
                     if (launchedNewUpdater)

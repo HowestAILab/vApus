@@ -110,7 +110,7 @@ namespace vApus.JumpStart {
                         process.EnableRaisingEvents = true;
                         process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + smartUpdateMessage.Host + " " +
                                                                  smartUpdateMessage.Port + " " + smartUpdateMessage.Username + " " + smartUpdateMessage.Password + " " + smartUpdateMessage.Channel +
-                                                                 " " + false);
+                                                                 " " + false + " " + true);
 
                         process.Start();
                         process.WaitForExit();

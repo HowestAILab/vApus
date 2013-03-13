@@ -63,6 +63,7 @@ namespace vApus.Util {
         }
 
         private void _KeyUp(object sender, KeyEventArgs e) { SetEnabled(); }
+        private void chkSmartUpdate_CheckedChanged(object sender, EventArgs e) { SetEnabled(); }
 
         private void SetEnabled() {
             if (txtHost.Text.Length != 0 &&
@@ -75,7 +76,7 @@ namespace vApus.Util {
                 pnlRefresh.Enabled = btnForceUpdate.Enabled = true;
                 btnSet.Enabled = (txtHost.Text != host || nudPort.Value != port ||
                                   txtUsername.Text != username || txtPassword.Text != password ||
-                                  cboChannel.SelectedIndex != channel);
+                                  cboChannel.SelectedIndex != channel || chkSmartUpdate.Checked != smartUpdate);
             } else {
                 pnlRefresh.Enabled = btnForceUpdate.Enabled = false;
                 btnSet.Enabled = false;
@@ -137,10 +138,8 @@ namespace vApus.Util {
                 var process = new Process();
                 process.EnableRaisingEvents = true;
                 var port = (int)nudPort.Value;
-                process.StartInfo = new ProcessStartInfo(path,
-                                                         "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " +
-                                                         port + " " + txtUsername.Text + " " + txtPassword.Text + " " +
-                                                         cboChannel.SelectedIndex + " " + forceUpdate);
+                process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " + port + " " +
+                    txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + forceUpdate + " " + false);
 
                 Enabled = false;
 

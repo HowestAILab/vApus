@@ -54,9 +54,9 @@
             this.label9 = new System.Windows.Forms.Label();
             this.pnlBorderChannel = new System.Windows.Forms.Panel();
             this.cboChannel = new System.Windows.Forms.ComboBox();
+            this.chkSmartUpdate = new System.Windows.Forms.CheckBox();
             this.btnForceUpdate = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chkSmartUpdate = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.pnlRefresh.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pic)).BeginInit();
@@ -369,6 +369,20 @@
             this.cboChannel.TabIndex = 0;
             this.cboChannel.SelectedIndexChanged += new System.EventHandler(this.cboChannel_SelectedIndexChanged);
             // 
+            // chkSmartUpdate
+            // 
+            this.chkSmartUpdate.AutoSize = true;
+            this.chkSmartUpdate.Location = new System.Drawing.Point(167, 68);
+            this.chkSmartUpdate.Name = "chkSmartUpdate";
+            this.chkSmartUpdate.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.chkSmartUpdate.Size = new System.Drawing.Size(126, 23);
+            this.chkSmartUpdate.TabIndex = 5;
+            this.chkSmartUpdate.Text = "Smart Update Slaves";
+            this.toolTip.SetToolTip(this.chkSmartUpdate, "Enabling this will update the master and the slaves when starting a distributed t" +
+        "est, if the filled in credentials are correct.");
+            this.chkSmartUpdate.UseVisualStyleBackColor = true;
+            this.chkSmartUpdate.CheckedChanged += new System.EventHandler(this.chkSmartUpdate_CheckedChanged);
+            // 
             // btnForceUpdate
             // 
             this.btnForceUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -387,18 +401,6 @@
             this.toolTip.SetToolTip(this.btnForceUpdate, "Update all files regardless if they need to be updated.");
             this.btnForceUpdate.UseVisualStyleBackColor = false;
             this.btnForceUpdate.Click += new System.EventHandler(this.btnUpdateManually_Click);
-            // 
-            // chkSmartUpdate
-            // 
-            this.chkSmartUpdate.AutoSize = true;
-            this.chkSmartUpdate.Location = new System.Drawing.Point(167, 68);
-            this.chkSmartUpdate.Name = "chkSmartUpdate";
-            this.chkSmartUpdate.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.chkSmartUpdate.Size = new System.Drawing.Size(126, 23);
-            this.chkSmartUpdate.TabIndex = 5;
-            this.chkSmartUpdate.Text = "Smart Update Slaves";
-            this.toolTip.SetToolTip(this.chkSmartUpdate, "Enabling this will update the master and the slaves when starting a distributed test, if the filled in credentials are correct.");
-            this.chkSmartUpdate.UseVisualStyleBackColor = true;
             // 
             // UpdateNotifierPanel
             // 

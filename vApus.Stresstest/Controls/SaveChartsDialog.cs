@@ -270,7 +270,7 @@ namespace vApus.Stresstest {
             for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++)
                 doc.SetCellValue(1, clmIndex + 1, dt.Columns[clmIndex].ColumnName);
 
-            string monitor = null;
+            //string monitor = null;
             for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
                 var row = dt.Rows[rowIndex].ItemArray;
                 for (int clmIndex = 0; clmIndex != row.Length; clmIndex++) {
@@ -285,8 +285,8 @@ namespace vApus.Stresstest {
                         else {
                             doc.SetCellValue(rowInSheet, clmInSheet, s);
 
-                            if (clmInSheet == 2 && monitor == null)
-                                monitor = s;
+                            //if (clmInSheet == 2 && monitor == null)
+                            //    monitor = s;
                         }
                     } else if (value is int) {
                         doc.SetCellValue(rowInSheet, clmInSheet, (int)value);
