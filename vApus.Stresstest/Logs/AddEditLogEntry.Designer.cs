@@ -112,7 +112,9 @@
             // 
             // cboParameterScope
             // 
+            this.cboParameterScope.BackColor = System.Drawing.Color.White;
             this.cboParameterScope.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboParameterScope.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cboParameterScope.FormattingEnabled = true;
             this.cboParameterScope.Items.AddRange(new object[] {
             "<All>",
@@ -148,25 +150,30 @@
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Enabled = false;
+            this.btnOK.BackColor = System.Drawing.Color.White;
+            this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOK.Location = new System.Drawing.Point(187, 697);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 2;
             this.btnOK.Text = "OK";
-            this.btnOK.UseVisualStyleBackColor = true;
+            this.btnOK.UseVisualStyleBackColor = false;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.BackColor = System.Drawing.Color.White;
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCancel.Location = new System.Drawing.Point(268, 697);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
             this.btnCancel.Text = "Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.UseVisualStyleBackColor = false;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // chkVisualizeWhitespace
@@ -245,12 +252,18 @@
             // 
             // fastColoredTextBoxEdit
             // 
-            this.fastColoredTextBoxEdit.AutoScrollMinSize = new System.Drawing.Size(0, 15);
+            this.fastColoredTextBoxEdit.AllowDrop = true;
+            this.fastColoredTextBoxEdit.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.fastColoredTextBoxEdit.BackBrush = null;
             this.fastColoredTextBoxEdit.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.fastColoredTextBoxEdit.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fastColoredTextBoxEdit.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastColoredTextBoxEdit.IsReplaceMode = false;
             this.fastColoredTextBoxEdit.Location = new System.Drawing.Point(3, 3);
             this.fastColoredTextBoxEdit.Name = "fastColoredTextBoxEdit";
+            this.fastColoredTextBoxEdit.Paddings = new System.Windows.Forms.Padding(0);
             this.fastColoredTextBoxEdit.PreferredLineWidth = 65536;
+            this.fastColoredTextBoxEdit.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
             this.fastColoredTextBoxEdit.ShowLineNumbers = false;
             this.fastColoredTextBoxEdit.Size = new System.Drawing.Size(630, 120);
             this.fastColoredTextBoxEdit.TabIndex = 0;
@@ -270,14 +283,20 @@
             // 
             // fastColoredTextBoxAsImported
             // 
+            this.fastColoredTextBoxAsImported.AllowDrop = true;
             this.fastColoredTextBoxAsImported.AutoScrollMinSize = new System.Drawing.Size(0, 15);
+            this.fastColoredTextBoxAsImported.BackBrush = null;
             this.fastColoredTextBoxAsImported.BackColor = System.Drawing.SystemColors.Info;
             this.fastColoredTextBoxAsImported.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.fastColoredTextBoxAsImported.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fastColoredTextBoxAsImported.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastColoredTextBoxAsImported.IsReplaceMode = false;
             this.fastColoredTextBoxAsImported.Location = new System.Drawing.Point(3, 3);
             this.fastColoredTextBoxAsImported.Name = "fastColoredTextBoxAsImported";
+            this.fastColoredTextBoxAsImported.Paddings = new System.Windows.Forms.Padding(0);
             this.fastColoredTextBoxAsImported.PreferredLineWidth = 65536;
             this.fastColoredTextBoxAsImported.ReadOnly = true;
+            this.fastColoredTextBoxAsImported.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
             this.fastColoredTextBoxAsImported.ShowLineNumbers = false;
             this.fastColoredTextBoxAsImported.Size = new System.Drawing.Size(630, 120);
             this.fastColoredTextBoxAsImported.TabIndex = 1;

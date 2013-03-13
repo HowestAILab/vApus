@@ -165,8 +165,7 @@ namespace vApus.Stresstest {
             if (_parameters == null && Solution.ActiveSolution != null)
                 try {
                     _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-                }
-                catch {
+                } catch {
                 }
 
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
@@ -200,8 +199,7 @@ namespace vApus.Stresstest {
 
             if (LogRuleSet == null) {
                 _lexicalResult = LexicalResult.Error;
-            }
-            else {
+            } else {
                 _lexicalResult = LogRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
                 _logEntryString = _lexedLogEntry.CombineValues();
             }

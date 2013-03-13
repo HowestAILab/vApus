@@ -78,7 +78,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Visualizez a log entry.
+        ///     Visualizes a log entry.
         /// </summary>
         public LogEntryControl(LogEntry logEntry) {
             InitializeComponent();

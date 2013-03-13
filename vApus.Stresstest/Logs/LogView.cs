@@ -19,10 +19,8 @@ using vApus.SolutionTree;
 using vApus.Stresstest.Properties;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class LogView : BaseSolutionComponentView
-    {
+namespace vApus.Stresstest {
+    public partial class LogView : BaseSolutionComponentView {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -37,14 +35,12 @@ namespace vApus.Stresstest
 
         #region Constructors
 
-        public LogView()
-        {
+        public LogView() {
             InitializeComponent();
         }
 
         public LogView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args)
-        {
+            : base(solutionComponent, args) {
             InitializeComponent();
             _log = solutionComponent as Log;
             if (IsHandleCreated)
@@ -57,46 +53,36 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        private void LogView_HandleCreated(object sender, EventArgs e)
-        {
+        private void LogView_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= LogView_HandleCreated;
             Init();
             _log.LogRuleSet.LogRuleSetChanged += LogRuleSet_LogRuleSetChanged;
         }
 
-        private void Init()
-        {
+        private void Init() {
             SetGui();
             FillLargeList();
         }
 
-        private void LogRuleSet_LogRuleSetChanged(object sender, EventArgs e)
-        {
-            if (_log != null && IsHandleCreated)
-            {
+        private void LogRuleSet_LogRuleSetChanged(object sender, EventArgs e) {
+            if (_log != null && IsHandleCreated) {
                 ApplyLogRuleSet(_log);
                 ValidateSelectedControls();
                 SetCollapseUncollapseButton();
             }
         }
 
-        private void chk_CheckStateChanged(object sender, EventArgs e)
-        {
-            if (chk.CheckState == CheckState.Checked)
-            {
+        private void chk_CheckStateChanged(object sender, EventArgs e) {
+            if (chk.CheckState == CheckState.Checked) {
                 largelist.SelectAll();
-                foreach (Control control in largelist.Selection)
-                {
+                foreach (Control control in largelist.Selection) {
                     var logChildControlBase = control as LogChildControlBase;
                     logChildControlBase.CheckedChanged -= logChildControlBase_CheckedChanged;
                     logChildControlBase.Checked = true;
                     logChildControlBase.CheckedChanged += logChildControlBase_CheckedChanged;
                 }
-            }
-            else if (chk.CheckState == CheckState.Unchecked)
-            {
-                foreach (Control control in largelist.Selection)
-                {
+            } else if (chk.CheckState == CheckState.Unchecked) {
+                foreach (Control control in largelist.Selection) {
                     var logChildControlBase = control as LogChildControlBase;
                     logChildControlBase.CheckedChanged -= logChildControlBase_CheckedChanged;
                     logChildControlBase.Checked = false;
@@ -112,16 +98,12 @@ namespace vApus.Stresstest
         ///     Get the count of all log entries, useractions and the log entries in the user actions in the selection.
         /// </summary>
         /// <returns></returns>
-        private int GetSelectionDeepCount()
-        {
+        private int GetSelectionDeepCount() {
             int count = 0;
             foreach (Control ctrl in largelist.Selection)
-                if (ctrl is UserActionControl)
-                {
+                if (ctrl is UserActionControl) {
                     count += 1 + (ctrl as UserActionControl).LogEntryControls.Count;
-                }
-                else
-                {
+                } else {
                     var lec = ctrl as LogEntryControl;
                     UserActionControl uac = lec.UserActionControl;
                     if (uac == null || uac.CheckState != CheckState.Checked)
@@ -134,11 +116,9 @@ namespace vApus.Stresstest
         ///     Get the count of all log entries, useractions and the log entries in the user actions.
         /// </summary>
         /// <returns></returns>
-        private int GetDeepCount()
-        {
+        private int GetDeepCount() {
             int count = 0;
-            if (_log != null)
-            {
+            if (_log != null) {
                 count = _log.Count;
                 foreach (BaseItem item in _log)
                     if (item is UserAction)
@@ -147,14 +127,12 @@ namespace vApus.Stresstest
             return count;
         }
 
-        private void logChildControlBase_CheckedChanged(object sender, EventArgs e)
-        {
+        private void logChildControlBase_CheckedChanged(object sender, EventArgs e) {
             largelist.Select((sender as LogChildControlBase), Hotkeys.Ctrl);
             ValidateSelectedControls();
         }
 
-        private void logEntryControl_Removed(object sender, EventArgs e)
-        {
+        private void logEntryControl_Removed(object sender, EventArgs e) {
             var logEntryControl = sender as LogEntryControl;
             if (logEntryControl.UserActionControl != null)
                 logEntryControl.UserActionControl.LogEntryControls.Remove(logEntryControl);
@@ -163,33 +141,27 @@ namespace vApus.Stresstest
             ApplyChanges();
         }
 
-        public override void Refresh()
-        {
+        public override void Refresh() {
             base.Refresh();
             SetGui();
             logSolutionComponentPropertyPanel.Refresh();
         }
 
-        private void SetGui()
-        {
+        private void SetGui() {
             logSolutionComponentPropertyPanel.SolutionComponent = SolutionComponent;
 
-            if (_log.LogRuleSet.IsEmpty)
-            {
+            if (_log.LogRuleSet.IsEmpty) {
                 toolStripImport.Enabled = false;
                 toolStripEdit.Enabled = false;
                 largelist.Enabled = false;
-            }
-            else
-            {
+            } else {
                 toolStripImport.Enabled = true;
                 toolStripEdit.Enabled = true;
                 largelist.Enabled = true;
             }
         }
 
-        private void ApplyLogRuleSet(BaseItem item)
-        {
+        private void ApplyLogRuleSet(BaseItem item) {
             //Will clear the error selector, eventing will make sure new errors are added tot the selector if needed.
             if (item is Log)
                 errorAndFindSelector.ClearErrors();
@@ -199,14 +171,12 @@ namespace vApus.Stresstest
                 ApplyLogRuleSet(child);
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
+        protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);
             lblCount.Text = GetSelectionDeepCount() + " [" + GetDeepCount() + "]";
         }
 
-        private void btnExportToTextFile_Click(object sender, EventArgs e)
-        {
+        private void btnExportToTextFile_Click(object sender, EventArgs e) {
             var sfd = new SaveFileDialog();
             sfd.Filter = "Text Files (*.txt)|*.txt";
 
@@ -222,24 +192,18 @@ namespace vApus.Stresstest
                 return;
 
             if (sfd.ShowDialog() == DialogResult.OK)
-                using (var sw = new StreamWriter(sfd.FileName))
-                {
+                using (var sw = new StreamWriter(sfd.FileName)) {
                     var sb = new StringBuilder();
-                    foreach (BaseItem item in _log)
-                    {
-                        if (item is UserAction)
-                        {
-                            if (hasCommentDelimiters)
-                            {
+                    foreach (BaseItem item in _log) {
+                        if (item is UserAction) {
+                            if (hasCommentDelimiters) {
                                 sb.Append(_log.LogRuleSet.BeginCommentString);
                                 sb.Append((item as UserAction).Label);
                                 sb.AppendLine(_log.LogRuleSet.EndCommentString);
                             }
                             foreach (LogEntry logEntry in item)
                                 sb.AppendLine(logEntry.LogEntryString.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
-                        }
-                        else
-                        {
+                        } else {
                             sb.AppendLine((item as LogEntry).LogEntryString.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
                         }
                     }
@@ -252,8 +216,7 @@ namespace vApus.Stresstest
                 }
         }
 
-        private void btnRecord_Click(object sender, EventArgs e)
-        {
+        private void btnRecord_Click(object sender, EventArgs e) {
             string jarPath = Path.Combine(Application.StartupPath, "Lupus-Proxy.jar");
             string ips = _log.RecordIps.Length == 0 ? " " : _log.RecordIps.Combine(",");
             string ports = _log.RecordPorts.Length == 0 ? "80" : _log.RecordPorts.Combine(",");
@@ -262,8 +225,7 @@ namespace vApus.Stresstest
                             _log.LogRuleSet.ChildDelimiter +
                             "\" -f\"" + ips + "\" -p\"" + ports + "\"";
 
-            if (File.Exists(jarPath))
-            {
+            if (File.Exists(jarPath)) {
                 ProxyHelper.SetProxy("127.0.0.1:5555");
 
                 string logPath = Path.Combine(Application.StartupPath, "lupusProxyLog");
@@ -282,15 +244,11 @@ namespace vApus.Stresstest
                 _log.LogRuleSet.ActionizeOnFile = false;
 
                 int i = 0;
-                Retry:
-                try
-                {
+            Retry:
+                try {
                     ImportLogFiles(logPath);
-                }
-                catch (Exception ex)
-                {
-                    if (i++ != 10)
-                    {
+                } catch (Exception ex) {
+                    if (i++ != 10) {
                         Thread.Sleep(500);
                         goto Retry;
                     }
@@ -299,12 +257,9 @@ namespace vApus.Stresstest
                     LogWrapper.LogByLevel(message, LogLevel.Error);
                 }
 
-                try
-                {
+                try {
                     File.Delete(logPath);
-                }
-                catch
-                {
+                } catch {
                 }
 
                 _log.LogRuleSet.ActionizeOnComment = aoc;
@@ -316,35 +271,26 @@ namespace vApus.Stresstest
 
                 _log.RecordIps = recordIps;
                 _log.RecordPorts = recordPorts;
-            }
-            else
-            {
+            } else {
                 LogWrapper.LogByLevel("Could not find Lupus-Proxy.jar!", LogLevel.Error);
             }
         }
 
-        private void GetConfig(out string[] recordIps, out int[] recordPorts)
-        {
-            recordIps = new string[] {};
-            recordPorts = new int[] {};
+        private void GetConfig(out string[] recordIps, out int[] recordPorts) {
+            recordIps = new string[] { };
+            recordPorts = new int[] { };
 
             string configPath = Path.Combine(Application.StartupPath, "config.ini");
-            if (File.Exists(configPath))
-            {
+            if (File.Exists(configPath)) {
                 var sr = new StreamReader(configPath);
-                while (sr.Peek() != -1)
-                {
+                while (sr.Peek() != -1) {
                     string line = sr.ReadLine();
-                    if (line.TrimStart().StartsWith("fixatedIpsAndHosts"))
-                    {
+                    if (line.TrimStart().StartsWith("fixatedIpsAndHosts")) {
                         recordIps = line.Substring(line.IndexOf('=') + 1).Trim().Split(',');
-                    }
-                    else if (line.TrimStart().StartsWith("fixatedPorts"))
-                    {
+                    } else if (line.TrimStart().StartsWith("fixatedPorts")) {
                         string[] ports = line.Substring(line.IndexOf('=') + 1).Trim().Split(',');
                         var l = new List<int>();
-                        for (int i = 0; i != ports.Length; i++)
-                        {
+                        for (int i = 0; i != ports.Length; i++) {
                             int port;
                             if (int.TryParse(ports[i], out port))
                                 l.Add(port);
@@ -355,13 +301,11 @@ namespace vApus.Stresstest
             }
         }
 
-        private void btnBulkEditLog_Click(object sender, EventArgs e)
-        {
+        private void btnBulkEditLog_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
 
             var bulkEditLog = new BulkEditLog(_log);
-            if (bulkEditLog.ShowDialog() == DialogResult.OK)
-            {
+            if (bulkEditLog.ShowDialog() == DialogResult.OK) {
                 _log.ClearWithoutInvokingEvent();
                 _log.AddRangeWithoutInvokingEvent(bulkEditLog.Log);
 
@@ -373,8 +317,7 @@ namespace vApus.Stresstest
             Cursor = Cursors.Default;
         }
 
-        private void btnRedetermineTokens_Click(object sender, EventArgs e)
-        {
+        private void btnRedetermineTokens_Click(object sender, EventArgs e) {
             var redetermineTokens = new RedetermineTokens(_log);
             redetermineTokens.ShowDialog();
         }
@@ -383,18 +326,15 @@ namespace vApus.Stresstest
 
         #region General Stuff
 
-        private void ApplyChanges()
-        {
+        private void ApplyChanges() {
             Cursor = Cursors.WaitCursor;
             _log.ClearWithoutInvokingEvent(false);
             for (int i = 0; i < largelist.ViewCount; i++)
-                for (int j = 0; j < largelist[i].Count; j++)
-                {
+                for (int j = 0; j < largelist[i].Count; j++) {
                     var control = largelist[i][j] as LogChildControlBase;
                     control.ClearLogChild();
 
-                    if (control.IndentationLevel == 0)
-                    {
+                    if (control.IndentationLevel == 0) {
                         _log.AddWithoutInvokingEvent(control.LogChild, false);
                         if (control is UserActionControl)
                             foreach (LogEntryControl logEntryControl in (control as UserActionControl).LogEntryControls)
@@ -408,8 +348,7 @@ namespace vApus.Stresstest
             Cursor = Cursors.Default;
         }
 
-        private void ValidateSelectedControls()
-        {
+        private void ValidateSelectedControls() {
             Cursor = Cursors.WaitCursor;
             LogEntryControl logEntryControl;
             UserActionControl userActionControl;
@@ -430,8 +369,7 @@ namespace vApus.Stresstest
             else if (userActionControl != null)
                 CheckChilds(userActionControl);
 
-            if (largelist.ActiveControl != null && largelist.Selection.Count > 0)
-            {
+            if (largelist.ActiveControl != null && largelist.Selection.Count > 0) {
                 btnLevelDown.Enabled = true;
                 btnLevelUp.Enabled = true;
                 btnUp.Enabled = true;
@@ -449,24 +387,17 @@ namespace vApus.Stresstest
                 userActionControl = beginControl as UserActionControl;
                 logEntryControl = beginControl as LogEntryControl;
 
-                if (largelist.BeginOfSelection.Key == 0 && largelist.BeginOfSelection.Value == 0)
-                {
+                if (largelist.BeginOfSelection.Key == 0 && largelist.BeginOfSelection.Value == 0) {
                     btnLevelUp.Enabled = false;
                     btnLevelDown.Enabled = false;
                     btnUp.Enabled = false;
-                }
-                else if (largelist.BeginOfSelection.Key > 0 ||
-                         (largelist.BeginOfSelection.Key == 0 && largelist.BeginOfSelection.Value > 0))
-                {
-                    if (userActionControl != null)
-                    {
+                } else if (largelist.BeginOfSelection.Key > 0 ||
+                           (largelist.BeginOfSelection.Key == 0 && largelist.BeginOfSelection.Value > 0)) {
+                    if (userActionControl != null) {
                         btnLevelUp.Enabled = false;
                         btnLevelDown.Enabled = false;
-                    }
-                    else if (logEntryControl != null)
-                    {
-                        if (logEntryControl.UserActionControl == null)
-                        {
+                    } else if (logEntryControl != null) {
+                        if (logEntryControl.UserActionControl == null) {
                             var previousLogEntryControl = PreviousControl() as LogEntryControl;
                             bool previousControlIsChild = previousLogEntryControl == null
                                                               ? false
@@ -475,9 +406,7 @@ namespace vApus.Stresstest
                             if (!previousControlIsChild)
                                 btnLevelUp.Enabled = false;
                             btnLevelDown.Enabled = false;
-                        }
-                        else
-                        {
+                        } else {
                             var nextLogEntryControl = GetClosestNextSibling(logEntryControl) as LogEntryControl;
 
                             btnLevelUp.Enabled = false;
@@ -488,12 +417,10 @@ namespace vApus.Stresstest
 
                     if (GetClosestNextSibling(beginControl) == null)
                         btnDown.Enabled = false;
-                    if (GetClosestPreviousSibling(largelist.Selection[0]) == null)
-                    {
+                    if (GetClosestPreviousSibling(largelist.Selection[0]) == null) {
                         btnUp.Enabled = false;
                         if (logEntryControl != null && logEntryControl.UserActionControl != null &&
-                            logEntryControl.UserActionControl.LogChild.Count < 2)
-                        {
+                            logEntryControl.UserActionControl.LogChild.Count < 2) {
                             btnRemove.Enabled = false;
                             btnCopy.Enabled = false;
                         }
@@ -505,20 +432,15 @@ namespace vApus.Stresstest
                     btnDown.Enabled = false;
 
                 //Actionize
-                if (userActionControl != null)
-                {
+                if (userActionControl != null) {
                     btnActionizeUnactionize.Image = Resources.Unactionize;
                     btnActionizeUnactionize.Text = "Unactionize Selected Log Entries";
                     btnActionizeUnactionize.ToolTipText = btnActionizeUnactionize.Text;
-                }
-                else if (logEntryControl.UserActionControl == null && !selectionHasAction && !selectionHasHoles)
-                {
+                } else if (logEntryControl.UserActionControl == null && !selectionHasAction && !selectionHasHoles) {
                     btnActionizeUnactionize.Image = Resources.Actionize;
                     btnActionizeUnactionize.Text = "Actionize Selected Log Entries";
                     btnActionizeUnactionize.ToolTipText = btnActionizeUnactionize.Text;
-                }
-                else
-                {
+                } else {
                     btnActionizeUnactionize.Enabled = false;
                 }
             }
@@ -543,32 +465,23 @@ namespace vApus.Stresstest
             Cursor = Cursors.Default;
         }
 
-        private bool SelectionHasHoles()
-        {
+        private bool SelectionHasHoles() {
             if (largelist.Selection.Count > 0)
-                if (largelist.BeginOfSelection.Key == largelist.EndOfSelection.Key)
-                {
+                if (largelist.BeginOfSelection.Key == largelist.EndOfSelection.Key) {
                     for (int j = largelist.BeginOfSelection.Value; j <= largelist.EndOfSelection.Value; j++)
                         if (!largelist.SelectionContains(largelist[largelist.BeginOfSelection.Key][j]))
                             return true;
-                }
-                else
-                {
+                } else {
                     for (int i = largelist.BeginOfSelection.Key; i <= largelist.EndOfSelection.Key; i++)
-                        if (i == largelist.BeginOfSelection.Key)
-                        {
+                        if (i == largelist.BeginOfSelection.Key) {
                             for (int j = largelist.BeginOfSelection.Value; j < largelist[i].Count; j++)
                                 if (!largelist.SelectionContains(largelist[i][j]))
                                     return true;
-                        }
-                        else if (i == largelist.EndOfSelection.Key)
-                        {
+                        } else if (i == largelist.EndOfSelection.Key) {
                             for (int j = 0; j <= largelist.EndOfSelection.Value; j++)
                                 if (!largelist.SelectionContains(largelist[i][j]))
                                     return true;
-                        }
-                        else
-                        {
+                        } else {
                             for (int j = largelist.BeginOfSelection.Value; j <= largelist.EndOfSelection.Value; j++)
                                 if (!largelist.SelectionContains(largelist[i][j]))
                                     return true;
@@ -577,8 +490,7 @@ namespace vApus.Stresstest
             return false;
         }
 
-        private bool SelectionHasAction()
-        {
+        private bool SelectionHasAction() {
             if (largelist.Selection.Count > 0)
                 foreach (Control control in largelist.Selection)
                     if (control is UserActionControl)
@@ -586,8 +498,7 @@ namespace vApus.Stresstest
             return false;
         }
 
-        private void CheckParent(UserActionControl parent)
-        {
+        private void CheckParent(UserActionControl parent) {
             int checkedCount = 0;
 
             foreach (LogEntryControl child in parent.LogEntryControls)
@@ -595,20 +506,15 @@ namespace vApus.Stresstest
                     ++checkedCount;
 
             parent.CheckedChanged -= logChildControlBase_CheckedChanged;
-            if (checkedCount == 0)
-            {
+            if (checkedCount == 0) {
                 if (parent.CheckState == CheckState.Checked)
                     largelist.Select(parent, Hotkeys.Ctrl);
                 parent.CheckState = CheckState.Unchecked;
-            }
-            else if (checkedCount == parent.LogEntryControls.Count)
-            {
+            } else if (checkedCount == parent.LogEntryControls.Count) {
                 if (parent.CheckState != CheckState.Checked)
                     largelist.Select(parent, Hotkeys.Ctrl);
                 parent.CheckState = CheckState.Checked;
-            }
-            else
-            {
+            } else {
                 if (parent.CheckState == CheckState.Checked)
                     largelist.Select(parent, Hotkeys.Ctrl);
                 parent.CheckState = CheckState.Indeterminate;
@@ -616,30 +522,24 @@ namespace vApus.Stresstest
             parent.CheckedChanged += logChildControlBase_CheckedChanged;
         }
 
-        private void CheckChilds(UserActionControl parent)
-        {
+        private void CheckChilds(UserActionControl parent) {
             var toSelect = new List<Control>(largelist.Selection.Count);
             foreach (Control control in largelist.Selection)
                 toSelect.Add(control);
 
-            if (parent.CheckState == CheckState.Checked)
-            {
+            if (parent.CheckState == CheckState.Checked) {
                 if (!toSelect.Contains(largelist.LastClickedControl))
                     toSelect.Add(largelist.LastClickedControl);
                 foreach (LogEntryControl controlToSelect in parent.LogEntryControls)
-                    if (!toSelect.Contains(controlToSelect))
-                    {
+                    if (!toSelect.Contains(controlToSelect)) {
                         toSelect.Add(controlToSelect);
                         controlToSelect.CheckedChanged -= logChildControlBase_CheckedChanged;
                         controlToSelect.Checked = true;
                         controlToSelect.CheckedChanged += logChildControlBase_CheckedChanged;
                     }
-            }
-            else if (parent.CheckState == CheckState.Unchecked)
-            {
+            } else if (parent.CheckState == CheckState.Unchecked) {
                 toSelect.Remove(largelist.LastClickedControl);
-                foreach (LogEntryControl controlToDeSelect in parent.LogEntryControls)
-                {
+                foreach (LogEntryControl controlToDeSelect in parent.LogEntryControls) {
                     controlToDeSelect.CheckedChanged -= logChildControlBase_CheckedChanged;
                     controlToDeSelect.Checked = false;
                     controlToDeSelect.CheckedChanged += logChildControlBase_CheckedChanged;
@@ -651,21 +551,17 @@ namespace vApus.Stresstest
 
         /// <summary>Gets the closest next sibling.</summary>
         /// <returns></returns>
-        private LogChildControlBase GetClosestNextSibling(Control control)
-        {
+        private LogChildControlBase GetClosestNextSibling(Control control) {
             int margin = control.Margin.Left;
             KeyValuePair<int, int> index = largelist.IndexOf(control);
             for (int i = index.Key; i < largelist.ViewCount; i++)
-                if (i == index.Key)
-                {
+                if (i == index.Key) {
                     for (int j = index.Value + 1; j < largelist[i].Count; j++)
                         if (largelist[i][j].Margin.Left == margin)
                             return largelist[i][j] as LogChildControlBase;
                         else if (largelist[i][j].Margin.Left < margin)
                             return null;
-                }
-                else
-                {
+                } else {
                     for (int j = 0; j < largelist[i].Count; j++)
                         if (largelist[i][j].Margin.Left == margin)
                             return largelist[i][j] as LogChildControlBase;
@@ -677,22 +573,17 @@ namespace vApus.Stresstest
 
         /// <summary>Gets the closest previous sibling.</summary>
         /// <returns></returns>
-        private LogChildControlBase GetClosestPreviousSibling(Control control)
-        {
+        private LogChildControlBase GetClosestPreviousSibling(Control control) {
             int margin = control.Margin.Left;
             KeyValuePair<int, int> index = largelist.IndexOf(control);
-            for (int i = index.Key; i >= 0; i--)
-            {
-                if (i == index.Key)
-                {
+            for (int i = index.Key; i >= 0; i--) {
+                if (i == index.Key) {
                     for (int j = index.Value - 1; j >= 0; j--)
                         if (largelist[i][j].Margin.Left == margin)
                             return largelist[i][j] as LogChildControlBase;
                         else if (largelist[i][j].Margin.Left < margin)
                             return null;
-                }
-                else
-                {
+                } else {
                     for (int j = largelist[i].Count - 1; j >= 0; j--)
                         if (largelist[i][j].Margin.Left == margin)
                             return largelist[i][j] as LogChildControlBase;
@@ -703,19 +594,13 @@ namespace vApus.Stresstest
             return null;
         }
 
-        private LogChildControlBase PreviousControl()
-        {
-            if (largelist.BeginOfSelection.Value > 0)
-            {
+        private LogChildControlBase PreviousControl() {
+            if (largelist.BeginOfSelection.Value > 0) {
                 return largelist[0][largelist.BeginOfSelection.Value - 1] as LogChildControlBase;
-            }
-            else if (largelist.BeginOfSelection.Key > 0 && largelist.BeginOfSelection.Value == 0)
-            {
+            } else if (largelist.BeginOfSelection.Key > 0 && largelist.BeginOfSelection.Value == 0) {
                 List<Control> l = largelist[largelist.BeginOfSelection.Key - 1];
                 return (l[l.Count - 1]) as LogChildControlBase;
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }
@@ -727,10 +612,8 @@ namespace vApus.Stresstest
         /// <summary>Moves the selected preview(s) a level down.</summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnLevelDown_Click(object sender, EventArgs e)
-        {
-            foreach (Control control in largelist.Selection)
-            {
+        private void btnLevelDown_Click(object sender, EventArgs e) {
+            foreach (Control control in largelist.Selection) {
                 var logEntryControl = control as LogEntryControl;
                 UserActionControl parent = logEntryControl.UserActionControl;
                 logEntryControl.RemoveUserActionControl();
@@ -744,12 +627,10 @@ namespace vApus.Stresstest
         /// <summary>Moves the selected preview(s) a level up.</summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnLevelUp_Click(object sender, EventArgs e)
-        {
+        private void btnLevelUp_Click(object sender, EventArgs e) {
             largelist.OrderSelection();
             var parent = GetClosestPreviousSibling(largelist.Selection[0]) as UserActionControl;
-            foreach (Control control in largelist.Selection)
-            {
+            foreach (Control control in largelist.Selection) {
                 var logEntryControl = control as LogEntryControl;
                 logEntryControl.SetUserActionControl(parent);
                 parent.LogEntryControls.Add(logEntryControl);
@@ -762,25 +643,21 @@ namespace vApus.Stresstest
         /// <summary>Moves the selected preview up.</summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnUp_Click(object sender, EventArgs e)
-        {
+        private void btnUp_Click(object sender, EventArgs e) {
             largelist.OrderSelection();
             Control closestPreviousSibling = GetClosestPreviousSibling(largelist.Selection[0]);
 
-            if (closestPreviousSibling is LogEntryControl)
-            {
+            if (closestPreviousSibling is LogEntryControl) {
                 LogEntryControl logEntryControl = null;
                 foreach (Control control in largelist.Selection)
-                    if (control is LogEntryControl)
-                    {
+                    if (control is LogEntryControl) {
                         logEntryControl = control as LogEntryControl;
                         if (logEntryControl.UserActionControl != null)
                             logEntryControl.UserActionControl.LogEntryControls.Remove(logEntryControl);
                     }
 
                 logEntryControl = closestPreviousSibling as LogEntryControl;
-                if (logEntryControl.UserActionControl != null)
-                {
+                if (logEntryControl.UserActionControl != null) {
                     int i = logEntryControl.UserActionControl.LogEntryControls.IndexOf(logEntryControl);
                     var selection = new List<LogEntryControl>(largelist.Selection.Count);
                     foreach (Control control in largelist.Selection)
@@ -795,15 +672,13 @@ namespace vApus.Stresstest
         /// <summary>Moves the selected preview down.</summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnDown_Click(object sender, EventArgs e)
-        {
+        private void btnDown_Click(object sender, EventArgs e) {
             ////Search last on same indent.
             largelist.OrderSelection();
             var lastSiblingInCollection =
                 largelist[largelist.BeginOfSelection.Key][largelist.BeginOfSelection.Value] as LogChildControlBase;
             uint indentationLevel = lastSiblingInCollection.IndentationLevel;
-            foreach (Control control in largelist.Selection)
-            {
+            foreach (Control control in largelist.Selection) {
                 var logChildControlBase = control as LogChildControlBase;
                 if (logChildControlBase.IndentationLevel == indentationLevel)
                     lastSiblingInCollection = logChildControlBase;
@@ -811,18 +686,14 @@ namespace vApus.Stresstest
             Control nextControl = GetClosestNextSibling(lastSiblingInCollection);
             KeyValuePair<int, int> index = largelist.IndexOf(nextControl);
             int margin = lastSiblingInCollection.Margin.Left;
-            for (int i = index.Key; i < largelist.ViewCount; i++)
-            {
-                if (i == index.Key)
-                {
+            for (int i = index.Key; i < largelist.ViewCount; i++) {
+                if (i == index.Key) {
                     for (int j = index.Value + 1; j < largelist[i].Count; j++)
                         if (largelist[i][j].Margin.Left <= margin)
                             break;
                         else
                             nextControl = largelist[i][j];
-                }
-                else
-                {
+                } else {
                     for (int j = 0; j < largelist[i].Count; j++)
                         if (largelist[i][j].Margin.Left <= margin)
                             break;
@@ -831,17 +702,14 @@ namespace vApus.Stresstest
                 }
             }
             foreach (Control control in largelist.Selection)
-                if (control is LogEntryControl)
-                {
+                if (control is LogEntryControl) {
                     var logEntryControl = control as LogEntryControl;
                     if (logEntryControl.UserActionControl != null)
                         logEntryControl.UserActionControl.LogEntryControls.Remove(logEntryControl);
                 }
-            if (nextControl is LogEntryControl)
-            {
+            if (nextControl is LogEntryControl) {
                 var logEntryControl = nextControl as LogEntryControl;
-                if (logEntryControl.UserActionControl != null)
-                {
+                if (logEntryControl.UserActionControl != null) {
                     int i = logEntryControl.UserActionControl.LogEntryControls.IndexOf(logEntryControl) + 1;
                     var selection = new List<LogEntryControl>(largelist.Selection.Count);
                     foreach (Control control in largelist.Selection)
@@ -860,9 +728,8 @@ namespace vApus.Stresstest
 
         #region Other Actions
 
-        private void btnAddLogEntry_Click(object sender, EventArgs e)
-        {
-            var logEntry = BaseItem.Empty(typeof (LogEntry), _log) as LogEntry;
+        private void btnAddLogEntry_Click(object sender, EventArgs e) {
+            var logEntry = BaseItem.Empty(typeof(LogEntry), _log) as LogEntry;
             _log.Add(logEntry);
             var logEntryControl = new LogEntryControl(logEntry);
             logEntryControl.CheckedChanged += logChildControlBase_CheckedChanged;
@@ -876,15 +743,12 @@ namespace vApus.Stresstest
             largelist.ScrollIntoView(logEntryControl);
         }
 
-        private void btnRemove_Click(object sender, EventArgs e)
-        {
+        private void btnRemove_Click(object sender, EventArgs e) {
             foreach (Control control in largelist.Selection)
-                if (control is LogEntryControl)
-                {
+                if (control is LogEntryControl) {
                     var logEntryControl = control as LogEntryControl;
                     UserActionControl userActionControl = logEntryControl.UserActionControl;
-                    if (userActionControl != null)
-                    {
+                    if (userActionControl != null) {
                         userActionControl.CheckedChanged -= logChildControlBase_CheckedChanged;
                         userActionControl.CheckState = CheckState.Unchecked;
                         userActionControl.CheckedChanged += logChildControlBase_CheckedChanged;
@@ -896,13 +760,10 @@ namespace vApus.Stresstest
             ApplyChanges();
         }
 
-        private void btnActionizeUnactionize_Click(object sender, EventArgs e)
-        {
-            if (largelist.Selection.Count != 0)
-            {
+        private void btnActionizeUnactionize_Click(object sender, EventArgs e) {
+            if (largelist.Selection.Count != 0) {
                 Cursor = Cursors.WaitCursor;
-                if (btnActionizeUnactionize.Text.Contains("Unactionize"))
-                {
+                if (btnActionizeUnactionize.Text.Contains("Unactionize")) {
                     var userActionControls = new List<UserActionControl>();
 
                     largelist.OrderSelection();
@@ -910,13 +771,11 @@ namespace vApus.Stresstest
                         if (control is UserActionControl)
                             userActionControls.Add(control as UserActionControl);
 
-                    foreach (UserActionControl uac in userActionControls)
-                    {
+                    foreach (UserActionControl uac in userActionControls) {
                         LockWindowUpdate(Handle.ToInt32());
 
                         uac.Collapsed = false;
-                        foreach (LogEntryControl logEntryControl in uac.LogEntryControls)
-                        {
+                        foreach (LogEntryControl logEntryControl in uac.LogEntryControls) {
                             (logEntryControl.LogChild as LogEntry).Pinned = false;
                             logEntryControl.RemoveUserActionControl();
 
@@ -932,9 +791,7 @@ namespace vApus.Stresstest
                     }
                     if (largelist.ActiveControl != null)
                         largelist.ScrollIntoView(largelist.ActiveControl);
-                }
-                else
-                {
+                } else {
                     var userAction = new UserAction();
                     userAction.Parent = _log;
                     var userActionControl = new UserActionControl(userAction);
@@ -945,8 +802,7 @@ namespace vApus.Stresstest
                     userActionControl.CheckedChanged += logChildControlBase_CheckedChanged;
                     userActionControl.CollapsedChanged += userActionControl_CollapsedChanged;
                     foreach (Control control in largelist.Selection)
-                        if (control is LogEntryControl)
-                        {
+                        if (control is LogEntryControl) {
                             var logEntryControl = control as LogEntryControl;
                             (logEntryControl.LogChild as LogEntry).Pinned = true;
                             logEntryControl.SetUserActionControl(userActionControl);
@@ -961,15 +817,11 @@ namespace vApus.Stresstest
             }
         }
 
-        private void userActionControl_CollapsedChanged(object sender, EventArgs e)
-        {
+        private void userActionControl_CollapsedChanged(object sender, EventArgs e) {
             var userActionControl = sender as UserActionControl;
-            if (userActionControl.Collapsed)
-            {
+            if (userActionControl.Collapsed) {
                 largelist.RemoveRange(new List<Control>(userActionControl.LogEntryControls.ToArray()));
-            }
-            else
-            {
+            } else {
                 KeyValuePair<int, int> index = largelist.IndexOf(GetClosestNextSibling(userActionControl));
                 if (index.Value == -1)
                     largelist.AddRange(new List<Control>(userActionControl.LogEntryControls.ToArray()));
@@ -979,43 +831,32 @@ namespace vApus.Stresstest
             SetCollapseUncollapseButton();
         }
 
-        private void errorAndFindSelector_SelectError(object sender, SelectErrorEventArgs e)
-        {
+        private void errorAndFindSelector_SelectError(object sender, SelectErrorEventArgs e) {
             SelectLogChildControlBase(e.Error);
         }
 
-        private void errorAndFindSelector_Find(object sender, FindEventArgs e)
-        {
-            if (e.Find == string.Empty && largelist.ControlCount > 0)
-            {
+        private void errorAndFindSelector_Find(object sender, FindEventArgs e) {
+            if (e.Find == string.Empty && largelist.ControlCount > 0) {
                 SelectLogChildControlBase(largelist[0][0] as LogChildControlBase);
-            }
-            else
-            {
+            } else {
                 LogChildControlBase firstFound = null;
                 bool startingPointFound = errorAndFindSelector.Found == null;
                 foreach (var controls in largelist)
-                    foreach (Control control in controls)
-                    {
+                    foreach (Control control in controls) {
                         var logChildControlBase = control as LogChildControlBase;
-                        if (logChildControlBase.LogChild.ToString().ToLower().Contains(e.Find.ToLower()))
-                        {
+                        if (logChildControlBase.LogChild.ToString().ToLower().Contains(e.Find.ToLower())) {
                             if (firstFound == null)
                                 firstFound = logChildControlBase;
-                            if (startingPointFound)
-                            {
+                            if (startingPointFound) {
                                 errorAndFindSelector.Found = logChildControlBase;
                                 SelectLogChildControlBase(logChildControlBase);
                                 return;
-                            }
-                            else
-                            {
+                            } else {
                                 startingPointFound = errorAndFindSelector.Found == control;
                             }
                         }
                     }
-                if (firstFound != null)
-                {
+                if (firstFound != null) {
                     errorAndFindSelector.Found = firstFound;
                     SelectLogChildControlBase(firstFound);
                     return;
@@ -1024,30 +865,24 @@ namespace vApus.Stresstest
             errorAndFindSelector.Found = null;
         }
 
-        private void SelectLogChildControlBase(LogChildControlBase logChildControlBase)
-        {
+        private void SelectLogChildControlBase(LogChildControlBase logChildControlBase) {
             if (!largelist.Contains(logChildControlBase))
                 (logChildControlBase as LogEntryControl).UserActionControl.Collapsed = false;
             largelist.ScrollIntoView(logChildControlBase);
             logChildControlBase.Select();
         }
 
-        private void btnCollapseExpand_Click(object sender, EventArgs e)
-        {
+        private void btnCollapseExpand_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
 
             List<UserActionControl> uacs = GetUserActionControls();
-            if (uacs.Count != 0)
-            {
-                if (btnCollapseExpand.Text == "+")
-                {
+            if (uacs.Count != 0) {
+                if (btnCollapseExpand.Text == "+") {
                     btnCollapseExpand.Text = "-";
                     foreach (UserActionControl uac in uacs)
                         if (uac.Collapsed)
                             uac.Collapsed = false;
-                }
-                else
-                {
+                } else {
                     btnCollapseExpand.Text = "+";
                     foreach (UserActionControl uac in uacs)
                         if (!uac.Collapsed)
@@ -1057,8 +892,7 @@ namespace vApus.Stresstest
             Cursor = Cursors.Default;
         }
 
-        private List<UserActionControl> GetUserActionControls()
-        {
+        private List<UserActionControl> GetUserActionControls() {
             var uacs = new List<UserActionControl>();
             for (int view = 0; view < largelist.ViewCount; view++)
                 foreach (Control control in largelist[view])
@@ -1067,32 +901,25 @@ namespace vApus.Stresstest
             return uacs;
         }
 
-        private void SetCollapseUncollapseButton()
-        {
+        private void SetCollapseUncollapseButton() {
             bool collapsed = false;
             List<UserActionControl> uacs = GetUserActionControls();
             foreach (UserActionControl uac in uacs)
-                if (uac.Collapsed)
-                {
+                if (uac.Collapsed) {
                     collapsed = true;
                     break;
                 }
             btnCollapseExpand.Text = collapsed ? "+" : "-";
         }
 
-        private void btnCopy_Click(object sender, EventArgs e)
-        {
+        private void btnCopy_Click(object sender, EventArgs e) {
             var h = new Hashtable();
             var l = new List<BaseItem>();
-            foreach (Control control in largelist.Selection)
-            {
-                if (control is UserActionControl)
-                {
+            foreach (Control control in largelist.Selection) {
+                if (control is UserActionControl) {
                     var uac = control as UserActionControl;
                     l.Add(uac.LogChild);
-                }
-                else if (control is LogEntryControl)
-                {
+                } else if (control is LogEntryControl) {
                     var lec = control as LogEntryControl;
                     if (lec.UserActionControl == null)
                         l.Add(lec.LogChild);
@@ -1103,27 +930,20 @@ namespace vApus.Stresstest
             ClipboardWrapper.SetDataObject(h);
         }
 
-        private void btnPaste_Click(object sender, EventArgs e)
-        {
+        private void btnPaste_Click(object sender, EventArgs e) {
             IDataObject dataObject = ClipboardWrapper.GetDataObject();
-            Type hashtableType = typeof (Hashtable);
-            if (dataObject.GetDataPresent(hashtableType))
-            {
-                try
-                {
+            Type hashtableType = typeof(Hashtable);
+            if (dataObject.GetDataPresent(hashtableType)) {
+                try {
                     var h = dataObject.GetData(hashtableType) as Hashtable;
-                    if (h.Contains("logCopy"))
-                    {
+                    if (h.Contains("logCopy")) {
                         var l = h["logCopy"] as List<BaseItem>;
-                        if (l != null)
-                        {
+                        if (l != null) {
                             _log.AddRange(l);
                             FillLargeList();
                         }
                     }
-                }
-                catch
-                {
+                } catch {
                 }
             }
         }
@@ -1134,8 +954,7 @@ namespace vApus.Stresstest
 
         #region Load
 
-        private void FillLargeList()
-        {
+        private void FillLargeList() {
             chk.CheckStateChanged -= chk_CheckStateChanged;
             chk.CheckState = CheckState.Unchecked;
             chk.CheckStateChanged += chk_CheckStateChanged;
@@ -1146,47 +965,37 @@ namespace vApus.Stresstest
             ApplyLogRuleSet(_log);
             if (largelist.IsHandleCreated)
                 SetCollapseUncollapseButton();
-            else
-            {
+            else {
                 largelist.HandleCreated += largelist_HandleCreated;
                 largelist.ControlCollectionChanged += largelist_ControlCollectionChanged;
             }
         }
 
-        private void largelist_HandleCreated(object sender, EventArgs e)
-        {
+        private void largelist_HandleCreated(object sender, EventArgs e) {
             largelist.HandleCreated -= largelist_HandleCreated;
             SetCollapseUncollapseButton();
         }
 
-        private void largelist_ControlCollectionChanged(object sender, EventArgs e)
-        {
+        private void largelist_ControlCollectionChanged(object sender, EventArgs e) {
             largelist.ControlCollectionChanged -= largelist_ControlCollectionChanged;
             SetCollapseUncollapseButton();
         }
 
-        private void FillLargeList(BaseItem item, UserActionControl userActionControl = null)
-        {
-            if (item is LogEntry)
-            {
+        private void FillLargeList(BaseItem item, UserActionControl userActionControl = null) {
+            if (item is LogEntry) {
                 var logEntryControl = new LogEntryControl(item as LogEntry);
                 logEntryControl.CheckedChanged += logChildControlBase_CheckedChanged;
                 logEntryControl.Removed += logEntryControl_Removed;
-                if (item.Parent is UserAction)
-                {
+                if (item.Parent is UserAction) {
                     logEntryControl.SetUserActionControl(userActionControl);
                     userActionControl.LogEntryControls.Add(logEntryControl);
                     if (!userActionControl.Collapsed)
                         largelist.Add(logEntryControl);
-                }
-                else
-                {
+                } else {
                     largelist.Add(logEntryControl);
                 }
                 logEntryControl.LexicalResultChanged += logEntryControl_LexicalResultChanged;
-            }
-            else if (item is UserAction)
-            {
+            } else if (item is UserAction) {
                 userActionControl = new UserActionControl(item as UserAction);
                 userActionControl.CheckedChanged += logChildControlBase_CheckedChanged;
                 userActionControl.CollapsedChanged += userActionControl_CollapsedChanged;
@@ -1196,8 +1005,7 @@ namespace vApus.Stresstest
                 FillLargeList(childItem, userActionControl);
         }
 
-        private void logEntryControl_LexicalResultChanged(object sender, EventArgs e)
-        {
+        private void logEntryControl_LexicalResultChanged(object sender, EventArgs e) {
             var logEntryControl = sender as LogEntryControl;
             if (logEntryControl.LexicalResult == LexicalResult.Error && largelist.Contains(logEntryControl))
                 errorAndFindSelector.AddError(logEntryControl);
@@ -1209,8 +1017,7 @@ namespace vApus.Stresstest
 
         #region Import
 
-        private void btnImportLogFiles_Click(object sender, EventArgs e)
-        {
+        private void btnImportLogFiles_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();
             ofd.Filter = "Text Files (*.txt)|*.txt|All files (*.*)|*.*";
             ofd.Multiselect = true;
@@ -1218,40 +1025,30 @@ namespace vApus.Stresstest
                 ImportLogFiles(ofd.FileNames);
         }
 
-        private void ImportLogFiles(params string[] fileNames)
-        {
+        private void ImportLogFiles(params string[] fileNames) {
             foreach (string fileName in fileNames)
-                using (var sr = new StreamReader(fileName))
-                {
+                using (var sr = new StreamReader(fileName)) {
                     string logFile = sr.ReadToEnd();
                     UserAction userAction = null;
-                    if (_log.LogRuleSet.ActionizeOnFile)
-                    {
+                    if (_log.LogRuleSet.ActionizeOnFile) {
                         userAction = new UserAction(fileName);
                         _log.AddWithoutInvokingEvent(userAction, false);
                     }
                     logFile = logFile.Replace(Environment.NewLine, "\n").Replace('\r', '\n');
-                    foreach (string line in logFile.Split('\n'))
-                    {
+                    foreach (string line in logFile.Split('\n')) {
                         if (line.Trim().Length == 0)
                             continue;
 
                         string output;
-                        if (DetermineComment(line, out output))
-                        {
-                            if (_log.LogRuleSet.ActionizeOnComment)
-                            {
+                        if (DetermineComment(line, out output)) {
+                            if (_log.LogRuleSet.ActionizeOnComment) {
                                 userAction = new UserAction(output);
                                 _log.AddWithoutInvokingEvent(userAction, false);
                             }
-                        }
-                        else if (userAction == null)
-                        {
+                        } else if (userAction == null) {
                             var logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
                             _log.AddWithoutInvokingEvent(logEntry, false);
-                        }
-                        else
-                        {
+                        } else {
                             var logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
                             userAction.AddWithoutInvokingEvent(logEntry, false);
                         }
@@ -1269,8 +1066,7 @@ namespace vApus.Stresstest
             SetIgnoreDelays();
             FillLargeList();
 
-            if (!successfullyParallized)
-            {
+            if (!successfullyParallized) {
                 string message = Text +
                                  ": Could not determine the begin- and end timestamps for one or more log entries in the different user actions, are they correctly formatted?";
                 LogWrapper.LogByLevel(message, LogLevel.Error);
@@ -1284,22 +1080,18 @@ namespace vApus.Stresstest
         /// <param name="input"></param>
         /// <param name="output"></param>
         /// <returns>True if is comment</returns>
-        private bool DetermineComment(string input, out string output)
-        {
+        private bool DetermineComment(string input, out string output) {
             int singleline = -1;
             int multiline = -1;
 
             input = input.TrimStart().Trim();
             output = input;
 
-            if (_multilineComment.Length > 0)
-            {
+            if (_multilineComment.Length > 0) {
                 multiline = input.IndexOf(_log.LogRuleSet.EndCommentString);
-                if (multiline > -1)
-                {
+                if (multiline > -1) {
                     output = input.Substring(multiline + _log.LogRuleSet.EndCommentString.Length);
-                    if (output.Length == 0)
-                    {
+                    if (output.Length == 0) {
                         if (input.Length > _log.LogRuleSet.EndCommentString.Length + 1)
                             output =
                                 FormatComment(_multilineComment.TrimStart() + ' ' +
@@ -1329,18 +1121,14 @@ namespace vApus.Stresstest
             else if (multiline > -1 && singleline == -1)
                 singleline = int.MaxValue;
 
-            if (singleline > -1 && singleline < multiline)
-            {
+            if (singleline > -1 && singleline < multiline) {
                 _multilineComment = string.Empty;
                 if (singleline == 0)
                     output = FormatComment(input.Substring(_log.LogRuleSet.SingleLineCommentString.Length));
                 return true;
-            }
-            else if (multiline > -1 && multiline < singleline)
-            {
+            } else if (multiline > -1 && multiline < singleline) {
                 int multilineCopy = input.IndexOf(_log.LogRuleSet.EndCommentString);
-                if (multilineCopy > -1 && multilineCopy > multiline)
-                {
+                if (multilineCopy > -1 && multilineCopy > multiline) {
                     _multilineComment = string.Empty;
                     output = input.TrimStart().Substring(0, multiline) +
                              input.Substring(multilineCopy + _log.LogRuleSet.EndCommentString.Length);
@@ -1350,9 +1138,7 @@ namespace vApus.Stresstest
                                                           input.Length - _log.LogRuleSet.EndCommentString.Length -
                                                           _log.LogRuleSet.BeginCommentString.Length));
                     return true;
-                }
-                else
-                {
+                } else {
                     _multilineComment = input.Substring(multiline + _log.LogRuleSet.BeginCommentString.Length);
                     if (_multilineComment.Length == 0)
                         _multilineComment = " ";
@@ -1363,13 +1149,11 @@ namespace vApus.Stresstest
             return false;
         }
 
-        private string FormatComment(string input)
-        {
+        private string FormatComment(string input) {
             int i = 0;
             input = input.TrimStart();
             var sb = new StringBuilder(255);
-            foreach (char c in input)
-            {
+            foreach (char c in input) {
                 sb.Append(c);
                 if (++i == 255)
                     break;
@@ -1377,8 +1161,7 @@ namespace vApus.Stresstest
             return sb.ToString();
         }
 
-        private void RemoveEmptyUserActions()
-        {
+        private void RemoveEmptyUserActions() {
             var emptyUserActions = new List<BaseItem>(_log.Count);
             foreach (BaseItem item in _log)
                 if (item is UserAction && item.Count == 0)
@@ -1392,13 +1175,11 @@ namespace vApus.Stresstest
         ///     Must be called before SetIgnoreDelays()
         /// </summary>
         /// <returns>false on error</returns>
-        private bool SetParallelExecutions()
-        {
-            if (CanSetParallelExecutions())
-            {
+        private bool SetParallelExecutions() {
+            if (CanSetParallelExecutions()) {
                 //Make one based zero based
-                int beginTimestampIndex = (int) _log.LogRuleSet.BeginTimestampIndex - 1;
-                int endTimestampIndex = (int) _log.LogRuleSet.EndTimestampIndex - 1;
+                int beginTimestampIndex = (int)_log.LogRuleSet.BeginTimestampIndex - 1;
+                int endTimestampIndex = (int)_log.LogRuleSet.EndTimestampIndex - 1;
 
                 //Apply the rule set and get the token delimiters to be able to get the parameterized structure
                 //for each log entry in a user action.
@@ -1410,31 +1191,25 @@ namespace vApus.Stresstest
                 _log.GetUniqueParameterTokenDelimiters(out b, out e, out error, out warning);
                 //I presume there are no errors, there are 14348907 possible combinations of delimiters
                 foreach (BaseItem item in _log)
-                    if (item is UserAction)
-                    {
+                    if (item is UserAction) {
                         var userAction = item as UserAction;
                         //Only usable when there is more then one loge entry.
-                        if (userAction.Count > 1)
-                        {
+                        if (userAction.Count > 1) {
                             //Get the first ones
                             DateTime previousBeginTimestamp, previousEndTimestamp;
                             if (!GetTimestamps(userAction[0] as LogEntry, b, e, beginTimestampIndex, endTimestampIndex,
                                                out previousBeginTimestamp, out previousEndTimestamp))
                                 return false;
 
-                            for (int i = 1; i < userAction.Count; i++)
-                            {
+                            for (int i = 1; i < userAction.Count; i++) {
                                 DateTime beginTimestamp, endTimestamp;
                                 var logEntry = userAction[i] as LogEntry;
                                 if (GetTimestamps(logEntry, b, e, beginTimestampIndex, endTimestampIndex,
-                                                  out beginTimestamp, out endTimestamp))
-                                {
+                                                  out beginTimestamp, out endTimestamp)) {
                                     //This is enough to determine the window, as easy as that.
-                                    if (beginTimestamp > previousBeginTimestamp && beginTimestamp < previousEndTimestamp)
-                                    {
-                                        var offset = (int) (beginTimestamp - previousBeginTimestamp).TotalMilliseconds;
-                                        if (offset > -1)
-                                        {
+                                    if (beginTimestamp > previousBeginTimestamp && beginTimestamp < previousEndTimestamp) {
+                                        var offset = (int)(beginTimestamp - previousBeginTimestamp).TotalMilliseconds;
+                                        if (offset > -1) {
                                             logEntry.ExecuteInParallelWithPrevious = true;
                                             logEntry.ParallelOffsetInMs = offset;
                                         }
@@ -1443,9 +1218,7 @@ namespace vApus.Stresstest
                                     //Replace the previous
                                     previousBeginTimestamp = beginTimestamp;
                                     previousEndTimestamp = endTimestamp;
-                                }
-                                else
-                                {
+                                } else {
                                     return false;
                                 }
                             }
@@ -1455,8 +1228,7 @@ namespace vApus.Stresstest
             return true;
         }
 
-        private bool CanSetParallelExecutions()
-        {
+        private bool CanSetParallelExecutions() {
             uint beginTimestampIndex = _log.LogRuleSet.BeginTimestampIndex;
             uint endTimestampIndex = _log.LogRuleSet.EndTimestampIndex;
             if (beginTimestampIndex >= endTimestampIndex)
@@ -1476,13 +1248,11 @@ namespace vApus.Stresstest
         /// <returns>false on parse error</returns>
         private bool GetTimestamps(LogEntry logEntry, string beginTokenDelimiter, string endTokenDelimiter,
                                    int beginTimestampIndex, int endTimestampIndex, out DateTime beginTimestamp,
-                                   out DateTime endTimestamp)
-        {
+                                   out DateTime endTimestamp) {
             beginTimestamp = endTimestamp = DateTime.MinValue;
 
             //Catch if no timestamps are available
-            try
-            {
+            try {
                 //We need to have a StringTree for the log entrym we can get that calling GetParameterizedStructure.
                 StringTree parameterizedLogEntry = logEntry.GetParameterizedStructure(beginTokenDelimiter,
                                                                                       endTokenDelimiter,
@@ -1490,26 +1260,21 @@ namespace vApus.Stresstest
                                                                                       new HashSet<BaseParameter>());
                 string begin = null, end = null;
 
-                if (endTimestampIndex < parameterizedLogEntry.Count)
-                {
+                if (endTimestampIndex < parameterizedLogEntry.Count) {
                     begin = parameterizedLogEntry[beginTimestampIndex].Value;
                     end = parameterizedLogEntry[endTimestampIndex].Value;
 
                     if (DateTime.TryParse(begin, out beginTimestamp))
                         DateTime.TryParse(end, out endTimestamp);
                 }
-            }
-            catch
-            {
+            } catch {
             }
             return beginTimestamp != DateTime.MinValue;
         }
 
-        private void SetIgnoreDelays()
-        {
+        private void SetIgnoreDelays() {
             foreach (BaseItem item in _log)
-                if (item is UserAction)
-                {
+                if (item is UserAction) {
                     var userAction = item as UserAction;
                     //Determine the non parallel log entries, set ignore delay for the other ones (must always be ignored for these)
                     var nonParallelLogEntries = new List<LogEntry>();
