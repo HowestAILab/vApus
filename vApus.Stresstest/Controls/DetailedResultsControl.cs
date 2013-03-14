@@ -161,7 +161,7 @@ namespace vApus.Stresstest {
                     } catch {
                     }
 
-                    //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview.
+                    //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview and retry 3 times.
                     if (dt == null) {
                         if (retry++ < 2)
                             goto Retry;

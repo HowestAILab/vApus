@@ -6,10 +6,8 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Threading;
 using System.Windows.Forms;
 using vApus.Results;
-using vApus.Util;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.DetailedResultsViewer {

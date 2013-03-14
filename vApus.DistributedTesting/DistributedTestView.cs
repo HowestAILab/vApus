@@ -220,14 +220,6 @@ namespace vApus.DistributedTesting {
                 if (_distributedTestCore != null) {
                     if (_distributedTestCore.TestProgressMessages.ContainsKey(tstvi.TileStresstest)) {
                         SetSlaveProgress(tstvi.TileStresstest, _distributedTestCore.TestProgressMessages[tstvi.TileStresstest]);
-
-                        if (_resultsHelper.DatabaseName == null || _distributedTestMode == DistributedTestMode.Test || !_tileStresstestsWithDbIds.ContainsKey(tstvi.TileStresstest)) {
-                            detailedResultsControl.ClearResults();
-                            detailedResultsControl.Enabled = false;
-                        } else {
-                            detailedResultsControl.Enabled = true;
-                            detailedResultsControl.RefreshResults(_resultsHelper, _tileStresstestsWithDbIds[tstvi.TileStresstest]);
-                        }
                     } else {
                         fastResultsControl.ClearFastResults();
                         detailedResultsControl.ClearResults();
@@ -254,6 +246,9 @@ namespace vApus.DistributedTesting {
 
                 SetOverallProgress();
             }
+
+            //Update the detailed results in the gui if any.
+            RefreshDetailedResults();
         }
         private void slaveTreeView_AfterSelect(object sender, EventArgs e) {
             if (sender is ClientTreeViewItem) {
@@ -907,13 +902,35 @@ namespace vApus.DistributedTesting {
             } else { StopMonitors(); }
 
             //Update the detailed results in the gui if any.
-            var tstvi = _selectedTestTreeViewItem as TileStresstestTreeViewItem;
-            if (tstvi == null || _resultsHelper.DatabaseName == null || _distributedTestMode == DistributedTestMode.Test || !_tileStresstestsWithDbIds.ContainsKey(tstvi.TileStresstest)) {
+            RefreshDetailedResults();
+        }
+        private void RefreshDetailedResults() {
+            ulong[] stresstestIds = null;
+            if (_resultsHelper != null && _resultsHelper.DatabaseName != null && _distributedTestMode == DistributedTestMode.Edit && _selectedTestTreeViewItem != null) {
+                if (_selectedTestTreeViewItem is TileStresstestTreeViewItem) {
+                    var tstvi = _selectedTestTreeViewItem as TileStresstestTreeViewItem;
+                    if (_tileStresstestsWithDbIds.ContainsKey(tstvi.TileStresstest))
+                        stresstestIds = new ulong[] { _tileStresstestsWithDbIds[tstvi.TileStresstest] };
+                } else if (_selectedTestTreeViewItem is TileTreeViewItem) {
+                    var l = new List<ulong>();
+                    var ttvi = _selectedTestTreeViewItem as TileTreeViewItem;
+                    foreach (var ctrl in ttvi.ChildControls)
+                        if (ctrl is TileStresstestTreeViewItem) {
+                            var tstvi = ctrl as TileStresstestTreeViewItem;
+                            if (_tileStresstestsWithDbIds.ContainsKey(tstvi.TileStresstest))
+                                l.Add(_tileStresstestsWithDbIds[tstvi.TileStresstest]);
+                        }
+                    stresstestIds = l.ToArray();
+                } else if (_selectedTestTreeViewItem is DistributedTestTreeViewItem) {
+                    stresstestIds = new ulong[] { };
+                }
+            }
+            if (stresstestIds == null) {
                 detailedResultsControl.ClearResults();
                 detailedResultsControl.Enabled = false;
             } else {
                 detailedResultsControl.Enabled = true;
-                detailedResultsControl.RefreshResults(_resultsHelper, _tileStresstestsWithDbIds[tstvi.TileStresstest]);
+                detailedResultsControl.RefreshResults(_resultsHelper, stresstestIds);
             }
         }
         #endregion
