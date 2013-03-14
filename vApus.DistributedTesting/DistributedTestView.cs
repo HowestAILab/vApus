@@ -471,7 +471,7 @@ namespace vApus.DistributedTesting {
 
             } catch {
                 RemoveDatabase(false);
-                Stop(true);
+                Stop();
             }
         }
 
@@ -524,14 +524,14 @@ namespace vApus.DistributedTesting {
                         }
 
                         RemoveDatabase();
-                        Stop(true);
+                        Stop();
                     }
                 } catch {
                     //Only one test can run at the same time.
                     string message = "Cannot start this test because another one is still running.";
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                     LogWrapper.LogByLevel(message, LogLevel.Error);
-                    Stop(true);
+                    Stop();
                 }
             }, null);
         }
@@ -597,7 +597,7 @@ namespace vApus.DistributedTesting {
                 }
 
                 RemoveDatabase();
-                Stop(true);
+                Stop();
                 Cursor = Cursors.Default;
             }, null);
         }
@@ -822,19 +822,29 @@ namespace vApus.DistributedTesting {
                 _monitorBeforeCountDown = null;
             }
 
-            Stop(false);
-            distributedStresstestControl.AppendMessages("Test Cancelled!", LogLevel.Warning);
+            if (_distributedTestCore != null) {
+                Cursor = Cursors.WaitCursor;
+
+                SetMode(DistributedTestMode.Edit);
+                btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
+
+                try {
+                    _distributedTestCore.Stop();
+                } catch (Exception ex) {
+                    string message = string.Format("The stresstest threw an exception:{0}{1}", Environment.NewLine, ex.Message);
+                    distributedStresstestControl.AppendMessages(message, LogLevel.Error);
+
+                    btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
+                }
+
+                Cursor = Cursors.Default;
+                distributedStresstestControl.AppendMessages("Test Cancelled!", LogLevel.Warning);
+            }
         }
         private void _distributedTestCore_OnFinished(object sender, FinishedEventArgs e) {
             _distributedTestCore.OnFinished -= _distributedTestCore_OnFinished;
 
-            Stop(true, e.Cancelled == 0 && e.Error == 0);
-            try {
-                distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled,
-                                                                 _distributedTestCore.Failed, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
-                                                                 (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
-                                                                 LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
-            } catch { } //Exception on false WMI. 
+            Stop(e.Cancelled == 0 && e.Error == 0);
         }
 
         private void DistributedTestView_FormClosing(object sender, FormClosingEventArgs e) {
@@ -845,7 +855,7 @@ namespace vApus.DistributedTesting {
                 tmrSchedule.Stop();
                 tmrRefreshGui.Stop();
 
-                StopMonitors();
+                StopMonitorsUpdateDetailedResultsAndSetMode();
 
                 if (_distributedTestCore != null)
                     try { _distributedTestCore.Stop(); } catch { }
@@ -860,10 +870,10 @@ namespace vApus.DistributedTesting {
                     == DialogResult.Yes)
                     try { _resultsHelper.RemoveDatabase(); } catch { }
         }
-        private void Stop(bool canEnableStop, bool monitorAfter = false) {
+        private void Stop(bool monitorAfter = false) {
             Cursor = Cursors.WaitCursor;
 
-            SetMode(DistributedTestMode.Edit, canEnableStop);
+            SetMode(DistributedTestMode.Edit);
 
             if (_distributedTestCore != null)
                 try {
@@ -899,10 +909,7 @@ namespace vApus.DistributedTesting {
                 monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
                 monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
                 monitorAfterCountdown.Start();
-            } else { StopMonitors(); }
-
-            //Update the detailed results in the gui if any.
-            RefreshDetailedResults();
+            } else { StopMonitorsUpdateDetailedResultsAndSetMode(); }
         }
         private void RefreshDetailedResults() {
             ulong[] stresstestIds = null;
@@ -1115,7 +1122,7 @@ namespace vApus.DistributedTesting {
             }, null);
         }
         private void monitorAfterCountdown_Stopped(object sender, EventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitors(); }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(); }, null);
 
             var monitorAfterCountdown = sender as Countdown;
             monitorAfterCountdown.Dispose();
@@ -1130,7 +1137,7 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     Only used in stop
         /// </summary>
-        private void StopMonitors() {
+        private void StopMonitorsUpdateDetailedResultsAndSetMode() {
             //Same view for multiple tilestresstests.
             var stoppedMonitorViews = new List<MonitorView>();
             if (_monitorViews != null)
@@ -1147,6 +1154,11 @@ namespace vApus.DistributedTesting {
                         }
 
             stoppedMonitorViews = null;
+
+            SetMode(DistributedTestMode.Edit, true);
+
+            //Update the detailed results in the gui if any.
+            RefreshDetailedResults();
         }
         #endregion
 

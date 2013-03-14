@@ -16,7 +16,7 @@
             base.Dispose(disposing);
 
             JumpStart.Done -= JumpStart_Done;
-            Stop(false);
+            Stop();
         }
 
         #region Windows Form Designer generated code

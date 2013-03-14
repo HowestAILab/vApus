@@ -1,7 +1,5 @@
-﻿namespace vApus.Stresstest
-{
-    partial class StresstestView
-    {
+﻿namespace vApus.Stresstest {
+    partial class StresstestView {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -11,12 +9,19 @@
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            Stop();
-            StopMonitors();
-            if (disposing && (components != null))
-            {
+        protected override void Dispose(bool disposing) {
+            StopMonitors(null, true);
+            StopStresstest();
+
+            tmrProgress.Stop();
+            tmrProgressDelayCountDown.Stop();
+            tmrSchedule.Stop();
+
+            if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
+                _stresstestCore.Dispose();
+                _stresstestCore = null;
+            }
+            if (disposing && (components != null)) {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -28,8 +33,7 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StresstestView));
             this.solutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
@@ -67,8 +71,8 @@
             // 
             // tc
             // 
-            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpConfigure);
