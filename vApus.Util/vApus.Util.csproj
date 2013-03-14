@@ -280,10 +280,10 @@
     <Compile Include="ControlsAndPanels\ToolStripStatusSpringLabel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.cs">
+    <Compile Include="Dialogs\UpdateNotifierDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.Designer.cs">
+    <Compile Include="Dialogs\UpdateNotifierDialog.Designer.cs">
       <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierPanel.cs">
@@ -346,10 +346,10 @@
     <Compile Include="ControlsAndPanels\ValueControlPanel\NumericValueControl.Designer.cs">
       <DependentUpon>NumericValueControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\ValueControlPanel\SelectCollectionItemsDialog.cs">
+    <Compile Include="Dialogs\SelectCollectionItemsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\ValueControlPanel\SelectCollectionItemsDialog.Designer.cs">
+    <Compile Include="Dialogs\SelectCollectionItemsDialog.Designer.cs">
       <DependentUpon>SelectCollectionItemsDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\ValueControlPanel\StringValueControl.cs">
@@ -402,7 +402,7 @@
     <Compile Include="Dialogs\OptionsDialog.Designer.cs">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\PostNewIssue.cs" />
+    <Compile Include="ControlsAndPanels\Logging\PostNewIssue.cs" />
     <Compile Include="Dialogs\Schedule.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -460,10 +460,10 @@
     <Compile Include="ControlsAndPanels\Tracert\TracertControl.Designer.cs">
       <DependentUpon>TracertControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\Tracert\TracertDialog.cs">
+    <Compile Include="Dialogs\TracertDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\Tracert\TracertDialog.Designer.cs">
+    <Compile Include="Dialogs\TracertDialog.Designer.cs">
       <DependentUpon>TracertDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Win32WindowMessageHandler.cs" />
@@ -495,7 +495,7 @@
     <EmbeddedResource Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.resx">
       <DependentUpon>TestProgressNotifierPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierDialog.resx">
+    <EmbeddedResource Include="Dialogs\UpdateNotifierDialog.resx">
       <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\UpdateNotifier\UpdateNotifierPanel.resx">
@@ -511,7 +511,7 @@
     <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\DefinedCollectionControl.resx">
       <DependentUpon>DefinedCollectionControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\SelectCollectionItemsDialog.resx">
+    <EmbeddedResource Include="Dialogs\SelectCollectionItemsDialog.resx">
       <DependentUpon>SelectCollectionItemsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\UndefinedCollectionControl.resx">
@@ -550,7 +550,7 @@
     <EmbeddedResource Include="ControlsAndPanels\Tracert\TracertControl.resx">
       <DependentUpon>TracertControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\Tracert\TracertDialog.resx">
+    <EmbeddedResource Include="Dialogs\TracertDialog.resx">
       <DependentUpon>TracertDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>

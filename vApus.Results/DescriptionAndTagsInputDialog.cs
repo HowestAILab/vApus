@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -27,6 +28,27 @@ namespace vApus.Results {
         /// </summary>
         public DescriptionAndTagsInputDialog() {
             InitializeComponent();
+
+            this.VisibleChanged += DescriptionAndTagsInputDialog_VisibleChanged;
+        }
+        //Check connectivity to mysql results db.
+        async void DescriptionAndTagsInputDialog_VisibleChanged(object sender, EventArgs e) {
+            this.VisibleChanged -= DescriptionAndTagsInputDialog_VisibleChanged;
+
+            var cultureInfo = Thread.CurrentThread.CurrentCulture;
+            Exception ex = await Task<Exception>.Run(() => 
+            {
+                Thread.CurrentThread.CurrentCulture = cultureInfo;
+                return _resultsHelper.BuildSchemaAndConnect();
+            
+            });
+
+            btnOK.Enabled = true;
+            btnOK.Text = "OK";
+            if (ex != null) {
+                LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
+                lblCouldNotConnect.Visible = true;
+            }
         }
 
         public string Description {

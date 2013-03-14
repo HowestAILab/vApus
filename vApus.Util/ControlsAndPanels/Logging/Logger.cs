@@ -10,14 +10,12 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     The purpose of this class is to have a logger who writes to a file.
     ///     Before this we used Log4Net but that was a bit overrated for the things we want to log (mainly exceptions).
     /// </summary>
-    public class Logger
-    {
+    public class Logger {
         #region Fields
 
         public static readonly string DEFAULT_LOCATION;
@@ -30,20 +28,16 @@ namespace vApus.Util
 
         #region Properties
 
-        public StreamWriter Writer
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    if (_sw == null)
-                    {
+        public StreamWriter Writer {
+            get {
+                lock (_lock) {
+                    if (_sw == null) {
                         if (!Directory.Exists(_location))
                             Directory.CreateDirectory(_location);
 
                         //Only create a new log file if needed (if the app runs multiple days there will be only one file per run).
                         if (_logFile == null)
-                            _logFile = Path.Combine(_location, DateTime.Now.ToString("yyyy-MM-dd") + " " + Name + ".txt");
+                            _logFile = Path.Combine(_location, DateTime.Now.ToString("yyyy'-'MM'-'dd") + " " + Name + ".txt");
                         _sw = new StreamWriter(_logFile, true);
                     }
                     return _sw;
@@ -54,14 +48,12 @@ namespace vApus.Util
 
         public string Name { get; set; }
 
-        public string Location
-        {
+        public string Location {
             get { return _location; }
             set { _location = value; }
         }
 
-        public string LogFile
-        {
+        public string LogFile {
             get { return _logFile; }
         }
 
@@ -69,8 +61,7 @@ namespace vApus.Util
 
         #region Constructors
 
-        static Logger()
-        {
+        static Logger() {
             DEFAULT_LOCATION = Path.Combine(Application.StartupPath, "Logs");
         }
 
@@ -79,16 +70,14 @@ namespace vApus.Util
         /// </summary>
         /// <param name="name"></param>
         public Logger(string name)
-            : this(name, DEFAULT_LOCATION)
-        {
+            : this(name, DEFAULT_LOCATION) {
         }
 
         /// <summary>
         ///     Creates a new FileLogger with given name and optionally a location.
         /// </summary>
         /// <param name="location">Use this this to a location different than the default location</param>
-        public Logger(string name, string location)
-        {
+        public Logger(string name, string location) {
             Name = name;
             Location = location;
 
@@ -97,8 +86,7 @@ namespace vApus.Util
 
         #endregion
 
-        public void Log(object input)
-        {
+        public void Log(object input) {
             Writer.WriteLine(input);
             Writer.Flush();
         }
@@ -106,23 +94,15 @@ namespace vApus.Util
         /// <summary>
         ///     If the log file must be accessible (temporary!), you can close the writer, don't forget to reopen it.
         /// </summary>
-        public void CloseWriter()
-        {
-            if (_sw != null)
-            {
-                try
-                {
+        public void CloseWriter() {
+            if (_sw != null) {
+                try {
                     _sw.Close();
+                } catch {
                 }
-                catch
-                {
-                }
-                try
-                {
+                try {
                     _sw.Dispose();
-                }
-                catch
-                {
+                } catch {
                 }
                 _sw = null;
             }
@@ -131,15 +111,12 @@ namespace vApus.Util
         /// <summary>
         ///     Opens the writer.
         /// </summary>
-        public void OpenOrReOpenWriter()
-        {
+        public void OpenOrReOpenWriter() {
             StreamWriter writer = Writer;
         }
 
-        public void RemoveLogIfEmptyLog()
-        {
-            if (File.Exists(_logFile))
-            {
+        public void RemoveLogIfEmptyLog() {
+            if (File.Exists(_logFile)) {
                 CloseWriter();
                 string content = string.Empty;
                 using (var sr = new StreamReader(_logFile))

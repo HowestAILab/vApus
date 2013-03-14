@@ -368,7 +368,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 sb.Append("', '");
                                 sb.Append(logEntryResult.DelayInMilliseconds);
                                 sb.Append("', '");
-                                sb.Append(logEntryResult.Error);
+                                sb.Append(MySQLEscapeString(logEntryResult.Error));
                                 sb.Append("', '");
                                 sb.Append(logEntryResult.Rerun);
                                 sb.Append("')");
@@ -397,13 +397,21 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions != null) {
                     ulong monitorConfigurationId = monitorResultCache.MonitorConfigurationId;
+                    var rowsToInsert = new List<string>(); //Insert multiple values at once.
                     foreach (var row in monitorResultCache.Rows) {
                         var value = new List<float>();
                         for (int i = 1; i < row.Length; i++) value.Add((float)row[i]);
 
-                        _databaseActions.ExecuteSQL("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES (?MonitorId, ?TimeStamp, ?Value);", CommandType.Text, new MySqlParameter("?MonitorId", monitorConfigurationId)
-                            , new MySqlParameter("?TimeStamp", Parse((DateTime)row[0])), new MySqlParameter("?Value", value.ToArray().Combine("; ")));
+                        var sb = new StringBuilder("('");
+                        sb.Append(monitorConfigurationId);
+                        sb.Append("', '");
+                        sb.Append(Parse((DateTime)row[0]));
+                        sb.Append("', '");
+                        sb.Append(MySQLEscapeString(MySQLEscapeString(value.ToArray().Combine("; "))));
+                        sb.Append("')");
+                        rowsToInsert.Add(sb.ToString());
                     }
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.ToArray().Combine(", ")));
                 }
             }
         }

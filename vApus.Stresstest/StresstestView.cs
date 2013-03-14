@@ -181,30 +181,24 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <returns></returns>
         private bool InitDatabase() {
-            Exception ex = _resultsHelper.BuildSchemaAndConnect();
-            if (ex == null) {
-                var dialog = new DescriptionAndTagsInputDialog { Description = _stresstest.Description, Tags = _stresstest.Tags, ResultsHelper = _resultsHelper };
-                if (dialog.ShowDialog() == DialogResult.Cancel)
-                    return false;
-
-                bool edited = false;
-                if (_stresstest.Description != dialog.Description) {
-                    _stresstest.Description = dialog.Description;
-                    edited = true;
-                }
-                if (_stresstest.Tags.Combine(", ") != dialog.Tags.Combine(", ")) {
-                    _stresstest.Tags = dialog.Tags;
-                    edited = true;
-                }
-
-                if (edited) _stresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                return true;
-            } else {
-                LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
-                if (MessageBox.Show("Could not connect to MySQL!\nDo you want to proceed anyway? No report will be made.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                    return true;
+            var dialog = new DescriptionAndTagsInputDialog { Description = _stresstest.Description, Tags = _stresstest.Tags, ResultsHelper = _resultsHelper };
+            if (dialog.ShowDialog() == DialogResult.Cancel) {
+                RemoveDatabase(false);
+                return false;
             }
-            return false;
+
+            bool edited = false;
+            if (_stresstest.Description != dialog.Description) {
+                _stresstest.Description = dialog.Description;
+                edited = true;
+            }
+            if (_stresstest.Tags.Combine(", ") != dialog.Tags.Combine(", ")) {
+                _stresstest.Tags = dialog.Tags;
+                edited = true;
+            }
+
+            if (edited) _stresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            return true;
         }
 
         private void SetGuiForStart(bool enableStop) {
@@ -662,9 +656,9 @@ namespace vApus.Stresstest {
                 }
             }
         }
-        private void RemoveDatabase() {
+        private void RemoveDatabase(bool confirm = true) {
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
-                if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                if (!confirm || MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
                     try { _resultsHelper.RemoveDatabase(); } catch { }
         }

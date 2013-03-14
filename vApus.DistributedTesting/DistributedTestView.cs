@@ -372,30 +372,24 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <returns></returns>
         private bool InitDatabaseBeforeStart() {
-            Exception ex = _resultsHelper.BuildSchemaAndConnect();
-            if (ex == null) {
-                var dialog = new DescriptionAndTagsInputDialog { Description = _distributedTest.Description, Tags = _distributedTest.Tags, ResultsHelper = _resultsHelper };
-                if (dialog.ShowDialog() == DialogResult.Cancel)
-                    return false;
-
-                bool edited = false;
-                if (_distributedTest.Description != dialog.Description) {
-                    _distributedTest.Description = dialog.Description;
-                    edited = true;
-                }
-                if (_distributedTest.Tags.Combine(", ") != dialog.Tags.Combine(", ")) {
-                    _distributedTest.Tags = dialog.Tags;
-                    edited = true;
-                }
-
-                if (edited) _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                return true;
-            } else {
-                LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
-                if (MessageBox.Show("Could not connect to MySQL!\nDo you want to proceed anyway? No report will be made.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                    return true;
+            var dialog = new DescriptionAndTagsInputDialog { Description = _distributedTest.Description, Tags = _distributedTest.Tags, ResultsHelper = _resultsHelper };
+            if (dialog.ShowDialog() == DialogResult.Cancel) {
+                RemoveDatabase(false);
+                return false;
             }
-            return false;
+
+            bool edited = false;
+            if (_distributedTest.Description != dialog.Description) {
+                _distributedTest.Description = dialog.Description;
+                edited = true;
+            }
+            if (_distributedTest.Tags.Combine(", ") != dialog.Tags.Combine(", ")) {
+                _distributedTest.Tags = dialog.Tags;
+                edited = true;
+            }
+
+            if (edited) _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            return true;
         }
         private void SetvApusInstancesAndStresstestsInDb() {
             _tileStresstestsWithDbIds.Clear();

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,6 +21,8 @@ namespace vApus.Util {
         private readonly object _lock = new object();
         private readonly Timer _tmrFireLogChangedEvent = new Timer(5000);
         private volatile int _logErrorCountCache;
+
+        private const string newLineReplacement = "◦";
 
         public LogPanel() {
             InitializeComponent();
@@ -127,6 +128,7 @@ namespace vApus.Util {
 
         private void SetEntries() {
             var latestLog = llblLatestLog.Tag as string;
+            latestLog = @"C:\Users\Didjeeh\Desktop\vapus\Build\Logs\2013-03-13 PID_444.txt";
             if (File.Exists(latestLog)) {
                 //Fast read this, if it fails once it is not a problem.
                 var lines = new List<string>();
@@ -159,8 +161,6 @@ namespace vApus.Util {
         }
 
         private void AddLinesToDataTable(List<string> lines, DataTable dt) {
-            string newLineReplacement = "◦";
-
             foreach (string line in lines) {
                 string[] entry = line.Split(';');
 
@@ -273,6 +273,30 @@ namespace vApus.Util {
             public LogErrorCountChangedEventArgs(int logErrorCount) {
                 LogErrorCount = logErrorCount;
             }
+        }
+
+        private void dgv_CellDoubleClick(object sender, DataGridViewCellEventArgs e) {
+            var row = (dgv.DataSource as DataTable).Rows[e.RowIndex];
+            var lmd = new LogMessageDialog();
+
+            string type = (row.ItemArray[1] as string).ToLower();
+            if (type != "info")
+                lmd.Title = "You can report this bug, be sure it is not because of a configuration problem.";
+            else
+                lmd.ReportThisBugVisible = false;
+
+
+            lmd.Text = row.ItemArray.Combine("; ").Replace(newLineReplacement, Environment.NewLine);
+            lmd.StartPosition = FormStartPosition.CenterParent;
+            lmd.ShowDialog(this);
+        }
+
+        private void dgv_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) {
+            try {
+                var cell = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                if (string.IsNullOrEmpty(cell.ToolTipText))
+                    cell.ToolTipText = "Double-click for details...";
+            } catch { }
         }
     }
 }
