@@ -604,10 +604,7 @@ namespace vApus.Stresstest {
 
                 StopProgressDelayCountDown();
 
-                solutionComponentPropertyPanel.Unlock();
-                btnStop.Enabled = false;
-                btnStart.Enabled = true;
-                btnSchedule.Enabled = true;
+                
                 tmrSchedule.Stop();
                 btnSchedule.Text = string.Empty;
                 btnSchedule.Tag = null;
@@ -626,7 +623,7 @@ namespace vApus.Stresstest {
                         if (view != null && !view.IsDisposed)
                             runningMonitors++;
 
-                if (monitorAfter && _stresstest.MonitorAfter != 0 && runningMonitors != 0) {
+                if (monitorAfter && _stresstest.MonitorAfter != 0 && runningMonitors != 0 && stresstestStatus != StresstestStatus.Cancelled && stresstestStatus != StresstestStatus.Error) {
                     int countdownTime = _stresstest.MonitorAfter * 60000;
                     var monitorAfterCountdown = new Countdown(countdownTime, 5000);
                     monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
@@ -712,9 +709,9 @@ namespace vApus.Stresstest {
                         view.Stop();
                         fastResultsControl.AppendMessages(view.Text + " is stopped.");
                     }
-            MonitorAfterFinishedOrStop(ex, disposing);
+            MonitorAfterFinishedOrStopAndSetGui(ex, disposing);
         }
-        private void MonitorAfterFinishedOrStop(Exception exception, bool disposing) {
+        private void MonitorAfterFinishedOrStopAndSetGui(Exception exception, bool disposing) {
             if (_monitorViews != null && _stresstest.Monitors.Length != 0)
                 foreach (MonitorView view in _monitorViews)
                     if (view != null)
@@ -724,6 +721,11 @@ namespace vApus.Stresstest {
                         }
 
             if (!disposing) {
+                solutionComponentPropertyPanel.Unlock();
+                btnStop.Enabled = false;
+                btnStart.Enabled = true;
+                btnSchedule.Enabled = true;
+
                 if (_resultsHelper.DatabaseName == null) {
                     detailedResultsControl.ClearResults();
                     detailedResultsControl.Enabled = false;
