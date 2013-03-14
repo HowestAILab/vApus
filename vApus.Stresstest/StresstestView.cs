@@ -604,7 +604,7 @@ namespace vApus.Stresstest {
 
                 StopProgressDelayCountDown();
 
-                
+
                 tmrSchedule.Stop();
                 btnSchedule.Text = string.Empty;
                 btnSchedule.Tag = null;
@@ -677,11 +677,8 @@ namespace vApus.Stresstest {
 
             if (_stresstestCore != null) {
                 try {
-                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
-                                                          LocalMonitor.ContextSwitchesPerSecond,
-                                                          (int)LocalMonitor.MemoryUsage,
-                                                          (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent,
-                                                          LocalMonitor.NicsReceived);
+                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage,
+                                                          (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                 } catch { } //Exception on false WMI. 
 
                 fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics());

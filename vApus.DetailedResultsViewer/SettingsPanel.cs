@@ -105,9 +105,11 @@ namespace vApus.DetailedResultsViewer {
                 int done = 0;
                 foreach (DataRow dbsr in dbs.Rows) {
                     string database = dbsr.ItemArray[0] as string;
+                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
                     ThreadPool.QueueUserWorkItem((object state) => {
                         if (done < count) {
                             try {
+                                Thread.CurrentThread.CurrentCulture = cultureInfo;
                                 if (_filterDatabasesWorkItem == null) _filterDatabasesWorkItem = new FilterDatabasesWorkItem();
 
                                 var das = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
