@@ -361,7 +361,6 @@
     <Compile Include="StresstestCore.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="EventArgs.cs" />
-    <Compile Include="Metrics.cs" />
     <Compile Include="Parameters\CustomList\CustomListParameters.cs" />
     <Compile Include="Parameters\CustomList\CustomListParameter.cs" />
     <Compile Include="Parameters\Numeric\NumericParameters.cs" />

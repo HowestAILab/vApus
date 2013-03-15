@@ -411,10 +411,6 @@ namespace vApus.DistributedTesting {
                     }
                     InvokeOnTestProgressMessageReceived(ts, tpm);
 
-#if EnableBetaFeature
-                    WriteRestProgress(ts, tpm);
-#endif
-
                     if (Cancelled != 0 || Failed != 0) Stop(); //Test is invalid stop the test.
                     if (Finished == _usedTileStresstests.Count) HandleFinished();
                 } catch { }
@@ -451,7 +447,7 @@ namespace vApus.DistributedTesting {
             try {
                 Converter.ClearWrittenFiles();
 
-                var testConfigCache = new Hashtable(1);
+                var testConfigCache = new List<KeyValuePair<object, object>>(1);
                 foreach (Tile tile in _distributedTest.Tiles)
                     foreach (TileStresstest tileStresstest in tile)
                         if (tileStresstest.Use)
@@ -478,28 +474,7 @@ namespace vApus.DistributedTesting {
                                                     tileStresstest.AdvancedTileStresstest.MonitorAfter);
 
                 Converter.WriteToFile(testConfigCache, "TestConfig");
-            } catch { }
-        }
-
-        private void WriteRestProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
-            try {
-                var testProgressCache = new Hashtable(1);
-                //foreach (
-                //    TileConcurrencyProgressResult tcu in
-                //        testProgressMessage.TileStresstestProgressResults.TileConcurrencyProgressResults)
-                //    foreach (TileRunProgressResult tru in tcu.TileRunProgressResults)
-                //        Converter.SetTestProgress(testProgressCache, _distributedTest.ToString(),
-                //                                  "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
-                //                                  tileStresstest.Index + " " +
-                //                                  tileStresstest.BasicTileStresstest.Connection.Label,
-                //                                  tcu.ConcurrentUsers, tru.Run + 1,
-                //                                  tru.Metrics,
-                //                                  tru.EstimatedRuntimeLeft,
-                //                                  testProgressMessage.RunStateChange,
-                //                                  testProgressMessage.StresstestResult);
-
-                //Converter.WriteToFile(testProgressCache, "TestProgress");
-            } catch {
+            } catch { 
             }
         }
 

@@ -8,10 +8,8 @@
 
 using System;
 
-namespace vApus.Results
-{
-    public class LogEntryResult
-    {
+namespace vApus.Results {
+    public class LogEntryResult {
         public string VirtualUser { get; set; }
         public string UserAction { get; set; }
 
@@ -19,6 +17,10 @@ namespace vApus.Results
         ///     Index in Log
         /// </summary>
         public string LogEntryIndex { get; set; }
+        /// <summary>
+        ///     To be able to calcullate averages when using distribute.
+        /// </summary>
+        public string SameAsLogEntryIndex { get; set; }
 
         public string LogEntry { get; set; }
         public DateTime SentAt { get; set; }

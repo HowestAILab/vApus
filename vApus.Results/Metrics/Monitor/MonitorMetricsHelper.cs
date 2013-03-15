@@ -74,7 +74,7 @@ namespace vApus.Results {
         public static MonitorMetrics GetConcurrencyMetrics(string monitor, StresstestMetrics concurrencyMetrics, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitor;
-            metrics.StartMeasuringRuntime = concurrencyMetrics.StartMeasuringRuntime;
+            metrics.StartMeasuringRuntime = concurrencyMetrics.StartMeasuringTime;
             metrics.MeasuredRunTime = concurrencyMetrics.MeasuredTime;
             metrics.ConcurrentUsers = concurrencyMetrics.Concurrency;
             metrics.Headers = monitorResultCache.Headers;
@@ -107,14 +107,14 @@ namespace vApus.Results {
         public static MonitorMetrics GetRunMetrics(string monitor, StresstestMetrics runMetrics, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitor;
-            metrics.StartMeasuringRuntime = runMetrics.StartMeasuringRuntime;
+            metrics.StartMeasuringRuntime = runMetrics.StartMeasuringTime;
             metrics.MeasuredRunTime = runMetrics.MeasuredTime;
             metrics.ConcurrentUsers = runMetrics.Concurrency;
             metrics.Run = runMetrics.Run;
             metrics.Headers = monitorResultCache.Headers;
 
-            var stoppedAt = runMetrics.StartMeasuringRuntime + runMetrics.MeasuredTime;
-            SetAverageMonitorResultsToMetrics(metrics, GetMonitorValues(runMetrics.StartMeasuringRuntime, stoppedAt == runMetrics.StartMeasuringRuntime ? DateTime.MaxValue : stoppedAt, monitorResultCache));
+            var stoppedAt = runMetrics.StartMeasuringTime + runMetrics.MeasuredTime;
+            SetAverageMonitorResultsToMetrics(metrics, GetMonitorValues(runMetrics.StartMeasuringTime, stoppedAt == runMetrics.StartMeasuringTime ? DateTime.MaxValue : stoppedAt, monitorResultCache));
 
             return metrics;
         }

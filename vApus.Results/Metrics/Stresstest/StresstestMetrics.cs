@@ -15,7 +15,7 @@ namespace vApus.Results {
     public class StresstestMetrics : ISerializable {
         private long _logEntriesProcessed;
 
-        public DateTime StartMeasuringRuntime { get; set; }
+        public DateTime StartMeasuringTime { get; set; }
         public TimeSpan EstimatedTimeLeft { get; set; }
         /// <summary>
         /// For run sync break on last is this not only the run time, think time between the reruns are included. 
@@ -64,7 +64,7 @@ namespace vApus.Results {
 
         public StresstestMetrics(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr = SerializationReader.GetReader(info);
-            StartMeasuringRuntime = sr.ReadDateTime();
+            StartMeasuringTime = sr.ReadDateTime();
             EstimatedTimeLeft = sr.ReadTimeSpan();
             MeasuredTime = sr.ReadTimeSpan();
             Concurrency = sr.ReadInt32();
@@ -85,7 +85,7 @@ namespace vApus.Results {
 
         public void GetObjectData(SerializationInfo info, StreamingContext context) {
             SerializationWriter sw = SerializationWriter.GetWriter();
-            sw.Write(StartMeasuringRuntime);
+            sw.Write(StartMeasuringTime);
             sw.Write(EstimatedTimeLeft);
             sw.Write(MeasuredTime);
             sw.Write(Concurrency);

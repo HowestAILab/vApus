@@ -354,32 +354,50 @@ namespace vApus.Stresstest {
                 return log;
             } else {
                 Log newLog = log.Clone(false);
-                foreach (BaseItem item in log)
+                foreach (BaseItem item in log) {
                     if (item is UserAction) {
                         var action = item as UserAction;
+                        var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
                         for (int i = 0; i != action.Occurance; i++) {
                             var actionClone = new UserAction(action.Label);
                             actionClone.Occurance = 1; //Must be one now, this value doesn't matter anymore.
                             actionClone.Pinned = action.Pinned;
 
-                            foreach (LogEntry child in action)
+                            bool canAddClones = firstEntryClones.Count == 0;
+                            int logEntryIndex = 0;
+                            foreach (LogEntry child in action) {
                                 for (int j = 0; j != child.Occurance; j++) {
                                     LogEntry childClone = child.Clone();
                                     childClone.Occurance = 1;
+
+                                    if (canAddClones && j == 0)
+                                        firstEntryClones.Add(childClone);
+                                    else
+                                        childClone.SameAs = firstEntryClones[logEntryIndex];
+
                                     actionClone.AddWithoutInvokingEvent(childClone, false);
                                 }
+                                ++logEntryIndex;
+                            }
 
                             newLog.AddWithoutInvokingEvent(actionClone, false);
                         }
                     } else {
                         var entry = item as LogEntry;
+                        LogEntry firstEntryClone = null;
                         for (int i = 0; i != entry.Occurance; i++) {
                             LogEntry entryClone = entry.Clone();
                             entryClone.Occurance = 1;
+
+                            if (firstEntryClone == null)
+                                firstEntryClone = entryClone;
+                            else
+                                entryClone.SameAs = firstEntryClone;
+
                             newLog.AddWithoutInvokingEvent(entryClone, false);
                         }
                     }
-
+                }
                 return newLog;
             }
         }
@@ -553,10 +571,13 @@ namespace vApus.Stresstest {
                             userAction = parent.ToString();
                         }
 
-                        tle[index++] = new TestableLogEntry(logEntryIndex, parameterizedLogEntry, userActionIndex,
-                                                            userAction,
-                                                            logEntry.ExecuteInParallelWithPrevious,
-                                                            logEntry.ParallelOffsetInMs, _rerun);
+                        string sameAsLogEntryIndex = string.Empty;
+                        if (logEntry.SameAs != null) {
+                            parent = logEntry.SameAs.Parent as UserAction;
+                            sameAsLogEntryIndex = (parent == null) ? logEntry.SameAs.Index.ToString() : parent.Index + "." + logEntry.SameAs.Index;
+                        }
+                        tle[index++] = new TestableLogEntry(logEntryIndex, sameAsLogEntryIndex, parameterizedLogEntry, userActionIndex, userAction,
+                            logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, _rerun);
                     }
 
                     testableLogEntries.Add(tle);
@@ -576,7 +597,6 @@ namespace vApus.Stresstest {
                     throw;
             }
         }
-
         private void SetThreadPool(int concurrentUsers) {
             if (_cancel)
                 return;
@@ -888,6 +908,7 @@ namespace vApus.Stresstest {
 
                     var logEntryResult = new LogEntryResult {
                         LogEntryIndex = testableLogEntry.LogEntryIndex,
+                        SameAsLogEntryIndex = testableLogEntry.SameAsLogEntryIndex,
                         LogEntry = testableLogEntry.ParameterizedLogEntryString,
                         UserAction = testableLogEntry.UserAction,
                         SentAt = sentAt,
@@ -924,6 +945,12 @@ namespace vApus.Stresstest {
             public readonly string LogEntryIndex;
 
             /// <summary>
+            /// To be able to calcullate averages when using distribute.
+            /// Can not be null, string.empty is allowed.
+            /// </summary>
+            public readonly string SameAsLogEntryIndex;
+
+            /// <summary>
             ///     The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do).
             /// </summary>
             public readonly int ParallelOffsetInMs;
@@ -936,7 +963,7 @@ namespace vApus.Stresstest {
             public readonly string ParameterizedLogEntryString;
 
             /// <summary>
-            ///     Should be log.IndexOf(LogEntry) or log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry), this must be unique
+            ///     Can not be null, string.empty is allowed
             /// </summary>
             public readonly string UserAction;
             /// <summary>
@@ -947,18 +974,14 @@ namespace vApus.Stresstest {
             /// <summary>
             ///     Log entry with metadata.
             /// </summary>
-            /// <param name="logEntryIndex">Should be log.IndexOf(LogEntry) or log.IndexOf(UserAction) + '.'. + UserAction.IndexOf(LogEntry), this must be unique</param>
-            /// <param name="parameterizedLogEntry"></param>
-            /// <param name="userAction">Can not be null, string.empty is allowed</param>
-            /// <param name="userAction">Can not be null, string.empty is allowed</param>
-            /// <param name="generateWhileTestingParameterTokens">The needed ones will be filtered.</param>
-            public TestableLogEntry(string logEntryIndex, StringTree parameterizedLogEntry, int userActionIndex,
+            public TestableLogEntry(string logEntryIndex, string sameAsLogEntryString, StringTree parameterizedLogEntry, int userActionIndex,
                                     string userAction,
                                     bool executeInParallelWithPrevious, int parallelOffsetInMs, int rerun) {
                 if (userAction == null)
                     throw new ArgumentNullException("userAction");
 
                 LogEntryIndex = logEntryIndex;
+                SameAsLogEntryIndex = sameAsLogEntryString;
 
                 ParameterizedLogEntry = parameterizedLogEntry;
                 ParameterizedLogEntryString = ParameterizedLogEntry.CombineValues();

@@ -360,6 +360,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 sb.Append("', '");
                                 sb.Append(logEntryResult.LogEntryIndex);
                                 sb.Append("', '");
+                                sb.Append(logEntryResult.SameAsLogEntryIndex);
+                                sb.Append("', '");
                                 sb.Append(MySQLEscapeString(logEntryResult.LogEntry));
                                 sb.Append("', '");
                                 sb.Append(Parse(logEntryResult.SentAt));
@@ -375,7 +377,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 rowsToInsert.Add(sb.ToString());
                             }
 
-                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) Values {0};",
+                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) Values {0};",
                             rowsToInsert.ToArray().Combine(", ")));
                     }
 
@@ -617,7 +619,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                             var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, true);
 
-                            averageConcurrentUsers.Rows.Add(stresstest, metrics.StartMeasuringRuntime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
+                            averageConcurrentUsers.Rows.Add(stresstest, metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
                                 metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
                                 Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2), Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
                                 Math.Round(metrics.AverageDelay.TotalMilliseconds, 2), metrics.Errors);
