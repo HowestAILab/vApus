@@ -29,7 +29,7 @@ namespace vApus.REST.Convert {
                                          ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter) {
             var distributedTestCache = AddSubCache(distributedTest, testConfigCache);
             if (distributedTestCache.Count == 0)
-                distributedTestCache.Add(new ConverterKVP("RunSynchronization", runSynchronization));
+                distributedTestCache.Add("RunSynchronization", runSynchronization);
 
             var newMonitors = new string[monitors.Length];
             for (int i = 0; i != monitors.Length; i++)
@@ -51,7 +51,7 @@ namespace vApus.REST.Convert {
                 MonitorBeforeInMinutes = monitorBefore,
                 MonitorAfterInMinutes = monitorAfter
             };
-            distributedTestCache.Add(new ConverterKVP(tileStresstest, testConfig));
+            distributedTestCache.Add(tileStresstest, testConfig);
         }
 
         public static void SetTestProgress(ConverterCollection testProgressCache, string distributedTest, string tileStresstest, StresstestMetrics metrics, RunStateChange runStateChange, StresstestStatus stresstestStatus) {
@@ -73,7 +73,7 @@ namespace vApus.REST.Convert {
             };
 
             int run = metrics.Run + 1;
-            concurrencyCache.Add(new ConverterKVP(run, testProgress));
+            concurrencyCache.Add(run, testProgress);
             //if (concurrencyCache.Contains(run)) concurrencyCache[run] = testProgress;
             //else concurrencyCache.Add(run, testProgress);
         }
@@ -84,7 +84,7 @@ namespace vApus.REST.Convert {
                 MonitorSource = monitor.MonitorSource == null ? "N/A" : monitor.MonitorSource.ToString(),
                 Parameters = monitor.Parameters
             };
-            distributedTestCache.Add(new ConverterKVP(monitor.ToString(), monitorConfig));
+            distributedTestCache.Add(monitor.ToString(), monitorConfig);
         }
 
         public static void SetMonitorProgress(ConverterCollection monitorProgressCache, string distributedTest, Monitor.Monitor monitor, string[] headers, Dictionary<DateTime, float[]> values) {
@@ -93,7 +93,7 @@ namespace vApus.REST.Convert {
                 Headers = headers,
                 Values = values
             };
-            distributedTestCache.Add(new ConverterKVP(monitor.ToString(), monitorProgress));
+            distributedTestCache.Add(monitor.ToString(), monitorProgress);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace vApus.REST.Convert {
         /// <returns>The sub cache</returns>
         private static ConverterCollection AddSubCache(object key, ConverterCollection parent) {
             var child = new ConverterCollection();
-            parent.Add(new ConverterKVP(key, child));
+            parent.Add(key, child);
             return child;
         }
 

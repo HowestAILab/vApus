@@ -9,12 +9,12 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 namespace vApus.REST.Convert {
-    public class ConverterCollection : List<ConverterKVP> {
-    }
-    public class Bla : IDictionary<object, object> {
-        private ConverterCollection _cache = new ConverterCollection();
+    //public class ConverterCollection : List<ConverterKVP> {
+    //}
+    public class ConverterCollection : IDictionary<object, object> {
+        private List<KeyValuePair<object, object>> _cache = new List<KeyValuePair<object, object>>();
         public void Add(object key, object value) {
-           // _cache.Add(new ConverterKVP(key, value);
+            _cache.Add(new KeyValuePair<object, object>(key, value));
         }
 
         public bool ContainsKey(object key) {
@@ -75,42 +75,11 @@ namespace vApus.REST.Convert {
         }
 
         public IEnumerator<KeyValuePair<object, object>> GetEnumerator() {
-            throw new System.NotImplementedException();
+            return _cache.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-            throw new System.NotImplementedException();
-        }
-    }
-    public class ConverterKVP : Dictionary<object, object> {
-        private KeyValuePair<object, object> _kvp;
-
-        public ConverterKVP()
-            : base(1) { }
-        public ConverterKVP(int capacity)
-            : base(1) { }
-        public ConverterKVP(object key, object value) {
-            _kvp = new KeyValuePair<object, object>(key, value);
-            Clear();
-            Add(_kvp.Key, _kvp.Value);
-        }
-        [JsonIgnore]
-        public object Key {
-            get { return _kvp.Key; }
-            set {
-                _kvp = new KeyValuePair<object, object>(value, _kvp.Value);
-                Clear();
-                Add(_kvp.Key, _kvp.Value);
-            }
-        }
-        [JsonIgnore]
-        public object Value {
-            get { return _kvp.Value; }
-            set {
-                _kvp = new KeyValuePair<object, object>(_kvp.Key, value);
-                Clear();
-                Add(_kvp.Key, _kvp.Value);
-            }
+            return _cache.GetEnumerator();
         }
     }
 }
