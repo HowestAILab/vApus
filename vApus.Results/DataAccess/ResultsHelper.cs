@@ -507,7 +507,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         }
         #endregion
 
-        #region Procedures
+        #region Not So Stored Procedures
         /// <summary>
         /// Get all the stresstests: ID, Stresstest, Connection
         /// </summary>
@@ -670,10 +670,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             }
 
                             var logEntryResults = _databaseActions.GetDataTable(
-                                string.Format("SELECT RunResultId, VirtualUser, UserAction, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
+                                string.Format("SELECT RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
 
                             //Place the log entry results under the right virtual user and the right user action
-                            var userActions = new List<KeyValuePair<string, Dictionary<string, List<LogEntryResult>>>>(); // <VirtualUser,<UserAction, LogEntryResult
+                            var userActions = new List<KeyValuePair<string, List<KeyValuePair<string, List<LogEntryResult>>>>>(); // <VirtualUser,<UserAction, LogEntryResult
                             foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
@@ -681,6 +681,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                                 //Keeping reruns in mind (break on last)
                                 int runs = ((int)rrRow.ItemArray[1]) + 1;
+                                var userActionsMap = new Dictionary<string, string>(); //Map duplicate user actions to the original ones.
                                 for (int reRun = 0; reRun != runs; reRun++) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
@@ -688,10 +689,21 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                     foreach (DataRow lerRow in logEntryResults.Rows) {
                                         if (cancellationToken.IsCancellationRequested) return null;
 
-                                        if ((int)lerRow.ItemArray[0] == runResultId && (int)lerRow.ItemArray[6] == reRun) {
-                                            string virtualUser = lerRow.ItemArray[1] as string;
+                                        object[] row = lerRow.ItemArray;
+                                        if ((int)row[0] == runResultId && (int)row[8] == reRun) {
+                                            string virtualUser = row[1] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct average doing it like this.
                                             string userAction = lerRow.ItemArray[2] as string;
-                                            var logEntryResult = new LogEntryResult() { TimeToLastByteInTicks = (long)lerRow.ItemArray[3], DelayInMilliseconds = (int)lerRow.ItemArray[4], Error = lerRow.ItemArray[5] as string };
+
+                                            string logEntryIndex = lerRow.ItemArray[4] as string; //Combine results when using distribe like this.
+                                            if (logEntryIndex == string.Empty) {
+                                                logEntryIndex = lerRow.ItemArray[3] as string;
+
+                                                //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used.
+                                                //Map using the log entry index
+                                                if (!userActionsMap.ContainsKey(logEntryIndex)) userActionsMap.Add(logEntryIndex, userAction);
+                                            }
+
+                                            var logEntryResult = new LogEntryResult() { LogEntryIndex = logEntryIndex, TimeToLastByteInTicks = (long)lerRow.ItemArray[5], DelayInMilliseconds = (int)lerRow.ItemArray[6], Error = lerRow.ItemArray[7] as string };
 
                                             if (!uas.ContainsKey(virtualUser)) uas.Add(virtualUser, new Dictionary<string, List<LogEntryResult>>());
                                             if (!uas[virtualUser].ContainsKey(userAction)) uas[virtualUser].Add(userAction, new List<LogEntryResult>());
@@ -702,8 +714,16 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                     foreach (string virtualUser in uas.Keys) {
                                         if (cancellationToken.IsCancellationRequested) return null;
 
-                                        var kvp = new KeyValuePair<string, Dictionary<string, List<LogEntryResult>>>(virtualUser, new Dictionary<string, List<LogEntryResult>>());
-                                        foreach (string userAction in uas[virtualUser].Keys) kvp.Value.Add(userAction, uas[virtualUser][userAction]);
+                                        var kvp = new KeyValuePair<string, List<KeyValuePair<string, List<LogEntryResult>>>>(virtualUser, new List<KeyValuePair<string, List<LogEntryResult>>>());
+                                        foreach (string userAction in uas[virtualUser].Keys) {
+                                            string mappedUserAction = userAction;
+                                            var lers = uas[virtualUser][userAction];
+                                            if (lers.Count != 0) {
+                                                var leri = lers[0].LogEntryIndex;
+                                                if (userActionsMap.ContainsKey(leri)) mappedUserAction = userActionsMap[leri];
+                                            }
+                                            kvp.Value.Add(new KeyValuePair<string, List<LogEntryResult>>(mappedUserAction, lers));
+                                        }
                                         userActions.Add(kvp);
                                     }
                                 }
@@ -731,7 +751,9 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                         if (delay == -1) {
                                             delay = ler.DelayInMilliseconds;
                                             ttlb = ler.TimeToLastByteInTicks;
-                                        } else ttlb += ler.TimeToLastByteInTicks + ler.DelayInMilliseconds;
+                                        } else {
+                                            ttlb += ler.TimeToLastByteInTicks + ler.DelayInMilliseconds;
+                                        }
                                         if (!string.IsNullOrEmpty(ler.Error)) ++ers;
                                     }
                                     userActionResults.Rows.Add(userAction, ttlb, delay, ers);
@@ -801,11 +823,35 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             List<string> sortedUserActions = avgTimeToLastByteInTicks.Keys.ToList();
                             sortedUserActions.Sort(UserActionComparer.GetInstance);
 
+                            var correctedUserActions = new Dictionary<string, string>(); //user action, corrected user action
+                            int correctIndex = 1;
+                            string ua = "User Action ";
+                            string nd = "None defined ";
+                            foreach (string userAction in sortedUserActions) {
+                                string part1 = ua;
+                                string part2 = userAction;
+                                if (part2.StartsWith(ua)) {
+                                    part2 = part2.Substring(ua.Length);
+                                } else if (part2.StartsWith(nd)) {
+                                    part1 = nd;
+                                    part2 = part2.Substring(nd.Length);
+                                }
+
+                                string[] split = part2.Split(':');
+                                part2 = split[0];
+                                string part3 = split[1];
+
+                                int index = int.Parse(split[0]);
+                                correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + ":" + part3);
+
+                                ++correctIndex;
+                            }
+
                             //Add the sorted user actions to the whole.
                             foreach (string s in sortedUserActions) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                averageUserActions.Rows.Add(stresstest, concurrency, s,
+                                averageUserActions.Rows.Add(stresstest, concurrency, correctedUserActions[s],
                                     Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
                                     Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
                                     Math.Round(((double)percTimeToLastBytesInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
@@ -859,22 +905,31 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             }
 
                             var logEntryResults = _databaseActions.GetDataTable(
-                                string.Format("SELECT LogEntryIndex, UserAction, LogEntry, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
+                                string.Format("SELECT LogEntryIndex, SameAsLogEntryIndex, UserAction, LogEntry, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
 
                             //We don't need to keep the run ids for this one, it's much faster and simpler like this.
                             var uniqueLogEntryCounts = new Dictionary<string, int>(); //To make a correct average.
+                            var userActions = new Dictionary<string, string>(); //log entry index, User Action
                             foreach (DataRow lerRow in logEntryResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                string logEntryIndex = lerRow[0] as string;
+                                object[] row = lerRow.ItemArray;
+                                string logEntryIndex = row[1] as string; //Combine results when using distribution like this.
+                                if (logEntryIndex == string.Empty) {
+                                    logEntryIndex = row[0] as string;
+
+                                    //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used. 
+                                    if (!userActions.ContainsKey(logEntryIndex)) {
+                                        string userAction = row[2] as string;
+                                        userActions.Add(logEntryIndex, userAction);
+                                    }
+                                }
 
                                 if (uniqueLogEntryCounts.ContainsKey(logEntryIndex)) ++uniqueLogEntryCounts[logEntryIndex];
                                 else uniqueLogEntryCounts.Add(logEntryIndex, 1);
                             }
 
-                            //The key of the entries for following collections are log entry indices.
-                            var userActions = new Dictionary<string, string>();
-                            var logEntries = new Dictionary<string, string>(); //Val = log entry
+                            var logEntries = new Dictionary<string, string>(); //log entry index, log entry
 
                             var avgTimeToLastByteInTicks = new Dictionary<string, double>();
                             var maxTimeToLastByteInTicks = new Dictionary<string, long>();
@@ -888,12 +943,14 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 object[] row = lerRow.ItemArray;
-                                string logEntryIndex = row[0] as string;
-                                string userAction = row[1] as string;
-                                string logEntry = row[2] as string;
-                                long ttlb = (long)row[3];
-                                int delay = (int)row[4];
-                                string error = row[5] as string;
+                                string logEntryIndex = row[1] as string; //Combine results when using distribution like this.
+                                if (logEntryIndex == string.Empty) logEntryIndex = row[0] as string;
+
+                                string userAction = row[2] as string;
+                                string logEntry = row[3] as string;
+                                long ttlb = (long)row[4];
+                                int delay = (int)row[5];
+                                string error = row[6] as string;
 
                                 int uniqueLogEntryCount = uniqueLogEntryCounts[logEntryIndex];
 
@@ -934,10 +991,39 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             List<string> sortedLogEntryIndices = logEntries.Keys.ToList();
                             sortedLogEntryIndices.Sort(LogEntryIndexComparer.GetInstance);
 
+                            //Correct the indices of the user actions
+                            List<string> sortedUserActions = userActions.Values.ToList();
+                            sortedUserActions.Sort(UserActionComparer.GetInstance);
+
+                            var correctedUserActions = new Dictionary<string, string>(); //user action, corrected user action
+                            int correctIndex = 1;
+                            string ua = "User Action ";
+                            string nd = "None defined ";
+                            foreach (string userAction in sortedUserActions)
+                                if (!correctedUserActions.ContainsKey(userAction)) {
+                                    string part1 = ua;
+                                    string part2 = userAction;
+                                    if (part2.StartsWith(ua)) {
+                                        part2 = part2.Substring(ua.Length);
+                                    } else if (part2.StartsWith(nd)) {
+                                        part1 = nd;
+                                        part2 = part2.Substring(nd.Length);
+                                    }
+
+                                    string[] split = part2.Split(':');
+                                    part2 = split[0];
+                                    string part3 = split[1];
+
+                                    int index = int.Parse(split[0]);
+                                    correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + ":" + part3);
+
+                                    ++correctIndex;
+                                }
+
                             foreach (string s in sortedLogEntryIndices) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                averageLogEntries.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
+                                averageLogEntries.Rows.Add(stresstest, concurrency, correctedUserActions[userActions[s]], logEntries[s],
                                     Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
                                     Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
                                     Math.Round(((double)percTimeToLastBytesInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
@@ -1050,21 +1136,49 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         foreach (DataRow rrRow in rr.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var ler = _databaseActions.GetDataTable(string.Format("Select UserAction, LogEntry FROM LogEntryResults WHERE RunResultId={0} and VirtualUser='vApus Thread Pool Thread #1';", rrRow.ItemArray[0]));
+                            var ler = _databaseActions.GetDataTable(string.Format("Select UserAction, LogEntry, SameAsLogEntryIndex FROM LogEntryResults WHERE RunResultId={0} and VirtualUser='vApus Thread Pool Thread #1';", rrRow.ItemArray[0]));
 
                             var userActions = new Dictionary<string, List<string>>();
                             foreach (DataRow lerRow in ler.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
+                                object[] row = lerRow.ItemArray;
 
-                                string userAction = lerRow.ItemArray[0] as string;
-                                string logEntry = lerRow.ItemArray[1] as string;
-                                if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
-                                if (!userActions[userAction].Contains(logEntry)) userActions[userAction].Add(logEntry);
+                                if (row[2] as string == string.Empty) { //We don't want duplicates
+                                    string userAction = row[0] as string;
+                                    string logEntry = row[1] as string;
+                                    if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
+                                    if (!userActions[userAction].Contains(logEntry)) userActions[userAction].Add(logEntry);
+                                }
                             }
 
                             //Sort the user actions
                             List<string> sortedUserActions = userActions.Keys.ToList();
                             sortedUserActions.Sort(UserActionComparer.GetInstance);
+
+                            var correctedUserActions = new Dictionary<string, string>(); //user action, corrected user action
+                            int correctIndex = 1;
+                            string ua = "User Action ";
+                            string nd = "None defined ";
+                            foreach (string userAction in sortedUserActions)
+                                if (!correctedUserActions.ContainsKey(userAction)) {
+                                    string part1 = ua;
+                                    string part2 = userAction;
+                                    if (part2.StartsWith(ua)) {
+                                        part2 = part2.Substring(ua.Length);
+                                    } else if (part2.StartsWith(nd)) {
+                                        part1 = nd;
+                                        part2 = part2.Substring(nd.Length);
+                                    }
+
+                                    string[] split = part2.Split(':');
+                                    part2 = split[0];
+                                    string part3 = split[1];
+
+                                    int index = int.Parse(split[0]);
+                                    correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + ":" + part3);
+
+                                    ++correctIndex;
+                                }
 
                             foreach (string userAction in sortedUserActions) {
                                 if (cancellationToken.IsCancellationRequested) return null;
@@ -1072,7 +1186,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 foreach (string logEntry in userActions[userAction]) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    userActionComposition.Rows.Add(stresstest, userAction, logEntry);
+                                    userActionComposition.Rows.Add(stresstest, correctedUserActions[userAction], logEntry);
                                 }
                             }
                             break;

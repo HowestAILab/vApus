@@ -15,13 +15,13 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.Util;
-
 namespace vApus.SolutionTree {
     /// <summary>
     ///     The base item for everything you want in the solution. When names are not unique, use LabeledBaseItem to ensure nothing can/will break.
     /// </summary>
     [Serializable]
     public abstract class BaseItem : SolutionComponent {
+
         #region Fields
 
         protected Dictionary<PropertyInfo, string> _branchedInfos;
@@ -164,8 +164,7 @@ namespace vApus.SolutionTree {
                                                                                       childElement.InnerText.Length - 1);
 
                         if (savableCloneableAttribute.Encrypt) {
-                            childElement.InnerText =
-                                childElement.InnerText.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
+                            childElement.InnerText = childElement.InnerText.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
                                                                new byte[]
                                                                    {
                                                                        0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76

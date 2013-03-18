@@ -316,6 +316,12 @@ namespace vApus.DistributedTesting {
                     socketWrapper = Connect(ip);
                     if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
 
+                    password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
+                                                               new byte[]
+                                                                   {
+                                                                       0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76
+                                                                       , 0x65, 0x64, 0x65, 0x76
+                                                                   });
                     var smartUpdateMessage = new SmartUpdateMessage() { Version = version, Host = host, Username = username, Password = password, Channel = channel, Port = port };
                     var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.SmartUpdate, smartUpdateMessage);
 

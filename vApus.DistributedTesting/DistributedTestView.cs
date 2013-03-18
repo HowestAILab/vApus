@@ -1172,17 +1172,18 @@ namespace vApus.DistributedTesting {
         #region REST
         private void WriteMonitorRestConfig() {
             try {
-                var monitorConfigCache = new List<KeyValuePair<object, object>>(1);
+                var monitorConfigCache = new ConverterCollection();
                 foreach (TileStresstest key in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[key])
                         Converter.SetMonitorConfig(monitorConfigCache, _distributedTest.ToString(), view.Monitor);
 
                 Converter.WriteToFile(monitorConfigCache, "MonitorConfig");
-            } catch { }
+            } catch {
+            }
         }
         private void WriteMonitorRestProgress() {
             try {
-                var monitorProgressCache = new List<KeyValuePair<object, object>>(1);
+                var monitorProgressCache = new ConverterCollection();
                 int monitorCount = 0;
 
                 if (_monitorViews != null)
@@ -1197,7 +1198,7 @@ namespace vApus.DistributedTesting {
         }
         private void WriteRestProgress() {
             try {
-                var testProgressCache = new List<KeyValuePair<object, object>>(1);
+                var testProgressCache = new ConverterCollection();
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                     foreach (TileStresstest tileStresstest in _distributedTestCore.TestProgressMessages.Keys) {
                         var tpm = _distributedTestCore.TestProgressMessages[tileStresstest];

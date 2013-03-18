@@ -536,8 +536,7 @@ namespace vApus.Stresstest {
 
                 var delaysRandom = new Random(DateTime.Now.Millisecond);
                 for (int t = 0; t != concurrentUsers; t++) {
-                    if (_cancel)
-                        return;
+                    if (_cancel) return;
 
                     int[] testPatternIndices, delayPattern;
                     _testPatternsAndDelaysGenerator.GetPatterns(out testPatternIndices, out delayPattern);
@@ -548,8 +547,7 @@ namespace vApus.Stresstest {
                     List<StringTree> parameterizedStructure = _log.GetParameterizedStructure();
 
                     for (int i = 0; i != testPatternIndices.Length; i++) {
-                        if (_cancel)
-                            return;
+                        if (_cancel) return;
 
                         int j = testPatternIndices[i];
 
@@ -560,7 +558,14 @@ namespace vApus.Stresstest {
                         string userAction = string.Empty;
                         int userActionIndex = 0;
 
-                        var parent = logEntry.Parent as UserAction;
+                        UserAction parent = null;
+                        string sameAsLogEntryIndex = string.Empty;
+                        if (logEntry.SameAs != null) {
+                            parent = logEntry.SameAs.Parent as UserAction;
+                            sameAsLogEntryIndex = (parent == null) ? logEntry.SameAs.Index.ToString() : parent.Index + "." + logEntry.SameAs.Index;
+                        }
+
+                        parent = logEntry.Parent as UserAction;
                         if (parent == null) {
                             logEntryIndex = logEntry.Index.ToString();
                             userActionIndex = logEntry.Index;
@@ -571,11 +576,6 @@ namespace vApus.Stresstest {
                             userAction = parent.ToString();
                         }
 
-                        string sameAsLogEntryIndex = string.Empty;
-                        if (logEntry.SameAs != null) {
-                            parent = logEntry.SameAs.Parent as UserAction;
-                            sameAsLogEntryIndex = (parent == null) ? logEntry.SameAs.Index.ToString() : parent.Index + "." + logEntry.SameAs.Index;
-                        }
                         tle[index++] = new TestableLogEntry(logEntryIndex, sameAsLogEntryIndex, parameterizedLogEntry, userActionIndex, userAction,
                             logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, _rerun);
                     }

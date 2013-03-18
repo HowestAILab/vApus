@@ -108,8 +108,14 @@ namespace vApus.JumpStart {
                     if (File.Exists(path)) {
                         var process = new Process();
                         process.EnableRaisingEvents = true;
+                        string password = smartUpdateMessage.Password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
+                                                               new byte[]
+                                                                   {
+                                                                       0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76
+                                                                       , 0x65, 0x64, 0x65, 0x76
+                                                                   });
                         process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + smartUpdateMessage.Host + " " +
-                                                                 smartUpdateMessage.Port + " " + smartUpdateMessage.Username + " " + smartUpdateMessage.Password + " " + smartUpdateMessage.Channel +
+                                                                 smartUpdateMessage.Port + " " + smartUpdateMessage.Username + " " + password + " " + smartUpdateMessage.Channel +
                                                                  " " + false + " " + true);
 
                         process.Start();

@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -12,11 +19,9 @@ namespace vApus.REST.Convert {
     public static class Converter {
         private static readonly string _writeDir = Path.Combine(Application.StartupPath, "REST");
 
-        public static string WriteDir {
-            get { return _writeDir; }
-        }
+        public static string WriteDir { get { return _writeDir; } }
 
-        public static void SetTestConfig(List<KeyValuePair<object, object>> testConfigCache, string distributedTest, string runSynchronization,
+        public static void SetTestConfig(ConverterCollection testConfigCache, string distributedTest, string runSynchronization,
                                          string tileStresstest, Connection connection, string connectionProxy,
                                          Monitor.Monitor[] monitors, string slave,
                                          Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay,
@@ -24,7 +29,7 @@ namespace vApus.REST.Convert {
                                          ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter) {
             var distributedTestCache = AddSubCache(distributedTest, testConfigCache);
             if (distributedTestCache.Count == 0)
-                distributedTestCache.Add(new KeyValuePair<object, object>("RunSynchronization", runSynchronization));
+                distributedTestCache.Add(new ConverterKVP("RunSynchronization", runSynchronization));
 
             var newMonitors = new string[monitors.Length];
             for (int i = 0; i != monitors.Length; i++)
@@ -46,10 +51,10 @@ namespace vApus.REST.Convert {
                 MonitorBeforeInMinutes = monitorBefore,
                 MonitorAfterInMinutes = monitorAfter
             };
-            distributedTestCache.Add(new KeyValuePair<object, object>(tileStresstest, testConfig));
+            distributedTestCache.Add(new ConverterKVP(tileStresstest, testConfig));
         }
 
-        public static void SetTestProgress(List<KeyValuePair<object, object>> testProgressCache, string distributedTest, string tileStresstest, StresstestMetrics metrics, RunStateChange runStateChange, StresstestStatus stresstestStatus) {
+        public static void SetTestProgress(ConverterCollection testProgressCache, string distributedTest, string tileStresstest, StresstestMetrics metrics, RunStateChange runStateChange, StresstestStatus stresstestStatus) {
             var concurrencyCache = AddSubCache(metrics.Concurrency, AddSubCache(tileStresstest, AddSubCache(distributedTest, testProgressCache)));
             var testProgress = new TestProgress {
                 StartMeasuringTime = metrics.StartMeasuringTime,
@@ -68,38 +73,43 @@ namespace vApus.REST.Convert {
             };
 
             int run = metrics.Run + 1;
-            concurrencyCache.Add(new KeyValuePair<object, object>(run, testProgress));
+            concurrencyCache.Add(new ConverterKVP(run, testProgress));
             //if (concurrencyCache.Contains(run)) concurrencyCache[run] = testProgress;
             //else concurrencyCache.Add(run, testProgress);
         }
 
-        public static void SetMonitorConfig(List<KeyValuePair<object, object>> monitorConfigCache, string distributedTest, Monitor.Monitor monitor) {
+        public static void SetMonitorConfig(ConverterCollection monitorConfigCache, string distributedTest, Monitor.Monitor monitor) {
             var distributedTestCache = AddSubCache(distributedTest, monitorConfigCache);
             var monitorConfig = new MonitorConfig {
                 MonitorSource = monitor.MonitorSource == null ? "N/A" : monitor.MonitorSource.ToString(),
                 Parameters = monitor.Parameters
             };
-            distributedTestCache.Add(new KeyValuePair<object, object>(monitor.ToString(), monitorConfig));
+            distributedTestCache.Add(new ConverterKVP(monitor.ToString(), monitorConfig));
         }
 
-        public static void SetMonitorProgress(List<KeyValuePair<object, object>> monitorProgressCache, string distributedTest, Monitor.Monitor monitor, string[] headers, Dictionary<DateTime, float[]> values) {
+        public static void SetMonitorProgress(ConverterCollection monitorProgressCache, string distributedTest, Monitor.Monitor monitor, string[] headers, Dictionary<DateTime, float[]> values) {
             var distributedTestCache = AddSubCache(distributedTest, monitorProgressCache);
             var monitorProgress = new MonitorProgress {
                 Headers = headers,
                 Values = values
             };
-            distributedTestCache.Add(new KeyValuePair<object, object>(monitor.ToString(), monitorProgress));
+            distributedTestCache.Add(new ConverterKVP(monitor.ToString(), monitorProgress));
         }
 
-        private static List<KeyValuePair<object, object>> AddSubCache(object key, List<KeyValuePair<object, object>> parent) {
-            var child = new List<KeyValuePair<object, object>>();
-            parent.Add(new KeyValuePair<object, object>(key, child));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="parent"></param>
+        /// <returns>The sub cache</returns>
+        private static ConverterCollection AddSubCache(object key, ConverterCollection parent) {
+            var child = new ConverterCollection();
+            parent.Add(new ConverterKVP(key, child));
             return child;
         }
 
         public static void WriteToFile(object cache, string fileName) {
             if (!Directory.Exists(_writeDir)) Directory.CreateDirectory(_writeDir);
-
             using (var sw = new StreamWriter(Path.Combine(_writeDir, fileName)))
                 sw.Write(JsonConvert.SerializeObject(cache));
         }

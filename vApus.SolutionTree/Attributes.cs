@@ -10,15 +10,13 @@ using System;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace vApus.SolutionTree
-{
+namespace vApus.SolutionTree {
     /// <summary>
     ///     Properties with this attributes will be saved (GetXmlToSave) or cloned.
     ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class SavableCloneableAttribute : Attribute
-    {
+    public sealed class SavableCloneableAttribute : Attribute {
         #region Fields
 
         private readonly bool _encrypt;
@@ -27,8 +25,7 @@ namespace vApus.SolutionTree
 
         #region Properties
 
-        public bool Encrypt
-        {
+        public bool Encrypt {
             get { return _encrypt; }
         }
 
@@ -37,12 +34,10 @@ namespace vApus.SolutionTree
         #region Constructors
 
         public SavableCloneableAttribute()
-            : this(false)
-        {
+            : this(false) {
         }
 
-        public SavableCloneableAttribute(bool encrypt)
-        {
+        public SavableCloneableAttribute(bool encrypt) {
             _encrypt = encrypt;
         }
 
@@ -54,8 +49,7 @@ namespace vApus.SolutionTree
     ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class PropertyControlAttribute : Attribute
-    {
+    public sealed class PropertyControlAttribute : Attribute {
         #region Fields
 
         private readonly bool _advancedProperty;
@@ -65,13 +59,11 @@ namespace vApus.SolutionTree
 
         #region Properties
 
-        public int DisplayIndex
-        {
+        public int DisplayIndex {
             get { return _displayIndex; }
         }
 
-        public bool AdvancedProperty
-        {
+        public bool AdvancedProperty {
             get { return _advancedProperty; }
         }
 
@@ -82,8 +74,7 @@ namespace vApus.SolutionTree
         ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
         ///     Use an other constructor if you want a custom property control.
         /// </summary>
-        public PropertyControlAttribute()
-        {
+        public PropertyControlAttribute() {
         }
 
         /// <summary>
@@ -95,8 +86,7 @@ namespace vApus.SolutionTree
         ///     A number greater than -1, it doesn't matter if it isn't directly following the display indices of other property control attributes.
         ///     If this is not spedified, alphabetical sorting will take place.
         /// </param>
-        public PropertyControlAttribute(int displayIndex)
-        {
+        public PropertyControlAttribute(int displayIndex) {
             _displayIndex = displayIndex;
         }
 
@@ -113,8 +103,7 @@ namespace vApus.SolutionTree
         ///     An advanced property will be hidden. The user can choose to see it. This value is default false.
         /// </param>
         public PropertyControlAttribute(int displayIndex, bool advancedProperty)
-            : this(displayIndex)
-        {
+            : this(displayIndex) {
             _advancedProperty = advancedProperty;
         }
     }
@@ -125,8 +114,7 @@ namespace vApus.SolutionTree
     ///     It will try to add the same key as shortcut key as the provided hotkey, if any. Otherwise just the key desplay name is altered.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class ContextMenuAttribute : Attribute
-    {
+    public sealed class ContextMenuAttribute : Attribute {
         private readonly string[] _labels;
         private readonly string[] _methodNames;
 
@@ -135,8 +123,7 @@ namespace vApus.SolutionTree
         ///     Standard methods for "SolutionComponent": "Clear_Click" and "SortItemsByLabel_Click", and one for "BaseItem": "Remove_Click".
         ///     It will try to add the same key as shortcut key as the provided hotkey, if any. Otherwise just the key desplay name is altered.
         /// </summary>
-        public ContextMenuAttribute(string[] methodNames, string[] labels)
-        {
+        public ContextMenuAttribute(string[] methodNames, string[] labels) {
             if (methodNames == null || labels == null)
                 throw new ArgumentNullException("methodNames || labels");
             if (methodNames.Length == 0 || labels.Length != methodNames.Length)
@@ -159,8 +146,7 @@ namespace vApus.SolutionTree
         ///     It will try to add the same key as shortcut key as the provided hotkey, if any. Otherwise just the key desplay name is altered.
         /// </summary>
         public ContextMenuAttribute(string[] methodNames)
-            : this(methodNames, methodNames)
-        {
+            : this(methodNames, methodNames) {
         }
 
         /// <summary>
@@ -169,8 +155,7 @@ namespace vApus.SolutionTree
         ///     It will try to add the same key as shortcut key as the provided hotkey, if any. Otherwise just the key desplay name is altered.
         /// </summary>
         public ContextMenuAttribute(string methodName, string label)
-            : this(new[] {methodName}, new[] {label})
-        {
+            : this(new[] { methodName }, new[] { label }) {
         }
 
         /// <summary>
@@ -179,8 +164,7 @@ namespace vApus.SolutionTree
         ///     It will try to add the same key as shortcut key as the provided hotkey, if any. Otherwise just the key desplay name is altered.
         /// </summary>
         public ContextMenuAttribute(string methodName)
-            : this(methodName, methodName)
-        {
+            : this(methodName, methodName) {
         }
 
         /// <summary>
@@ -188,20 +172,17 @@ namespace vApus.SolutionTree
         /// </summary>
         /// <param name="solutionComponentType"></param>
         /// <returns></returns>
-        internal ContextMenuStrip GetContextMenuStrip(SolutionComponent target)
-        {
-            try
-            {
+        internal ContextMenuStrip GetContextMenuStrip(SolutionComponent target) {
+            try {
                 //Adding shortcuts.
-                Type keysType = typeof (Keys);
+                Type keysType = typeof(Keys);
                 HotkeysAttribute hotkeysAttribute = null;
-                object[] attributes = target.GetType().GetCustomAttributes(typeof (HotkeysAttribute), true);
+                object[] attributes = target.GetType().GetCustomAttributes(typeof(HotkeysAttribute), true);
                 if (attributes.Length > 0)
                     hotkeysAttribute = attributes[0] as HotkeysAttribute;
 
                 var contextMenuStrip = new ContextMenuStrip();
-                for (int i = 0; i < _methodNames.Length; i++)
-                {
+                for (int i = 0; i < _methodNames.Length; i++) {
                     var item = new ToolStripMenuItem(_labels[i]);
                     MethodInfo info = target.GetType()
                                             .GetMethod(_methodNames[i],
@@ -212,12 +193,10 @@ namespace vApus.SolutionTree
                         throw new Exception(string.Format("Method '{0}' not found in {1} '{2}!", _methodNames[i],
                                                           target.GetType().Name, target));
 
-                    item.Click += (EventHandler) Delegate.CreateDelegate(typeof (EventHandler), target, info);
-                    if (hotkeysAttribute != null)
-                    {
+                    item.Click += (EventHandler)Delegate.CreateDelegate(typeof(EventHandler), target, info);
+                    if (hotkeysAttribute != null) {
                         Keys shortcutKey;
-                        if (hotkeysAttribute.TryGetHotkey(_methodNames[i], out shortcutKey))
-                        {
+                        if (hotkeysAttribute.TryGetHotkey(_methodNames[i], out shortcutKey)) {
                             if (ToolStripManager.IsValidShortcut(shortcutKey))
                                 item.ShortcutKeys = shortcutKey;
                             else
@@ -228,9 +207,7 @@ namespace vApus.SolutionTree
                     contextMenuStrip.Items.Add(item);
                 }
                 return contextMenuStrip;
-            }
-            catch
-            {
+            } catch {
             }
             return null;
         }
@@ -244,8 +221,7 @@ namespace vApus.SolutionTree
     ///     Control and Shift are supported, Alt is not.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class HotkeysAttribute : Attribute
-    {
+    public sealed class HotkeysAttribute : Attribute {
         private readonly Keys[] _hotkeys;
         private readonly string[] _methodNames;
 
@@ -256,8 +232,7 @@ namespace vApus.SolutionTree
         ///     A word of caution: do not use the same keys as for the main menu for instance and do provide the same method name and hotkey only once.
         ///     Control and Shift are supported, Alt is not.
         /// </summary>
-        public HotkeysAttribute(string[] methodNames, Keys[] hotkeys)
-        {
+        public HotkeysAttribute(string[] methodNames, Keys[] hotkeys) {
             if (methodNames == null || hotkeys == null)
                 throw new ArgumentNullException("methodNames || hotkeys");
             if (methodNames.Length == 0 || hotkeys.Length != methodNames.Length)
@@ -279,8 +254,7 @@ namespace vApus.SolutionTree
         ///     Control and Shift are supported, Alt is not.
         /// </summary>
         public HotkeysAttribute(string methodName, Keys hotkey)
-            : this(new[] {methodName}, new[] {hotkey})
-        {
+            : this(new[] { methodName }, new[] { hotkey }) {
         }
 
         /// <summary>
@@ -289,11 +263,9 @@ namespace vApus.SolutionTree
         /// <param name="methodName"></param>
         /// <param name="hotkey"></param>
         /// <returns></returns>
-        internal bool TryGetHotkey(string methodName, out Keys hotkey)
-        {
+        internal bool TryGetHotkey(string methodName, out Keys hotkey) {
             for (int i = 0; i < _methodNames.Length; i++)
-                if (_methodNames[i] == methodName)
-                {
+                if (_methodNames[i] == methodName) {
                     hotkey = _hotkeys[i];
                     return true;
                 }
@@ -306,17 +278,14 @@ namespace vApus.SolutionTree
         /// </summary>
         /// <param name="target"></param>
         /// <param name="hotKey"></param>
-        internal void HandleHotkey(SolutionComponent target, Keys hotKey)
-        {
+        internal void HandleHotkey(SolutionComponent target, Keys hotKey) {
             int index = -1;
             for (int i = 0; i < _hotkeys.Length; i++)
-                if (_hotkeys[i] == hotKey)
-                {
+                if (_hotkeys[i] == hotKey) {
                     index = i;
                     break;
                 }
-            if (index > -1)
-            {
+            if (index > -1) {
                 MethodInfo info = target.GetType()
                                         .GetMethod(_methodNames[index],
                                                    BindingFlags.Instance | BindingFlags.NonPublic |

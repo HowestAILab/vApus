@@ -447,7 +447,7 @@ namespace vApus.DistributedTesting {
             try {
                 Converter.ClearWrittenFiles();
 
-                var testConfigCache = new List<KeyValuePair<object, object>>(1);
+                var testConfigCache = new ConverterCollection();
                 foreach (Tile tile in _distributedTest.Tiles)
                     foreach (TileStresstest tileStresstest in tile)
                         if (tileStresstest.Use)
