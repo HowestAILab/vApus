@@ -448,10 +448,12 @@ namespace vApus.DistributedTesting {
                 Converter.ClearWrittenFiles();
 
                 var testConfigCache = new ConverterCollection();
+                var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), testConfigCache);
+                
                 foreach (Tile tile in _distributedTest.Tiles)
                     foreach (TileStresstest tileStresstest in tile)
                         if (tileStresstest.Use)
-                            Converter.SetTestConfig(testConfigCache, _distributedTest.ToString(),
+                            Converter.SetTestConfig(distributedTestCache,
                                                     _distributedTest.RunSynchronization.ToString(),
                                                     "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
                                                     tileStresstest.Index + " " +

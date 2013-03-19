@@ -113,7 +113,7 @@
             this.lblCouldNotConnect.Name = "lblCouldNotConnect";
             this.lblCouldNotConnect.Size = new System.Drawing.Size(497, 13);
             this.lblCouldNotConnect.TabIndex = 4;
-            this.lblCouldNotConnect.Text = "Could not connect to the results database server! Click \'OK\' to proceed anyway? N" +
+            this.lblCouldNotConnect.Text = "Could not connect to the results database server! Click \'OK\' to proceed anyway. N" +
     "o report will be made.";
             this.lblCouldNotConnect.Visible = false;
             // 

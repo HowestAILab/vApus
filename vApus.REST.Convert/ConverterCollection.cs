@@ -18,11 +18,18 @@ namespace vApus.REST.Convert {
         }
 
         public bool ContainsKey(object key) {
-            throw new System.NotImplementedException();
+            foreach (var kvp in _cache)
+                if (kvp.Key == key)
+                    return true;
+            return false;
         }
 
         public ICollection<object> Keys {
-            get { throw new System.NotImplementedException(); }
+            get {
+                var keys = new List<object>(_cache.Count);
+                foreach (var kvp in _cache) keys.Add(kvp.Key);
+                return keys;
+            }
         }
 
         public bool Remove(object key) {
@@ -51,11 +58,11 @@ namespace vApus.REST.Convert {
         }
 
         public void Clear() {
-            throw new System.NotImplementedException();
+            _cache.Clear();
         }
 
         public bool Contains(KeyValuePair<object, object> item) {
-            throw new System.NotImplementedException();
+            return _cache.Contains(item);
         }
 
         public void CopyTo(KeyValuePair<object, object>[] array, int arrayIndex) {
@@ -63,11 +70,11 @@ namespace vApus.REST.Convert {
         }
 
         public int Count {
-            get { throw new System.NotImplementedException(); }
+            get { return _cache.Count; }
         }
 
         public bool IsReadOnly {
-            get { throw new System.NotImplementedException(); }
+            get { return false; }
         }
 
         public bool Remove(KeyValuePair<object, object> item) {

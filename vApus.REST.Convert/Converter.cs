@@ -21,15 +21,14 @@ namespace vApus.REST.Convert {
 
         public static string WriteDir { get { return _writeDir; } }
 
-        public static void SetTestConfig(ConverterCollection testConfigCache, string distributedTest, string runSynchronization,
+        public static void SetTestConfig(ConverterCollection testConfigCache, string runSynchronization,
                                          string tileStresstest, Connection connection, string connectionProxy,
                                          Monitor.Monitor[] monitors, string slave,
                                          Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay,
                                          int maximumDelay, bool shuffle,
                                          ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter) {
-            var distributedTestCache = AddSubCache(distributedTest, testConfigCache);
-            if (distributedTestCache.Count == 0)
-                distributedTestCache.Add("RunSynchronization", runSynchronization);
+            if (testConfigCache.Count == 0)
+                testConfigCache.Add("RunSynchronization", runSynchronization);
 
             var newMonitors = new string[monitors.Length];
             for (int i = 0; i != monitors.Length; i++)
@@ -51,11 +50,11 @@ namespace vApus.REST.Convert {
                 MonitorBeforeInMinutes = monitorBefore,
                 MonitorAfterInMinutes = monitorAfter
             };
-            distributedTestCache.Add(tileStresstest, testConfig);
+            testConfigCache.Add(tileStresstest, testConfig);
         }
 
-        public static void SetTestProgress(ConverterCollection testProgressCache, string distributedTest, string tileStresstest, StresstestMetrics metrics, RunStateChange runStateChange, StresstestStatus stresstestStatus) {
-            var concurrencyCache = AddSubCache(metrics.Concurrency, AddSubCache(tileStresstest, AddSubCache(distributedTest, testProgressCache)));
+        public static void SetTestProgress(ConverterCollection testProgressCache, string tileStresstest, StresstestMetrics metrics, RunStateChange runStateChange, StresstestStatus stresstestStatus) {
+            var concurrencyCache = AddSubCache(metrics.Concurrency, AddSubCache(tileStresstest, testProgressCache));
             var testProgress = new TestProgress {
                 StartMeasuringTime = metrics.StartMeasuringTime,
                 MeasuredTime = metrics.MeasuredTime,
@@ -78,22 +77,20 @@ namespace vApus.REST.Convert {
             //else concurrencyCache.Add(run, testProgress);
         }
 
-        public static void SetMonitorConfig(ConverterCollection monitorConfigCache, string distributedTest, Monitor.Monitor monitor) {
-            var distributedTestCache = AddSubCache(distributedTest, monitorConfigCache);
+        public static void SetMonitorConfig(ConverterCollection monitorConfigCache, Monitor.Monitor monitor) {
             var monitorConfig = new MonitorConfig {
                 MonitorSource = monitor.MonitorSource == null ? "N/A" : monitor.MonitorSource.ToString(),
                 Parameters = monitor.Parameters
             };
-            distributedTestCache.Add(monitor.ToString(), monitorConfig);
+            monitorConfigCache.Add(monitor.ToString(), monitorConfig);
         }
 
-        public static void SetMonitorProgress(ConverterCollection monitorProgressCache, string distributedTest, Monitor.Monitor monitor, string[] headers, Dictionary<DateTime, float[]> values) {
-            var distributedTestCache = AddSubCache(distributedTest, monitorProgressCache);
+        public static void SetMonitorProgress(ConverterCollection monitorProgressCache, Monitor.Monitor monitor, string[] headers, Dictionary<DateTime, float[]> values) {
             var monitorProgress = new MonitorProgress {
                 Headers = headers,
                 Values = values
             };
-            distributedTestCache.Add(monitor.ToString(), monitorProgress);
+            monitorProgressCache.Add(monitor.ToString(), monitorProgress);
         }
 
         /// <summary>
@@ -102,7 +99,7 @@ namespace vApus.REST.Convert {
         /// <param name="key"></param>
         /// <param name="parent"></param>
         /// <returns>The sub cache</returns>
-        private static ConverterCollection AddSubCache(object key, ConverterCollection parent) {
+        public static ConverterCollection AddSubCache(object key, ConverterCollection parent) {
             var child = new ConverterCollection();
             parent.Add(key, child);
             return child;
