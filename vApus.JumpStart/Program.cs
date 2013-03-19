@@ -9,49 +9,35 @@
 using System;
 using System.Windows.Forms;
 
-namespace vApus.JumpStart
-{
-    internal class Program
-    {
+namespace vApus.JumpStart {
+    internal class Program {
         private static SocketListener _socketListener;
 
-        private static void Main(string[] args)
-        {
-            try
-            {
+        private static void Main(string[] args) {
+            try {
                 _socketListener = SocketListener.GetInstance();
                 _socketListener.Start();
 
                 Application.ApplicationExit += Application_ApplicationExit;
                 Application.Run();
-            }
-            catch
-            {
-            }
-            finally
-            {
+            } catch {
+            } finally {
                 StopSocketListener();
             }
         }
 
-        private static void StopSocketListener()
-        {
-            if (_socketListener != null)
-            {
-                try
-                {
+        private static void StopSocketListener() {
+            if (_socketListener != null) {
+                try {
                     if (_socketListener.IsRunning)
                         _socketListener.Stop();
-                }
-                catch
-                {
+                } catch {
                 }
                 _socketListener = null;
             }
         }
 
-        private static void Application_ApplicationExit(object sender, EventArgs e)
-        {
+        private static void Application_ApplicationExit(object sender, EventArgs e) {
             StopSocketListener();
         }
     }

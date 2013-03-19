@@ -12,10 +12,8 @@ using System.Windows.Forms;
 using Tamir.SharpSsh;
 using vApus.Util.Properties;
 
-namespace vApus.Util
-{
-    public enum UpdateNotifierState
-    {
+namespace vApus.Util {
+    public enum UpdateNotifierState {
         [Description("Disabled")]
         Disabled = 0,
         [Description("Failed Connecting to the Update Server!")]
@@ -28,31 +26,24 @@ namespace vApus.Util
         UpToDate
     }
 
-    public static class UpdateNotifier
-    {
+    public static class UpdateNotifier {
         /// <summary>
         ///     Keep this to create a update notifier dialog when needed.
         /// </summary>
         private static string _currentVersion, _currentChannel, _newVersion, _newChannel, _newHistory;
-        private static string CurrentVersion
-        {
+        public static string CurrentVersion {
             get { return _currentVersion; }
-            set
-            {
-                if (_currentVersion != value)
-                {
+            private set {
+                if (_currentVersion != value) {
                     _currentVersion = value;
                     NamedObjectRegistrar.RegisterOrUpdate("vApusVersion", _currentVersion);
                 }
             }
         }
-        private static string CurrentChannel
-        {
+        public static string CurrentChannel {
             get { return _currentChannel; }
-            set
-            {
-                if (_currentChannel != value)
-                {
+            private set {
+                if (_currentChannel != value) {
                     _currentChannel = value;
                     NamedObjectRegistrar.RegisterOrUpdate("vApusChannel", _currentChannel);
                 }
@@ -62,23 +53,19 @@ namespace vApus.Util
         private static bool _versionChanged;
         private static bool _refreshed;
 
-        public static UpdateNotifierState UpdateNotifierState
-        {
-            get
-            {
+        public static UpdateNotifierState UpdateNotifierState {
+            get {
                 if (_failedRefresh)
                     return UpdateNotifierState.FailedConnectingToTheUpdateServer;
 
                 string host, username, password;
                 int port, channel;
-                GetCredentials(out host, out port, out username, out password, out channel);
+                bool smartUpdate;
+                GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
 
-                if (host.Length == 0 || username.Length == 0 || password.Length == 0)
-                {
+                if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
                     return UpdateNotifierState.Disabled;
-                }
-                else if (_refreshed)
-                {
+                } else if (_refreshed) {
                     if (_versionChanged)
                         return UpdateNotifierState.NewUpdateFound;
                     return UpdateNotifierState.UpToDate;
@@ -88,8 +75,7 @@ namespace vApus.Util
             }
         }
 
-        public static void SetCredentials(string host, int port, string username, string password, int channel)
-        {
+        public static void SetCredentials(string host, int port, string username, string password, int channel, bool smartUpdate) {
             Settings.Default.UNHost = host;
             Settings.Default.UNPort = port;
             Settings.Default.UNUsername = username;
@@ -102,6 +88,7 @@ namespace vApus.Util
                                             });
             Settings.Default.UNPassword = password;
             Settings.Default.UNChannel = channel;
+            Settings.Default.UNSmartUpdate = smartUpdate;
             Settings.Default.Save();
 
             _refreshed = false;
@@ -115,8 +102,7 @@ namespace vApus.Util
         /// <param name="password"></param>
         /// <param name="channel">0 == Stable; 1 == Nightly</param>
         public static void GetCredentials(out string host, out int port, out string username, out string password,
-                                          out int channel)
-        {
+                                          out int channel, out bool smartUpdate) {
             host = Settings.Default.UNHost;
             port = Settings.Default.UNPort;
             username = Settings.Default.UNUsername;
@@ -130,37 +116,32 @@ namespace vApus.Util
             channel = Settings.Default.UNChannel;
 
             //If there is no channel set get it from the version.ini.
-            if (channel == -1)
-            {
+            if (channel == -1) {
                 string versionIni = Path.Combine(Application.StartupPath, "version.ini");
                 if (File.Exists(versionIni))
                     channel = GetChannel(Path.Combine(Application.StartupPath, "version.ini")) == "Stable" ? 0 : 1;
             }
             //If there is no version.ini set the channel to stable.
-            if (channel == -1)
-                channel = 0;
+            if (channel == -1) channel = 0;
+
+            smartUpdate = Settings.Default.UNSmartUpdate;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns>true if can update.</returns>
-        public static void Refresh()
-        {
+        public static void Refresh() {
             string tempFolder = Path.Combine(Application.StartupPath, "tempForUpdateNotifier");
 
-            try
-            {
+            try {
                 string currentVersionIni = Path.Combine(Application.StartupPath, "version.ini");
                 CurrentVersion = GetVersion(currentVersionIni);
                 CurrentChannel = GetChannel(currentVersionIni);
 
                 string host, username, password;
                 int port, channel;
-                GetCredentials(out host, out port, out username, out password, out channel);
+                bool smartUpdate;
+                GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
 
                 _failedRefresh = false;
-                if (host.Length == 0 || username.Length == 0 || password.Length == 0)
-                {
+                if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
                     _versionChanged = false;
                     _refreshed = false;
                     return;
@@ -177,14 +158,12 @@ namespace vApus.Util
 
                 string tempVersion = Path.Combine(tempFolder, "version.ini");
 
-                try { if (File.Exists(tempVersion)) File.Delete(tempVersion); }
-                catch { }
+                try { if (File.Exists(tempVersion)) File.Delete(tempVersion); } catch { }
 
                 string channelDir = channel == 0 ? "stable" : "nightly";
                 sftp.Get(channelDir + "/version.ini", tempVersion);
 
-                try { sftp.Close(); }
-                finally { sftp = null; }
+                try { sftp.Close(); } finally { sftp = null; }
 
                 _newVersion = GetVersion(tempVersion);
                 _newChannel = GetChannel(tempVersion);
@@ -194,54 +173,44 @@ namespace vApus.Util
                 _versionChanged = (CurrentVersion != _newVersion) || (CurrentChannel != _newChannel);
 
                 _refreshed = true;
-            }
-            catch
-            {
+            } catch {
                 _failedRefresh = true;
                 _refreshed = false;
-            }
-            finally
-            {
+            } finally {
                 if (Directory.Exists(tempFolder))
                     Directory.Delete(tempFolder, true);
             }
         }
 
-        private static string GetVersion(string versionIniPath)
-        {
+        private static string GetVersion(string versionIniPath) {
             return Get(versionIniPath, "[VERSION]");
         }
 
-        private static string GetChannel(string versionIniPath)
-        {
+        private static string GetChannel(string versionIniPath) {
             return Get(versionIniPath, "[CHANNEL]");
         }
 
-        private static string GetHistory(string versionIniPath)
-        {
+        private static string GetHistory(string versionIniPath) {
             return Get(versionIniPath, "[HISTORY]");
         }
 
-        private static string Get(string versionIniPath, string part)
-        {
-            using (var sr = new StreamReader(versionIniPath))
-            {
-                bool found = false;
-                while (sr.Peek() != -1)
-                {
-                    string line = sr.ReadLine();
-                    if (found)
-                        return line;
+        private static string Get(string versionIniPath, string part) {
+            if (File.Exists(versionIniPath))
+                using (var sr = new StreamReader(versionIniPath)) {
+                    bool found = false;
+                    while (sr.Peek() != -1) {
+                        string line = sr.ReadLine();
+                        if (found)
+                            return line;
 
-                    if (line.Trim() == part)
-                        found = true;
+                        if (line.Trim() == part)
+                            found = true;
+                    }
                 }
-            }
             return string.Empty;
         }
 
-        public static UpdateNotifierDialog GetUpdateNotifierDialog()
-        {
+        public static UpdateNotifierDialog GetUpdateNotifierDialog() {
             return new UpdateNotifierDialog(CurrentVersion, _newVersion, CurrentChannel, _newChannel, _newHistory);
         }
     }

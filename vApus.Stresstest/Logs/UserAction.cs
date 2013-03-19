@@ -16,10 +16,8 @@ namespace vApus.Stresstest {
     [DisplayName("User Action"), Serializable]
     public class UserAction : LabeledBaseItem {
         #region Fields
-
         private int _occurance = 1;
         private bool _pinned;
-
         #endregion
 
         #region Properties
@@ -45,7 +43,6 @@ namespace vApus.Stresstest {
             get { return _pinned; }
             set { _pinned = value; }
         }
-
         #endregion
 
         #region Constructors

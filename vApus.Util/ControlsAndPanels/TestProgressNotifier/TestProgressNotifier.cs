@@ -1,11 +1,14 @@
-﻿using System;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using System;
+using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -31,7 +34,13 @@ namespace vApus.Util {
                 0x62
             };
         private static readonly object _lock = new object();
+        private static readonly System.Timers.Timer _tmrNotify = new System.Timers.Timer(30000);
+        private static ConcurrentBag<string> _messages = new ConcurrentBag<string>();
         #endregion
+
+        static TestProgressNotifier() {
+            _tmrNotify.Elapsed += _tmrNotify_Elapsed;
+        }
 
         /// <summary>
         /// 
@@ -48,29 +57,47 @@ namespace vApus.Util {
             }
         }
         private static void Notify(string message, Exception exception = null) {
-            ThreadPool.QueueUserWorkItem((state) => {
-                lock (_lock)
-                    try {
-                        var client = new SmtpClient(Settings.Default.PNSMTP, Settings.Default.PNPort);
-                        client.EnableSsl = Settings.Default.PNSecure;
-                        client.Timeout = 10000;
-                        client.DeliveryMethod = SmtpDeliveryMethod.Network;
+            _messages.Add(string.Concat(message, Environment.NewLine, exception));
+            lock (_lock) {
+                if (_tmrNotify != null) {
+                    _tmrNotify.Stop();
+                    _tmrNotify.Start();
+                }
+            }
+        }
+        static void _tmrNotify_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            lock (_lock) {
+                try {
+                    if (_tmrNotify != null) _tmrNotify.Stop();
 
-                        if (!string.IsNullOrWhiteSpace(Settings.Default.PNUsername) && !string.IsNullOrWhiteSpace(Settings.Default.PNPassword)) {
-                            client.UseDefaultCredentials = false;
-                            client.Credentials = new NetworkCredential(Settings.Default.PNUsername, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
-                        }
+                    if (_messages.Count == 0) return;
 
-                        var msg = new MailMessage("vapus@sizingservers.be", Settings.Default.PNEMailAddress, "vApus@" + NamedObjectRegistrar.Get<string>("IP") + ":" + NamedObjectRegistrar.Get<int>("Port") + " --> " + message, message + "\n" + exception);
-                        msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
-                        msg.IsBodyHtml = true;
-                        msg.Priority = MailPriority.High;
-                        msg.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
-                        client.Send(msg);
-                    } catch {
-                        LogWrapper.LogByLevel("A progress nofification mail could not be sent, please check the settings.", LogLevel.Error);
+                    string message = _messages.ToArray().Combine("<br>");
+                    _messages = new ConcurrentBag<string>();
+
+                    var client = new SmtpClient(Settings.Default.PNSMTP, Settings.Default.PNPort);
+                    client.EnableSsl = Settings.Default.PNSecure;
+                    client.Timeout = 10000;
+                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                    string username = Settings.Default.PNUsername;
+                    if (!string.IsNullOrWhiteSpace(username)) username = Settings.Default.PNEMailAddress;
+
+                    if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(Settings.Default.PNPassword)) {
+                        client.UseDefaultCredentials = false;
+                        client.Credentials = new NetworkCredential(Settings.Default.PNUsername, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
                     }
-            }, null);
+
+                    var msg = new MailMessage("vapus@sizingservers.be", Settings.Default.PNEMailAddress, string.Concat("vApus@", NamedObjectRegistrar.Get<string>("IP"), ":", NamedObjectRegistrar.Get<int>("Port"), " Test Progress Notification"), message);
+                    msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
+                    msg.IsBodyHtml = true;
+                    msg.Priority = MailPriority.High;
+                    msg.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+                    client.Send(msg);
+                } catch {
+                    LogWrapper.LogByLevel("A progress nofification mail could not be sent, please check the settings.", LogLevel.Error);
+                }
+            }
         }
     }
 }

@@ -37,7 +37,7 @@ namespace vApus.Gui {
                 //Use ISO 8601 for DateTime formatting.
                 var cultureInfo = new CultureInfo(Thread.CurrentThread.CurrentCulture.Name);
                 cultureInfo.DateTimeFormat.ShortDatePattern = "yyyy'-'MM'-'dd";
-                cultureInfo.DateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fffffff";
+                cultureInfo.DateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fff";
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
 
                 Linker.Link();

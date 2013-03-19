@@ -105,9 +105,11 @@ namespace vApus.DetailedResultsViewer {
                 int done = 0;
                 foreach (DataRow dbsr in dbs.Rows) {
                     string database = dbsr.ItemArray[0] as string;
+                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
                     ThreadPool.QueueUserWorkItem((object state) => {
                         if (done < count) {
                             try {
+                                Thread.CurrentThread.CurrentCulture = cultureInfo;
                                 if (_filterDatabasesWorkItem == null) _filterDatabasesWorkItem = new FilterDatabasesWorkItem();
 
                                 var das = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
@@ -133,7 +135,7 @@ namespace vApus.DetailedResultsViewer {
                 _dataSource = _dataSource.DefaultView.ToTable();
                 dgvDatabases.DataSource = _dataSource;
 
-                dgvDatabases.Columns[0].HeaderText = string.Empty;
+                dgvDatabases.Columns[0].HeaderText = "Created At";
                 dgvDatabases.Columns[3].Visible = false;
 
                 if (dgvDatabases.Rows.Count == 0) {
@@ -234,14 +236,18 @@ namespace vApus.DetailedResultsViewer {
                     }
                     if (canAdd) {
                         //Get the DateTime, to be formatted later.
-                        string[] dtParts = database.Substring(5).Split('_');//vApusMM_dd_yyyy_HH_mm_ss_fffffff
-                        int month = int.Parse(dtParts[0]);
-                        int day = int.Parse(dtParts[1]);
-                        int year = int.Parse(dtParts[2]);
+                        string[] dtParts = database.Substring(5).Split('_');//yyyy_MM_dd_HH_mm_ss_fffffff or MM_dd_yyyy_HH_mm_ss_fffffff
+
+                        bool yearFirst = dtParts[0].Length == 4;
+                        int year = yearFirst ? int.Parse(dtParts[0]) : int.Parse(dtParts[2]);
+                        int month = yearFirst ? int.Parse(dtParts[1]) : int.Parse(dtParts[0]);
+                        int day = yearFirst ? int.Parse(dtParts[2]) : int.Parse(dtParts[1]);
                         int hour = int.Parse(dtParts[3]);
                         int minute = int.Parse(dtParts[4]);
                         int second = int.Parse(dtParts[5]);
+                        double rest = double.Parse(dtParts[6]) / Math.Pow(10, dtParts[6].Length);
                         DateTime dt = new DateTime(year, month, day, hour, minute, second);
+                        dt = dt.AddSeconds(rest);
                         itemArray[0] = dt.ToString();
 
                         itemArray[3] = database;

@@ -43,6 +43,8 @@ namespace vApus.Stresstest {
 
         private ResultsHelper _resultsHelper = new ResultsHelper();
 
+        private StresstestStatus _stresstestStatus; //Set on calling Stop(...);
+
         #endregion
 
         #region Constructor
@@ -181,29 +183,24 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <returns></returns>
         private bool InitDatabase() {
-            Exception ex = _resultsHelper.BuildSchemaAndConnect();
-            if (ex == null) {
-                var dialog = new DescriptionAndTagsInputDialog { Description = _stresstest.Description, Tags = _stresstest.Tags, ResultsHelper = _resultsHelper };
-                dialog.ShowDialog();
-
-                bool edited = false;
-                if (_stresstest.Description != dialog.Description) {
-                    _stresstest.Description = dialog.Description;
-                    edited = true;
-                }
-                if (_stresstest.Tags.Combine(", ") != dialog.Tags.Combine(", ")) {
-                    _stresstest.Tags = dialog.Tags;
-                    edited = true;
-                }
-
-                if (edited) _stresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                return true;
-            } else {
-                LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
-                if (MessageBox.Show("Could not connect to MySQL!\nDo you want to proceed anyway? No report will be made.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                    return true;
+            var dialog = new DescriptionAndTagsInputDialog { Description = _stresstest.Description, Tags = _stresstest.Tags, ResultsHelper = _resultsHelper };
+            if (dialog.ShowDialog() == DialogResult.Cancel) {
+                RemoveDatabase(false);
+                return false;
             }
-            return false;
+
+            bool edited = false;
+            if (_stresstest.Description != dialog.Description) {
+                _stresstest.Description = dialog.Description;
+                edited = true;
+            }
+            if (_stresstest.Tags.Combine(", ") != dialog.Tags.Combine(", ")) {
+                _stresstest.Tags = dialog.Tags;
+                edited = true;
+            }
+
+            if (edited) _stresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            return true;
         }
 
         private void SetGuiForStart(bool enableStop) {
@@ -313,21 +310,7 @@ namespace vApus.Stresstest {
                 if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         Stop(stresstestStatus, ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
-
-                        if (_monitorViews != null)
-                            foreach (MonitorView view in _monitorViews)
-                                if (view != null)
-                                    try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
-                                        LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
-                                    }
                     }, null);
-
-                    if (ex == null) {
-                        TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, _stresstest.ToString() + " finished. Status: " + stresstestStatus + ".");
-                    } else {
-                        LogWrapper.LogByLevel(_stresstest.ToString() + " Failed.\n" + ex, LogLevel.Error);
-                        TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, _stresstest.ToString() + " finished. Status: " + stresstestStatus + ".", ex);
-                    }
                 }
             }
         }
@@ -508,7 +491,7 @@ namespace vApus.Stresstest {
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
         }
         private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) {
-            string message = _stresstest.ToString() + " - Concurrency " + e.Result.Concurrency + " finished.";
+            string message = string.Concat(_stresstest.ToString(), " - Concurrency ", e.Result.Concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
@@ -530,7 +513,7 @@ namespace vApus.Stresstest {
         }
         private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) {
             int concurrency = _stresstestResult.ConcurrencyResults[_stresstestResult.ConcurrencyResults.Count - 1].Concurrency;
-            string message = _stresstest.ToString() + " - Run " + e.Result.Run + " of concurrency " + concurrency + " finished.";
+            string message = string.Concat(_stresstest.ToString(), " - Run ", e.Result.Run, " of concurrency ", concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
         }
 
@@ -571,7 +554,7 @@ namespace vApus.Stresstest {
             if (btnStart.Enabled || _stresstestCore == null || _stresstestCore.IsDisposed ||
                 MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning) == DialogResult.Yes) {
-                StopMonitors();
+                StopMonitors(null, true);
                 StopStresstest();
 
                 tmrProgress.Stop();
@@ -606,10 +589,10 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="ex">The exception if failed.</param>
         private void Stop(StresstestStatus stresstestStatus = StresstestStatus.Ok, Exception ex = null, bool monitorAfter = false) {
+            _stresstestStatus = stresstestStatus;
             if (btnStop.Enabled) {
                 Cursor = Cursors.WaitCursor;
 
-                if (!monitorAfter) StopMonitors();
                 StopStresstest();
 
                 tmrProgress.Stop();
@@ -621,10 +604,7 @@ namespace vApus.Stresstest {
 
                 StopProgressDelayCountDown();
 
-                solutionComponentPropertyPanel.Unlock();
-                btnStop.Enabled = false;
-                btnStart.Enabled = true;
-                btnSchedule.Enabled = true;
+
                 tmrSchedule.Stop();
                 btnSchedule.Text = string.Empty;
                 btnSchedule.Tag = null;
@@ -637,33 +617,26 @@ namespace vApus.Stresstest {
 
                 Cursor = Cursors.Default;
 
-                if (monitorAfter && _stresstest.MonitorAfter != 0) {
-                    int runningMonitors = 0;
-                    if (_monitorViews != null && _stresstest.Monitors.Length != 0)
-                        foreach (MonitorView view in _monitorViews)
-                            if (view != null && !view.IsDisposed)
-                                runningMonitors++;
+                int runningMonitors = 0;
+                if (_monitorViews != null && _stresstest.Monitors.Length != 0)
+                    foreach (MonitorView view in _monitorViews)
+                        if (view != null && !view.IsDisposed)
+                            runningMonitors++;
 
-                    if (runningMonitors != 0) {
-                        int countdownTime = _stresstest.MonitorAfter * 60000;
-                        var monitorAfterCountdown = new Countdown(countdownTime, 5000);
-                        monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
-                        monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
-                        monitorAfterCountdown.Start();
-                    }
-                }
-                if (_resultsHelper.DatabaseName == null) {
-                    detailedResultsControl.ClearResults();
-                    detailedResultsControl.Enabled = false;
+                if (monitorAfter && _stresstest.MonitorAfter != 0 && runningMonitors != 0 && stresstestStatus != StresstestStatus.Cancelled && stresstestStatus != StresstestStatus.Error) {
+                    int countdownTime = _stresstest.MonitorAfter * 60000;
+                    var monitorAfterCountdown = new Countdown(countdownTime, 5000);
+                    monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
+                    monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
+                    monitorAfterCountdown.Start();
                 } else {
-                    detailedResultsControl.Enabled = true;
-                    detailedResultsControl.RefreshResults(_resultsHelper);
+                    StopMonitors(ex, false);
                 }
             }
         }
-        private void RemoveDatabase() {
+        private void RemoveDatabase(bool confirm = true) {
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
-                if (MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                if (!confirm || MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
                     try { _resultsHelper.RemoveDatabase(); } catch { }
         }
@@ -674,7 +647,7 @@ namespace vApus.Stresstest {
                 fastResultsControl.AppendMessages("Monitoring after the test is finished: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
-                if (_monitorViews != null && _stresstest.Monitors.Length != 0)
+                if (_monitorViews != null)
                     foreach (MonitorView view in _monitorViews)
                         if (view != null && !view.IsDisposed)
                             runningMonitors++;
@@ -687,7 +660,7 @@ namespace vApus.Stresstest {
         }
 
         private void monitorAfterCountdown_Stopped(object sender, EventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitors(); }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitors(null, false); }, null);
 
             var monitorAfterCountdown = sender as Countdown;
             monitorAfterCountdown.Dispose();
@@ -704,11 +677,8 @@ namespace vApus.Stresstest {
 
             if (_stresstestCore != null) {
                 try {
-                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
-                                                          LocalMonitor.ContextSwitchesPerSecond,
-                                                          (int)LocalMonitor.MemoryUsage,
-                                                          (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent,
-                                                          LocalMonitor.NicsReceived);
+                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage,
+                                                          (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                 } catch { } //Exception on false WMI. 
 
                 fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics());
@@ -729,14 +699,47 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Only used in stop
         /// </summary>
-        private void StopMonitors() {
+        private void StopMonitors(Exception ex, bool disposing) {
             if (_monitorViews != null && _stresstest.Monitors.Length != 0)
                 foreach (MonitorView view in _monitorViews)
                     if (view != null && !view.IsDisposed) {
                         view.Stop();
                         fastResultsControl.AppendMessages(view.Text + " is stopped.");
                     }
+            MonitorAfterFinishedOrStopAndSetGui(ex, disposing);
         }
+        private void MonitorAfterFinishedOrStopAndSetGui(Exception exception, bool disposing) {
+            if (_monitorViews != null && _stresstest.Monitors.Length != 0)
+                foreach (MonitorView view in _monitorViews)
+                    if (view != null)
+                        try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
+                            LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
+                            _stresstestStatus = StresstestStatus.Error;
+                        }
+
+            if (!disposing) {
+                solutionComponentPropertyPanel.Unlock();
+                btnStop.Enabled = false;
+                btnStart.Enabled = true;
+                btnSchedule.Enabled = true;
+
+                if (_resultsHelper.DatabaseName == null) {
+                    detailedResultsControl.ClearResults();
+                    detailedResultsControl.Enabled = false;
+                } else {
+                    detailedResultsControl.Enabled = true;
+                    detailedResultsControl.RefreshResults(_resultsHelper);
+                }
+
+                if (exception == null) {
+                    TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", _stresstestStatus, "."));
+                } else {
+                    LogWrapper.LogByLevel(_stresstest.ToString() + " Failed.\n" + exception, LogLevel.Error);
+                    TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", _stresstestStatus, "."), exception);
+                }
+            }
+        }
+
         /// <summary>
         /// Sets the updates in label.
         /// </summary>

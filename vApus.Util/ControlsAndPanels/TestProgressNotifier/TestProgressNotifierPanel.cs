@@ -91,13 +91,13 @@ namespace vApus.Util {
         private void btnClear_Click(object sender, EventArgs e) { ClearSettings(); }
 
         private void EnableOrDisableSavebtn() {
-            btnSave.Enabled = (btnEnableDisable.Text == "Disable" && (txtUsername.ForeColor != Color.DimGray &&
-                Regex.IsMatch(txtEmailaddress.Text.Trim(), @"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", RegexOptions.IgnoreCase)) &&
+            btnSave.Enabled = (btnEnableDisable.Text == "Disable" &&
+                (Regex.IsMatch(txtEmailaddress.Text.Trim(), @"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", RegexOptions.IgnoreCase)) &&
                 (txtSmtp.ForeColor != Color.DimGray && txtSmtp.Text.Trim().Length != 0));
         }
         private void EnableOrDisableTestbtn() {
-            btnTest.Enabled = (btnEnableDisable.Text == "Disable" && (txtUsername.ForeColor != Color.DimGray &&
-                Regex.IsMatch(txtEmailaddress.Text.Trim(), @"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", RegexOptions.IgnoreCase)) &&
+            btnTest.Enabled = (btnEnableDisable.Text == "Disable" &&
+                (Regex.IsMatch(txtEmailaddress.Text.Trim(), @"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", RegexOptions.IgnoreCase)) &&
                 (txtSmtp.ForeColor != Color.DimGray && txtSmtp.Text.Trim().Length != 0));
         }
         private void EnableOrDisableClearbtn() {
@@ -163,13 +163,15 @@ namespace vApus.Util {
                 client.EnableSsl = chkSecure.Checked;
                 client.Timeout = 10000;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                
-                if (txtUsername.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0) {
+
+                string username = (txtUsername.ForeColor == Color.DimGray) ? string.Empty : txtUsername.Text.Trim();
+                if (username == string.Empty) username = (txtEmailaddress.ForeColor == Color.DimGray) ? string.Empty : txtEmailaddress.Text.Trim();
+                if (username.Length != 0 && txtPassword.Text.Trim().Length != 0) {
                     client.UseDefaultCredentials = false;
-                    client.Credentials = new NetworkCredential(txtUsername.Text, txtPassword.Text);
+                    client.Credentials = new NetworkCredential(username, txtPassword.Text);
                 }
-                
-                var msg = new MailMessage("vapus@sizingservers.be", txtEmailaddress.Text, "A test mail", "from vApus@" + NamedObjectRegistrar.Get<string>("IP") + ":" + NamedObjectRegistrar.Get<int>("Port"));
+
+                var msg = new MailMessage("vapus@sizingservers.be", txtEmailaddress.Text, "A test mail", string.Concat("from vApus@", NamedObjectRegistrar.Get<string>("IP"), ":", NamedObjectRegistrar.Get<int>("Port")));
                 msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                 msg.IsBodyHtml = true;
                 msg.Priority = MailPriority.High;

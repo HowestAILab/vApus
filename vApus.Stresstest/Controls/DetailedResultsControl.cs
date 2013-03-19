@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -19,7 +20,7 @@ using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.Stresstest.Controls {
+namespace vApus.Stresstest {
     public partial class DetailedResultsControl : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
@@ -33,6 +34,9 @@ namespace vApus.Stresstest.Controls {
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
+        private System.Timers.Timer _tmr = new System.Timers.Timer(500);
+        private readonly object _lock = new object();
+
         public DetailedResultsControl() {
             InitializeComponent();
 
@@ -42,6 +46,16 @@ namespace vApus.Stresstest.Controls {
             btnCollapseExpand.PerformClick();
             chkAdvanced.Checked = false;
             cboShow.SelectedIndex = 0;
+
+            _tmr.Elapsed += _tmr_Elapsed;
+
+            this.VisibleChanged += DetailedResultsControl_VisibleChanged;
+        }
+
+        private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
+            dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            SizeColumns();
         }
 
         private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
@@ -132,46 +146,93 @@ namespace vApus.Stresstest.Controls {
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 dgvDetailedResults.DataSource = null;
+                dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = false;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
                 lblLoading.Visible = true;
 
+                int retry = 0;
+            Retry:
                 if (_resultsHelper != null) {
                     DataTable dt = null;
-                    try { dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token), _cancellationTokenSource.Token); } catch { }
+                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
+                    try {
+                        dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token, cultureInfo), _cancellationTokenSource.Token);
+                    } catch {
+                    }
 
-                    //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview.
-                    if (dt != null) dgvDetailedResults.DataSource = dt;
+                    //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview and retry 3 times.
+                    if (dt == null) {
+                        if (retry++ < 2)
+                            goto Retry;
+                    } else {
+                        dgvDetailedResults.DataSource = dt;
+                    }
                 }
 
+                SizeColumns();
+
                 lblLoading.Visible = false;
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = true;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
                 dgvDetailedResults.Select();
             }
         }
-        private DataTable GetDataSource(CancellationToken cancellationToken) {
-            if (!cancellationToken.IsCancellationRequested)
+        private DataTable GetDataSource(CancellationToken cancellationToken, CultureInfo cultureInfo) {
+            if (!cancellationToken.IsCancellationRequested) {
+                Thread.CurrentThread.CurrentCulture = cultureInfo;
                 switch (_currentSelectedIndex) {
                     case 0: return _resultsHelper.GetAverageConcurrentUsers(cancellationToken, _stresstestIds);
                     case 1: return _resultsHelper.GetAverageUserActions(cancellationToken, _stresstestIds);
                     case 2: return _resultsHelper.GetAverageLogEntries(cancellationToken, _stresstestIds);
                     case 3: return _resultsHelper.GetErrors(cancellationToken, _stresstestIds);
-                    case 4: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
-                    case 5: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
+                    case 4: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
+                    case 5: return _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(cancellationToken, _stresstestIds);
+                    case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
+                    case 7: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
                 }
-
+            }
             return null;
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = false;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
 
-            try { dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => _resultsHelper.ExecuteQuery(codeTextBox.Text), _cancellationTokenSource.Token); } catch { }
+            dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            var cultureInfo = Thread.CurrentThread.CurrentCulture;
+            try {
+                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => ExecuteQuery(codeTextBox.Text, cultureInfo), _cancellationTokenSource.Token);
+            } catch { }
+
+            SizeColumns();
 
             lblLoading.Visible = false;
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = true;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
         }
-
+        private DataTable ExecuteQuery(string query, CultureInfo cultureInfo) {
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+            return _resultsHelper.ExecuteQuery(query);
+        }
+        private void SizeColumns() {
+            if (_tmr != null) {
+                _tmr.Stop();
+                _tmr.Start();
+            }
+        }
+        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            lock (_lock) {
+                _tmr.Stop();
+                SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
+                    int[] widths = new int[dgvDetailedResults.ColumnCount];
+                    for (int i = 0; i != widths.Length; i++) {
+                        int width = dgvDetailedResults.Columns[i].Width;
+                        widths[i] = width > 500 ? 500 : width;
+                    }
+                    dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                    for (int i = 0; i != widths.Length; i++)
+                        dgvDetailedResults.Columns[i].Width = widths[i];
+                }, null);
+            }
+        }
         /// <summary>
         /// Clear before testing.
         /// </summary>
@@ -201,6 +262,12 @@ namespace vApus.Stresstest.Controls {
                 }
             _currentSelectedIndex = -1;
             cboShow_SelectedIndexChanged(null, null);
+        }
+
+        private void btnSaveCharts_Click(object sender, EventArgs e) {
+            var dialog = new SaveChartsDialog();
+            dialog.Init(_resultsHelper);
+            dialog.ShowDialog();
         }
     }
 }

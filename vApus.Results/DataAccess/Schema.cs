@@ -46,7 +46,7 @@ namespace vApus.Results {
         /// <param name="databaseActions"></param>
         /// <returns>Database name</returns>
         private static string CreateDatabase(DatabaseActions databaseActions) {
-            string databaseName = "vapus" + DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss_fffffff");
+            string databaseName = "vapus" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fffffff");// DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss_fffffff");
             databaseActions.ExecuteSQL("Create Database " + databaseName);
             return databaseName;
         }
@@ -103,7 +103,7 @@ FOREIGN KEY(ConcurrencyResultId) REFERENCES ConcurrencyResults(Id), Run int NOT 
             if (!TableExists("LogEntryResults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table LogEntryResults(Id serial, PRIMARY KEY(Id), RunResultId int NOT NULL, 
-FOREIGN KEY(RunResultId) REFERENCES RunResults(Id),VirtualUser varchar(255) NOT NULL, UserAction text NOT NULL, LogEntryIndex varchar(255) NOT NULL, LogEntry text NOT NULL,
+FOREIGN KEY(RunResultId) REFERENCES RunResults(Id),VirtualUser varchar(255) NOT NULL, UserAction text NOT NULL, LogEntryIndex varchar(255) NOT NULL, SameAsLogEntryIndex varchar(255) NOT NULL, LogEntry text NOT NULL,
 SentAt datetime(6) NOT NULL, TimeToLastByteInTicks bigint NOT NULL, DelayInMilliseconds int NOT NULL, Error text NOT NULL, Rerun int NOT NULL)");
         }
 

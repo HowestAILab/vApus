@@ -10,16 +10,15 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using FastColoredTextBoxNS;
 using vApus.SolutionTree;
 using vApus.Stresstest.Properties;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class AddEditLogEntry : Form
-    {
+namespace vApus.Stresstest {
+    public partial class AddEditLogEntry : Form {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -32,19 +31,18 @@ namespace vApus.Stresstest
 
         private readonly Parameters _parameters;
 
-        private readonly List<int> _selectedTreeNodeIndex = new List<int>(new[] {0});
+        private readonly List<int> _selectedTreeNodeIndex = new List<int>(new[] { 0 });
         private ParameterTokenTextStyle _asImportedParameterTokenTextStyle;
 
-        private bool _canEnableBtnOK;
-
         private ParameterTokenTextStyle _editParameterTokenTextStyle;
+
+        private System.Timers.Timer _validateTimer = new System.Timers.Timer(1000);
 
         #endregion
 
         #region Properties
 
-        public LogEntry LogEntry
-        {
+        public LogEntry LogEntry {
             get { return _logEntry; }
         }
 
@@ -52,18 +50,18 @@ namespace vApus.Stresstest
 
         #region Constructors
 
-        public AddEditLogEntry()
-        {
+        public AddEditLogEntry() {
             InitializeComponent();
             Text = "Add Log Entry";
 
             cboParameterScope.SelectedIndex = 5;
 
             fastColoredTextBoxEdit.AllowDrop = true;
+
+            _validateTimer.Elapsed += _validateTimer_Elapsed;
         }
 
-        public AddEditLogEntry(LogEntry logEntry)
-        {
+        public AddEditLogEntry(LogEntry logEntry) {
             InitializeComponent();
             Text = "Edit Log Entry";
             _logEntry = logEntry.Clone();
@@ -84,7 +82,7 @@ namespace vApus.Stresstest
             _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
                                                    out error);
 
-            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof (Parameters)) as Parameters;
+            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
 
             SetValidation();
             SetCodeStyle();
@@ -92,16 +90,16 @@ namespace vApus.Stresstest
             cboParameterScope.SelectedIndex = 5;
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+
+            _validateTimer.Elapsed += _validateTimer_Elapsed;
         }
 
         #endregion
 
         #region Functions
 
-        private void SetValidation()
-        {
-            switch (_logEntry.LexicalResult)
-            {
+        private void SetValidation() {
+            switch (_logEntry.LexicalResult) {
                 case LexicalResult.OK:
                     Icon = Icon.FromHandle(Resources.LogEntryOK.GetHicon());
                     tc.TabPages.Remove(tpError);
@@ -117,20 +115,14 @@ namespace vApus.Stresstest
             FillTreeView();
         }
 
-        private void FillTreeView()
-        {
+        private void FillTreeView() {
             LockWindowUpdate(Handle.ToInt32());
 
-            btnOK.Enabled = false;
-
             TreeNode root = null;
-            if (tvwValidation.Nodes.Count == 0)
-            {
+            if (tvwValidation.Nodes.Count == 0) {
                 root = new TreeNode();
                 tvwValidation.Nodes.Add(root);
-            }
-            else
-            {
+            } else {
                 root = tvwValidation.Nodes[0];
             }
 
@@ -140,23 +132,17 @@ namespace vApus.Stresstest
                                             " [ > Select to Show/Edit Full Log Entry String]";
 
 
-            if (_logEntry.LexedLogEntry.Error.Length == 0)
-            {
+            if (_logEntry.LexedLogEntry.Error.Length == 0) {
                 root.SelectedImageIndex = 0;
                 root.ImageIndex = 0;
-            }
-            else
-            {
+            } else {
                 root.SelectedImageIndex = 1;
                 root.ImageIndex = 1;
             }
 
-            if (root.Text != lexedLogEntry_ToString)
-            {
+            if (root.Text != lexedLogEntry_ToString) {
                 root.Text = lexedLogEntry_ToString;
                 root.ExpandAll();
-                if (_canEnableBtnOK)
-                    btnOK.Enabled = true;
             }
 
             AddOrRecycleChildNodesToTreeView(_logEntry.LexedLogEntry, _logEntry.LogRuleSet, root);
@@ -164,13 +150,10 @@ namespace vApus.Stresstest
             tvwValidation.AfterSelect -= tvwValidation_AfterSelect;
             TreeNodeCollection nodeCollection = tvwValidation.Nodes;
             foreach (int index in _selectedTreeNodeIndex)
-                if (nodeCollection.Count > index)
-                {
+                if (nodeCollection.Count > index) {
                     tvwValidation.SelectedNode = nodeCollection[index];
                     nodeCollection = tvwValidation.SelectedNode.Nodes;
-                }
-                else
-                {
+                } else {
                     tvwValidation.SelectedNode = tvwValidation.Nodes[0];
                     break;
                 }
@@ -179,8 +162,7 @@ namespace vApus.Stresstest
             LockWindowUpdate(0);
         }
 
-        private void SetCodeStyle()
-        {
+        private void SetCodeStyle() {
             BaseItem customListParameters = _parameters[0];
             BaseItem numericParameters = _parameters[1];
             BaseItem textParameters = _parameters[2];
@@ -201,26 +183,21 @@ namespace vApus.Stresstest
                          np = new List<string>(),
                          tp = new List<string>(),
                          crp = new List<string>();
-            foreach (string scopeIdentifier in scopeIdentifiers)
-            {
+            foreach (string scopeIdentifier in scopeIdentifiers) {
                 index = 1;
-                for (int i = 0; i < customListParameters.Count; i++)
-                {
+                for (int i = 0; i < customListParameters.Count; i++) {
                     string token = _beginTokenDelimiter + scopeIdentifier + (index++) + _endTokenDelimiter;
                     clp.Add(token);
                 }
-                for (int i = 0; i < numericParameters.Count; i++)
-                {
+                for (int i = 0; i < numericParameters.Count; i++) {
                     string token = _beginTokenDelimiter + scopeIdentifier + (index++) + _endTokenDelimiter;
                     np.Add(token);
                 }
-                for (int i = 0; i < textParameters.Count; i++)
-                {
+                for (int i = 0; i < textParameters.Count; i++) {
                     string token = _beginTokenDelimiter + scopeIdentifier + (index++) + _endTokenDelimiter;
                     tp.Add(token);
                 }
-                for (int i = 0; i < customRandomParameters.Count; i++)
-                {
+                for (int i = 0; i < customRandomParameters.Count; i++) {
                     string token = _beginTokenDelimiter + scopeIdentifier + (index++) + _endTokenDelimiter;
                     crp.Add(token);
                 }
@@ -233,8 +210,7 @@ namespace vApus.Stresstest
                                                                              np, tp, crp, chkVisualizeWhitespace.Checked);
         }
 
-        private string[] GetDelimiters(LogRuleSet logRuleSet)
-        {
+        private string[] GetDelimiters(LogRuleSet logRuleSet) {
             var hs = new HashSet<string>();
             if (logRuleSet.ChildDelimiter.Length != 0)
                 hs.Add(logRuleSet.ChildDelimiter);
@@ -251,8 +227,7 @@ namespace vApus.Stresstest
             return delimiters;
         }
 
-        private IEnumerable<string> GetDelimiters(LogSyntaxItem logSyntaxItem)
-        {
+        private IEnumerable<string> GetDelimiters(LogSyntaxItem logSyntaxItem) {
             if (logSyntaxItem.ChildDelimiter.Length != 0)
                 yield return logSyntaxItem.ChildDelimiter;
             foreach (BaseItem item in logSyntaxItem)
@@ -262,8 +237,7 @@ namespace vApus.Stresstest
         }
 
         private void AddOrRecycleChildNodesToTreeView(ASTNode astNode, LabeledBaseItem ruleSetItem,
-                                                      TreeNode parentTreeNode)
-        {
+                                                      TreeNode parentTreeNode) {
             int astNodeCount = astNode.Count;
             //Remove not needed nodes
             int parentTreeNode_NodeCount = parentTreeNode.GetNodeCount(false);
@@ -273,65 +247,50 @@ namespace vApus.Stresstest
             //To select the right rule set item
             int astNodeIndex = 0;
             uint occuranceCheck = 0;
-            for (int i = 0; i < astNodeCount; i++)
-            {
+            for (int i = 0; i < astNodeCount; i++) {
                 var childPart = astNode[i] as ASTNode;
                 var childItem = ruleSetItem[astNodeIndex] as LabeledBaseItem;
 
                 //Keep re-occuring items in mind.
-                if (childItem is SyntaxItem)
-                {
+                if (childItem is SyntaxItem) {
                     var syntaxItem = childItem as SyntaxItem;
                     if (syntaxItem.Occurance > 0 && occuranceCheck == 0)
                         occuranceCheck = syntaxItem.Occurance;
-                }
-                else
-                {
+                } else {
                     ++astNodeIndex;
                 }
                 if (occuranceCheck > 0 && --occuranceCheck == 0)
                     ++astNodeIndex;
 
                 TreeNode childTreeNode = null;
-                if (i < parentTreeNode_NodeCount)
-                {
+                if (i < parentTreeNode_NodeCount) {
                     childTreeNode = parentTreeNode.Nodes[i];
-                }
-                else
-                {
+                } else {
                     childTreeNode = new TreeNode();
                     parentTreeNode.Nodes.Add(childTreeNode);
                 }
                 childTreeNode.Tag = childPart;
 
-                if (childPart.Error.Length == 0)
-                {
+                if (childPart.Error.Length == 0) {
                     childTreeNode.SelectedImageIndex = 0;
                     childTreeNode.ImageIndex = 0;
-                }
-                else
-                {
+                } else {
                     childTreeNode.SelectedImageIndex = 1;
                     childTreeNode.ImageIndex = 1;
                 }
 
                 string childPartToString = childPart.ToString(false, chkShowLabels.Checked);
-                if (childTreeNode.Text != childPartToString)
-                {
+                if (childTreeNode.Text != childPartToString) {
                     childTreeNode.Text = childPartToString;
                     parentTreeNode.ExpandAll();
-                    if (_canEnableBtnOK)
-                        btnOK.Enabled = true;
                 }
 
                 AddOrRecycleChildNodesToTreeView(childPart, childItem, childTreeNode);
             }
         }
 
-        private void tvwValidation_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            if (tvwValidation.SelectedNode != null)
-            {
+        private void tvwValidation_AfterSelect(object sender, TreeViewEventArgs e) {
+            if (tvwValidation.SelectedNode != null) {
                 var astNode = tvwValidation.SelectedNode.Tag as ASTNode;
                 rtxtError.Text = astNode.Error;
 
@@ -343,8 +302,7 @@ namespace vApus.Stresstest
 
                 TreeNode node = tvwValidation.SelectedNode;
                 _selectedTreeNodeIndex.Add(node.Index);
-                while (node.Parent != null)
-                {
+                while (node.Parent != null) {
                     node = node.Parent;
                     _selectedTreeNodeIndex.Add(node.Index);
                 }
@@ -352,54 +310,43 @@ namespace vApus.Stresstest
             }
         }
 
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            if (Visible)
-            {
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            if (Visible) {
                 _logEntry.ApplyLogRuleSet();
-                _canEnableBtnOK = _logEntry.LexicalResult == LexicalResult.OK;
                 SetValidation();
-                if (tvwValidation.SelectedNode != null)
-                {
+                if (tvwValidation.SelectedNode != null) {
                     var lexedPart = tvwValidation.SelectedNode.Tag as ASTNode;
                     rtxtError.Text = lexedPart.Error;
                 }
             }
         }
 
-        private void chk_CheckedChanged(object sender, EventArgs e)
-        {
-            _canEnableBtnOK = btnOK.Enabled;
+        private void chk_CheckedChanged(object sender, EventArgs e) {
             FillTreeView();
         }
 
-        private void chkVisualizeWhitespace_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkVisualizeWhitespace_CheckedChanged(object sender, EventArgs e) {
             if (_editParameterTokenTextStyle != null)
                 _editParameterTokenTextStyle.VisualizeWhiteSpace = chkVisualizeWhitespace.Checked;
             if (_asImportedParameterTokenTextStyle != null)
                 _asImportedParameterTokenTextStyle.VisualizeWhiteSpace = chkVisualizeWhitespace.Checked;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.OK;
             Close();
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
+        private void btnCancel_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.Cancel;
         }
 
-        private void cboParameterScope_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cboParameterScope_SelectedIndexChanged(object sender, EventArgs e) {
             string scopeIdentifier = null;
 
             flpTokens.Controls.Clear();
 
-            switch (cboParameterScope.SelectedIndex)
-            {
+            switch (cboParameterScope.SelectedIndex) {
                 case 1:
                     scopeIdentifier = ASTNode.LOG_PARAMETER_SCOPE;
                     break;
@@ -417,22 +364,18 @@ namespace vApus.Stresstest
                     break;
             }
 
-            if (scopeIdentifier == null)
-            {
+            if (scopeIdentifier == null) {
                 AddKvpsToFlps(ASTNode.LOG_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.USER_ACTION_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.LOG_ENTRY_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.LEAF_NODE_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.ALWAYS_PARAMETER_SCOPE);
-            }
-            else
-            {
+            } else {
                 AddKvpsToFlps(scopeIdentifier);
             }
         }
 
-        private void AddKvpsToFlps(string scopeIdentifier)
-        {
+        private void AddKvpsToFlps(string scopeIdentifier) {
             BaseItem customListParameters = _parameters[0];
             BaseItem numericParameters = _parameters[1];
             BaseItem textParameters = _parameters[2];
@@ -453,17 +396,14 @@ namespace vApus.Stresstest
                              customRandomParameters[i].ToString(), Color.Yellow);
         }
 
-        private void AddKvpToFlps(string key, string value, Color backColor)
-        {
+        private void AddKvpToFlps(string key, string value, Color backColor) {
             var kvp = new KeyValuePairControl(key, value);
             kvp.BackColor = backColor;
             flpTokens.Controls.Add(kvp);
         }
 
-        private void fastColoredTextBoxEdit_TextChangedDelayed(object sender, TextChangedEventArgs e)
-        {
-            if (tvwValidation.SelectedNode != null)
-            {
+        private void fastColoredTextBoxEdit_TextChangedDelayed(object sender, TextChangedEventArgs e) {
+            if (tvwValidation.SelectedNode != null) {
                 var astNode = tvwValidation.SelectedNode.Tag as ASTNode;
                 astNode.ClearWithoutInvokingEvent();
                 astNode.Value = fastColoredTextBoxEdit.Text;
@@ -471,14 +411,26 @@ namespace vApus.Stresstest
                 astNode = tvwValidation.Nodes[0].Tag as ASTNode;
                 _logEntry.LogEntryString = astNode.CombineValues();
 
-                _logEntry.ApplyLogRuleSet();
-
-                _canEnableBtnOK = _logEntry.LexicalResult == LexicalResult.OK;
-
-                SetValidation();
+                if (_validateTimer != null) {
+                    btnOK.Enabled = false;
+                    _validateTimer.Stop();
+                    _validateTimer.Start();
+                }
             }
         }
+        private void _validateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            try {
+                if (_validateTimer != null) _validateTimer.Stop();
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    try {
+                        _logEntry.ApplyLogRuleSet();
+                        SetValidation();
 
+                        btnOK.Enabled = true;
+                    } catch { }
+                }, null);
+            } catch { }
+        }
         #endregion
     }
 }

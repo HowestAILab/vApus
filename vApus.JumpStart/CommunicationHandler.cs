@@ -31,6 +31,8 @@ namespace vApus.JumpStart {
                         return HandleKill(message);
                     case Key.CpuCoreCount:
                         return HandleCpuCoreCount(message);
+                    case Key.SmartUpdate:
+                        return HandleSmartUpdate(message);
                 }
             } catch { }
             return message;
@@ -46,8 +48,7 @@ namespace vApus.JumpStart {
             for (int i = 0; i != ports.Length; i++) {
                 var t = new Thread(delegate(object state) {
                     _handleJumpStartWorkItem = new HandleJumpStartWorkItem();
-                    _handleJumpStartWorkItem.HandleJumpStart(jumpStartMessage.IP, int.Parse(ports[(int)state]),
-                                                             processorAffinity[(int)state]);
+                    _handleJumpStartWorkItem.HandleJumpStart(jumpStartMessage.IP, int.Parse(ports[(int)state]), processorAffinity[(int)state]);
                     if (Interlocked.Increment(ref j) == ports.Length)
                         waithandle.Set();
                 });
@@ -89,6 +90,44 @@ namespace vApus.JumpStart {
             message.Content = cpuCoreCountMessage;
             return message;
         }
+        /// <summary>
+        /// If the content of the returned message is empty it is failed.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        private static Message<Key> HandleSmartUpdate(Message<Key> message) {
+            var smartUpdateMessage = (SmartUpdateMessage)message.Content;
+            UpdateNotifier.Refresh();
+            string currentVersion = UpdateNotifier.CurrentVersion;
+            string currentChannel = UpdateNotifier.CurrentChannel.ToLower();
+
+            string channel = smartUpdateMessage.Channel == 0 ? "stable" : "nightly";
+            if (currentVersion != smartUpdateMessage.Version || currentChannel != channel) {
+                if (smartUpdateMessage.Host != null) {
+                    string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
+                    if (File.Exists(path)) {
+                        var process = new Process();
+                        process.EnableRaisingEvents = true;
+                        string password = smartUpdateMessage.Password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
+                                                               new byte[]
+                                                                   {
+                                                                       0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76
+                                                                       , 0x65, 0x64, 0x65, 0x76
+                                                                   });
+                        process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + smartUpdateMessage.Host + " " +
+                                                                 smartUpdateMessage.Port + " " + smartUpdateMessage.Username + " " + password + " " + smartUpdateMessage.Channel +
+                                                                 " " + false + " " + true);
+
+                        process.Start();
+                        process.WaitForExit();
+                    } else {
+                        message.Content = null;
+                    }
+                }
+            }
+
+            return message;
+        }
 
         #endregion
 
@@ -99,10 +138,9 @@ namespace vApus.JumpStart {
                     string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
 
                     if (processorAffinity.Length == 0)
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, "-ipp " + ip + ":" + port);
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-ipp ", ip, ":", port));
                     else
-                        p.StartInfo = new ProcessStartInfo(vApusLocation,
-                                                           "-ipp " + ip + ":" + port + " -pa " + processorAffinity);
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-ipp ", ip, ":", port, " -pa ", processorAffinity));
 
                     p.Start();
                     if (!p.WaitForInputIdle(10000))

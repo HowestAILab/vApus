@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest.Controls
+﻿namespace vApus.Stresstest
 {
     partial class DetailedResultsControl
     {
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DetailedResultsControl));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
@@ -42,7 +43,6 @@
             this.splitQueryData = new System.Windows.Forms.SplitContainer();
             this.pnlBorderExecute = new System.Windows.Forms.Panel();
             this.btnExecute = new System.Windows.Forms.Button();
-            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             this.dgvDetailedResults = new System.Windows.Forms.DataGridView();
             this.flpDetailedMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -53,9 +53,11 @@
             this.lblStopped = new System.Windows.Forms.Label();
             this.chkAdvanced = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.toolTip = new System.Windows.Forms.ToolTip();
+            this.btnSaveCharts = new System.Windows.Forms.Button();
             this.lblLoading = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -326,27 +328,6 @@
             this.btnExecute.UseVisualStyleBackColor = false;
             this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
             // 
-            // codeTextBox
-            // 
-            this.codeTextBox.AllowDrop = true;
-            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
-            this.codeTextBox.BackBrush = null;
-            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.codeTextBox.IsReplaceMode = false;
-            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
-            this.codeTextBox.Name = "codeTextBox";
-            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
-            this.codeTextBox.PreferredLineWidth = 65536;
-            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
-            this.codeTextBox.TabIndex = 0;
-            this.codeTextBox.WordWrap = true;
-            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
-            // 
             // dgvDetailedResults
             // 
             this.dgvDetailedResults.AllowUserToAddRows = false;
@@ -380,6 +361,7 @@
             this.flpDetailedMetrics.Controls.Add(this.lblStopped);
             this.flpDetailedMetrics.Controls.Add(this.chkAdvanced);
             this.flpDetailedMetrics.Controls.Add(this.btnSaveDisplayedResults);
+            this.flpDetailedMetrics.Controls.Add(this.btnSaveCharts);
             this.flpDetailedMetrics.Controls.Add(this.lblLoading);
             this.flpDetailedMetrics.Location = new System.Drawing.Point(-1, 40);
             this.flpDetailedMetrics.Name = "flpDetailedMetrics";
@@ -403,7 +385,7 @@
             this.pnlBorderShow.Controls.Add(this.cboShow);
             this.pnlBorderShow.Location = new System.Drawing.Point(49, 3);
             this.pnlBorderShow.Name = "pnlBorderShow";
-            this.pnlBorderShow.Size = new System.Drawing.Size(200, 23);
+            this.pnlBorderShow.Size = new System.Drawing.Size(400, 23);
             this.pnlBorderShow.TabIndex = 1;
             // 
             // cboShow
@@ -420,12 +402,14 @@
             "Average User Actions",
             "Average Log Entries",
             "Errors",
+            "User Action Composition",
+            "Cummulative Response Times vs Achieved Throughput",
             "Machine Configurations",
             "Average Monitor Results"});
             this.cboShow.Location = new System.Drawing.Point(1, 1);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboShow.Name = "cboShow";
-            this.cboShow.Size = new System.Drawing.Size(198, 21);
+            this.cboShow.Size = new System.Drawing.Size(398, 21);
             this.cboShow.TabIndex = 0;
             this.cboShow.SelectedIndexChanged += new System.EventHandler(this.cboShow_SelectedIndexChanged);
             // 
@@ -433,7 +417,7 @@
             // 
             this.lblStarted.AutoSize = true;
             this.lblStarted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStarted.Location = new System.Drawing.Point(252, 6);
+            this.lblStarted.Location = new System.Drawing.Point(452, 6);
             this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblStarted.Name = "lblStarted";
             this.lblStarted.Size = new System.Drawing.Size(0, 16);
@@ -443,7 +427,7 @@
             // 
             this.lblMeasuredRuntime.AutoSize = true;
             this.lblMeasuredRuntime.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMeasuredRuntime.Location = new System.Drawing.Point(252, 6);
+            this.lblMeasuredRuntime.Location = new System.Drawing.Point(452, 6);
             this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
             this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
@@ -454,7 +438,7 @@
             this.lblStopped.AutoSize = true;
             this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
             this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStopped.Location = new System.Drawing.Point(258, 3);
+            this.lblStopped.Location = new System.Drawing.Point(458, 3);
             this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
             this.lblStopped.Name = "lblStopped";
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
@@ -466,7 +450,7 @@
             this.chkAdvanced.Checked = true;
             this.chkAdvanced.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAdvanced.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkAdvanced.Location = new System.Drawing.Point(267, 7);
+            this.chkAdvanced.Location = new System.Drawing.Point(467, 7);
             this.chkAdvanced.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
             this.chkAdvanced.Name = "chkAdvanced";
             this.chkAdvanced.Size = new System.Drawing.Size(72, 17);
@@ -485,7 +469,7 @@
             this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(342, 3);
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(542, 3);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
@@ -493,6 +477,38 @@
             this.btnSaveDisplayedResults.Text = "Save Displayed Results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
+            // 
+            // btnSaveCharts
+            // 
+            this.btnSaveCharts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSaveCharts.AutoSize = true;
+            this.btnSaveCharts.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnSaveCharts.BackColor = System.Drawing.SystemColors.Control;
+            this.btnSaveCharts.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnSaveCharts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSaveCharts.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSaveCharts.Location = new System.Drawing.Point(713, 3);
+            this.btnSaveCharts.MaximumSize = new System.Drawing.Size(165, 24);
+            this.btnSaveCharts.Name = "btnSaveCharts";
+            this.btnSaveCharts.Size = new System.Drawing.Size(100, 24);
+            this.btnSaveCharts.TabIndex = 4;
+            this.btnSaveCharts.Text = "Save Charts...";
+            this.btnSaveCharts.UseVisualStyleBackColor = false;
+            this.btnSaveCharts.Click += new System.EventHandler(this.btnSaveCharts_Click);
+            // 
+            // lblLoading
+            // 
+            this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLoading.Location = new System.Drawing.Point(3, 37);
+            this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
+            this.lblLoading.Name = "lblLoading";
+            this.lblLoading.Size = new System.Drawing.Size(170, 13);
+            this.lblLoading.TabIndex = 10;
+            this.lblLoading.Text = "Loading, please be patient...";
+            this.toolTip.SetToolTip(this.lblLoading, "These counters are not valid for the chosen monitor source, undo your previous ac" +
+        "tion or \'get\' the counters again.");
+            this.lblLoading.Visible = false;
             // 
             // label1
             // 
@@ -506,19 +522,26 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed Results";
             // 
-            // lblLoading
+            // codeTextBox
             // 
-            this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoading.Location = new System.Drawing.Point(513, 7);
-            this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
-            this.lblLoading.Name = "lblLoading";
-            this.lblLoading.Size = new System.Drawing.Size(170, 13);
-            this.lblLoading.TabIndex = 10;
-            this.lblLoading.Text = "Loading, please be patient...";
-            this.toolTip.SetToolTip(this.lblLoading, "These counters are not valid for the chosen monitor source, undo your previous ac" +
-        "tion or \'get\' the counters again.");
-            this.lblLoading.Visible = false;
+            this.codeTextBox.AllowDrop = true;
+            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.codeTextBox.BackBrush = null;
+            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.codeTextBox.IsReplaceMode = false;
+            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
+            this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
+            this.codeTextBox.PreferredLineWidth = 65536;
+            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
+            this.codeTextBox.TabIndex = 0;
+            this.codeTextBox.WordWrap = true;
+            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
             // 
             // DetailedResultsControl
             // 
@@ -578,5 +601,6 @@
         private System.Windows.Forms.ToolTip toolTip;
         private Util.LinkButton lbtnMonitors;
         private System.Windows.Forms.Label lblLoading;
+        private System.Windows.Forms.Button btnSaveCharts;
     }
 }

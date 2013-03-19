@@ -30,12 +30,14 @@ namespace vApus.Util {
 
             string host, username, password;
             int port, channel;
-            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
+            bool smartUpdate;
+            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
             txtHost.Text = host;
             nudPort.Value = port;
             txtUsername.Text = username;
             txtPassword.Text = password;
             cboChannel.SelectedIndex = channel;
+            chkSmartUpdate.Checked = smartUpdate;
 
             SetEnabled();
             SetUpdatePanel(true);
@@ -50,33 +52,31 @@ namespace vApus.Util {
         private void cboChannel_SelectedIndexChanged(object sender, EventArgs e) {
             string host, username, password;
             int port, channel;
-            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
+            bool smartUpdate;
+            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
 
             if (cboChannel.SelectedIndex != channel)
-                if (
-                    MessageBox.Show("Are you sure you want to change the channel?", string.Empty,
-                                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) ==
-                    DialogResult.Yes)
+                if (MessageBox.Show("Are you sure you want to change the channel?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     SetEnabled();
                 else
                     cboChannel.SelectedIndex = channel;
         }
 
-        private void _KeyUp(object sender, KeyEventArgs e) {
-            SetEnabled();
-        }
+        private void _KeyUp(object sender, KeyEventArgs e) { SetEnabled(); }
+        private void chkSmartUpdate_CheckedChanged(object sender, EventArgs e) { SetEnabled(); }
 
         private void SetEnabled() {
             if (txtHost.Text.Length != 0 &&
                 txtUsername.Text.Length != 0 && txtPassword.Text.Length != 0) {
                 string host, username, password;
                 int port, channel;
-                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel);
+                bool smartUpdate;
+                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
 
                 pnlRefresh.Enabled = btnForceUpdate.Enabled = true;
                 btnSet.Enabled = (txtHost.Text != host || nudPort.Value != port ||
                                   txtUsername.Text != username || txtPassword.Text != password ||
-                                  cboChannel.SelectedIndex != channel);
+                                  cboChannel.SelectedIndex != channel || chkSmartUpdate.Checked != smartUpdate);
             } else {
                 pnlRefresh.Enabled = btnForceUpdate.Enabled = false;
                 btnSet.Enabled = false;
@@ -94,7 +94,7 @@ namespace vApus.Util {
             lbl.Text = "Working...";
 
             UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
-                                          cboChannel.SelectedIndex);
+                                          cboChannel.SelectedIndex, chkSmartUpdate.Checked);
 
             StaticActiveObjectWrapper.ActiveObject.OnResult += ActiveObject_OnResult;
             StaticActiveObjectWrapper.ActiveObject.Send(_refreshDel);
@@ -138,10 +138,8 @@ namespace vApus.Util {
                 var process = new Process();
                 process.EnableRaisingEvents = true;
                 var port = (int)nudPort.Value;
-                process.StartInfo = new ProcessStartInfo(path,
-                                                         "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " +
-                                                         port + " " + txtUsername.Text + " " + txtPassword.Text + " " +
-                                                         cboChannel.SelectedIndex + " " + forceUpdate);
+                process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " + port + " " +
+                    txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + forceUpdate + " " + false);
 
                 Enabled = false;
 
@@ -169,7 +167,7 @@ namespace vApus.Util {
             if (btnSet.Enabled) {
                 btnSet.Enabled = false;
                 UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
-                                              cboChannel.SelectedIndex);
+                                              cboChannel.SelectedIndex, chkSmartUpdate.Checked);
             }
             ShowUpdateDialog(true);
         }
@@ -177,7 +175,7 @@ namespace vApus.Util {
         private void btnSet_Click(object sender, EventArgs e) {
             btnSet.Enabled = false;
             UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
-                                          cboChannel.SelectedIndex);
+                                          cboChannel.SelectedIndex, chkSmartUpdate.Checked);
         }
 
         private void btnClear_Click(object sender, EventArgs e) {
@@ -187,7 +185,7 @@ namespace vApus.Util {
             txtPassword.Text = string.Empty;
 
             UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
-                                          cboChannel.SelectedIndex);
+                                          cboChannel.SelectedIndex, chkSmartUpdate.Checked);
 
             pnlRefresh.Enabled = btnForceUpdate.Enabled = false;
             btnSet.Enabled = false;

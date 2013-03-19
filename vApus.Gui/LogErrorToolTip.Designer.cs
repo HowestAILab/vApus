@@ -65,9 +65,9 @@
             this.lblText.Location = new System.Drawing.Point(42, 26);
             this.lblText.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lblText.Name = "lblText";
-            this.lblText.Size = new System.Drawing.Size(186, 15);
+            this.lblText.Size = new System.Drawing.Size(97, 15);
             this.lblText.TabIndex = 2;
-            this.lblText.Text = "Click the log level link for details...";
+            this.lblText.Text = "Click for details...";
             this.lblText.Click += new System.EventHandler(this.LogErrorToolTip_Click);
             // 
             // timer

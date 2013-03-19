@@ -43,6 +43,7 @@ namespace vApus.Stresstest {
         private Parameters _parameters;
         private bool _pinned;
 
+        private LogEntry _sameAs;
         #endregion
 
         #region Properties
@@ -156,6 +157,14 @@ namespace vApus.Stresstest {
             get { return (_beginParameterTokenDelimiterCanditates.Length * 3) - 1; }
         }
 
+        /// <summary>
+        /// When using a Distribute setting from stresstest this will be the first clone.
+        /// This is needed to be able to make averages.
+        /// </summary>
+        public LogEntry SameAs {
+            get { return _sameAs; }
+            set { _sameAs = value; }
+        }
         #endregion
 
         #region Constructors
@@ -165,8 +174,7 @@ namespace vApus.Stresstest {
             if (_parameters == null && Solution.ActiveSolution != null)
                 try {
                     _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-                }
-                catch {
+                } catch {
                 }
 
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
@@ -200,8 +208,7 @@ namespace vApus.Stresstest {
 
             if (LogRuleSet == null) {
                 _lexicalResult = LexicalResult.Error;
-            }
-            else {
+            } else {
                 _lexicalResult = LogRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
                 _logEntryString = _lexedLogEntry.CombineValues();
             }

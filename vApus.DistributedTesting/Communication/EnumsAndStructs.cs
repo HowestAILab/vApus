@@ -95,6 +95,8 @@ namespace vApus.DistributedTesting {
         public float NicsSent;
 
         public RunStateChange RunStateChange;
+        public bool RunFinished;
+        public bool ConcurrencyFinished;
         public StresstestStatus StresstestStatus;
         public DateTime StartedAt;
         public TimeSpan MeasuredRuntime;

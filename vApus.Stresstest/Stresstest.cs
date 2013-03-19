@@ -43,8 +43,8 @@ namespace vApus.Stresstest {
         private int[] _monitorIndices = { };
         [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
-        private int _monitorBefore;
-        private int _monitorAfter;
+        private int _monitorBefore = 0;
+        private int _monitorAfter = 0;
 
         private bool _useParallelExecutionOfLogEntries;
 

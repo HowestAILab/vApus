@@ -45,7 +45,7 @@ namespace vApus.Gui {
             var cultureInfo = cboCulture.SelectedItem.GetTag() as CultureInfo;
             //Use ISO 8601 for DateTime formatting.
             cultureInfo.DateTimeFormat.ShortDatePattern = "yyyy'-'MM'-'dd";
-            cultureInfo.DateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fffffff";
+            cultureInfo.DateTimeFormat.LongTimePattern = "HH':'mm':'ss'.'fff";
             Thread.CurrentThread.CurrentCulture = cultureInfo;
 
 

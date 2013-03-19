@@ -54,6 +54,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.pnlBorderChannel = new System.Windows.Forms.Panel();
             this.cboChannel = new System.Windows.Forms.ComboBox();
+            this.chkSmartUpdate = new System.Windows.Forms.CheckBox();
             this.btnForceUpdate = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
@@ -175,6 +176,7 @@
             this.flpConnectTo.Controls.Add(this.panel3);
             this.flpConnectTo.Controls.Add(this.panel4);
             this.flpConnectTo.Controls.Add(this.panel5);
+            this.flpConnectTo.Controls.Add(this.chkSmartUpdate);
             this.flpConnectTo.Location = new System.Drawing.Point(13, 20);
             this.flpConnectTo.Name = "flpConnectTo";
             this.flpConnectTo.Padding = new System.Windows.Forms.Padding(3);
@@ -367,7 +369,21 @@
             this.cboChannel.TabIndex = 0;
             this.cboChannel.SelectedIndexChanged += new System.EventHandler(this.cboChannel_SelectedIndexChanged);
             // 
-            // btnUpdateManually
+            // chkSmartUpdate
+            // 
+            this.chkSmartUpdate.AutoSize = true;
+            this.chkSmartUpdate.Location = new System.Drawing.Point(167, 68);
+            this.chkSmartUpdate.Name = "chkSmartUpdate";
+            this.chkSmartUpdate.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.chkSmartUpdate.Size = new System.Drawing.Size(126, 23);
+            this.chkSmartUpdate.TabIndex = 5;
+            this.chkSmartUpdate.Text = "Smart Update Slaves";
+            this.toolTip.SetToolTip(this.chkSmartUpdate, "Enabling this will update the master and the slaves when starting a distributed t" +
+        "est, if the filled in credentials are correct.");
+            this.chkSmartUpdate.UseVisualStyleBackColor = true;
+            this.chkSmartUpdate.CheckedChanged += new System.EventHandler(this.chkSmartUpdate_CheckedChanged);
+            // 
+            // btnForceUpdate
             // 
             this.btnForceUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnForceUpdate.AutoSize = true;
@@ -378,7 +394,7 @@
             this.btnForceUpdate.Location = new System.Drawing.Point(12, 206);
             this.btnForceUpdate.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
             this.btnForceUpdate.MaximumSize = new System.Drawing.Size(1000, 24);
-            this.btnForceUpdate.Name = "btnUpdateManually";
+            this.btnForceUpdate.Name = "btnForceUpdate";
             this.btnForceUpdate.Size = new System.Drawing.Size(96, 24);
             this.btnForceUpdate.TabIndex = 2;
             this.btnForceUpdate.Text = "Force Update";
@@ -446,5 +462,6 @@
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.CheckBox chkSmartUpdate;
     }
 }
