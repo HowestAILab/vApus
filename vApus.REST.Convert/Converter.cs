@@ -53,8 +53,8 @@ namespace vApus.REST.Convert {
             testConfigCache.Add(tileStresstest, testConfig);
         }
 
-        public static void SetTestProgress(ConverterCollection testProgressCache, string tileStresstest, StresstestMetrics metrics, RunStateChange runStateChange, StresstestStatus stresstestStatus) {
-            var concurrencyCache = AddSubCache(metrics.Concurrency, AddSubCache(tileStresstest, testProgressCache));
+        public static void SetTestProgress(ConverterCollection testProgressCache, StresstestMetrics metrics, RunStateChange runStateChange, StresstestStatus stresstestStatus) {
+            var concurrencyCache = AddSubCache(metrics.Concurrency, testProgressCache);
             var testProgress = new TestProgress {
                 StartMeasuringTime = metrics.StartMeasuringTime,
                 MeasuredTime = metrics.MeasuredTime,

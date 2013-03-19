@@ -1208,10 +1208,12 @@ namespace vApus.DistributedTesting {
                 
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                     foreach (TileStresstest tileStresstest in _distributedTestCore.TestProgressMessages.Keys) {
+                        var tileStresstestCache = Converter.AddSubCache("Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
+                                                      tileStresstest.Index + " " + tileStresstest.BasicTileStresstest.Connection.Label, distributedTestCache);
+
                         var tpm = _distributedTestCore.TestProgressMessages[tileStresstest];
                         foreach (var metrics in tpm.StresstestMetricsCache.GetConcurrencyMetrics()) {
-                            Converter.SetTestProgress(distributedTestCache, "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
-                                                      tileStresstest.Index + " " + tileStresstest.BasicTileStresstest.Connection.Label, metrics, tpm.RunStateChange, tpm.StresstestStatus);
+                            Converter.SetTestProgress(tileStresstestCache, metrics, tpm.RunStateChange, tpm.StresstestStatus);
                         }
                     }
 
