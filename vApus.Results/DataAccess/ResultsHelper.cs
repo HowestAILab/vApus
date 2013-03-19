@@ -669,7 +669,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 runResultIds.Add((int)rrRow.ItemArray[0]);
                             }
 
-                            var logEntryResults = _databaseActions.GetDataTable(
+                            DataTable logEntryResults = _databaseActions.GetDataTable(
                                 string.Format("SELECT RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
 
                             //Place the log entry results under the right virtual user and the right user action
