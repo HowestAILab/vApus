@@ -31,7 +31,8 @@ namespace vApus.JumpStart {
         private readonly object _lock = new object();
         private int _maximumStartTries = 3;
         public AsyncCallback _onReceiveCallBack;
-        private Socket _serverSocket;
+        private Socket _serverSocketIPv4;
+        private Socket _serverSocketIPv6;
         private int _startTries;
 
         #endregion
@@ -47,7 +48,7 @@ namespace vApus.JumpStart {
         /// <summary>
         /// </summary>
         public bool IsRunning {
-            get { return (_serverSocket != null); }
+            get { return (_serverSocketIPv4 != null); }
         }
 
         #endregion
@@ -82,11 +83,18 @@ namespace vApus.JumpStart {
         public void Start() {
             Stop();
             try {
-                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, PORT));
+                _serverSocketIPv4 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _serverSocketIPv4.Bind(new IPEndPoint(IPAddress.Any, PORT));
 
-                _serverSocket.Listen(100);
-                _serverSocket.BeginAccept(OnAccept, null);
+                _serverSocketIPv4.Listen(100);
+                _serverSocketIPv4.BeginAccept(OnAcceptIPv4, null);
+
+                _serverSocketIPv6 = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                _serverSocketIPv6.Bind(new IPEndPoint(IPAddress.IPv6Any, PORT));
+
+                _serverSocketIPv6.Listen(100);
+                _serverSocketIPv6.BeginAccept(OnAcceptIPv6, null);
+
                 _startTries = 0;
             } catch {
                 _startTries++;
@@ -103,9 +111,12 @@ namespace vApus.JumpStart {
         /// </summary>
         public void Stop() {
             try {
-                if (_serverSocket != null)
-                    _serverSocket.Close();
-                _serverSocket = null;
+                if (_serverSocketIPv4 != null)
+                    _serverSocketIPv4.Close();
+                _serverSocketIPv4 = null;
+                if (_serverSocketIPv6 != null)
+                    _serverSocketIPv6.Close();
+                _serverSocketIPv6 = null;
                 DisconnectMasters();
             } catch {
             }
@@ -127,8 +138,9 @@ namespace vApus.JumpStart {
                 exception = null;
                 SocketWrapper socketWrapper = Get(ip, port);
                 if (socketWrapper == null) {
-                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    socketWrapper = new SocketWrapper(ip, port, socket, SocketFlags.None, SocketFlags.None);
+                    var address = IPAddress.Parse(ip);
+                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    socketWrapper = new SocketWrapper(address, port, socket, SocketFlags.None, SocketFlags.None);
                 }
 
                 if (!socketWrapper.Connected)
@@ -155,13 +167,24 @@ namespace vApus.JumpStart {
                 }
         }
 
-        private void OnAccept(IAsyncResult ar) {
+        private void OnAcceptIPv4(IAsyncResult ar) {
             try {
-                Socket socket = _serverSocket.EndAccept(ar);
+                Socket socket = _serverSocketIPv4.EndAccept(ar);
                 var socketWrapper = new SocketWrapper(IPAddress.Any, 1234, socket, SocketFlags.None, SocketFlags.None);
                 _connectedMasters.Add(socketWrapper);
                 BeginReceive(socketWrapper);
-                _serverSocket.BeginAccept(OnAccept, null);
+                _serverSocketIPv4.BeginAccept(OnAcceptIPv4, null);
+            } catch {
+            }
+        }
+
+        private void OnAcceptIPv6(IAsyncResult ar) {
+            try {
+                Socket socket = _serverSocketIPv6.EndAccept(ar);
+                var socketWrapper = new SocketWrapper(IPAddress.IPv6Any, 1234, socket, SocketFlags.None, SocketFlags.None);
+                _connectedMasters.Add(socketWrapper);
+                BeginReceive(socketWrapper);
+                _serverSocketIPv6.BeginAccept(OnAcceptIPv6, null);
             } catch {
             }
         }

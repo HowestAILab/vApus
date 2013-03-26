@@ -161,8 +161,9 @@ namespace vApus.DistributedTesting {
             try {
                 _ip = ip;
                 _port = port;
-                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), _port));
+                var address = IPAddress.Parse(_ip);
+                _serverSocket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                _serverSocket.Bind(new IPEndPoint(address, _port));
                 _serverSocket.Listen(100);
                 _serverSocket.BeginAccept(OnAccept, null);
                 if (preferred) {
@@ -191,13 +192,16 @@ namespace vApus.DistributedTesting {
                 _ip = _availableIps[FillPossibleIPs()];
                 _port = Settings.Default.PreferredPort;
                 try {
-                    _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), _port));
+                    var address = IPAddress.Parse(_ip);
+                    _serverSocket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    _serverSocket.Bind(new IPEndPoint(address, _port));
                 } catch {
                     for (int port = DEFAULTPORT; port <= int.MaxValue; port++)
                         try {
-                            _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                            _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(_ip), port));
+                            var address = IPAddress.Parse(_ip);
+                            _serverSocket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                            _serverSocket.Bind(new IPEndPoint(address, port));
+
                             _port = port;
                             break;
                         } catch {
@@ -225,7 +229,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <returns></returns>
         private int FillPossibleIPs() {
-            IPHostEntry entry = Dns.GetHostByName(Dns.GetHostName());
+            IPHostEntry entry = Dns.GetHostEntry(Dns.GetHostName());
             _availableIps.Clear();
             int entryindex = 0;
             var p = new Ping();
@@ -288,8 +292,9 @@ namespace vApus.DistributedTesting {
                 exception = null;
                 SocketWrapper socketWrapper = Get(ip, port);
                 if (socketWrapper == null) {
-                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    socketWrapper = new SocketWrapper(ip, port, socket, SocketFlags.None, SocketFlags.None);
+                    var address = IPAddress.Parse(ip);
+                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    socketWrapper = new SocketWrapper(address, port, socket, SocketFlags.None, SocketFlags.None);
                 }
 
                 if (!socketWrapper.Connected)
