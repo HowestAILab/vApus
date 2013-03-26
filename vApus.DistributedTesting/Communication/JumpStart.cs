@@ -343,11 +343,12 @@ namespace vApus.DistributedTesting {
             }
 
             private SocketWrapper Connect(string ip) {
-                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                var address = IPAddress.Parse(ip);
+                var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 int port = 1314;
 
-                var socketWrapper = new SocketWrapper(ip, port, socket);
+                var socketWrapper = new SocketWrapper(address, port, socket);
                 socketWrapper.SendTimeout = 3000;
                 socketWrapper.ReceiveTimeout = 300000;
 

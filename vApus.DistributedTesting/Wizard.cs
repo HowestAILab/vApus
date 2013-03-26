@@ -484,9 +484,9 @@ namespace vApus.DistributedTesting
                     else
                     {
                         ipOrHostName = ipOrHostName.ToLower().Split('.')[0];
-                        IPHostEntry hostEntry = Dns.GetHostByName(ipOrHostName);
+                        IPHostEntry hostEntry = Dns.GetHostEntry(ipOrHostName);
                         foreach (IPAddress a in hostEntry.AddressList)
-                            if (a.AddressFamily == AddressFamily.InterNetwork)
+                            if (a.AddressFamily == AddressFamily.InterNetwork || a.AddressFamily == AddressFamily.InterNetworkV6)
                             {
                                 address = a;
                                 break;
@@ -509,7 +509,7 @@ namespace vApus.DistributedTesting
 
                 if (address != null)
                 {
-                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     var sw = new SocketWrapper(address, 1314, socket);
                     try
                     {

@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using vApus.Monitor;
@@ -72,8 +73,9 @@ namespace vApus.DistributedTesting {
                         try { SolutionComponentViewManager.DisposeViews(); } catch { }
                     }, null);
 
-                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    _masterSocketWrapper = new SocketWrapper(initializeTestMessage.PushIP, initializeTestMessage.PushPort, socket);
+                    var address = IPAddress.Parse(initializeTestMessage.PushIP);
+                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    _masterSocketWrapper = new SocketWrapper(address, initializeTestMessage.PushPort, socket);
                     _masterSocketWrapper.Connect(3000, 3);
 
                     if (NewTest != null)
@@ -235,8 +237,7 @@ namespace vApus.DistributedTesting {
                     if (!_masterSocketWrapper.Connected) {
                         try { if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose(); } catch { }
 
-                        var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
+                        var socket = new Socket(_masterSocketWrapper.IP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                         _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
 
                         try { _masterSocketWrapper.Connect(1000, 3); } catch { }

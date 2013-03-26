@@ -95,16 +95,17 @@ namespace vApus.DistributedTesting {
                     masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
 
             if (masterSocketWrapper == null) {
-                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
                 string ip = SocketListener.GetInstance().IP;
+
+                var address = IPAddress.Parse(ip);
+                var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 int start = slaveSocketWrapper.Port * 10;
                 int stop = int.MaxValue;
 
                 for (int i = start; i != stop; i++) {
                     try {
-                        masterSocketWrapper = new SocketWrapper(ip, i, socket);
+                        masterSocketWrapper = new SocketWrapper(address, i, socket);
                         StartListening(masterSocketWrapper);
                         exception = null;
                         break;
@@ -465,8 +466,9 @@ namespace vApus.DistributedTesting {
             try {
                 socketWrapper = Get(ip, port);
                 if (socketWrapper == null) {
-                    Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    socketWrapper = new SocketWrapper(ip, port, socket, SocketFlags.None, SocketFlags.None);
+                    var address = IPAddress.Parse(ip);
+                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    socketWrapper = new SocketWrapper(address, port, socket, SocketFlags.None, SocketFlags.None);
                 }
                 ConnectSlave(socketWrapper, out processID, out exception);
             } catch (Exception ex) {
