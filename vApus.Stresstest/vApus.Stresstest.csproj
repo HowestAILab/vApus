@@ -221,11 +221,11 @@
     <Compile Include="Controls\DetailedResultsControl.Designer.cs">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\SaveChartsDialog.cs">
+    <Compile Include="Controls\ExportToExcelDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\SaveChartsDialog.Designer.cs">
-      <DependentUpon>SaveChartsDialog.cs</DependentUpon>
+    <Compile Include="Controls\ExportToExcelDialog.Designer.cs">
+      <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
@@ -491,8 +491,8 @@
     <EmbeddedResource Include="Controls\FastResultsControl.resx">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SaveChartsDialog.resx">
-      <DependentUpon>SaveChartsDialog.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\ExportToExcelDialog.resx">
+      <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\AddEditLogEntry.resx">
       <DependentUpon>AddEditLogEntry.cs</DependentUpon>

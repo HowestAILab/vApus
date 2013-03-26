@@ -148,7 +148,7 @@ namespace vApus.Stresstest {
                 dgvDetailedResults.DataSource = null;
                 dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = false;
                 lblLoading.Visible = true;
 
                 int retry = 0;
@@ -173,7 +173,7 @@ namespace vApus.Stresstest {
                 SizeColumns();
 
                 lblLoading.Visible = false;
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = true;
                 dgvDetailedResults.Select();
             }
         }
@@ -195,7 +195,7 @@ namespace vApus.Stresstest {
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = false;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = false;
 
             dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             var cultureInfo = Thread.CurrentThread.CurrentCulture;
@@ -206,7 +206,7 @@ namespace vApus.Stresstest {
             SizeColumns();
 
             lblLoading.Visible = false;
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnSaveCharts.Enabled = true;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = true;
         }
         private DataTable ExecuteQuery(string query, CultureInfo cultureInfo) {
             Thread.CurrentThread.CurrentCulture = cultureInfo;
@@ -265,7 +265,7 @@ namespace vApus.Stresstest {
         }
 
         private void btnSaveCharts_Click(object sender, EventArgs e) {
-            var dialog = new SaveChartsDialog();
+            var dialog = new ExportToExcelDialog();
             dialog.Init(_resultsHelper);
             dialog.ShowDialog();
         }

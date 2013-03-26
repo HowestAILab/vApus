@@ -17,11 +17,11 @@ using vApus.Results;
 using vApus.Util;
 
 namespace vApus.Stresstest {
-    public partial class SaveChartsDialog : Form {
+    public partial class ExportToExcelDialog : Form {
         private ResultsHelper _resultsHelper;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
-        public SaveChartsDialog() {
+        public ExportToExcelDialog() {
             InitializeComponent();
         }
         public void Init(ResultsHelper resultsHelper) {
@@ -39,7 +39,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        async private void btnSaveCharts_Click(object sender, EventArgs e) {
+        async private void btnExportToExcel_Click(object sender, EventArgs e) {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnSaveCharts.Enabled = cboStresstest.Enabled = false;
                 btnSaveCharts.Text = "Saving, can take a while...";
@@ -80,15 +80,23 @@ namespace vApus.Stresstest {
                         foreach (ulong stresstestId in stresstests.Keys) {
                             //For some strange reason the doubles are changed to string.
                             var overview = _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(_cancellationTokenSource.Token, stresstestId);
+                            var avgUserActions = _resultsHelper.GetAverageUserActions(_cancellationTokenSource.Token, stresstestId);
+                            var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
+                            var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId); ;
                             var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
 
                             string stresstest = stresstests[stresstestId];
-                            string fws = MakeCummulativeResponseTimesVsAchievedThroughputChart(doc, overview, worksheetIndex++, stresstest);
+                            string fws = MakeCummulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest);
                             if (firstWorksheet == null) firstWorksheet = fws;
 
-                            MakeTop5HeaviestUserActionsChart(doc, overview, worksheetIndex++, stresstest);
+                            MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest);
 
-                            foreach (DataTable monitorDt in monitors) MakeMonitorChart(doc, monitorDt, worksheetIndex++, stresstest);
+                            int rangeWidth, rangeHeight;
+                            MakeWorksheet(doc, avgUserActions, worksheetIndex++, stresstest, out rangeWidth, out rangeHeight);
+                            MakeWorksheet(doc, errors, worksheetIndex++, stresstest, out rangeWidth, out rangeHeight);
+                            MakeWorksheet(doc, userActionComposition, worksheetIndex++, stresstest, out rangeWidth, out rangeHeight);
+
+                            foreach (DataTable monitorDt in monitors) MakeWorksheet(doc, monitorDt, worksheetIndex++, stresstest, out rangeWidth, out rangeHeight);
                         }
 
                         try { doc.SelectWorksheet(firstWorksheet); } catch { }
@@ -101,7 +109,7 @@ namespace vApus.Stresstest {
                     }
                 }, _cancellationTokenSource.Token);
 
-                btnSaveCharts.Text = "Save Charts...";
+                btnSaveCharts.Text = "Export to Excel...";
                 btnSaveCharts.Enabled = cboStresstest.Enabled = true;
             }
         }
@@ -112,38 +120,9 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="stresstest"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeCummulativeResponseTimesVsAchievedThroughputChart(SLDocument doc, DataTable dt, int worksheetIndex, string stresstest) {
-            //max 31 chars
-            string worksheet = worksheetIndex + ") " + stresstest.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
-            if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
-            doc.AddWorksheet(worksheet);
-
-            int rangeWidth = dt.Columns.Count, rangeHeight = dt.Rows.Count + 1;
-
-            //Add data to the worksheet
-            for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++)
-                doc.SetCellValue(1, clmIndex + 1, dt.Columns[clmIndex].ColumnName);
-
-            for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
-                var row = dt.Rows[rowIndex].ItemArray;
-                for (int clmIndex = 0; clmIndex != row.Length; clmIndex++) {
-                    var value = row[clmIndex];
-
-                    int rowInSheet = rowIndex + 2;
-                    int clmInSheet = clmIndex + 1;
-                    if (value is string) {
-                        string s = value as string;
-                        if (s.IsNumeric())
-                            doc.SetCellValue(rowInSheet, clmInSheet, double.Parse(s));
-                        else
-                            doc.SetCellValue(rowInSheet, clmInSheet, s);
-                    } else if (value is int) {
-                        doc.SetCellValue(rowInSheet, clmInSheet, (int)value);
-                    } else {
-                        doc.SetCellValue(rowInSheet, clmInSheet, (double)value);
-                    }
-                }
-            }
+        private string MakeCummulativeResponseTimesVsAchievedThroughputSheet(SLDocument doc, DataTable dt, int worksheetIndex, string stresstest) {
+            int rangeWidth, rangeHeight;
+            string worksheet = MakeWorksheet(doc, dt, worksheetIndex, stresstest, out rangeWidth, out rangeHeight);
 
             //Plot the response times
             var chart = doc.CreateChart(1, 2, rangeHeight, rangeWidth, false, false);
@@ -176,7 +155,7 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="stresstest"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeTop5HeaviestUserActionsChart(SLDocument doc, DataTable dt, int worksheetIndex, string stresstest) {
+        private string MakeTop5HeaviestUserActionsSheet(SLDocument doc, DataTable dt, int worksheetIndex, string stresstest) {
             //max 31 chars
             string worksheet = worksheetIndex + ") " + stresstest.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
             if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
@@ -261,13 +240,24 @@ namespace vApus.Stresstest {
             return worksheet;
         }
 
-        private string MakeMonitorChart(SLDocument doc, DataTable dt, int worksheetIndex, string stresstest) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="dt"></param>
+        /// <param name="worksheetIndex"></param>
+        /// <param name="title"></param>
+        /// <param name="rangeWidth"></param>
+        /// <param name="rangeHeight"></param>
+        /// <returns>worksheet name</returns>
+        private string MakeWorksheet(SLDocument doc, DataTable dt, int worksheetIndex, string title, out int rangeWidth, out int rangeHeight) {
             //max 31 chars
-            string worksheet = worksheetIndex + ") " + stresstest.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
+            string worksheet = worksheetIndex + ") " + title.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
             if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
             doc.AddWorksheet(worksheet);
 
-            int rangeWidth = dt.Columns.Count, rangeHeight = dt.Rows.Count + 1;
+            rangeWidth = dt.Columns.Count;
+            rangeHeight = dt.Rows.Count + 1;
 
             //Add data to the worksheet
             for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++)
@@ -285,12 +275,8 @@ namespace vApus.Stresstest {
                         string s = value as string;
                         if (s.IsNumeric())
                             doc.SetCellValue(rowInSheet, clmInSheet, double.Parse(s));
-                        else {
+                        else 
                             doc.SetCellValue(rowInSheet, clmInSheet, s);
-
-                            //if (clmInSheet == 2 && monitor == null)
-                            //    monitor = s;
-                        }
                     } else if (value is int) {
                         doc.SetCellValue(rowInSheet, clmInSheet, (int)value);
                     } else if (value is double) {
@@ -302,26 +288,6 @@ namespace vApus.Stresstest {
                     }
                 }
             }
-
-            //Since monitor charts are not particulary usefull (heterogeneous data) those are not added.
-            ////Plot the monitor values
-            //var chart = doc.CreateChart(1, 3, rangeHeight, rangeWidth, false, false);
-            //chart.SetChartType(SLLineChartType.Line);
-            //chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-            //chart.SetChartPosition(rangeHeight + 1, 0, rangeHeight + 30, 20);
-
-            ////Set the titles
-            //chart.Title.SetTitle(stresstest + " - " + monitor);
-            //chart.ShowChartTitle(false);
-
-            //chart.PrimaryTextAxis.Title.SetTitle("Timestamp");
-            //chart.PrimaryTextAxis.ShowTitle = true;
-            ////chart.PrimaryValueAxis.Title.SetTitle("Cummulative Response Time (ms)");
-            ////chart.PrimaryValueAxis.ShowTitle = true;
-            //chart.PrimaryValueAxis.ShowMinorGridlines = true;
-
-            //doc.InsertChart(chart);
-
             return worksheet;
         }
 
