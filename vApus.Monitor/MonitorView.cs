@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -47,6 +48,8 @@ namespace vApus.Monitor {
         private MonitorSource _previousMonitorSourceForParameters;
         private int _refreshTimeInMS;
 
+        private System.Timers.Timer _invokeChangedTmr = new System.Timers.Timer(1000);
+
         private delegate void WDYHDel(bool suppressErrorMessageBox);
 
         #endregion
@@ -79,6 +82,8 @@ namespace vApus.Monitor {
             _monitor = solutionComponent as Monitor;
 
             _wdyhDel = __WDYH;
+
+            _invokeChangedTmr.Elapsed += _invokeChangedTmr_Elapsed;
 
             if (IsHandleCreated)
                 InitMonitorView();
@@ -272,7 +277,7 @@ namespace vApus.Monitor {
                 monitorParameters[i++] = value;
             _monitor.Parameters = monitorParameters;
 
-            _monitor.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            InvokeChanged();
         }
 
         private void FillEntities(Dictionary<Entity, List<CounterInfo>> entitiesAndCounters) {
@@ -316,7 +321,7 @@ namespace vApus.Monitor {
             llblCheckAllVisible.Enabled = HasUncheckedNodes();
         }
 
-        private void ExtractWIWForListViewAction() {
+        private void ExtractWIWForListViewAction() {            
             LockWindowUpdate(Handle.ToInt32());
             try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
@@ -349,7 +354,7 @@ namespace vApus.Monitor {
                 SetChosenCountersInListViewItems();
                 btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
 
-                _monitor.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                InvokeChanged();
             } catch {
                 throw;
             } finally {
@@ -500,8 +505,21 @@ namespace vApus.Monitor {
 
             btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
 
-            _monitor.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             LockWindowUpdate(0);
+
+            InvokeChanged();
+        }
+        private void InvokeChanged() {
+            if (_invokeChangedTmr != null) {
+                _invokeChangedTmr.Stop();
+                _invokeChangedTmr.Start();
+            }
+        }
+        private void _invokeChangedTmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            if (_invokeChangedTmr != null) {
+                _invokeChangedTmr.Stop();
+                _monitor.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }
         }
 
         /// <summary>
@@ -1088,7 +1106,7 @@ namespace vApus.Monitor {
             _monitor.Filter = l.ToArray();
 
             SetFilterTextBox();
-            _monitor.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            InvokeChanged();
         }
 
         private void SetFilterTextBox() {
