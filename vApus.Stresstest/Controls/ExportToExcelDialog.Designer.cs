@@ -133,6 +133,7 @@
             this.picAverageUserActions.TabStop = false;
             this.toolTip.SetToolTip(this.picAverageUserActions, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
         "e manually");
+            this.picAverageUserActions.Click += new System.EventHandler(this.pic_Click);
             // 
             // picErrors
             // 
@@ -147,6 +148,7 @@
             this.picErrors.TabStop = false;
             this.toolTip.SetToolTip(this.picErrors, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
         "e manually");
+            this.picErrors.Click += new System.EventHandler(this.pic_Click);
             // 
             // picUserActionComposition
             // 
@@ -161,6 +163,7 @@
             this.picUserActionComposition.TabStop = false;
             this.toolTip.SetToolTip(this.picUserActionComposition, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
         "e manually");
+            this.picUserActionComposition.Click += new System.EventHandler(this.pic_Click);
             // 
             // picMonitor
             // 
