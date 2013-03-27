@@ -228,7 +228,7 @@ namespace vApus.DistributedTesting {
                     if (_ipChanged && IPAddress.TryParse(txtIP.Text, out address)) {
                         ip = address.ToString();
                         try {
-                            hostname = Dns.GetHostByAddress(ip).HostName;
+                            hostname = Dns.GetHostEntry(ip).HostName;
                             hostname = (hostname == null) ? string.Empty : hostname.ToLower();
                             online = true;
                         } catch {
@@ -237,7 +237,7 @@ namespace vApus.DistributedTesting {
                         hostname = txtHostName.Text.ToLower();
                         IPAddress[] addresses = { };
                         try {
-                            if (hostname.Length != 0) addresses = Dns.GetHostByName(hostname.Split('.')[0]).AddressList;
+                            if (hostname.Length != 0) addresses = Dns.GetHostEntry(hostname.Split('.')[0]).AddressList;
                         } catch {
                         }
 

@@ -824,8 +824,8 @@ namespace vApus.DistributedTesting {
         private void btnStop_Click(object sender, EventArgs e) {
             distributedStresstestControl.AppendMessages("Stopping the test...");
             if (_monitorBeforeCountDown != null) {
-                _monitorBeforeCountDown.Stop();
-                _monitorBeforeCountDown.Dispose();
+                try { _monitorBeforeCountDown.Stop(); } catch { }
+                try { _monitorBeforeCountDown.Dispose(); } catch { }
                 _monitorBeforeCountDown = null;
             }
 
@@ -1174,7 +1174,7 @@ namespace vApus.DistributedTesting {
             try {
                 var monitorConfigCache = new ConverterCollection();
                 var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), monitorConfigCache);
-                
+
                 foreach (TileStresstest key in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[key])
                         Converter.SetMonitorConfig(distributedTestCache, view.Monitor);
@@ -1205,7 +1205,7 @@ namespace vApus.DistributedTesting {
             try {
                 var testProgressCache = new ConverterCollection();
                 var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), testProgressCache);
-                
+
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                     foreach (TileStresstest tileStresstest in _distributedTestCore.TestProgressMessages.Keys) {
                         var tileStresstestCache = Converter.AddSubCache("Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +

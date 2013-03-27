@@ -147,8 +147,8 @@ namespace vApus.DistributedTesting {
 
                 if (!alreadyExcludingMaster)
                     try {
-                        string masterHostName = Dns.GetHostByAddress(SocketListener.GetInstance().IP).HostName.Trim().Split('.')[0];
-                        string slaveHostName = Dns.GetHostByAddress(ip).HostName.Trim().Split('.')[0];
+                        string masterHostName = Dns.GetHostEntry(SocketListener.GetInstance().IP).HostName.Trim().Split('.')[0];
+                        string slaveHostName = Dns.GetHostEntry(ip).HostName.Trim().Split('.')[0];
 
                         if (masterHostName == slaveHostName) exclude = Process.GetCurrentProcess().Id;
                     } catch { if (SocketListener.GetInstance().IP == ip) exclude = Process.GetCurrentProcess().Id; }
