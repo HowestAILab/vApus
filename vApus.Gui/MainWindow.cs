@@ -506,7 +506,7 @@ namespace vApus.Gui {
         }
 
         private void tmrSetStatusStrip_Tick(object sender, EventArgs e) {
-            if (IsHandleCreated) SetStatusStrip();
+          if (IsHandleCreated && Visible) try { SetStatusStrip(); } catch { }
         }
 
         private void SetStatusStrip() {

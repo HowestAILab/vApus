@@ -138,9 +138,9 @@ namespace vApus.JumpStart {
                     string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
 
                     if (processorAffinity.Length == 0)
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-ip ", ip, " -p ", port));
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-ip ", ip, "_-p_", port));
                     else
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-ipp ", ip, " -p ", port, " -pa ", processorAffinity));
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-ip ", ip, "_-p_", port, " -pa ", processorAffinity));
 
                     p.Start();
                     if (!p.WaitForInputIdle(10000))
