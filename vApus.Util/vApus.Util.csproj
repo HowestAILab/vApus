@@ -603,9 +603,6 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="quicklz150_64_1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="Resources\Warning.png" />
     <None Include="Resources\OK.png" />
     <None Include="Resources\Error.png" />

@@ -94,12 +94,12 @@ namespace vApus.Stresstest {
                             int rangeWidth, rangeOffset, rangeHeight;
                             MakeWorksheet(doc, avgUserActions, worksheetIndex++, stresstest + " - Average User Actions", out rangeWidth, out rangeOffset, out rangeHeight);
                             MakeWorksheet(doc, errors, worksheetIndex++, stresstest + " - Errors", out rangeWidth, out rangeOffset, out rangeHeight);
-                            MakeWorksheet(doc, userActionComposition, worksheetIndex++, stresstest + " - User Action Composition", out rangeWidth, out rangeOffset, out rangeHeight);
+                            MakeUserActionCompositionSheet(doc, userActionComposition, worksheetIndex++, stresstest + " - User Action Composition");
 
                             foreach (DataTable monitorDt in monitors)
                                 if (monitorDt.Rows.Count != 0) {
-                                    var monitor = monitorDt.Rows[0].ItemArray[2];
-                                    MakeWorksheet(doc, monitorDt, worksheetIndex++, stresstest + " - " + monitor, out rangeWidth, out rangeOffset, out rangeHeight);
+                                    var monitor = monitorDt.Rows[0].ItemArray[1];
+                                    MakeMonitorSheet(doc, monitorDt, worksheetIndex++, stresstest + " - " + monitor);
                                 }
                         }
 
@@ -129,13 +129,13 @@ namespace vApus.Stresstest {
             string worksheet = MakeWorksheet(doc, dt, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
 
             //Plot the response times
-            var chart = doc.CreateChart(rangeOffset, 2, rangeHeight + rangeOffset, rangeWidth, false, false);
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
             chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 30, 20);
 
             //Plot the throughput
-            chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 2, SLChartDataDisplayType.Normal, false);
+            chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
 
             //Set the titles
             chart.Title.SetTitle(title);
@@ -172,7 +172,7 @@ namespace vApus.Stresstest {
                 DataRow dr = dt.Rows[dt.Rows.Count - 1];
 
                 //0 = stresstest, 1 = concurrency, last = throughput
-                for (int i = 2; i < dt.Columns.Count - 2; i++) {
+                for (int i = 2; i < dt.Columns.Count - 1; i++) {
                     var o = dr.ItemArray[i];
                     double value = (o is double ? (double)o : double.Parse(o as string));
 
@@ -194,12 +194,10 @@ namespace vApus.Stresstest {
                     responseTimes.RemoveAt(4);
                     sortedColumns.RemoveAt(4);
                 }
-                if (dt.Columns.Count > 1) {
+                if (dt.Columns.Count > 1)
                     sortedColumns.Insert(0, 1);
-                    sortedColumns.Insert(0, 0);
-                }
 
-                //Add data to the worksheet, only the first two columns and the 5 heaviest actions
+                //Add data to the worksheet, only the second column and the 5 heaviest actions
                 int rangeWidth = sortedColumns.Count, rangeOffset = 2, rangeHeight = dt.Rows.Count;
 
                 //Add the title
@@ -233,12 +231,12 @@ namespace vApus.Stresstest {
                             doc.SetCellValue(rowIndex + 3, i + 1, (double)value);
                         }
 
-                        if (i == 0 || i == 1) doc.SetCellStyle(rowIndex + 3, i + 1, boldStyle);
+                        if (i == 0) doc.SetCellStyle(rowIndex + 3, i + 1, boldStyle);
                     }
                 }
 
                 //Plot the response times
-                var chart = doc.CreateChart(rangeOffset, 2, rangeHeight + rangeOffset, rangeWidth, false, false);
+                var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
                 chart.SetChartType(SLColumnChartType.ClusteredColumn);
                 chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
                 chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 30, 20);
@@ -259,6 +257,45 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
+        /// Format the user action comosition differently so it is more readable for customers.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="dt"></param>
+        /// <param name="worksheetIndex"></param>
+        /// <param name="title"></param>
+        /// <returns></returns>
+        private string MakeUserActionCompositionSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+            var userActionComposition = new DataTable("UserActionComposition");
+            userActionComposition.Columns.Add("stubClm");
+            userActionComposition.Columns.Add();
+            userActionComposition.Columns.Add();
+
+            var userActions = new Dictionary<string, List<string>>();
+            foreach (DataRow row in dt.Rows) {
+                string userAction = row.ItemArray[1] as string;
+                string logEntry = row.ItemArray[2] as string;
+                if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
+                userActions[userAction].Add(logEntry);
+            }
+
+            foreach (string userAction in userActions.Keys) {
+                userActionComposition.Rows.Add(string.Empty, userAction, string.Empty);
+                foreach (string logEntry in userActions[userAction])
+                    userActionComposition.Rows.Add(string.Empty, string.Empty, logEntry);
+            }
+
+            int rangeWidth, rangeOffset, rangeHeight;
+            return MakeWorksheet(doc, userActionComposition, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight, true);
+        }
+
+        private string MakeMonitorSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+            dt.Columns.RemoveAt(1);
+
+            int rangeWidth, rangeOffset, rangeHeight;
+            return MakeWorksheet(doc, dt, worksheetIndex++, title, out rangeWidth, out rangeOffset, out rangeHeight);
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="doc"></param>
@@ -268,14 +305,14 @@ namespace vApus.Stresstest {
         /// <param name="rangeWidth"></param>
         /// <param name="rangeHeight"></param>
         /// <returns>worksheet name</returns>
-        private string MakeWorksheet(SLDocument doc, DataTable dt, int worksheetIndex, string title, out int rangeWidth, out int rangeOffset, out int rangeHeight) {
+        private string MakeWorksheet(SLDocument doc, DataTable dt, int worksheetIndex, string title, out int rangeWidth, out int rangeOffset, out int rangeHeight, bool doNotAddHeaders = false) {
             //max 31 chars
             string worksheet = worksheetIndex + ") " + title.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
             if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
             doc.AddWorksheet(worksheet);
 
             rangeOffset = 2;
-            rangeWidth = dt.Columns.Count;
+            rangeWidth = dt.Columns.Count - 1;
             rangeHeight = dt.Rows.Count;
 
 
@@ -289,37 +326,38 @@ namespace vApus.Stresstest {
             var boldStyle = new SLStyle();
             boldStyle.Font.Bold = true;
             //Add the headers
-            for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++) {
-                doc.SetCellValue(rangeOffset, clmIndex + 1, dt.Columns[clmIndex].ColumnName);
-                doc.SetCellStyle(rangeOffset, clmIndex + 1, boldStyle);
-            }
+            if (!doNotAddHeaders)
+                for (int clmIndex = 1; clmIndex < dt.Columns.Count; clmIndex++) {
+                    doc.SetCellValue(rangeOffset, clmIndex, dt.Columns[clmIndex].ColumnName);
+                    doc.SetCellStyle(rangeOffset, clmIndex, boldStyle);
+                }
 
+            int rowOffset = doNotAddHeaders ? 2 : 3;
             for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
                 var row = dt.Rows[rowIndex].ItemArray;
-                for (int clmIndex = 0; clmIndex != row.Length; clmIndex++) {
+                for (int clmIndex = 1; clmIndex < row.Length; clmIndex++) {
                     var value = row[clmIndex];
 
-                    int rowInSheet = rowIndex + 3;
-                    int clmInSheet = clmIndex + 1;
+                    int rowInSheet = rowIndex + rowOffset;
                     if (value is string) {
                         string s = value as string;
                         if (s.IsNumeric())
-                            doc.SetCellValue(rowInSheet, clmInSheet, double.Parse(s));
+                            doc.SetCellValue(rowInSheet, clmIndex, double.Parse(s));
                         else
-                            doc.SetCellValue(rowInSheet, clmInSheet, s);
+                            doc.SetCellValue(rowInSheet, clmIndex, s);
                     } else if (value is int) {
-                        doc.SetCellValue(rowInSheet, clmInSheet, (int)value);
+                        doc.SetCellValue(rowInSheet, clmIndex, (int)value);
                     } else if (value is long) {
-                        doc.SetCellValue(rowInSheet, clmInSheet, (long)value);
+                        doc.SetCellValue(rowInSheet, clmIndex, (long)value);
                     } else if (value is double) {
-                        doc.SetCellValue(rowInSheet, clmInSheet, (double)value);
+                        doc.SetCellValue(rowInSheet, clmIndex, (double)value);
                     } else if (value is DateTime) {
-                        doc.SetCellValue(rowInSheet, clmInSheet, ((DateTime)value).ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff"));
+                        doc.SetCellValue(rowInSheet, clmIndex, ((DateTime)value).ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff"));
                     } else {
-                        doc.SetCellValue(rowInSheet, clmInSheet, value.ToString());
+                        doc.SetCellValue(rowInSheet, clmIndex, value.ToString());
                     }
 
-                    if (clmInSheet == 1 || clmInSheet == 2) doc.SetCellStyle(rowInSheet, clmInSheet, boldStyle);
+                    if (clmIndex == 1) doc.SetCellStyle(rowInSheet, clmIndex, boldStyle);
                 }
             }
             return worksheet;

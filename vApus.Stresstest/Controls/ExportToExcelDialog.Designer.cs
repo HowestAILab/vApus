@@ -40,6 +40,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorderStresstest = new System.Windows.Forms.Panel();
             this.cboStresstest = new System.Windows.Forms.ComboBox();
+            this.chkMonitorsToDifferentFiles = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).BeginInit();
             this.flpCharts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).BeginInit();
@@ -72,7 +73,6 @@
             // saveFileDialog
             // 
             this.saveFileDialog.DefaultExt = "xlsx";
-            this.saveFileDialog.FileName = "charts.xlsx";
             this.saveFileDialog.Filter = "Excel files|*.xlsx";
             // 
             // picOverview
@@ -101,6 +101,7 @@
             this.flpCharts.Controls.Add(this.picErrors);
             this.flpCharts.Controls.Add(this.picUserActionComposition);
             this.flpCharts.Controls.Add(this.picMonitor);
+            this.flpCharts.Controls.Add(this.chkMonitorsToDifferentFiles);
             this.flpCharts.Location = new System.Drawing.Point(12, 63);
             this.flpCharts.Name = "flpCharts";
             this.flpCharts.Size = new System.Drawing.Size(648, 207);
@@ -131,8 +132,7 @@
             this.picAverageUserActions.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picAverageUserActions.TabIndex = 9;
             this.picAverageUserActions.TabStop = false;
-            this.toolTip.SetToolTip(this.picAverageUserActions, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
-        "e manually");
+            this.toolTip.SetToolTip(this.picAverageUserActions, "Average User Actions Example");
             this.picAverageUserActions.Click += new System.EventHandler(this.pic_Click);
             // 
             // picErrors
@@ -146,8 +146,7 @@
             this.picErrors.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picErrors.TabIndex = 10;
             this.picErrors.TabStop = false;
-            this.toolTip.SetToolTip(this.picErrors, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
-        "e manually");
+            this.toolTip.SetToolTip(this.picErrors, "Errors Example");
             this.picErrors.Click += new System.EventHandler(this.pic_Click);
             // 
             // picUserActionComposition
@@ -161,8 +160,7 @@
             this.picUserActionComposition.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picUserActionComposition.TabIndex = 11;
             this.picUserActionComposition.TabStop = false;
-            this.toolTip.SetToolTip(this.picUserActionComposition, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
-        "e manually");
+            this.toolTip.SetToolTip(this.picUserActionComposition, "User Action Composition Example");
             this.picUserActionComposition.Click += new System.EventHandler(this.pic_Click);
             // 
             // picMonitor
@@ -239,6 +237,16 @@
             this.cboStresstest.Size = new System.Drawing.Size(298, 21);
             this.cboStresstest.TabIndex = 0;
             // 
+            // chkMonitorsToDifferentFiles
+            // 
+            this.chkMonitorsToDifferentFiles.Location = new System.Drawing.Point(297, 98);
+            this.chkMonitorsToDifferentFiles.Name = "chkMonitorsToDifferentFiles";
+            this.chkMonitorsToDifferentFiles.Size = new System.Drawing.Size(141, 89);
+            this.chkMonitorsToDifferentFiles.TabIndex = 12;
+            this.chkMonitorsToDifferentFiles.Text = "Export monitors to different Excel files";
+            this.chkMonitorsToDifferentFiles.UseVisualStyleBackColor = true;
+            this.chkMonitorsToDifferentFiles.Visible = false;
+            // 
             // ExportToExcelDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -292,5 +300,6 @@
         private System.Windows.Forms.PictureBox picAverageUserActions;
         private System.Windows.Forms.PictureBox picErrors;
         private System.Windows.Forms.PictureBox picUserActionComposition;
+        private System.Windows.Forms.CheckBox chkMonitorsToDifferentFiles;
     }
 }

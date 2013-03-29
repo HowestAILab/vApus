@@ -276,7 +276,7 @@
     <Compile Include="EventArgs.cs" />
     <Compile Include="Communication\Master\MasterSideCommunicationHandler.cs" />
     <Compile Include="Communication\SocketListenerManagerPanel.cs">
-      <SubType>Form</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Communication\SocketListenerManagerPanel.designer.cs">
       <DependentUpon>SocketListenerManagerPanel.cs</DependentUpon>
