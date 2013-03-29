@@ -30,10 +30,6 @@ namespace vApus.Link {
             get { return _socketListener.IsRunning; }
         }
 
-        public static string SocketListenerIP {
-            get { return _socketListener.IP; }
-        }
-
         public static int SocketListenerPort {
             get { return _socketListener.Port; }
         }
@@ -61,8 +57,8 @@ namespace vApus.Link {
             _socketListener.Start();
         }
 
-        public static void SetIPAndPort(string ip, int port, bool preferred = false) {
-            _socketListener.SetIPAndPort(ip, port, preferred);
+        public static void SetPort(int port, bool preferred = false) {
+            _socketListener.SetPort(port, preferred);
         }
 
         public static void AddSocketListenerManagerPanel(OptionsDialog optionsDialog) {

@@ -19,8 +19,6 @@ namespace vApus.JumpStartStructures {
 
     [Serializable]
     public struct JumpStartMessage {
-        public string IP;
-
         /// <summary>
         ///     All ports comma separated.
         /// </summary>
@@ -36,8 +34,7 @@ namespace vApus.JumpStartStructures {
         /// <param name="ip"></param>
         /// <param name="port">can be multiple ports divided by a comma.</param>
         /// <param name="processID"></param>
-        public JumpStartMessage(string ip, string port, string processorAffinity) {
-            IP = ip;
+        public JumpStartMessage(string port, string processorAffinity) {
             Port = port;
             ProcessorAffinity = processorAffinity;
         }

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -95,9 +96,16 @@ namespace vApus.DistributedTesting {
                     masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
 
             if (masterSocketWrapper == null) {
-                string ip = SocketListener.GetInstance().IP;
+                var address = IPAddress.Any;
+                var adapters = NetworkInterface.GetAllNetworkInterfaces();
 
-                var address = IPAddress.Parse(ip);
+                int slaveIPPrefixLength = GetIPPrefixLength(adapters, slaveSocketWrapper.IP);
+                foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName()))
+                    if (GetIPPrefixLength(adapters, ipAddress) == slaveIPPrefixLength) {
+                        address = ipAddress;
+                        break;
+                }
+
                 var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 int start = slaveSocketWrapper.Port * 10;
@@ -118,6 +126,17 @@ namespace vApus.DistributedTesting {
             if (exception != null)
                 throw exception;
             return masterSocketWrapper;
+        }
+        //To check if the ip is in the same range
+        private static int GetIPPrefixLength(NetworkInterface[] adapters, IPAddress ip) {
+            foreach (var adapter in adapters) {
+                foreach (var uniCast in adapter.GetIPProperties().UnicastAddresses) {
+                    if (uniCast.Address.ToString() == ip.ToString()) {
+                       return uniCast.PrefixLength;
+                    }
+                }
+            }
+            return 0;
         }
         /// <summary>
         /// </summary>

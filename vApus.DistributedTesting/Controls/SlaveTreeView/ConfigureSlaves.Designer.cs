@@ -38,10 +38,10 @@
             this.picClearSlaves = new System.Windows.Forms.PictureBox();
             this.picShowRD = new System.Windows.Forms.PictureBox();
             this.picAddSlave = new System.Windows.Forms.PictureBox();
-            this.txtHostName = new System.Windows.Forms.TextBox();
+            this.txtIP = new System.Windows.Forms.TextBox();
             this.lblHostName = new System.Windows.Forms.Label();
             this.lblIP = new System.Windows.Forms.Label();
-            this.txtIP = new System.Windows.Forms.TextBox();
+            this.txtHostName = new System.Windows.Forms.TextBox();
             this.lblRDCredentials = new System.Windows.Forms.Label();
             this.lblConnection = new System.Windows.Forms.Label();
             this.txtUserName = new System.Windows.Forms.TextBox();
@@ -62,9 +62,9 @@
             // 
             // flp
             // 
-            this.flp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.flp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.flp.AutoScroll = true;
             this.flp.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flp.Location = new System.Drawing.Point(0, 100);
@@ -84,7 +84,7 @@
             this.lblUsage.Size = new System.Drawing.Size(333, 26);
             this.lblUsage.TabIndex = 4;
             this.lblUsage.Text = "Add Clients to the Distributed Test clicking the \'+ button\'.\r\nSelect a Client to " +
-                "configure it.";
+    "configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // picSort
@@ -105,7 +105,7 @@
             // 
             this.picStatus.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picStatus.Image = ((System.Drawing.Image)(resources.GetObject("picStatus.Image")));
-            this.picStatus.Location = new System.Drawing.Point(193, 38);
+            this.picStatus.Location = new System.Drawing.Point(271, 62);
             this.picStatus.Name = "picStatus";
             this.picStatus.Size = new System.Drawing.Size(16, 16);
             this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -156,41 +156,40 @@
             this.toolTip.SetToolTip(this.picAddSlave, "Add Slave");
             this.picAddSlave.Click += new System.EventHandler(this.picAddSlave_Click);
             // 
-            // txtHostName
+            // txtIP
             // 
-            this.txtHostName.Location = new System.Drawing.Point(87, 62);
-            this.txtHostName.Name = "txtHostName";
-            this.txtHostName.Size = new System.Drawing.Size(200, 20);
-            this.txtHostName.TabIndex = 1;
-            this.toolTip.SetToolTip(this.txtHostName, "Typing the IP address is advised.\r\nIf you want to avoid firewall issues the slave" +
-                    " must be in the same IP range as the master.\r\n");
-            this.txtHostName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtHostName_KeyUp);
+            this.txtIP.Location = new System.Drawing.Point(87, 62);
+            this.txtIP.Name = "txtIP";
+            this.txtIP.Size = new System.Drawing.Size(178, 20);
+            this.txtIP.TabIndex = 1;
+            this.toolTip.SetToolTip(this.txtIP, "Make sure this IP is in the same range as one of the IPs of the master!");
+            this.txtIP.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtIP_KeyUp);
             // 
             // lblHostName
             // 
             this.lblHostName.AutoSize = true;
-            this.lblHostName.Location = new System.Drawing.Point(57, 39);
+            this.lblHostName.Location = new System.Drawing.Point(21, 39);
             this.lblHostName.Name = "lblHostName";
-            this.lblHostName.Size = new System.Drawing.Size(20, 13);
+            this.lblHostName.Size = new System.Drawing.Size(63, 13);
             this.lblHostName.TabIndex = 24;
-            this.lblHostName.Text = "IP:";
+            this.lblHostName.Text = "Host Name:";
             // 
             // lblIP
             // 
             this.lblIP.AutoSize = true;
-            this.lblIP.Location = new System.Drawing.Point(6, 65);
+            this.lblIP.Location = new System.Drawing.Point(45, 65);
             this.lblIP.Name = "lblIP";
-            this.lblIP.Size = new System.Drawing.Size(75, 13);
+            this.lblIP.Size = new System.Drawing.Size(32, 13);
             this.lblIP.TabIndex = 27;
-            this.lblIP.Text = "or Host Name:";
+            this.lblIP.Text = "or IP:";
             // 
-            // txtIP
+            // txtHostName
             // 
-            this.txtIP.Location = new System.Drawing.Point(87, 36);
-            this.txtIP.Name = "txtIP";
-            this.txtIP.Size = new System.Drawing.Size(100, 20);
-            this.txtIP.TabIndex = 0;
-            this.txtIP.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtIP_KeyUp);
+            this.txtHostName.Location = new System.Drawing.Point(87, 36);
+            this.txtHostName.Name = "txtHostName";
+            this.txtHostName.Size = new System.Drawing.Size(200, 20);
+            this.txtHostName.TabIndex = 0;
+            this.txtHostName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtHostName_KeyUp);
             // 
             // lblRDCredentials
             // 
@@ -286,7 +285,7 @@
             this.pnlSettings.Controls.Add(this.picShowRD);
             this.pnlSettings.Controls.Add(this.picSort);
             this.pnlSettings.Controls.Add(this.picClearSlaves);
-            this.pnlSettings.Controls.Add(this.txtHostName);
+            this.pnlSettings.Controls.Add(this.txtIP);
             this.pnlSettings.Controls.Add(this.label4);
             this.pnlSettings.Controls.Add(this.lblHostName);
             this.pnlSettings.Controls.Add(this.label3);
@@ -294,7 +293,7 @@
             this.pnlSettings.Controls.Add(this.label1);
             this.pnlSettings.Controls.Add(this.picStatus);
             this.pnlSettings.Controls.Add(this.lblRDCredentials);
-            this.pnlSettings.Controls.Add(this.txtIP);
+            this.pnlSettings.Controls.Add(this.txtHostName);
             this.pnlSettings.Controls.Add(this.label2);
             this.pnlSettings.Controls.Add(this.txtPassword);
             this.pnlSettings.Controls.Add(this.lblIP);
@@ -333,11 +332,11 @@
         private System.Windows.Forms.Label lblUsage;
         private System.Windows.Forms.PictureBox picSort;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.TextBox txtHostName;
+        private System.Windows.Forms.TextBox txtIP;
         private System.Windows.Forms.Label lblHostName;
         private System.Windows.Forms.PictureBox picStatus;
         private System.Windows.Forms.Label lblIP;
-        private System.Windows.Forms.TextBox txtIP;
+        private System.Windows.Forms.TextBox txtHostName;
         private System.Windows.Forms.Label lblRDCredentials;
         private System.Windows.Forms.Label lblConnection;
         private System.Windows.Forms.TextBox txtUserName;

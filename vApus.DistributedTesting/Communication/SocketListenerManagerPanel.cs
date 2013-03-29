@@ -7,6 +7,8 @@
  */
 
 using System;
+using System.Diagnostics;
+using System.Net;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -36,16 +38,11 @@ namespace vApus.DistributedTesting {
 
         private void Init() {
             CheckRunning();
-            _socketListener.IPChanged += SocketListener_IPChanged;
             btnSet.Enabled = false;
         }
 
         private void SocketListenerManager_HandleCreated(object sender, EventArgs e) {
             Init();
-        }
-
-        private void SocketListener_IPChanged(object sender, IPChangedEventArgs e) {
-            CheckRunning();
         }
 
         private void btnStart_Click(object sender, EventArgs e) {
@@ -81,27 +78,23 @@ namespace vApus.DistributedTesting {
         }
 
         private void CheckRunning() {
-            chkPreferred.Text = "Preferred (now -> " + _socketListener.PreferredIP + ":" + _socketListener.PreferredPort +
-                                ")";
+            chkPreferred.Text = "Preferred (now -> " + _socketListener.PreferredPort + ")";
             if (_socketListener.IsRunning) {
                 Cursor = Cursors.WaitCursor;
                 lblStatus.Text = "Status: Started";
-                cboIP.Items.Clear();
-                cboIP.Items.AddRange(_socketListener.AvailableIPs);
-                cboIP.SelectedItem = _socketListener.IP;
-                cboIP.Enabled = true;
+
+                txtHost.Text = Dns.GetHostName();
 
                 nudPort.Value = _socketListener.Port;
                 nudPort.Enabled = true;
 
+                btnCopyHost.Enabled = true;
                 btnStart.Enabled = false;
                 btnRestart.Enabled = true;
                 btnStop.Enabled = true;
                 btnSet.Enabled = false;
 
-                chkPreferred.Enabled =
-                    !(_socketListener.IP == _socketListener.PreferredIP &&
-                      _socketListener.Port == _socketListener.PreferredPort);
+                chkPreferred.Enabled = _socketListener.Port != _socketListener.PreferredPort;
                 Cursor = Cursors.Default;
             } else {
                 StatusStopped(true);
@@ -112,9 +105,9 @@ namespace vApus.DistributedTesting {
             Cursor = Cursors.WaitCursor;
             lblStatus.Text = "Status: Stopped";
 
-            if (clearCBO)
-                cboIP.Items.Clear();
-            cboIP.Enabled = false;
+            txtHost.Text = string.Empty;
+
+            btnCopyHost.Enabled = false;
             nudPort.Enabled = false;
             btnStart.Enabled = true;
             btnRestart.Enabled = false;
@@ -124,52 +117,43 @@ namespace vApus.DistributedTesting {
             Cursor = Cursors.Default;
         }
 
-        private void cbo_SelectedIndexChanged(object sender, EventArgs e) {
-            btnSet.Enabled = true;
-            chkPreferred.Checked = _socketListener.CheckAgainstPreferred(cboIP.SelectedItem.ToString(),
-                                                                         (int)nudPort.Value);
-        }
-
         //Copy the ip to the clipboard.
-        private void btnCopyIP_Click(object sender, EventArgs e) {
-            ClipboardWrapper.SetDataObject(cboIP.SelectedItem.ToString());
+        private void btnCopyHost_Click(object sender, EventArgs e) {
+            ClipboardWrapper.SetDataObject(txtHost.Text);
         }
 
         private void nudPort_ValueChanged(object sender, EventArgs e) {
             btnSet.Enabled = true;
-            chkPreferred.Checked = _socketListener.CheckAgainstPreferred(cboIP.SelectedItem.ToString(),
-                                                                         (int)nudPort.Value);
+            chkPreferred.Checked = _socketListener.CheckAgainstPreferred((int)nudPort.Value);
         }
 
         private void btnSet_Click(object sender, EventArgs e) {
-            _socketListener.IPChanged -= SocketListener_IPChanged;
             StatusStopped(false);
             btnStart.Enabled = false;
             try {
-                _socketListener.SetIPAndPort(cboIP.SelectedItem.ToString(), (int)nudPort.Value, chkPreferred.Checked);
+                _socketListener.SetPort((int)nudPort.Value, chkPreferred.Checked);
             } catch {
                 MessageBox.Show(
-                    string.Format("The socketlistening could not be bound to port {0} on IP {1}!", nudPort.Value,
-                                  cboIP.SelectedItem), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning,
+                    string.Format("The socket listening could not be bound to port {0}!", nudPort.Value), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button1);
                 _socketListener.Start();
             }
             CheckRunning();
-            chkPreferred.Checked = _socketListener.CheckAgainstPreferred(cboIP.SelectedItem.ToString(),
-                                                                         (int)nudPort.Value);
+            chkPreferred.Checked = _socketListener.CheckAgainstPreferred((int)nudPort.Value);
             btnSet.Enabled = false;
-            _socketListener.IPChanged += SocketListener_IPChanged;
         }
 
         private void chkPreferred_CheckedChanged(object sender, EventArgs e) {
-            if (cboIP.SelectedItem.ToString() == _socketListener.IP && (int)nudPort.Value == _socketListener.Port)
-                chkPreferred.Enabled =
-                    !(_socketListener.IP == _socketListener.PreferredIP &&
-                      _socketListener.Port == _socketListener.PreferredPort);
+            if ((int)nudPort.Value == _socketListener.Port)
+                chkPreferred.Enabled = _socketListener.Port != _socketListener.PreferredPort;
             else
                 chkPreferred.Enabled = true;
             if (chkPreferred.Enabled)
                 btnSet.Enabled = true;
+        }
+
+        private void llblIPAddresses_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            Process.Start("cmd", "/k ipconfig");
         }
 
         public override string ToString() {

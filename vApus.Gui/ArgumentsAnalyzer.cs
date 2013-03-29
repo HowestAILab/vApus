@@ -71,9 +71,9 @@ namespace vApus.Gui {
             _argumentsWithDescription.Add("-pa",
                                           "Sets the processor affinity, if no parameters are given it just returns the current processor affinity.\n\tProcessor indices can be given space seperated.\n\t(example: -pa 0 1)");
 
-            _argumentsWithDelegate.Add("-ip", new ArgumentsAnalyzerParametersDelegate(SocketListenerIPP));
-            _argumentsWithDescription.Add("-ip",
-                                          "Sets the socket listener IP and port (IPv6 allowed), if no parameters are given it just returns the current socket listener IP and port.\n\t(example: -ip 127.0.0.1_-p_1337)");
+            _argumentsWithDelegate.Add("-p", new ArgumentsAnalyzerParametersDelegate(SocketListenerPort));
+            _argumentsWithDescription.Add("-p",
+                                          "Sets the socket listener port, if no parameters are given it just returns the current socket port.\n\t(example: -p 1337)");
         }
 
         /// <summary>
@@ -261,12 +261,11 @@ namespace vApus.Gui {
             return s;
         }
 
-        private static string SocketListenerIPP(List<string> parameters) {
+        private static string SocketListenerPort(List<string> parameters) {
             for (int i = 1; i != 4; i++)
                 try {
                     if (parameters.Count != 0) {
-                        string[] split = parameters[0].Split(new string[] { "_-p_" }, StringSplitOptions.None);
-                        SocketListenerLinker.SetIPAndPort(split[0], split.Length > 1 ? int.Parse(split[1]) : SocketListenerLinker.SocketListenerPort);
+                        SocketListenerLinker.SetPort(int.Parse(parameters[0]));
                         break;
                     }
                 } catch (Exception ex) {
@@ -275,7 +274,7 @@ namespace vApus.Gui {
                 }
 
             try {
-                return SocketListenerLinker.SocketListenerIP + ':' + SocketListenerLinker.SocketListenerPort;
+                return SocketListenerLinker.SocketListenerPort.ToString();
             } catch (Exception ex) {
                 return "ERROR\nCould not return the socket listener IP and port!\n" + ex;
             }

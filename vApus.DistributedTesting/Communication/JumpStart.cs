@@ -147,11 +147,18 @@ namespace vApus.DistributedTesting {
 
                 if (!alreadyExcludingMaster)
                     try {
-                        string masterHostName = Dns.GetHostEntry(SocketListener.GetInstance().IP).HostName.Trim().Split('.')[0];
+                        string masterHostName = Dns.GetHostName().Trim().Split('.')[0];
                         string slaveHostName = Dns.GetHostEntry(ip).HostName.Trim().Split('.')[0];
 
                         if (masterHostName == slaveHostName) exclude = Process.GetCurrentProcess().Id;
-                    } catch { if (SocketListener.GetInstance().IP == ip) exclude = Process.GetCurrentProcess().Id; }
+                    } catch {
+                        var ipAddresses = Dns.GetHostAddresses(Dns.GetHostName());
+                        foreach (var ipAddress in ipAddresses)
+                            if (ipAddress.ToString() == ip) {
+                                exclude = Process.GetCurrentProcess().Id;
+                                break;
+                            }
+                    }
                 toKill.Add(ip, exclude);
             }
         }
@@ -252,7 +259,7 @@ namespace vApus.DistributedTesting {
                     socketWrapper = Connect(ip);
                     if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
 
-                    var jumpStartMessage = new JumpStartMessage(ip, port, processorAffinity);
+                    var jumpStartMessage = new JumpStartMessage(port, processorAffinity);
                     var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.JumpStart, jumpStartMessage);
 
                     socketWrapper.Send(message, SendType.Binary);
