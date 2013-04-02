@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -29,7 +30,7 @@ namespace vApus.Stresstest {
 
             var stresstests = _resultsHelper.GetStresstests();
             if (stresstests.Rows.Count == 0) {
-                btnSaveCharts.Enabled = false;
+                btnExportToExcel.Enabled = false;
             } else {
                 cboStresstest.Items.Add("<All>");
                 foreach (DataRow stresstestRow in stresstests.Rows)
@@ -41,9 +42,14 @@ namespace vApus.Stresstest {
 
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                btnSaveCharts.Enabled = cboStresstest.Enabled = false;
-                btnSaveCharts.Text = "Saving, can take a while...";
+                btnExportToExcel.Enabled = cboStresstest.Enabled = false;
+                btnExportToExcel.Text = "Saving, can take a while...";
                 ulong selectedIndex = (ulong)cboStresstest.SelectedIndex;
+                bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
+
+                string fileNameWithoutExtension = saveFileDialog.FileName;
+                if (fileNameWithoutExtension.EndsWith(".xlsx"))
+                    fileNameWithoutExtension = fileNameWithoutExtension.Substring(0, fileNameWithoutExtension.Length - 5);
 
                 var cultureInfo = Thread.CurrentThread.CurrentCulture;
                 await Task.Run(() => {
@@ -96,25 +102,44 @@ namespace vApus.Stresstest {
                             MakeWorksheet(doc, errors, worksheetIndex++, stresstest + " - Errors", out rangeWidth, out rangeOffset, out rangeHeight);
                             MakeUserActionCompositionSheet(doc, userActionComposition, worksheetIndex++, stresstest + " - User Action Composition");
 
-                            foreach (DataTable monitorDt in monitors)
-                                if (monitorDt.Rows.Count != 0) {
-                                    var monitor = monitorDt.Rows[0].ItemArray[1];
-                                    MakeMonitorSheet(doc, monitorDt, worksheetIndex++, stresstest + " - " + monitor);
-                                }
+                            //An ugly piece of code to make 'export monitor data to different excel files' work.
+                            try {
+                                foreach (DataTable monitorDt in monitors)
+                                    if (monitorDt.Rows.Count != 0) {
+                                        var monitor = monitorDt.Rows[0].ItemArray[1];
+
+                                        if (monitorDataToDifferentFiles) {
+                                            SLDocument monitorDoc = new SLDocument();
+                                            var monitorSheet = MakeMonitorSheet(monitorDoc, monitorDt, 1, stresstest + " - " + monitor);
+                                            try { monitorDoc.SelectWorksheet(monitorSheet); } catch { }
+                                            try { monitorDoc.DeleteWorksheet("Sheet1"); } catch { }
+
+                                            string monitorFileName = fileNameWithoutExtension + "_" + monitor.ToString().ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
+                                            monitorDoc.SaveAs(monitorFileName);
+
+                                        } else {
+                                            MakeMonitorSheet(doc, monitorDt, worksheetIndex++, stresstest + " - " + monitor);
+                                        }
+
+                                    }
+                            } catch {
+                                MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                break;
+                            }
                         }
 
                         try { doc.SelectWorksheet(firstWorksheet); } catch { }
                         try { doc.DeleteWorksheet("Sheet1"); } catch { }
                         try { doc.SaveAs(saveFileDialog.FileName); } catch {
-                            MessageBox.Show("Failed to save the charts because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     } catch {
                         MessageBox.Show("Failed to get data from the database.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }, _cancellationTokenSource.Token);
 
-                btnSaveCharts.Text = "Export to Excel...";
-                btnSaveCharts.Enabled = cboStresstest.Enabled = true;
+                btnExportToExcel.Text = "Export to Excel...";
+                btnExportToExcel.Enabled = cboStresstest.Enabled = true;
             }
         }
         /// <summary>

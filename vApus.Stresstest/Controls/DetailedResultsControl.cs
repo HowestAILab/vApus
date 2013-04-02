@@ -264,7 +264,7 @@ namespace vApus.Stresstest {
             cboShow_SelectedIndexChanged(null, null);
         }
 
-        private void btnSaveCharts_Click(object sender, EventArgs e) {
+        private void btnExportToExcel_Click(object sender, EventArgs e) {
             var dialog = new ExportToExcelDialog();
             dialog.Init(_resultsHelper);
             dialog.ShowDialog();

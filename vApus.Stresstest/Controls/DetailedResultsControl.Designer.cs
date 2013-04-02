@@ -515,7 +515,7 @@
             this.btnExportToExcel.TabIndex = 4;
             this.btnExportToExcel.Text = "Export to Excel...";
             this.btnExportToExcel.UseVisualStyleBackColor = false;
-            this.btnExportToExcel.Click += new System.EventHandler(this.btnSaveCharts_Click);
+            this.btnExportToExcel.Click += new System.EventHandler(this.btnExportToExcel_Click);
             // 
             // lblLoading
             // 

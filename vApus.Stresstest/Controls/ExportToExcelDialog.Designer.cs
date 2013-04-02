@@ -25,7 +25,7 @@
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExportToExcelDialog));
-            this.btnSaveCharts = new System.Windows.Forms.Button();
+            this.btnExportToExcel = new System.Windows.Forms.Button();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.picOverview = new System.Windows.Forms.PictureBox();
             this.flpCharts = new System.Windows.Forms.FlowLayoutPanel();
@@ -34,13 +34,13 @@
             this.picErrors = new System.Windows.Forms.PictureBox();
             this.picUserActionComposition = new System.Windows.Forms.PictureBox();
             this.picMonitor = new System.Windows.Forms.PictureBox();
+            this.chkMonitorDataToDifferentFiles = new System.Windows.Forms.CheckBox();
             this.lblDescription = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorderStresstest = new System.Windows.Forms.Panel();
             this.cboStresstest = new System.Windows.Forms.ComboBox();
-            this.chkMonitorsToDifferentFiles = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).BeginInit();
             this.flpCharts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).BeginInit();
@@ -52,27 +52,28 @@
             this.pnlBorderStresstest.SuspendLayout();
             this.SuspendLayout();
             // 
-            // btnSaveCharts
+            // btnExportToExcel
             // 
-            this.btnSaveCharts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSaveCharts.AutoSize = true;
-            this.btnSaveCharts.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnSaveCharts.BackColor = System.Drawing.SystemColors.Control;
-            this.btnSaveCharts.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
-            this.btnSaveCharts.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSaveCharts.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveCharts.Location = new System.Drawing.Point(543, 276);
-            this.btnSaveCharts.MaximumSize = new System.Drawing.Size(9999, 24);
-            this.btnSaveCharts.Name = "btnSaveCharts";
-            this.btnSaveCharts.Size = new System.Drawing.Size(117, 24);
-            this.btnSaveCharts.TabIndex = 1;
-            this.btnSaveCharts.Text = "Export to Excel...";
-            this.btnSaveCharts.UseVisualStyleBackColor = false;
-            this.btnSaveCharts.Click += new System.EventHandler(this.btnExportToExcel_Click);
+            this.btnExportToExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnExportToExcel.AutoSize = true;
+            this.btnExportToExcel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnExportToExcel.BackColor = System.Drawing.SystemColors.Control;
+            this.btnExportToExcel.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnExportToExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExportToExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnExportToExcel.Location = new System.Drawing.Point(543, 276);
+            this.btnExportToExcel.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnExportToExcel.Name = "btnExportToExcel";
+            this.btnExportToExcel.Size = new System.Drawing.Size(117, 24);
+            this.btnExportToExcel.TabIndex = 1;
+            this.btnExportToExcel.Text = "Export to Excel...";
+            this.btnExportToExcel.UseVisualStyleBackColor = false;
+            this.btnExportToExcel.Click += new System.EventHandler(this.btnExportToExcel_Click);
             // 
             // saveFileDialog
             // 
             this.saveFileDialog.DefaultExt = "xlsx";
+            this.saveFileDialog.FileName = "results";
             this.saveFileDialog.Filter = "Excel files|*.xlsx";
             // 
             // picOverview
@@ -101,7 +102,7 @@
             this.flpCharts.Controls.Add(this.picErrors);
             this.flpCharts.Controls.Add(this.picUserActionComposition);
             this.flpCharts.Controls.Add(this.picMonitor);
-            this.flpCharts.Controls.Add(this.chkMonitorsToDifferentFiles);
+            this.flpCharts.Controls.Add(this.chkMonitorDataToDifferentFiles);
             this.flpCharts.Location = new System.Drawing.Point(12, 63);
             this.flpCharts.Name = "flpCharts";
             this.flpCharts.Size = new System.Drawing.Size(648, 207);
@@ -178,16 +179,28 @@
         "e manually");
             this.picMonitor.Click += new System.EventHandler(this.pic_Click);
             // 
+            // chkMonitorDataToDifferentFiles
+            // 
+            this.chkMonitorDataToDifferentFiles.Checked = true;
+            this.chkMonitorDataToDifferentFiles.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkMonitorDataToDifferentFiles.Location = new System.Drawing.Point(297, 98);
+            this.chkMonitorDataToDifferentFiles.Name = "chkMonitorDataToDifferentFiles";
+            this.chkMonitorDataToDifferentFiles.Size = new System.Drawing.Size(141, 89);
+            this.chkMonitorDataToDifferentFiles.TabIndex = 12;
+            this.chkMonitorDataToDifferentFiles.Text = "Export monitor data to different Excel files";
+            this.toolTip.SetToolTip(this.chkMonitorDataToDifferentFiles, resources.GetString("chkMonitorDataToDifferentFiles.ToolTip"));
+            this.chkMonitorDataToDifferentFiles.UseVisualStyleBackColor = true;
+            // 
             // lblDescription
             // 
             this.lblDescription.AutoSize = true;
             this.lblDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDescription.Location = new System.Drawing.Point(12, 13);
             this.lblDescription.Name = "lblDescription";
-            this.lblDescription.Size = new System.Drawing.Size(505, 32);
+            this.lblDescription.Size = new System.Drawing.Size(503, 32);
             this.lblDescription.TabIndex = 8;
-            this.lblDescription.Text = "Charts and data will be saved in an Excel file.\r\nBelow you can see examples of th" +
-    "e different sheets that the spreadsheet will contain.";
+            this.lblDescription.Text = "Charts and data will be exported to one or more Excel files.\r\nBelow you can see e" +
+    "xamples of the different sheets that the document(s) will contain.";
             // 
             // pictureBox2
             // 
@@ -237,16 +250,6 @@
             this.cboStresstest.Size = new System.Drawing.Size(298, 21);
             this.cboStresstest.TabIndex = 0;
             // 
-            // chkMonitorsToDifferentFiles
-            // 
-            this.chkMonitorsToDifferentFiles.Location = new System.Drawing.Point(297, 98);
-            this.chkMonitorsToDifferentFiles.Name = "chkMonitorsToDifferentFiles";
-            this.chkMonitorsToDifferentFiles.Size = new System.Drawing.Size(141, 89);
-            this.chkMonitorsToDifferentFiles.TabIndex = 12;
-            this.chkMonitorsToDifferentFiles.Text = "Export monitors to different Excel files";
-            this.chkMonitorsToDifferentFiles.UseVisualStyleBackColor = true;
-            this.chkMonitorsToDifferentFiles.Visible = false;
-            // 
             // ExportToExcelDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -258,7 +261,7 @@
             this.Controls.Add(this.pnlBorderStresstest);
             this.Controls.Add(this.lblDescription);
             this.Controls.Add(this.flpCharts);
-            this.Controls.Add(this.btnSaveCharts);
+            this.Controls.Add(this.btnExportToExcel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -285,7 +288,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button btnSaveCharts;
+        private System.Windows.Forms.Button btnExportToExcel;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.PictureBox picOverview;
         private System.Windows.Forms.FlowLayoutPanel flpCharts;
@@ -300,6 +303,6 @@
         private System.Windows.Forms.PictureBox picAverageUserActions;
         private System.Windows.Forms.PictureBox picErrors;
         private System.Windows.Forms.PictureBox picUserActionComposition;
-        private System.Windows.Forms.CheckBox chkMonitorsToDifferentFiles;
+        private System.Windows.Forms.CheckBox chkMonitorDataToDifferentFiles;
     }
 }
