@@ -13,6 +13,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.JumpStartStructures;
 using vApus.SolutionTree;
@@ -157,13 +158,15 @@ namespace vApus.DistributedTesting {
         }
 
         private void dgvClients_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) {
-            if (dgvClients.CurrentCell != null && dgvClients.CurrentCell.ColumnIndex == 3)
-                if (dgvClients.CurrentCell.Value == null) {
-                    dgvClients.CurrentRow.Tag = null;
+            foreach (DataGridViewRow row in dgvClients.Rows) {
+                if (row.Cells.Count < 4 || row.Cells[3].Value == null) {
+                    row.Tag = null;
                 } else {
-                    dgvClients.CurrentRow.Tag = dgvClients.CurrentCell.Value.ToString();
-                    dgvClients.CurrentCell.Value = new string('*', dgvClients.CurrentCell.Value.ToString().Length);
+                    DataGridViewCell cell = row.Cells[3];
+                    row.Tag = cell.Value;
+                    cell.Value = new string('*', cell.Value.ToString().Length);
                 }
+            }
         }
 
         private void dgvClients_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
@@ -224,35 +227,45 @@ namespace vApus.DistributedTesting {
             RefreshDGV();
         }
 
-        private void RefreshDGV() {
+        async private void RefreshDGV() {
+            Text = "Wizard - Connecting clients, be patient...";
+            pnl.Enabled = false;
+
             if (rdbSlavesPerCores.Checked)
-                SetSlaveCountsPerCores();
+                await Task.Run(() => SetSlaveCountsPerCores());
             else
-                SetSlaveCountsPerClients();
+                await Task.Run(() => SetSlaveCountsPerClients());
+
+            pnl.Enabled = true;
+            Text = "Wizard - Let vApus build your distributed test";
         }
 
         private void SetSlaveCountsPerCores() {
             List<int> coreCounts = GetCoreCounts();
-            if (coreCounts.Count != 0) {
-                var slaveCounts = new List<int>(dgvClients.RowCount - 1);
-                for (int i = 0; i != dgvClients.RowCount - 1; i++) {
-                    var slaveCount = (int)(coreCounts[i] / nudSlavesPerCores.Value);
-                    slaveCounts.Add(slaveCount);
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                if (coreCounts.Count != 0) {
+                    var slaveCounts = new List<int>(dgvClients.RowCount - 1);
+                    for (int i = 0; i != dgvClients.RowCount - 1; i++) {
+                        var slaveCount = (int)(coreCounts[i] / nudSlavesPerCores.Value);
+                        slaveCounts.Add(slaveCount);
+                    }
+                    SetSlaveCountInDataGridView(slaveCounts);
                 }
-                SetSlaveCountInDataGridView(slaveCounts);
-            }
-            SetCoreCountInDataGridView(coreCounts);
-            SetCountsInGui();
+                SetCoreCountInDataGridView(coreCounts);
+                SetCountsInGui();
+            }, null);
         }
 
         private void SetSlaveCountsPerClients() {
             List<int> coreCounts = GetCoreCounts();
-            var slaveCounts = new List<int>(dgvClients.RowCount - 1);
-            for (int i = 0; i != dgvClients.RowCount - 1; i++)
-                slaveCounts.Add((int)nudSlavesPerClient.Value);
-            SetSlaveCountInDataGridView(slaveCounts);
-            SetCoreCountInDataGridView(coreCounts);
-            SetCountsInGui();
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                var slaveCounts = new List<int>(dgvClients.RowCount - 1);
+                for (int i = 0; i != dgvClients.RowCount - 1; i++)
+                    slaveCounts.Add((int)nudSlavesPerClient.Value);
+                SetSlaveCountInDataGridView(slaveCounts);
+                SetCoreCountInDataGridView(coreCounts);
+                SetCountsInGui();
+            }, null);
         }
 
         /// <summary>
@@ -260,13 +273,14 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <returns></returns>
         private List<int> GetCoreCounts() {
-            Cursor = Cursors.WaitCursor;
             //Put all in an array for thread safety.
             var r = new List<DataGridViewRow>();
-            foreach (DataGridViewRow row in dgvClients.Rows)
-                if (row.Cells[0].Value != row.Cells[0].DefaultNewRowValue &&
-                    row.Cells[0].Value != null && row.Cells[0].Value.ToString().Length != 0)
-                    r.Add(row);
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                foreach (DataGridViewRow row in dgvClients.Rows)
+                    if (row.Cells[0].Value != row.Cells[0].DefaultNewRowValue &&
+                        row.Cells[0].Value != null && row.Cells[0].Value.ToString().Length != 0)
+                        r.Add(row);
+            }, null);
 
             DataGridViewRow[] rows = r.ToArray();
 
@@ -275,21 +289,17 @@ namespace vApus.DistributedTesting {
             var coreCounts = new int[rows.Length];
             int processed = 0;
             for (int j = 0; j != rows.Length; j++) {
-                var t = new Thread(delegate(object arg) {
-                        _coreCountWorkItem = new CoreCount();
-                        //A thread static field used to be able to process in parallel
-                        coreCounts[(int)arg] = _coreCountWorkItem.Get(rows[(int)arg].Cells[0].Value.ToString(), this);
+                ThreadPool.QueueUserWorkItem((object state) => {
+                    _coreCountWorkItem = new CoreCount();
+                    //A thread static field used to be able to process in parallel
+                    coreCounts[(int)state] = _coreCountWorkItem.Get(rows[(int)state].Cells[0].Value.ToString(), this);
 
-                        if (Interlocked.Increment(ref processed) == rows.Length)
-                            waitHandle.Set();
-                    });
-                t.IsBackground = true;
-                t.Start(j);
+                    if (Interlocked.Increment(ref processed) == rows.Length)
+                        waitHandle.Set();
+                }, j);
             }
             if (rows.Length != 0)
                 waitHandle.WaitOne();
-
-            Cursor = Cursors.Default;
 
             return new List<int>(coreCounts);
         }
@@ -403,7 +413,7 @@ namespace vApus.DistributedTesting {
         }
 
         private class CoreCount {
-            private readonly object _lock = new object();
+            private static readonly object _lock = new object();
 
             /// <summary>
             ///     stores the ip and hostname in the given list.
@@ -444,9 +454,8 @@ namespace vApus.DistributedTesting {
                     var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     var sw = new SocketWrapper(address, 1314, socket);
                     try {
-                        sw.Connect();
-                        sw.Send(new Message<JumpStartStructures.Key>(JumpStartStructures.Key.CpuCoreCount, null),
-                                SendType.Binary);
+                        sw.Connect(3000);
+                        sw.Send(new Message<JumpStartStructures.Key>(JumpStartStructures.Key.CpuCoreCount, null), SendType.Binary);
                         var message = (Message<JumpStartStructures.Key>)sw.Receive(SendType.Binary);
                         return ((CpuCoreCountMessage)message.Content).CpuCoreCount;
                     } catch {

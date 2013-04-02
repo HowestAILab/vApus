@@ -14,15 +14,13 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Threading;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     This class provides functionality to connect to an endpoint and send data to and receive data from it.
     ///     This works with every type of socket and only one method is needed to send or receive.
     ///     This can be simply bytewise, binary, soap or text.
     /// </summary>
-    public class SocketWrapper
-    {
+    public class SocketWrapper {
         #region Fields
 
         /// <summary>
@@ -47,11 +45,9 @@ namespace vApus.Util
         #region Properties
 
         /// <summary>The inner socket.</summary>
-        public Socket Socket
-        {
+        public Socket Socket {
             get { return _socket; }
-            set
-            {
+            set {
                 if (value == null)
                     throw new ArgumentNullException("socket");
                 _socket = value;
@@ -59,22 +55,19 @@ namespace vApus.Util
         }
 
         /// <summary></summary>
-        public byte[] Buffer
-        {
+        public byte[] Buffer {
             get { return _buffer; }
             set { _buffer = value; }
         }
 
         /// <summary></summary>
-        public SocketFlags SendSocketFlags
-        {
+        public SocketFlags SendSocketFlags {
             get { return _sendSocketFlags; }
             set { _sendSocketFlags = value; }
         }
 
         /// <summary></summary>
-        public SocketFlags ReceiveSocketFlags
-        {
+        public SocketFlags ReceiveSocketFlags {
             get { return _receiveSocketFlags; }
             set { _receiveSocketFlags = value; }
         }
@@ -84,8 +77,7 @@ namespace vApus.Util
         ///     Make sure the socket is not null.
         ///     This is a socket property, so you should set it when you create one.
         /// </summary>
-        public int ReceiveTimeout
-        {
+        public int ReceiveTimeout {
             get { return _socket.ReceiveTimeout; }
             set { _socket.ReceiveTimeout = value; }
         }
@@ -95,8 +87,7 @@ namespace vApus.Util
         ///     Make sure the socket is not null.
         ///     This is a socket property, so you should set it when you create one.
         /// </summary>
-        public int SendTimeout
-        {
+        public int SendTimeout {
             get { return _socket.SendTimeout; }
             set { _socket.SendTimeout = value; }
         }
@@ -105,8 +96,7 @@ namespace vApus.Util
         ///     Gets or sets the receive buffer size. Make sure the socket is not null.
         ///     This is a socket property, so you should set it when you create one.
         /// </summary>
-        public int ReceiveBufferSize
-        {
+        public int ReceiveBufferSize {
             get { return _socket.ReceiveBufferSize; }
             set { _socket.ReceiveBufferSize = value; }
         }
@@ -115,8 +105,7 @@ namespace vApus.Util
         ///     Gets or sets the send buffer size. Make sure the socket is not null.
         ///     This is a socket property, so you should set it when you create one.
         /// </summary>
-        public int SendBufferSize
-        {
+        public int SendBufferSize {
             get { return _socket.SendBufferSize; }
             set { _socket.SendBufferSize = value; }
         }
@@ -125,10 +114,8 @@ namespace vApus.Util
         ///     Check if the socket is connected.
         ///     This is blocking meaning if you call this property from an other thread while connecting the result will be returned after completion.
         /// </summary>
-        public bool Connected
-        {
-            get
-            {
+        public bool Connected {
+            get {
                 _connectWaitHandle.WaitOne();
                 return (_socket != null && _socket.Connected);
             }
@@ -151,8 +138,7 @@ namespace vApus.Util
         /// <param name="sendSocketFlags"></param>
         public SocketWrapper(string ip, int port, Socket socket, SocketFlags receiveSocketFlags = SocketFlags.None,
                              SocketFlags sendSocketFlags = SocketFlags.None)
-            : this(IPAddress.Parse(ip), port, socket, receiveSocketFlags, sendSocketFlags)
-        {
+            : this(IPAddress.Parse(ip), port, socket, receiveSocketFlags, sendSocketFlags) {
         }
 
         /// <summary>
@@ -167,8 +153,7 @@ namespace vApus.Util
         /// <param name="receiveSocketFlags"></param>
         /// <param name="sendSocketFlags"></param>
         public SocketWrapper(IPAddress ip, int port, Socket socket, SocketFlags receiveSocketFlags = SocketFlags.None,
-                             SocketFlags sendSocketFlags = SocketFlags.None)
-        {
+                             SocketFlags sendSocketFlags = SocketFlags.None) {
             if (ip == null)
                 throw new ArgumentNullException("ip");
             if (port < 0)
@@ -197,8 +182,7 @@ namespace vApus.Util
         ///     Throws an exception if it is not able too.
         ///     You must check the connected property first before calling this.
         /// </summary>
-        public void Connect()
-        {
+        public void Connect() {
             Connect(0);
         }
 
@@ -209,21 +193,16 @@ namespace vApus.Util
         /// </summary>
         /// <param name="connectTimeout">In ms. If smaller then or equals 0, the timeout is infinite. If a timeout is given, connecting will happen async</param>
         /// <param name="retries">If the timeout isn't sufficient you can set a retry count.</param>
-        public void Connect(int connectTimeout, int retries = 0)
-        {
+        public void Connect(int connectTimeout, int retries = 0) {
             Exception exception = null;
             for (int i = 0; i != retries + 1; i++)
-                try
-                {
+                try {
                     _connectWaitHandle.Reset();
                     exception = null;
-                    if (connectTimeout < 1)
-                    {
+                    if (connectTimeout < 1) {
                         _socket.Connect(_remoteEP);
                         _connectWaitHandle.Set();
-                    }
-                    else
-                    {
+                    } else {
                         //Connect async to the remote endpoint.
                         _socket.BeginConnect(_remoteEP, ConnectCallback, _socket);
                         //Use a timeout to connect.
@@ -232,20 +211,15 @@ namespace vApus.Util
                             throw new Exception("Connecting to the server timed out.");
                     }
                     break;
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     //Wait for the end connect call.
-                    _connectWaitHandle.WaitOne(connectTimeout, false);
+                    //_connectWaitHandle.WaitOne(connectTimeout, false);
 
                     //Reuse the socket for re-trying to connect.
-                    try
-                    {
+                    try {
                         if (_socket.Connected)
                             _socket.Disconnect(true);
-                    }
-                    catch
-                    {
+                    } catch {
                     }
                     _socket = new Socket(_socket.AddressFamily, _socket.SocketType, _socket.ProtocolType);
 
@@ -262,43 +236,29 @@ namespace vApus.Util
         /// <summary>
         /// </summary>
         /// <param name="ar"></param>
-        private void ConnectCallback(IAsyncResult ar)
-        {
-            try
-            {
+        private void ConnectCallback(IAsyncResult ar) {
+            try {
                 if (_socket.Connected)
                     _socket.EndConnect(ar);
-            }
-            catch
-            {
+            } catch {
             }
             _connectWaitHandle.Set();
         }
 
         /// <summary>Releases and disposes the socket.</summary>
-        public void Close()
-        {
-            if (_socket != null)
-            {
-                try
-                {
+        public void Close() {
+            if (_socket != null) {
+                try {
                     _connectWaitHandle.Set();
                     if (_socket.Connected)
                         _socket.Disconnect(false);
                     _socket.Close();
-                }
-                catch
-                {
+                } catch {
                     //throw;
-                }
-                finally
-                {
-                    try
-                    {
+                } finally {
+                    try {
                         _socket = null;
-                    }
-                    catch
-                    {
+                    } catch {
                         //throw;
                     }
                 }
@@ -316,10 +276,8 @@ namespace vApus.Util
         /// <param name="data">Can be any (serializable) object.</param>
         /// <param name="sendType">Binary, Bytes (if you can possibly find an other encoding that is not in here), SOAP or Text (normal string).</param>
         /// <param name="encoding">Only for 'SendType.Text' and 'SendType.SOAP' (is encoded as a string too), this will be ignored in the other cases.</param>
-        public void Send(object data, SendType sendType, Encoding encoding = Encoding.Default)
-        {
-            switch (sendType)
-            {
+        public void Send(object data, SendType sendType, Encoding encoding = Encoding.Default) {
+            switch (sendType) {
                 case SendType.Binary:
                     SendBinary(data);
                     break;
@@ -344,8 +302,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="data"></param>
         /// <param name="direct"></param>
-        public void SendBytes(byte[] data)
-        {
+        public void SendBytes(byte[] data) {
             _socket.SendTo(data, _sendSocketFlags, _remoteEP);
         }
 
@@ -360,12 +317,10 @@ namespace vApus.Util
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public byte[] ObjectToByteArray(object obj)
-        {
+        public byte[] ObjectToByteArray(object obj) {
             byte[] buffer = null;
             //Set the initial buffer size to 1 byte (default == 256 bytes), this way we do not have '\0' bytes in buffer.
-            using (var ms = new MemoryStream(1))
-            {
+            using (var ms = new MemoryStream(1)) {
                 var bf = new BinaryFormatter();
                 bf.Serialize(ms, obj);
                 bf = null;
@@ -381,8 +336,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="data"></param>
         /// <param name="direct"></param>
-        private void SendBinary(object data)
-        {
+        private void SendBinary(object data) {
             SendBytes(ObjectToByteArray(data));
         }
 
@@ -395,8 +349,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public string ObjectToSoap(object obj)
-        {
+        public string ObjectToSoap(object obj) {
             //TODO: surrogate for non-serializable classes?
             var sf = new SoapFormatter();
             var ms = new MemoryStream();
@@ -415,8 +368,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="data"></param>
         /// <param name="encoding"></param>
-        private void SendSoap(object data, Encoding encoding)
-        {
+        private void SendSoap(object data, Encoding encoding) {
             SendText(ObjectToSoap(data), encoding);
         }
 
@@ -432,10 +384,8 @@ namespace vApus.Util
         /// <param name="data"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        private byte[] Encode(string data, Encoding encoding)
-        {
-            switch (encoding)
-            {
+        private byte[] Encode(string data, Encoding encoding) {
+            switch (encoding) {
                 case Encoding.ASCII:
                     return System.Text.Encoding.ASCII.GetBytes(data);
                 case Encoding.BigEndianUnicode:
@@ -460,8 +410,7 @@ namespace vApus.Util
         /// <param name="data"></param>
         /// <param name="encoding"></param>
         /// <param name="direct"></param>
-        private void SendText(string data, Encoding encoding)
-        {
+        private void SendText(string data, Encoding encoding) {
             SendBytes(Encode(data, encoding));
         }
 
@@ -478,11 +427,9 @@ namespace vApus.Util
         /// <param name="sendType">Binary, Bytes (if you can possibly find an other encoding that is not in here), SOAP or Text (normal string).</param>
         /// <param name="encoding">Only for 'SendType.Text' and 'SendType.SOAP' (is encoded as a string too), this will be ignored in the other cases.</param>
         /// <returns></returns>
-        public object Receive(SendType sendType, Encoding encoding = Encoding.Default)
-        {
+        public object Receive(SendType sendType, Encoding encoding = Encoding.Default) {
             object data = null;
-            switch (sendType)
-            {
+            switch (sendType) {
                 case SendType.Binary:
                     data = ReceiveBinary();
                     break;
@@ -507,8 +454,7 @@ namespace vApus.Util
         ///     Receives bytes.
         /// </summary>
         /// <returns></returns>
-        public byte[] ReceiveBytes()
-        {
+        public byte[] ReceiveBytes() {
             _buffer = new byte[_socket.ReceiveBufferSize];
             // Read data from the remote device.
             _socket.ReceiveFrom(_buffer, _receiveSocketFlags, ref _remoteEP);
@@ -526,11 +472,9 @@ namespace vApus.Util
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public object ByteArrayToObject(byte[] buffer)
-        {
+        public object ByteArrayToObject(byte[] buffer) {
             object o = null;
-            using (var ms = new MemoryStream(buffer))
-            {
+            using (var ms = new MemoryStream(buffer)) {
                 var bf = new BinaryFormatter();
                 o = bf.Deserialize(ms);
                 bf = null;
@@ -542,8 +486,7 @@ namespace vApus.Util
         ///     Receives binary.
         /// </summary>
         /// <returns></returns>
-        private object ReceiveBinary()
-        {
+        private object ReceiveBinary() {
             ReceiveBytes();
             return ByteArrayToObject(_buffer);
         }
@@ -557,8 +500,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="soap"></param>
         /// <returns></returns>
-        private object SoapToObject(string soap)
-        {
+        private object SoapToObject(string soap) {
             //TODO: surrogate for non-serializable classes?
             var sf = new SoapFormatter();
             var ms = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(soap));
@@ -570,8 +512,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        private object ReceiveSoap(Encoding encoding)
-        {
+        private object ReceiveSoap(Encoding encoding) {
             return SoapToObject(Decode(ReceiveBytes(), encoding));
         }
 
@@ -587,10 +528,8 @@ namespace vApus.Util
         /// <param name="buffer"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        private string Decode(byte[] buffer, Encoding encoding)
-        {
-            switch (encoding)
-            {
+        private string Decode(byte[] buffer, Encoding encoding) {
+            switch (encoding) {
                 case Encoding.ASCII:
                     return System.Text.Encoding.ASCII.GetString(buffer);
                 case Encoding.BigEndianUnicode:
@@ -614,8 +553,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        private string ReceiveText(Encoding encoding)
-        {
+        private string ReceiveText(Encoding encoding) {
             return Decode(ReceiveBytes(), encoding);
         }
 
