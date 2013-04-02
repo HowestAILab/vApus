@@ -15,24 +15,6 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     public partial class TestTreeView : UserControl {
-        /// <summary>
-        ///     To check if the test can start (if false).
-        /// </summary>
-        public bool Exclamation {
-            get {
-                int usedCount = 0;
-                foreach (Control ctrl in largeList.AllControls)
-                    if (ctrl is TileStresstestTreeViewItem) {
-                        var tstvi = ctrl as TileStresstestTreeViewItem;
-                        if (tstvi.Exclamation)
-                            return true;
-
-                        if (tstvi.TileStresstest.Use)
-                            ++usedCount;
-                    }
-                return usedCount == 0;
-            }
-        }
 
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
@@ -68,7 +50,24 @@ namespace vApus.DistributedTesting {
                     yield return control;
             }
         }
+        /// <summary>
+        ///     To check if the test can start (if false).
+        /// </summary>
+        public bool Exclamation {
+            get {
+                int usedCount = 0;
+                foreach (Control ctrl in largeList.AllControls)
+                    if (ctrl is TileStresstestTreeViewItem) {
+                        var tstvi = ctrl as TileStresstestTreeViewItem;
+                        if (tstvi.Exclamation)
+                            return true;
 
+                        if (tstvi.TileStresstest.Use)
+                            ++usedCount;
+                    }
+                return usedCount == 0;
+            }
+        }
         #endregion
 
         #region Constructors

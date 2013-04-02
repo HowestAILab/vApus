@@ -1,0 +1,79 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using vApus.SolutionTree;
+
+namespace vApus.Stresstest {
+    public partial class LogTreeView : UserControl {
+
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
+        /// <summary>
+        ///     The selected item is the sender
+        /// </summary>
+        public event EventHandler AfterSelect;
+
+        #region Properties
+        /// <summary>
+        ///     get all tree view items.
+        /// </summary>
+        public IEnumerable<Control> Items {
+            get {
+                foreach (Control control in largeList.AllControls)
+                    yield return control;
+            }
+        }
+
+        #endregion
+
+        public LogTreeView() {
+            InitializeComponent();
+        }
+
+        #region Functions
+        public void SetLog(Log log) {
+            if (IsDisposed) return;
+            LockWindowUpdate(Handle.ToInt32());
+            largeList.Clear();
+            var ltvi = new LogTreeViewItem(log);
+            ltvi.AfterSelect += _AfterSelect;
+            //dttvi.AddTileClicked += dttvi_AddTileClicked;
+            largeList.Add(ltvi);
+
+            //foreach (Tile tile in distributedTest.Tiles) CreateAndAddTileTreeViewItem(tile);
+            foreach (BaseItem item in log) {
+                CreateAndAddUserActionTreeViewItem(item);
+            }
+
+            //SetGui();
+
+            //select the first stresstest tvi if any
+            //bool selected = false;
+            //foreach (Control control in largeList.AllControls)
+            //    if (control is TileStresstestTreeViewItem) {
+            //        control.Select();
+            //        selected = true;
+            //        break;
+            //    }
+
+            //if (!selected) dttvi.Select();
+
+            LockWindowUpdate(0);
+        }
+        private void CreateAndAddUserActionTreeViewItem(BaseItem item) {
+            var uatvi = new UserActionTreeViewItem();
+            largeList.Add(uatvi);
+        }
+        void _AfterSelect(object sender, EventArgs e) {
+        }
+        #endregion
+    }
+}
