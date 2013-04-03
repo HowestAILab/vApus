@@ -43,13 +43,9 @@
             this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
             this.lblConnection = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnApply = new System.Windows.Forms.Button();
             this.btnUndo = new System.Windows.Forms.Button();
             this.btnRevertToImported = new System.Windows.Forms.Button();
-            this.Url = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMoveSteps)).BeginInit();
@@ -59,7 +55,6 @@
             this.tpPlainText.SuspendLayout();
             this.tpRaw.SuspendLayout();
             this.flpConfiguration.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblLabel
@@ -136,17 +131,15 @@
             // 
             this.dgvLogEntries.AllowUserToAddRows = false;
             this.dgvLogEntries.AllowUserToDeleteRows = false;
+            this.dgvLogEntries.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvLogEntries.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvLogEntries.BackgroundColor = System.Drawing.Color.White;
             this.dgvLogEntries.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvLogEntries.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.dgvLogEntries.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dgvLogEntries.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvLogEntries.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Url,
-            this.Column1,
-            this.Column2});
-            this.dgvLogEntries.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvLogEntries.EnableHeadersVisualStyles = false;
             this.dgvLogEntries.Font = new System.Drawing.Font("Consolas", 9.75F);
             this.dgvLogEntries.Location = new System.Drawing.Point(3, 3);
@@ -154,7 +147,7 @@
             this.dgvLogEntries.ReadOnly = true;
             this.dgvLogEntries.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.dgvLogEntries.Size = new System.Drawing.Size(649, 281);
+            this.dgvLogEntries.Size = new System.Drawing.Size(656, 285);
             this.dgvLogEntries.TabIndex = 32;
             this.dgvLogEntries.VirtualMode = true;
             // 
@@ -167,12 +160,12 @@
             this.tc.Controls.Add(this.tpStructured);
             this.tc.Controls.Add(this.tpPlainText);
             this.tc.Controls.Add(this.tpRaw);
-            this.tc.LeftVisible = false;
+            this.tc.LeftVisible = true;
             this.tc.Location = new System.Drawing.Point(24, 107);
             this.tc.Name = "tc";
             this.tc.RightVisible = false;
             this.tc.SelectedIndex = 0;
-            this.tc.Size = new System.Drawing.Size(663, 313);
+            this.tc.Size = new System.Drawing.Size(663, 351);
             this.tc.TabIndex = 33;
             this.tc.TopVisible = true;
             // 
@@ -182,7 +175,7 @@
             this.tpStructured.Location = new System.Drawing.Point(4, 22);
             this.tpStructured.Name = "tpStructured";
             this.tpStructured.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStructured.Size = new System.Drawing.Size(655, 287);
+            this.tpStructured.Size = new System.Drawing.Size(658, 328);
             this.tpStructured.TabIndex = 0;
             this.tpStructured.Text = "Structured";
             this.tpStructured.UseVisualStyleBackColor = true;
@@ -193,7 +186,7 @@
             this.tpPlainText.Location = new System.Drawing.Point(4, 22);
             this.tpPlainText.Name = "tpPlainText";
             this.tpPlainText.Padding = new System.Windows.Forms.Padding(3);
-            this.tpPlainText.Size = new System.Drawing.Size(655, 287);
+            this.tpPlainText.Size = new System.Drawing.Size(658, 328);
             this.tpPlainText.TabIndex = 1;
             this.tpPlainText.Text = "Plain Text";
             this.tpPlainText.UseVisualStyleBackColor = true;
@@ -201,19 +194,20 @@
             // fctxtxPlainText
             // 
             this.fctxtxPlainText.AllowDrop = true;
+            this.fctxtxPlainText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.fctxtxPlainText.AutoScrollMinSize = new System.Drawing.Size(0, 14);
             this.fctxtxPlainText.BackBrush = null;
             this.fctxtxPlainText.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxtxPlainText.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.fctxtxPlainText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fctxtxPlainText.IsReplaceMode = false;
             this.fctxtxPlainText.Location = new System.Drawing.Point(3, 3);
             this.fctxtxPlainText.Name = "fctxtxPlainText";
             this.fctxtxPlainText.Paddings = new System.Windows.Forms.Padding(0);
             this.fctxtxPlainText.PreferredLineWidth = 65536;
             this.fctxtxPlainText.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.fctxtxPlainText.ShowLineNumbers = false;
-            this.fctxtxPlainText.Size = new System.Drawing.Size(649, 281);
+            this.fctxtxPlainText.Size = new System.Drawing.Size(656, 285);
             this.fctxtxPlainText.TabIndex = 1;
             this.fctxtxPlainText.WordWrap = true;
             // 
@@ -223,7 +217,7 @@
             this.tpRaw.Location = new System.Drawing.Point(4, 22);
             this.tpRaw.Name = "tpRaw";
             this.tpRaw.Padding = new System.Windows.Forms.Padding(3);
-            this.tpRaw.Size = new System.Drawing.Size(655, 287);
+            this.tpRaw.Size = new System.Drawing.Size(658, 328);
             this.tpRaw.TabIndex = 2;
             this.tpRaw.Text = "Raw";
             this.tpRaw.UseVisualStyleBackColor = true;
@@ -231,19 +225,21 @@
             // fctxtRaw
             // 
             this.fctxtRaw.AllowDrop = true;
+            this.fctxtRaw.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.fctxtRaw.AutoScrollMinSize = new System.Drawing.Size(0, 14);
             this.fctxtRaw.BackBrush = null;
             this.fctxtRaw.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxtRaw.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.fctxtRaw.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fctxtRaw.IsReplaceMode = false;
             this.fctxtRaw.Location = new System.Drawing.Point(3, 3);
             this.fctxtRaw.Name = "fctxtRaw";
             this.fctxtRaw.Paddings = new System.Windows.Forms.Padding(0);
             this.fctxtRaw.PreferredLineWidth = 65536;
+            this.fctxtRaw.ReadOnly = true;
             this.fctxtRaw.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.fctxtRaw.ShowLineNumbers = false;
-            this.fctxtRaw.Size = new System.Drawing.Size(649, 281);
+            this.fctxtRaw.Size = new System.Drawing.Size(656, 285);
             this.fctxtRaw.TabIndex = 2;
             this.fctxtRaw.WordWrap = true;
             // 
@@ -297,7 +293,7 @@
             this.flpConfiguration.Controls.Add(this.lbtnAsImported);
             this.flpConfiguration.Controls.Add(this.lbtnEditable);
             this.flpConfiguration.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpConfiguration.Location = new System.Drawing.Point(537, 423);
+            this.flpConfiguration.Location = new System.Drawing.Point(534, 423);
             this.flpConfiguration.Name = "flpConfiguration";
             this.flpConfiguration.Size = new System.Drawing.Size(150, 35);
             this.flpConfiguration.TabIndex = 36;
@@ -322,90 +318,62 @@
             this.label3.TabIndex = 38;
             this.label3.Text = "Log Entries";
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel1.Controls.Add(this.btnApply);
-            this.flowLayoutPanel1.Controls.Add(this.btnUndo);
-            this.flowLayoutPanel1.Controls.Add(this.btnRevertToImported);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(24, 423);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(507, 35);
-            this.flowLayoutPanel1.TabIndex = 39;
-            // 
             // btnApply
             // 
+            this.btnApply.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnApply.AutoSize = true;
             this.btnApply.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnApply.BackColor = System.Drawing.Color.White;
             this.btnApply.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnApply.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnApply.Location = new System.Drawing.Point(3, 3);
+            this.btnApply.Location = new System.Drawing.Point(225, 426);
             this.btnApply.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(50, 25);
-            this.btnApply.TabIndex = 4;
+            this.btnApply.TabIndex = 40;
             this.btnApply.Text = "Apply";
             this.btnApply.UseVisualStyleBackColor = false;
             // 
             // btnUndo
             // 
+            this.btnUndo.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnUndo.AutoSize = true;
             this.btnUndo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnUndo.BackColor = System.Drawing.Color.White;
             this.btnUndo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnUndo.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnUndo.Location = new System.Drawing.Point(59, 3);
+            this.btnUndo.Location = new System.Drawing.Point(281, 426);
             this.btnUndo.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnUndo.Name = "btnUndo";
             this.btnUndo.Size = new System.Drawing.Size(49, 25);
-            this.btnUndo.TabIndex = 5;
+            this.btnUndo.TabIndex = 41;
             this.btnUndo.Text = "Undo";
             this.btnUndo.UseVisualStyleBackColor = false;
             // 
             // btnRevertToImported
             // 
+            this.btnRevertToImported.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnRevertToImported.AutoSize = true;
             this.btnRevertToImported.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnRevertToImported.BackColor = System.Drawing.Color.White;
             this.btnRevertToImported.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRevertToImported.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRevertToImported.Location = new System.Drawing.Point(114, 3);
+            this.btnRevertToImported.Location = new System.Drawing.Point(336, 426);
             this.btnRevertToImported.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnRevertToImported.Name = "btnRevertToImported";
             this.btnRevertToImported.Size = new System.Drawing.Size(125, 25);
-            this.btnRevertToImported.TabIndex = 6;
+            this.btnRevertToImported.TabIndex = 42;
             this.btnRevertToImported.Text = "Revert to Imported";
             this.btnRevertToImported.UseVisualStyleBackColor = false;
-            // 
-            // Url
-            // 
-            this.Url.HeaderText = "Url";
-            this.Url.Name = "Url";
-            this.Url.ReadOnly = true;
-            this.Url.Width = 52;
-            // 
-            // Column1
-            // 
-            this.Column1.HeaderText = "Get Data";
-            this.Column1.Name = "Column1";
-            this.Column1.ReadOnly = true;
-            this.Column1.Width = 87;
-            // 
-            // Column2
-            // 
-            this.Column2.HeaderText = "Post Data";
-            this.Column2.Name = "Column2";
-            this.Column2.ReadOnly = true;
-            this.Column2.Width = 94;
             // 
             // EditUserAction
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.Controls.Add(this.flowLayoutPanel1);
+            this.Controls.Add(this.btnApply);
+            this.Controls.Add(this.btnUndo);
+            this.Controls.Add(this.btnRevertToImported);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lblConnection);
             this.Controls.Add(this.flpConfiguration);
@@ -429,8 +397,6 @@
             this.tpRaw.ResumeLayout(false);
             this.flpConfiguration.ResumeLayout(false);
             this.flpConfiguration.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -457,10 +423,6 @@
         private System.Windows.Forms.FlowLayoutPanel flpConfiguration;
         private System.Windows.Forms.Label lblConnection;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Url;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
         private System.Windows.Forms.Button btnApply;
         private System.Windows.Forms.Button btnUndo;
         private System.Windows.Forms.Button btnRevertToImported;

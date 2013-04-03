@@ -230,6 +230,12 @@
     <Compile Include="Controls\ExportToExcelDialog.Designer.cs">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logs\NewLogView\EditLog.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\NewLogView\EditLog.Designer.cs">
+      <DependentUpon>EditLog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Logs\NewLogView\EditUserAction.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -547,6 +553,9 @@
     <EmbeddedResource Include="Logs\LogView.resx">
       <DependentUpon>LogView.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs\NewLogView\EditLog.resx">
+      <DependentUpon>EditLog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\NewLogView\EditUserAction.resx">
       <DependentUpon>EditUserAction.cs</DependentUpon>

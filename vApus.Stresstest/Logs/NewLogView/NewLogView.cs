@@ -35,6 +35,20 @@ namespace vApus.Stresstest {
         private void SetLog() {
             logTreeView.SetLog(_log);
         }
+
+        private void logTreeView_AfterSelect(object sender, EventArgs e) {
+            if (sender is LogTreeViewItem) {
+                editLog.Visible = true;
+                editUserAction.Visible = false;
+            } else {
+                editLog.Visible = false;
+                editUserAction.Visible = true;
+            }
+        }
+
+        private void tmrRefreshGui_Tick(object sender, EventArgs e) {
+            logTreeView.SetGui();
+        }
        
     }
 }

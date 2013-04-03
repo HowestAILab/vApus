@@ -24,18 +24,14 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewLogView));
             this.split = new System.Windows.Forms.SplitContainer();
             this.pnlFilter = new System.Windows.Forms.Panel();
             this.picFilter = new System.Windows.Forms.PictureBox();
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.toolStrip = new System.Windows.Forms.ToolStrip();
-            this.btnRecord = new System.Windows.Forms.ToolStripButton();
-            this.btnImportLogFiles = new System.Windows.Forms.ToolStripButton();
-            this.btnRedetermineTokens = new System.Windows.Forms.ToolStripButton();
-            this.btnBulkEditLog = new System.Windows.Forms.ToolStripButton();
+            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             this.logTreeView = new vApus.Stresstest.LogTreeView();
+            this.editLog = new vApus.Stresstest.EditLog();
             this.editUserAction = new vApus.Stresstest.EditUserAction();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
@@ -43,15 +39,12 @@
             this.split.SuspendLayout();
             this.pnlFilter.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picFilter)).BeginInit();
-            this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // split
             // 
-            this.split.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.split.Location = new System.Drawing.Point(0, 43);
+            this.split.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.split.Location = new System.Drawing.Point(0, 0);
             this.split.Name = "split";
             // 
             // split.Panel1
@@ -61,8 +54,9 @@
             // 
             // split.Panel2
             // 
+            this.split.Panel2.Controls.Add(this.editLog);
             this.split.Panel2.Controls.Add(this.editUserAction);
-            this.split.Size = new System.Drawing.Size(1046, 552);
+            this.split.Size = new System.Drawing.Size(1046, 595);
             this.split.SplitterDistance = 348;
             this.split.TabIndex = 0;
             // 
@@ -72,7 +66,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlFilter.Controls.Add(this.picFilter);
             this.pnlFilter.Controls.Add(this.txtFilter);
-            this.pnlFilter.Location = new System.Drawing.Point(0, 521);
+            this.pnlFilter.Location = new System.Drawing.Point(0, 568);
             this.pnlFilter.MinimumSize = new System.Drawing.Size(227, 21);
             this.pnlFilter.Name = "pnlFilter";
             this.pnlFilter.Size = new System.Drawing.Size(348, 21);
@@ -115,59 +109,10 @@
             this.toolTip.InitialDelay = 100;
             this.toolTip.ReshowDelay = 20;
             // 
-            // toolStrip
+            // tmrRefreshGui
             // 
-            this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnRecord,
-            this.btnImportLogFiles,
-            this.btnRedetermineTokens,
-            this.btnBulkEditLog});
-            this.toolStrip.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip.MinimumSize = new System.Drawing.Size(0, 40);
-            this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(1046, 40);
-            this.toolStrip.TabIndex = 26;
-            // 
-            // btnRecord
-            // 
-            this.btnRecord.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRecord.Image = ((System.Drawing.Image)(resources.GetObject("btnRecord.Image")));
-            this.btnRecord.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.btnRecord.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnRecord.Name = "btnRecord";
-            this.btnRecord.Size = new System.Drawing.Size(111, 37);
-            this.btnRecord.Text = "Record";
-            this.btnRecord.ToolTipText = "Record HTTP(S)";
-            // 
-            // btnImportLogFiles
-            // 
-            this.btnImportLogFiles.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnImportLogFiles.Image = ((System.Drawing.Image)(resources.GetObject("btnImportLogFiles.Image")));
-            this.btnImportLogFiles.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.btnImportLogFiles.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnImportLogFiles.Name = "btnImportLogFiles";
-            this.btnImportLogFiles.Size = new System.Drawing.Size(110, 37);
-            this.btnImportLogFiles.Text = "Import";
-            this.btnImportLogFiles.ToolTipText = "Import Log Files...";
-            // 
-            // btnRedetermineTokens
-            // 
-            this.btnRedetermineTokens.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.btnRedetermineTokens.Image = global::vApus.Stresstest.Properties.Resources.RedetermineTokens1;
-            this.btnRedetermineTokens.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnRedetermineTokens.Name = "btnRedetermineTokens";
-            this.btnRedetermineTokens.Size = new System.Drawing.Size(23, 37);
-            this.btnRedetermineTokens.ToolTipText = resources.GetString("btnRedetermineTokens.ToolTipText");
-            // 
-            // btnBulkEditLog
-            // 
-            this.btnBulkEditLog.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.btnBulkEditLog.Image = global::vApus.Stresstest.Properties.Resources.Log;
-            this.btnBulkEditLog.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnBulkEditLog.Name = "btnBulkEditLog";
-            this.btnBulkEditLog.Size = new System.Drawing.Size(23, 37);
-            this.btnBulkEditLog.ToolTipText = "Bulk Edit Log...";
+            this.tmrRefreshGui.Enabled = true;
+            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
             // 
             // logTreeView
             // 
@@ -176,8 +121,18 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.logTreeView.Location = new System.Drawing.Point(0, 0);
             this.logTreeView.Name = "logTreeView";
-            this.logTreeView.Size = new System.Drawing.Size(348, 523);
+            this.logTreeView.Size = new System.Drawing.Size(348, 563);
             this.logTreeView.TabIndex = 0;
+            this.logTreeView.AfterSelect += new System.EventHandler(this.logTreeView_AfterSelect);
+            // 
+            // editLog
+            // 
+            this.editLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editLog.Location = new System.Drawing.Point(0, 0);
+            this.editLog.Name = "editLog";
+            this.editLog.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.editLog.Size = new System.Drawing.Size(694, 595);
+            this.editLog.TabIndex = 0;
             // 
             // editUserAction
             // 
@@ -185,8 +140,9 @@
             this.editUserAction.Dock = System.Windows.Forms.DockStyle.Fill;
             this.editUserAction.Location = new System.Drawing.Point(0, 0);
             this.editUserAction.Name = "editUserAction";
-            this.editUserAction.Size = new System.Drawing.Size(694, 552);
-            this.editUserAction.TabIndex = 0;
+            this.editUserAction.Size = new System.Drawing.Size(694, 595);
+            this.editUserAction.TabIndex = 1;
+            this.editUserAction.Visible = false;
             // 
             // NewLogView
             // 
@@ -194,7 +150,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1046, 595);
-            this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.split);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "NewLogView";
@@ -206,10 +161,7 @@
             this.pnlFilter.ResumeLayout(false);
             this.pnlFilter.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picFilter)).EndInit();
-            this.toolStrip.ResumeLayout(false);
-            this.toolStrip.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -220,12 +172,9 @@
         private System.Windows.Forms.Panel pnlFilter;
         private System.Windows.Forms.PictureBox picFilter;
         private System.Windows.Forms.TextBox txtFilter;
-        private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.ToolStrip toolStrip;
-        private System.Windows.Forms.ToolStripButton btnImportLogFiles;
-        private System.Windows.Forms.ToolStripButton btnRecord;
-        private System.Windows.Forms.ToolStripButton btnRedetermineTokens;
-        private System.Windows.Forms.ToolStripButton btnBulkEditLog;
+        private EditLog editLog;
         private EditUserAction editUserAction;
+        private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.Timer tmrRefreshGui;
     }
 }

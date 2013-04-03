@@ -105,7 +105,7 @@
             this.picAddUserAction.TabIndex = 20;
             this.picAddUserAction.TabStop = false;
             this.toolTip.SetToolTip(this.picAddUserAction, "Add User Action <ctrl+i>");
-            this.picAddUserAction.Click += new System.EventHandler(this.picAddTile_Click);
+            this.picAddUserAction.Click += new System.EventHandler(this.picAddUserAction_Click);
             // 
             // picClearUserActions
             // 
@@ -120,6 +120,7 @@
             this.picClearUserActions.TabIndex = 35;
             this.picClearUserActions.TabStop = false;
             this.toolTip.SetToolTip(this.picClearUserActions, "Clear User Actions");
+            this.picClearUserActions.Click += new System.EventHandler(this.picClearUserActions_Click);
             // 
             // picValid
             // 
@@ -133,6 +134,7 @@
             this.picValid.TabIndex = 36;
             this.picValid.TabStop = false;
             this.toolTip.SetToolTip(this.picValid, "Clear Slaves");
+            this.picValid.Click += new System.EventHandler(this._Enter);
             // 
             // label2
             // 
@@ -143,6 +145,7 @@
             this.label2.Size = new System.Drawing.Size(51, 13);
             this.label2.TabIndex = 22;
             this.label2.Text = "Rule Set:";
+            this.label2.Click += new System.EventHandler(this._Enter);
             // 
             // panel1
             // 

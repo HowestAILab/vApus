@@ -25,6 +25,7 @@ namespace vApus.Stresstest {
         public event EventHandler AfterSelect;
 
         public event EventHandler AddUserActionClicked;
+        public event EventHandler ClearUserActionsClicked;
 
         #endregion
 
@@ -59,27 +60,22 @@ namespace vApus.Stresstest {
             BackColor = Color.Transparent;
         }
 
-        public void SetVisibleControls() {
-        }
-
-        public void SetVisibleControls(bool visible) {
-        }
-
-        public void RefreshGui() {
-        }
-
         private void _Enter(object sender, EventArgs e) {
             BackColor = SystemColors.Control;
             if (AfterSelect != null)
                 AfterSelect(this, null);
         }
 
-        private void picAddTile_Click(object sender, EventArgs e) {
+        private void picAddUserAction_Click(object sender, EventArgs e) {
             Focus();
             if (AddUserActionClicked != null)
                 AddUserActionClicked(this, null);
         }
-
+        private void picClearUserActions_Click(object sender, EventArgs e) {
+            Focus();
+            if (ClearUserActionsClicked != null)
+                ClearUserActionsClicked(this, null);
+        }
         private void _KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = true;

@@ -64,8 +64,7 @@ namespace vApus.Stresstest {
         /// <param name="endTokenDelimiter">Needed to dermine parameter tokens</param>
         /// <param name="chosenNextValueParametersForLScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
         /// <returns></returns>
-        internal List<StringTree> GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter,
-                                                            HashSet<BaseParameter> chosenNextValueParametersForLScope) {
+        internal List<StringTree> GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter, HashSet<BaseParameter> chosenNextValueParametersForLScope) {
             var parameterizedStructure = new List<StringTree>();
             var chosenNextValueParametersForUAScope = new HashSet<BaseParameter>();
 

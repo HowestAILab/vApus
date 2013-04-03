@@ -21,6 +21,7 @@ namespace vApus.Stresstest {
         /// </summary>
         public event EventHandler AfterSelect;
 
+        LogTreeViewItem _logTreeViewItem;
         #region Properties
         /// <summary>
         ///     get all tree view items.
@@ -43,14 +44,14 @@ namespace vApus.Stresstest {
             if (IsDisposed) return;
             LockWindowUpdate(Handle.ToInt32());
             largeList.Clear();
-            var ltvi = new LogTreeViewItem(log);
-            ltvi.AfterSelect += _AfterSelect;
+            _logTreeViewItem = new LogTreeViewItem(log);
+            _logTreeViewItem.AfterSelect += _AfterSelect;
             //dttvi.AddTileClicked += dttvi_AddTileClicked;
-            largeList.Add(ltvi);
+            largeList.Add(_logTreeViewItem);
 
             //foreach (Tile tile in distributedTest.Tiles) CreateAndAddTileTreeViewItem(tile);
-            foreach (BaseItem item in log) {
-                CreateAndAddUserActionTreeViewItem(item);
+            foreach (UserAction userAction in log) {
+                CreateAndAddUserActionTreeViewItem(userAction);
             }
 
             //SetGui();
@@ -68,11 +69,33 @@ namespace vApus.Stresstest {
 
             LockWindowUpdate(0);
         }
-        private void CreateAndAddUserActionTreeViewItem(BaseItem item) {
-            var uatvi = new UserActionTreeViewItem();
+        private void CreateAndAddUserActionTreeViewItem(UserAction userAction) {
+            var uatvi = new UserActionTreeViewItem(userAction);
+            uatvi.AfterSelect += _AfterSelect;
             largeList.Add(uatvi);
         }
-        void _AfterSelect(object sender, EventArgs e) {
+        private void _AfterSelect(object sender, EventArgs e) {
+            for (int v = 0; v != largeList.ViewCount; v++)
+                for (int i = 0; i != largeList[v].Count; i++) {
+                    var ctrl = largeList[v][i];
+                    if (ctrl != sender) {
+                        if (ctrl == _logTreeViewItem)
+                            _logTreeViewItem.Unfocus();
+                        else
+                            (ctrl as UserActionTreeViewItem).Unfocus();
+                    }
+                }
+
+            if (AfterSelect != null) 
+                AfterSelect(sender, e);
+        }
+        public void SetGui() {
+            for (int v = 0; v != largeList.ViewCount; v++)
+                for (int i = 0; i != largeList[v].Count; i++) {
+                    var ctrl = largeList[v][i];
+                        if (ctrl != _logTreeViewItem)
+                            (ctrl as UserActionTreeViewItem).SetVisibleControls();
+                }
         }
         #endregion
     }
