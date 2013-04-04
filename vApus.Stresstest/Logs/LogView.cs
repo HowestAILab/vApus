@@ -218,8 +218,8 @@ namespace vApus.Stresstest {
 
         private void btnRecord_Click(object sender, EventArgs e) {
             string jarPath = Path.Combine(Application.StartupPath, "Lupus-Proxy.jar");
-            string ips = _log.RecordIps.Length == 0 ? " " : _log.RecordIps.Combine(",");
-            string ports = _log.RecordPorts.Length == 0 ? "80" : _log.RecordPorts.Combine(",");
+            string ips = null;//_log.RecordIps.Length == 0 ? " " : _log.RecordIps.Combine(",");
+            string ports = null;// _log.RecordPorts.Length == 0 ? "80" : _log.RecordPorts.Combine(",");
 
             string config = "--vapus -slupusProxyLog -d\"" +
                             _log.LogRuleSet.ChildDelimiter +
@@ -269,8 +269,8 @@ namespace vApus.Stresstest {
                 int[] recordPorts;
                 GetConfig(out recordIps, out recordPorts);
 
-                _log.RecordIps = recordIps;
-                _log.RecordPorts = recordPorts;
+                //_log.RecordIps = recordIps;
+                //_log.RecordPorts = recordPorts;
             } else {
                 LogWrapper.LogByLevel("Could not find Lupus-Proxy.jar!", LogLevel.Error);
             }

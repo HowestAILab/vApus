@@ -28,9 +28,9 @@ namespace vApus.Stresstest {
         private const string VBLRr = "<16 0C 02 12r>";
         private readonly string _logChildDelimiter;
 
-        private static Color FirstEntryColor = Color.FromArgb(255, 211, 211, 211);
-        private static Color PrimaryColor = Color.FromArgb(255, 240, 240, 240);
-        private static Color SecundaryColor = Color.FromArgb(255, 227, 227, 227);
+        private static Color _firstEntryColor = Color.FromArgb(255, 211, 211, 211);
+        private static Color _primaryColor = Color.FromArgb(255, 240, 240, 240);
+        private static Color _secundaryColor = Color.FromArgb(255, 227, 227, 227);
 
         //Replace above 3 values with this in the label;
         private string _delimiterReplacement = "◦";
@@ -279,9 +279,9 @@ namespace vApus.Stresstest {
                 nudParallelOffsetInMs.Visible = false;
                 picParallel.Image = Resources.NotParallel;
                 if (index == 1 && _logEntry.Parent is UserAction && _logEntry.Parent.Count != 0)
-                    BackColor = FirstEntryColor;
+                    BackColor = _firstEntryColor;
                 else
-                    BackColor = (((float)index % 2) == 0) ? PrimaryColor : SecundaryColor;
+                    BackColor = (((float)index % 2) == 0) ? _primaryColor : _secundaryColor;
             }
 #else
             BackColor = (((float)index % 2) == 0) ? PrimaryColor : SecundaryColor;

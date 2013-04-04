@@ -134,7 +134,7 @@
             // tmrRefreshGui
             // 
             this.tmrRefreshGui.Enabled = true;
-            this.tmrRefreshGui.Interval = 500;
+            this.tmrRefreshGui.Interval = 100;
             this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
             // 
             // split
