@@ -12,11 +12,9 @@ using System.Text;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     [Serializable]
-    public class ASTNode : BaseItem
-    {
+    public class ASTNode : BaseItem {
         #region Fields
 
         //Parameters
@@ -35,27 +33,29 @@ namespace vApus.Stresstest
 
         private string _error = string.Empty;
         private string _value = string.Empty;
+        private string _defaultValue = string.Empty;
 
         #endregion
 
         #region Properties
 
         [SavableCloneable, PropertyControl]
-        public string Value
-        {
+        public string Value {
             get { return _value; }
             set { _value = value; }
         }
-
         [SavableCloneable]
-        public string ChildDelimiter
-        {
+        public string DefaultValue {
+            get { return _defaultValue; }
+            set { _defaultValue = value; }
+        }
+        [SavableCloneable]
+        public string ChildDelimiter {
             get { return _childDelimiter; }
             set { _childDelimiter = value; }
         }
 
-        public string Error
-        {
+        public string Error {
             get { return _error; }
             set { _error = value; }
         }
@@ -64,8 +64,7 @@ namespace vApus.Stresstest
 
         #region Constructor
 
-        public ASTNode(Parameters parameters = null)
-        {
+        public ASTNode(Parameters parameters = null) {
             ShowInGui = false;
             if (parameters != null && parameters != _parameters)
                 _parameters = parameters;
@@ -77,8 +76,7 @@ namespace vApus.Stresstest
         /// <param name="childDelimiter"></param>
         /// <param name="childDelimiter"></param>
         public ASTNode(BaseItem ruleSetOrRuleSetItem, string childDelimiter, Parameters parameters = null)
-            : this(parameters)
-        {
+            : this(parameters) {
             _childDelimiter = childDelimiter;
             _ruleSetOrRuleSetItem = ruleSetOrRuleSetItem;
         }
@@ -87,24 +85,16 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        public string ToString(bool showNamesAndIndices, bool showLabels)
-        {
+        public string ToString(bool showNamesAndIndices, bool showLabels) {
             string toString = string.Empty;
-            if (_ruleSetOrRuleSetItem != null)
-            {
+            if (_ruleSetOrRuleSetItem != null) {
                 if (showNamesAndIndices && showLabels)
                     toString = string.Format("{0} {1}: {2}", _ruleSetOrRuleSetItem.Name,
-                                             (_ruleSetOrRuleSetItem is LabeledBaseItem
-                                                  ? (_ruleSetOrRuleSetItem as LabeledBaseItem).Index.ToString()
-                                                  : string.Empty),
-                                             (_ruleSetOrRuleSetItem is LabeledBaseItem
-                                                  ? (_ruleSetOrRuleSetItem as LabeledBaseItem).Label
-                                                  : string.Empty));
+                                             (_ruleSetOrRuleSetItem is LabeledBaseItem ? (_ruleSetOrRuleSetItem as LabeledBaseItem).Index.ToString() : string.Empty),
+                                             (_ruleSetOrRuleSetItem is LabeledBaseItem ? (_ruleSetOrRuleSetItem as LabeledBaseItem).Label : string.Empty));
                 else if (showNamesAndIndices)
                     toString = string.Format("{0} {1}", _ruleSetOrRuleSetItem.Name,
-                                             (_ruleSetOrRuleSetItem is LabeledBaseItem
-                                                  ? (_ruleSetOrRuleSetItem as LabeledBaseItem).Index.ToString()
-                                                  : string.Empty));
+                                             (_ruleSetOrRuleSetItem is LabeledBaseItem ? (_ruleSetOrRuleSetItem as LabeledBaseItem).Index.ToString() : string.Empty));
                 else if (showLabels && _ruleSetOrRuleSetItem is LabeledBaseItem)
                     toString = (_ruleSetOrRuleSetItem as LabeledBaseItem).Label;
             }
@@ -119,58 +109,32 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="beginTokenDelimiter">Must be determined for a collection of ast nodes (a log) (GetUniqueParameterTokenDelimiters()).</param>
         /// <param name="endTokenDelimiter">Must be determined for a collection of ast nodes (a log) (GetUniqueParameterTokenDelimiters()).</param>
-        public StringTree GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter,
-                                                    HashSet<BaseParameter> chosenNextValueParametersForLScope,
-                                                    HashSet<BaseParameter> chosenNextValueParametersForUAScope,
-                                                    HashSet<BaseParameter> chosenNextValueParametersForLEScope)
-        {
-            return GetParameterizedStructure(GetParameterTokens(beginTokenDelimiter, endTokenDelimiter),
-                                             chosenNextValueParametersForLScope,
-                                             chosenNextValueParametersForUAScope,
-                                             chosenNextValueParametersForLEScope);
+        public StringTree GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter, HashSet<BaseParameter> chosenNextValueParametersForLScope,
+                                                    HashSet<BaseParameter> chosenNextValueParametersForUAScope, HashSet<BaseParameter> chosenNextValueParametersForLEScope) {
+            return GetParameterizedStructure(GetParameterTokens(beginTokenDelimiter, endTokenDelimiter), chosenNextValueParametersForLScope,
+                                             chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
         }
 
-        private StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens,
-                                                     HashSet<BaseParameter> chosenNextValueParametersForLScope,
-                                                     HashSet<BaseParameter> chosenNextValueParametersForUAScope,
-                                                     HashSet<BaseParameter> chosenNextValueParametersForLEScope)
-        {
+        private StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope,
+                                                     HashSet<BaseParameter> chosenNextValueParametersForUAScope, HashSet<BaseParameter> chosenNextValueParametersForLEScope) {
             var st = new StringTree(string.Empty, _childDelimiter);
 
             if (Count == 0)
-            {
-                st.Value = ParameterizeValue(parameterTokens,
-                                             chosenNextValueParametersForLScope,
-                                             chosenNextValueParametersForUAScope,
-                                             chosenNextValueParametersForLEScope);
-            }
+                st.Value = ParameterizeValue(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
             else
-            {
                 foreach (ASTNode node in this)
-                    st.Add(node.GetParameterizedStructure(parameterTokens,
-                                                          chosenNextValueParametersForLScope,
-                                                          chosenNextValueParametersForUAScope,
-                                                          chosenNextValueParametersForLEScope));
-            }
+                    st.Add(node.GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope));
+
             return st;
         }
 
-        public Dictionary<string, BaseParameter> GetParameterTokens(string beginTokenDelimiter, string endTokenDelimiter)
-        {
-            var scopeIdentifiers = new[]
-                {
-                    LOG_PARAMETER_SCOPE,
-                    USER_ACTION_PARAMETER_SCOPE,
-                    LOG_ENTRY_PARAMETER_SCOPE,
-                    LEAF_NODE_PARAMETER_SCOPE,
-                    ALWAYS_PARAMETER_SCOPE
-                };
+        public Dictionary<string, BaseParameter> GetParameterTokens(string beginTokenDelimiter, string endTokenDelimiter) {
+            var scopeIdentifiers = new[] { LOG_PARAMETER_SCOPE, USER_ACTION_PARAMETER_SCOPE, LOG_ENTRY_PARAMETER_SCOPE, LEAF_NODE_PARAMETER_SCOPE, ALWAYS_PARAMETER_SCOPE };
 
             var parameterTokens = new Dictionary<string, BaseParameter>();
 
             int i;
-            foreach (string scopeIdentifier in scopeIdentifiers)
-            {
+            foreach (string scopeIdentifier in scopeIdentifiers) {
                 i = 1;
                 foreach (BaseParameter parameter in _parameters.GetAllParameters())
                     parameterTokens.Add(beginTokenDelimiter + scopeIdentifier + (i++) + endTokenDelimiter, parameter);
@@ -179,11 +143,12 @@ namespace vApus.Stresstest
             return parameterTokens;
         }
 
-        private string ParameterizeValue(Dictionary<string, BaseParameter> parameterTokens,
-                                         HashSet<BaseParameter> chosenNextValueParametersForLScope,
-                                         HashSet<BaseParameter> chosenNextValueParametersForUAScope,
-                                         HashSet<BaseParameter> chosenNextValueParametersForLEScope)
-        {
+        private string ParameterizeValue(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope, HashSet<BaseParameter> chosenNextValueParametersForUAScope, HashSet<BaseParameter> chosenNextValueParametersForLEScope) {
+            var chosenNextValueParametersForLNScope = new HashSet<BaseParameter>();
+            
+            if (_value.Length == 0)
+                return _defaultValue;
+
             string parameterizedValue = _value;
             /*
                 = Always           
@@ -193,44 +158,31 @@ namespace vApus.Stresstest
             L. = Log
             */
 
-            var chosenNextValueParametersForLNScope = new HashSet<BaseParameter>();
-
             foreach (string token in parameterTokens.Keys)
-                if (parameterizedValue.Contains(token))
-                {
+                if (parameterizedValue.Contains(token)) {
                     BaseParameter parameter = parameterTokens[token];
                     bool next = false;
-                        //Can a next value be determined, this is based on if it could be added to the right hash set or not.
+                    //Can a next value be determined, this is based on if it could be added to the right hash set or not.
 
-                    if (token.Contains(LOG_PARAMETER_SCOPE))
-                    {
+                    if (token.Contains(LOG_PARAMETER_SCOPE)) {
                         next = chosenNextValueParametersForLScope.Add(parameter);
                         chosenNextValueParametersForUAScope.Add(parameter);
                         chosenNextValueParametersForLEScope.Add(parameter);
                         chosenNextValueParametersForLNScope.Add(parameter);
-                    }
-                    else if (token.Contains(USER_ACTION_PARAMETER_SCOPE))
-                    {
+                    } else if (token.Contains(USER_ACTION_PARAMETER_SCOPE)) {
                         next = chosenNextValueParametersForUAScope.Add(parameter);
                         chosenNextValueParametersForLEScope.Add(parameter);
                         chosenNextValueParametersForLNScope.Add(parameter);
-                    }
-                    else if (token.Contains(LOG_ENTRY_PARAMETER_SCOPE))
-                    {
+                    } else if (token.Contains(LOG_ENTRY_PARAMETER_SCOPE)) {
                         next = chosenNextValueParametersForLEScope.Add(parameter);
                         chosenNextValueParametersForLNScope.Add(parameter);
-                    }
-                    else if (token.Contains(LEAF_NODE_PARAMETER_SCOPE))
-                    {
+                    } else if (token.Contains(LEAF_NODE_PARAMETER_SCOPE)) {
                         next = chosenNextValueParametersForLNScope.Add(parameter);
-                    }
-                    else
-                    {
-                        string[] split = parameterizedValue.Split(new[] {token}, StringSplitOptions.None);
+                    } else {
+                        string[] split = parameterizedValue.Split(new[] { token }, StringSplitOptions.None);
 
                         parameterizedValue = string.Empty;
-                        for (int i = 0; i != split.Length - 1; i++)
-                        {
+                        for (int i = 0; i != split.Length - 1; i++) {
                             parameter.Next();
                             parameterizedValue += split[i] + parameter.Value;
                         }
@@ -252,21 +204,14 @@ namespace vApus.Stresstest
         ///     SHould only be used for building a log entry string!
         /// </summary>
         /// <returns></returns>
-        public string CombineValues()
-        {
-            lock (this)
-            {
+        public string CombineValues() {
+            lock (this) {
                 var sb = new StringBuilder(_value);
-                if (Count != 0)
-                {
-                    if (_childDelimiter.Length == 0)
-                    {
+                if (Count != 0) {
+                    if (_childDelimiter.Length == 0) {
                         sb.Append((this[0] as ASTNode).CombineValues());
-                    }
-                    else
-                    {
-                        for (int i = 0; i < Count - 1; i++)
-                        {
+                    } else {
+                        for (int i = 0; i < Count - 1; i++) {
                             sb.Append((this[i] as ASTNode).CombineValues());
                             sb.Append(_childDelimiter);
                         }
@@ -277,8 +222,7 @@ namespace vApus.Stresstest
             }
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return "ASTNode: " + _value;
         }
 

@@ -5,22 +5,20 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace vApus.Util
-{
-    public class StringTree : ICollection<StringTree>
-    {
+namespace vApus.Util {
+    public class StringTree : ICollection<StringTree> {
+
         #region Fields
 
         private string _childDelimiter;
 
-        private StringTree[] _childs = new StringTree[] {};
+        private StringTree[] _childs = new StringTree[] { };
         public bool _isReadOnly = false;
         private string _value;
 
@@ -28,42 +26,35 @@ namespace vApus.Util
 
         #region Properties
 
-        public string Value
-        {
+        public string Value {
             get { return _value; }
-            set
-            {
+            set {
                 if (value == null)
                     throw new ArgumentNullException("Value");
                 _value = value;
             }
         }
 
-        public string ChildDelimiter
-        {
+        public string ChildDelimiter {
             get { return _childDelimiter; }
-            set
-            {
+            set {
                 if (value == null)
                     throw new ArgumentNullException("ChildDelimiter");
                 _childDelimiter = value;
             }
         }
 
-        public StringTree this[int index]
-        {
+        public StringTree this[int index] {
             get { return _childs[index]; }
             set { _childs[index] = value; }
         }
 
-        public bool IsReadOnly
-        {
+        public bool IsReadOnly {
             get { return _isReadOnly; }
             set { _isReadOnly = value; }
         }
 
-        public int Count
-        {
+        public int Count {
             get { return _childs.Length; }
         }
 
@@ -77,8 +68,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="value"></param>
         /// <param name="childDelimiter">Use combine values to return a string representation of the elements in this structure.</param>
-        public StringTree(string value = "", string childDelimiter = "")
-        {
+        public StringTree(string value = "", string childDelimiter = "") {
             Value = value;
             ChildDelimiter = childDelimiter;
         }
@@ -87,8 +77,7 @@ namespace vApus.Util
 
         #region Functions
 
-        public void Add(StringTree item)
-        {
+        public void Add(StringTree item) {
             if (_isReadOnly)
                 throw new Exception("Is read only");
 
@@ -97,34 +86,29 @@ namespace vApus.Util
             _childs = childs.ToArray();
         }
 
-        public void Clear()
-        {
+        public void Clear() {
             if (_isReadOnly)
                 throw new Exception("Is read only");
 
-            _childs = new StringTree[] {};
+            _childs = new StringTree[] { };
         }
 
-        public bool Contains(StringTree item)
-        {
+        public bool Contains(StringTree item) {
             return _childs.Contains(item);
         }
 
-        public void CopyTo(StringTree[] array, int arrayIndex)
-        {
+        public void CopyTo(StringTree[] array, int arrayIndex) {
             _childs.CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(StringTree item)
-        {
+        public bool Remove(StringTree item) {
             if (_isReadOnly)
                 throw new Exception("Is read only");
 
             bool removed = false;
 
             var childs = new List<StringTree>();
-            for (int i = 0; i < _childs.Length; i++)
-            {
+            for (int i = 0; i < _childs.Length; i++) {
                 if (_childs[i] == item)
                     removed = true;
                 else
@@ -137,31 +121,22 @@ namespace vApus.Util
             return removed;
         }
 
-        public IEnumerator<StringTree> GetEnumerator()
-        {
+        public IEnumerator<StringTree> GetEnumerator() {
             return _childs.Cast<StringTree>().GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
+        IEnumerator IEnumerable.GetEnumerator() {
             return _childs.GetEnumerator();
         }
 
-        public string CombineValues()
-        {
-            lock (this)
-            {
+        public string CombineValues() {
+            lock (this) {
                 var sb = new StringBuilder(_value);
-                if (Count != 0)
-                {
-                    if (_childDelimiter.Length == 0)
-                    {
+                if (Count != 0) {
+                    if (_childDelimiter.Length == 0) {
                         sb.Append(this[0].CombineValues());
-                    }
-                    else
-                    {
-                        for (int i = 0; i < Count - 1; i++)
-                        {
+                    } else {
+                        for (int i = 0; i < Count - 1; i++) {
                             sb.Append(this[i].CombineValues());
                             sb.Append(_childDelimiter);
                         }
@@ -172,8 +147,7 @@ namespace vApus.Util
             }
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return base.ToString() + (Count == 0 ? " value: " + Value : " count: " + Count);
         }
 
