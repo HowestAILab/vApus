@@ -120,22 +120,23 @@
             this.picStresstestStatus.TabStop = false;
             this.picStresstestStatus.Click += new System.EventHandler(this._Enter);
             // 
-            // eventProgressBar
+            // eventProgressChart
             // 
             this.eventProgressChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.eventProgressChart.BeginOfTimeFrame = new System.DateTime(((long)(0)));
+            this.eventProgressChart.BehaveAsBar = true;
             this.eventProgressChart.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.eventProgressChart.EventToolTip = true;
             this.eventProgressChart.Location = new System.Drawing.Point(42, 25);
             this.eventProgressChart.Margin = new System.Windows.Forms.Padding(0);
-            this.eventProgressChart.Name = "eventProgressBar";
+            this.eventProgressChart.Name = "eventProgressChart";
             this.eventProgressChart.ProgressBarColor = System.Drawing.Color.LightSteelBlue;
             this.eventProgressChart.Size = new System.Drawing.Size(552, 5);
             this.eventProgressChart.TabIndex = 21;
-            this.eventProgressChart.EventClick += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.eventProgressBar_EventClick);
+            this.eventProgressChart.Visible = false;
+            this.eventProgressChart.EventClick += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.eventProgressChart_EventClick);
             this.eventProgressChart.Enter += new System.EventHandler(this._Enter);
-            this.eventProgressChart.BehaveAsBar = true;
             // 
             // lblExclamation
             // 

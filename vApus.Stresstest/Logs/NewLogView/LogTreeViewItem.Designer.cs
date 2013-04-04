@@ -50,7 +50,7 @@
             this.pnlRuleSet.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.pnlRuleSet.Name = "pnlRuleSet";
             this.pnlRuleSet.Size = new System.Drawing.Size(378, 23);
-            this.pnlRuleSet.TabIndex = 1;
+            this.pnlRuleSet.TabIndex = 0;
             // 
             // cboRuleSet
             // 
@@ -66,7 +66,7 @@
             this.cboRuleSet.Name = "cboRuleSet";
             this.cboRuleSet.Size = new System.Drawing.Size(376, 21);
             this.cboRuleSet.TabIndex = 0;
-            this.cboRuleSet.Click += new System.EventHandler(this._Enter);
+            this.cboRuleSet.SelectedIndexChanged += new System.EventHandler(this.cboRuleSet_SelectedIndexChanged);
             this.cboRuleSet.Enter += new System.EventHandler(this._Enter);
             this.cboRuleSet.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.cboRuleSet.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);

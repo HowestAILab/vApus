@@ -127,6 +127,7 @@ namespace vApus.DistributedTesting {
                     chk.Visible = picDelete.Visible = picDuplicate.Visible = false;
 
                     eventProgressChart.BeginOfTimeFrame = DateTime.MinValue;
+                    eventProgressChart.Visible = true;
 
                     picStresstestStatus.Image = null;
                     toolTip.SetToolTip(picStresstestStatus, string.Empty);
@@ -197,7 +198,7 @@ namespace vApus.DistributedTesting {
             _tileStresstest._canDefaultAdvancedSettingsTo = false;
         }
 
-        private void eventProgressBar_EventClick(object sender, EventProgressChart.ProgressEventEventArgs e) {
+        private void eventProgressChart_EventClick(object sender, EventProgressChart.ProgressEventEventArgs e) {
             _Enter(this, e);
             if (EventClicked != null) EventClicked(this, e);
         }

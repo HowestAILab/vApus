@@ -31,24 +31,20 @@ namespace vApus.Stresstest {
         private Parameters _parameters;
         private int _preferredTokenDelimiterIndex;
 
-        //Record settings
-        private string[] _recordIps = new string[] { };
-        private int[] _recordPorts = new[] { 80 };
-
+        //Capture settings
+        private string[] _allow = new string[] { };
+        private string[] _deny = new string[] { };
         #endregion
 
         #region Properties
 
         [SavableCloneable, PropertyControl(1)]
         [DisplayName("Log Rule Set"),
-         Description( "You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest." )]
+         Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
         public LogRuleSet LogRuleSet {
             get {
                 if (_logRuleSet.IsEmpty)
-                    LogRuleSet =
-                        GetNextOrEmptyChild(typeof(LogRuleSet),
-                                            Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as
-                        LogRuleSet;
+                    LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
 
                 return _logRuleSet;
             }
@@ -83,15 +79,18 @@ namespace vApus.Stresstest {
         }
 
         [SavableCloneable]
-        public string[] RecordIps {
-            get { return _recordIps; }
-            set { _recordIps = value; }
-        }
-
+        public bool UseAllow { get; set; }
         [SavableCloneable]
-        public int[] RecordPorts {
-            get { return _recordPorts; }
-            set { _recordPorts = value; }
+        public string[] Allow {
+            get { return _allow; }
+            set { _allow = value; }
+        }
+        [SavableCloneable]
+        public bool UseDeny { get; set; }
+        [SavableCloneable]
+        public string[] Deny {
+            get { return _deny; }
+            set { _deny = value; }
         }
 
         #endregion
@@ -99,14 +98,11 @@ namespace vApus.Stresstest {
         #region Constructors
 
         public Log() {
-            if (Solution.ActiveSolution != null) {
-                LogRuleSet =
-                    GetNextOrEmptyChild(typeof(LogRuleSet),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as
-                    LogRuleSet;
-                _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-            } else {
+            if (Solution.ActiveSolution == null) {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+            } else {
+                LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+                _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
             }
         }
 

@@ -17,6 +17,7 @@ using vApus.SolutionTree;
 namespace vApus.Stresstest {
     [ToolboxItem(false)]
     public partial class LogTreeViewItem : UserControl {
+
         #region Events
 
         /// <summary>
@@ -39,6 +40,7 @@ namespace vApus.Stresstest {
         private readonly Log _log;
         private bool _testStarted;
 
+        private LogRuleSets _logRuleSets;
         #endregion
 
         #region Constructor
@@ -49,9 +51,12 @@ namespace vApus.Stresstest {
 
         public LogTreeViewItem(Log log)
             : this() {
-                _log = log;
+            _log = log;
+            if (Solution.ActiveSolution == null)
+                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+            else
+                SetGui();
         }
-
         #endregion
 
         #region Functions
@@ -64,6 +69,36 @@ namespace vApus.Stresstest {
             BackColor = SystemColors.Control;
             if (AfterSelect != null)
                 AfterSelect(this, null);
+        }
+        private void SetGui() {
+            _logRuleSets = Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets)) as LogRuleSets;
+            FillCboRuleSet();
+            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+        }
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            SetGui();
+        }
+        //Update the log rule set cbo
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            if (sender == _log || sender == _log.LogRuleSet || sender == _logRuleSets || sender is LogRuleSet) {
+
+            }
+        }
+        private void FillCboRuleSet() {
+            try {
+                if (!IsDisposed) {
+                    cboRuleSet.Items.Clear();
+                    if (_logRuleSets != null)
+                        foreach (LogRuleSet ruleSet in _logRuleSets)
+                            cboRuleSet.Items.Add(ruleSet);
+
+                    if (cboRuleSet.Items.Count != 0) cboRuleSet.SelectedIndex = 0;
+                }
+            } catch { }
+        }
+        private void cboRuleSet_SelectedIndexChanged(object sender, EventArgs e) {
+
         }
 
         private void picAddUserAction_Click(object sender, EventArgs e) {

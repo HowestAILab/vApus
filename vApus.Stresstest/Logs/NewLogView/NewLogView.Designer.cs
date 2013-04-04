@@ -28,11 +28,11 @@
             this.pnlFilter = new System.Windows.Forms.Panel();
             this.picFilter = new System.Windows.Forms.PictureBox();
             this.txtFilter = new System.Windows.Forms.TextBox();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             this.logTreeView = new vApus.Stresstest.LogTreeView();
             this.editLog = new vApus.Stresstest.EditLog();
             this.editUserAction = new vApus.Stresstest.EditUserAction();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -102,26 +102,14 @@
             this.toolTip.SetToolTip(this.txtFilter, "Type comma to split filter entries and \'return\' to submit. Wild card * can be use" +
         "d. Not case sensitive.");
             // 
-            // toolTip
-            // 
-            this.toolTip.AutomaticDelay = 100;
-            this.toolTip.AutoPopDelay = 10000;
-            this.toolTip.InitialDelay = 100;
-            this.toolTip.ReshowDelay = 20;
-            // 
-            // tmrRefreshGui
-            // 
-            this.tmrRefreshGui.Enabled = true;
-            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
-            // 
             // logTreeView
             // 
             this.logTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.logTreeView.Location = new System.Drawing.Point(0, 0);
+            this.logTreeView.Location = new System.Drawing.Point(0, 3);
             this.logTreeView.Name = "logTreeView";
-            this.logTreeView.Size = new System.Drawing.Size(348, 563);
+            this.logTreeView.Size = new System.Drawing.Size(348, 560);
             this.logTreeView.TabIndex = 0;
             this.logTreeView.AfterSelect += new System.EventHandler(this.logTreeView_AfterSelect);
             // 
@@ -143,6 +131,18 @@
             this.editUserAction.Size = new System.Drawing.Size(694, 595);
             this.editUserAction.TabIndex = 1;
             this.editUserAction.Visible = false;
+            // 
+            // toolTip
+            // 
+            this.toolTip.AutomaticDelay = 100;
+            this.toolTip.AutoPopDelay = 10000;
+            this.toolTip.InitialDelay = 100;
+            this.toolTip.ReshowDelay = 20;
+            // 
+            // tmrRefreshGui
+            // 
+            this.tmrRefreshGui.Enabled = true;
+            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
             // 
             // NewLogView
             // 

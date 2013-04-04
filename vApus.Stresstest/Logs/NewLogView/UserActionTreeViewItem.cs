@@ -51,7 +51,7 @@ namespace vApus.Stresstest {
         public UserActionTreeViewItem(UserAction userAction)
             : this() {
             _userAction = userAction;
-            lblUserAction.Text = _userAction.ToString();
+            lblUserAction.Text = _userAction.ToString(); // +" (" + _userAction.Count + ")";
         }
         #endregion
 
