@@ -6,12 +6,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
-namespace vApus.Util
-{
-    public class ProxyHelper
-    {
-        public static bool UnsetProxy()
-        {
+namespace vApus.Util {
+    public class ProxyHelper {
+        public static bool UnsetProxy() {
             return SetProxy(null, null);
         }
 
@@ -19,8 +16,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="strProxy">ip:port</param>
         /// <returns></returns>
-        public static bool SetProxy(string strProxy)
-        {
+        public static bool SetProxy(string strProxy) {
             return SetProxy(strProxy, null);
         }
 
@@ -29,13 +25,11 @@ namespace vApus.Util
         /// <param name="strProxy">ip:port</param>
         /// <param name="exceptions"></param>
         /// <returns></returns>
-        public static bool SetProxy(string strProxy, string exceptions)
-        {
+        public static bool SetProxy(string strProxy, string exceptions) {
             int retried = 0;
 
-            Retry:
-            try
-            {
+        Retry:
+            try {
                 var list = new InternetPerConnOptionList();
 
                 int optionCount = string.IsNullOrEmpty(strProxy) ? 1 : (string.IsNullOrEmpty(exceptions) ? 2 : 3);
@@ -48,13 +42,11 @@ namespace vApus.Util
                          ? PerConnFlags.PROXY_TYPE_DIRECT
                          : (PerConnFlags.PROXY_TYPE_DIRECT | PerConnFlags.PROXY_TYPE_PROXY));
                 // use THIS proxy server
-                if (optionCount > 1)
-                {
+                if (optionCount > 1) {
                     options[1].m_Option = PerConnOption.INTERNET_PER_CONN_PROXY_SERVER;
                     options[1].m_Value.m_StringPtr = Marshal.StringToHGlobalAuto(strProxy);
                     // except for these addresses ...
-                    if (optionCount > 2)
-                    {
+                    if (optionCount > 2) {
                         options[2].m_Option = PerConnOption.INTERNET_PER_CONN_PROXY_BYPASS;
                         options[2].m_Value.m_StringPtr = Marshal.StringToHGlobalAuto(exceptions);
                     }
@@ -67,13 +59,12 @@ namespace vApus.Util
                 list.dwOptionError = 0;
 
 
-                int optSize = Marshal.SizeOf(typeof (InternetConnectionOption));
+                int optSize = Marshal.SizeOf(typeof(InternetConnectionOption));
                 // make a pointer out of all that ...
-                IntPtr optionsPtr = Marshal.AllocCoTaskMem(optSize*options.Length);
+                IntPtr optionsPtr = Marshal.AllocCoTaskMem(optSize * options.Length);
                 // copy the array over into that spot in memory ...
-                for (int i = 0; i < options.Length; ++i)
-                {
-                    var opt = new IntPtr(optionsPtr.ToInt32() + (i*optSize));
+                for (int i = 0; i < options.Length; ++i) {
+                    var opt = new IntPtr(optionsPtr.ToInt32() + (i * optSize));
                     Marshal.StructureToPtr(options[i], opt, false);
                 }
 
@@ -89,25 +80,20 @@ namespace vApus.Util
                                                                   ipcoListPtr, list.dwSize)
                                       ? -1
                                       : 0;
-                if (returnvalue == 0)
-                {
+                if (returnvalue == 0) {
                     // get the error codes, they might be helpful
                     returnvalue = Marshal.GetLastWin32Error();
                 }
                 // FREE the data ASAP
                 Marshal.FreeCoTaskMem(optionsPtr);
                 Marshal.FreeCoTaskMem(ipcoListPtr);
-                if (returnvalue > 0)
-                {
+                if (returnvalue > 0) {
                     // throw the error codes, they might be helpful
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
-            }
-            catch (Exception ex)
-            {
-                if (++retried != 3)
-                {
-                    Thread.Sleep(100*retried);
+            } catch (Exception ex) {
+                if (++retried != 3) {
+                    Thread.Sleep(100 * retried);
                     goto Retry;
                 }
 
@@ -120,8 +106,7 @@ namespace vApus.Util
     #region WinInet structures
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    public struct InternetPerConnOptionList
-    {
+    public struct InternetPerConnOptionList {
         public int dwSize; // size of the INTERNET_PER_CONN_OPTION_LIST struct
         public IntPtr szConnection; // connection name to set/query options
         public int dwOptionCount; // number of options to set/query
@@ -131,25 +116,25 @@ namespace vApus.Util
     };
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    public struct InternetConnectionOption
-    {
+    public struct InternetConnectionOption {
         private static readonly int Size;
         public PerConnOption m_Option;
         public InternetConnectionOptionValue m_Value;
 
-        static InternetConnectionOption()
-        {
-            Size = Marshal.SizeOf(typeof (InternetConnectionOption));
+        static InternetConnectionOption() {
+            Size = Marshal.SizeOf(typeof(InternetConnectionOption));
         }
 
         // Nested Types
         [StructLayout(LayoutKind.Explicit)]
-        public struct InternetConnectionOptionValue
-        {
+        public struct InternetConnectionOptionValue {
             // Fields
-            [FieldOffset(0)] public FILETIME m_FileTime;
-            [FieldOffset(0)] public int m_Int;
-            [FieldOffset(0)] public IntPtr m_StringPtr;
+            [FieldOffset(0)]
+            public FILETIME m_FileTime;
+            [FieldOffset(0)]
+            public int m_Int;
+            [FieldOffset(0)]
+            public IntPtr m_StringPtr;
         }
     }
 
@@ -160,16 +145,14 @@ namespace vApus.Util
     //
     // options manifests for Internet{Query|Set}Option
     //
-    public enum InternetOption : uint
-    {
+    public enum InternetOption : uint {
         INTERNET_OPTION_PER_CONNECTION_OPTION = 75
     }
 
     //
     // Options used in INTERNET_PER_CONN_OPTON struct
     //
-    public enum PerConnOption
-    {
+    public enum PerConnOption {
         INTERNET_PER_CONN_FLAGS = 1,
         // Sets or retrieves the connection type. The Value member will contain one or more of the values from PerConnFlags 
         INTERNET_PER_CONN_PROXY_SERVER = 2, // Sets or retrieves a string containing the proxy servers.  
@@ -183,8 +166,7 @@ namespace vApus.Util
     // PER_CONN_FLAGS
     //
     [Flags]
-    public enum PerConnFlags
-    {
+    public enum PerConnFlags {
         PROXY_TYPE_DIRECT = 0x00000001, // direct to net
         PROXY_TYPE_PROXY = 0x00000002, // via named proxy
         PROXY_TYPE_AUTO_PROXY_URL = 0x00000004, // autoproxy URL
@@ -193,8 +175,7 @@ namespace vApus.Util
 
     #endregion
 
-    internal static class NativeMethods
-    {
+    internal static class NativeMethods {
         [DllImport("WinInet.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool InternetSetOption(IntPtr hInternet, InternetOption dwOption, IntPtr lpBuffer,

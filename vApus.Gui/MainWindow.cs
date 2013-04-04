@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -506,7 +507,7 @@ namespace vApus.Gui {
         }
 
         private void tmrSetStatusStrip_Tick(object sender, EventArgs e) {
-            if (IsHandleCreated) SetStatusStrip();
+            if (IsHandleCreated && Visible) try { SetStatusStrip(); } catch { }
         }
 
         private void SetStatusStrip() {
@@ -528,8 +529,7 @@ namespace vApus.Gui {
             lblLogLevel.Text = LogWrapper.LogLevel.ToString();
             lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
             SetProcessorAffinityLabel();
-            lblSocketListener.Text = SocketListenerLinker.SocketListenerIP + ":" +
-                                     SocketListenerLinker.SocketListenerPort;
+            lblSocketListener.Text = Dns.GetHostName() + ":" + SocketListenerLinker.SocketListenerPort;
             if (!SocketListenerLinker.SocketListenerIsRunning)
                 lblSocketListener.Text += " [Stopped]";
 

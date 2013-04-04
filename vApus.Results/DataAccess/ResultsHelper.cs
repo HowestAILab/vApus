@@ -839,10 +839,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                                 string[] split = part2.Split(':');
                                 part2 = split[0];
-                                string part3 = split[1];
+                                string part3 = split.Length == 2 ? ":" + split[1] : string.Empty;
 
                                 int index = int.Parse(split[0]);
-                                correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + ":" + part3);
+                                correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + part3);
 
                                 ++correctIndex;
                             }
@@ -1012,10 +1012,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                                     string[] split = part2.Split(':');
                                     part2 = split[0];
-                                    string part3 = split[1];
+                                    string part3 = split.Length == 2 ? ":" + split[1] : string.Empty;
 
                                     int index = int.Parse(split[0]);
-                                    correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + ":" + part3);
+                                    correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + part3);
 
                                     ++correctIndex;
                                 }
@@ -1172,10 +1172,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                                     string[] split = part2.Split(':');
                                     part2 = split[0];
-                                    string part3 = split[1];
+                                    string part3 = split.Length == 2 ? ":" + split[1] : string.Empty;
 
                                     int index = int.Parse(split[0]);
-                                    correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + ":" + part3);
+                                    correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + part3);
 
                                     ++correctIndex;
                                 }

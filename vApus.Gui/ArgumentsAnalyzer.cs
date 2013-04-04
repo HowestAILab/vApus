@@ -7,10 +7,8 @@ using vApus.Link;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Gui
-{
-    internal static class ArgumentsAnalyzer
-    {
+namespace vApus.Gui {
+    internal static class ArgumentsAnalyzer {
         #region Delegates
 
         //Two types each returning a string, if the string equals "" that means there is no error
@@ -33,8 +31,7 @@ namespace vApus.Gui
 
         /// <summary>
         /// </summary>
-        public static string[] PossibleArguments
-        {
+        public static string[] PossibleArguments {
             get { return new List<string>(_argumentsWithDelegate.Keys).ToArray(); }
         }
 
@@ -42,8 +39,7 @@ namespace vApus.Gui
 
         #region Constructor
 
-        static ArgumentsAnalyzer()
-        {
+        static ArgumentsAnalyzer() {
             Init();
         }
 
@@ -57,8 +53,7 @@ namespace vApus.Gui
         ///     Initializes the possible arguments.
         ///     This will be done automatically when first using 'AnalyzeAndExecute'.
         /// </summary>
-        public static void Init()
-        {
+        public static void Init() {
             _argumentsWithDelegate = new Dictionary<string, Delegate>();
             _argumentsWithDescription = new Dictionary<string, string>();
 
@@ -76,9 +71,9 @@ namespace vApus.Gui
             _argumentsWithDescription.Add("-pa",
                                           "Sets the processor affinity, if no parameters are given it just returns the current processor affinity.\n\tProcessor indices can be given space seperated.\n\t(example: -pa 0 1)");
 
-            _argumentsWithDelegate.Add("-ipp", new ArgumentsAnalyzerParametersDelegate(SocketListenerIPP));
-            _argumentsWithDescription.Add("-ipp",
-                                          "Sets the socket listener IP and port, if no parameters are given it just returns the current socket listener IP and port.\n\t(example: -ipp 127.0.0.1:1337)");
+            _argumentsWithDelegate.Add("-p", new ArgumentsAnalyzerParametersDelegate(SocketListenerPort));
+            _argumentsWithDescription.Add("-p",
+                                          "Sets the socket listener port, if no parameters are given it just returns the current socket port.\n\t(example: -p 1337)");
         }
 
         /// <summary>
@@ -86,9 +81,8 @@ namespace vApus.Gui
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static string AnalyzeAndExecute(string args)
-        {
-            return AnalyzeAndExecute(args.Trim().Split(new[] {' '}));
+        public static string AnalyzeAndExecute(string args) {
+            return AnalyzeAndExecute(args.Trim().Split(new[] { ' ' }));
         }
 
         /// <summary>
@@ -96,38 +90,30 @@ namespace vApus.Gui
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static string AnalyzeAndExecute(string[] args)
-        {
+        public static string AnalyzeAndExecute(string[] args) {
             //If not initialized do this.
             if (_argumentsWithDelegate == null || _argumentsWithDelegate.Count == 0)
                 Init();
 
             //No need to do anything when no arguments are given.
-            if (args != null && args.Length > 0)
-            {
+            if (args != null && args.Length > 0) {
                 var argsCorrectSentenced = new List<string>();
                 //First check if the array does not contain '"', if so make new sentences.
                 bool quote = false;
-                foreach (string s in args)
-                {
-                    if (s.StartsWith("\"") && !quote)
-                    {
+                foreach (string s in args) {
+                    if (s.StartsWith("\"") && !quote) {
                         if (s.Length > 1)
                             argsCorrectSentenced.Add(s.Substring(1));
                         else
                             argsCorrectSentenced.Add("");
                         quote = true;
-                    }
-                    else if (s.EndsWith("\"") && quote)
-                    {
+                    } else if (s.EndsWith("\"") && quote) {
                         if (s.Length > 1)
                             argsCorrectSentenced[argsCorrectSentenced.Count - 1] += " " + s.Substring(0, s.Length - 1);
                         else
                             argsCorrectSentenced[argsCorrectSentenced.Count - 1] += " ";
                         quote = false;
-                    }
-                    else
-                    {
+                    } else {
                         if (quote)
                             argsCorrectSentenced[argsCorrectSentenced.Count - 1] += " " + s;
                         else
@@ -138,17 +124,13 @@ namespace vApus.Gui
                 //Check which sentences are arguments and assemble them.
                 var argsWithParams = new List<List<string>>();
                 string toLower = string.Empty;
-                for (int i = 0; i < argsCorrectSentenced.Count; i++)
-                {
+                for (int i = 0; i < argsCorrectSentenced.Count; i++) {
                     string s = argsCorrectSentenced[i];
                     toLower = s.ToLower();
                     //For other arguments
-                    if (_argumentsWithDelegate.ContainsKey(toLower))
-                    {
+                    if (_argumentsWithDelegate.ContainsKey(toLower)) {
                         argsWithParams.Add(new List<string>());
-                    }
-                    else if (toLower.StartsWith("-"))
-                    {
+                    } else if (toLower.StartsWith("-")) {
                         //Check if the argument is valid.
                         if (!_argumentsWithDelegate.ContainsKey(toLower))
                             return "ERROR\n'" + s + "' is not a valid argument!\nType '-h' for help.\n_____";
@@ -156,8 +138,7 @@ namespace vApus.Gui
                     }
 
                     //If the first word did not start with "-s" or it isn't one of the other arguments it is not a valid argument.
-                    if (argsWithParams.Count == 0)
-                    {
+                    if (argsWithParams.Count == 0) {
                         if (i == 0)
                             argsWithParams.Add(new List<string>());
                         else
@@ -169,27 +150,21 @@ namespace vApus.Gui
                 //Execute the right function for the right argument.
                 string message = "";
 
-                foreach (var argWithParams in argsWithParams)
-                {
+                foreach (var argWithParams in argsWithParams) {
                     string ss = argWithParams[0];
                     toLower = ss.ToLower();
                     if (_argumentsWithDelegate.ContainsKey(toLower) &&
-                        _argumentsWithDelegate[toLower] is ArgumentsAnalyzerParametersDelegate)
-                    {
+                        _argumentsWithDelegate[toLower] is ArgumentsAnalyzerParametersDelegate) {
                         var parameters = new List<string>();
                         for (int j = 1; j < argWithParams.Count; j++)
                             parameters.Add(argWithParams[j]);
 
                         message =
                             (_argumentsWithDelegate[toLower] as ArgumentsAnalyzerParametersDelegate).Invoke(parameters);
-                    }
-                    else if (_argumentsWithDelegate.ContainsKey(toLower) &&
-                             _argumentsWithDelegate[toLower] is ArgumentsAnalyzerDelegate)
-                    {
+                    } else if (_argumentsWithDelegate.ContainsKey(toLower) &&
+                               _argumentsWithDelegate[toLower] is ArgumentsAnalyzerDelegate) {
                         message = (_argumentsWithDelegate[toLower] as ArgumentsAnalyzerDelegate).Invoke();
-                    }
-                    else
-                    {
+                    } else {
                         message = LoadNewActiveSolution(ss);
                     }
                     if (message.StartsWith("ERROR"))
@@ -206,8 +181,7 @@ namespace vApus.Gui
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        private static string About()
-        {
+        private static string About() {
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("ABOUT");
             Console.WriteLine("Developed by Dieter Vandroemme aka Didjeeh.");
@@ -221,8 +195,7 @@ namespace vApus.Gui
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        private static string Help()
-        {
+        private static string Help() {
             Console.ForegroundColor = ConsoleColor.Gray;
             var sb = new StringBuilder();
             Console.WriteLine("HELP");
@@ -244,10 +217,8 @@ namespace vApus.Gui
             Console.WriteLine();
 
             bool otherAlreadyWritten = false;
-            foreach (string s in _argumentsWithDescription.Keys)
-            {
-                if (!s.StartsWith("-") && !otherAlreadyWritten)
-                {
+            foreach (string s in _argumentsWithDescription.Keys) {
+                if (!s.StartsWith("-") && !otherAlreadyWritten) {
                     sb.AppendLine();
                     sb.AppendLine("Other:");
                     otherAlreadyWritten = true;
@@ -261,34 +232,25 @@ namespace vApus.Gui
             return "";
         }
 
-        private static string LogLevel(List<string> parameters)
-        {
-            try
-            {
+        private static string LogLevel(List<string> parameters) {
+            try {
                 if (parameters.Count != 0)
-                    LogWrapper.LogLevel = (LogLevel) int.Parse(parameters[0]);
-            }
-            catch (Exception ex)
-            {
+                    LogWrapper.LogLevel = (LogLevel)int.Parse(parameters[0]);
+            } catch (Exception ex) {
                 return "ERROR\nCould not set the log level!\n" + ex;
             }
-            return ((int) LogWrapper.LogLevel) + " (= " + LogWrapper.LogLevel + ")";
+            return ((int)LogWrapper.LogLevel) + " (= " + LogWrapper.LogLevel + ")";
         }
 
-        private static string ProcessorAffinity(List<string> parameters)
-        {
-            try
-            {
-                if (parameters.Count != 0)
-                {
+        private static string ProcessorAffinity(List<string> parameters) {
+            try {
+                if (parameters.Count != 0) {
                     var cpus = new int[parameters.Count];
                     for (int i = 0; i < parameters.Count; i++)
                         cpus[i] = int.Parse(parameters[i]);
                     Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityCalculator.FromArrayToBitmask(cpus);
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 return "ERROR\nCould not set the processor affinity!\n" + ex;
             }
             string s = string.Empty;
@@ -299,36 +261,25 @@ namespace vApus.Gui
             return s;
         }
 
-        private static string SocketListenerIPP(List<string> parameters)
-        {
+        private static string SocketListenerPort(List<string> parameters) {
             for (int i = 1; i != 4; i++)
-                try
-                {
-                    if (parameters.Count != 0)
-                    {
-                        string[] split = parameters[0].Split(':');
-                        SocketListenerLinker.SetIPAndPort(split[0], int.Parse(split[1]));
+                try {
+                    if (parameters.Count != 0) {
+                        SocketListenerLinker.SetPort(int.Parse(parameters[0]));
                         break;
                     }
-                }
-                catch (Exception ex)
-                {
-                    Thread.Sleep(i*500);
+                } catch (Exception ex) {
+                    Thread.Sleep(i * 500);
                     return "ERROR\nCould not set the socket listener IP and port!\n" + ex;
                 }
 
-            try
-            {
-                return SocketListenerLinker.SocketListenerIP + ':' + SocketListenerLinker.SocketListenerPort;
-            }
-            catch (Exception ex)
-            {
+            try {
+                return SocketListenerLinker.SocketListenerPort.ToString();
+            } catch (Exception ex) {
                 return "ERROR\nCould not return the socket listener IP and port!\n" + ex;
             }
         }
-
-        private static string LoadNewActiveSolution(string fileName)
-        {
+        private static string LoadNewActiveSolution(string fileName) {
             if (Solution.LoadNewActiveSolution(fileName))
                 return fileName;
             return "ERROR\n'" + fileName + "' could not be loaded!";

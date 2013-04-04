@@ -174,7 +174,7 @@ namespace vApus.DistributedTesting {
                 LockWindowUpdate(Handle.ToInt32());
                 _distributedTestMode = distributedTestMode;
 
-                txtHostName.ReadOnly = txtIP.ReadOnly = txtUserName.ReadOnly = txtPassword.ReadOnly = txtDomain.ReadOnly = _distributedTestMode == DistributedTestMode.Test;
+                txtIP.ReadOnly = txtHostName.ReadOnly = txtUserName.ReadOnly = txtPassword.ReadOnly = txtDomain.ReadOnly = _distributedTestMode == DistributedTestMode.Test;
                 picAddSlave.Enabled = picClearSlaves.Enabled = picSort.Enabled = _distributedTestMode == DistributedTestMode.Edit;
 
                 foreach (SlaveTile st in flp.Controls) st.SetMode(_distributedTestMode);
@@ -183,13 +183,11 @@ namespace vApus.DistributedTesting {
         }
 
         private void txtHostName_KeyUp(object sender, KeyEventArgs e) {
-            _ipChanged = false;
-            if (e.KeyCode == Keys.Return) SetHostNameAndIP();
+            if (e.KeyCode == Keys.Enter) SetHostNameAndIP();
         }
 
         private void txtIP_KeyUp(object sender, KeyEventArgs e) {
-            _ipChanged = true;
-            if (e.KeyCode == Keys.Return) SetHostNameAndIP();
+            if (e.KeyCode == Keys.Enter) SetHostNameAndIP();
         }
 
         private void picStatus_Click(object sender, EventArgs e) { SetHostNameAndIP(); }
@@ -200,7 +198,7 @@ namespace vApus.DistributedTesting {
         /// <returns>False if it was already busy doing it.</returns>
         public bool SetHostNameAndIP() {
             //Make sure this can not happen multiple times at the same time.
-            if (!txtHostName.Enabled || !IsHandleCreated) return false;
+            if (!txtIP.Enabled || !IsHandleCreated) return false;
 
             SettingHostNameAndIP(false);
             _clientTreeViewItem.SettingHostNameAndIP(false);
@@ -228,7 +226,7 @@ namespace vApus.DistributedTesting {
                     if (_ipChanged && IPAddress.TryParse(txtIP.Text, out address)) {
                         ip = address.ToString();
                         try {
-                            hostname = Dns.GetHostByAddress(ip).HostName;
+                            hostname = Dns.GetHostEntry(ip).HostName;
                             hostname = (hostname == null) ? string.Empty : hostname.ToLower();
                             online = true;
                         } catch {
@@ -237,7 +235,7 @@ namespace vApus.DistributedTesting {
                         hostname = txtHostName.Text.ToLower();
                         IPAddress[] addresses = { };
                         try {
-                            if (hostname.Length != 0) addresses = Dns.GetHostByName(hostname.Split('.')[0]).AddressList;
+                            if (hostname.Length != 0) addresses = Dns.GetHostEntry(hostname.Split('.')[0]).AddressList;
                         } catch {
                         }
 
@@ -361,5 +359,6 @@ namespace vApus.DistributedTesting {
         private void picSort_Click(object sender, EventArgs e) { _clientTreeViewItem.Client.Sort(); }
 
         #endregion
+
     }
 }

@@ -128,7 +128,6 @@ namespace vApus.Util {
 
         private void SetEntries() {
             var latestLog = llblLatestLog.Tag as string;
-            latestLog = @"C:\Users\Didjeeh\Desktop\vapus\Build\Logs\2013-03-13 PID_444.txt";
             if (File.Exists(latestLog)) {
                 //Fast read this, if it fails once it is not a problem.
                 var lines = new List<string>();

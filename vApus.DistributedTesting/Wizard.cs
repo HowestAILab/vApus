@@ -13,21 +13,21 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.JumpStartStructures;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
-    public partial class Wizard : Form
-    {
+namespace vApus.DistributedTesting {
+    public partial class Wizard : Form {
         #region Fields
 
         //All connections in the solution.
-        [ThreadStatic] private static CoreCount _coreCountWorkItem;
-                                                //This is done in parallel, therefore a threadstatic work item.
+        [ThreadStatic]
+        private static CoreCount _coreCountWorkItem;
+        //This is done in parallel, therefore a threadstatic work item.
 
         private readonly List<Connection> _connections = new List<Connection>();
         private readonly StresstestProject _stresstestProject;
@@ -44,11 +44,10 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     Don't forget to call SetDistributedTest(DistributedTest).
         /// </summary>
-        public Wizard()
-        {
+        public Wizard() {
             InitializeComponent();
 
-            var connections = Solution.ActiveSolution.GetSolutionComponent(typeof (Connections)) as Connections;
+            var connections = Solution.ActiveSolution.GetSolutionComponent(typeof(Connections)) as Connections;
             foreach (BaseItem item in connections)
                 if (item is Connection)
                     _connections.Add(item as Connection);
@@ -60,40 +59,33 @@ namespace vApus.DistributedTesting
         ///     Set this, otherwise nothing will happen.
         /// </summary>
         /// <param name="distributedTest"></param>
-        public void SetDistributedTest(DistributedTest distributedTest)
-        {
-            if (_distributedTest != distributedTest)
-            {
+        public void SetDistributedTest(DistributedTest distributedTest) {
+            if (_distributedTest != distributedTest) {
                 _distributedTest = distributedTest;
                 SetDistributedTestToGui();
             }
         }
 
-        private void SetDistributedTestToGui()
-        {
+        private void SetDistributedTestToGui() {
             SetDefaultTestSettings();
             SetGenerateTiles();
             SetAddClientsAndSlaves();
         }
 
-        private void SetDefaultTestSettings()
-        {
+        private void SetDefaultTestSettings() {
             chkUseRDP.Checked = _distributedTest.UseRDP;
-            cboRunSync.SelectedIndex = (int) _distributedTest.RunSynchronization;
+            cboRunSync.SelectedIndex = (int)_distributedTest.RunSynchronization;
             lblResultPath.Text = _distributedTest.ResultPath;
         }
 
-        private void SetGenerateTiles()
-        {
+        private void SetGenerateTiles() {
             nudTiles.Value = 1;
         }
 
-        private void SetAddClientsAndSlaves()
-        {
-            nudTests.Value = _stresstestProject.CountOf(typeof (Stresstest.Stresstest));
+        private void SetAddClientsAndSlaves() {
+            nudTests.Value = _stresstestProject.CountOf(typeof(Stresstest.Stresstest));
 
-            foreach (Client client in _distributedTest.Clients)
-            {
+            foreach (Client client in _distributedTest.Clients) {
                 string ipOrHostname = client.HostName.Length == 0 ? client.IP : client.HostName;
                 ipOrHostname = ipOrHostname.Trim();
                 if (ipOrHostname.Length != 0)
@@ -112,14 +104,12 @@ namespace vApus.DistributedTesting
 
         #region Default Test Settings
 
-        private void chkUseRDP_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkUseRDP_CheckedChanged(object sender, EventArgs e) {
             clmUserName.HeaderText = chkUseRDP.Checked ? "* User Name (RDP)" : "User Name (RDP)";
             clmPassword.HeaderText = chkUseRDP.Checked ? "* Password" : "Password";
         }
 
-        private void llblResultPath_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
+        private void llblResultPath_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             folderBrowserDialog.SelectedPath = Directory.Exists(_distributedTest.ResultPath)
                                                    ? _distributedTest.ResultPath
                                                    : Application.StartupPath;
@@ -133,13 +123,11 @@ namespace vApus.DistributedTesting
 
         #region Generate and Add Tiles
 
-        private void nudTilesAndTests_ValueChanged(object sender, EventArgs e)
-        {
+        private void nudTilesAndTests_ValueChanged(object sender, EventArgs e) {
             SetCountsInGui();
         }
 
-        private void rdbsGenerateAndtAddTiles_CheckedChanged(object sender, EventArgs e)
-        {
+        private void rdbsGenerateAndtAddTiles_CheckedChanged(object sender, EventArgs e) {
             if ((sender as RadioButton).Checked) //3 rdbs handle this event here, this way it is only handled once.
             {
                 nudTiles.Enabled = nudTests.Enabled = !rdbDoNotAddTiles.Checked;
@@ -156,65 +144,52 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void dgvClients_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
-        {
+        private void dgvClients_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e) {
             var txt = e.Control as TextBox;
             if (txt != null)
-                if (dgvClients.CurrentCell.ColumnIndex == 3)
-                {
+                if (dgvClients.CurrentCell.ColumnIndex == 3) {
                     txt.UseSystemPasswordChar = true;
 
                     if (dgvClients.CurrentRow.Tag != null)
                         txt.Text = dgvClients.CurrentRow.Tag.ToString();
-                }
-                else
-                {
+                } else {
                     txt.UseSystemPasswordChar = false;
                 }
         }
 
-        private void dgvClients_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (dgvClients.CurrentCell != null && dgvClients.CurrentCell.ColumnIndex == 3)
-                if (dgvClients.CurrentCell.Value == null)
-                {
-                    dgvClients.CurrentRow.Tag = null;
+        private void dgvClients_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) {
+            foreach (DataGridViewRow row in dgvClients.Rows) {
+                if (row.Cells.Count < 4 || row.Cells[3].Value == null) {
+                    row.Tag = null;
+                } else {
+                    DataGridViewCell cell = row.Cells[3];
+                    row.Tag = cell.Value;
+                    cell.Value = new string('*', cell.Value.ToString().Length);
                 }
-                else
-                {
-                    dgvClients.CurrentRow.Tag = dgvClients.CurrentCell.Value.ToString();
-                    dgvClients.CurrentCell.Value = new string('*', dgvClients.CurrentCell.Value.ToString().Length);
-                }
+            }
         }
 
-        private void dgvClients_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
+        private void dgvClients_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
             if (dgvClients.CurrentCell != null && dgvClients.CurrentCell.ColumnIndex == 3)
-                if (dgvClients.CurrentCell.Value == null)
-                {
+                if (dgvClients.CurrentCell.Value == null) {
                     dgvClients.CurrentRow.Tag = null;
-                }
-                else
-                {
+                } else {
                     dgvClients.CurrentRow.Tag = dgvClients.CurrentCell.Value.ToString();
                     dgvClients.CurrentCell.Value = new string('*', dgvClients.CurrentCell.Value.ToString().Length);
                 }
 
             if (dgvClients.CurrentRow != dgvClients.Rows[dgvClients.Rows.Count - 1] &&
                 (dgvClients.CurrentRow.Cells[0].Value == null ||
-                 dgvClients.CurrentRow.Cells[0].Value.ToString().Length == 0))
-            {
+                 dgvClients.CurrentRow.Cells[0].Value.ToString().Length == 0)) {
                 dgvClients.Rows.Remove(dgvClients.CurrentRow);
                 return;
             }
 
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
+            foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
                     break;
                 if (row != dgvClients.CurrentRow && dgvClients.CurrentRow.Cells[0].Value != null
-                    && row.Cells[0].Value.ToString() == dgvClients.CurrentRow.Cells[0].Value.ToString())
-                {
+                    && row.Cells[0].Value.ToString() == dgvClients.CurrentRow.Cells[0].Value.ToString()) {
                     MessageBox.Show("This client was already added.", string.Empty, MessageBoxButtons.OK,
                                     MessageBoxIcon.Warning);
                     dgvClients.Rows.Remove(dgvClients.CurrentRow);
@@ -224,23 +199,19 @@ namespace vApus.DistributedTesting
             RefreshDGV();
         }
 
-        private void dgvClients_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-        {
+        private void dgvClients_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e) {
             SetCountsInGui();
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
+        private void btnRefresh_Click(object sender, EventArgs e) {
             RefreshDGV();
         }
 
-        private void rdbSlavesPerCores_CheckedChanged(object sender, EventArgs e)
-        {
+        private void rdbSlavesPerCores_CheckedChanged(object sender, EventArgs e) {
             RefreshDGV();
         }
 
-        private void nudSlavesPerCores_ValueChanged(object sender, EventArgs e)
-        {
+        private void nudSlavesPerCores_ValueChanged(object sender, EventArgs e) {
             rdbSlavesPerCores.CheckedChanged -= rdbSlavesPerCores_CheckedChanged;
             rdbSlavesPerCores.Checked = true;
             rdbSlavesPerCores.CheckedChanged += rdbSlavesPerCores_CheckedChanged;
@@ -248,8 +219,7 @@ namespace vApus.DistributedTesting
             RefreshDGV();
         }
 
-        private void nudSlavesPerClient_ValueChanged(object sender, EventArgs e)
-        {
+        private void nudSlavesPerClient_ValueChanged(object sender, EventArgs e) {
             rdbSlavesPerCores.CheckedChanged -= rdbSlavesPerCores_CheckedChanged;
             rdbSlavesPerClient.Checked = true;
             rdbSlavesPerCores.CheckedChanged += rdbSlavesPerCores_CheckedChanged;
@@ -257,55 +227,60 @@ namespace vApus.DistributedTesting
             RefreshDGV();
         }
 
-        private void RefreshDGV()
-        {
+        async private void RefreshDGV() {
+            Text = "Wizard - Connecting clients, be patient...";
+            pnl.Enabled = false;
+
             if (rdbSlavesPerCores.Checked)
-                SetSlaveCountsPerCores();
+                await Task.Run(() => SetSlaveCountsPerCores());
             else
-                SetSlaveCountsPerClients();
+                await Task.Run(() => SetSlaveCountsPerClients());
+
+            pnl.Enabled = true;
+            Text = "Wizard - Let vApus build your distributed test";
         }
 
-        private void SetSlaveCountsPerCores()
-        {
+        private void SetSlaveCountsPerCores() {
             List<int> coreCounts = GetCoreCounts();
-            if (coreCounts.Count != 0)
-            {
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                if (coreCounts.Count != 0) {
+                    var slaveCounts = new List<int>(dgvClients.RowCount - 1);
+                    for (int i = 0; i != dgvClients.RowCount - 1; i++) {
+                        var slaveCount = (int)(coreCounts[i] / nudSlavesPerCores.Value);
+                        slaveCounts.Add(slaveCount);
+                    }
+                    SetSlaveCountInDataGridView(slaveCounts);
+                }
+                SetCoreCountInDataGridView(coreCounts);
+                SetCountsInGui();
+            }, null);
+        }
+
+        private void SetSlaveCountsPerClients() {
+            List<int> coreCounts = GetCoreCounts();
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 var slaveCounts = new List<int>(dgvClients.RowCount - 1);
                 for (int i = 0; i != dgvClients.RowCount - 1; i++)
-                {
-                    var slaveCount = (int) (coreCounts[i]/nudSlavesPerCores.Value);
-                    slaveCounts.Add(slaveCount);
-                }
+                    slaveCounts.Add((int)nudSlavesPerClient.Value);
                 SetSlaveCountInDataGridView(slaveCounts);
-            }
-            SetCoreCountInDataGridView(coreCounts);
-            SetCountsInGui();
-        }
-
-        private void SetSlaveCountsPerClients()
-        {
-            List<int> coreCounts = GetCoreCounts();
-            var slaveCounts = new List<int>(dgvClients.RowCount - 1);
-            for (int i = 0; i != dgvClients.RowCount - 1; i++)
-                slaveCounts.Add((int) nudSlavesPerClient.Value);
-            SetSlaveCountInDataGridView(slaveCounts);
-            SetCoreCountInDataGridView(coreCounts);
-            SetCountsInGui();
+                SetCoreCountInDataGridView(coreCounts);
+                SetCountsInGui();
+            }, null);
         }
 
         /// <summary>
         ///     Get the count of the cores for each client (-1 if unknown)
         /// </summary>
         /// <returns></returns>
-        private List<int> GetCoreCounts()
-        {
-            Cursor = Cursors.WaitCursor;
+        private List<int> GetCoreCounts() {
             //Put all in an array for thread safety.
             var r = new List<DataGridViewRow>();
-            foreach (DataGridViewRow row in dgvClients.Rows)
-                if (row.Cells[0].Value != row.Cells[0].DefaultNewRowValue &&
-                    row.Cells[0].Value != null && row.Cells[0].Value.ToString().Length != 0)
-                    r.Add(row);
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                foreach (DataGridViewRow row in dgvClients.Rows)
+                    if (row.Cells[0].Value != row.Cells[0].DefaultNewRowValue &&
+                        row.Cells[0].Value != null && row.Cells[0].Value.ToString().Length != 0)
+                        r.Add(row);
+            }, null);
 
             DataGridViewRow[] rows = r.ToArray();
 
@@ -313,33 +288,25 @@ namespace vApus.DistributedTesting
             var waitHandle = new AutoResetEvent(false);
             var coreCounts = new int[rows.Length];
             int processed = 0;
-            for (int j = 0; j != rows.Length; j++)
-            {
-                var t = new Thread(delegate(object arg)
-                    {
-                        _coreCountWorkItem = new CoreCount();
-                        //A thread static field used to be able to process in parallel
-                        coreCounts[(int) arg] = _coreCountWorkItem.Get(rows[(int) arg].Cells[0].Value.ToString(), this);
+            for (int j = 0; j != rows.Length; j++) {
+                ThreadPool.QueueUserWorkItem((object state) => {
+                    _coreCountWorkItem = new CoreCount();
+                    //A thread static field used to be able to process in parallel
+                    coreCounts[(int)state] = _coreCountWorkItem.Get(rows[(int)state].Cells[0].Value.ToString(), this);
 
-                        if (Interlocked.Increment(ref processed) == rows.Length)
-                            waitHandle.Set();
-                    });
-                t.IsBackground = true;
-                t.Start(j);
+                    if (Interlocked.Increment(ref processed) == rows.Length)
+                        waitHandle.Set();
+                }, j);
             }
             if (rows.Length != 0)
                 waitHandle.WaitOne();
 
-            Cursor = Cursors.Default;
-
             return new List<int>(coreCounts);
         }
 
-        private void SetSlaveCountInDataGridView(List<int> slaveCounts)
-        {
+        private void SetSlaveCountInDataGridView(List<int> slaveCounts) {
             int i = 0;
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
+            foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
                     break;
 
@@ -347,25 +314,20 @@ namespace vApus.DistributedTesting
             }
         }
 
-        private void SetCoreCountInDataGridView(List<int> coreCounts)
-        {
+        private void SetCoreCountInDataGridView(List<int> coreCounts) {
             int i = 0;
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
+            foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
                     break;
 
                 int corecount = coreCounts[i++];
                 row.Cells[6].Value = corecount;
-                if (corecount == 0)
-                {
+                if (corecount == 0) {
                     row.DefaultCellStyle.BackColor = Color.Orange;
                     foreach (DataGridViewCell cell in row.Cells)
                         cell.ToolTipText =
                             "Unreacheable client or vApus.Jumpstart not running on the client. This client will not be added to the distributed test.";
-                }
-                else
-                {
+                } else {
                     row.DefaultCellStyle.BackColor = Color.LightGreen;
                     foreach (DataGridViewCell cell in row.Cells)
                         cell.ToolTipText = string.Empty;
@@ -376,24 +338,21 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     Also cleans the dictionary holding the ips and host names.
         /// </summary>
-        private void SetCountsInGui()
-        {
-            int totalNewTestCount = rdbDoNotAddTiles.Checked ? 0 : (int) (nudTiles.Value*nudTests.Value);
+        private void SetCountsInGui() {
+            int totalNewTestCount = rdbDoNotAddTiles.Checked ? 0 : (int)(nudTiles.Value * nudTests.Value);
 
             int totalTestCount = totalNewTestCount, totalUsedTestCount = totalNewTestCount;
 
             if (rdbAppendTiles.Checked) //In the other cases we do not add new tiles.
                 foreach (Tile tile in _distributedTest.Tiles)
-                    foreach (TileStresstest ts in tile)
-                    {
+                    foreach (TileStresstest ts in tile) {
                         ++totalTestCount;
                         if (ts.Use)
                             ++totalUsedTestCount;
                     }
 
             int totalSlaveCount = 0;
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
+            foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells[4].Value == row.Cells[4].DefaultNewRowValue)
                     break;
 
@@ -405,17 +364,13 @@ namespace vApus.DistributedTesting
             clmTests.HeaderText = "Number of Tests (" + totalAssignedTestCount + "/" + totalUsedTestCount + ")";
 
             int yetToAssingTestCount = totalAssignedTestCount;
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
+            foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells[4].Value == row.Cells[4].DefaultNewRowValue)
                     break;
 
-                if (yetToAssingTestCount == 0)
-                {
+                if (yetToAssingTestCount == 0) {
                     row.Cells[5].Value = 0;
-                }
-                else
-                {
+                } else {
                     int slaveCount = int.Parse(row.Cells[4].Value.ToString());
 
                     int tests = yetToAssingTestCount - slaveCount >= 0 ? slaveCount : yetToAssingTestCount;
@@ -439,8 +394,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     Cleans the IPs and Hostnames Dictionary
         /// </summary>
-        private void CleanDictionary()
-        {
+        private void CleanDictionary() {
             var clean = new Dictionary<string, string>();
             foreach (string ip in _ipsAndHostNames.Keys)
                 if (DGVContainsIpOrHostName(ip, _ipsAndHostNames[ip]))
@@ -448,8 +402,7 @@ namespace vApus.DistributedTesting
             _ipsAndHostNames = clean;
         }
 
-        private bool DGVContainsIpOrHostName(string ip, string hostName)
-        {
+        private bool DGVContainsIpOrHostName(string ip, string hostName) {
             foreach (DataGridViewRow row in dgvClients.Rows)
                 if (row.Cells[0].Value != row.Cells[0].DefaultNewRowValue &&
                     (row.Cells[0].Value.ToString() == ip ||
@@ -459,35 +412,27 @@ namespace vApus.DistributedTesting
             return false;
         }
 
-        private class CoreCount
-        {
-            private readonly object _lock = new object();
+        private class CoreCount {
+            private static readonly object _lock = new object();
 
             /// <summary>
             ///     stores the ip and hostname in the given list.
             /// </summary>
             /// <param name="ipOrHostName"></param>
-            /// <param name="ip"></param>
-            /// <param name="hostName"></param>
+            /// <param name="wizard"></param>
             /// <returns></returns>
-            public int Get(string ipOrHostName, Wizard wizard)
-            {
+            public int Get(string ipOrHostName, Wizard wizard) {
                 IPAddress address = null;
                 string ip = null, hostName = null;
-                try
-                {
-                    if (IPAddress.TryParse(ipOrHostName, out address))
-                    {
+                try {
+                    if (IPAddress.TryParse(ipOrHostName, out address)) {
                         ip = ipOrHostName;
                         hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
-                    }
-                    else
-                    {
+                    } else {
                         ipOrHostName = ipOrHostName.ToLower().Split('.')[0];
                         IPHostEntry hostEntry = Dns.GetHostEntry(ipOrHostName);
                         foreach (IPAddress a in hostEntry.AddressList)
-                            if (a.AddressFamily == AddressFamily.InterNetwork || a.AddressFamily == AddressFamily.InterNetworkV6)
-                            {
+                            if (a.AddressFamily == AddressFamily.InterNetwork || a.AddressFamily == AddressFamily.InterNetworkV6) {
                                 address = a;
                                 break;
                             }
@@ -501,32 +446,22 @@ namespace vApus.DistributedTesting
                             wizard._ipsAndHostNames[ip] = hostName.Split('.')[0];
                         else
                             wizard._ipsAndHostNames.Add(ip, hostName.Split('.')[0]);
-                }
-                catch
-                {
+                } catch {
                     address = null;
                 }
 
-                if (address != null)
-                {
+                if (address != null) {
                     var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     var sw = new SocketWrapper(address, 1314, socket);
-                    try
-                    {
-                        sw.Connect();
-                        sw.Send(new Message<JumpStartStructures.Key>(JumpStartStructures.Key.CpuCoreCount, null),
-                                SendType.Binary);
-                        var message = (Message<JumpStartStructures.Key>) sw.Receive(SendType.Binary);
-                        return ((CpuCoreCountMessage) message.Content).CpuCoreCount;
-                    }
-                    catch
-                    {
-                        try
-                        {
+                    try {
+                        sw.Connect(3000);
+                        sw.Send(new Message<JumpStartStructures.Key>(JumpStartStructures.Key.CpuCoreCount, null), SendType.Binary);
+                        var message = (Message<JumpStartStructures.Key>)sw.Receive(SendType.Binary);
+                        return ((CpuCoreCountMessage)message.Content).CpuCoreCount;
+                    } catch {
+                        try {
                             sw.Close();
-                        }
-                        catch
-                        {
+                        } catch {
                         }
                         sw = null;
                         socket = null;
@@ -541,24 +476,19 @@ namespace vApus.DistributedTesting
 
         #region Exit
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             Connection[] toAssignConnections = SmartAssignConnections();
             //Review the connections and make tweaks.
-            if (chkReview.Checked)
-            {
-                if (toAssignConnections.Length == 0 || toAssignConnections[0].IsEmpty)
-                {
+            if (chkReview.Checked) {
+                if (toAssignConnections.Length == 0 || toAssignConnections[0].IsEmpty) {
                     MessageBox.Show("You do not have connections in your solution!", string.Empty, MessageBoxButtons.OK,
                                     MessageBoxIcon.Warning);
-                }
-                else
-                {
+                } else {
                     var conUsage = new WizardConnectionUsage();
 
                     Tiles alreadyInStresstest = rdbStartFromScratch.Checked ? new Tiles() : _distributedTest.Tiles;
-                    int tiles = rdbDoNotAddTiles.Checked ? 0 : (int) nudTiles.Value;
-                    var tests = (int) nudTests.Value;
+                    int tiles = rdbDoNotAddTiles.Checked ? 0 : (int)nudTiles.Value;
+                    var tests = (int)nudTests.Value;
 
                     conUsage.Init(alreadyInStresstest, tiles, tests, toAssignConnections);
                     if (conUsage.ShowDialog() == DialogResult.Cancel)
@@ -580,9 +510,8 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     Fills an array with connections. All available connections are used, the assign pattern thats used for stresstests is applied.
         /// </summary>
-        private Connection[] SmartAssignConnections()
-        {
-            int totalTestCount = rdbDoNotAddTiles.Checked ? 0 : (int) (nudTiles.Value*nudTests.Value);
+        private Connection[] SmartAssignConnections() {
+            int totalTestCount = rdbDoNotAddTiles.Checked ? 0 : (int)(nudTiles.Value * nudTests.Value);
 
             if (!rdbStartFromScratch.Checked) //In the other cases we do not add new tiles.
                 foreach (Tile tile in _distributedTest.Tiles)
@@ -594,21 +523,17 @@ namespace vApus.DistributedTesting
 
             if (_connections.Count == 0) //Assign empty connections.
             {
-                SolutionComponent connectionParent = Solution.ActiveSolution.GetSolutionComponent(typeof (Connections));
+                SolutionComponent connectionParent = Solution.ActiveSolution.GetSolutionComponent(typeof(Connections));
                 for (int i = 0; i != totalTestCount; i++)
                     toAssignConnections[i] =
-                        SolutionComponent.GetNextOrEmptyChild(typeof (Connection), connectionParent) as Connection;
-            }
-            else
-            {
+                        SolutionComponent.GetNextOrEmptyChild(typeof(Connection), connectionParent) as Connection;
+            } else {
                 int[] assignPattern = GetAssignPattern();
-                for (int i = 0; i != totalTestCount; i++)
-                {
+                for (int i = 0; i != totalTestCount; i++) {
                     //make sure assignPatternIndex can not go out of bounds.
                     int assignPatternIndex = i;
                     int connectionIndexOffset = 0; //Offset the connections so all can be used.
-                    while (assignPatternIndex >= assignPattern.Length)
-                    {
+                    while (assignPatternIndex >= assignPattern.Length) {
                         assignPatternIndex -= assignPattern.Length;
                         connectionIndexOffset += assignPattern.Length;
                     }
@@ -624,9 +549,8 @@ namespace vApus.DistributedTesting
             return toAssignConnections;
         }
 
-        private int[] GetAssignPattern()
-        {
-            var assignPattern = new List<int>(_stresstestProject.CountOf(typeof (Stresstest.Stresstest)));
+        private int[] GetAssignPattern() {
+            var assignPattern = new List<int>(_stresstestProject.CountOf(typeof(Stresstest.Stresstest)));
 
             foreach (BaseItem item in _stresstestProject)
                 if (item is Stresstest.Stresstest)
@@ -638,16 +562,14 @@ namespace vApus.DistributedTesting
         /// <summary>
         /// </summary>
         /// <returns>If the gui was succesfully set to the distributed test</returns>
-        private bool SetGuiToDistributedTest(Connection[] toAssignConnections)
-        {
+        private bool SetGuiToDistributedTest(Connection[] toAssignConnections) {
             //Validate if the gui can be set to the distributed test.
             var starredColumnIndices = new List<int>();
             for (int columnIndex = 0; columnIndex != dgvClients.Columns.Count; columnIndex++)
                 if (dgvClients.Columns[columnIndex].HeaderText.Contains("*"))
                     starredColumnIndices.Add(columnIndex);
 
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
+            foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
                     break;
 
@@ -669,29 +591,26 @@ namespace vApus.DistributedTesting
             return true;
         }
 
-        private void SetDefaultTestSettingToDistributedTest()
-        {
+        private void SetDefaultTestSettingToDistributedTest() {
             _distributedTest.UseRDP = chkUseRDP.Checked;
-            _distributedTest.RunSynchronization = (RunSynchronization) cboRunSync.SelectedIndex;
+            _distributedTest.RunSynchronization = (RunSynchronization)cboRunSync.SelectedIndex;
             _distributedTest.ResultPath = lblResultPath.Text;
         }
 
         /// <summary></summary>
         /// <returns>The slaves added.</returns>
-        private List<Slave> AddClientsAndSlavesToDistributedTest()
-        {
+        private List<Slave> AddClientsAndSlavesToDistributedTest() {
             RefreshDGV();
 
             //Clear the clients in de distributed test, new ones will be added.
             _distributedTest.Clients.ClearWithoutInvokingEvent(false);
 
             var toAssingTestsTo = new List<Slave>();
-            foreach (DataGridViewRow row in dgvClients.Rows)
-            {
+            foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
                     break;
 
-                var numberOfSlaves = (int) row.Cells[4].Value;
+                var numberOfSlaves = (int)row.Cells[4].Value;
                 if (numberOfSlaves == 0)
                     continue; //No use adding a client without slaves.
 
@@ -701,16 +620,12 @@ namespace vApus.DistributedTesting
 
                 //Set the ip and host name.
                 var ipOrHostname = row.Cells[0].Value as string;
-                if (_ipsAndHostNames.ContainsKey(ipOrHostname))
-                {
+                if (_ipsAndHostNames.ContainsKey(ipOrHostname)) {
                     client.IP = ipOrHostname;
                     client.HostName = _ipsAndHostNames[ipOrHostname];
-                }
-                else if (_ipsAndHostNames.ContainsValue(ipOrHostname.ToLower().Split('.')[0]))
-                {
+                } else if (_ipsAndHostNames.ContainsValue(ipOrHostname.ToLower().Split('.')[0])) {
                     string ip;
-                    if (_ipsAndHostNames.TryGetKey(ipOrHostname.ToLower().Split('.')[0], out ip))
-                    {
+                    if (_ipsAndHostNames.TryGetKey(ipOrHostname.ToLower().Split('.')[0], out ip)) {
                         client.IP = ip;
                         client.HostName = ipOrHostname;
                     }
@@ -722,12 +637,16 @@ namespace vApus.DistributedTesting
                     client.Password = row.Tag as string;
 
                 //Add slaves to the client.
-                int startPort = SocketListener.GetInstance().IP == client.IP
-                                    ? (SocketListener.GetInstance().Port + 1)
-                                    : 1337;
+                bool clientIsMaster = false;
+                foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName()))
+                    if (ipAddress.ToString() == client.IP) {
+                        clientIsMaster = true;
+                        break;
+                    }
+
+                int startPort = clientIsMaster ? (SocketListener.GetInstance().Port + 1) : 1337;
                 var alreadyUsedPas = new List<int>();
-                for (int i = 0; i != numberOfSlaves; i++)
-                {
+                for (int i = 0; i != numberOfSlaves; i++) {
                     var slave = new Slave();
                     slave.Port = startPort++;
                     slave.ProcessorAffinity = GetProcessorAffinity(int.Parse(numberOfSlaves.ToString()),
@@ -748,15 +667,14 @@ namespace vApus.DistributedTesting
         /// <param name="numberOfCores"></param>
         /// <param name="alreadyUsedPAs"></param>
         /// <returns></returns>
-        private int[] GetProcessorAffinity(int numberOfSlaves, int numberOfCores, List<int> alreadyUsedPAs)
-        {
+        private int[] GetProcessorAffinity(int numberOfSlaves, int numberOfCores, List<int> alreadyUsedPAs) {
             var pa = new List<int>();
             if (numberOfSlaves > 0 && numberOfSlaves <= numberOfCores) //No PA if these requirements are not met.
             {
                 int numberUsed = 0;
-                int numberToUse = numberOfCores/numberOfSlaves;
-                int mod = numberOfCores%numberOfSlaves;
-                    //If it is not a clean division the last slave gets a core extra.
+                int numberToUse = numberOfCores / numberOfSlaves;
+                int mod = numberOfCores % numberOfSlaves;
+                //If it is not a clean division the last slave gets a core extra.
 
                 for (int i = 1; i <= numberOfCores; i++) //One-based pa.
                     if (!alreadyUsedPAs.Contains(i) && numberUsed++ < numberToUse)
@@ -770,8 +688,7 @@ namespace vApus.DistributedTesting
 
         /// <summary></summary>
         /// <param name="slaves">To assign the tests to</param>
-        private void GenerateAndAddTilesToDistributedTest(Connection[] toAssignConnections, List<Slave> slaves)
-        {
+        private void GenerateAndAddTilesToDistributedTest(Connection[] toAssignConnections, List<Slave> slaves) {
             //Distribute connections.
             int connectionIndex = 0;
             if (rdbStartFromScratch.Checked)
@@ -784,17 +701,15 @@ namespace vApus.DistributedTesting
             //The existing stresstests will be reassigned to the slaves.
             if (!rdbDoNotAddTiles.Checked)
                 //Add the tests to the distributed test.
-                for (int i = 0; i != (int) nudTiles.Value; i++)
-                {
+                for (int i = 0; i != (int)nudTiles.Value; i++) {
                     var tile = new Tile();
                     _distributedTest.Tiles.AddWithoutInvokingEvent(tile, false);
 
                     Stresstest.Stresstest defaultToStresstest = null;
-                    for (int j = 0; j != (int) nudTests.Value; j++)
-                    {
+                    for (int j = 0; j != (int)nudTests.Value; j++) {
                         var tileStresstest = new TileStresstest();
                         defaultToStresstest = GetNextDefaultToStresstest(defaultToStresstest);
-                            //Default to a stresstest in the solution.
+                        //Default to a stresstest in the solution.
                         tileStresstest.DefaultAdvancedSettingsTo = defaultToStresstest;
 
                         tile.AddWithoutInvokingEvent(tileStresstest, false);
@@ -807,15 +722,12 @@ namespace vApus.DistributedTesting
             //Assign the tests to slaves
             foreach (Tile tile in _distributedTest.Tiles)
                 foreach (TileStresstest tileStresstest in tile)
-                    if (slaveIndex == slaves.Count)
-                    {
+                    if (slaveIndex == slaves.Count) {
                         tileStresstest.Use = false;
-                        tileStresstest.BasicTileStresstest.Slaves = new Slave[] {};
-                    }
-                    else
-                    {
+                        tileStresstest.BasicTileStresstest.Slaves = new Slave[] { };
+                    } else {
                         tileStresstest.Use = true;
-                        tileStresstest.BasicTileStresstest.Slaves = new[] {slaves[slaveIndex++]};
+                        tileStresstest.BasicTileStresstest.Slaves = new[] { slaves[slaveIndex++] };
                     }
         }
 
@@ -823,12 +735,10 @@ namespace vApus.DistributedTesting
         /// </summary>
         /// <param name="previous">Can be null</param>
         /// <returns></returns>
-        private Stresstest.Stresstest GetNextDefaultToStresstest(Stresstest.Stresstest previous)
-        {
+        private Stresstest.Stresstest GetNextDefaultToStresstest(Stresstest.Stresstest previous) {
             SolutionComponent stresstestProject =
-                Solution.ActiveSolution.GetSolutionComponent(typeof (StresstestProject));
-            if (previous != null)
-            {
+                Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject));
+            if (previous != null) {
                 bool previousFound = false;
                 foreach (BaseItem item in stresstestProject)
                     if (item is Stresstest.Stresstest)
@@ -840,7 +750,7 @@ namespace vApus.DistributedTesting
 
             //If next was not found (starts with the first item again if any to use for a previous default to).
             return
-                SolutionComponent.GetNextOrEmptyChild(typeof (Stresstest.Stresstest), stresstestProject) as
+                SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), stresstestProject) as
                 Stresstest.Stresstest;
         }
 

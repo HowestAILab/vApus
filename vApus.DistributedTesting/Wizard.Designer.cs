@@ -33,10 +33,17 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.pnl = new System.Windows.Forms.Panel();
             this.chkReview = new System.Windows.Forms.CheckBox();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.dgvClients = new System.Windows.Forms.DataGridView();
+            this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
             this.lblNotAssignedTests = new System.Windows.Forms.Label();
@@ -64,14 +71,7 @@
             this.rdbAppendTiles = new System.Windows.Forms.RadioButton();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmPassword = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmSlaves = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmTests = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clmCpuCores = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.panel1.SuspendLayout();
+            this.pnl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTests)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTiles)).BeginInit();
@@ -82,36 +82,36 @@
             this.pnlGenerateAndAddTiles.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel1
+            // pnl
             // 
-            this.panel1.AutoScroll = true;
-            this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.Controls.Add(this.chkReview);
-            this.panel1.Controls.Add(this.btnRefresh);
-            this.panel1.Controls.Add(this.dgvClients);
-            this.panel1.Controls.Add(this.btnCancel);
-            this.panel1.Controls.Add(this.btnOK);
-            this.panel1.Controls.Add(this.lblNotAssignedTests);
-            this.panel1.Controls.Add(this.nudTests);
-            this.panel1.Controls.Add(this.nudTiles);
-            this.panel1.Controls.Add(this.label8);
-            this.panel1.Controls.Add(this.label7);
-            this.panel1.Controls.Add(this.lblResultPath);
-            this.panel1.Controls.Add(this.llblResultPath);
-            this.panel1.Controls.Add(this.label6);
-            this.panel1.Controls.Add(this.pnlRunSync);
-            this.panel1.Controls.Add(this.chkUseRDP);
-            this.panel1.Controls.Add(this.label3);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.pnlAddClientAndSlaves);
-            this.panel1.Controls.Add(this.pnlGenerateAndAddTiles);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(764, 562);
-            this.panel1.TabIndex = 1;
+            this.pnl.AutoScroll = true;
+            this.pnl.BackColor = System.Drawing.Color.White;
+            this.pnl.Controls.Add(this.chkReview);
+            this.pnl.Controls.Add(this.btnRefresh);
+            this.pnl.Controls.Add(this.dgvClients);
+            this.pnl.Controls.Add(this.btnCancel);
+            this.pnl.Controls.Add(this.btnOK);
+            this.pnl.Controls.Add(this.lblNotAssignedTests);
+            this.pnl.Controls.Add(this.nudTests);
+            this.pnl.Controls.Add(this.nudTiles);
+            this.pnl.Controls.Add(this.label8);
+            this.pnl.Controls.Add(this.label7);
+            this.pnl.Controls.Add(this.lblResultPath);
+            this.pnl.Controls.Add(this.llblResultPath);
+            this.pnl.Controls.Add(this.label6);
+            this.pnl.Controls.Add(this.pnlRunSync);
+            this.pnl.Controls.Add(this.chkUseRDP);
+            this.pnl.Controls.Add(this.label3);
+            this.pnl.Controls.Add(this.label2);
+            this.pnl.Controls.Add(this.label1);
+            this.pnl.Controls.Add(this.pnlAddClientAndSlaves);
+            this.pnl.Controls.Add(this.pnlGenerateAndAddTiles);
+            this.pnl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnl.Location = new System.Drawing.Point(0, 0);
+            this.pnl.Margin = new System.Windows.Forms.Padding(0);
+            this.pnl.Name = "pnl";
+            this.pnl.Size = new System.Drawing.Size(764, 562);
+            this.pnl.TabIndex = 1;
             // 
             // chkReview
             // 
@@ -145,8 +145,8 @@
             // 
             // dgvClients
             // 
-            this.dgvClients.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvClients.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvClients.BackgroundColor = System.Drawing.Color.White;
             this.dgvClients.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.dgvClients.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -166,6 +166,57 @@
             this.dgvClients.TabIndex = 23;
             this.dgvClients.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvClients_CellFormatting);
             this.dgvClients.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.dgvClients_EditingControlShowing);
+            // 
+            // clmIPorHostName
+            // 
+            this.clmIPorHostName.HeaderText = "* IP or Host Name";
+            this.clmIPorHostName.Name = "clmIPorHostName";
+            this.clmIPorHostName.ToolTipText = "Typing the IP address is advised.\nIf you want to avoid firewall issues the slave " +
+    "must be in the same IP range as the master.";
+            // 
+            // clmUserName
+            // 
+            this.clmUserName.HeaderText = "User Name (RDP)";
+            this.clmUserName.Name = "clmUserName";
+            // 
+            // clmDomain
+            // 
+            this.clmDomain.HeaderText = "Domain";
+            this.clmDomain.Name = "clmDomain";
+            this.clmDomain.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.clmDomain.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // clmPassword
+            // 
+            this.clmPassword.HeaderText = "Password";
+            this.clmPassword.Name = "clmPassword";
+            // 
+            // clmSlaves
+            // 
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
+            this.clmSlaves.HeaderText = "Number of Slaves (0)";
+            this.clmSlaves.Name = "clmSlaves";
+            this.clmSlaves.ReadOnly = true;
+            this.clmSlaves.Width = 85;
+            // 
+            // clmTests
+            // 
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
+            this.clmTests.HeaderText = "Number of Tests (0/?)";
+            this.clmTests.Name = "clmTests";
+            this.clmTests.ReadOnly = true;
+            this.clmTests.Width = 85;
+            // 
+            // clmCpuCores
+            // 
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle3;
+            this.clmCpuCores.HeaderText = "Number of CPU Cores";
+            this.clmCpuCores.Name = "clmCpuCores";
+            this.clmCpuCores.ReadOnly = true;
+            this.clmCpuCores.Width = 85;
             // 
             // btnCancel
             // 
@@ -328,8 +379,8 @@
             this.chkUseRDP.TabIndex = 5;
             this.chkUseRDP.Text = "Use the vApus Remote Desktop Client";
             this.toolTip.SetToolTip(this.chkUseRDP, "Check this if you want vApus to open remote desktop connections to the used clien" +
-                    "ts.\r\nRegardless if you check it or not, you need to be logged into the clients t" +
-                    "o be able to stresstest.");
+        "ts.\r\nRegardless if you check it or not, you need to be logged into the clients t" +
+        "o be able to stresstest.");
             this.chkUseRDP.UseVisualStyleBackColor = true;
             this.chkUseRDP.CheckedChanged += new System.EventHandler(this.chkUseRDP_CheckedChanged);
             // 
@@ -407,7 +458,7 @@
             this.rdbSlavesPerCores.TabStop = true;
             this.rdbSlavesPerCores.Text = "1 Slave per                    CPU Core(s) of a Client";
             this.toolTip.SetToolTip(this.rdbSlavesPerCores, "If possible the processor affinity will be set for the slaves.\r\n(See the \'Slaves\'" +
-                    " tab page when finished)");
+        " tab page when finished)");
             this.rdbSlavesPerCores.UseVisualStyleBackColor = true;
             this.rdbSlavesPerCores.CheckedChanged += new System.EventHandler(this.rdbSlavesPerCores_CheckedChanged);
             // 
@@ -439,7 +490,7 @@
             this.rdbSlavesPerClient.TabIndex = 18;
             this.rdbSlavesPerClient.Text = "                 Slave(s) per Client";
             this.toolTip.SetToolTip(this.rdbSlavesPerClient, "If possible the processor affinity will be set for the slaves.\r\n(See the \'Slaves\'" +
-                    " tab page when finished)");
+        " tab page when finished)");
             this.rdbSlavesPerClient.UseVisualStyleBackColor = true;
             // 
             // pnlGenerateAndAddTiles
@@ -461,7 +512,7 @@
             this.rdbDoNotAddTiles.TabIndex = 2;
             this.rdbDoNotAddTiles.Text = "Only Reassign the Stresstests to the Slaves";
             this.toolTip.SetToolTip(this.rdbDoNotAddTiles, "No Tiles are added to the distributed test if you choose this.\r\nConnections will " +
-                    "be redistributed over existing tile stresstests if needed.");
+        "be redistributed over existing tile stresstests if needed.");
             this.rdbDoNotAddTiles.UseVisualStyleBackColor = true;
             this.rdbDoNotAddTiles.CheckedChanged += new System.EventHandler(this.rdbsGenerateAndtAddTiles_CheckedChanged);
             // 
@@ -499,63 +550,13 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 20;
             // 
-            // clmIPorHostName
-            // 
-            this.clmIPorHostName.HeaderText = "* IP or Host Name";
-            this.clmIPorHostName.Name = "clmIPorHostName";
-            this.clmIPorHostName.ToolTipText = "Typing the IP address is advised.\nIf you want to avoid firewall issues the slave must be in the same IP range as the master.";
-            // 
-            // clmUserName
-            // 
-            this.clmUserName.HeaderText = "User Name (RDP)";
-            this.clmUserName.Name = "clmUserName";
-            // 
-            // clmDomain
-            // 
-            this.clmDomain.HeaderText = "Domain";
-            this.clmDomain.Name = "clmDomain";
-            this.clmDomain.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.clmDomain.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // clmPassword
-            // 
-            this.clmPassword.HeaderText = "Password";
-            this.clmPassword.Name = "clmPassword";
-            // 
-            // clmSlaves
-            // 
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
-            this.clmSlaves.HeaderText = "Number of Slaves (0)";
-            this.clmSlaves.Name = "clmSlaves";
-            this.clmSlaves.ReadOnly = true;
-            this.clmSlaves.Width = 85;
-            // 
-            // clmTests
-            // 
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
-            this.clmTests.HeaderText = "Number of Tests (0/?)";
-            this.clmTests.Name = "clmTests";
-            this.clmTests.ReadOnly = true;
-            this.clmTests.Width = 85;
-            // 
-            // clmCpuCores
-            // 
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle3;
-            this.clmCpuCores.HeaderText = "Number of CPU Cores";
-            this.clmCpuCores.Name = "clmCpuCores";
-            this.clmCpuCores.ReadOnly = true;
-            this.clmCpuCores.Width = 85;
-            // 
             // Wizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(764, 562);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.pnl);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(780, 600);
@@ -564,8 +565,8 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Wizard - Let vApus build your distributed test ";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.pnl.ResumeLayout(false);
+            this.pnl.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClients)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTests)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTiles)).EndInit();
@@ -582,7 +583,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pnl;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox chkUseRDP;
         private System.Windows.Forms.Label label3;

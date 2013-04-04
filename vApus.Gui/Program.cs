@@ -43,7 +43,7 @@ namespace vApus.Gui {
                 Linker.Link();
 
                 //Work around for the jump start to work.
-                if (!args.Contains("-ipp"))
+                if (!args.Contains("-p"))
                     SocketListenerLinker.StartSocketListener();
 
                 //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.

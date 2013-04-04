@@ -434,8 +434,7 @@ namespace vApus.Stresstest {
                 throw ex;
             }
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Connection Proxy Pool Inititialized in {0}.",
-                                        _sw.Elapsed.ToLongFormattedString()));
+            InvokeMessage(string.Format(" ...Connection Proxy Pool Inititialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
         }
 
@@ -869,12 +868,10 @@ namespace vApus.Stresstest {
                 try {
                     if (connectionProxy == null || connectionProxy.IsDisposed) {
                         exception =
-                            new Exception("Connectionproxy is disposed. Metrics for this log entry (" +
-                                          testableLogEntry.ParameterizedLogEntryString + ") are not correct.");
+                            new Exception("Connectionproxy is disposed. Metrics for this log entry (" + testableLogEntry.ParameterizedLogEntryString + ") are not correct.");
                     } else {
                         StringTree parameterizedLogEntry = testableLogEntry.ParameterizedLogEntry;
-                        connectionProxy.SendAndReceive(parameterizedLogEntry, out sentAt, out timeToLastByte,
-                                                       out exception);
+                        connectionProxy.SendAndReceive(parameterizedLogEntry, out sentAt, out timeToLastByte, out exception);
                     }
                 } catch (Exception ex) {
                     if (!retried && connectionProxy != null && !connectionProxy.IsDisposed) {

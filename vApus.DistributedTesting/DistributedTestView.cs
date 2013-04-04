@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -401,7 +402,7 @@ namespace vApus.DistributedTesting {
                             _tileStresstestsWithDbIds.Add(ts, id);
                         }
 
-            _resultsHelper.SetvApusInstance(NamedObjectRegistrar.Get<string>("HostName"), NamedObjectRegistrar.Get<string>("IP"), NamedObjectRegistrar.Get<int>("Port"),
+            _resultsHelper.SetvApusInstance(Dns.GetHostName(), NamedObjectRegistrar.Get<string>("IP"), NamedObjectRegistrar.Get<int>("Port"),
                     NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty, NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
                     true);
         }
@@ -824,8 +825,8 @@ namespace vApus.DistributedTesting {
         private void btnStop_Click(object sender, EventArgs e) {
             distributedStresstestControl.AppendMessages("Stopping the test...");
             if (_monitorBeforeCountDown != null) {
-                _monitorBeforeCountDown.Stop();
-                _monitorBeforeCountDown.Dispose();
+                try { _monitorBeforeCountDown.Stop(); } catch { }
+                try { _monitorBeforeCountDown.Dispose(); } catch { }
                 _monitorBeforeCountDown = null;
             }
 
@@ -1174,7 +1175,7 @@ namespace vApus.DistributedTesting {
             try {
                 var monitorConfigCache = new ConverterCollection();
                 var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), monitorConfigCache);
-                
+
                 foreach (TileStresstest key in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[key])
                         Converter.SetMonitorConfig(distributedTestCache, view.Monitor);
@@ -1205,7 +1206,7 @@ namespace vApus.DistributedTesting {
             try {
                 var testProgressCache = new ConverterCollection();
                 var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), testProgressCache);
-                
+
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                     foreach (TileStresstest tileStresstest in _distributedTestCore.TestProgressMessages.Keys) {
                         var tileStresstestCache = Converter.AddSubCache("Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
