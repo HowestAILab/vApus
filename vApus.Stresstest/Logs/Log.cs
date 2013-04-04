@@ -161,10 +161,8 @@ namespace vApus.Stresstest {
 
         private void _logRuleSet_ParentIsNull(object sender, EventArgs e) {
             if (_logRuleSet == sender)
-                LogRuleSet =
-                    GetNextOrEmptyChild(typeof(LogRuleSet),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as
-                    LogRuleSet;
+                LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet),
+                                        Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
 
         public override void Activate() {
