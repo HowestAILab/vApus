@@ -12,32 +12,41 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest
-{
-    [ContextMenu(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {"Edit", "Remove", "Copy", "Cut", "Duplicate"})]
-    [Hotkeys(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D)})]
+namespace vApus.Stresstest {
+    [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
+    [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [Serializable]
-    public class Rule : LabeledBaseItem
-    {
+    public class Rule : LabeledBaseItem {
         #region Enum
 
         [Serializable]
-        public enum ValueTypes
-        {
-            [Description("String")] stringType,
-            [Description("Single character")] charType,
-            [Description("16-bit integer")] shortType,
-            [Description("32-bit integer")] intType,
-            [Description("64-bit integer")] longType,
-            [Description("Unsigned 16-bit integer")] ushortType,
-            [Description("Unsigned 32-bit integer")] uintType,
-            [Description("Unsigned 64-bit integer")] ulongType,
-            [Description("32-bit floating point")] floatType,
-            [Description("Numeric")] doubleType,
-            [Description("Decimal")] decimalType,
-            [Description("Boolean")] boolType
+        public enum ValueTypes {
+            [Description("String")]
+            stringType,
+            [Description("Single character")]
+            charType,
+            [Description("16-bit integer")]
+            shortType,
+            [Description("32-bit integer")]
+            intType,
+            [Description("64-bit integer")]
+            longType,
+            [Description("Unsigned 16-bit integer")]
+            ushortType,
+            [Description("Unsigned 32-bit integer")]
+            uintType,
+            [Description("Unsigned 64-bit integer")]
+            ulongType,
+            [Description("32-bit floating point")]
+            floatType,
+            [Description("Numeric")]
+            doubleType,
+            [Description("Decimal")]
+            decimalType,
+            [Description("Boolean")]
+            boolType
         }
 
         #endregion
@@ -57,24 +66,21 @@ namespace vApus.Stresstest
         [SavableCloneable, PropertyControl(0)]
         [Description("The actual rule. [http://www.google.com/search?q=regular+expressions]"),
          DisplayName("Regular Expression")]
-        public string RegExp
-        {
+        public string RegExp {
             get { return _regExp; }
             set { _regExp = value; }
         }
 
         [SavableCloneable, PropertyControl(1)]
         [Description("Ignore case for the regular expression."), DisplayName("Ignore Case")]
-        public bool IgnoreCase
-        {
+        public bool IgnoreCase {
             get { return _ignoreCase; }
             set { _ignoreCase = value; }
         }
 
         [SavableCloneable, PropertyControl(2)]
         [Description("The input must equal or castable/parsable to the selected type."), DisplayName("Value Type")]
-        public ValueTypes ValueType
-        {
+        public ValueTypes ValueType {
             get { return _valueType; }
             set { _valueType = value; }
         }
@@ -83,16 +89,14 @@ namespace vApus.Stresstest
         [Description(
             "If implemented, textual input will be displayed using the password character. Where this is implemented encryption is always used."
             ), DisplayName("Use Password Character")]
-        public bool UsePasswordChar
-        {
+        public bool UsePasswordChar {
             get { return _usePasswordChar; }
             set { _usePasswordChar = value; }
         }
 
         [SavableCloneable, PropertyControl(4)]
         [Description("Describes this rule.")]
-        public virtual string Description
-        {
+        public virtual string Description {
             get { return _description; }
             set { _description = value; }
         }
@@ -105,16 +109,12 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        internal LexicalResult TryLexicalAnaysis(string input, Parameters parameters, out ASTNode output)
-        {
+        internal LexicalResult TryLexicalAnaysis(string input, Parameters parameters, out ASTNode output) {
             output = new ASTNode(parameters);
             output.Value = input;
-            try
-            {
+            try {
                 CastOrParseInputToType(input, _valueType);
-            }
-            catch
-            {
+            } catch {
                 output.Error = string.Format("The input could not be parsed to {0}.", _valueType);
                 return LexicalResult.Error;
             }
@@ -127,75 +127,68 @@ namespace vApus.Stresstest
             return LexicalResult.Error;
         }
 
-        private object CastOrParseInputToType(object input, ValueTypes valueType)
-        {
-            try
-            {
-                switch (valueType)
-                {
+        private object CastOrParseInputToType(object input, ValueTypes valueType) {
+            try {
+                switch (valueType) {
                     case ValueTypes.boolType:
-                        return (input is bool) ? (bool) input : bool.Parse(input.ToString());
+                        return (input is bool) ? (bool)input : bool.Parse(input.ToString());
                     case ValueTypes.charType:
-                        return (input is char) ? (char) input : char.Parse(input.ToString());
+                        return (input is char) ? (char)input : char.Parse(input.ToString());
                     case ValueTypes.decimalType:
-                        return (input is decimal) ? (decimal) input : decimal.Parse(input.ToString());
+                        return (input is decimal) ? (decimal)input : decimal.Parse(input.ToString());
                     case ValueTypes.doubleType:
-                        return (input is double) ? (double) input : double.Parse(input.ToString());
+                        return (input is double) ? (double)input : double.Parse(input.ToString());
                     case ValueTypes.floatType:
-                        return (input is float) ? (float) input : float.Parse(input.ToString());
+                        return (input is float) ? (float)input : float.Parse(input.ToString());
                     case ValueTypes.intType:
-                        return (input is int) ? (int) input : int.Parse(input.ToString());
+                        return (input is int) ? (int)input : int.Parse(input.ToString());
                     case ValueTypes.longType:
-                        return (input is long) ? (long) input : long.Parse(input.ToString());
+                        return (input is long) ? (long)input : long.Parse(input.ToString());
                     case ValueTypes.shortType:
-                        return (input is short) ? (short) input : short.Parse(input.ToString());
+                        return (input is short) ? (short)input : short.Parse(input.ToString());
                     case ValueTypes.stringType:
                         return input.ToString();
                     case ValueTypes.uintType:
-                        return (input is uint) ? (uint) input : uint.Parse(input.ToString());
+                        return (input is uint) ? (uint)input : uint.Parse(input.ToString());
                     case ValueTypes.ulongType:
-                        return (input is ulong) ? (ulong) input : ulong.Parse(input.ToString());
+                        return (input is ulong) ? (ulong)input : ulong.Parse(input.ToString());
                     case ValueTypes.ushortType:
-                        return (input is ushort) ? (ushort) input : ushort.Parse(input.ToString());
+                        return (input is ushort) ? (ushort)input : ushort.Parse(input.ToString());
                     default:
                         return input;
                 }
-            }
-            catch
-            {
+            } catch {
                 throw new Exception(
                     "Please make sure the \"Value to Check Against\" is castable/parsable to the selected \"Value Type\".");
             }
         }
 
-        public static Type GetType(ValueTypes valueType)
-        {
-            switch (valueType)
-            {
+        public static Type GetType(ValueTypes valueType) {
+            switch (valueType) {
                 case ValueTypes.stringType:
-                    return typeof (string);
+                    return typeof(string);
                 case ValueTypes.charType:
-                    return typeof (char);
+                    return typeof(char);
                 case ValueTypes.shortType:
-                    return typeof (short);
+                    return typeof(short);
                 case ValueTypes.intType:
-                    return typeof (int);
+                    return typeof(int);
                 case ValueTypes.longType:
-                    return typeof (long);
+                    return typeof(long);
                 case ValueTypes.ushortType:
-                    return typeof (ushort);
+                    return typeof(ushort);
                 case ValueTypes.uintType:
-                    return typeof (uint);
+                    return typeof(uint);
                 case ValueTypes.ulongType:
-                    return typeof (ulong);
+                    return typeof(ulong);
                 case ValueTypes.floatType:
-                    return typeof (float);
+                    return typeof(float);
                 case ValueTypes.doubleType:
-                    return typeof (double);
+                    return typeof(double);
                 case ValueTypes.decimalType:
-                    return typeof (decimal);
+                    return typeof(decimal);
                 case ValueTypes.boolType:
-                    return typeof (bool);
+                    return typeof(bool);
                 default:
                     return null;
             }
