@@ -1222,7 +1222,7 @@ namespace vApus.Util {
         ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         /// <param name="control"></param>
-        public void Select(Control control, Hotkeys hotkeys) {
+        public void Select(Control control, Hotkeys hotkeys = Hotkeys.None) {
             if (control != null)
                 SelectControl(control, hotkeys);
         }

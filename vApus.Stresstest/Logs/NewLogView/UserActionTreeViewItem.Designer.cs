@@ -34,16 +34,16 @@
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.picActionize = new System.Windows.Forms.PictureBox();
-            this.picValid = new System.Windows.Forms.PictureBox();
-            this.lblUserAction = new System.Windows.Forms.Label();
             this.picPin = new System.Windows.Forms.PictureBox();
             this.nudOccurance = new System.Windows.Forms.NumericUpDown();
+            this.picValid = new System.Windows.Forms.PictureBox();
+            this.lblUserAction = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picActionize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -98,30 +98,6 @@
             this.picActionize.Visible = false;
             this.picActionize.Click += new System.EventHandler(this._Enter);
             // 
-            // picValid
-            // 
-            this.picValid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picValid.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picValid.Location = new System.Drawing.Point(579, 6);
-            this.picValid.Name = "picValid";
-            this.picValid.Size = new System.Drawing.Size(16, 16);
-            this.picValid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.picValid.TabIndex = 20;
-            this.picValid.TabStop = false;
-            this.picValid.Visible = false;
-            // 
-            // lblUserAction
-            // 
-            this.lblUserAction.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblUserAction.AutoEllipsis = true;
-            this.lblUserAction.Location = new System.Drawing.Point(3, 6);
-            this.lblUserAction.MinimumSize = new System.Drawing.Size(0, 13);
-            this.lblUserAction.Name = "lblUserAction";
-            this.lblUserAction.Size = new System.Drawing.Size(420, 13);
-            this.lblUserAction.TabIndex = 19;
-            this.lblUserAction.Click += new System.EventHandler(this._Enter);
-            // 
             // picPin
             // 
             this.picPin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -151,6 +127,7 @@
             this.nudOccurance.Name = "nudOccurance";
             this.nudOccurance.Size = new System.Drawing.Size(50, 20);
             this.nudOccurance.TabIndex = 23;
+            this.nudOccurance.TabStop = false;
             this.toolTip.SetToolTip(this.nudOccurance, "Set how many times this user action occures in the log.\r\nAction and Log Entry Dis" +
         "tribution in the stresstest determines how this value will be used.");
             this.nudOccurance.Value = new decimal(new int[] {
@@ -160,6 +137,29 @@
             0});
             this.nudOccurance.Visible = false;
             this.nudOccurance.ValueChanged += new System.EventHandler(this.nudOccurance_ValueChanged);
+            // 
+            // picValid
+            // 
+            this.picValid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picValid.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picValid.Location = new System.Drawing.Point(579, 6);
+            this.picValid.Name = "picValid";
+            this.picValid.Size = new System.Drawing.Size(16, 16);
+            this.picValid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.picValid.TabIndex = 20;
+            this.picValid.TabStop = false;
+            this.picValid.Visible = false;
+            // 
+            // lblUserAction
+            // 
+            this.lblUserAction.AutoEllipsis = true;
+            this.lblUserAction.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUserAction.Location = new System.Drawing.Point(3, 6);
+            this.lblUserAction.MinimumSize = new System.Drawing.Size(0, 13);
+            this.lblUserAction.Name = "lblUserAction";
+            this.lblUserAction.Size = new System.Drawing.Size(486, 16);
+            this.lblUserAction.TabIndex = 19;
+            this.lblUserAction.Click += new System.EventHandler(this._Enter);
             // 
             // UserActionTreeViewItem
             // 
@@ -179,9 +179,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picActionize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

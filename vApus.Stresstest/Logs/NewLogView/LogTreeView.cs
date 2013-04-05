@@ -21,7 +21,9 @@ namespace vApus.Stresstest {
         /// </summary>
         public event EventHandler AfterSelect;
 
-        LogTreeViewItem _logTreeViewItem;
+        private Log _log;
+        private LogTreeViewItem _logTreeViewItem;
+
         #region Properties
         /// <summary>
         ///     get all tree view items.
@@ -44,12 +46,36 @@ namespace vApus.Stresstest {
             if (IsDisposed) return;
             LockWindowUpdate(Handle.ToInt32());
             largeList.Clear();
-            _logTreeViewItem = new LogTreeViewItem(log);
+            _log = log;
+            _logTreeViewItem = new LogTreeViewItem(_log);
             _logTreeViewItem.AfterSelect += _AfterSelect;
+            _logTreeViewItem.AddUserActionClicked += _logTreeViewItem_AddUserActionClicked;
+            _logTreeViewItem.ClearUserActionsClicked += _logTreeViewItem_ClearUserActionsClicked;
             //dttvi.AddTileClicked += dttvi_AddTileClicked;
             largeList.Add(_logTreeViewItem);
 
-            //foreach (Tile tile in distributedTest.Tiles) CreateAndAddTileTreeViewItem(tile);
+            //For backwards compatibility, all loose log entries are put into a user action.
+            var newLog = new List<BaseItem>(log.Count);
+            bool newlogNeeded = false;
+            foreach (BaseItem item in log) {
+                UserAction ua = null;
+                if (item is UserAction) {
+                    ua = item as UserAction;
+                }
+                else {
+                    newlogNeeded = true;
+                    var logEntry = item as LogEntry;
+                    ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
+                    ua.AddWithoutInvokingEvent(logEntry, false);
+                }
+                newLog.Add(ua);
+            }
+
+            if (newlogNeeded) {
+                log.ClearWithoutInvokingEvent(false);
+                log.AddRangeWithoutInvokingEvent(newLog, false);
+            }
+          
             foreach (UserAction userAction in log) {
                 CreateAndAddUserActionTreeViewItem(userAction);
             }
@@ -69,11 +95,31 @@ namespace vApus.Stresstest {
 
             LockWindowUpdate(0);
         }
+
+        private void _logTreeViewItem_AddUserActionClicked(object sender, LogTreeView.AddUserActionEventArgs e) {
+            CreateAndAddUserActionTreeViewItem(e.UserAction);
+        }
+        private void _logTreeViewItem_ClearUserActionsClicked(object sender, EventArgs e) {
+            largeList.Clear();
+            largeList.Add(_logTreeViewItem);
+        }
+
         private void CreateAndAddUserActionTreeViewItem(UserAction userAction) {
-            var uatvi = new UserActionTreeViewItem(userAction);
+            var uatvi = new UserActionTreeViewItem(_log, userAction);
             uatvi.AfterSelect += _AfterSelect;
+            uatvi.DuplicateClicked += uatvi_DuplicateClicked;
+            uatvi.DeleteClicked += uatvi_DeleteClicked;
             largeList.Add(uatvi);
         }
+
+        private void uatvi_DuplicateClicked(object sender, LogTreeView.AddUserActionEventArgs e) {
+            CreateAndAddUserActionTreeViewItem(e.UserAction);
+        }
+        void uatvi_DeleteClicked(object sender, EventArgs e) {
+            largeList.Select(_logTreeViewItem);
+            largeList.Remove(sender as Control);
+        }
+
         private void _AfterSelect(object sender, EventArgs e) {
             for (int v = 0; v != largeList.ViewCount; v++)
                 for (int i = 0; i != largeList[v].Count; i++) {
@@ -98,5 +144,12 @@ namespace vApus.Stresstest {
                 }
         }
         #endregion
+
+        public class AddUserActionEventArgs : EventArgs {
+            public UserAction UserAction { get; private set; }
+            public AddUserActionEventArgs(UserAction userAction) {
+                UserAction = userAction;
+            }
+        }
     }
 }

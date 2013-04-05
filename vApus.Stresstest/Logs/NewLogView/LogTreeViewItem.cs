@@ -25,7 +25,7 @@ namespace vApus.Stresstest {
         /// </summary>
         public event EventHandler AfterSelect;
 
-        public event EventHandler AddUserActionClicked;
+        public event EventHandler<LogTreeView.AddUserActionEventArgs> AddUserActionClicked;
         public event EventHandler ClearUserActionsClicked;
 
         #endregion
@@ -81,33 +81,42 @@ namespace vApus.Stresstest {
         }
         //Update the log rule set cbo
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
-            if (sender == _log || sender == _log.LogRuleSet || sender == _logRuleSets || sender is LogRuleSet) {
-
-            }
+            if (sender == _log.LogRuleSet || sender == _logRuleSets || sender is LogRuleSet)
+                FillCboRuleSet();
         }
         private void FillCboRuleSet() {
             try {
                 if (!IsDisposed) {
+                    cboRuleSet.SelectedIndexChanged -= cboRuleSet_SelectedIndexChanged;
                     cboRuleSet.Items.Clear();
                     if (_logRuleSets != null)
                         foreach (LogRuleSet ruleSet in _logRuleSets)
                             cboRuleSet.Items.Add(ruleSet);
 
-                    if (cboRuleSet.Items.Count != 0) cboRuleSet.SelectedIndex = 0;
+                    if (_log != null && _log.LogRuleSet != null && cboRuleSet.Items.Contains(_log.LogRuleSet))
+                        cboRuleSet.SelectedItem = _log.LogRuleSet;
+                    else if (cboRuleSet.Items.Count != 0) cboRuleSet.SelectedIndex = 0;
+                    cboRuleSet.SelectedIndexChanged += cboRuleSet_SelectedIndexChanged;
                 }
             } catch { }
         }
         private void cboRuleSet_SelectedIndexChanged(object sender, EventArgs e) {
-
+            if (!IsDisposed && cboRuleSet.Items.Count != 0 && _logRuleSets != null)
+                try {
+                    _log.LogRuleSet = _logRuleSets[cboRuleSet.SelectedIndex] as LogRuleSet;
+                    _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                } catch { }
         }
 
         private void picAddUserAction_Click(object sender, EventArgs e) {
-            Focus();
+            var ua = new UserAction();
+            _log.Add(ua);
             if (AddUserActionClicked != null)
-                AddUserActionClicked(this, null);
+                AddUserActionClicked(this, new LogTreeView.AddUserActionEventArgs(ua));
         }
         private void picClearUserActions_Click(object sender, EventArgs e) {
             Focus();
+            _log.Clear();
             if (ClearUserActionsClicked != null)
                 ClearUserActionsClicked(this, null);
         }
@@ -117,8 +126,8 @@ namespace vApus.Stresstest {
         }
 
         private void _KeyUp(object sender, KeyEventArgs e) {
-            if (_ctrl && e.KeyCode == Keys.I && AddUserActionClicked != null)
-                AddUserActionClicked(this, null);
+            if (_ctrl && e.KeyCode == Keys.I)
+                picAddUserAction_Click(picAddUserAction, null);
         }
 
         #endregion

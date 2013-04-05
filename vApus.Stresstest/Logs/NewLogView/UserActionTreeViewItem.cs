@@ -26,7 +26,7 @@ namespace vApus.Stresstest {
         public event EventHandler AfterSelect;
 
         public event EventHandler ActionizeClicked;
-        public event EventHandler DuplicateClicked;
+        public event EventHandler<LogTreeView.AddUserActionEventArgs> DuplicateClicked;
         public event EventHandler DeleteClicked;
 
         #endregion
@@ -39,24 +39,31 @@ namespace vApus.Stresstest {
         ///     Check if the ctrl key is pressed.
         /// </summary>
         private bool _ctrl;
+        private Log _log;
         private UserAction _userAction;
-
         #endregion
+
+        public UserAction UserAction {
+            get { return _userAction; }
+        }
 
         #region Constructors
 
         public UserActionTreeViewItem() {
             InitializeComponent();
         }
-        public UserActionTreeViewItem(UserAction userAction)
+        public UserActionTreeViewItem(Log log, UserAction userAction)
             : this() {
+                _log = log;
             _userAction = userAction;
-            lblUserAction.Text = _userAction.ToString(); // +" (" + _userAction.Count + ")";
+            SetLabel();
         }
         #endregion
 
         #region Functions
-
+        public void SetLabel() {
+            lblUserAction.Text = _userAction.ToString(); // +" (" + _userAction.Count + ")";
+        }
         public void Unfocus() {
             BackColor = Color.Transparent;
             SetVisibleControls();
@@ -71,6 +78,13 @@ namespace vApus.Stresstest {
 
             if (BackColor != SystemColors.Control)
                 BackColor = (((float)_userAction.Index % 2) == 0) ? _secundaryColor : _primaryColor;
+
+            Control ctrl = nudOccurance;
+            if (picActionize.Visible) ctrl = picActionize;
+
+            int width = ctrl.Left - lblUserAction.Left;
+            if (width != lblUserAction.Width)
+                lblUserAction.Width = width;
         }
 
         public void SetVisibleControls() {
@@ -95,10 +109,10 @@ namespace vApus.Stresstest {
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
             else if (_ctrl) {
-                if (e.KeyCode == Keys.R && DeleteClicked != null)
-                    DeleteClicked(this, null);
-                else if (e.KeyCode == Keys.D && DuplicateClicked != null)
-                    DuplicateClicked(this, null);
+                if (e.KeyCode == Keys.R)
+                    picDelete_Click(picDelete, null);
+                else if (e.KeyCode == Keys.D)
+                    picDuplicate_Click(picDuplicate, null);
             }
         }
 
@@ -107,15 +121,17 @@ namespace vApus.Stresstest {
         }
 
         private void picDuplicate_Click(object sender, EventArgs e) {
-            if (DuplicateClicked != null) DuplicateClicked(this, null);
+            var ua = _userAction.Clone();
+            _log.Add(ua);
+            if (DuplicateClicked != null) DuplicateClicked(this, new LogTreeView.AddUserActionEventArgs(ua));
         }
 
         private void picDelete_Click(object sender, EventArgs e) {
+            _log.Remove(_userAction);
             if (DeleteClicked != null) DeleteClicked(this, null);
         }
 
         private void picActionize_Click(object sender, EventArgs e) {
-            Focus();
             if (ActionizeClicked != null) ActionizeClicked(this, null);
         }
 

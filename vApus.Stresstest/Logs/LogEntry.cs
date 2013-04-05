@@ -15,6 +15,7 @@ using vApus.Util;
 namespace vApus.Stresstest {
     [DisplayName("Log Entry"), Serializable]
     public class LogEntry : LabeledBaseItem {
+
         #region Events
 
         /// <summary>

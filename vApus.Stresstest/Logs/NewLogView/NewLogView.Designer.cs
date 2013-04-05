@@ -49,11 +49,13 @@
             // 
             // split.Panel1
             // 
+            this.split.Panel1.BackColor = System.Drawing.Color.White;
             this.split.Panel1.Controls.Add(this.pnlFilter);
             this.split.Panel1.Controls.Add(this.logTreeView);
             // 
             // split.Panel2
             // 
+            this.split.Panel2.BackColor = System.Drawing.Color.White;
             this.split.Panel2.Controls.Add(this.editLog);
             this.split.Panel2.Controls.Add(this.editUserAction);
             this.split.Size = new System.Drawing.Size(1046, 595);
@@ -148,7 +150,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1046, 595);
             this.Controls.Add(this.split);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));

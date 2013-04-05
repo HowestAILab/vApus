@@ -31,28 +31,30 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditLog));
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpCapture = new System.Windows.Forms.TabPage();
-            this.label1 = new System.Windows.Forms.Label();
-            this.btnAddAction = new System.Windows.Forms.Button();
-            this.btnPauseContinue = new System.Windows.Forms.Button();
-            this.btnStartStopAndExport = new System.Windows.Forms.Button();
-            this.tpImport = new System.Windows.Forms.TabPage();
-            this.button1 = new System.Windows.Forms.Button();
-            this.btnBrowse = new System.Windows.Forms.Button();
-            this.fctxtxImport = new FastColoredTextBoxNS.FastColoredTextBox();
+            this.chkClearLogBeforeCapture = new System.Windows.Forms.CheckBox();
             this.chkDeny = new System.Windows.Forms.CheckBox();
             this.chkAllow = new System.Windows.Forms.CheckBox();
             this.dgvDeny = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvAllow = new System.Windows.Forms.DataGridView();
             this.clmIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.tpMisc = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
+            this.btnAddAction = new System.Windows.Forms.Button();
+            this.btnPauseContinue = new System.Windows.Forms.Button();
+            this.btnStartStopAndExport = new System.Windows.Forms.Button();
+            this.tpImport = new System.Windows.Forms.TabPage();
+            this.chkClearLogBeforeImport = new System.Windows.Forms.CheckBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btnBrowse = new System.Windows.Forms.Button();
+            this.fctxtxImport = new FastColoredTextBoxNS.FastColoredTextBox();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.tmrRemoveEmptyCells = new System.Windows.Forms.Timer(this.components);
             this.tc.SuspendLayout();
             this.tpCapture.SuspendLayout();
-            this.tpImport.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDeny)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAllow)).BeginInit();
+            this.tpImport.SuspendLayout();
             this.SuspendLayout();
             // 
             // tc
@@ -60,7 +62,6 @@
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpCapture);
             this.tc.Controls.Add(this.tpImport);
-            this.tc.Controls.Add(this.tpMisc);
             this.tc.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tc.ImageList = this.imageList;
             this.tc.LeftVisible = true;
@@ -74,6 +75,8 @@
             // 
             // tpCapture
             // 
+            this.tpCapture.BackColor = System.Drawing.Color.White;
+            this.tpCapture.Controls.Add(this.chkClearLogBeforeCapture);
             this.tpCapture.Controls.Add(this.chkDeny);
             this.tpCapture.Controls.Add(this.chkAllow);
             this.tpCapture.Controls.Add(this.dgvDeny);
@@ -89,7 +92,124 @@
             this.tpCapture.Size = new System.Drawing.Size(743, 582);
             this.tpCapture.TabIndex = 0;
             this.tpCapture.Text = "Capture HTTP(S)";
-            this.tpCapture.UseVisualStyleBackColor = true;
+            // 
+            // chkClearLogBeforeCapture
+            // 
+            this.chkClearLogBeforeCapture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkClearLogBeforeCapture.AutoSize = true;
+            this.chkClearLogBeforeCapture.Location = new System.Drawing.Point(9, 557);
+            this.chkClearLogBeforeCapture.Name = "chkClearLogBeforeCapture";
+            this.chkClearLogBeforeCapture.Size = new System.Drawing.Size(71, 17);
+            this.chkClearLogBeforeCapture.TabIndex = 30;
+            this.chkClearLogBeforeCapture.Text = "Clear Log";
+            this.toolTip.SetToolTip(this.chkClearLogBeforeCapture, "Check this if you want to clear the log before you start capturing.");
+            this.chkClearLogBeforeCapture.UseVisualStyleBackColor = true;
+            // 
+            // chkDeny
+            // 
+            this.chkDeny.AutoSize = true;
+            this.chkDeny.Location = new System.Drawing.Point(9, 279);
+            this.chkDeny.Name = "chkDeny";
+            this.chkDeny.Size = new System.Drawing.Size(54, 17);
+            this.chkDeny.TabIndex = 2;
+            this.chkDeny.Text = "Deny:";
+            this.toolTip.SetToolTip(this.chkDeny, "Check to use this filter.\r\nEven if an entry of the \'allow list\' is in a referer y" +
+        "ou want entries from for instance a CDN but you don\'t want entries from for inst" +
+        "ance google analytics.\r\n");
+            this.chkDeny.UseVisualStyleBackColor = true;
+            this.chkDeny.CheckedChanged += new System.EventHandler(this.chkDeny_CheckedChanged);
+            // 
+            // chkAllow
+            // 
+            this.chkAllow.AutoSize = true;
+            this.chkAllow.Location = new System.Drawing.Point(9, 52);
+            this.chkAllow.Name = "chkAllow";
+            this.chkAllow.Size = new System.Drawing.Size(54, 17);
+            this.chkAllow.TabIndex = 0;
+            this.chkAllow.Text = "Allow:";
+            this.toolTip.SetToolTip(this.chkAllow, "Check to use this filter.");
+            this.chkAllow.UseVisualStyleBackColor = true;
+            this.chkAllow.CheckedChanged += new System.EventHandler(this.chkAllow_CheckedChanged);
+            // 
+            // dgvDeny
+            // 
+            this.dgvDeny.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvDeny.BackgroundColor = System.Drawing.Color.White;
+            this.dgvDeny.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvDeny.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+            this.dgvDeny.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvDeny.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn1});
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvDeny.DefaultCellStyle = dataGridViewCellStyle6;
+            this.dgvDeny.Enabled = false;
+            this.dgvDeny.EnableHeadersVisualStyles = false;
+            this.dgvDeny.Location = new System.Drawing.Point(9, 302);
+            this.dgvDeny.Name = "dgvDeny";
+            this.dgvDeny.Size = new System.Drawing.Size(728, 195);
+            this.dgvDeny.TabIndex = 3;
+            this.dgvDeny.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellEndEdit);
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.dataGridViewTextBoxColumn1.HeaderText = "IP / (Part of a) Destination Host";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // dgvAllow
+            // 
+            this.dgvAllow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvAllow.BackgroundColor = System.Drawing.Color.White;
+            this.dgvAllow.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvAllow.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
+            this.dgvAllow.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvAllow.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.clmIP});
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvAllow.DefaultCellStyle = dataGridViewCellStyle8;
+            this.dgvAllow.Enabled = false;
+            this.dgvAllow.EnableHeadersVisualStyles = false;
+            this.dgvAllow.Location = new System.Drawing.Point(9, 75);
+            this.dgvAllow.Name = "dgvAllow";
+            this.dgvAllow.Size = new System.Drawing.Size(728, 195);
+            this.dgvAllow.TabIndex = 1;
+            this.dgvAllow.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellEndEdit);
+            // 
+            // clmIP
+            // 
+            this.clmIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.clmIP.HeaderText = "IP / (Part of a) Destination Host / (Part of a) Referer";
+            this.clmIP.Name = "clmIP";
+            this.clmIP.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
             // label1
             // 
@@ -159,6 +279,8 @@
             // 
             // tpImport
             // 
+            this.tpImport.BackColor = System.Drawing.Color.White;
+            this.tpImport.Controls.Add(this.chkClearLogBeforeImport);
             this.tpImport.Controls.Add(this.button1);
             this.tpImport.Controls.Add(this.btnBrowse);
             this.tpImport.Controls.Add(this.fctxtxImport);
@@ -166,10 +288,21 @@
             this.tpImport.Location = new System.Drawing.Point(4, 23);
             this.tpImport.Name = "tpImport";
             this.tpImport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpImport.Size = new System.Drawing.Size(743, 585);
+            this.tpImport.Size = new System.Drawing.Size(743, 582);
             this.tpImport.TabIndex = 1;
             this.tpImport.Text = "Import from Text";
-            this.tpImport.UseVisualStyleBackColor = true;
+            // 
+            // chkClearLogBeforeImport
+            // 
+            this.chkClearLogBeforeImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkClearLogBeforeImport.AutoSize = true;
+            this.chkClearLogBeforeImport.Location = new System.Drawing.Point(6, 557);
+            this.chkClearLogBeforeImport.Name = "chkClearLogBeforeImport";
+            this.chkClearLogBeforeImport.Size = new System.Drawing.Size(71, 17);
+            this.chkClearLogBeforeImport.TabIndex = 31;
+            this.chkClearLogBeforeImport.Text = "Clear Log";
+            this.toolTip.SetToolTip(this.chkClearLogBeforeImport, "Check this if you want to clear the log before you import from text.");
+            this.chkClearLogBeforeImport.UseVisualStyleBackColor = true;
             // 
             // button1
             // 
@@ -181,7 +314,7 @@
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button1.Location = new System.Drawing.Point(305, 555);
+            this.button1.Location = new System.Drawing.Point(305, 552);
             this.button1.MaximumSize = new System.Drawing.Size(9999, 24);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(54, 24);
@@ -198,7 +331,7 @@
             this.btnBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBrowse.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBrowse.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnBrowse.Location = new System.Drawing.Point(365, 555);
+            this.btnBrowse.Location = new System.Drawing.Point(365, 552);
             this.btnBrowse.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(72, 24);
@@ -222,121 +355,9 @@
             this.fctxtxImport.Paddings = new System.Windows.Forms.Padding(0);
             this.fctxtxImport.PreferredLineWidth = 65536;
             this.fctxtxImport.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.fctxtxImport.Size = new System.Drawing.Size(737, 546);
+            this.fctxtxImport.Size = new System.Drawing.Size(737, 543);
             this.fctxtxImport.TabIndex = 0;
             this.fctxtxImport.WordWrap = true;
-            // 
-            // chkDeny
-            // 
-            this.chkDeny.AutoSize = true;
-            this.chkDeny.Location = new System.Drawing.Point(9, 279);
-            this.chkDeny.Name = "chkDeny";
-            this.chkDeny.Size = new System.Drawing.Size(54, 17);
-            this.chkDeny.TabIndex = 2;
-            this.chkDeny.Text = "Deny:";
-            this.toolTip.SetToolTip(this.chkDeny, "Check to use this filter.\r\nEven if an entry of the \'allow list\' is in a referer y" +
-        "ou want entries from for instance a CDN but you don\'t want entries from for inst" +
-        "ance google analytics.\r\n");
-            this.chkDeny.UseVisualStyleBackColor = true;
-            // 
-            // chkAllow
-            // 
-            this.chkAllow.AutoSize = true;
-            this.chkAllow.Location = new System.Drawing.Point(9, 52);
-            this.chkAllow.Name = "chkAllow";
-            this.chkAllow.Size = new System.Drawing.Size(54, 17);
-            this.chkAllow.TabIndex = 0;
-            this.chkAllow.Text = "Allow:";
-            this.toolTip.SetToolTip(this.chkAllow, "Check to use this filter.");
-            this.chkAllow.UseVisualStyleBackColor = true;
-            // 
-            // dgvDeny
-            // 
-            this.dgvDeny.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvDeny.BackgroundColor = System.Drawing.Color.White;
-            this.dgvDeny.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvDeny.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
-            this.dgvDeny.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvDeny.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dataGridViewTextBoxColumn1});
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvDeny.DefaultCellStyle = dataGridViewCellStyle6;
-            this.dgvDeny.Enabled = false;
-            this.dgvDeny.EnableHeadersVisualStyles = false;
-            this.dgvDeny.Location = new System.Drawing.Point(9, 302);
-            this.dgvDeny.Name = "dgvDeny";
-            this.dgvDeny.Size = new System.Drawing.Size(728, 195);
-            this.dgvDeny.TabIndex = 3;
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.dataGridViewTextBoxColumn1.HeaderText = "IP / (Part of a) Destination Host";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // dgvAllow
-            // 
-            this.dgvAllow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvAllow.BackgroundColor = System.Drawing.Color.White;
-            this.dgvAllow.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvAllow.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
-            this.dgvAllow.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvAllow.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.clmIP});
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvAllow.DefaultCellStyle = dataGridViewCellStyle8;
-            this.dgvAllow.Enabled = false;
-            this.dgvAllow.EnableHeadersVisualStyles = false;
-            this.dgvAllow.Location = new System.Drawing.Point(9, 75);
-            this.dgvAllow.Name = "dgvAllow";
-            this.dgvAllow.Size = new System.Drawing.Size(728, 195);
-            this.dgvAllow.TabIndex = 1;
-            // 
-            // clmIP
-            // 
-            this.clmIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.clmIP.HeaderText = "IP / (Part of a) Destination Host / (Part of a) Referer";
-            this.clmIP.Name = "clmIP";
-            this.clmIP.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // tpMisc
-            // 
-            this.tpMisc.Location = new System.Drawing.Point(4, 23);
-            this.tpMisc.Name = "tpMisc";
-            this.tpMisc.Padding = new System.Windows.Forms.Padding(3);
-            this.tpMisc.Size = new System.Drawing.Size(743, 585);
-            this.tpMisc.TabIndex = 2;
-            this.tpMisc.Text = "Misc Tasks";
-            this.tpMisc.UseVisualStyleBackColor = true;
             // 
             // imageList
             // 
@@ -344,6 +365,11 @@
             this.imageList.TransparentColor = System.Drawing.Color.Transparent;
             this.imageList.Images.SetKeyName(0, "capture.png");
             this.imageList.Images.SetKeyName(1, "import.png");
+            // 
+            // tmrRemoveEmptyCells
+            // 
+            this.tmrRemoveEmptyCells.Enabled = true;
+            this.tmrRemoveEmptyCells.Tick += new System.EventHandler(this.tmrRemoveEmptyCells_Tick);
             // 
             // EditLog
             // 
@@ -356,10 +382,10 @@
             this.tc.ResumeLayout(false);
             this.tpCapture.ResumeLayout(false);
             this.tpCapture.PerformLayout();
-            this.tpImport.ResumeLayout(false);
-            this.tpImport.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDeny)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAllow)).EndInit();
+            this.tpImport.ResumeLayout(false);
+            this.tpImport.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -383,7 +409,9 @@
         private System.Windows.Forms.DataGridView dgvAllow;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmIP;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.TabPage tpMisc;
         private System.Windows.Forms.ImageList imageList;
+        private System.Windows.Forms.CheckBox chkClearLogBeforeCapture;
+        private System.Windows.Forms.CheckBox chkClearLogBeforeImport;
+        private System.Windows.Forms.Timer tmrRemoveEmptyCells;
     }
 }
