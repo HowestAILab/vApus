@@ -199,6 +199,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
         #endregion
 
+        public void DeleteResults() {
+            try {
+                _databaseActions.ExecuteSQL("drop schema " + _databaseName + ";");
+            } catch { }
+        }
+
         //SET
 
         /// <summary>
