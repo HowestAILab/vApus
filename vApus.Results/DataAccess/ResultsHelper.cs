@@ -1356,7 +1356,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             object headers = monitorRow.ItemArray[2];
 
                             var monitorResults = _databaseActions.GetDataTable(string.Format("Select TimeStamp, Value From MonitorResults WHERE MonitorId={0};", monitorId));
-                            var monitorValues = new Dictionary<DateTime, float[]>(monitorResults.Rows.Count);
+                            var monitorValues = new List<KeyValuePair<DateTime, float[]>>(monitorResults.Rows.Count);
                             foreach (DataRow monitorResultsRow in monitorResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
@@ -1381,7 +1381,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                                         values[l] = float.Parse(splittedValue[l].Trim());
                                     }
-                                    monitorValues.Add(timeStamp, values);
+                                    monitorValues.Add(new KeyValuePair<DateTime, float[]>(timeStamp, values));
                                 }
                             }
 
@@ -1404,17 +1404,18 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         /// </summary>
         /// <param name="monitorValues"></param>
         /// <returns></returns>
-        private float[] GetAverageMonitorResults(CancellationToken cancellationToken, Dictionary<DateTime, float[]> monitorValues) {
+        private float[] GetAverageMonitorResults(CancellationToken cancellationToken, List<KeyValuePair<DateTime, float[]>> monitorValues) {
             var averageMonitorResults = new float[0];
             if (monitorValues.Count != 0) {
                 //Average divider
                 int valueCount = monitorValues.Count;
                 averageMonitorResults = new float[valueCount];
 
-                foreach (var key in monitorValues.Keys) {
+                foreach (var kvp in monitorValues) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    var floats = monitorValues[key];
+                    var timeStamp = kvp.Key;
+                    var floats = kvp.Value;
 
                     // The averages length must be the same as the floats length.
                     if (averageMonitorResults.Length != floats.Length) averageMonitorResults = new float[floats.Length];
@@ -1468,7 +1469,10 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                         var columns = new List<string>();
                         columns.AddRange("Monitor", "Timestamp");
-                        columns.AddRange(headers);
+
+                        int headerIndex = 1;
+                        foreach (string header in headers)
+                            columns.Add((headerIndex++) + ") " + header);
 
                         var monitorResults = CreateEmptyDataTable("MonitorResults", "Stresstest", columns.ToArray());
 
