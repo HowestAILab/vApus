@@ -178,7 +178,6 @@ namespace vApus.Util {
     internal static class NativeMethods {
         [DllImport("WinInet.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool InternetSetOption(IntPtr hInternet, InternetOption dwOption, IntPtr lpBuffer,
-                                                    int dwBufferLength);
+        public static extern bool InternetSetOption(IntPtr hInternet, InternetOption dwOption, IntPtr lpBuffer, int dwBufferLength);
     }
 }

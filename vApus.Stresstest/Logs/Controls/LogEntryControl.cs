@@ -83,7 +83,7 @@ namespace vApus.Stresstest {
         public LogEntryControl(LogEntry logEntry) {
             InitializeComponent();
             _logEntry = logEntry;
-            _logEntry.LexicalResultChanged += _logEntry_LexicalResultChanged;
+            //  _logEntry.LexicalResultChanged += _logEntry_LexicalResultChanged;
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
             if (_logEntry.LogRuleSet != null && !_logEntry.LogRuleSet.IsEmpty)

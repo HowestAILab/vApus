@@ -24,6 +24,9 @@ namespace vApus.Stresstest {
         private Log _log;
         private LogTreeViewItem _logTreeViewItem;
 
+        private UserActionTreeViewItem _focussedUserAction = null;
+
+
         #region Properties
         /// <summary>
         ///     get all tree view items.
@@ -42,9 +45,13 @@ namespace vApus.Stresstest {
         }
 
         #region Functions
-        public void SetLog(Log log) {
+        public void SetLog(Log log, UserAction focus = null) {
             if (IsDisposed) return;
             LockWindowUpdate(Handle.ToInt32());
+            var selection = largeList.BeginOfSelection;
+            if (selection.Key == -1 || selection.Value == -1)
+                selection = new KeyValuePair<int, int>(0, 0);
+
             largeList.Clear();
             _log = log;
             _logTreeViewItem = new LogTreeViewItem(_log);
@@ -61,8 +68,7 @@ namespace vApus.Stresstest {
                 UserAction ua = null;
                 if (item is UserAction) {
                     ua = item as UserAction;
-                }
-                else {
+                } else {
                     newlogNeeded = true;
                     var logEntry = item as LogEntry;
                     ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
@@ -75,9 +81,12 @@ namespace vApus.Stresstest {
                 log.ClearWithoutInvokingEvent(false);
                 log.AddRangeWithoutInvokingEvent(newLog, false);
             }
-          
+
+            _focussedUserAction = null;
             foreach (UserAction userAction in log) {
-                CreateAndAddUserActionTreeViewItem(userAction);
+                var uatvi = CreateAndAddUserActionTreeViewItem(userAction);
+
+                if (uatvi.UserAction == focus) _focussedUserAction = uatvi;
             }
 
             //SetGui();
@@ -93,6 +102,16 @@ namespace vApus.Stresstest {
 
             //if (!selected) dttvi.Select();
 
+            if (largeList.ViewCount <= selection.Key || largeList[selection.Key].Count <= selection.Value)
+                selection = new KeyValuePair<int, int>(0, 0);
+            largeList.Select(selection);
+
+            var selected = largeList.Selection[0];
+            if (selected is LogTreeViewItem)
+                (selected as LogTreeViewItem).Focus();
+            else
+                (selected as UserActionTreeViewItem).Focus();
+
             LockWindowUpdate(0);
         }
 
@@ -104,12 +123,13 @@ namespace vApus.Stresstest {
             largeList.Add(_logTreeViewItem);
         }
 
-        private void CreateAndAddUserActionTreeViewItem(UserAction userAction) {
+        private UserActionTreeViewItem CreateAndAddUserActionTreeViewItem(UserAction userAction) {
             var uatvi = new UserActionTreeViewItem(_log, userAction);
             uatvi.AfterSelect += _AfterSelect;
             uatvi.DuplicateClicked += uatvi_DuplicateClicked;
             uatvi.DeleteClicked += uatvi_DeleteClicked;
             largeList.Add(uatvi);
+            return uatvi;
         }
 
         private void uatvi_DuplicateClicked(object sender, LogTreeView.AddUserActionEventArgs e) {
@@ -121,6 +141,7 @@ namespace vApus.Stresstest {
         }
 
         private void _AfterSelect(object sender, EventArgs e) {
+            _focussedUserAction = null;
             for (int v = 0; v != largeList.ViewCount; v++)
                 for (int i = 0; i != largeList[v].Count; i++) {
                     var ctrl = largeList[v][i];
@@ -131,16 +152,18 @@ namespace vApus.Stresstest {
                             (ctrl as UserActionTreeViewItem).Unfocus();
                     }
                 }
-
-            if (AfterSelect != null) 
+            largeList.Select(sender as Control);
+            if (AfterSelect != null)
                 AfterSelect(sender, e);
         }
         public void SetGui() {
+            if (_focussedUserAction != null) _focussedUserAction.Focus();
+
             for (int v = 0; v != largeList.ViewCount; v++)
                 for (int i = 0; i != largeList[v].Count; i++) {
                     var ctrl = largeList[v][i];
-                        if (ctrl != _logTreeViewItem)
-                            (ctrl as UserActionTreeViewItem).SetVisibleControls();
+                    if (ctrl != _logTreeViewItem)
+                        (ctrl as UserActionTreeViewItem).SetVisibleControls();
                 }
         }
         #endregion

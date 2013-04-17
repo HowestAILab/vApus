@@ -70,7 +70,7 @@ namespace vApus.Stresstest {
             fastColoredTextBoxEdit.Text = _logEntry.LogEntryString;
             fastColoredTextBoxEdit.TextChangedDelayed += fastColoredTextBoxEdit_TextChangedDelayed;
 
-            fastColoredTextBoxAsImported.Text = _logEntry.LogEntryStringAsImported;
+           // fastColoredTextBoxAsImported.Text = _logEntry.LogEntryStringAsImported;
 
 
             if (_logEntry.Parent is UserAction)

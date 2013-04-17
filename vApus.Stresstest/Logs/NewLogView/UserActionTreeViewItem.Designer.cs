@@ -141,14 +141,13 @@
             // picValid
             // 
             this.picValid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picValid.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picValid.Location = new System.Drawing.Point(579, 6);
             this.picValid.Name = "picValid";
             this.picValid.Size = new System.Drawing.Size(16, 16);
             this.picValid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picValid.TabIndex = 20;
             this.picValid.TabStop = false;
-            this.picValid.Visible = false;
+            this.picValid.Click += new System.EventHandler(this._Enter);
             // 
             // lblUserAction
             // 

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class NewLogView : BaseSolutionComponentView {
@@ -28,9 +29,14 @@ namespace vApus.Stresstest {
                 HandleCreated += NewLogView_HandleCreated;
         }
 
-        void NewLogView_HandleCreated(object sender, EventArgs e) {
+        private void NewLogView_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= NewLogView_HandleCreated;
+            _log.LogRuleSet.LogRuleSetChanged += LogRuleSet_LogRuleSetChanged;
             SetLog();
+        }
+        private void LogRuleSet_LogRuleSetChanged(object sender, EventArgs e) {
+            SetLog();
+            //Select the same tvwi
         }
         private void SetLog() {
             logTreeView.SetLog(_log);
@@ -49,10 +55,13 @@ namespace vApus.Stresstest {
                 editUserAction.SetLogAndUserAction(_log, sender as UserActionTreeViewItem);
             }
         }
-
+        private void editUserAction_UserActionMoved(object sender, EventArgs e) {
+            tmrRefreshGui.Stop();
+            logTreeView.SetLog(_log, (sender as UserActionTreeViewItem).UserAction);
+            tmrRefreshGui.Start();
+        }
         private void tmrRefreshGui_Tick(object sender, EventArgs e) {
             logTreeView.SetGui();
         }
-       
     }
 }

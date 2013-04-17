@@ -38,9 +38,10 @@ namespace vApus.Stresstest {
         /// </summary>
         private bool _ctrl;
         private readonly Log _log;
-        private bool _testStarted;
 
         private LogRuleSets _logRuleSets;
+
+        private static Color _selectedColor = Color.FromArgb(255, 240, 240, 240);
         #endregion
 
         #region Constructor
@@ -64,9 +65,12 @@ namespace vApus.Stresstest {
         public void Unfocus() {
             BackColor = Color.Transparent;
         }
-
+        public new void Focus() {
+            base.Focus();
+            BackColor = _selectedColor;
+        }
         private void _Enter(object sender, EventArgs e) {
-            BackColor = SystemColors.Control;
+            BackColor = _selectedColor;
             if (AfterSelect != null)
                 AfterSelect(this, null);
         }
@@ -74,6 +78,12 @@ namespace vApus.Stresstest {
             _logRuleSets = Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets)) as LogRuleSets;
             FillCboRuleSet();
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+            picValid.Image = _log.LexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
+            _log.LexicalResultChanged += _log_LexicalResultChanged;
+        }
+
+        private void _log_LexicalResultChanged(object sender, Log.LexicalResultsChangedEventArgs e) {
+            picValid.Image = _log.LexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
         }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
@@ -104,6 +114,7 @@ namespace vApus.Stresstest {
             if (!IsDisposed && cboRuleSet.Items.Count != 0 && _logRuleSets != null)
                 try {
                     _log.LogRuleSet = _logRuleSets[cboRuleSet.SelectedIndex] as LogRuleSet;
+                    _log.ApplyLogRuleSet();
                     _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 } catch { }
         }

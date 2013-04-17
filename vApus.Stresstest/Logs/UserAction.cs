@@ -15,18 +15,19 @@ using vApus.Util;
 namespace vApus.Stresstest {
     [DisplayName("User Action"), Serializable]
     public class UserAction : LabeledBaseItem {
+
         #region Fields
         private int _occurance = 1;
         private bool _pinned;
+        [field:NonSerialized]
+        private List<string> _logEntryStringsAsImported = new List<string>();
         #endregion
 
         #region Properties
 
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description(
-            "How many times this user action occures in the log. Action and Log Entry Distribution in the stresstest determines how this value will be used."
-            )]
+        [Description("How many times this user action occures in the log. Action and Log Entry Distribution in the stresstest determines how this value will be used.")]
         public int Occurance {
             get { return _occurance; }
             set {
@@ -43,6 +44,16 @@ namespace vApus.Stresstest {
             get { return _pinned; }
             set { _pinned = value; }
         }
+
+
+        [ReadOnly(true)]
+        [SavableCloneable]
+        [DisplayName("Log Entry Strings as Imported")]
+        public List<string> LogEntryStringsAsImported {
+            get { return _logEntryStringsAsImported; }
+            set { _logEntryStringsAsImported = value; }
+        }
+
         #endregion
 
         #region Constructors
@@ -80,6 +91,7 @@ namespace vApus.Stresstest {
             userAction.SetParent(Parent, false);
             userAction.Occurance = _occurance;
             userAction.Pinned = _pinned;
+            userAction.LogEntryStringsAsImported = _logEntryStringsAsImported;
 
             foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(), false);
 

@@ -747,6 +747,7 @@
     <None Include="Resources\Parallel.png" />
     <None Include="Resources\picErrors.Image.png" />
     <None Include="Resources\find.png" />
+    <None Include="Resources\blank.png" />
     <Content Include="Resources\UserAction.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

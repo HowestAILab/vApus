@@ -1257,7 +1257,7 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="index"></param>
         /// <param name="hotkeys"></param>
-        public void Select(KeyValuePair<int, int> index, Hotkeys hotkeys) {
+        public void Select(KeyValuePair<int, int> index, Hotkeys hotkeys = Hotkeys.None) {
             SelectControl(_controls[index.Key][index.Value], hotkeys);
         }
 

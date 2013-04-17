@@ -126,7 +126,6 @@
             // picValid
             // 
             this.picValid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picValid.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picValid.Location = new System.Drawing.Point(514, 10);
             this.picValid.Margin = new System.Windows.Forms.Padding(0);
             this.picValid.Name = "picValid";
@@ -134,7 +133,6 @@
             this.picValid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picValid.TabIndex = 36;
             this.picValid.TabStop = false;
-            this.toolTip.SetToolTip(this.picValid, "Clear Slaves");
             this.picValid.Click += new System.EventHandler(this._Enter);
             // 
             // label2

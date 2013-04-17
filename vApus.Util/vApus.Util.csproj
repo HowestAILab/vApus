@@ -199,6 +199,7 @@
     <Compile Include="CompilerUnit.cs" />
     <Compile Include="CodeEditing\XMLTextStyle.cs" />
     <Compile Include="CodeEditing\CSharpTextStyle.cs" />
+    <Compile Include="ControlsAndPanels\DataGridViewImageCellBlank.cs" />
     <Compile Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -296,6 +296,14 @@ namespace vApus.SolutionTree {
             }
         }
 
+        public void Insert(int index, BaseItem item) {
+            InsertWithoutInvokingEvent(index, item);
+
+            //Added one
+            if (item.ShowInGui)
+                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
+        }
+
         /// <summary>
         ///     Use "added, true"
         /// </summary>

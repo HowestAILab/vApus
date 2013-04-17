@@ -21,6 +21,17 @@ namespace vApus.Stresstest {
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     public class Log : LabeledBaseItem, ISerializable {
+
+        #region Events
+
+        /// <summary>
+        ///     This event is used in a control, this makes sure that trying to serialize the control where this event is used will not happen.
+        /// </summary>
+        [field: NonSerialized] //This makes sure that trying to serialize the control where this event is used will not happen.
+        internal event EventHandler<LexicalResultsChangedEventArgs> LexicalResultChanged;
+
+        #endregion
+
         #region Fields
 
         private static readonly object _lock = new object();
@@ -153,16 +164,13 @@ namespace vApus.Stresstest {
 
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            LogRuleSet =
-                GetNextOrEmptyChild(typeof(LogRuleSet),
-                                    Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+            LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
             _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
         }
 
         private void _logRuleSet_ParentIsNull(object sender, EventArgs e) {
             if (_logRuleSet == sender)
-                LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+                LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
 
         public override void Activate() {
@@ -175,11 +183,17 @@ namespace vApus.Stresstest {
         /// </summary>
         public void ApplyLogRuleSet() {
             _lexicalResult = LexicalResult.OK;
+            var logEntriesWithErrors = new List<LogEntry>();
             foreach (LogEntry logEntry in GetAllLogEntries()) {
                 logEntry.ApplyLogRuleSet();
-                if (logEntry.LexicalResult == LexicalResult.Error)
+                if (logEntry.LexicalResult == LexicalResult.Error) {
                     _lexicalResult = LexicalResult.Error;
+                    logEntriesWithErrors.Add(logEntry);
+                }
             }
+
+            if (LexicalResultChanged != null)
+                LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrors));
         }
 
         /// <summary>
@@ -228,14 +242,9 @@ namespace vApus.Stresstest {
 
             foreach (BaseItem item in this)
                 if (item is UserAction)
-                    foreach (
-                        StringTree ps in
-                            (item as UserAction).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope))
-                        parameterizedStructure.Add(ps);
+                    foreach (StringTree ps in (item as UserAction).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope)) parameterizedStructure.Add(ps);
                 else
-                    parameterizedStructure.Add((item as LogEntry).GetParameterizedStructure(b, e,
-                                                                                            chosenNextValueParametersForLScope,
-                                                                                            new HashSet<BaseParameter>()));
+                    parameterizedStructure.Add((item as LogEntry).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope, new HashSet<BaseParameter>()));
 
             return parameterizedStructure;
         }
@@ -262,31 +271,22 @@ namespace vApus.Stresstest {
         /// <param name="oldAndNewIndices"></param>
         /// <param name="oldAndNewBeginTokenDelimiter"></param>
         /// <param name="oldAndNewEndTokenDelimiter"></param>
-        public void SynchronizeTokens(Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices,
-                                      KeyValuePair<string, string> oldAndNewBeginTokenDelimiter,
-                                      KeyValuePair<string, string> oldAndNewEndTokenDelimiter) {
+        public void SynchronizeTokens(Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices, KeyValuePair<string, string> oldAndNewBeginTokenDelimiter,
+            KeyValuePair<string, string> oldAndNewEndTokenDelimiter) {
             //Synchronize only if needed.
             if (oldAndNewIndices.Count == 0)
                 return;
 
             var oldAndNewTokens = new Dictionary<string, string>();
 
-            var scopeIdentifiers = new[]
-                {
-                    ASTNode.LOG_PARAMETER_SCOPE,
-                    ASTNode.USER_ACTION_PARAMETER_SCOPE,
-                    ASTNode.LOG_ENTRY_PARAMETER_SCOPE,
-                    ASTNode.LEAF_NODE_PARAMETER_SCOPE,
-                    ASTNode.ALWAYS_PARAMETER_SCOPE
-                };
+            var scopeIdentifiers = new[] { ASTNode.LOG_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE, 
+                ASTNode.LOG_ENTRY_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.ALWAYS_PARAMETER_SCOPE };
 
             foreach (string scopeIdentifier in scopeIdentifiers)
                 foreach (BaseParameter parameter in oldAndNewIndices.Keys) {
                     KeyValuePair<int, int> kvp = oldAndNewIndices[parameter];
-                    string oldToken = oldAndNewBeginTokenDelimiter.Key + scopeIdentifier + kvp.Key +
-                                      oldAndNewEndTokenDelimiter.Key;
-                    string newToken = oldAndNewBeginTokenDelimiter.Value + scopeIdentifier + kvp.Value +
-                                      oldAndNewEndTokenDelimiter.Value;
+                    string oldToken = oldAndNewBeginTokenDelimiter.Key + scopeIdentifier + kvp.Key + oldAndNewEndTokenDelimiter.Key;
+                    string newToken = oldAndNewBeginTokenDelimiter.Value + scopeIdentifier + kvp.Value + oldAndNewEndTokenDelimiter.Value;
 
                     oldAndNewTokens.Add(oldToken, newToken);
                 }
@@ -298,33 +298,6 @@ namespace vApus.Stresstest {
             }
 
             InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-
-        /// <summary>
-        ///     Used for redetermining tokens
-        /// </summary>
-        /// <param name="beginTokenDelimiter"></param>
-        /// <param name="endTokenDelimiter"></param>
-        /// <param name="replacement">Will be prefixed with begin and end</param>
-        public string ReplaceTokenDelimitersInLogEntryStringAsImported(string beginTokenDelimiter,
-                                                                       string endTokenDelimiter) {
-            string replacement = null;
-
-        Replace:
-            replacement = StringUtil.GenerateRandomName(5);
-            foreach (LogEntry entry in GetAllLogEntries())
-                if (entry.LogEntryStringAsImported.Contains(replacement))
-                    goto Replace;
-
-            string begin = "begin" + replacement;
-            string end = "end" + replacement;
-            foreach (LogEntry entry in GetAllLogEntries())
-                entry.LogEntryStringAsImported =
-                    entry.LogEntryStringAsImported.Replace(beginTokenDelimiter, begin).Replace(endTokenDelimiter, end);
-
-            InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-
-            return replacement;
         }
 
         public Log Clone(bool cloneChildren = true) {
@@ -347,5 +320,12 @@ namespace vApus.Stresstest {
         }
 
         #endregion
+
+        public class LexicalResultsChangedEventArgs : EventArgs {
+            public List<LogEntry> LogEntriesWithErrors { get; private set; }
+            public LexicalResultsChangedEventArgs(List<LogEntry> logEntriesWithErrors) {
+                LogEntriesWithErrors = logEntriesWithErrors;
+            }
+        }
     }
 }

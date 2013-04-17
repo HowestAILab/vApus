@@ -15,17 +15,6 @@ using vApus.Util;
 namespace vApus.Stresstest {
     [DisplayName("Log Entry"), Serializable]
     public class LogEntry : LabeledBaseItem {
-
-        #region Events
-
-        /// <summary>
-        ///     This event is used in a control, this makes sure that trying to serialize the control where this event is used will not happen.
-        /// </summary>
-        [field: NonSerialized] //This makes sure that trying to serialize the control where this event is used will not happen.
-        internal event EventHandler LexicalResultChanged;
-
-        #endregion
-
         #region Fields
 
         private static readonly char[] _beginParameterTokenDelimiterCanditates = new[] { '{', '<', '[', '(', '\\', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
@@ -60,13 +49,13 @@ namespace vApus.Stresstest {
             set { _logEntryString = value; }
         }
 
-        [ReadOnly(true)]
-        [SavableCloneable]
-        [DisplayName("Log Entry String as Imported")]
-        public string LogEntryStringAsImported {
-            get { return _logEntryStringAsImported; }
-            set { _logEntryStringAsImported = value; }
-        }
+        //[ReadOnly(true)]
+        //[SavableCloneable]
+        //[DisplayName("Log Entry String as Imported")]
+        //public string LogEntryStringAsImported {
+        //    get { return _logEntryStringAsImported; }
+        //    set { _logEntryStringAsImported = value; }
+        //}
 
         /// <summary>
         ///     Is valid after calling ApplyLogRuleSet.
@@ -187,7 +176,7 @@ namespace vApus.Stresstest {
         public LogEntry(string logEntryString)
             : this() {
             LogEntryString = logEntryString;
-            LogEntryStringAsImported = logEntryString;
+            //LogEntryStringAsImported = logEntryString;
         }
 
         #endregion
@@ -211,11 +200,9 @@ namespace vApus.Stresstest {
                 _lexicalResult = LexicalResult.Error;
             } else {
                 _lexicalResult = LogRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
-                _logEntryString = _lexedLogEntry.CombineValues();
+                if (_lexicalResult == LexicalResult.OK)
+                    _logEntryString = _lexedLogEntry.CombineValues();
             }
-
-            if (LexicalResultChanged != null)
-                LexicalResultChanged.Invoke(this, null);
         }
 
         /// <summary>
@@ -310,7 +297,6 @@ namespace vApus.Stresstest {
             logEntry.SetParent(Parent, false);
             logEntry.Occurance = _occurance;
             logEntry.LogEntryString = _logEntryString;
-            logEntry.LogEntryStringAsImported = _logEntryStringAsImported;
             logEntry.Pinned = _pinned;
             logEntry.IgnoreDelay = _ignoreDelay;
             logEntry._parameters = _parameters;

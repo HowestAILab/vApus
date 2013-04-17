@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Net;
@@ -32,6 +33,7 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Fields
+        private static Color _selectedColor = Color.FromArgb(255, 240, 240, 240);
         private static Color _primaryColor = Color.FromArgb(255, 250, 250, 250);
         private static Color _secundaryColor = Color.FromArgb(255, 255, 255, 255);
 
@@ -54,9 +56,12 @@ namespace vApus.Stresstest {
         }
         public UserActionTreeViewItem(Log log, UserAction userAction)
             : this() {
-                _log = log;
+            _log = log;
             _userAction = userAction;
             SetLabel();
+
+            SetPicValid();
+            _log.LexicalResultChanged += _log_LexicalResultChanged;
         }
         #endregion
 
@@ -64,11 +69,31 @@ namespace vApus.Stresstest {
         public void SetLabel() {
             lblUserAction.Text = _userAction.ToString(); // +" (" + _userAction.Count + ")";
         }
+
+        private void _log_LexicalResultChanged(object sender, Log.LexicalResultsChangedEventArgs e) {
+            SetPicValid();
+        }
+        private void SetPicValid() {
+            var lexicalResult = LexicalResult.OK;
+
+            foreach (LogEntry logEntry in _userAction)
+                if (logEntry.LexicalResult == LexicalResult.Error) {
+                    lexicalResult = LexicalResult.Error;
+                    break;
+                }
+
+            picValid.Image = lexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
+        }
+
         public void Unfocus() {
             BackColor = Color.Transparent;
             SetVisibleControls();
         }
-
+        public new void Focus() {
+            base.Focus();
+            BackColor = _selectedColor;
+            SetVisibleControls();
+        }
         public void SetVisibleControls(bool visible) {
             picActionize.Visible = picDuplicate.Visible = picDelete.Visible = visible;
             picPin.Visible = _userAction.Pinned || visible;
@@ -76,7 +101,7 @@ namespace vApus.Stresstest {
             nudOccurance.Visible = _userAction.Occurance != 1 || visible;
             nudOccurance.Value = _userAction.Occurance;
 
-            if (BackColor != SystemColors.Control)
+            if (BackColor != _selectedColor)
                 BackColor = (((float)_userAction.Index % 2) == 0) ? _secundaryColor : _primaryColor;
 
             Control ctrl = nudOccurance;
@@ -90,12 +115,12 @@ namespace vApus.Stresstest {
         public void SetVisibleControls() {
             if (IsDisposed) return;
 
-            if (BackColor == SystemColors.Control) SetVisibleControls(true);
+            if (BackColor == _selectedColor) SetVisibleControls(true);
             else SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
         }
 
         private void _Enter(object sender, EventArgs e) {
-            BackColor = SystemColors.Control;
+            BackColor = _selectedColor;
             SetVisibleControls();
 
             if (AfterSelect != null) AfterSelect(this, null);
