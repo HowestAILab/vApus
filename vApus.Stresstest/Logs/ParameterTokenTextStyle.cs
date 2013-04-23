@@ -80,37 +80,36 @@ namespace vApus.Stresstest {
             SetStyle(e.ChangedRange);
         }
 
-        private void SetStyle(Range changedRange) {
+        private void SetStyle(Range range) {
             _fastColoredTextBox.LeftBracket = '\x0';
             _fastColoredTextBox.RightBracket = '\x0';
             _fastColoredTextBox.LeftBracket2 = '\x0';
             _fastColoredTextBox.RightBracket2 = '\x0';
 
             //clear style of changed range
-            //changedRange.ClearStyle(_fastColoredTextBox.Styles);
-            changedRange.ClearStyle();
+            range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
             string regex = ExtractRegex(_delimiters);
             if (regex != null)
-                changedRange.SetStyle(_delimiterStyle, regex);
+                range.SetStyle(_delimiterStyle, regex);
 
             regex = ExtractRegex(_customListParameters);
             if (regex != null)
-                changedRange.SetStyle(_customListParameterStyle, regex);
+                range.SetStyle(_customListParameterStyle, regex);
 
             regex = ExtractRegex(_numericParameters);
             if (regex != null)
-                changedRange.SetStyle(_numericParameterStyle, regex);
+                range.SetStyle(_numericParameterStyle, regex);
 
             regex = ExtractRegex(_textParameters);
             if (regex != null)
-                changedRange.SetStyle(_textParameterStyle, regex);
+                range.SetStyle(_textParameterStyle, regex);
 
             regex = ExtractRegex(_customRandomParameters);
             if (regex != null)
-                changedRange.SetStyle(_customRandomParameterStyle, regex);
+                range.SetStyle(_customRandomParameterStyle, regex);
 
             if (_visualizeWhiteSpace)
-                changedRange.SetStyle(_whiteSpaceStyle, @"\s");
+                range.SetStyle(_whiteSpaceStyle, @"\s");
         }
 
         private string ExtractRegex(IEnumerable<string> col) {
@@ -124,6 +123,10 @@ namespace vApus.Stresstest {
             if (s.Length == 0)
                 return null;
             return s.Substring(0, s.Length - 1);
+        }
+
+        public void Dispose() {
+            _fastColoredTextBox.TextChanged -= _fastColoredTextBox_TextChanged;
         }
     }
 }

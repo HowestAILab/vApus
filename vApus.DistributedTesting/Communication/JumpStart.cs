@@ -359,7 +359,7 @@ namespace vApus.DistributedTesting {
                 socketWrapper.SendTimeout = 3000;
                 socketWrapper.ReceiveTimeout = 300000;
 
-                try { socketWrapper.Connect(3000, 2); } catch { }
+                try { socketWrapper.Connect(5000, 3); } catch { }
 
                 if (socketWrapper.Connected) return socketWrapper;
 

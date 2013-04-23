@@ -34,10 +34,12 @@
             this.picValid = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.picPasteUserAction = new System.Windows.Forms.PictureBox();
             this.pnlRuleSet.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddUserAction)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picClearUserActions)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picPasteUserAction)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlRuleSet
@@ -49,7 +51,7 @@
             this.pnlRuleSet.Location = new System.Drawing.Point(88, 6);
             this.pnlRuleSet.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.pnlRuleSet.Name = "pnlRuleSet";
-            this.pnlRuleSet.Size = new System.Drawing.Size(378, 23);
+            this.pnlRuleSet.Size = new System.Drawing.Size(358, 23);
             this.pnlRuleSet.TabIndex = 0;
             // 
             // cboRuleSet
@@ -64,7 +66,7 @@
             this.cboRuleSet.Location = new System.Drawing.Point(1, 1);
             this.cboRuleSet.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboRuleSet.Name = "cboRuleSet";
-            this.cboRuleSet.Size = new System.Drawing.Size(376, 21);
+            this.cboRuleSet.Size = new System.Drawing.Size(356, 21);
             this.cboRuleSet.TabIndex = 0;
             this.cboRuleSet.TabStop = false;
             this.cboRuleSet.SelectedIndexChanged += new System.EventHandler(this.cboRuleSet_SelectedIndexChanged);
@@ -99,7 +101,7 @@
             this.picAddUserAction.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picAddUserAction.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picAddUserAction.Image = ((System.Drawing.Image)(resources.GetObject("picAddUserAction.Image")));
-            this.picAddUserAction.Location = new System.Drawing.Point(472, 10);
+            this.picAddUserAction.Location = new System.Drawing.Point(452, 10);
             this.picAddUserAction.Name = "picAddUserAction";
             this.picAddUserAction.Size = new System.Drawing.Size(16, 16);
             this.picAddUserAction.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -155,10 +157,25 @@
             this.panel1.Size = new System.Drawing.Size(532, 2);
             this.panel1.TabIndex = 23;
             // 
+            // picPasteUserAction
+            // 
+            this.picPasteUserAction.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picPasteUserAction.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picPasteUserAction.Image = ((System.Drawing.Image)(resources.GetObject("picPasteUserAction.Image")));
+            this.picPasteUserAction.Location = new System.Drawing.Point(474, 10);
+            this.picPasteUserAction.Name = "picPasteUserAction";
+            this.picPasteUserAction.Size = new System.Drawing.Size(16, 16);
+            this.picPasteUserAction.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picPasteUserAction.TabIndex = 37;
+            this.picPasteUserAction.TabStop = false;
+            this.toolTip.SetToolTip(this.picPasteUserAction, "Paste User Action <ctrl+p>");
+            this.picPasteUserAction.Click += new System.EventHandler(this.picPasteUserAction_Click);
+            // 
             // LogTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.picPasteUserAction);
             this.Controls.Add(this.picValid);
             this.Controls.Add(this.picClearUserActions);
             this.Controls.Add(this.panel1);
@@ -176,6 +193,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picAddUserAction)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picClearUserActions)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picPasteUserAction)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -192,6 +210,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox picClearUserActions;
         private System.Windows.Forms.PictureBox picValid;
+        private System.Windows.Forms.PictureBox picPasteUserAction;
 
     }
 }

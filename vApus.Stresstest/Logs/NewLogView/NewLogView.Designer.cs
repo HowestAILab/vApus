@@ -135,6 +135,7 @@
             this.editLog.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.editLog.Size = new System.Drawing.Size(694, 595);
             this.editLog.TabIndex = 0;
+            this.editLog.LogImported += new System.EventHandler(this.editLog_LogImported);
             // 
             // editUserAction
             // 

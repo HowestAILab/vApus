@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2013 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -34,9 +41,11 @@ namespace vApus.Stresstest {
             _log.LogRuleSet.LogRuleSetChanged += LogRuleSet_LogRuleSetChanged;
             SetLog();
         }
+        private void editLog_LogImported(object sender, EventArgs e) {
+            SetLog();
+        }
         private void LogRuleSet_LogRuleSetChanged(object sender, EventArgs e) {
             SetLog();
-            //Select the same tvwi
         }
         private void SetLog() {
             logTreeView.SetLog(_log);

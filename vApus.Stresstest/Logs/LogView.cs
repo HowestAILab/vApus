@@ -238,10 +238,9 @@ namespace vApus.Stresstest {
                     return;
 
                 bool aoc = _log.LogRuleSet.ActionizeOnComment;
-                bool aof = _log.LogRuleSet.ActionizeOnFile;
+                bool aof = false; // _log.LogRuleSet.ActionizeOnFile;
 
                 _log.LogRuleSet.ActionizeOnComment = true;
-                _log.LogRuleSet.ActionizeOnFile = false;
 
                 int i = 0;
             Retry:
@@ -263,7 +262,6 @@ namespace vApus.Stresstest {
                 }
 
                 _log.LogRuleSet.ActionizeOnComment = aoc;
-                _log.LogRuleSet.ActionizeOnFile = aof;
 
                 string[] recordIps;
                 int[] recordPorts;
@@ -1030,10 +1028,7 @@ namespace vApus.Stresstest {
                 using (var sr = new StreamReader(fileName)) {
                     string logFile = sr.ReadToEnd();
                     UserAction userAction = null;
-                    if (_log.LogRuleSet.ActionizeOnFile) {
-                        userAction = new UserAction(fileName);
-                        _log.AddWithoutInvokingEvent(userAction, false);
-                    }
+
                     logFile = logFile.Replace(Environment.NewLine, "\n").Replace('\r', '\n');
                     foreach (string line in logFile.Split('\n')) {
                         if (line.Trim().Length == 0)

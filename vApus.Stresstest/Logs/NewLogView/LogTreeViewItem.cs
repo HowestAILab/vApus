@@ -1,18 +1,16 @@
 ﻿/*
- * Copyright 2012 (c) Sizing Servers Lab
+ * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     [ToolboxItem(false)]
@@ -25,7 +23,7 @@ namespace vApus.Stresstest {
         /// </summary>
         public event EventHandler AfterSelect;
 
-        public event EventHandler<LogTreeView.AddUserActionEventArgs> AddUserActionClicked;
+        public event EventHandler<LogTreeView.AddUserActionEventArgs> AddPasteUserActionClicked;
         public event EventHandler ClearUserActionsClicked;
 
         #endregion
@@ -122,8 +120,25 @@ namespace vApus.Stresstest {
         private void picAddUserAction_Click(object sender, EventArgs e) {
             var ua = new UserAction();
             _log.Add(ua);
-            if (AddUserActionClicked != null)
-                AddUserActionClicked(this, new LogTreeView.AddUserActionEventArgs(ua));
+            _log.ApplyLogRuleSet();
+            _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+
+            if (AddPasteUserActionClicked != null)
+                AddPasteUserActionClicked(this, new LogTreeView.AddUserActionEventArgs(ua));
+        }
+        private void picPasteUserAction_Click(object sender, EventArgs e) {
+            IDataObject dataObject = ClipboardWrapper.GetDataObject();
+            if (dataObject.GetDataPresent(typeof(UserAction))) {
+                var ua = dataObject.GetData(typeof(UserAction)) as UserAction;
+                if (ua != null) {
+                    _log.Add(ua);
+                    _log.ApplyLogRuleSet();
+                    _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+
+                    if (AddPasteUserActionClicked != null)
+                        AddPasteUserActionClicked(this, new LogTreeView.AddUserActionEventArgs(ua));
+                }
+            }
         }
         private void picClearUserActions_Click(object sender, EventArgs e) {
             Focus();
@@ -137,8 +152,11 @@ namespace vApus.Stresstest {
         }
 
         private void _KeyUp(object sender, KeyEventArgs e) {
-            if (_ctrl && e.KeyCode == Keys.I)
-                picAddUserAction_Click(picAddUserAction, null);
+            if (_ctrl)
+                if (e.KeyCode == Keys.I)
+                    picAddUserAction_Click(picAddUserAction, null);
+                else if (e.KeyCode == Keys.I)
+                    picPasteUserAction_Click(picPasteUserAction, null);
         }
 
         #endregion

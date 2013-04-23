@@ -37,7 +37,7 @@ namespace vApus.Stresstest {
 
         #region Fields
 
-        private bool _actionizeOnComment = true, _actionizeOnFile = true;
+        private bool _actionizeOnComment = true;
         private string _beginCommentString = string.Empty;
         private uint _beginTimestampIndex;
         private string _endCommentString = string.Empty;
@@ -90,13 +90,6 @@ namespace vApus.Stresstest {
         }
 
         [SavableCloneable, PropertyControl(7)]
-        [Description("Different files can be grouped into different user actions."), DisplayName("Actionize On File")]
-        public bool ActionizeOnFile {
-            get { return _actionizeOnFile; }
-            set { _actionizeOnFile = value; }
-        }
-
-        [SavableCloneable, PropertyControl(8)]
         [Description("The index of the syntax item defining the logged timestamp for when a request was send."),
          DisplayName("Begin Timestamp Index")]
         public uint BeginTimestampIndex {
@@ -104,7 +97,7 @@ namespace vApus.Stresstest {
             set { _beginTimestampIndex = value; }
         }
 
-        [SavableCloneable, PropertyControl(9)]
+        [SavableCloneable, PropertyControl(8)]
         [Description("The index of the syntax item defining the logged timestamp for a request was answered."),
          DisplayName("End Timestamp Index")]
         public uint EndTimestampIndex {

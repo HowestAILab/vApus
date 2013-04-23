@@ -1,19 +1,14 @@
 ﻿/*
- * Copyright 2012 (c) Sizing Servers Lab
+ * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Net;
 using System.Windows.Forms;
-using vApus.SolutionTree;
-using vApus.Util;
 
 namespace vApus.Stresstest {
     [ToolboxItem(false)]
@@ -159,16 +154,13 @@ namespace vApus.Stresstest {
         private void picActionize_Click(object sender, EventArgs e) {
             if (ActionizeClicked != null) ActionizeClicked(this, null);
         }
-
-        #endregion
-
-        private void nudOccurance_ValueChanged(object sender, EventArgs e) {
-            _userAction.Occurance = (int)nudOccurance.Value;
-        }
-
         private void picPin_Click(object sender, EventArgs e) {
             _userAction.Pinned = !_userAction.Pinned;
             picPin.Image = _userAction.Pinned ? global::vApus.Stresstest.Properties.Resources.Pin : global::vApus.Stresstest.Properties.Resources.PinGreyedOut;
         }
+        private void nudOccurance_ValueChanged(object sender, EventArgs e) {
+            _userAction.Occurance = (int)nudOccurance.Value;
+        }
+        #endregion
     }
 }

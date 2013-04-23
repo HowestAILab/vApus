@@ -24,10 +24,10 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditLog));
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpCapture = new System.Windows.Forms.TabPage();
@@ -44,17 +44,19 @@
             this.btnStartStopAndExport = new System.Windows.Forms.Button();
             this.tpImport = new System.Windows.Forms.TabPage();
             this.chkClearLogBeforeImport = new System.Windows.Forms.CheckBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnImport = new System.Windows.Forms.Button();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.fctxtxImport = new FastColoredTextBoxNS.FastColoredTextBox();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tmrRemoveEmptyCells = new System.Windows.Forms.Timer(this.components);
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.tc.SuspendLayout();
             this.tpCapture.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDeny)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAllow)).BeginInit();
             this.tpImport.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.fctxtxImport)).BeginInit();
             this.SuspendLayout();
             // 
             // tc
@@ -86,10 +88,10 @@
             this.tpCapture.Controls.Add(this.btnPauseContinue);
             this.tpCapture.Controls.Add(this.btnStartStopAndExport);
             this.tpCapture.ImageIndex = 0;
-            this.tpCapture.Location = new System.Drawing.Point(4, 23);
+            this.tpCapture.Location = new System.Drawing.Point(0, 23);
             this.tpCapture.Name = "tpCapture";
             this.tpCapture.Padding = new System.Windows.Forms.Padding(3);
-            this.tpCapture.Size = new System.Drawing.Size(743, 582);
+            this.tpCapture.Size = new System.Drawing.Size(747, 582);
             this.tpCapture.TabIndex = 0;
             this.tpCapture.Text = "Capture HTTP(S)";
             // 
@@ -99,9 +101,9 @@
             this.chkClearLogBeforeCapture.AutoSize = true;
             this.chkClearLogBeforeCapture.Location = new System.Drawing.Point(9, 557);
             this.chkClearLogBeforeCapture.Name = "chkClearLogBeforeCapture";
-            this.chkClearLogBeforeCapture.Size = new System.Drawing.Size(71, 17);
+            this.chkClearLogBeforeCapture.Size = new System.Drawing.Size(139, 17);
             this.chkClearLogBeforeCapture.TabIndex = 30;
-            this.chkClearLogBeforeCapture.Text = "Clear Log";
+            this.chkClearLogBeforeCapture.Text = "Clear log before capture";
             this.toolTip.SetToolTip(this.chkClearLogBeforeCapture, "Check this if you want to clear the log before you start capturing.");
             this.chkClearLogBeforeCapture.UseVisualStyleBackColor = true;
             // 
@@ -133,34 +135,35 @@
             // 
             // dgvDeny
             // 
-            this.dgvDeny.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.dgvDeny.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvDeny.BackgroundColor = System.Drawing.Color.White;
             this.dgvDeny.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvDeny.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvDeny.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle9;
             this.dgvDeny.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDeny.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridViewTextBoxColumn1});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvDeny.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvDeny.DefaultCellStyle = dataGridViewCellStyle10;
             this.dgvDeny.Enabled = false;
             this.dgvDeny.EnableHeadersVisualStyles = false;
             this.dgvDeny.Location = new System.Drawing.Point(9, 302);
             this.dgvDeny.Name = "dgvDeny";
-            this.dgvDeny.Size = new System.Drawing.Size(728, 195);
+            this.dgvDeny.Size = new System.Drawing.Size(728, 244);
             this.dgvDeny.TabIndex = 3;
             this.dgvDeny.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellEndEdit);
             // 
@@ -177,25 +180,25 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvAllow.BackgroundColor = System.Drawing.Color.White;
             this.dgvAllow.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvAllow.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvAllow.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle11;
             this.dgvAllow.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvAllow.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.clmIP});
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvAllow.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle12.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvAllow.DefaultCellStyle = dataGridViewCellStyle12;
             this.dgvAllow.Enabled = false;
             this.dgvAllow.EnableHeadersVisualStyles = false;
             this.dgvAllow.Location = new System.Drawing.Point(9, 75);
@@ -281,14 +284,14 @@
             // 
             this.tpImport.BackColor = System.Drawing.Color.White;
             this.tpImport.Controls.Add(this.chkClearLogBeforeImport);
-            this.tpImport.Controls.Add(this.button1);
+            this.tpImport.Controls.Add(this.btnImport);
             this.tpImport.Controls.Add(this.btnBrowse);
             this.tpImport.Controls.Add(this.fctxtxImport);
             this.tpImport.ImageIndex = 1;
-            this.tpImport.Location = new System.Drawing.Point(4, 23);
+            this.tpImport.Location = new System.Drawing.Point(0, 23);
             this.tpImport.Name = "tpImport";
             this.tpImport.Padding = new System.Windows.Forms.Padding(3);
-            this.tpImport.Size = new System.Drawing.Size(743, 582);
+            this.tpImport.Size = new System.Drawing.Size(747, 582);
             this.tpImport.TabIndex = 1;
             this.tpImport.Text = "Import from Text";
             // 
@@ -298,29 +301,30 @@
             this.chkClearLogBeforeImport.AutoSize = true;
             this.chkClearLogBeforeImport.Location = new System.Drawing.Point(6, 557);
             this.chkClearLogBeforeImport.Name = "chkClearLogBeforeImport";
-            this.chkClearLogBeforeImport.Size = new System.Drawing.Size(71, 17);
+            this.chkClearLogBeforeImport.Size = new System.Drawing.Size(131, 17);
             this.chkClearLogBeforeImport.TabIndex = 31;
-            this.chkClearLogBeforeImport.Text = "Clear Log";
+            this.chkClearLogBeforeImport.Text = "Clear log before import";
             this.toolTip.SetToolTip(this.chkClearLogBeforeImport, "Check this if you want to clear the log before you import from text.");
             this.chkClearLogBeforeImport.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // btnImport
             // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.button1.AutoSize = true;
-            this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button1.BackColor = System.Drawing.Color.White;
-            this.button1.Enabled = false;
-            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button1.Location = new System.Drawing.Point(305, 552);
-            this.button1.MaximumSize = new System.Drawing.Size(9999, 24);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(54, 24);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Import";
-            this.button1.UseVisualStyleBackColor = false;
+            this.btnImport.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnImport.AutoSize = true;
+            this.btnImport.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnImport.BackColor = System.Drawing.Color.White;
+            this.btnImport.Enabled = false;
+            this.btnImport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnImport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnImport.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnImport.Location = new System.Drawing.Point(305, 552);
+            this.btnImport.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnImport.Name = "btnImport";
+            this.btnImport.Size = new System.Drawing.Size(54, 24);
+            this.btnImport.TabIndex = 1;
+            this.btnImport.Text = "Import";
+            this.btnImport.UseVisualStyleBackColor = false;
+            this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
             // 
             // btnBrowse
             // 
@@ -338,15 +342,17 @@
             this.btnBrowse.TabIndex = 2;
             this.btnBrowse.Text = "Browse...";
             this.btnBrowse.UseVisualStyleBackColor = false;
+            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // fctxtxImport
             // 
-            this.fctxtxImport.AllowDrop = true;
             this.fctxtxImport.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.fctxtxImport.AutoScrollMinSize = new System.Drawing.Size(0, 14);
             this.fctxtxImport.BackBrush = null;
+            this.fctxtxImport.CharHeight = 14;
+            this.fctxtxImport.CharWidth = 8;
             this.fctxtxImport.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxtxImport.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fctxtxImport.IsReplaceMode = false;
@@ -358,6 +364,8 @@
             this.fctxtxImport.Size = new System.Drawing.Size(737, 543);
             this.fctxtxImport.TabIndex = 0;
             this.fctxtxImport.WordWrap = true;
+            this.fctxtxImport.Zoom = 100;
+            this.fctxtxImport.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxtxImport_TextChangedDelayed);
             // 
             // imageList
             // 
@@ -370,6 +378,11 @@
             // 
             this.tmrRemoveEmptyCells.Enabled = true;
             this.tmrRemoveEmptyCells.Tick += new System.EventHandler(this.tmrRemoveEmptyCells_Tick);
+            // 
+            // openFileDialog
+            // 
+            this.openFileDialog.Filter = "\"Text Files (*.txt)|*.txt|All files (*.*)|*.*\"";
+            this.openFileDialog.Multiselect = true;
             // 
             // EditLog
             // 
@@ -386,6 +399,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvAllow)).EndInit();
             this.tpImport.ResumeLayout(false);
             this.tpImport.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.fctxtxImport)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -399,7 +413,7 @@
         private System.Windows.Forms.Button btnPauseContinue;
         private System.Windows.Forms.Button btnStartStopAndExport;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnImport;
         private System.Windows.Forms.Button btnBrowse;
         private FastColoredTextBoxNS.FastColoredTextBox fctxtxImport;
         private System.Windows.Forms.CheckBox chkDeny;
@@ -413,5 +427,6 @@
         private System.Windows.Forms.CheckBox chkClearLogBeforeCapture;
         private System.Windows.Forms.CheckBox chkClearLogBeforeImport;
         private System.Windows.Forms.Timer tmrRemoveEmptyCells;
+        private System.Windows.Forms.OpenFileDialog openFileDialog;
     }
 }

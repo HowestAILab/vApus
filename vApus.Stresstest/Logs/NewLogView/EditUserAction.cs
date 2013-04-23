@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2013 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -47,9 +54,7 @@ namespace vApus.Stresstest {
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender is CustomListParameters || sender is CustomListParameter || sender is CustomRandomParameters || sender is CustomRandomParameter
                 || sender is NumericParameters || sender is NumericParameter || sender is TextParameters || sender is TextParameter) {
-                _parameterTokenTextStyle = null;
-                //fctxtxPlainText.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
-                //SetCodeStyle();
+                SetCodeStyle();
                 SetParameters();
             }
         }
@@ -105,7 +110,6 @@ namespace vApus.Stresstest {
             if (value > nudMoveSteps.Maximum) value = nudMoveSteps.Maximum;
             nudMoveSteps.Value = value;
         }
-
         private void picMoveUp_Click(object sender, EventArgs e) {
             MoveUserAction(false);
             SetMove();
@@ -143,13 +147,14 @@ namespace vApus.Stresstest {
                 if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
             }
         }
-        #endregion
+        private void picCopy_Click(object sender, EventArgs e) {
+            ClipboardWrapper.SetDataObject(_userActionTreeViewItem.UserAction.Clone());
+        }
 
         private void lbtn_ActiveChanged(object sender, EventArgs e) {
             SetLogEntries();
         }
         private void SetLogEntries() {
-            dgvLogEntries.RowsRemoved -= dgvLogEntries_RowsRemoved;
             _cache = new DataTable("Cache");
 
             dgvLogEntries.RowCount = 1;
@@ -202,6 +207,8 @@ namespace vApus.Stresstest {
 
             dgvLogEntries.RowCount = dgvLogEntries.ReadOnly ? _cache.Rows.Count : _cache.Rows.Count + 1;
 
+            fctxtxPlainText.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
+            fctxtxPlainText.Range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
 
             fctxtxPlainText.TextChanged -= fctxtxPlainText_TextChanged;
             fctxtxPlainText.Text = plainText.ToString().TrimEnd();
@@ -209,8 +216,6 @@ namespace vApus.Stresstest {
             fctxtxPlainText.TextChanged += fctxtxPlainText_TextChanged;
 
             SetEditableOrAsImported();
-
-            dgvLogEntries.RowsRemoved += dgvLogEntries_RowsRemoved;
         }
         private bool CheckOptionalSyntaxItem(SyntaxItem item) {
             bool optional = item.Optional;
@@ -305,7 +310,6 @@ namespace vApus.Stresstest {
                 dgvLogEntries.Rows[_rowIndexOfItemUnderMouseToDrop].Selected = true;
             }
         }
-
         private void dgvLogEntries_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
 
         }
@@ -341,18 +345,88 @@ namespace vApus.Stresstest {
 
             SetLogEntries();
         }
+        private void dgvLogEntries_KeyUp(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Delete && dgvLogEntries.SelectedRows.Count != 0) {
+                var userAction = _userActionTreeViewItem.UserAction;
+                var toRemove = new List<BaseItem>();
+                foreach (DataGridViewRow row in dgvLogEntries.SelectedRows) {
+                    int index = dgvLogEntries.Rows.IndexOf(row);
+                    if (index != userAction.Count) toRemove.Add(userAction[index]);
+                }
+                userAction.RemoveRangeWithoutInvokingEvent(toRemove);
 
+                userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
 
-        private void dgvLogEntries_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e) {
-            var userAction = _userActionTreeViewItem.UserAction;
-            _userActionTreeViewItem.UserAction.Remove(userAction[e.RowIndex]);
-
-            userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
-
-            _log.ApplyLogRuleSet();
-            SetLogEntries();
+                _log.ApplyLogRuleSet();
+                SetLogEntries();
+            }
+        }
+        private void dgvLogEntries_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
+            try {
+                if (e.RowIndex < _cache.Rows.Count && e.ColumnIndex < _cache.Columns.Count) {
+                    var userAction = _userActionTreeViewItem.UserAction;
+                    if (e.ColumnIndex == 0) {
+                        var logEntry = userAction[e.RowIndex] as LogEntry;
+                        if (logEntry.LexicalResult == LexicalResult.OK) {
+                            e.Value = null;
+                            dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = null;
+                        } else {
+                            if (logEntry.LexedLogEntry == null) {
+                                e.Value = null;
+                                dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = null;
+                            } else {
+                                e.Value = global::vApus.Stresstest.Properties.Resources.LogEntryError;
+                                int column = logEntry.LexedLogEntry.Count;
+                                if (column == 0) column = 1;
+                                dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = logEntry.LexedLogEntry.Error + " See column " + column + ".";
+                            }
+                        }
+                    } else {
+                        e.Value = _cache.Rows[e.RowIndex][e.ColumnIndex];
+                    }
+                }
+            } catch {
+            }
         }
 
+        private void btnRevertToImported_Click(object sender, EventArgs e) {
+            if (MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                var userAction = _userActionTreeViewItem.UserAction;
+                userAction.ClearWithoutInvokingEvent(false);
+
+                foreach (string s in userAction.LogEntryStringsAsImported)
+                    userAction.AddWithoutInvokingEvent(new LogEntry(s), false);
+
+                userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+
+                _log.ApplyLogRuleSet();
+                SetLogEntries();
+            }
+        }
+        private void btnShowHideParameterTokens_Click(object sender, EventArgs e) {
+            if (btnShowHideParameterTokens.Text == "Show Parameter Tokens") {
+                btnShowHideParameterTokens.Text = "Hide Parameter Tokens";
+
+                split.Panel2Collapsed = false;
+
+                pnlBorderTokens.Width = split.Panel2.Width - pnlBorderTokens.Left - 9;
+                pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
+
+                flpTokens.Width = split.Panel2.Width - flpTokens.Left - 9;
+                flpTokens.Height = split.Panel2.Height - flpTokens.Top - 43;
+                flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+
+            } else {
+                btnShowHideParameterTokens.Text = "Show Parameter Tokens";
+                pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                split.Panel2Collapsed = true;
+            }
+        }
+
+        private void fctxtxPlainText_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
+            btnApply.Enabled = true;
+        }
         private void btnApply_Click(object sender, EventArgs e) {
             var userAction = _userActionTreeViewItem.UserAction;
             bool changed = false;
@@ -384,46 +458,6 @@ namespace vApus.Stresstest {
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
             btnApply.Enabled = false;
-        }
-
-        private void btnRevertToImported_Click(object sender, EventArgs e) {
-            if (MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                var userAction = _userActionTreeViewItem.UserAction;
-                userAction.ClearWithoutInvokingEvent(false);
-
-                foreach (string s in userAction.LogEntryStringsAsImported)
-                    userAction.AddWithoutInvokingEvent(new LogEntry(s), false);
-
-                userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-
-                _log.ApplyLogRuleSet();
-                SetLogEntries();
-            }
-        }
-
-        private void fctxtxPlainText_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
-            btnApply.Enabled = true;
-        }
-
-        private void btnShowHideParameterTokens_Click(object sender, EventArgs e) {
-            if (btnShowHideParameterTokens.Text == "Show Parameter Tokens") {
-                btnShowHideParameterTokens.Text = "Hide Parameter Tokens";
-
-                split.Panel2Collapsed = false;
-
-                pnlBorderTokens.Width = split.Panel2.Width - pnlBorderTokens.Left - 9;
-                pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
-
-                flpTokens.Width = split.Panel2.Width - flpTokens.Left - 9;
-                flpTokens.Height = split.Panel2.Height - flpTokens.Top - 43;
-                flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
-
-            } else {
-                btnShowHideParameterTokens.Text = "Show Parameter Tokens";
-                pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                split.Panel2Collapsed = true;
-            }
         }
 
         private void cboParameterScope_SelectedIndexChanged(object sender, EventArgs e) {
@@ -482,7 +516,6 @@ namespace vApus.Stresstest {
                 AddKvpToFlps(_beginTokenDelimiter + scopeIdentifier + (j++) + _endTokenDelimiter,
                              customRandomParameters[i].ToString(), Color.Yellow);
         }
-
         private void AddKvpToFlps(string key, string value, Color backColor) {
             var kvp = new KeyValuePairControl(key, value);
             kvp.BackColor = backColor;
@@ -523,9 +556,15 @@ namespace vApus.Stresstest {
                     crp.Add(token);
                 }
             }
+            fctxtxPlainText.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
+            fctxtxPlainText.Range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
+
+            if (_parameterTokenTextStyle != null) {
+                _parameterTokenTextStyle.Dispose();
+                _parameterTokenTextStyle = null;
+            }
             _parameterTokenTextStyle = new ParameterTokenTextStyle(fctxtxPlainText, GetDelimiters(_log.LogRuleSet), clp, np, tp, crp, true);
         }
-
         private string[] GetDelimiters(LogRuleSet logRuleSet) {
             var hs = new HashSet<string>();
             if (logRuleSet.ChildDelimiter.Length != 0)
@@ -542,7 +581,6 @@ namespace vApus.Stresstest {
 
             return delimiters;
         }
-
         private IEnumerable<string> GetDelimiters(LogSyntaxItem logSyntaxItem) {
             if (logSyntaxItem.ChildDelimiter.Length != 0)
                 yield return logSyntaxItem.ChildDelimiter;
@@ -551,34 +589,6 @@ namespace vApus.Stresstest {
                     foreach (string delimiter in GetDelimiters(item as LogSyntaxItem))
                         yield return delimiter;
         }
-
-        private void dgvLogEntries_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
-            try {
-                if (e.RowIndex < _cache.Rows.Count && e.ColumnIndex < _cache.Columns.Count) {
-                    var userAction = _userActionTreeViewItem.UserAction;
-                    if (e.ColumnIndex == 0) {
-                        var logEntry = userAction[e.RowIndex] as LogEntry;
-                        if (logEntry.LexicalResult == LexicalResult.OK) {
-                            e.Value = null;
-                            dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = null;
-                        } else {
-                            if (logEntry.LexedLogEntry == null) {
-                                e.Value = null;
-                                dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = null;
-                            } else {
-                                e.Value = global::vApus.Stresstest.Properties.Resources.LogEntryError;
-                                int column = logEntry.LexedLogEntry.Count;
-                                if (column == 0) column = 1;
-                                dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = logEntry.LexedLogEntry.Error + " See column " + column + ".";
-                            }
-                        }
-                    } else {
-                        e.Value = _cache.Rows[e.RowIndex][e.ColumnIndex];
-                    }
-                }
-            } catch {
-            }
-        }
-
+        #endregion
     }
 }

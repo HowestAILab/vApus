@@ -1,13 +1,14 @@
-﻿using System;
+﻿/*
+ * Copyright 2013 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using vApus.SolutionTree;
 
 namespace vApus.Stresstest {
@@ -56,7 +57,7 @@ namespace vApus.Stresstest {
             _log = log;
             _logTreeViewItem = new LogTreeViewItem(_log);
             _logTreeViewItem.AfterSelect += _AfterSelect;
-            _logTreeViewItem.AddUserActionClicked += _logTreeViewItem_AddUserActionClicked;
+            _logTreeViewItem.AddPasteUserActionClicked += _logTreeViewItem_AddPasteUserActionClicked;
             _logTreeViewItem.ClearUserActionsClicked += _logTreeViewItem_ClearUserActionsClicked;
             //dttvi.AddTileClicked += dttvi_AddTileClicked;
             largeList.Add(_logTreeViewItem);
@@ -115,7 +116,7 @@ namespace vApus.Stresstest {
             LockWindowUpdate(0);
         }
 
-        private void _logTreeViewItem_AddUserActionClicked(object sender, LogTreeView.AddUserActionEventArgs e) {
+        private void _logTreeViewItem_AddPasteUserActionClicked(object sender, LogTreeView.AddUserActionEventArgs e) {
             CreateAndAddUserActionTreeViewItem(e.UserAction);
         }
         private void _logTreeViewItem_ClearUserActionsClicked(object sender, EventArgs e) {
