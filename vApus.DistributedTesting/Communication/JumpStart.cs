@@ -130,6 +130,8 @@ namespace vApus.DistributedTesting
                 Exception[] exceptions = DoJumpStart(toJumpStart);
 
                 if (Done != null) {
+                    //Be sure they are jump started before trying to connect to them.
+                    //Thread.Sleep(10000);
                     foreach (EventHandler<DoneEventArgs> del in Done.GetInvocationList())
                         del.BeginInvoke(null, new DoneEventArgs(exceptions), null, null);
                 }
