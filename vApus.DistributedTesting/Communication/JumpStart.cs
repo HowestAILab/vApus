@@ -130,7 +130,6 @@ namespace vApus.DistributedTesting
                 Exception[] exceptions = DoJumpStart(toJumpStart);
 
                 if (Done != null) {
-                    Thread.Sleep(3000);
                     foreach (EventHandler<DoneEventArgs> del in Done.GetInvocationList())
                         del.BeginInvoke(null, new DoneEventArgs(exceptions), null, null);
                 }
@@ -292,12 +291,12 @@ namespace vApus.DistributedTesting
                 int port = 1314;
 
                 var socketWrapper = new SocketWrapper(ip, port, socket);
-                socketWrapper.SendTimeout = 3000;
+                socketWrapper.SendTimeout = 10000;
                 socketWrapper.ReceiveTimeout = 120000;
 
                 try
                 {
-                    socketWrapper.Connect(5000, 3);
+                    socketWrapper.Connect(5000, 10);
                 }
                 catch { }
 
