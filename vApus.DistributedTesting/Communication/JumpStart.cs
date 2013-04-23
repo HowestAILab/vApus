@@ -129,9 +129,11 @@ namespace vApus.DistributedTesting
                 DoKill(toKill);
                 Exception[] exceptions = DoJumpStart(toJumpStart);
 
-                if (Done != null)
+                if (Done != null) {
+                    Thread.Sleep(3000);
                     foreach (EventHandler<DoneEventArgs> del in Done.GetInvocationList())
                         del.BeginInvoke(null, new DoneEventArgs(exceptions), null, null);
+                }
             });
             worker.IsBackground = true;
             worker.Start();
