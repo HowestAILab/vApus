@@ -295,7 +295,7 @@ namespace vApus.DistributedTesting
 
                 try
                 {
-                    socketWrapper.Connect(3000, 2);
+                    socketWrapper.Connect(5000, 3);
                 }
                 catch { }
 
