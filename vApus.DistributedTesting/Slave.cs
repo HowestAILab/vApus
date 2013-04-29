@@ -16,7 +16,7 @@ namespace vApus.DistributedTesting {
 
         #region Fields
 
-        private int _port = 1337;
+        private int _port = 1347;
         private int[] _processorAffinity = { };
 
         #endregion

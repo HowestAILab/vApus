@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
@@ -16,6 +17,8 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class EditUserAction : UserControl {
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         public event EventHandler UserActionMoved;
 
@@ -59,11 +62,12 @@ namespace vApus.Stresstest {
             }
         }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
+            LockWindowUpdate(this.Handle.ToInt32());
             _log = log;
             _userActionTreeViewItem = userActionTreeViewItem;
 
-            bool warning, error;
-            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning, out error);
+            bool logEntryContainsTokens;
+            _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
 
             cboParameterScope.SelectedIndex = 5;
 
@@ -75,7 +79,9 @@ namespace vApus.Stresstest {
 
             if (_parameterTokenTextStyle == null) SetCodeStyle();
             SetMove();
+            SetPicDelay();
             SetLogEntries();
+            LockWindowUpdate(0);
         }
 
         private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
@@ -147,6 +153,19 @@ namespace vApus.Stresstest {
                 if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
             }
         }
+        private void picDelay_Click(object sender, EventArgs e) {
+            _userActionTreeViewItem.UserAction.UseDelay = !_userActionTreeViewItem.UserAction.UseDelay;
+            SetPicDelay();
+        }
+        private void SetPicDelay() {
+            if (_userActionTreeViewItem.UserAction.UseDelay) {
+                picDelay.Image = global::vApus.Stresstest.Properties.Resources.Delay;
+                toolTip.SetToolTip(picDelay, "Click to NOT use delay after this user action.\nDelay is determined in the stresstest settings.");
+            } else {
+                picDelay.Image = global::vApus.Stresstest.Properties.Resources.IgnoreDelay;
+                toolTip.SetToolTip(picDelay, "Click to use delay after this user action.\nDelay is determined in the stresstest settings.");
+            }
+        }
         private void picCopy_Click(object sender, EventArgs e) {
             ClipboardWrapper.SetDataObject(_userActionTreeViewItem.UserAction.Clone());
         }
@@ -155,8 +174,10 @@ namespace vApus.Stresstest {
             SetLogEntries();
         }
         private void SetLogEntries() {
+            dgvLogEntries.CellValuePushed -= dgvLogEntries_CellValuePushed;
             _cache = new DataTable("Cache");
 
+            dgvLogEntries.Rows.Clear();
             dgvLogEntries.RowCount = 1;
             dgvLogEntries.Columns.Clear();
 
@@ -169,26 +190,16 @@ namespace vApus.Stresstest {
 
             var plainText = new StringBuilder();
 
-            string[] splitter = new string[] { _log.LogRuleSet.ChildDelimiter };
-            if (lbtnEditable.Active) {
-                foreach (LogEntry logEntry in _userActionTreeViewItem.UserAction) {
-                    var row = new List<string>();
-                    row.Add(string.Empty);
-                    row.AddRange(logEntry.LogEntryString.Split(splitter, StringSplitOptions.None));
-                    _cache.Rows.Add(row.ToArray());
+            var userAction = _userActionTreeViewItem.UserAction;
+            if (lbtnEditable.Active)
+                foreach (LogEntry logEntry in userAction) {
+                    AddRowToDgv(logEntry.LogEntryString);
                     plainText.AppendLine(logEntry.LogEntryString);
-                }
-            } else {
-                foreach (string s in _userActionTreeViewItem.UserAction.LogEntryStringsAsImported) {
-                    var row = new List<string>();
-                    row.Add(string.Empty);
-                    row.AddRange(s.Split(splitter, StringSplitOptions.None));
-                    _cache.Rows.Add(row.ToArray());
+                } else
+                foreach (string s in userAction.LogEntryStringsAsImported) {
+                    AddRowToDgv(s);
                     plainText.AppendLine(s);
                 }
-            }
-
-
 
             var imageColumn = new DataGridViewImageColumn();
             imageColumn.HeaderText = string.Empty;
@@ -216,6 +227,31 @@ namespace vApus.Stresstest {
             fctxtxPlainText.TextChanged += fctxtxPlainText_TextChanged;
 
             SetEditableOrAsImported();
+
+            dgvLogEntries.CellValuePushed += dgvLogEntries_CellValuePushed;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logEntryString"></param>
+        /// <returns>True if has tail.</returns>
+        private bool AddRowToDgv(string logEntryString) {
+            string delimiter = _log.LogRuleSet.ChildDelimiter;
+            var row = new List<string>();
+            row.Add(string.Empty);
+            while (row.Count != _cache.Columns.Count - 1) {
+                int delimiterIndex = logEntryString.IndexOf(delimiter);
+                if (delimiterIndex == -1) {
+                    row.Add(string.Empty);
+                } else {
+                    row.Add(logEntryString.Substring(0, delimiterIndex));
+                    logEntryString = logEntryString.Substring(delimiterIndex + delimiter.Length);
+                }
+            }
+            row.Add(logEntryString);
+            _cache.Rows.Add(row.ToArray());
+
+            return logEntryString.Length != null;
         }
         private bool CheckOptionalSyntaxItem(SyntaxItem item) {
             bool optional = item.Optional;
@@ -281,16 +317,26 @@ namespace vApus.Stresstest {
         }
         private void dgvLogEntries_DragOver(object sender, DragEventArgs e) {
             e.Effect = DragDropEffects.Move;
+
+            Point clientPoint = dgvLogEntries.PointToClient(new Point(e.X, e.Y));
+            _rowIndexOfItemUnderMouseToDrop = dgvLogEntries.HitTest(clientPoint.X, clientPoint.Y).RowIndex;
+            DataGridViewRow row = dgvLogEntries.Rows[_rowIndexOfItemUnderMouseToDrop];
+
+            Color backColor = row.Cells[0].Style.BackColor;
+            Color dragOverBackColor = Color.FromArgb(51, 153, 255);
+            if (backColor != dragOverBackColor) row.Tag = backColor;
+            foreach (DataGridViewCell cell in row.Cells)
+                cell.Style.BackColor = dragOverBackColor;
+
+            foreach (DataGridViewRow otherRow in dgvLogEntries.Rows)
+                if (otherRow != row && otherRow.Tag != null)
+                    foreach (DataGridViewCell cell in otherRow.Cells)
+                        cell.Style.BackColor = (Color)otherRow.Tag;
         }
         private void dgvLogEntries_DragDrop(object sender, DragEventArgs e) {
-            // The mouse locations are relative to the screen, so they must be 
-            // converted to client coordinates.
             Point clientPoint = dgvLogEntries.PointToClient(new Point(e.X, e.Y));
-
-            // Get the row index of the item the mouse is below. 
             _rowIndexOfItemUnderMouseToDrop = dgvLogEntries.HitTest(clientPoint.X, clientPoint.Y).RowIndex;
 
-            // If the drag operation was a move then remove and insert the row.
             if (e.Effect == DragDropEffects.Move) {
                 var userAction = _userActionTreeViewItem.UserAction;
                 var logEntry = userAction[_rowIndexFromMouseDown];
@@ -309,9 +355,6 @@ namespace vApus.Stresstest {
                     row.Selected = false;
                 dgvLogEntries.Rows[_rowIndexOfItemUnderMouseToDrop].Selected = true;
             }
-        }
-        private void dgvLogEntries_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
-
         }
         private void dgvLogEntries_CellValuePushed(object sender, DataGridViewCellValueEventArgs e) {
             var userAction = _userActionTreeViewItem.UserAction;
@@ -463,7 +506,7 @@ namespace vApus.Stresstest {
         private void cboParameterScope_SelectedIndexChanged(object sender, EventArgs e) {
             SetParameters();
         }
-        private void SetParameters() {
+        public void SetParameters() {
             string scopeIdentifier = null;
 
             flpTokens.Controls.Clear();

@@ -91,12 +91,7 @@ namespace vApus.Stresstest {
 
             SetLabel();
 
-            //Backwards compatible.
-            if (_logEntry.Parent is UserAction)
-                _logEntry.Pinned = true;
-
-
-            nudOccurance.Value = _logEntry.Occurance;
+            //nudOccurance.Value = _logEntry.Occurance;
             nudParallelOffsetInMs.Value = _logEntry.ParallelOffsetInMs;
             SetImages();
 
@@ -142,9 +137,9 @@ namespace vApus.Stresstest {
             }
 
             //See OnPaint for picParallel
-            picIgnoreDelay.Image = _logEntry.IgnoreDelay ? Resources.IgnoreDelay : Resources.Delay;
-            picPin.Image = _logEntry.Pinned ? Resources.Pin : Resources.PinGreyedOut;
-            picPin.Visible = _logEntry.Parent is Log;
+            //picIgnoreDelay.Image = _logEntry.IgnoreDelay ? Resources.IgnoreDelay : Resources.Delay;
+            //picPin.Image = _logEntry.Pinned ? Resources.Pin : Resources.PinGreyedOut;
+            //picPin.Visible = _logEntry.Parent is Log;
         }
 
         private void chkIndex_CheckedChanged(object sender, EventArgs e) {
@@ -152,17 +147,17 @@ namespace vApus.Stresstest {
         }
 
         private void picPin_Click(object sender, EventArgs e) {
-            _logEntry.Pinned = !_logEntry.Pinned;
+            //_logEntry.Pinned = !_logEntry.Pinned;
             _logEntry.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             SetImages();
         }
 
         private void picIgnoreDelay_Click(object sender, EventArgs e) {
-            if (!_logEntry.ExecuteInParallelWithPrevious) {
-                _logEntry.IgnoreDelay = !_logEntry.IgnoreDelay;
-                _logEntry.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                SetImages();
-            }
+            //if (!_logEntry.ExecuteInParallelWithPrevious) {
+            //    _logEntry.IgnoreDelay = !_logEntry.IgnoreDelay;
+            //    _logEntry.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            //    SetImages();
+            //}
         }
 
         private void picParallel_Click(object sender, EventArgs e) {
@@ -172,10 +167,10 @@ namespace vApus.Stresstest {
         }
 
         private void nudOccurance_ValueChanged(object sender, EventArgs e) {
-            if (_logEntry.Occurance != nudOccurance.Value) {
-                _logEntry.Occurance = (int)nudOccurance.Value;
-                _logEntry.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
+            //if (_logEntry.Occurance != nudOccurance.Value) {
+            //    _logEntry.Occurance = (int)nudOccurance.Value;
+            //    _logEntry.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            //}
         }
 
         private void nudParallelOffsetInMs_ValueChanged(object sender, EventArgs e) {
@@ -270,7 +265,7 @@ namespace vApus.Stresstest {
                 _logEntry.ExecuteInParallelWithPrevious = false;
 
             if (_logEntry.ExecuteInParallelWithPrevious) {
-                _logEntry.IgnoreDelay = true;
+                //_logEntry.IgnoreDelay = true;
                 picIgnoreDelay.Visible = false;
                 nudParallelOffsetInMs.Visible = true;
                 picParallel.Image = Resources.Parallel;

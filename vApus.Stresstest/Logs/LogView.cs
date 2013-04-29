@@ -316,8 +316,8 @@ namespace vApus.Stresstest {
         }
 
         private void btnRedetermineTokens_Click(object sender, EventArgs e) {
-            var redetermineTokens = new RedetermineTokens(_log);
-            redetermineTokens.ShowDialog();
+            //var redetermineTokens = new RedetermineTokens(_log);
+            //redetermineTokens.ShowDialog();
         }
 
         #region Toolbar
@@ -774,7 +774,7 @@ namespace vApus.Stresstest {
 
                         uac.Collapsed = false;
                         foreach (LogEntryControl logEntryControl in uac.LogEntryControls) {
-                            (logEntryControl.LogChild as LogEntry).Pinned = false;
+                            //(logEntryControl.LogChild as LogEntry).Pinned = false;
                             logEntryControl.RemoveUserActionControl();
 
                             logEntryControl.CheckedChanged -= logChildControlBase_CheckedChanged;
@@ -802,7 +802,7 @@ namespace vApus.Stresstest {
                     foreach (Control control in largelist.Selection)
                         if (control is LogEntryControl) {
                             var logEntryControl = control as LogEntryControl;
-                            (logEntryControl.LogChild as LogEntry).Pinned = true;
+                            //(logEntryControl.LogChild as LogEntry).Pinned = true;
                             logEntryControl.SetUserActionControl(userActionControl);
                             userActionControl.LogEntryControls.Add(logEntryControl);
                         }
@@ -1182,8 +1182,8 @@ namespace vApus.Stresstest {
                 _log.ApplyLogRuleSet();
 
                 string b, e;
-                bool error, warning;
-                _log.GetUniqueParameterTokenDelimiters(out b, out e, out error, out warning);
+                bool logEntryContainsTokens;
+                _log.GetParameterTokenDelimiters(out b, out e, out logEntryContainsTokens, false);
                 //I presume there are no errors, there are 14348907 possible combinations of delimiters
                 foreach (BaseItem item in _log)
                     if (item is UserAction) {
@@ -1273,15 +1273,15 @@ namespace vApus.Stresstest {
                     var userAction = item as UserAction;
                     //Determine the non parallel log entries, set ignore delay for the other ones (must always be ignored for these)
                     var nonParallelLogEntries = new List<LogEntry>();
-                    foreach (LogEntry entry in userAction)
-                        if (entry.ExecuteInParallelWithPrevious)
-                            entry.IgnoreDelay = true;
-                        else
-                            nonParallelLogEntries.Add(entry);
+                    //foreach (LogEntry entry in userAction)
+                    //    if (entry.ExecuteInParallelWithPrevious)
+                    //        entry.IgnoreDelay = true;
+                    //    else
+                    //        nonParallelLogEntries.Add(entry);
 
-                    //Then set ignore delays for all but the last
-                    for (int i = 0; i < nonParallelLogEntries.Count - 1; i++)
-                        nonParallelLogEntries[i].IgnoreDelay = true;
+                    ////Then set ignore delays for all but the last
+                    //for (int i = 0; i < nonParallelLogEntries.Count - 1; i++)
+                    //    nonParallelLogEntries[i].IgnoreDelay = true;
                 }
         }
 

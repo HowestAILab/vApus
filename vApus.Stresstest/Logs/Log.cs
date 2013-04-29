@@ -200,28 +200,22 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="beginTokenDelimiter"></param>
         /// <param name="endTokenDelimiter"></param>
-        /// <param name="warning">True if one of the delimiters is not contained in the log entry string as imported but is in the log entry string.</param>
-        public void GetUniqueParameterTokenDelimiters(out string beginTokenDelimiter, out string endTokenDelimiter,
-                                                      out bool warning, out bool error, bool autoNextOnError = true) {
+        /// <param name="logEntryContainsTokens">True if one of the delimiters is in the log entry string.</param>
+        public void GetParameterTokenDelimiters(out string beginTokenDelimiter, out string endTokenDelimiter, out bool logEntryContainsTokens, bool autoNextOnLogEntryContainsTokens) {
             beginTokenDelimiter = string.Empty;
             endTokenDelimiter = string.Empty;
-            warning = false;
-            error = false;
+            logEntryContainsTokens = false;
 
             foreach (LogEntry logEntry in GetAllLogEntries()) {
                 string b, e;
-                bool warn, err;
+                bool bln;
 
-                int i = logEntry.GetUniqueParameterTokenDelimiters(autoNextOnError, out b, out e, out warn, out err,
-                                                                   _preferredTokenDelimiterIndex);
+                int i = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
 
                 if (i >= _preferredTokenDelimiterIndex) {
                     beginTokenDelimiter = b;
                     endTokenDelimiter = e;
-                    if (warn)
-                        warning = warn;
-                    if (err)
-                        error = err;
+                    if (bln) logEntryContainsTokens = true;
 
                     _preferredTokenDelimiterIndex = i;
                 }
@@ -237,8 +231,8 @@ namespace vApus.Stresstest {
             var chosenNextValueParametersForLScope = new HashSet<BaseParameter>();
 
             string b, e;
-            bool warning, error;
-            GetUniqueParameterTokenDelimiters(out b, out e, out warning, out error);
+            bool logEntryContainsTokens;
+            GetParameterTokenDelimiters(out b, out e, out logEntryContainsTokens, false);
 
             foreach (BaseItem item in this)
                 if (item is UserAction)
@@ -291,11 +285,9 @@ namespace vApus.Stresstest {
                     oldAndNewTokens.Add(oldToken, newToken);
                 }
 
-            foreach (LogEntry entry in GetAllLogEntries()) {
-                foreach (string oldToken in oldAndNewTokens.Keys) {
+            foreach (LogEntry entry in GetAllLogEntries())
+                foreach (string oldToken in oldAndNewTokens.Keys)
                     entry.LogEntryString = entry.LogEntryString.Replace(oldToken, oldAndNewTokens[oldToken]);
-                }
-            }
 
             InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }

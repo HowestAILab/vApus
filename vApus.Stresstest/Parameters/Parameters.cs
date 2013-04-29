@@ -11,15 +11,12 @@ using System.Collections.Generic;
 using System.Threading;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     [Serializable]
-    public class Parameters : BaseItem
-    {
+    public class Parameters : BaseItem {
         private static readonly object _lock = new object();
 
-        public Parameters()
-        {
+        public Parameters() {
             AddAsDefaultItem(new CustomListParameters());
             AddAsDefaultItem(new NumericParameters());
             AddAsDefaultItem(new TextParameters());
@@ -30,25 +27,19 @@ namespace vApus.Stresstest
         ///     Threadsafe call.
         /// </summary>
         /// <returns></returns>
-        public List<BaseParameter> GetAllParameters()
-        {
-            lock (_lock)
-            {
+        public List<BaseParameter> GetAllParameters() {
+            lock (_lock) {
                 var l = new List<BaseParameter>();
                 int failedTries = 0;
-                Retry:
-                try
-                {
+            Retry:
+                try {
                     foreach (BaseItem item in this)
                         foreach (BaseParameter parameter in item)
                             l.Add(parameter);
-                }
-                catch
-                {
+                } catch {
                     //Handle if the collection changed.
-                    if (++failedTries != 3)
-                    {
-                        Thread.Sleep(1000*failedTries);
+                    if (++failedTries != 3) {
+                        Thread.Sleep(1000 * failedTries);
                         goto Retry;
                     }
                 }
@@ -65,17 +56,14 @@ namespace vApus.Stresstest
         ///     Otherwise, 3 can become 4 and after this 4 can become 5.
         /// </param>
         public void SynchronizeTokenNumericIdentifierToIndices(
-            out Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices)
-        {
+            out Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices) {
             var l1 = new List<BaseParameter>();
             var l2 = new List<KeyValuePair<int, int>>();
 
             int i = 1;
             foreach (BaseItem item in this)
-                foreach (BaseParameter parameter in item)
-                {
-                    if (parameter.TokenNumericIdentifier != i)
-                    {
+                foreach (BaseParameter parameter in item) {
+                    if (parameter.TokenNumericIdentifier != i) {
                         l1.Add(parameter);
                         l2.Add(new KeyValuePair<int, int>(parameter.TokenNumericIdentifier, i));
                         parameter.TokenNumericIdentifier = i;
@@ -90,10 +78,9 @@ namespace vApus.Stresstest
             for (int j = 0; j != l1.Count; j++)
                 oldAndNewIndices.Add(l1[j], l2[j]);
 
-            if (oldAndNewIndices.Count != 0)
-            {
+            if (oldAndNewIndices.Count != 0) {
                 BaseSolutionComponentView view = SolutionComponentViewManager.Show(this,
-                                                                                   typeof (ParameterTokenSynchronization
+                                                                                   typeof(ParameterTokenSynchronization
                                                                                        ));
                 (view as ParameterTokenSynchronization).VisualizeSynchronization(oldAndNewIndices);
             }

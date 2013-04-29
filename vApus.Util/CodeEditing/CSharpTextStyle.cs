@@ -62,14 +62,14 @@ namespace vApus.Util
             e.ChangedRange.SetStyle(BlueStyle,
                                     @"\b(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while|add|alias|ascending|descending|dynamic|from|get|global|group|into|join|let|orderby|partial|remove|select|set|value|var|where|yield)\b|#region\b|#endregion\b");
 
-            //clear folding markers
+            //Folding markers
             e.ChangedRange.ClearFoldingMarkers();
-            //set folding markers
             e.ChangedRange.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
             e.ChangedRange.SetFoldingMarkers(@"#region\b", @"#endregion\b"); //allow to collapse #region blocks
             e.ChangedRange.SetFoldingMarkers(@"/\*", @"\*/"); //allow to collapse comment block
+            
+            e.ChangedRange.SetFoldingMarkers(@"#if\b", @"#endif\b"); //allow to collapse preprocessor block
 
-            //Preprocessor stuff
             e.ChangedRange.SetStyle(BlueStyle, @"(#define|#undef|#if|#else|#elif|#endif)\b");
         }
     }

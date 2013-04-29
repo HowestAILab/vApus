@@ -34,7 +34,7 @@ namespace vApus.Stresstest {
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100;
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
-        private ActionAndLogEntryDistribution _distribute;
+        private UserActionDistribution _distribute;
         private Connection _connection;
         private Log _log;
         //This will be saved, I don't want to extend the save logic so I hack around it.
@@ -273,7 +273,7 @@ namespace vApus.Stresstest {
             "Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance."
             )]
         [SavableCloneable, PropertyControl(8, true)]
-        public ActionAndLogEntryDistribution Distribute {
+        public UserActionDistribution Distribute {
             get { return _distribute; }
             set { _distribute = value; }
         }

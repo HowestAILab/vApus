@@ -18,10 +18,8 @@ using FastColoredTextBoxNS;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class BulkEditLog : Form
-    {
+namespace vApus.Stresstest {
+    public partial class BulkEditLog : Form {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -43,8 +41,7 @@ namespace vApus.Stresstest
 
         #region Properties
 
-        public Log Log
-        {
+        public Log Log {
             get { return _log; }
         }
 
@@ -52,25 +49,20 @@ namespace vApus.Stresstest
 
         #region Constructors
 
-        public BulkEditLog()
-        {
+        public BulkEditLog() {
             InitializeComponent();
             cboParameterScope.SelectedIndex = 0;
         }
 
-        public BulkEditLog(Log log)
-        {
+        public BulkEditLog(Log log) {
             InitializeComponent();
 
             _log = log.Clone();
-            bool warning;
-            bool error;
-            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
-                                                   out error);
+            bool logEntryContainsTokens;
+            _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
 
             var logEntryStrings = new List<string>();
-            foreach (LogEntry entry in _log.GetAllLogEntries())
-            {
+            foreach (LogEntry entry in _log.GetAllLogEntries()) {
                 string index = string.Empty;
                 if (entry.Parent is Log)
                     index = "Log Entry " + entry.Index;
@@ -82,7 +74,7 @@ namespace vApus.Stresstest
 
             _logEntryStrings = logEntryStrings.ToArray();
 
-            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof (Parameters)) as Parameters;
+            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
 
             cboParameterScope.SelectedIndex = 0;
 
@@ -96,14 +88,12 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        private void BulkEditLog_HandleCreated(object sender, EventArgs e)
-        {
+        private void BulkEditLog_HandleCreated(object sender, EventArgs e) {
             SetCodeStyle();
             SetTextAndValidation();
         }
 
-        private void SetCodeStyle()
-        {
+        private void SetCodeStyle() {
             BaseItem customListParameters = _parameters[0];
             BaseItem numericParameters = _parameters[1];
             BaseItem textParameters = _parameters[2];
@@ -124,26 +114,21 @@ namespace vApus.Stresstest
                          np = new List<string>(),
                          tp = new List<string>(),
                          crp = new List<string>();
-            foreach (string scopeIdentifier in scopeIdentifiers)
-            {
+            foreach (string scopeIdentifier in scopeIdentifiers) {
                 index = 1;
-                for (int i = 0; i < customListParameters.Count; i++)
-                {
+                for (int i = 0; i < customListParameters.Count; i++) {
                     string token = _beginTokenDelimiter + scopeIdentifier + (index++) + _endTokenDelimiter;
                     clp.Add(token);
                 }
-                for (int i = 0; i < numericParameters.Count; i++)
-                {
+                for (int i = 0; i < numericParameters.Count; i++) {
                     string token = _beginTokenDelimiter + scopeIdentifier + (index++) + _endTokenDelimiter;
                     np.Add(token);
                 }
-                for (int i = 0; i < textParameters.Count; i++)
-                {
+                for (int i = 0; i < textParameters.Count; i++) {
                     string token = _beginTokenDelimiter + scopeIdentifier + (index++) + _endTokenDelimiter;
                     tp.Add(token);
                 }
-                for (int i = 0; i < customRandomParameters.Count; i++)
-                {
+                for (int i = 0; i < customRandomParameters.Count; i++) {
                     string token = _beginTokenDelimiter + scopeIdentifier + (index++) + _endTokenDelimiter;
                     crp.Add(token);
                 }
@@ -156,8 +141,7 @@ namespace vApus.Stresstest
                                                                              crp, false);
         }
 
-        private string[] GetDelimiters(LogRuleSet logRuleSet)
-        {
+        private string[] GetDelimiters(LogRuleSet logRuleSet) {
             var hs = new HashSet<string>();
             if (logRuleSet.ChildDelimiter.Length != 0)
                 hs.Add(logRuleSet.ChildDelimiter);
@@ -174,8 +158,7 @@ namespace vApus.Stresstest
             return delimiters;
         }
 
-        private IEnumerable<string> GetDelimiters(LogSyntaxItem logSyntaxItem)
-        {
+        private IEnumerable<string> GetDelimiters(LogSyntaxItem logSyntaxItem) {
             if (logSyntaxItem.ChildDelimiter.Length != 0)
                 yield return logSyntaxItem.ChildDelimiter;
             foreach (BaseItem item in logSyntaxItem)
@@ -184,20 +167,17 @@ namespace vApus.Stresstest
                         yield return delimiter;
         }
 
-        private void cboParameterScope_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cboParameterScope_SelectedIndexChanged(object sender, EventArgs e) {
             SetParameterTokensFlps();
         }
 
-        private void SetParameterTokensFlps()
-        {
+        private void SetParameterTokensFlps() {
             string scopeIdentifier = null;
 
             flpNotUsedTokens.Controls.Clear();
             flpUsedTokens.Controls.Clear();
 
-            switch (cboParameterScope.SelectedIndex)
-            {
+            switch (cboParameterScope.SelectedIndex) {
                 case 1:
                     scopeIdentifier = ASTNode.LOG_PARAMETER_SCOPE;
                     break;
@@ -215,22 +195,18 @@ namespace vApus.Stresstest
                     break;
             }
 
-            if (scopeIdentifier == null)
-            {
+            if (scopeIdentifier == null) {
                 AddKvpsToFlps(ASTNode.LOG_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.USER_ACTION_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.LOG_ENTRY_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.LEAF_NODE_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.ALWAYS_PARAMETER_SCOPE);
-            }
-            else
-            {
+            } else {
                 AddKvpsToFlps(scopeIdentifier);
             }
         }
 
-        private void AddKvpsToFlps(string scopeIdentifier)
-        {
+        private void AddKvpsToFlps(string scopeIdentifier) {
             BaseItem customListParameters = _parameters[0];
             BaseItem numericParameters = _parameters[1];
             BaseItem textParameters = _parameters[2];
@@ -251,31 +227,25 @@ namespace vApus.Stresstest
                              customRandomParameters[i].ToString(), Color.Yellow);
         }
 
-        private void AddKvpToFlps(string key, string value, Color backColor)
-        {
+        private void AddKvpToFlps(string key, string value, Color backColor) {
             var kvp = new KeyValuePairControl(key, value);
             kvp.BackColor = backColor;
-            if (LogContains(kvp.Key))
-            {
+            if (LogContains(kvp.Key)) {
                 flpUsedTokens.Controls.Add(kvp);
-            }
-            else
-            {
+            } else {
                 kvp.ForeColor = Color.DimGray;
                 flpNotUsedTokens.Controls.Add(kvp);
             }
         }
 
-        private bool LogContains(string s)
-        {
+        private bool LogContains(string s) {
             foreach (string logEntryString in _logEntryStrings)
                 if (logEntryString.Contains(s))
                     return true;
             return false;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             bool close = _log.LexicalResult == LexicalResult.OK;
 
             if (!close &&
@@ -284,8 +254,7 @@ namespace vApus.Stresstest
                 DialogResult.Yes)
                 close = true;
 
-            if (close)
-            {
+            if (close) {
                 DialogResult = DialogResult.OK;
                 Close();
             }
@@ -293,31 +262,26 @@ namespace vApus.Stresstest
 
         #region Filter
 
-        private void fastColoredTextBoxApplyFilter_TextChangedDelayed(object sender, TextChangedEventArgs e)
-        {
+        private void fastColoredTextBoxApplyFilter_TextChangedDelayed(object sender, TextChangedEventArgs e) {
             SetTextAndValidation();
         }
 
-        private void chkFilterWholeWords_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkFilterWholeWords_CheckedChanged(object sender, EventArgs e) {
             SetTextAndValidation();
         }
 
-        private void chkFilterMatchCase_CheckedChanged(object sender, EventArgs e)
-        {
+        private void chkFilterMatchCase_CheckedChanged(object sender, EventArgs e) {
             SetTextAndValidation();
         }
 
-        private void rdbANDWise_CheckedChanged(object sender, EventArgs e)
-        {
+        private void rdbANDWise_CheckedChanged(object sender, EventArgs e) {
             SetTextAndValidation();
         }
 
-        private void SetTextAndValidation()
-        {
+        private void SetTextAndValidation() {
             Cursor = Cursors.WaitCursor;
 
-            string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] {'\n'},
+            string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] { '\n' },
                                                                        StringSplitOptions.RemoveEmptyEntries);
 
             int i = 0;
@@ -325,12 +289,9 @@ namespace vApus.Stresstest
             var sb = new StringBuilder();
             sb.AppendLine();
 
-            if (filter.Length == 0)
-            {
-                foreach (string logEntryString in _logEntryStrings)
-                {
-                    if (i != MAXSHOWNLOGENTRIES)
-                    {
+            if (filter.Length == 0) {
+                foreach (string logEntryString in _logEntryStrings) {
+                    if (i != MAXSHOWNLOGENTRIES) {
                         sb.AppendLine(logEntryString);
                         ++i;
                     }
@@ -340,9 +301,7 @@ namespace vApus.Stresstest
                 rtxtDescription.Text = count <= MAXSHOWNLOGENTRIES
                                            ? "All " + count + " log entries..."
                                            : "The first " + i + " of " + count + " log entries...";
-            }
-            else
-            {
+            } else {
                 RegexOptions options = chkFilterMatchCase.Checked
                                            ? RegexOptions.Singleline
                                            : RegexOptions.Singleline | RegexOptions.IgnoreCase;
@@ -355,10 +314,8 @@ namespace vApus.Stresstest
                         filter[k] = Regex.Escape(filter[k]);
 
                 int j = 0;
-                foreach (string logEntryString in _logEntryStrings)
-                {
-                    if (RegexIsMatch(logEntryString, filter, rdbANDWise.Checked, options))
-                    {
+                foreach (string logEntryString in _logEntryStrings) {
+                    if (RegexIsMatch(logEntryString, filter, rdbANDWise.Checked, options)) {
                         if (i++ != MAXSHOWNLOGENTRIES)
                             sb.AppendLine(logEntryString);
                         else
@@ -379,17 +336,13 @@ namespace vApus.Stresstest
             Cursor = Cursors.Default;
         }
 
-        private bool RegexIsMatch(string input, string[] patterns, bool andWise, RegexOptions options)
-        {
-            if (andWise)
-            {
+        private bool RegexIsMatch(string input, string[] patterns, bool andWise, RegexOptions options) {
+            if (andWise) {
                 for (int i = 0; i < patterns.Length; i++)
                     if (!Regex.IsMatch(input, patterns[i], options))
                         return false;
                 return true;
-            }
-            else
-            {
+            } else {
                 for (int i = 0; i < patterns.Length; i++)
                     if (Regex.IsMatch(input, patterns[i], options))
                         return true;
@@ -397,28 +350,22 @@ namespace vApus.Stresstest
             }
         }
 
-        private void chkFilterOnUsedTokens_CheckedChanged(object sender, EventArgs e)
-        {
-            string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] {'\n'},
+        private void chkFilterOnUsedTokens_CheckedChanged(object sender, EventArgs e) {
+            string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] { '\n' },
                                                                        StringSplitOptions.RemoveEmptyEntries);
             StringBuilder sb = null;
 
-            if (chkFilterOnUsedTokens.Checked)
-            {
+            if (chkFilterOnUsedTokens.Checked) {
                 sb = new StringBuilder(fastColoredTextBoxApplyFilter.Text);
                 foreach (string token in GetParameterTokens())
                     if (!filter.Contains(token) && LogContains(token))
                         sb.AppendLine(token);
-            }
-            else
-            {
+            } else {
                 sb = new StringBuilder();
-                foreach (string s in filter)
-                {
+                foreach (string s in filter) {
                     bool isToken = false;
                     foreach (string token in GetParameterTokens())
-                        if (s == token)
-                        {
+                        if (s == token) {
                             isToken = true;
                             break;
                         }
@@ -430,8 +377,7 @@ namespace vApus.Stresstest
             fastColoredTextBoxApplyFilter.Text = sb.ToString().Trim();
         }
 
-        private IEnumerable<string> GetParameterTokens()
-        {
+        private IEnumerable<string> GetParameterTokens() {
             var scopeIdentifiers = new[]
                 {
                     ASTNode.LOG_PARAMETER_SCOPE,
@@ -442,16 +388,14 @@ namespace vApus.Stresstest
                 };
 
             int i;
-            foreach (string scopeIdentifier in scopeIdentifiers)
-            {
+            foreach (string scopeIdentifier in scopeIdentifiers) {
                 i = 1;
                 foreach (BaseParameter parameter in _parameters.GetAllParameters())
                     yield return (_beginTokenDelimiter + scopeIdentifier + (i++) + _endTokenDelimiter);
             }
         }
 
-        private void tcTools_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void tcTools_SelectedIndexChanged(object sender, EventArgs e) {
             if (tcTools.SelectedTab == tpApplyFilter)
                 fastColoredTextBoxApplyFilter.Select();
         }
@@ -460,13 +404,11 @@ namespace vApus.Stresstest
 
         #region Replace
 
-        private void txtFind_TextChanged(object sender, EventArgs e)
-        {
+        private void txtFind_TextChanged(object sender, EventArgs e) {
             btnReplaceWith.Enabled = txtFind.Text.Length != 0;
         }
 
-        private void btnReplaceWith_Click(object sender, EventArgs e)
-        {
+        private void btnReplaceWith_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
 
             txtFind.SelectAll();
@@ -483,14 +425,11 @@ namespace vApus.Stresstest
             Log undoLog = null;
             int replacedCounter = 0;
 
-            if (rdbReplaceInAllLogEntries.Checked)
-            {
-                foreach (LogEntry entry in _log.GetAllLogEntries())
-                {
+            if (rdbReplaceInAllLogEntries.Checked) {
+                foreach (LogEntry entry in _log.GetAllLogEntries()) {
                     string replaced = Regex.Replace(entry.LogEntryString, oldText, txtReplace.Text, options);
 
-                    if (entry.LogEntryString != replaced)
-                    {
+                    if (entry.LogEntryString != replaced) {
                         if (replacedCounter == 0)
                             undoLog = _log.Clone();
 
@@ -498,10 +437,8 @@ namespace vApus.Stresstest
                         entry.LogEntryString = replaced;
                     }
                 }
-            }
-            else
-            {
-                string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] {'\n'},
+            } else {
+                string[] filter = fastColoredTextBoxApplyFilter.Text.Split(new[] { '\n' },
                                                                            StringSplitOptions.RemoveEmptyEntries);
 
                 if (chkFilterWholeWords.Checked)
@@ -512,12 +449,10 @@ namespace vApus.Stresstest
                         filter[k] = Regex.Escape(filter[k]);
 
                 foreach (LogEntry entry in _log.GetAllLogEntries())
-                    if (RegexIsMatch(entry.LogEntryString, filter, rdbANDWise.Checked, options))
-                    {
+                    if (RegexIsMatch(entry.LogEntryString, filter, rdbANDWise.Checked, options)) {
                         string replaced = Regex.Replace(entry.LogEntryString, oldText, txtReplace.Text, options);
 
-                        if (entry.LogEntryString != replaced)
-                        {
+                        if (entry.LogEntryString != replaced) {
                             if (replacedCounter == 0)
                                 undoLog = _log.Clone();
 
@@ -527,16 +462,13 @@ namespace vApus.Stresstest
                     }
             }
 
-            if (replacedCounter != 0)
-            {
+            if (replacedCounter != 0) {
                 _log.ApplyLogRuleSet();
-                bool warning, error;
-                _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
-                                                       out error);
+                bool logEntryContainsTokens;
+                _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
 
                 var logEntryStrings = new List<string>();
-                foreach (LogEntry entry in _log.GetAllLogEntries())
-                {
+                foreach (LogEntry entry in _log.GetAllLogEntries()) {
                     string index = string.Empty;
                     if (entry.Parent is Log)
                         index = "Log Entry " + entry.Index;
@@ -565,8 +497,7 @@ namespace vApus.Stresstest
             Cursor = Cursors.Default;
         }
 
-        private void btnSwitchValues_Click(object sender, EventArgs e)
-        {
+        private void btnSwitchValues_Click(object sender, EventArgs e) {
             if (txtReplace.Text == string.Empty)
                 return;
             string find = txtFind.Text;
@@ -574,8 +505,7 @@ namespace vApus.Stresstest
             txtReplace.Text = find;
         }
 
-        private void btnUndoRedo_Click(object sender, EventArgs e)
-        {
+        private void btnUndoRedo_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
 
             Log undoRedoLog = _log.Clone();
@@ -583,13 +513,11 @@ namespace vApus.Stresstest
             _log = btnUndoRedo.Tag as Log;
 
             _log.ApplyLogRuleSet();
-            bool warning, error;
-            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
-                                                   out error);
+            bool logEntryContainsTokens;
+            _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
 
             var logEntryStrings = new List<string>();
-            foreach (LogEntry entry in _log.GetAllLogEntries())
-            {
+            foreach (LogEntry entry in _log.GetAllLogEntries()) {
                 string index = string.Empty;
                 if (entry.Parent is Log)
                     index = "Log Entry " + entry.Index;
@@ -616,23 +544,18 @@ namespace vApus.Stresstest
 
         #region Errors
 
-        private void SetValidation()
-        {
-            if (_log.LexicalResult == LexicalResult.OK)
-            {
+        private void SetValidation() {
+            if (_log.LexicalResult == LexicalResult.OK) {
                 if (tcTools.TabPages.Contains(tpErrors))
                     tcTools.TabPages.Remove(tpErrors);
-            }
-            else
-            {
+            } else {
                 tvw.Nodes.Clear();
 
                 if (!tcTools.Contains(tpErrors))
                     tcTools.TabPages.Add(tpErrors);
 
                 int index = 0;
-                foreach (LogEntry entry in _log.GetAllLogEntries())
-                {
+                foreach (LogEntry entry in _log.GetAllLogEntries()) {
                     if (entry.LexicalResult == LexicalResult.Error)
                         AddErrorNode(index, entry);
                     ++index;
@@ -642,8 +565,7 @@ namespace vApus.Stresstest
             }
         }
 
-        private void AddErrorNode(int line, LogEntry entry)
-        {
+        private void AddErrorNode(int line, LogEntry entry) {
             var node = new TreeNode(line + ") " + entry.LogEntryString);
             node.Tag = entry;
 
@@ -669,24 +591,20 @@ namespace vApus.Stresstest
                 tvw.SelectedNode = node;
         }
 
-        private void btnEditSelectedLogEntry_Click(object sender, EventArgs e)
-        {
+        private void btnEditSelectedLogEntry_Click(object sender, EventArgs e) {
             TreeNode node = tvw.SelectedNode;
             var logEntry = node.Tag as LogEntry;
 
             var addEditLogEntry = new AddEditLogEntry(logEntry);
-            if (addEditLogEntry.ShowDialog() == DialogResult.OK)
-            {
+            if (addEditLogEntry.ShowDialog() == DialogResult.OK) {
                 logEntry.LogEntryString = addEditLogEntry.LogEntry.LogEntryString;
 
                 _log.ApplyLogRuleSet();
-                bool warning, error;
-                _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
-                                                       out error);
+                bool logEntryContainsTokens;
+                _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
 
                 var logEntryStrings = new List<string>();
-                foreach (LogEntry entry in _log.GetAllLogEntries())
-                {
+                foreach (LogEntry entry in _log.GetAllLogEntries()) {
                     string index = string.Empty;
                     if (entry.Parent is Log)
                         index = "Log Entry " + entry.Index;

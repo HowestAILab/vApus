@@ -201,7 +201,7 @@ namespace vApus.Stresstest {
 
         /// <summary>
         ///     Combine the child values (if any) using the delimiter or returns Value.
-        ///     SHould only be used for building a log entry string!
+        ///     Should only be used for testing.
         /// </summary>
         /// <returns></returns>
         public string CombineValues() {

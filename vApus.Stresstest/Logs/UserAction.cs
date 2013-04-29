@@ -19,6 +19,7 @@ namespace vApus.Stresstest {
         #region Fields
         private int _occurance = 1;
         private bool _pinned;
+        private bool _useDelay = true;
         [field:NonSerialized]
         private List<string> _logEntryStringsAsImported = new List<string>();
         #endregion
@@ -45,6 +46,14 @@ namespace vApus.Stresstest {
             set { _pinned = value; }
         }
 
+        [ReadOnly(true)]
+        [SavableCloneable]
+        [Description("When true the determined delay (stresstest properties) will take place after this user action.")
+        , DisplayName("Use Delay")]
+        public bool UseDelay {
+            get { return _useDelay; }
+            set { _useDelay = value; }
+        }
 
         [ReadOnly(true)]
         [SavableCloneable]
@@ -91,6 +100,7 @@ namespace vApus.Stresstest {
             userAction.SetParent(Parent, false);
             userAction.Occurance = _occurance;
             userAction.Pinned = _pinned;
+            userAction.UseDelay = _useDelay;
             userAction.LogEntryStringsAsImported = _logEntryStringsAsImported;
 
             foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(), false);

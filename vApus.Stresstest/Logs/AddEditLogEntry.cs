@@ -78,9 +78,8 @@ namespace vApus.Stresstest {
             else
                 _log = _logEntry.Parent as Log;
 
-            bool warning, error;
-            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning,
-                                                   out error);
+            bool logEntryContainsTokens;
+            _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
 
             _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
 
@@ -295,7 +294,7 @@ namespace vApus.Stresstest {
                 rtxtError.Text = astNode.Error;
 
                 fastColoredTextBoxEdit.TextChangedDelayed -= fastColoredTextBoxEdit_TextChangedDelayed;
-                fastColoredTextBoxEdit.Text = astNode.CombineValues();
+                //fastColoredTextBoxEdit.Text = astNode.CombineValues();
                 fastColoredTextBoxEdit.TextChangedDelayed += fastColoredTextBoxEdit_TextChangedDelayed;
 
                 _selectedTreeNodeIndex.Clear();
@@ -409,7 +408,7 @@ namespace vApus.Stresstest {
                 astNode.Value = fastColoredTextBoxEdit.Text;
 
                 astNode = tvwValidation.Nodes[0].Tag as ASTNode;
-                _logEntry.LogEntryString = astNode.CombineValues();
+                //_logEntry.LogEntryString = astNode.CombineValues();
 
                 if (_validateTimer != null) {
                     btnOK.Enabled = false;

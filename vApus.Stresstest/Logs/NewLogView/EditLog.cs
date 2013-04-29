@@ -21,9 +21,6 @@ namespace vApus.Stresstest {
 
         #region Fields
         private Log _log;
-        private static string[] _defaultDeny = { "addthis.com", "apis.google.com", "cloudflare.com", "facebook.com", "google-analytics.com", "googleapis.com", "linkedin.com", "m.addthisedge.com", 
-                                                 "nedstatbasic.net", "plusone.google.com", "ssl.gstatic.com", "twimg.com", "twitter.com", "youtube.com" };
-
         private string _beginTokenDelimiter;
         private string _endTokenDelimiter;
 
@@ -52,82 +49,18 @@ namespace vApus.Stresstest {
         }
 
         internal void SetLog(Log log) {
-            tmrRemoveEmptyCells.Stop();
             _log = log;
 
-            bool warning, error;
-            _log.GetUniqueParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out warning, out error);
+            bool logEntryContainsTokens;
+            _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
 
             SetCodeStyle();
 
-            chkAllow.Checked = _log.UseAllow;
-            chkDeny.Checked = _log.UseDeny;
+            captureControl.UseAllow = _log.UseAllow;
+            captureControl.UseDeny = _log.UseDeny;
 
-            foreach (string s in _log.Allow) dgvAllow.Rows.Add(s);
-
-            var deny = _log.Deny.Length == 0 ? _defaultDeny : _log.Deny;
-            foreach (string s in deny) dgvDeny.Rows.Add(s);
-            tmrRemoveEmptyCells.Start();
-        }
-
-        private void chkAllow_CheckedChanged(object sender, EventArgs e) {
-            dgvAllow.Enabled = chkAllow.Checked;
-            dgvAllow.DefaultCellStyle.ForeColor = dgvAllow.ColumnHeadersDefaultCellStyle.ForeColor = dgvAllow.Enabled ? SystemColors.ControlText : SystemColors.ControlDarkDark;
-
-            if (tmrRemoveEmptyCells.Enabled) {
-                _log.UseAllow = chkAllow.Checked;
-                _log.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
-        }
-        private void chkDeny_CheckedChanged(object sender, EventArgs e) {
-            dgvDeny.Enabled = chkDeny.Checked;
-            dgvDeny.DefaultCellStyle.ForeColor = dgvDeny.ColumnHeadersDefaultCellStyle.ForeColor = dgvDeny.Enabled ? SystemColors.ControlText : SystemColors.ControlDarkDark;
-
-            if (tmrRemoveEmptyCells.Enabled) {
-                _log.UseDeny = chkDeny.Checked;
-                _log.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
-        }
-        private void dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
-            var dgv = sender as DataGridView;
-            DataGridViewCell cell = dgv.Rows[e.RowIndex].Cells[0];
-            IPAddress ip;
-            try {
-                if (!IPAddress.TryParse(cell.Value.ToString(), out ip))
-                    Dns.GetHostEntry(cell.Value.ToString());
-            } catch {
-                cell.Value = null;
-            }
-
-            if (tmrRemoveEmptyCells.Enabled) {
-                string[] arr = new string[dgv.Rows.Count - 1];
-                for (int i = 0; i != dgv.RowCount - 1; i++)
-                    if (dgv.Rows[i].Cells[0].Value != null)
-                        arr[i] = dgv.Rows[i].Cells[0].Value as string;
-
-                if (sender == dgvAllow) _log.Allow = arr; else _log.Deny = arr;
-                _log.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
-        }
-        private void tmrRemoveEmptyCells_Tick(object sender, EventArgs e) {
-            try {
-                if (!dgvAllow.IsCurrentCellInEditMode)
-                    for (int i = 0; i != dgvAllow.RowCount - 1; i++)
-                        if (dgvAllow.Rows[i].Cells[0].Value == null)
-                            dgvAllow.Rows.RemoveAt(i);
-
-                if (!dgvDeny.IsCurrentCellInEditMode)
-                    for (int i = 0; i != dgvDeny.RowCount - 1; i++)
-                        if (dgvDeny.Rows[i].Cells[0].Value == null)
-                            dgvDeny.Rows.RemoveAt(i);
-
-                if (dgvDeny.Rows.Count <= 1) {
-                    tmrRemoveEmptyCells.Stop();
-                    foreach (string s in _defaultDeny) dgvDeny.Rows.Add(s);
-                    tmrRemoveEmptyCells.Start();
-                }
-
-            } catch { }
+            captureControl.Allow = _log.Allow;
+            captureControl.Deny = _log.Deny;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e) {
@@ -215,38 +148,56 @@ namespace vApus.Stresstest {
         }
 
         private void btnImport_Click(object sender, EventArgs e) {
-            if (chkClearLogBeforeImport.Checked &&
-                MessageBox.Show("Are you sure you want to clear and import?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                _log.ClearWithoutInvokingEvent(false);
-            else
-                return;
+            Import(fctxtxImport.Text, chkClearLogBeforeImport.Checked);
+        }
+
+        private void Import(string text, bool clearLog) {
+            //Clone and add to the clone to redetermine the tokens if needed.
+            Log toAdd = _log.Clone(false);
+
+            if (clearLog)
+                if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    _log.ClearWithoutInvokingEvent(false);
+                else
+                    return;
 
             UserAction userAction = null;
 
-            string toImport = fctxtxImport.Text;
             string[] splitter = new string[] { "\n", "\r" };
-            foreach (string line in toImport.Split(splitter, StringSplitOptions.RemoveEmptyEntries)) {
+            foreach (string line in text.Split(splitter, StringSplitOptions.RemoveEmptyEntries)) {
                 if (line.Trim().Length == 0)
                     continue;
 
                 string output;
                 if (DetermineComment(line, out output)) {
-                    if (_log.LogRuleSet.ActionizeOnComment) {
+                    if (toAdd.LogRuleSet.ActionizeOnComment) {
                         userAction = new UserAction(output);
-                        _log.AddWithoutInvokingEvent(userAction, false);
+                        toAdd.AddWithoutInvokingEvent(userAction, false);
                     }
                 } else if (userAction == null) {
                     var logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
                     var ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
                     ua.LogEntryStringsAsImported.Add(logEntry.LogEntryString);
                     ua.AddWithoutInvokingEvent(logEntry, false);
-                    _log.AddWithoutInvokingEvent(ua, false);
+                    toAdd.AddWithoutInvokingEvent(ua, false);
                 } else {
                     var logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
                     userAction.AddWithoutInvokingEvent(logEntry, false);
                     userAction.LogEntryStringsAsImported.Add(logEntry.LogEntryString);
                 }
             }
+
+            string beginTokenDelimiter, endTokenDelimiter;
+            bool logEntryContainsTokens;
+            toAdd.GetParameterTokenDelimiters(out beginTokenDelimiter, out endTokenDelimiter, out logEntryContainsTokens, false);
+
+            if (logEntryContainsTokens) {
+                var dialog = new RedetermineTokens(_log, toAdd);
+                if (dialog.ShowDialog() == DialogResult.Cancel) return;
+            }
+
+            _log.AddRangeWithoutInvokingEvent(toAdd, false);
+            toAdd = null;
 
             RemoveEmptyUserActions();
 
@@ -256,7 +207,7 @@ namespace vApus.Stresstest {
 #warning Parallel executions temp not available
             bool successfullyParallized = true;
             //#endif
-            SetIgnoreDelays();
+            //SetIgnoreDelays();
             // FillLargeList();
 
             if (!successfullyParallized) {
@@ -269,7 +220,6 @@ namespace vApus.Stresstest {
             if (LogImported != null)
                 LogImported(this, null);
         }
-
         /// <summary>
         /// </summary>
         /// <param name="input"></param>
@@ -365,23 +315,68 @@ namespace vApus.Stresstest {
             foreach (BaseItem item in emptyUserActions)
                 _log.RemoveWithoutInvokingEvent(item);
         }
-        private void SetIgnoreDelays() {
-            foreach (BaseItem item in _log)
-                if (item is UserAction) {
-                    var userAction = item as UserAction;
-                    //Determine the non parallel log entries, set ignore delay for the other ones (must always be ignored for these)
-                    var nonParallelLogEntries = new List<LogEntry>();
-                    foreach (LogEntry entry in userAction)
-                        if (entry.ExecuteInParallelWithPrevious)
-                            entry.IgnoreDelay = true;
-                        else
-                            nonParallelLogEntries.Add(entry);
 
-                    //Then set ignore delays for all but the last
-                    for (int i = 0; i < nonParallelLogEntries.Count - 1; i++)
-                        nonParallelLogEntries[i].IgnoreDelay = true;
-                }
+        private void btnStartStopAndExport_Click(object sender, EventArgs e) {
+
         }
 
+        private void btnPauseContinue_Click(object sender, EventArgs e) {
+
+        }
+
+        private void btnAddAction_Click(object sender, EventArgs e) {
+
+        }
+
+        private void captureControl_StartClicked(object sender, EventArgs e) {
+            SaveSettings();
+        }
+        private void captureControl_StopClicked(object sender, EventArgs e) {
+            SaveSettings();
+            Import(captureControl.ParsedLog, chkClearLogBeforeCapture.Checked);
+        }
+        private void SaveSettings() {
+            try {
+                if (_log != null) {
+                    bool editted = false;
+                    if (_log.UseAllow != captureControl.UseAllow) {
+                        _log.UseAllow = captureControl.UseAllow;
+                        editted = true;
+                    }
+                    if (_log.Allow.Length != captureControl.Allow.Length) {
+                        _log.Allow = captureControl.Allow;
+                        editted = true;
+                    }
+                    if (_log.UseDeny != captureControl.UseDeny) {
+                        _log.UseDeny = captureControl.UseDeny;
+                        editted = true;
+                    }
+                    if (_log.Deny.Length != captureControl.Deny.Length) {
+                        _log.Deny = captureControl.Deny;
+                        editted = true;
+                    }
+                    if (editted)
+                        _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                }
+            } catch { }
+        }
+
+        //private void SetIgnoreDelays() {
+        //    foreach (BaseItem item in _log)
+        //        if (item is UserAction) {
+        //            var userAction = item as UserAction;
+        //            //Determine the non parallel log entries, set ignore delay for the other ones (must always be ignored for these)
+        //            var nonParallelLogEntries = new List<LogEntry>();
+        //            foreach (LogEntry entry in userAction)
+        //                if (entry.ExecuteInParallelWithPrevious)
+        //                    entry.IgnoreDelay = true;
+        //                else
+        //                    nonParallelLogEntries.Add(entry);
+
+        //            //Then set ignore delays for all but the last
+        //            for (int i = 0; i < nonParallelLogEntries.Count - 1; i++)
+        //                nonParallelLogEntries[i].IgnoreDelay = true;
+        //        }
+        //}
     }
 }

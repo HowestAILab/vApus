@@ -18,7 +18,7 @@ namespace vApus.DistributedTesting {
 
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private Stresstest.Stresstest _defaultSettingsTo;
-        private ActionAndLogEntryDistribution _distribute;
+        private UserActionDistribution _distribute;
         protected internal Log _log;
         private int _maximumDelay = 1100;
         private int _minimumDelay = 900;
@@ -151,7 +151,7 @@ namespace vApus.DistributedTesting {
             "Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance."
             )]
         [SavableCloneable, PropertyControl(6)]
-        public ActionAndLogEntryDistribution Distribute {
+        public UserActionDistribution Distribute {
             get { return _distribute; }
             set { _distribute = value; }
         }

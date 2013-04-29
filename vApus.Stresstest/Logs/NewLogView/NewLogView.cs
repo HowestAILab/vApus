@@ -43,6 +43,8 @@ namespace vApus.Stresstest {
         }
         private void editLog_LogImported(object sender, EventArgs e) {
             SetLog();
+            //It is possible that the parameter token delimiters changed.
+            editUserAction.SetParameters();
         }
         private void LogRuleSet_LogRuleSetChanged(object sender, EventArgs e) {
             SetLog();

@@ -63,6 +63,8 @@ namespace vApus.Stresstest {
             //add this style explicitly for drawing under other styles
             _fastColoredTextBox.AddStyle(SameWordsStyle);
 
+            SetStyle(_fastColoredTextBox.Range);
+
             _fastColoredTextBox.TextChanged += _fastColoredTextBox_TextChanged;
         }
 

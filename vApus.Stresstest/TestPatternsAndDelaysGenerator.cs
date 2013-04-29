@@ -11,18 +11,16 @@ using System.Collections.Generic;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public class TestPatternsAndDelaysGenerator : IDisposable
-    {
+namespace vApus.Stresstest {
+    public class TestPatternsAndDelaysGenerator : IDisposable {
         #region Fields
 
         private readonly LogEntry[] _logEntries;
         private readonly int _maxActionCount;
         private readonly int _maximumDelay;
         private readonly int _minimumDelay;
-        private readonly bool _shuffleActionsAndLooseLogEntries;
-        private ActionAndLogEntryDistribution _actionAndLogEntryDistribution;
+        private readonly bool _shuffleUserActions;
+        private UserActionDistribution _userActionDistribution;
 
         private List<List<int>> _actions;
 
@@ -34,18 +32,15 @@ namespace vApus.Stresstest
 
         #region Properties
 
-        public int PatternLength
-        {
+        public int PatternLength {
             get { return _logEntries.Length; }
         }
 
-        public int UserActionsInPattern
-        {
+        public int UserActionsInPattern {
             get { return _actions.Count; }
         }
 
-        public bool IsDisposed
-        {
+        public bool IsDisposed {
             get { return _isDisposed; }
         }
 
@@ -57,27 +52,23 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="logEntries"></param>
         /// <param name="maxActionCount">Pinned actions are always chosen, non pinned are if this value allows it.</param>
-        /// <param name="shuffleActionsAndLooseLogEntries"></param>
-        /// <param name="actionAndLogEntryDistribution"></param>
+        /// <param name="shuffleUserActions"></param>
+        /// <param name="userActionDistribution"></param>
         /// <param name="minimumDelay"></param>
         /// <param name="maximumDelay"></param>
-        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount,
-                                              bool shuffleActionsAndLooseLogEntries,
-                                              ActionAndLogEntryDistribution actionAndLogEntryDistribution,
-                                              int minimumDelay, int maximumDelay)
-        {
+        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount, bool shuffleUserActions,
+                                              UserActionDistribution userActionDistribution, int minimumDelay, int maximumDelay) {
             _logEntries = logEntries;
             _maxActionCount = maxActionCount;
-            _shuffleActionsAndLooseLogEntries = shuffleActionsAndLooseLogEntries;
-            _actionAndLogEntryDistribution = actionAndLogEntryDistribution;
+            _shuffleUserActions = shuffleUserActions;
+            _userActionDistribution = userActionDistribution;
             _minimumDelay = minimumDelay;
             _maximumDelay = maximumDelay;
 
             Init();
         }
 
-        ~TestPatternsAndDelaysGenerator()
-        {
+        ~TestPatternsAndDelaysGenerator() {
             Dispose();
         }
 
@@ -85,48 +76,54 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
+        public void Dispose() {
+            if (!_isDisposed) {
                 _isDisposed = true;
                 _actions = null;
                 _chosenSeeds = null;
             }
         }
 
-        private void Init()
-        {
-            SolutionComponent currentParent = null;
+        private void Init() {
+            UserAction currentParent = null;
             _actions = new List<List<int>>(_logEntries.Length);
             List<int> action = null;
 
-            for (int i = 0; i != _logEntries.Length; i++)
-            {
+            for (int i = 0; i != _logEntries.Length; i++) {
                 LogEntry logEntry = _logEntries[i];
-                if (currentParent != logEntry.Parent || currentParent is Log)
-                {
-                    currentParent = logEntry.Parent;
+                if (currentParent != logEntry.Parent) {
+                    //Set the use delay if the currentparent != null
+                    SetUseDelay(currentParent);
+
+                    currentParent = logEntry.Parent as UserAction;
                     action = new List<int>();
 
                     //To pin log entries and user actions in place --> to not shuffle them.
-                    if (currentParent is Log)
-                        action.SetTag(logEntry.Pinned);
-                    else
-                        action.SetTag((currentParent as UserAction).Pinned);
+                    action.SetTag(currentParent.Pinned);
 
                     _actions.Add(action);
                 }
                 action.Add(i);
             }
+
+            SetUseDelay(currentParent);
+        }
+        private void SetUseDelay(UserAction userAction) {
+            if (userAction != null) {
+                LogEntry lastLogEntry = null;
+                foreach (LogEntry logEntry in userAction) {
+                    logEntry.UseDelay = false;
+                    lastLogEntry = logEntry;
+                }
+                if (userAction.UseDelay && lastLogEntry != null)
+                    lastLogEntry.UseDelay = true;
+            }
         }
 
-        public void GetPatterns(out int[] testPattern, out int[] delayPattern)
-        {
+        public void GetPatterns(out int[] testPattern, out int[] delayPattern) {
             int seed = DateTime.Now.Millisecond;
             var random = new Random(seed);
-            while (!_chosenSeeds.Add(seed))
-            {
+            while (!_chosenSeeds.Add(seed)) {
                 seed = random.Next();
                 random = new Random(seed);
             }
@@ -134,7 +131,7 @@ namespace vApus.Stresstest
             var tp = new List<int>();
             var dp = new List<int>();
 
-            if (_shuffleActionsAndLooseLogEntries)
+            if (_shuffleUserActions)
                 Shuffle(random);
 
             //Pinned actions are always chosen, non pinned can be chosen if the max allows it.
@@ -143,27 +140,25 @@ namespace vApus.Stresstest
                 notPinnedToChoose = 0;
 
             foreach (var action in _actions)
-                if ((bool) action.GetTag() || notPinnedToChoose-- > 0)
-                    foreach (int j in action)
-                    {
+                if ((bool)action.GetTag() || notPinnedToChoose-- > 0) {
+                    foreach (int j in action) {
                         tp.Add(j);
-                        dp.Add(_logEntries[j].IgnoreDelay ? 0 : random.Next(_minimumDelay, _maximumDelay + 1));
+                        dp.Add(_logEntries[j].UseDelay ? random.Next(_minimumDelay, _maximumDelay + 1) : 0);
                     }
+                }
 
             testPattern = tp.ToArray();
             delayPattern = dp.ToArray();
         }
 
-        private void Shuffle(Random random)
-        {
+        private void Shuffle(Random random) {
             int actionCount = _actions.Count;
-            for (int i = 0; i < actionCount; i++)
-            {
-                if ((bool) _actions[i].GetTag())
+            for (int i = 0; i < actionCount; i++) {
+                if ((bool)_actions[i].GetTag())
                     continue;
 
                 int j = random.Next(0, actionCount);
-                while ((bool) _actions[j].GetTag()) //Do not shuffle pinned actions
+                while ((bool)_actions[j].GetTag()) //Do not shuffle pinned actions
                     j = random.Next(0, actionCount);
 
                 List<int> temp = _actions[i];
@@ -172,12 +167,11 @@ namespace vApus.Stresstest
             }
         }
 
-        private int PinnedActionCount()
-        {
+        private int PinnedActionCount() {
             int actionCount = _actions.Count;
             int pinnedActionCount = 0;
             for (int i = 0; i < actionCount; i++)
-                if ((bool) _actions[i].GetTag())
+                if ((bool)_actions[i].GetTag())
                     pinnedActionCount++;
             return pinnedActionCount;
         }
