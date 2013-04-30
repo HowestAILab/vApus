@@ -33,17 +33,17 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
-            this.picActionize = new System.Windows.Forms.PictureBox();
             this.picPin = new System.Windows.Forms.PictureBox();
             this.nudOccurance = new System.Windows.Forms.NumericUpDown();
             this.picValid = new System.Windows.Forms.PictureBox();
             this.lblUserAction = new System.Windows.Forms.Label();
+            this.picLinkColor = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picActionize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picLinkColor)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -82,21 +82,6 @@
             this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>");
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
-            // 
-            // picActionize
-            // 
-            this.picActionize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picActionize.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picActionize.Image = global::vApus.Stresstest.Properties.Resources.Actionize;
-            this.picActionize.Location = new System.Drawing.Point(429, 6);
-            this.picActionize.Name = "picActionize";
-            this.picActionize.Size = new System.Drawing.Size(16, 16);
-            this.picActionize.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.picActionize.TabIndex = 21;
-            this.picActionize.TabStop = false;
-            this.toolTip.SetToolTip(this.picActionize, "Actionize...");
-            this.picActionize.Visible = false;
-            this.picActionize.Click += new System.EventHandler(this._Enter);
             // 
             // picPin
             // 
@@ -160,13 +145,27 @@
             this.lblUserAction.TabIndex = 19;
             this.lblUserAction.Click += new System.EventHandler(this._Enter);
             // 
+            // picLinkColor
+            // 
+            this.picLinkColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picLinkColor.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.picLinkColor.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picLinkColor.Location = new System.Drawing.Point(429, 6);
+            this.picLinkColor.Name = "picLinkColor";
+            this.picLinkColor.Size = new System.Drawing.Size(16, 16);
+            this.picLinkColor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picLinkColor.TabIndex = 79;
+            this.picLinkColor.TabStop = false;
+            this.toolTip.SetToolTip(this.picLinkColor, "Click to set the link color.");
+            this.picLinkColor.Visible = false;
+            // 
             // UserActionTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.picLinkColor);
             this.Controls.Add(this.nudOccurance);
             this.Controls.Add(this.picPin);
-            this.Controls.Add(this.picActionize);
             this.Controls.Add(this.picValid);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.picDelete);
@@ -177,10 +176,10 @@
             this.Enter += new System.EventHandler(this._Enter);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picActionize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picLinkColor)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -193,8 +192,8 @@
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.Label lblUserAction;
         private System.Windows.Forms.PictureBox picValid;
-        private System.Windows.Forms.PictureBox picActionize;
         private System.Windows.Forms.PictureBox picPin;
         private System.Windows.Forms.NumericUpDown nudOccurance;
+        private System.Windows.Forms.PictureBox picLinkColor;
     }
 }

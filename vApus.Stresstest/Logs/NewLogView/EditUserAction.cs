@@ -14,13 +14,14 @@ using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
+using System.Linq;
 
 namespace vApus.Stresstest {
     public partial class EditUserAction : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
-        public event EventHandler UserActionMoved;
+        public event EventHandler UserActionMoved, SplitClicked, MergeClicked, LinkedChanged;
 
         #region Fields
         private Log _log;
@@ -44,6 +45,10 @@ namespace vApus.Stresstest {
 
         private System.Timers.Timer _labelChanged = new System.Timers.Timer(500);
         #endregion
+
+        public UserActionTreeViewItem UserActionTreeViewItem {
+            get { return _userActionTreeViewItem; }
+        }
 
         public EditUserAction() {
             InitializeComponent();
@@ -80,6 +85,8 @@ namespace vApus.Stresstest {
             if (_parameterTokenTextStyle == null) SetCodeStyle();
             SetMove();
             SetPicDelay();
+            SetBtnSplit();
+            SetLinked();
             SetLogEntries();
             LockWindowUpdate(0);
         }
@@ -169,6 +176,102 @@ namespace vApus.Stresstest {
         private void picCopy_Click(object sender, EventArgs e) {
             ClipboardWrapper.SetDataObject(_userActionTreeViewItem.UserAction.Clone());
         }
+        private void btnSplit_Click(object sender, EventArgs e) {
+            _userActionTreeViewItem.UserAction.Split();
+            if (SplitClicked != null) SplitClicked(this, null);
+        }
+        private void SetBtnSplit() {
+            if (_userActionTreeViewItem == null)
+                btnSplit.Enabled = false;
+            else
+                btnSplit.Enabled = _userActionTreeViewItem.UserAction.Count > 1;
+        }
+        private void SetLinked() {
+            var canUse = new List<UserAction>();
+            var cannotUse = new List<UserAction>();
+            var userAction = _userActionTreeViewItem.UserAction;
+            cannotUse.Add(userAction);
+
+            foreach (UserAction ua in _log) {
+                if (ua.LinkedToUserActionIndices.Count != 0) {
+                    if (!cannotUse.Contains(ua))
+                        cannotUse.Add(ua);
+                    foreach (int index in ua.LinkedToUserActionIndices) {
+                        var linked = _log[index - 1] as UserAction;
+                        if (!cannotUse.Contains(linked))
+                            cannotUse.Add(linked);
+                    }
+                }
+            }
+            foreach (UserAction ua in _log)
+                if (!cannotUse.Contains(ua)) canUse.Add(ua);
+
+            while (flpLink.Controls.Count != 1) {
+                var ctrl = flpLink.Controls[0];
+                (ctrl.Controls[0] as ComboBox).SelectedIndexChanged -= cbo_SelectedIndexChanged;
+                flpLink.Controls.Remove(ctrl);
+            }
+
+            Control cbo = null;
+            var arr = canUse.ToArray();
+            foreach (int index in userAction.LinkedToUserActionIndices) {
+                cbo = GetLinkToCombobox(arr, _log[index - 1] as UserAction);
+                flpLink.Controls.Add(cbo);
+                flpLink.Controls.SetChildIndex(cbo, flpLink.Controls.Count - 2);
+            }
+            cbo = GetLinkToCombobox(arr);
+            flpLink.Controls.Add(cbo);
+            flpLink.Controls.SetChildIndex(cbo, flpLink.Controls.Count - 2);
+
+            btnMerge.Enabled = userAction.LinkedToUserActionIndices.Count != 0;
+        }
+        private Control GetLinkToCombobox(UserAction[] userActions, UserAction selected = null) {
+            var pnl = new Panel();
+            pnl.BackColor = Color.Silver;
+            pnl.Width = 200;
+            pnl.Height = 23;
+
+            var cbo = new ComboBox();
+            cbo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbo.FlatStyle = FlatStyle.Flat;
+            cbo.Font = new Font(this.Font, FontStyle.Bold);
+            cbo.Width = 198;
+            cbo.Height = 21;
+            cbo.Items.Add("<none>");
+            if (selected != null && !userActions.Contains(selected))
+                cbo.Items.Add(selected);
+
+            cbo.Items.AddRange(userActions);
+
+            if (selected == null) {
+                cbo.SelectedIndex = 0;
+            } else {
+                cbo.SelectedItem = selected;
+                cbo.Tag = selected;
+            }
+
+            pnl.Controls.Add(cbo);
+            cbo.Left = cbo.Top = 1;
+
+            cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
+
+            return pnl;
+        }
+        private void cbo_SelectedIndexChanged(object sender, EventArgs e) {
+            var cbo = sender as ComboBox;
+            var ua = cbo.Tag as UserAction;
+            if (ua != null)
+                _userActionTreeViewItem.UserAction.RemoveFromLink(ua);
+
+            if (cbo.SelectedIndex != 0)
+                _userActionTreeViewItem.UserAction.AddToLink(cbo.SelectedItem as UserAction);
+
+            if (LinkedChanged != null) LinkedChanged(this, null);
+        }
+        private void btnMerge_Click(object sender, EventArgs e) {
+            _userActionTreeViewItem.UserAction.MergeLinked();
+            if (MergeClicked != null) MergeClicked(this, null);
+        }
 
         private void lbtn_ActiveChanged(object sender, EventArgs e) {
             SetLogEntries();
@@ -251,7 +354,7 @@ namespace vApus.Stresstest {
             row.Add(logEntryString);
             _cache.Rows.Add(row.ToArray());
 
-            return logEntryString.Length != null;
+            return logEntryString.Length != 0;
         }
         private bool CheckOptionalSyntaxItem(SyntaxItem item) {
             bool optional = item.Optional;
@@ -386,6 +489,7 @@ namespace vApus.Stresstest {
 
             userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
 
+            SetBtnSplit();
             SetLogEntries();
         }
         private void dgvLogEntries_KeyUp(object sender, KeyEventArgs e) {
@@ -401,6 +505,8 @@ namespace vApus.Stresstest {
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
 
                 _log.ApplyLogRuleSet();
+
+                SetBtnSplit();
                 SetLogEntries();
             }
         }
@@ -469,6 +575,7 @@ namespace vApus.Stresstest {
 
         private void fctxtxPlainText_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             btnApply.Enabled = true;
+            SetBtnSplit();
         }
         private void btnApply_Click(object sender, EventArgs e) {
             var userAction = _userActionTreeViewItem.UserAction;

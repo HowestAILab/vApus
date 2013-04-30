@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -20,8 +21,11 @@ namespace vApus.Stresstest {
         private int _occurance = 1;
         private bool _pinned;
         private bool _useDelay = true;
-        [field:NonSerialized]
+        [field: NonSerialized]
         private List<string> _logEntryStringsAsImported = new List<string>();
+        //These indices are stored here, this must be updated if something happens to a user action in the log.
+        private List<int> _linkedToUserActionIndices = new List<int>();
+        private int _linkColorARGB = -1;
         #endregion
 
         #region Properties
@@ -63,6 +67,28 @@ namespace vApus.Stresstest {
             set { _logEntryStringsAsImported = value; }
         }
 
+        /// <summary>
+        /// One-based indices
+        /// </summary>
+        [ReadOnly(true)]
+        [SavableCloneable]
+        public List<int> LinkedToUserActionIndices {
+            get { return _linkedToUserActionIndices; }
+            set { _linkedToUserActionIndices = value; }
+        }
+        public UserAction[] LinkedToUserActions {
+            get { return null; }
+        }
+        [ReadOnly(true)]
+        [SavableCloneable]
+        public int LinkColorARGB {
+            get { return _linkColorARGB; }
+            set { _linkColorARGB = value; }
+        }
+        public Color LinkColor {
+            get { return Color.FromArgb(_linkColorARGB); }
+            set { _linkColorARGB = value.ToArgb(); }
+        }
         #endregion
 
         #region Constructors
@@ -95,6 +121,64 @@ namespace vApus.Stresstest {
             return parameterizedStructure;
         }
 
+        public void AddToLink(UserAction userAction) {
+            var log = this.Parent as Log;
+            log.RemoveWithoutInvokingEvent(userAction);
+            int index = this.Index;
+            if (_linkedToUserActionIndices.Count != 0)
+                index = _linkedToUserActionIndices[_linkedToUserActionIndices.Count - 1];
+            if (index < log.Count)
+                log.InsertWithoutInvokingEvent(index, userAction, false);
+            else
+                log.AddWithoutInvokingEvent(userAction, false);
+            _linkedToUserActionIndices.Add(userAction.Index);
+
+            log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+        public void RemoveFromLink(UserAction userAction) {
+            if (_linkedToUserActionIndices.Remove(userAction.Index))
+                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+        public void MergeLinked() {
+            var log = this.Parent as Log;
+            var l = new List<int>(_linkedToUserActionIndices.Count + 1);
+            l.AddRange(_linkedToUserActionIndices);
+            l.Add(this.Index);
+            l.Sort();
+
+            var toMerge = new List<UserAction>(l.Count);
+            foreach (int i in l) toMerge.Add(log[i - 1] as UserAction);
+
+            var merged = toMerge[0];
+            for (int i = 1; i != toMerge.Count; i++) {
+                var ua = toMerge[i] as UserAction;
+                merged.AddRangeWithoutInvokingEvent(ua, false);
+                merged.LogEntryStringsAsImported.AddRange(ua.LogEntryStringsAsImported);
+                log.RemoveWithoutInvokingEvent(ua);
+            }
+            merged.LinkedToUserActionIndices.Clear();
+            log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+        public void Split() {
+            var log = this.Parent as Log;
+            int index = this.Index - 1;
+            var l = new List<UserAction>(this.Count);
+            int i = 0;
+            foreach (LogEntry logEntry in this) {
+                var ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
+                ua.AddWithoutInvokingEvent(logEntry, false);
+                
+                if (i < this.LogEntryStringsAsImported.Count)
+                    ua.LogEntryStringsAsImported.Add(this.LogEntryStringsAsImported[i]);
+
+                l.Add(ua);
+                ++i;
+            }
+            log.InserRangeWithoutInvokingEvent(index, l, false);
+            log.RemoveWithoutInvokingEvent(this);
+
+            log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
         public UserAction Clone() {
             UserAction userAction = new UserAction(Label);
             userAction.SetParent(Parent, false);

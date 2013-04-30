@@ -28,11 +28,11 @@
             this.pnlFilter = new System.Windows.Forms.Panel();
             this.picFilter = new System.Windows.Forms.PictureBox();
             this.txtFilter = new System.Windows.Forms.TextBox();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             this.logTreeView = new vApus.Stresstest.LogTreeView();
             this.editLog = new vApus.Stresstest.EditLog();
             this.editUserAction = new vApus.Stresstest.EditUserAction();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -104,18 +104,6 @@
             this.toolTip.SetToolTip(this.txtFilter, "Type comma to split filter entries and \'return\' to submit. Wild card * can be use" +
         "d. Not case sensitive.");
             // 
-            // toolTip
-            // 
-            this.toolTip.AutomaticDelay = 100;
-            this.toolTip.AutoPopDelay = 10000;
-            this.toolTip.InitialDelay = 100;
-            this.toolTip.ReshowDelay = 20;
-            // 
-            // tmrRefreshGui
-            // 
-            this.tmrRefreshGui.Enabled = true;
-            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
-            // 
             // logTreeView
             // 
             this.logTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -147,6 +135,21 @@
             this.editUserAction.TabIndex = 1;
             this.editUserAction.Visible = false;
             this.editUserAction.UserActionMoved += new System.EventHandler(this.editUserAction_UserActionMoved);
+            this.editUserAction.SplitClicked += new System.EventHandler(this.editUserAction_SplitClicked);
+            this.editUserAction.MergeClicked += new System.EventHandler(this.editUserAction_MergeClicked);
+            this.editUserAction.LinkedChanged += new System.EventHandler(this.editUserAction_LinkedChanged);
+            // 
+            // toolTip
+            // 
+            this.toolTip.AutomaticDelay = 100;
+            this.toolTip.AutoPopDelay = 10000;
+            this.toolTip.InitialDelay = 100;
+            this.toolTip.ReshowDelay = 20;
+            // 
+            // tmrRefreshGui
+            // 
+            this.tmrRefreshGui.Enabled = true;
+            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
             // 
             // NewLogView
             // 

@@ -90,7 +90,8 @@ namespace vApus.Stresstest {
             SetVisibleControls();
         }
         public void SetVisibleControls(bool visible) {
-            picActionize.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+            picLinkColor.Visible =  IsLinked();
+            picDuplicate.Visible = picDelete.Visible = visible;
             picPin.Visible = _userAction.Pinned || visible;
             picPin.Image = _userAction.Pinned ? global::vApus.Stresstest.Properties.Resources.Pin : global::vApus.Stresstest.Properties.Resources.PinGreyedOut;
             nudOccurance.Visible = _userAction.Occurance != 1 || visible;
@@ -99,12 +100,22 @@ namespace vApus.Stresstest {
             if (BackColor != _selectedColor)
                 BackColor = (((float)_userAction.Index % 2) == 0) ? _secundaryColor : _primaryColor;
 
-            Control ctrl = nudOccurance;
-            if (picActionize.Visible) ctrl = picActionize;
+            Control ctrl = null;
+            if (picLinkColor.Visible) ctrl = picLinkColor;
+            else if (picDuplicate.Visible) ctrl = picDuplicate;
+            else ctrl = nudOccurance;
 
             int width = ctrl.Left - lblUserAction.Left;
             if (width != lblUserAction.Width)
                 lblUserAction.Width = width;
+        }
+        private bool IsLinked() {
+            if (_userAction.LinkedToUserActionIndices.Count == 0) {
+                int index = _userAction.Index;
+                foreach (UserAction ua in _log)
+                    if (ua.LinkedToUserActionIndices.Contains(index)) return true;
+            } else return true;
+            return false;
         }
 
         public void SetVisibleControls() {

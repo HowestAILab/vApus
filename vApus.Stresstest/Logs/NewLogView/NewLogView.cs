@@ -71,8 +71,24 @@ namespace vApus.Stresstest {
             logTreeView.SetLog(_log, (sender as UserActionTreeViewItem).UserAction);
             tmrRefreshGui.Start();
         }
+        private void editUserAction_SplitClicked(object sender, EventArgs e) {
+            tmrRefreshGui.Stop();
+            logTreeView.SetLog(_log);
+            tmrRefreshGui.Start();
+        }
+        private void editUserAction_LinkedChanged(object sender, EventArgs e) {
+            tmrRefreshGui.Stop();
+            logTreeView.SetLog(_log, (sender as EditUserAction).UserActionTreeViewItem.UserAction);
+            tmrRefreshGui.Start();
+        }
+        private void editUserAction_MergeClicked(object sender, EventArgs e) {
+            tmrRefreshGui.Stop();
+            logTreeView.SetLog(_log, (sender as EditUserAction).UserActionTreeViewItem.UserAction);
+            tmrRefreshGui.Start();
+        }
         private void tmrRefreshGui_Tick(object sender, EventArgs e) {
             logTreeView.SetGui();
         }
+
     }
 }
