@@ -113,6 +113,15 @@ namespace vApus.DistributedTesting {
                         break;
                 }
 
+                if (address == IPAddress.Any) {
+                    foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName())) {
+                        if (ipAddress.AddressFamily == slaveSocketWrapper.IP.AddressFamily) {
+                            address = ipAddress;
+                            break;
+                        }
+                    }
+                }
+
                 var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 int start = slaveSocketWrapper.Port * 10;
