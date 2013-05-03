@@ -31,15 +31,15 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picAddUserAction = new System.Windows.Forms.PictureBox();
             this.picClearUserActions = new System.Windows.Forms.PictureBox();
+            this.picPasteUserAction = new System.Windows.Forms.PictureBox();
             this.picValid = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.picPasteUserAction = new System.Windows.Forms.PictureBox();
             this.pnlRuleSet.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddUserAction)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picClearUserActions)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPasteUserAction)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlRuleSet
@@ -125,6 +125,20 @@
             this.toolTip.SetToolTip(this.picClearUserActions, "Clear User Actions");
             this.picClearUserActions.Click += new System.EventHandler(this.picClearUserActions_Click);
             // 
+            // picPasteUserAction
+            // 
+            this.picPasteUserAction.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picPasteUserAction.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picPasteUserAction.Image = ((System.Drawing.Image)(resources.GetObject("picPasteUserAction.Image")));
+            this.picPasteUserAction.Location = new System.Drawing.Point(474, 10);
+            this.picPasteUserAction.Name = "picPasteUserAction";
+            this.picPasteUserAction.Size = new System.Drawing.Size(16, 16);
+            this.picPasteUserAction.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picPasteUserAction.TabIndex = 37;
+            this.picPasteUserAction.TabStop = false;
+            this.toolTip.SetToolTip(this.picPasteUserAction, "Paste User Action <ctrl+p>");
+            this.picPasteUserAction.Click += new System.EventHandler(this.picPasteUserAction_Click);
+            // 
             // picValid
             // 
             this.picValid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -157,20 +171,6 @@
             this.panel1.Size = new System.Drawing.Size(532, 2);
             this.panel1.TabIndex = 23;
             // 
-            // picPasteUserAction
-            // 
-            this.picPasteUserAction.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picPasteUserAction.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picPasteUserAction.Image = ((System.Drawing.Image)(resources.GetObject("picPasteUserAction.Image")));
-            this.picPasteUserAction.Location = new System.Drawing.Point(474, 10);
-            this.picPasteUserAction.Name = "picPasteUserAction";
-            this.picPasteUserAction.Size = new System.Drawing.Size(16, 16);
-            this.picPasteUserAction.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picPasteUserAction.TabIndex = 37;
-            this.picPasteUserAction.TabStop = false;
-            this.toolTip.SetToolTip(this.picPasteUserAction, "Paste User Action <ctrl+p>");
-            this.picPasteUserAction.Click += new System.EventHandler(this.picPasteUserAction_Click);
-            // 
             // LogTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -186,14 +186,14 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "LogTreeViewItem";
             this.Size = new System.Drawing.Size(532, 35);
-            this.Enter += new System.EventHandler(this._Enter);
+            this.Click += new System.EventHandler(this._Enter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this._KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.pnlRuleSet.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picAddUserAction)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picClearUserActions)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPasteUserAction)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

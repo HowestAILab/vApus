@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="label1.Text" xml:space="preserve">
+  <data name="lblDescription.Text" xml:space="preserve">
     <value>The characters that are used to delimit parameter tokens where found in the text that you want to import!
 
 You can redetermine the parameter token delimiters to avoid unwanted behavior while stresstesting.

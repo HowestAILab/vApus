@@ -25,8 +25,8 @@
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditUserAction));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.lblLabel = new System.Windows.Forms.Label();
             this.txtLabel = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -59,7 +59,7 @@
             this.lbtnEditable = new vApus.Util.LinkButton();
             this.btnApply = new System.Windows.Forms.Button();
             this.btnRevertToImported = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
+            this.lblLinkTo = new System.Windows.Forms.Label();
             this.flpLink = new System.Windows.Forms.FlowLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).BeginInit();
@@ -95,7 +95,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLabel.Location = new System.Drawing.Point(61, 36);
             this.txtLabel.Name = "txtLabel";
-            this.txtLabel.Size = new System.Drawing.Size(886, 20);
+            this.txtLabel.Size = new System.Drawing.Size(930, 20);
             this.txtLabel.TabIndex = 25;
             this.txtLabel.TextChanged += new System.EventHandler(this.txtLabel_TextChanged);
             // 
@@ -167,8 +167,8 @@
             // 
             this.dgvLogEntries.AllowDrop = true;
             this.dgvLogEntries.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
-            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvLogEntries.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -184,8 +184,8 @@
             this.dgvLogEntries.Name = "dgvLogEntries";
             this.dgvLogEntries.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvLogEntries.Size = new System.Drawing.Size(982, 386);
             this.dgvLogEntries.TabIndex = 32;
             this.dgvLogEntries.VirtualMode = true;
@@ -307,7 +307,7 @@
             this.picCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picCopy.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picCopy.Image = ((System.Drawing.Image)(resources.GetObject("picCopy.Image")));
-            this.picCopy.Location = new System.Drawing.Point(953, 36);
+            this.picCopy.Location = new System.Drawing.Point(903, 67);
             this.picCopy.Name = "picCopy";
             this.picCopy.Size = new System.Drawing.Size(16, 16);
             this.picCopy.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -321,7 +321,7 @@
             this.picDelay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picDelay.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picDelay.Image = global::vApus.Stresstest.Properties.Resources.Delay;
-            this.picDelay.Location = new System.Drawing.Point(975, 36);
+            this.picDelay.Location = new System.Drawing.Point(925, 67);
             this.picDelay.Name = "picDelay";
             this.picDelay.Size = new System.Drawing.Size(16, 16);
             this.picDelay.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -357,7 +357,7 @@
             this.btnSplit.BackColor = System.Drawing.Color.White;
             this.btnSplit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSplit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSplit.Location = new System.Drawing.Point(953, 61);
+            this.btnSplit.Location = new System.Drawing.Point(947, 61);
             this.btnSplit.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnSplit.Name = "btnSplit";
             this.btnSplit.Size = new System.Drawing.Size(44, 25);
@@ -559,14 +559,14 @@
             this.btnRevertToImported.UseVisualStyleBackColor = false;
             this.btnRevertToImported.Click += new System.EventHandler(this.btnRevertToImported_Click);
             // 
-            // label7
+            // lblLinkTo
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(13, 101);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(42, 13);
-            this.label7.TabIndex = 75;
-            this.label7.Text = "Link to:";
+            this.lblLinkTo.AutoSize = true;
+            this.lblLinkTo.Location = new System.Drawing.Point(13, 101);
+            this.lblLinkTo.Name = "lblLinkTo";
+            this.lblLinkTo.Size = new System.Drawing.Size(42, 13);
+            this.lblLinkTo.TabIndex = 75;
+            this.lblLinkTo.Text = "Link to:";
             // 
             // flpLink
             // 
@@ -586,7 +586,7 @@
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.btnSplit);
             this.Controls.Add(this.flpLink);
-            this.Controls.Add(this.label7);
+            this.Controls.Add(this.lblLinkTo);
             this.Controls.Add(this.picDelay);
             this.Controls.Add(this.picCopy);
             this.Controls.Add(this.btnShowHideParameterTokens);
@@ -662,7 +662,7 @@
         private System.Windows.Forms.Button btnRevertToImported;
         private System.Windows.Forms.PictureBox picCopy;
         private System.Windows.Forms.PictureBox picDelay;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lblLinkTo;
         private System.Windows.Forms.FlowLayoutPanel flpLink;
         private System.Windows.Forms.Button btnMerge;
         private System.Windows.Forms.Button btnSplit;

@@ -66,11 +66,10 @@ namespace vApus.Stresstest {
         public new void Focus() {
             base.Focus();
             BackColor = _selectedColor;
+            if (AfterSelect != null) AfterSelect(this, null);
         }
         private void _Enter(object sender, EventArgs e) {
-            BackColor = _selectedColor;
-            if (AfterSelect != null)
-                AfterSelect(this, null);
+            Focus();
         }
         private void SetGui() {
             _logRuleSets = Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets)) as LogRuleSets;

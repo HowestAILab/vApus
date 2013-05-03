@@ -17,7 +17,7 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class EditLog : UserControl {
-        public event EventHandler LogImported;
+        public event EventHandler LogImported, RedeterminedTokens;
 
         #region Fields
         private Log _log;
@@ -155,7 +155,7 @@ namespace vApus.Stresstest {
             //Clone and add to the clone to redetermine the tokens if needed.
             Log toAdd = _log.Clone(false);
 
-            if (clearLog)
+            if (clearLog && _log.Count != 0)
                 if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                     _log.ClearWithoutInvokingEvent(false);
                 else
@@ -316,24 +316,20 @@ namespace vApus.Stresstest {
                 _log.RemoveWithoutInvokingEvent(item);
         }
 
-        private void btnStartStopAndExport_Click(object sender, EventArgs e) {
-
-        }
-
-        private void btnPauseContinue_Click(object sender, EventArgs e) {
-
-        }
-
-        private void btnAddAction_Click(object sender, EventArgs e) {
-
-        }
-
         private void captureControl_StartClicked(object sender, EventArgs e) {
+            if (chkClearLogBeforeCapture.Checked && _log.Count != 0)
+                if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                    _log.ClearWithoutInvokingEvent(false);
+                } else {
+                    captureControl.CancelStart();
+                    return;
+                }
             SaveSettings();
         }
         private void captureControl_StopClicked(object sender, EventArgs e) {
             SaveSettings();
-            Import(captureControl.ParsedLog, chkClearLogBeforeCapture.Checked);
+            Import(captureControl.ParsedLog, false);
+            ProxyHelper.UnsetProxy();
         }
         private void SaveSettings() {
             try {
@@ -359,6 +355,26 @@ namespace vApus.Stresstest {
                         _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
             } catch { }
+        }
+
+        private void btnExportToTextFile_Click(object sender, EventArgs e) {
+            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                var sb = new StringBuilder();
+                foreach (UserAction ua in _log) {
+                    sb.Append(_log.LogRuleSet.BeginCommentString);
+                    sb.Append(ua.Label);
+                    sb.AppendLine(_log.LogRuleSet.EndCommentString);
+                    foreach (LogEntry le in ua) 
+                        sb.AppendLine(le.LogEntryString);
+                }
+                using (var sw = new StreamWriter(saveFileDialog.FileName))
+                    sw.Write(sb.ToString().TrimEnd());
+            }
+        }
+
+        private void btnRedetermineParameterTokens_Click(object sender, EventArgs e) {
+            if ((new RedetermineTokens(_log)).ShowDialog() == DialogResult.OK && RedeterminedTokens != null)
+                RedeterminedTokens(this, null);
         }
 
         //private void SetIgnoreDelays() {

@@ -16,12 +16,18 @@ namespace vApus.Stresstest {
     public partial class RedetermineTokens : Form {
         private readonly Log _originalLog, _toAdd;
         private bool _logEntryContainsTokens;
+        private int _preferredTokenDelimiterIndexBak;
 
         /// <summary>
         ///     Design time constructor.
         /// </summary>
         public RedetermineTokens() {
             InitializeComponent();
+        }
+
+        public RedetermineTokens(Log log)
+            : this(log, log) {
+            lblDescription.Visible = btnOK.Enabled = false;
         }
 
         /// <summary>
@@ -34,7 +40,10 @@ namespace vApus.Stresstest {
             _originalLog.ApplyLogRuleSet();
 
             _toAdd = toAdd;
-            _toAdd.ApplyLogRuleSet();
+            if (_originalLog != _toAdd)
+                _toAdd.ApplyLogRuleSet();
+
+            _preferredTokenDelimiterIndexBak = toAdd.PreferredTokenDelimiterIndex;
 
             string begin, end;
             bool logEntryContainsTokens;
@@ -69,14 +78,17 @@ namespace vApus.Stresstest {
                 lblNewBegin.ForeColor = Color.DarkGray;
                 lblNewEnd.ForeColor = Color.DarkGray;
                 btnError.Visible = false;
+                btnOK.Enabled = _originalLog != _toAdd;
             } else if (_logEntryContainsTokens) {
                 lblNewBegin.ForeColor = Color.DarkOrange;
                 lblNewEnd.ForeColor = Color.DarkOrange;
                 btnError.Visible = true;
+                btnOK.Enabled = true;
             } else {
                 lblNewBegin.ForeColor = Color.Black;
                 lblNewEnd.ForeColor = Color.Black;
                 btnError.Visible = false;
+                btnOK.Enabled = true;
             }
         }
 
@@ -106,6 +118,11 @@ namespace vApus.Stresstest {
             MessageBox.Show(
                 "The chosen delimiters occur in the log entry strings.\nAre you sure you want to use these, this can make the log invalid!",
                 string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        private void RedetermineTokens_FormClosing(object sender, FormClosingEventArgs e) {
+            if (DialogResult == DialogResult.Cancel)
+                _toAdd.PreferredTokenDelimiterIndex = _preferredTokenDelimiterIndexBak;
         }
     }
 }

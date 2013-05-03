@@ -25,7 +25,7 @@ namespace vApus.Stresstest {
         private List<string> _logEntryStringsAsImported = new List<string>();
         //These indices are stored here, this must be updated if something happens to a user action in the log.
         private List<int> _linkedToUserActionIndices = new List<int>();
-        private int _linkColorARGB = -1;
+        private int _linkColorRGB = -1;
         #endregion
 
         #region Properties
@@ -77,17 +77,31 @@ namespace vApus.Stresstest {
             set { _linkedToUserActionIndices = value; }
         }
         public UserAction[] LinkedToUserActions {
-            get { return null; }
+            get {
+                var l = new List<UserAction>(_linkedToUserActionIndices.Count);
+                try {
+                    var log = this.Parent as Log;
+
+                    foreach (int i in _linkedToUserActionIndices)
+                        l.Add(log[i - 1] as UserAction);
+
+                } catch { }
+                return l.ToArray();
+            }
         }
         [ReadOnly(true)]
         [SavableCloneable]
-        public int LinkColorARGB {
-            get { return _linkColorARGB; }
-            set { _linkColorARGB = value; }
+        public int LinkColorRGB {
+            get { return _linkColorRGB; }
+            set { _linkColorRGB = value; }
         }
         public Color LinkColor {
-            get { return Color.FromArgb(_linkColorARGB); }
-            set { _linkColorARGB = value.ToArgb(); }
+            get {
+                int red = _linkColorRGB >> 16;
+                int green = (_linkColorRGB >> 8) & 0x00FF;
+                int blue = _linkColorRGB & 0x0000FF;
+                return Color.FromArgb(red, green, blue);
+            }
         }
         #endregion
 
@@ -121,23 +135,80 @@ namespace vApus.Stresstest {
             return parameterizedStructure;
         }
 
-        public void AddToLink(UserAction userAction) {
+        public void AddToLink(UserAction userAction, int[] linkColorToChooseFrom, bool invokeSolutionComponentChanched = true) {
             var log = this.Parent as Log;
-            log.RemoveWithoutInvokingEvent(userAction);
+
+            bool canDetermineColor = _linkedToUserActionIndices.Count == 0;
+
+            //Add linked user actions to this link, because indices can change, re-add the already linked user actions
+            var toLink = new List<UserAction>();
+            toLink.AddRange(LinkedToUserActions);
+            toLink.Add(userAction);
+            toLink.AddRange(userAction.LinkedToUserActions);
+
+            log.RemoveRangeWithoutInvokingEvent(toLink);
+
+            _linkedToUserActionIndices.Clear();
+            userAction.LinkedToUserActionIndices.Clear();
+
+            //Determine the link color.
+            if (canDetermineColor) {
+                var exclude = new List<int>();
+                foreach (UserAction ua in log)
+                    if (ua != this && ua.LinkedToUserActionIndices.Count != 0)
+                        exclude.Add(ua.LinkColorRGB);
+
+                foreach (int c in linkColorToChooseFrom)
+                    if (!exclude.Contains(c)) {
+                        _linkColorRGB = c;
+                        break;
+                    }
+            }
+
+            //Re-add the useractions the log.
             int index = this.Index;
             if (_linkedToUserActionIndices.Count != 0)
                 index = _linkedToUserActionIndices[_linkedToUserActionIndices.Count - 1];
-            if (index < log.Count)
-                log.InsertWithoutInvokingEvent(index, userAction, false);
-            else
-                log.AddWithoutInvokingEvent(userAction, false);
-            _linkedToUserActionIndices.Add(userAction.Index);
 
-            log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            foreach (var ua in toLink) {
+                if (index < log.Count)
+                    log.InsertWithoutInvokingEvent(index, ua, false);
+                else
+                    log.AddWithoutInvokingEvent(ua, false);
+                ua.Pinned = _pinned;
+                _linkedToUserActionIndices.Add(ua.Index);
+
+                ua.LinkColorRGB = _linkColorRGB;
+                ++index;
+            }
+
+            if (invokeSolutionComponentChanched)
+                log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         public void RemoveFromLink(UserAction userAction) {
-            if (_linkedToUserActionIndices.Remove(userAction.Index))
+            if (_linkedToUserActionIndices.Remove(userAction.Index)) {
+                userAction.LinkColorRGB = -1;
+                //Put the unlinked useraction behind this linked group if need be.
+                if (_linkedToUserActionIndices.Count != 0) {
+                    var log = this.Parent as Log;
+
+                    var arr = LinkedToUserActions;
+
+                    log.RemoveWithoutInvokingEvent(userAction);
+
+                    _linkedToUserActionIndices.Clear();
+                    foreach (var ua in arr)
+                        _linkedToUserActionIndices.Add(ua.Index);
+
+                    int lastIndex = _linkedToUserActionIndices[_linkedToUserActionIndices.Count - 1];
+                    if (lastIndex < log.Count)
+                        log.InsertWithoutInvokingEvent(lastIndex, userAction, false);
+                    else
+                        log.AddWithoutInvokingEvent(userAction, false);
+                }
+
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }
         }
         public void MergeLinked() {
             var log = this.Parent as Log;
@@ -159,6 +230,22 @@ namespace vApus.Stresstest {
             merged.LinkedToUserActionIndices.Clear();
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
+        public bool IsLinked(out UserAction linkUserAction) {
+            linkUserAction = null;
+            if (LinkedToUserActionIndices.Count == 0) {
+                var log = this.Parent as Log;
+                int index = Index;
+                foreach (UserAction ua in log)
+                    if (ua.LinkedToUserActionIndices.Contains(index)) {
+                        linkUserAction = ua;
+                        return true;
+                    }
+            } else {
+                linkUserAction = this;
+                return true;
+            }
+            return false;
+        }
         public void Split() {
             var log = this.Parent as Log;
             int index = this.Index - 1;
@@ -167,7 +254,7 @@ namespace vApus.Stresstest {
             foreach (LogEntry logEntry in this) {
                 var ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
                 ua.AddWithoutInvokingEvent(logEntry, false);
-                
+
                 if (i < this.LogEntryStringsAsImported.Count)
                     ua.LogEntryStringsAsImported.Add(this.LogEntryStringsAsImported[i]);
 

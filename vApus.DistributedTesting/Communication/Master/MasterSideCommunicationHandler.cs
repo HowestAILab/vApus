@@ -60,6 +60,8 @@ namespace vApus.DistributedTesting {
         private static void ConnectSlave(SocketWrapper slaveSocketWrapper, out int processID, out Exception exception) {
             processID = -1;
             exception = null;
+            int retry = 1;
+        Retry:
             try {
                 exception = null;
                 if (!slaveSocketWrapper.Connected) {
@@ -79,7 +81,12 @@ namespace vApus.DistributedTesting {
                     }
                 }
             } catch (Exception ex) {
-                exception = ex;
+                if (++retry != 3) {
+                    Thread.Sleep(1000 * retry);
+                    goto Retry;
+                } else {
+                    exception = ex;
+                }
             }
         }
         /// <summary>
@@ -104,6 +111,15 @@ namespace vApus.DistributedTesting {
                     if (GetIPPrefixLength(adapters, ipAddress) == slaveIPPrefixLength) {
                         address = ipAddress;
                         break;
+                }
+
+                if (address == IPAddress.Any) {
+                    foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName())) {
+                        if (ipAddress.AddressFamily == slaveSocketWrapper.IP.AddressFamily) {
+                            address = ipAddress;
+                            break;
+                        }
+                    }
                 }
 
                 var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);

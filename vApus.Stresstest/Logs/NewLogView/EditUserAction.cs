@@ -9,12 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
-using System.Linq;
 
 namespace vApus.Stresstest {
     public partial class EditUserAction : UserControl {
@@ -26,6 +26,11 @@ namespace vApus.Stresstest {
         #region Fields
         private Log _log;
         private UserActionTreeViewItem _userActionTreeViewItem;
+
+        private static int[] _linkColors = { 0x00FF00, 0x0000FF, 0xFF0000, 0x01FFFE, 0xFFA6FE, 0xFFDB66, 0x006401, 0x010067, 0x95003A, 0x007DB5, 0xFF00F6, 0xFFEEE8, 0x774D00, 0x90FB92, 0x0076FF, 0xD5FF00, 
+                                             0xFF937E, 0x6A826C, 0xFF029D, 0xFE8900, 0x7A4782, 0x7E2DD2, 0x85A900, 0xFF0056, 0xA42400, 0x00AE7E, 0x683D3B, 0xBDC6FF, 0x263400, 0xBDD393, 0x00B917, 0x9E008E,
+                                             0x001544, 0xC28C9F, 0xFF74A3, 0x01D0FF, 0x004754, 0xE56FFE, 0x788231, 0x0E4CA1, 0x91D0CB, 0xBE9970, 0x968AE8, 0xBB8800, 0x43002C, 0xDEFF74, 0x00FFC6, 0xFFE502,
+                                             0x620E00, 0x008F9C, 0x98FF52, 0x7544B1, 0xB500FF, 0x00FF78, 0xFF6E41, 0x005F39, 0x6B6882, 0x5FAD4E, 0xA75740, 0xA5FFD2, 0xFFB167, 0x009BFF, 0xE85EBE };
 
         /// <summary>
         /// Show the log entries structured.
@@ -62,17 +67,14 @@ namespace vApus.Stresstest {
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender is CustomListParameters || sender is CustomListParameter || sender is CustomRandomParameters || sender is CustomRandomParameter
                 || sender is NumericParameters || sender is NumericParameter || sender is TextParameters || sender is TextParameter) {
-                SetCodeStyle();
                 SetParameters();
+                SetCodeStyle();
             }
         }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
             LockWindowUpdate(this.Handle.ToInt32());
             _log = log;
             _userActionTreeViewItem = userActionTreeViewItem;
-
-            bool logEntryContainsTokens;
-            _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
 
             cboParameterScope.SelectedIndex = 5;
 
@@ -92,11 +94,13 @@ namespace vApus.Stresstest {
         }
 
         private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                _userActionTreeViewItem.UserAction.Label = txtLabel.Text;
-                _userActionTreeViewItem.SetLabel();
-                _userActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }, null);
+            if (_labelChanged != null) _labelChanged.Stop();
+            if (!IsDisposed)
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    _userActionTreeViewItem.UserAction.Label = txtLabel.Text;
+                    _userActionTreeViewItem.SetLabel();
+                    _userActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+                }, null);
         }
 
         private void txtLabel_TextChanged(object sender, EventArgs e) {
@@ -162,6 +166,7 @@ namespace vApus.Stresstest {
         }
         private void picDelay_Click(object sender, EventArgs e) {
             _userActionTreeViewItem.UserAction.UseDelay = !_userActionTreeViewItem.UserAction.UseDelay;
+            _userActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
             SetPicDelay();
         }
         private void SetPicDelay() {
@@ -187,15 +192,34 @@ namespace vApus.Stresstest {
                 btnSplit.Enabled = _userActionTreeViewItem.UserAction.Count > 1;
         }
         private void SetLinked() {
+            var userAction = _userActionTreeViewItem.UserAction;
+
+            //Check if the user action is not part of a chain of user actions.
+            UserAction linkedUserAction;
+            _userActionTreeViewItem.UserAction.IsLinked(out linkedUserAction);
+
+            while (flpLink.Controls.Count != 1) {
+                var ctrl = flpLink.Controls[0];
+                (ctrl.Controls[0] as ComboBox).SelectedIndexChanged -= cboLinkTo_SelectedIndexChanged;
+                flpLink.Controls.Remove(ctrl);
+            }
+
+            btnMerge.Enabled = userAction.LinkedToUserActionIndices.Count != 0;
+
+            if (linkedUserAction != null && linkedUserAction != userAction) {
+                var bogus = GetLinkToCombobox(new UserAction[0]);
+                bogus.Enabled = false;
+                flpLink.Controls.Add(bogus);
+                flpLink.Controls.SetChildIndex(bogus, 0);
+                return;
+            }
+
             var canUse = new List<UserAction>();
             var cannotUse = new List<UserAction>();
-            var userAction = _userActionTreeViewItem.UserAction;
             cannotUse.Add(userAction);
 
             foreach (UserAction ua in _log) {
                 if (ua.LinkedToUserActionIndices.Count != 0) {
-                    if (!cannotUse.Contains(ua))
-                        cannotUse.Add(ua);
                     foreach (int index in ua.LinkedToUserActionIndices) {
                         var linked = _log[index - 1] as UserAction;
                         if (!cannotUse.Contains(linked))
@@ -205,12 +229,6 @@ namespace vApus.Stresstest {
             }
             foreach (UserAction ua in _log)
                 if (!cannotUse.Contains(ua)) canUse.Add(ua);
-
-            while (flpLink.Controls.Count != 1) {
-                var ctrl = flpLink.Controls[0];
-                (ctrl.Controls[0] as ComboBox).SelectedIndexChanged -= cbo_SelectedIndexChanged;
-                flpLink.Controls.Remove(ctrl);
-            }
 
             Control cbo = null;
             var arr = canUse.ToArray();
@@ -223,7 +241,6 @@ namespace vApus.Stresstest {
             flpLink.Controls.Add(cbo);
             flpLink.Controls.SetChildIndex(cbo, flpLink.Controls.Count - 2);
 
-            btnMerge.Enabled = userAction.LinkedToUserActionIndices.Count != 0;
         }
         private Control GetLinkToCombobox(UserAction[] userActions, UserAction selected = null) {
             var pnl = new Panel();
@@ -253,18 +270,18 @@ namespace vApus.Stresstest {
             pnl.Controls.Add(cbo);
             cbo.Left = cbo.Top = 1;
 
-            cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
+            cbo.SelectedIndexChanged += cboLinkTo_SelectedIndexChanged;
 
             return pnl;
         }
-        private void cbo_SelectedIndexChanged(object sender, EventArgs e) {
+        private void cboLinkTo_SelectedIndexChanged(object sender, EventArgs e) {
             var cbo = sender as ComboBox;
             var ua = cbo.Tag as UserAction;
             if (ua != null)
                 _userActionTreeViewItem.UserAction.RemoveFromLink(ua);
 
             if (cbo.SelectedIndex != 0)
-                _userActionTreeViewItem.UserAction.AddToLink(cbo.SelectedItem as UserAction);
+                _userActionTreeViewItem.UserAction.AddToLink(cbo.SelectedItem as UserAction, _linkColors);
 
             if (LinkedChanged != null) LinkedChanged(this, null);
         }
@@ -614,6 +631,9 @@ namespace vApus.Stresstest {
             SetParameters();
         }
         public void SetParameters() {
+            bool logEntryContainsTokens;
+            _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
+
             string scopeIdentifier = null;
 
             flpTokens.Controls.Clear();
@@ -672,7 +692,7 @@ namespace vApus.Stresstest {
             flpTokens.Controls.Add(kvp);
         }
 
-        private void SetCodeStyle() {
+        public void SetCodeStyle() {
             BaseItem customListParameters = _parameters[0];
             BaseItem numericParameters = _parameters[1];
             BaseItem textParameters = _parameters[2];

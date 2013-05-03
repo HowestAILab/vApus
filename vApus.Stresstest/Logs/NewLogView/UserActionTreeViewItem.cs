@@ -21,7 +21,6 @@ namespace vApus.Stresstest {
         /// </summary>
         public event EventHandler AfterSelect;
 
-        public event EventHandler ActionizeClicked;
         public event EventHandler<LogTreeView.AddUserActionEventArgs> DuplicateClicked;
         public event EventHandler DeleteClicked;
 
@@ -88,14 +87,26 @@ namespace vApus.Stresstest {
             base.Focus();
             BackColor = _selectedColor;
             SetVisibleControls();
+
+            if (AfterSelect != null) AfterSelect(this, null);
         }
         public void SetVisibleControls(bool visible) {
-            picLinkColor.Visible =  IsLinked();
+            SetLabel();
+            UserAction linkedUserAction;
+            if (_userAction.IsLinked(out linkedUserAction)) {
+                picLinkColor.BackColor = _userAction.LinkColor;
+                picLinkColor.Visible = true;
+            } else {
+                picLinkColor.Visible = false;
+            }
+
             picDuplicate.Visible = picDelete.Visible = visible;
             picPin.Visible = _userAction.Pinned || visible;
             picPin.Image = _userAction.Pinned ? global::vApus.Stresstest.Properties.Resources.Pin : global::vApus.Stresstest.Properties.Resources.PinGreyedOut;
             nudOccurance.Visible = _userAction.Occurance != 1 || visible;
+            nudOccurance.ValueChanged -= nudOccurance_ValueChanged;
             nudOccurance.Value = _userAction.Occurance;
+            nudOccurance.ValueChanged += nudOccurance_ValueChanged;
 
             if (BackColor != _selectedColor)
                 BackColor = (((float)_userAction.Index % 2) == 0) ? _secundaryColor : _primaryColor;
@@ -109,15 +120,6 @@ namespace vApus.Stresstest {
             if (width != lblUserAction.Width)
                 lblUserAction.Width = width;
         }
-        private bool IsLinked() {
-            if (_userAction.LinkedToUserActionIndices.Count == 0) {
-                int index = _userAction.Index;
-                foreach (UserAction ua in _log)
-                    if (ua.LinkedToUserActionIndices.Contains(index)) return true;
-            } else return true;
-            return false;
-        }
-
         public void SetVisibleControls() {
             if (IsDisposed) return;
 
@@ -126,10 +128,7 @@ namespace vApus.Stresstest {
         }
 
         private void _Enter(object sender, EventArgs e) {
-            BackColor = _selectedColor;
-            SetVisibleControls();
-
-            if (AfterSelect != null) AfterSelect(this, null);
+            Focus();
         }
 
         private void _MouseEnter(object sender, EventArgs e) { SetVisibleControls(); }
@@ -153,24 +152,41 @@ namespace vApus.Stresstest {
 
         private void picDuplicate_Click(object sender, EventArgs e) {
             var ua = _userAction.Clone();
-            _log.Add(ua);
+            int index = _userAction.Index;
+
+            if (index < _log.Count) _log.InsertWithoutInvokingEvent(index, ua); else _log.AddWithoutInvokingEvent(ua);
+
+            //Add to the link if any
+            UserAction linkedUserAction;
+            if (_userAction.IsLinked(out linkedUserAction))
+                linkedUserAction.LinkedToUserActionIndices.Add(linkedUserAction.LinkedToUserActionIndices[linkedUserAction.LinkedToUserActionIndices.Count - 1] + 1);
+            
+            _log.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+            _log.ApplyLogRuleSet();
             if (DuplicateClicked != null) DuplicateClicked(this, new LogTreeView.AddUserActionEventArgs(ua));
         }
 
         private void picDelete_Click(object sender, EventArgs e) {
             _log.Remove(_userAction);
+            _log.ApplyLogRuleSet();
             if (DeleteClicked != null) DeleteClicked(this, null);
         }
 
-        private void picActionize_Click(object sender, EventArgs e) {
-            if (ActionizeClicked != null) ActionizeClicked(this, null);
-        }
         private void picPin_Click(object sender, EventArgs e) {
             _userAction.Pinned = !_userAction.Pinned;
             picPin.Image = _userAction.Pinned ? global::vApus.Stresstest.Properties.Resources.Pin : global::vApus.Stresstest.Properties.Resources.PinGreyedOut;
+
+            UserAction linkUserAction;
+            if (_userAction.IsLinked(out linkUserAction)) {
+                linkUserAction.Pinned = _userAction.Pinned;
+                foreach (var ua in linkUserAction.LinkedToUserActions)
+                    ua.Pinned = _userAction.Pinned;
+            }
+            _userAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         private void nudOccurance_ValueChanged(object sender, EventArgs e) {
             _userAction.Occurance = (int)nudOccurance.Value;
+            _userAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         #endregion
     }

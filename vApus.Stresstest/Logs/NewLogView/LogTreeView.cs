@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class LogTreeView : UserControl {
@@ -25,7 +26,7 @@ namespace vApus.Stresstest {
         private Log _log;
         private LogTreeViewItem _logTreeViewItem;
 
-        private UserActionTreeViewItem _focussedUserAction = null;
+        private UserActionTreeViewItem _focussedUserActionTreeViewItem = null;
 
 
         #region Properties
@@ -49,23 +50,21 @@ namespace vApus.Stresstest {
         public void SetLog(Log log, UserAction focus = null) {
             if (IsDisposed) return;
             LockWindowUpdate(Handle.ToInt32());
+            //Try to select the same control as before, this wil be overriden if focus != null.
             var selection = largeList.BeginOfSelection;
             if (selection.Key == -1 || selection.Value == -1)
                 selection = new KeyValuePair<int, int>(0, 0);
 
-            largeList.Clear();
             _log = log;
             _logTreeViewItem = new LogTreeViewItem(_log);
             _logTreeViewItem.AfterSelect += _AfterSelect;
             _logTreeViewItem.AddPasteUserActionClicked += _logTreeViewItem_AddPasteUserActionClicked;
             _logTreeViewItem.ClearUserActionsClicked += _logTreeViewItem_ClearUserActionsClicked;
-            //dttvi.AddTileClicked += dttvi_AddTileClicked;
-            largeList.Add(_logTreeViewItem);
 
             //For backwards compatibility, all loose log entries are put into a user action.
-            var newLog = new List<BaseItem>(log.Count);
+            var newLog = new List<BaseItem>(_log.Count);
             bool newlogNeeded = false;
-            foreach (BaseItem item in log) {
+            foreach (BaseItem item in _log) {
                 UserAction ua = null;
                 if (item is UserAction) {
                     ua = item as UserAction;
@@ -79,39 +78,36 @@ namespace vApus.Stresstest {
             }
 
             if (newlogNeeded) {
-                log.ClearWithoutInvokingEvent(false);
-                log.AddRangeWithoutInvokingEvent(newLog, false);
+                _log.ClearWithoutInvokingEvent(false);
+                _log.AddRangeWithoutInvokingEvent(newLog, false);
             }
 
-            _focussedUserAction = null;
-            foreach (UserAction userAction in log) {
-                var uatvi = CreateAndAddUserActionTreeViewItem(userAction);
+            //Add al to a list, and add the list to the largelist afterwards, this is faster.
+            var rangeToAdd = new List<Control>(_log.Count + 1);
+            rangeToAdd.Add(_logTreeViewItem);
 
-                if (uatvi.UserAction == focus) _focussedUserAction = uatvi;
+            foreach (UserAction userAction in _log) {
+                var uatvi = CreateUserActionTreeViewItem(userAction);
+                rangeToAdd.Add(uatvi);
             }
 
-            //SetGui();
+            largeList.Clear();
+            largeList.AddRange(rangeToAdd);
 
-            //select the first stresstest tvi if any
-            //bool selected = false;
-            //foreach (Control control in largeList.AllControls)
-            //    if (control is TileStresstestTreeViewItem) {
-            //        control.Select();
-            //        selected = true;
-            //        break;
-            //    }
+            if (focus != null) {
+                foreach (Control ctrl in largeList.AllControls) {
+                    var uatvi = ctrl as UserActionTreeViewItem;
+                    if (uatvi != null && uatvi.UserAction == focus)
+                        selection = largeList.IndexOf(uatvi);
+                }
+            }
 
-            //if (!selected) dttvi.Select();
-
-            if (largeList.ViewCount <= selection.Key || largeList[selection.Key].Count <= selection.Value)
+            if (largeList.ViewCount <= selection.Key || largeList[selection.Key].Count <= selection.Value || selection.Key == -1 || selection.Value == -1)
                 selection = new KeyValuePair<int, int>(0, 0);
             largeList.Select(selection);
 
-            var selected = largeList.Selection[0];
-            if (selected is LogTreeViewItem)
-                (selected as LogTreeViewItem).Focus();
-            else
-                (selected as UserActionTreeViewItem).Focus();
+            _focussedUserActionTreeViewItem = (selection.Key == 0 && selection.Value == 0) ? null : largeList.Selection[0] as UserActionTreeViewItem;
+            if (_focussedUserActionTreeViewItem == null) _logTreeViewItem.Focus(); else _focussedUserActionTreeViewItem.Focus();
 
             LockWindowUpdate(0);
         }
@@ -124,25 +120,33 @@ namespace vApus.Stresstest {
             largeList.Add(_logTreeViewItem);
         }
 
-        private UserActionTreeViewItem CreateAndAddUserActionTreeViewItem(UserAction userAction) {
+        private UserActionTreeViewItem CreateAndAddUserActionTreeViewItem(UserAction userAction, int atIndex = -1) {
+            var uatvi = CreateUserActionTreeViewItem(userAction);
+            if (atIndex == -1 || atIndex >= largeList.ControlCount)
+                largeList.Add(uatvi);
+            else
+                largeList.Insert(uatvi, new KeyValuePair<int, int>(largeList.CurrentView, atIndex));
+            return uatvi;
+        }
+        private UserActionTreeViewItem CreateUserActionTreeViewItem(UserAction userAction) {
             var uatvi = new UserActionTreeViewItem(_log, userAction);
             uatvi.AfterSelect += _AfterSelect;
             uatvi.DuplicateClicked += uatvi_DuplicateClicked;
             uatvi.DeleteClicked += uatvi_DeleteClicked;
-            largeList.Add(uatvi);
             return uatvi;
         }
 
         private void uatvi_DuplicateClicked(object sender, LogTreeView.AddUserActionEventArgs e) {
-            CreateAndAddUserActionTreeViewItem(e.UserAction);
+            CreateAndAddUserActionTreeViewItem(e.UserAction, e.UserAction.Index);
         }
-        void uatvi_DeleteClicked(object sender, EventArgs e) {
-            largeList.Select(_logTreeViewItem);
+        private void uatvi_DeleteClicked(object sender, EventArgs e) {
             largeList.Remove(sender as Control);
+            largeList.Select(_logTreeViewItem);
+            _logTreeViewItem.Focus();
         }
 
         private void _AfterSelect(object sender, EventArgs e) {
-            _focussedUserAction = null;
+            _focussedUserActionTreeViewItem = null;
             for (int v = 0; v != largeList.ViewCount; v++)
                 for (int i = 0; i != largeList[v].Count; i++) {
                     var ctrl = largeList[v][i];
@@ -158,7 +162,7 @@ namespace vApus.Stresstest {
                 AfterSelect(sender, e);
         }
         public void SetGui() {
-            if (_focussedUserAction != null) _focussedUserAction.Focus();
+            if (_focussedUserActionTreeViewItem != null) _focussedUserActionTreeViewItem.Focus();
 
             for (int v = 0; v != largeList.ViewCount; v++)
                 for (int i = 0; i != largeList[v].Count; i++) {

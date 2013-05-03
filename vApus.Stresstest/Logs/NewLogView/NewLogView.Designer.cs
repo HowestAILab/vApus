@@ -124,6 +124,7 @@
             this.editLog.Size = new System.Drawing.Size(694, 595);
             this.editLog.TabIndex = 0;
             this.editLog.LogImported += new System.EventHandler(this.editLog_LogImported);
+            this.editLog.RedeterminedTokens += new System.EventHandler(this.editLog_RedeterminedTokens);
             // 
             // editUserAction
             // 

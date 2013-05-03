@@ -35,15 +35,15 @@
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.picPin = new System.Windows.Forms.PictureBox();
             this.nudOccurance = new System.Windows.Forms.NumericUpDown();
+            this.picLinkColor = new System.Windows.Forms.PictureBox();
             this.picValid = new System.Windows.Forms.PictureBox();
             this.lblUserAction = new System.Windows.Forms.Label();
-            this.picLinkColor = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picLinkColor)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -123,6 +123,19 @@
             this.nudOccurance.Visible = false;
             this.nudOccurance.ValueChanged += new System.EventHandler(this.nudOccurance_ValueChanged);
             // 
+            // picLinkColor
+            // 
+            this.picLinkColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picLinkColor.Location = new System.Drawing.Point(441, 6);
+            this.picLinkColor.Name = "picLinkColor";
+            this.picLinkColor.Size = new System.Drawing.Size(4, 16);
+            this.picLinkColor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picLinkColor.TabIndex = 79;
+            this.picLinkColor.TabStop = false;
+            this.toolTip.SetToolTip(this.picLinkColor, "The color shared between linked user actions.");
+            this.picLinkColor.Visible = false;
+            this.picLinkColor.Click += new System.EventHandler(this._Enter);
+            // 
             // picValid
             // 
             this.picValid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -145,20 +158,6 @@
             this.lblUserAction.TabIndex = 19;
             this.lblUserAction.Click += new System.EventHandler(this._Enter);
             // 
-            // picLinkColor
-            // 
-            this.picLinkColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picLinkColor.BackColor = System.Drawing.Color.CornflowerBlue;
-            this.picLinkColor.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picLinkColor.Location = new System.Drawing.Point(429, 6);
-            this.picLinkColor.Name = "picLinkColor";
-            this.picLinkColor.Size = new System.Drawing.Size(16, 16);
-            this.picLinkColor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picLinkColor.TabIndex = 79;
-            this.picLinkColor.TabStop = false;
-            this.toolTip.SetToolTip(this.picLinkColor, "Click to set the link color.");
-            this.picLinkColor.Visible = false;
-            // 
             // UserActionTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -173,13 +172,13 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "UserActionTreeViewItem";
             this.Size = new System.Drawing.Size(598, 32);
-            this.Enter += new System.EventHandler(this._Enter);
+            this.Click += new System.EventHandler(this._Enter);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picLinkColor)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -34,13 +34,19 @@
             this.btnImport = new System.Windows.Forms.Button();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.fctxtxImport = new FastColoredTextBoxNS.FastColoredTextBox();
+            this.tpExtraTools = new System.Windows.Forms.TabPage();
+            this.button3 = new System.Windows.Forms.Button();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.btnRedetermineParameterTokens = new System.Windows.Forms.Button();
+            this.btnExportToTextFile = new System.Windows.Forms.Button();
             this.tc.SuspendLayout();
             this.tpCapture.SuspendLayout();
             this.tpImport.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxImport)).BeginInit();
+            this.tpExtraTools.SuspendLayout();
             this.SuspendLayout();
             // 
             // tc
@@ -48,6 +54,7 @@
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpCapture);
             this.tc.Controls.Add(this.tpImport);
+            this.tc.Controls.Add(this.tpExtraTools);
             this.tc.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tc.ImageList = this.imageList;
             this.tc.LeftVisible = false;
@@ -76,11 +83,11 @@
             // 
             this.chkClearLogBeforeCapture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkClearLogBeforeCapture.AutoSize = true;
-            this.chkClearLogBeforeCapture.Location = new System.Drawing.Point(9, 557);
+            this.chkClearLogBeforeCapture.Location = new System.Drawing.Point(6, 557);
             this.chkClearLogBeforeCapture.Name = "chkClearLogBeforeCapture";
-            this.chkClearLogBeforeCapture.Size = new System.Drawing.Size(130, 17);
+            this.chkClearLogBeforeCapture.Size = new System.Drawing.Size(139, 17);
             this.chkClearLogBeforeCapture.TabIndex = 30;
-            this.chkClearLogBeforeCapture.Text = "Clear log after capture";
+            this.chkClearLogBeforeCapture.Text = "Clear log before capture";
             this.toolTip.SetToolTip(this.chkClearLogBeforeCapture, "Check this if you want to clear the log before you start capturing.");
             this.chkClearLogBeforeCapture.UseVisualStyleBackColor = true;
             // 
@@ -188,16 +195,45 @@
             this.fctxtxImport.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxtxImport.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fctxtxImport.IsReplaceMode = false;
-            this.fctxtxImport.Location = new System.Drawing.Point(3, 3);
+            this.fctxtxImport.Location = new System.Drawing.Point(0, 0);
             this.fctxtxImport.Name = "fctxtxImport";
             this.fctxtxImport.Paddings = new System.Windows.Forms.Padding(0);
             this.fctxtxImport.PreferredLineWidth = 65536;
             this.fctxtxImport.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.fctxtxImport.Size = new System.Drawing.Size(737, 543);
+            this.fctxtxImport.Size = new System.Drawing.Size(747, 546);
             this.fctxtxImport.TabIndex = 0;
             this.fctxtxImport.WordWrap = true;
             this.fctxtxImport.Zoom = 100;
             this.fctxtxImport.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxtxImport_TextChangedDelayed);
+            // 
+            // tpExtraTools
+            // 
+            this.tpExtraTools.Controls.Add(this.btnRedetermineParameterTokens);
+            this.tpExtraTools.Controls.Add(this.btnExportToTextFile);
+            this.tpExtraTools.Controls.Add(this.button3);
+            this.tpExtraTools.Location = new System.Drawing.Point(0, 23);
+            this.tpExtraTools.Name = "tpExtraTools";
+            this.tpExtraTools.Padding = new System.Windows.Forms.Padding(3);
+            this.tpExtraTools.Size = new System.Drawing.Size(747, 582);
+            this.tpExtraTools.TabIndex = 2;
+            this.tpExtraTools.Text = "Extra Tools";
+            // 
+            // button3
+            // 
+            this.button3.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.button3.AutoSize = true;
+            this.button3.BackColor = System.Drawing.Color.White;
+            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.button3.Location = new System.Drawing.Point(269, 309);
+            this.button3.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(209, 24);
+            this.button3.TabIndex = 10;
+            this.button3.Text = "Bulk Edit?";
+            this.button3.UseVisualStyleBackColor = false;
+            this.button3.Visible = false;
             // 
             // imageList
             // 
@@ -208,8 +244,47 @@
             // 
             // openFileDialog
             // 
-            this.openFileDialog.Filter = "\"Text Files (*.txt)|*.txt|All files (*.*)|*.*\"";
+            this.openFileDialog.Filter = "Text Files (*.txt)|*.txt|All files (*.*)|*.*";
             this.openFileDialog.Multiselect = true;
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.DefaultExt = "txt";
+            this.saveFileDialog.Filter = "Text File (*.txt)|*.txt";
+            // 
+            // btnRedetermineParameterTokens
+            // 
+            this.btnRedetermineParameterTokens.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnRedetermineParameterTokens.AutoSize = true;
+            this.btnRedetermineParameterTokens.BackColor = System.Drawing.Color.White;
+            this.btnRedetermineParameterTokens.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRedetermineParameterTokens.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRedetermineParameterTokens.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnRedetermineParameterTokens.Location = new System.Drawing.Point(269, 294);
+            this.btnRedetermineParameterTokens.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnRedetermineParameterTokens.Name = "btnRedetermineParameterTokens";
+            this.btnRedetermineParameterTokens.Size = new System.Drawing.Size(209, 24);
+            this.btnRedetermineParameterTokens.TabIndex = 14;
+            this.btnRedetermineParameterTokens.Text = "Redetermine Parameter Tokens...";
+            this.btnRedetermineParameterTokens.UseVisualStyleBackColor = false;
+            this.btnRedetermineParameterTokens.Click += new System.EventHandler(this.btnRedetermineParameterTokens_Click);
+            // 
+            // btnExportToTextFile
+            // 
+            this.btnExportToTextFile.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnExportToTextFile.AutoSize = true;
+            this.btnExportToTextFile.BackColor = System.Drawing.Color.White;
+            this.btnExportToTextFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExportToTextFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnExportToTextFile.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnExportToTextFile.Location = new System.Drawing.Point(269, 264);
+            this.btnExportToTextFile.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnExportToTextFile.Name = "btnExportToTextFile";
+            this.btnExportToTextFile.Size = new System.Drawing.Size(209, 24);
+            this.btnExportToTextFile.TabIndex = 13;
+            this.btnExportToTextFile.Text = "Export to Text File...";
+            this.btnExportToTextFile.UseVisualStyleBackColor = false;
+            this.btnExportToTextFile.Click += new System.EventHandler(this.btnExportToTextFile_Click);
             // 
             // EditLog
             // 
@@ -225,6 +300,8 @@
             this.tpImport.ResumeLayout(false);
             this.tpImport.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxImport)).EndInit();
+            this.tpExtraTools.ResumeLayout(false);
+            this.tpExtraTools.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -243,5 +320,10 @@
         private System.Windows.Forms.CheckBox chkClearLogBeforeImport;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private Lupus_Fiddler.CaptureControl captureControl;
+        private System.Windows.Forms.TabPage tpExtraTools;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.Button btnRedetermineParameterTokens;
+        private System.Windows.Forms.Button btnExportToTextFile;
     }
 }

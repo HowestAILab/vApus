@@ -1213,7 +1213,11 @@ namespace vApus.Util {
                 _beginOfSelection = IndexOf(_activeControl);
                 _endOfSelection = IndexOf(_selection[_selection.Count - 1]);
             }
-            InvokeSelectionChanged();
+            if (_selection.Count != 0) {
+                var ctrl = _selection[0];
+                ctrl.Focus();
+                ctrl.Select();
+            } InvokeSelectionChanged();
             Cursor = Cursors.Default;
         }
 
@@ -1247,6 +1251,11 @@ namespace vApus.Util {
                 _activeControl = control;
                 _beginOfSelection = IndexOf(control);
                 _endOfSelection = _beginOfSelection;
+            }
+            if (_selection.Count != 0) {
+                var ctrl = _selection[0];
+                ctrl.Focus();
+                ctrl.Select();
             }
             InvokeSelectionChanged();
         }
@@ -1342,7 +1351,11 @@ namespace vApus.Util {
                 lastIndex = _controls.Count - 1;
                 List<Control> last = _controls[lastIndex];
                 _endOfSelection = new KeyValuePair<int, int>(lastIndex, last.Count - 1);
-                InvokeSelectionChanged();
+                if (_selection.Count != 0) {
+                    var ctrl = _selection[0];
+                    ctrl.Focus();
+                    ctrl.Select();
+                } InvokeSelectionChanged();
             }
         }
 

@@ -45,6 +45,12 @@ namespace vApus.Stresstest {
             SetLog();
             //It is possible that the parameter token delimiters changed.
             editUserAction.SetParameters();
+            editUserAction.SetCodeStyle();
+        }
+        private void editLog_RedeterminedTokens(object sender, EventArgs e) {
+            SetLog();
+            editUserAction.SetParameters();
+            editUserAction.SetCodeStyle();
         }
         private void LogRuleSet_LogRuleSetChanged(object sender, EventArgs e) {
             SetLog();
@@ -89,6 +95,5 @@ namespace vApus.Stresstest {
         private void tmrRefreshGui_Tick(object sender, EventArgs e) {
             logTreeView.SetGui();
         }
-
     }
 }
