@@ -158,16 +158,44 @@ namespace vApus.Stresstest {
 
             //Add to the link if any
             UserAction linkedUserAction;
-            if (_userAction.IsLinked(out linkedUserAction))
+            if (_userAction.IsLinked(out linkedUserAction)) {
                 linkedUserAction.LinkedToUserActionIndices.Add(linkedUserAction.LinkedToUserActionIndices[linkedUserAction.LinkedToUserActionIndices.Count - 1] + 1);
-            
+                ua.LinkColorRGB = linkedUserAction.LinkColorRGB;
+                linkedUserAction.LinkedToUserActionIndices.Sort();
+
+                index = linkedUserAction.LinkedToUserActionIndices[linkedUserAction.LinkedToUserActionIndices.Count - 1];
+            }
+
+            //Update the linked indices for the other user actions.
+            for (int i = index; i != _log.Count; i++) {
+                var ua2 = _log[i] as UserAction;
+                var linkedIndices = ua2.LinkedToUserActionIndices.ToArray();
+                for (int j = 0; j != linkedIndices.Length; j++)
+                    ua2.LinkedToUserActionIndices[j] = linkedIndices[j] + 1;
+            }
+
             _log.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
             _log.ApplyLogRuleSet();
             if (DuplicateClicked != null) DuplicateClicked(this, new LogTreeView.AddUserActionEventArgs(ua));
         }
 
         private void picDelete_Click(object sender, EventArgs e) {
+            int index = _userAction.Index - 1;
+            //Remove from the link if any
+            UserAction linkedUserAction;
+            if (_userAction.IsLinked(out linkedUserAction))
+                linkedUserAction.RemoveFromLink(_userAction);
+
             _log.Remove(_userAction);
+
+            //Update the linked indices for the other user actions.
+            for (int i = index; i != _log.Count; i++) {
+                var ua = _log[i] as UserAction;
+                var linkedIndices = ua.LinkedToUserActionIndices.ToArray();
+                for (int j = 0; j != linkedIndices.Length; j++)
+                    ua.LinkedToUserActionIndices[j] = linkedIndices[j] - 1;
+            }
+
             _log.ApplyLogRuleSet();
             if (DeleteClicked != null) DeleteClicked(this, null);
         }

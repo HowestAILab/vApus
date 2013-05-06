@@ -97,10 +97,13 @@ namespace vApus.Stresstest {
         }
         public Color LinkColor {
             get {
-                int red = _linkColorRGB >> 16;
-                int green = (_linkColorRGB >> 8) & 0x00FF;
-                int blue = _linkColorRGB & 0x0000FF;
-                return Color.FromArgb(red, green, blue);
+                if (_linkColorRGB != -1) {
+                    int red = _linkColorRGB >> 16;
+                    int green = (_linkColorRGB >> 8) & 0x00FF;
+                    int blue = _linkColorRGB & 0x0000FF;
+                    return Color.FromArgb(red, green, blue);
+                }
+                return Color.Transparent;
             }
         }
         #endregion

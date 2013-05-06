@@ -110,23 +110,56 @@ namespace vApus.Stresstest {
             }
         }
         private void SetMove() {
-            int index = _userActionTreeViewItem.UserAction.Index;
-            int count = _log.CountOf(typeof(UserAction));
+            var userAction = _userActionTreeViewItem.UserAction;
+            int index, count;
+
+            GetOneBasedIndexAndCount(userAction, out index, out count);
+
             picMoveUp.Enabled = index != 1;
             picMoveDown.Enabled = index != count;
 
             decimal value = nudMoveSteps.Value;
+            //Move down
             nudMoveSteps.Maximum = count - index;
 
+            //Move up
             int candidate = count - Math.Abs(index - count) - 1;
             if (candidate > nudMoveSteps.Maximum) nudMoveSteps.Maximum = candidate;
 
-            if (nudMoveSteps.Maximum == 0)
-                nudMoveSteps.Minimum = nudMoveSteps.Maximum = 1;
+            if (nudMoveSteps.Maximum < 1) nudMoveSteps.Maximum = 1;
 
             if (value > nudMoveSteps.Maximum) value = nudMoveSteps.Maximum;
+            if (value < 1) value = 1;
+
+            nudMoveSteps.Minimum = 1;
             nudMoveSteps.Value = value;
         }
+        /// <summary>
+        /// Takes linked user actions into account.
+        /// </summary>
+        private void GetOneBasedIndexAndCount(UserAction userAction, out int index, out int count) {
+            index = -1;
+            count = -1;
+
+            UserAction linkUserAction;
+            var linkUserActions = userAction.LinkedToUserActions;
+            if (userAction.IsLinked(out linkUserAction))
+                if (userAction != linkUserAction) {
+                    index = linkUserAction.LinkedToUserActionIndices.IndexOf(userAction.Index) + 1;
+                    count = linkUserAction.LinkedToUserActionIndices.Count;
+                    return;
+                }
+
+            var l = new List<UserAction>(_log.Count);
+            foreach (UserAction ua in _log) {
+                if (!ua.IsLinked(out linkUserAction) || ua == linkUserAction)
+                    l.Add(ua);
+
+                index = l.IndexOf(userAction) + 1;
+                count = l.Count;
+            }
+        }
+
         private void picMoveUp_Click(object sender, EventArgs e) {
             MoveUserAction(false);
             SetMove();
@@ -138,27 +171,62 @@ namespace vApus.Stresstest {
         private void MoveUserAction(bool down) {
             if (nudMoveSteps.Value == 0) return;
 
+            var userAction = _userActionTreeViewItem.UserAction;
+            int index = userAction.Index - 1;
+
+            UserAction linkUserAction;
+            userAction.IsLinked(out linkUserAction);
+
+            //Step over link to useractions
             int move = (int)nudMoveSteps.Value;
             if (!down) move *= -1;
+            if (!userAction.IsLinked(out linkUserAction) || userAction == linkUserAction) {
+                int moveIndex = index;
+                if (down) {
+                    for (int i = 0; i < nudMoveSteps.Value; i++) {
+                        if (++moveIndex == _log.Count) break;
 
-            var userAction = _userActionTreeViewItem.UserAction;
-            int newIndex = userAction.Index - 1 + move;
+                        var ua = _log[moveIndex] as UserAction;
+                        moveIndex += ua.LinkedToUserActionIndices.Count;
+                    }
 
-            bool moved = false;
-            if (newIndex > -1 && newIndex < _log.Count) {
-                _log.RemoveWithoutInvokingEvent(userAction);
-                _log.InsertWithoutInvokingEvent(newIndex, userAction);
+                } else {
+                    for (int i = 0; i < nudMoveSteps.Value; i++) {
+                        if (--moveIndex == 0) break;
 
-                moved = true;
+                        var ua = _log[moveIndex] as UserAction;
+                        while (ua.IsLinked(out linkUserAction) && ua != linkUserAction) {
+                            if (--moveIndex == 0) break;
+                            ua = _log[moveIndex] as UserAction;
+                        }
+                    }
+                }
+
+                move = moveIndex - index;
             }
-            if (newIndex >= _log.Count) {
-                _log.RemoveWithoutInvokingEvent(userAction);
-                _log.AddWithoutInvokingEvent(userAction);
 
-                moved = true;
-            }
+            int newIndex = index + move;
 
-            if (moved) {
+            var toMove = new List<UserAction>();
+            toMove.Add(userAction);
+            foreach (var ua in userAction.LinkedToUserActions) toMove.Add(ua);
+
+            if (toMove.Count != 0) {
+                toMove.Reverse();
+                _log.RemoveRangeWithoutInvokingEvent(toMove);
+                foreach (var ua in toMove) {
+                    if (newIndex > -1 && newIndex < _log.Count)
+                        _log.InsertWithoutInvokingEvent(newIndex, ua);
+                    else
+                        _log.AddWithoutInvokingEvent(ua);
+                }
+
+                userAction.LinkedToUserActionIndices.Clear();
+                for (int i = 0; i < toMove.Count - 1; i++)
+                    userAction.LinkedToUserActionIndices.Add(toMove[i].Index);
+
+                userAction.LinkedToUserActionIndices.Sort();
+
                 _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
 
                 if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
