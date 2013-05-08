@@ -24,15 +24,13 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditUserAction));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.lblLabel = new System.Windows.Forms.Label();
             this.txtLabel = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.picMoveUp = new System.Windows.Forms.PictureBox();
-            this.picMoveDown = new System.Windows.Forms.PictureBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblMove = new System.Windows.Forms.Label();
+            this.lblSteps = new System.Windows.Forms.Label();
             this.nudMoveSteps = new System.Windows.Forms.NumericUpDown();
             this.dgvLogEntries = new System.Windows.Forms.DataGridView();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
@@ -43,8 +41,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.btnShowHideParameterTokens = new System.Windows.Forms.Button();
-            this.picCopy = new System.Windows.Forms.PictureBox();
-            this.picDelay = new System.Windows.Forms.PictureBox();
             this.btnMerge = new System.Windows.Forms.Button();
             this.btnSplit = new System.Windows.Forms.Button();
             this.split = new System.Windows.Forms.SplitContainer();
@@ -61,16 +57,16 @@
             this.btnRevertToImported = new System.Windows.Forms.Button();
             this.lblLinkTo = new System.Windows.Forms.Label();
             this.flpLink = new System.Windows.Forms.FlowLayoutPanel();
-            ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).BeginInit();
+            this.picDelay = new System.Windows.Forms.PictureBox();
+            this.picCopy = new System.Windows.Forms.PictureBox();
+            this.picMoveDown = new System.Windows.Forms.PictureBox();
+            this.picMoveUp = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudMoveSteps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).BeginInit();
             this.tc.SuspendLayout();
             this.tpStructured.SuspendLayout();
             this.tpPlainText.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picCopy)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -78,6 +74,10 @@
             this.pnlBorderTokens.SuspendLayout();
             this.flpConfiguration.SuspendLayout();
             this.flpLink.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picDelay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picCopy)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).BeginInit();
             this.SuspendLayout();
             // 
             // lblLabel
@@ -99,47 +99,23 @@
             this.txtLabel.TabIndex = 25;
             this.txtLabel.TextChanged += new System.EventHandler(this.txtLabel_TextChanged);
             // 
-            // label1
+            // lblMove
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 67);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(37, 13);
-            this.label1.TabIndex = 27;
-            this.label1.Text = "Move:";
+            this.lblMove.AutoSize = true;
+            this.lblMove.Location = new System.Drawing.Point(13, 67);
+            this.lblMove.Name = "lblMove";
+            this.lblMove.Size = new System.Drawing.Size(37, 13);
+            this.lblMove.TabIndex = 27;
+            this.lblMove.Text = "Move:";
             // 
-            // picMoveUp
+            // lblSteps
             // 
-            this.picMoveUp.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picMoveUp.Image = ((System.Drawing.Image)(resources.GetObject("picMoveUp.Image")));
-            this.picMoveUp.Location = new System.Drawing.Point(63, 67);
-            this.picMoveUp.Name = "picMoveUp";
-            this.picMoveUp.Size = new System.Drawing.Size(16, 16);
-            this.picMoveUp.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picMoveUp.TabIndex = 28;
-            this.picMoveUp.TabStop = false;
-            this.picMoveUp.Click += new System.EventHandler(this.picMoveUp_Click);
-            // 
-            // picMoveDown
-            // 
-            this.picMoveDown.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picMoveDown.Image = ((System.Drawing.Image)(resources.GetObject("picMoveDown.Image")));
-            this.picMoveDown.Location = new System.Drawing.Point(83, 67);
-            this.picMoveDown.Name = "picMoveDown";
-            this.picMoveDown.Size = new System.Drawing.Size(16, 16);
-            this.picMoveDown.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picMoveDown.TabIndex = 29;
-            this.picMoveDown.TabStop = false;
-            this.picMoveDown.Click += new System.EventHandler(this.picMoveDown_Click);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(105, 67);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(37, 13);
-            this.label2.TabIndex = 30;
-            this.label2.Text = "Steps:";
+            this.lblSteps.AutoSize = true;
+            this.lblSteps.Location = new System.Drawing.Point(105, 67);
+            this.lblSteps.Name = "lblSteps";
+            this.lblSteps.Size = new System.Drawing.Size(37, 13);
+            this.lblSteps.TabIndex = 30;
+            this.lblSteps.Text = "Steps:";
             // 
             // nudMoveSteps
             // 
@@ -167,8 +143,8 @@
             // 
             this.dgvLogEntries.AllowDrop = true;
             this.dgvLogEntries.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
-            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvLogEntries.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -184,8 +160,8 @@
             this.dgvLogEntries.Name = "dgvLogEntries";
             this.dgvLogEntries.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvLogEntries.Size = new System.Drawing.Size(982, 386);
             this.dgvLogEntries.TabIndex = 32;
             this.dgvLogEntries.VirtualMode = true;
@@ -301,35 +277,6 @@
             this.toolTip.SetToolTip(this.btnShowHideParameterTokens, "Show Parameter Tokens");
             this.btnShowHideParameterTokens.UseVisualStyleBackColor = false;
             this.btnShowHideParameterTokens.Click += new System.EventHandler(this.btnShowHideParameterTokens_Click);
-            // 
-            // picCopy
-            // 
-            this.picCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picCopy.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picCopy.Image = ((System.Drawing.Image)(resources.GetObject("picCopy.Image")));
-            this.picCopy.Location = new System.Drawing.Point(903, 67);
-            this.picCopy.Name = "picCopy";
-            this.picCopy.Size = new System.Drawing.Size(16, 16);
-            this.picCopy.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picCopy.TabIndex = 73;
-            this.picCopy.TabStop = false;
-            this.toolTip.SetToolTip(this.picCopy, "Copy this user action");
-            this.picCopy.Click += new System.EventHandler(this.picCopy_Click);
-            // 
-            // picDelay
-            // 
-            this.picDelay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picDelay.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picDelay.Image = global::vApus.Stresstest.Properties.Resources.Delay;
-            this.picDelay.Location = new System.Drawing.Point(925, 67);
-            this.picDelay.Name = "picDelay";
-            this.picDelay.Size = new System.Drawing.Size(16, 16);
-            this.picDelay.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picDelay.TabIndex = 74;
-            this.picDelay.TabStop = false;
-            this.toolTip.SetToolTip(this.picDelay, "Click to NOT use delay after this user action.\r\nDelay is determined in the stress" +
-        "test settings.");
-            this.picDelay.Click += new System.EventHandler(this.picDelay_Click);
             // 
             // btnMerge
             // 
@@ -579,6 +526,59 @@
             this.flpLink.Size = new System.Drawing.Size(930, 70);
             this.flpLink.TabIndex = 70;
             // 
+            // picDelay
+            // 
+            this.picDelay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picDelay.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picDelay.Image = global::vApus.Stresstest.Properties.Resources.Delay;
+            this.picDelay.Location = new System.Drawing.Point(925, 67);
+            this.picDelay.Name = "picDelay";
+            this.picDelay.Size = new System.Drawing.Size(16, 16);
+            this.picDelay.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picDelay.TabIndex = 74;
+            this.picDelay.TabStop = false;
+            this.toolTip.SetToolTip(this.picDelay, "Click to NOT use delay after this user action.\r\nDelay is determined in the stress" +
+        "test settings.");
+            this.picDelay.Click += new System.EventHandler(this.picDelay_Click);
+            // 
+            // picCopy
+            // 
+            this.picCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picCopy.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picCopy.Image = ((System.Drawing.Image)(resources.GetObject("picCopy.Image")));
+            this.picCopy.Location = new System.Drawing.Point(903, 67);
+            this.picCopy.Name = "picCopy";
+            this.picCopy.Size = new System.Drawing.Size(16, 16);
+            this.picCopy.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picCopy.TabIndex = 73;
+            this.picCopy.TabStop = false;
+            this.toolTip.SetToolTip(this.picCopy, "Copy this user action");
+            this.picCopy.Click += new System.EventHandler(this.picCopy_Click);
+            // 
+            // picMoveDown
+            // 
+            this.picMoveDown.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picMoveDown.Image = global::vApus.Stresstest.Properties.Resources.MoveDown;
+            this.picMoveDown.Location = new System.Drawing.Point(83, 67);
+            this.picMoveDown.Name = "picMoveDown";
+            this.picMoveDown.Size = new System.Drawing.Size(16, 16);
+            this.picMoveDown.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picMoveDown.TabIndex = 29;
+            this.picMoveDown.TabStop = false;
+            this.picMoveDown.Click += new System.EventHandler(this.picMoveDown_Click);
+            // 
+            // picMoveUp
+            // 
+            this.picMoveUp.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picMoveUp.Image = global::vApus.Stresstest.Properties.Resources.MoveUp;
+            this.picMoveUp.Location = new System.Drawing.Point(63, 67);
+            this.picMoveUp.Name = "picMoveUp";
+            this.picMoveUp.Size = new System.Drawing.Size(16, 16);
+            this.picMoveUp.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picMoveUp.TabIndex = 28;
+            this.picMoveUp.TabStop = false;
+            this.picMoveUp.Click += new System.EventHandler(this.picMoveUp_Click);
+            // 
             // EditUserAction
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -597,24 +597,20 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lblConnection);
             this.Controls.Add(this.nudMoveSteps);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.lblSteps);
             this.Controls.Add(this.picMoveDown);
             this.Controls.Add(this.picMoveUp);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblMove);
             this.Controls.Add(this.lblLabel);
             this.Controls.Add(this.txtLabel);
             this.Name = "EditUserAction";
             this.Size = new System.Drawing.Size(1000, 641);
-            ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMoveSteps)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).EndInit();
             this.tc.ResumeLayout(false);
             this.tpStructured.ResumeLayout(false);
             this.tpPlainText.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picCopy)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picDelay)).EndInit();
             this.split.Panel1.ResumeLayout(false);
             this.split.Panel2.ResumeLayout(false);
             this.split.Panel2.PerformLayout();
@@ -625,6 +621,10 @@
             this.flpConfiguration.PerformLayout();
             this.flpLink.ResumeLayout(false);
             this.flpLink.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picDelay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picCopy)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -634,10 +634,10 @@
 
         private System.Windows.Forms.Label lblLabel;
         private System.Windows.Forms.TextBox txtLabel;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblMove;
         private System.Windows.Forms.PictureBox picMoveUp;
         private System.Windows.Forms.PictureBox picMoveDown;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblSteps;
         private System.Windows.Forms.NumericUpDown nudMoveSteps;
         private System.Windows.Forms.DataGridView dgvLogEntries;
         private Util.TabControlWithAdjustableBorders tc;

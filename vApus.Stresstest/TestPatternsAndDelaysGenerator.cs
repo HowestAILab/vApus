@@ -8,11 +8,11 @@
 
 using System;
 using System.Collections.Generic;
-using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
     public class TestPatternsAndDelaysGenerator : IDisposable {
+
         #region Fields
 
         private readonly LogEntry[] _logEntries;
@@ -86,8 +86,10 @@ namespace vApus.Stresstest {
 
         private void Init() {
             UserAction currentParent = null;
-            _actions = new List<List<int>>(_logEntries.Length);
+            var unlinkedActions = new List<List<int>>(_logEntries.Length);
             List<int> action = null;
+
+            var linkedUserActions = new Dictionary<int, List<int>>();
 
             for (int i = 0; i != _logEntries.Length; i++) {
                 LogEntry logEntry = _logEntries[i];
@@ -96,17 +98,44 @@ namespace vApus.Stresstest {
                     SetUseDelay(currentParent);
 
                     currentParent = logEntry.Parent as UserAction;
+                    //Linked user actions will be merged to 1 afterwards. We want to set delays first.
+                    if (currentParent.LinkedToUserActionIndices.Count != 0) {
+                        var l = new List<int>();
+                        foreach (int index in currentParent.LinkedToUserActionIndices)
+                            l.Add(index - 1);
+                        linkedUserActions.Add(unlinkedActions.Count, l);
+                    }
                     action = new List<int>();
 
                     //To pin log entries and user actions in place --> to not shuffle them.
                     action.SetTag(currentParent.Pinned);
 
-                    _actions.Add(action);
+                    unlinkedActions.Add(action);
                 }
                 action.Add(i);
             }
 
             SetUseDelay(currentParent);
+
+            _actions = new List<List<int>>();
+            for (int i = 0; i < unlinkedActions.Count; i++) {
+                var unlinkedAction = unlinkedActions[i];
+                var linkedAction = new List<int>();
+                linkedAction.SetTag(unlinkedAction.GetTag()); //Preserve pinned
+
+                foreach (int j in unlinkedAction) 
+                    linkedAction.Add(j);
+                
+                if (linkedUserActions.ContainsKey(i)) {
+                    foreach (int j in linkedUserActions[i])
+                        foreach (int k in unlinkedActions[j]) 
+                            linkedAction.Add(k);
+
+                    i += linkedUserActions.Count;
+                }
+                _actions.Add(linkedAction);
+            }
+
         }
         private void SetUseDelay(UserAction userAction) {
             if (userAction != null) {

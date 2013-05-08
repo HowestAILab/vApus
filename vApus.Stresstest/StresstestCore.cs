@@ -323,9 +323,7 @@ namespace vApus.Stresstest {
                     logEntries.Add(item as LogEntry);
 
             _logEntries = logEntries.ToArray();
-            int actionCount = _stresstest.Distribute == UserActionDistribution.Fast
-                                  ? _stresstest.Log.Count
-                                  : _log.Count; //Needed for fast log entry distribution
+            int actionCount = _stresstest.Distribute == UserActionDistribution.Fast ? _stresstest.Log.Count : _log.Count; //Needed for fast log entry distribution
 
             _testPatternsAndDelaysGenerator = new TestPatternsAndDelaysGenerator
                 (_logEntries, actionCount, _stresstest.Shuffle, _stresstest.Distribute, _stresstest.MinimumDelay, _stresstest.MaximumDelay);
@@ -346,8 +344,8 @@ namespace vApus.Stresstest {
                 return log;
             } else {
                 Log newLog = log.Clone(false);
-                foreach (BaseItem item in log) {
-                    var action = item as UserAction;
+                var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
+                foreach (UserAction action in log) {
                     var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
                     for (int i = 0; i != action.Occurance; i++) {
                         var actionClone = new UserAction(action.Label);
@@ -369,6 +367,15 @@ namespace vApus.Stresstest {
                         }
 
                         newLog.AddWithoutInvokingEvent(actionClone, false);
+
+                        if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
+                            linkCloned.Add(action, actionClone);
+                        } else {
+                            UserAction linkUserAction;
+                            action.IsLinked(out linkUserAction);
+                            if (linkCloned.ContainsKey(linkUserAction))
+                                linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newLog.IndexOf(actionClone) + 1);
+                        }
                     }
                 }
                 return newLog;

@@ -171,6 +171,19 @@ namespace vApus.Stresstest {
                         (ctrl as UserActionTreeViewItem).SetVisibleControls();
                 }
         }
+
+        public void SelectFound(int userAction) {
+            int index = userAction + 1;
+
+            int i = 0;
+            foreach (Control control in largeList.AllControls)
+                if (i++ == index) {
+                    var uatvi = control as UserActionTreeViewItem;
+                        uatvi.Select();
+                        uatvi.Focus();
+                    break;
+                }
+        }
         #endregion
 
         public class AddUserActionEventArgs : EventArgs {

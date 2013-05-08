@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2010 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -9,6 +16,7 @@ using vApus.Util;
 
 namespace vApus.Gui {
     internal static class ArgumentsAnalyzer {
+
         #region Delegates
 
         //Two types each returning a string, if the string equals "" that means there is no error

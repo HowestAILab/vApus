@@ -248,6 +248,12 @@
     <Compile Include="Logs\NewLogView\EditUserAction.Designer.cs">
       <DependentUpon>EditUserAction.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logs\NewLogView\FindAndReplaceDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs\NewLogView\FindAndReplaceDialog.Designer.cs">
+      <DependentUpon>FindAndReplaceDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Logs\NewLogView\UserActionTreeViewItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -566,6 +572,9 @@
     <EmbeddedResource Include="Logs\NewLogView\EditUserAction.resx">
       <DependentUpon>EditUserAction.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Logs\NewLogView\FindAndReplaceDialog.resx">
+      <DependentUpon>FindAndReplaceDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Logs\NewLogView\UserActionTreeViewItem.resx">
       <DependentUpon>UserActionTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
@@ -754,6 +763,10 @@
     <None Include="Resources\picErrors.Image.png" />
     <None Include="Resources\find.png" />
     <None Include="Resources\blank.png" />
+    <None Include="Resources\picMoveDownGreyedOut.png" />
+    <None Include="Resources\picMoveUpGreyedOut.png" />
+    <None Include="Resources\picMoveDown.Image.png" />
+    <None Include="Resources\picMoveUp.Image.png" />
     <Content Include="Resources\UserAction.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

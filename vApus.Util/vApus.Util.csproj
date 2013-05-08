@@ -422,6 +422,7 @@
       <DependentUpon>LogPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
+    <Compile Include="FindAndReplace.cs" />
     <Compile Include="ProcessorAffinityCalculator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

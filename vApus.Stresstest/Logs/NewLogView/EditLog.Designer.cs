@@ -35,13 +35,12 @@
             this.btnBrowse = new System.Windows.Forms.Button();
             this.fctxtxImport = new FastColoredTextBoxNS.FastColoredTextBox();
             this.tpExtraTools = new System.Windows.Forms.TabPage();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btnRedetermineParameterTokens = new System.Windows.Forms.Button();
+            this.btnExportToTextFile = new System.Windows.Forms.Button();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.btnRedetermineParameterTokens = new System.Windows.Forms.Button();
-            this.btnExportToTextFile = new System.Windows.Forms.Button();
             this.tc.SuspendLayout();
             this.tpCapture.SuspendLayout();
             this.tpImport.SuspendLayout();
@@ -208,49 +207,15 @@
             // 
             // tpExtraTools
             // 
+            this.tpExtraTools.BackColor = System.Drawing.Color.White;
             this.tpExtraTools.Controls.Add(this.btnRedetermineParameterTokens);
             this.tpExtraTools.Controls.Add(this.btnExportToTextFile);
-            this.tpExtraTools.Controls.Add(this.button3);
             this.tpExtraTools.Location = new System.Drawing.Point(0, 23);
             this.tpExtraTools.Name = "tpExtraTools";
             this.tpExtraTools.Padding = new System.Windows.Forms.Padding(3);
             this.tpExtraTools.Size = new System.Drawing.Size(747, 582);
             this.tpExtraTools.TabIndex = 2;
             this.tpExtraTools.Text = "Extra Tools";
-            // 
-            // button3
-            // 
-            this.button3.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.button3.AutoSize = true;
-            this.button3.BackColor = System.Drawing.Color.White;
-            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button3.Location = new System.Drawing.Point(269, 309);
-            this.button3.MaximumSize = new System.Drawing.Size(9999, 24);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(209, 24);
-            this.button3.TabIndex = 10;
-            this.button3.Text = "Bulk Edit?";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Visible = false;
-            // 
-            // imageList
-            // 
-            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
-            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList.Images.SetKeyName(0, "capture.png");
-            this.imageList.Images.SetKeyName(1, "import.png");
-            // 
-            // openFileDialog
-            // 
-            this.openFileDialog.Filter = "Text Files (*.txt)|*.txt|All files (*.*)|*.*";
-            this.openFileDialog.Multiselect = true;
-            // 
-            // saveFileDialog
-            // 
-            this.saveFileDialog.DefaultExt = "txt";
-            this.saveFileDialog.Filter = "Text File (*.txt)|*.txt";
             // 
             // btnRedetermineParameterTokens
             // 
@@ -285,6 +250,23 @@
             this.btnExportToTextFile.Text = "Export to Text File...";
             this.btnExportToTextFile.UseVisualStyleBackColor = false;
             this.btnExportToTextFile.Click += new System.EventHandler(this.btnExportToTextFile_Click);
+            // 
+            // imageList
+            // 
+            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
+            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList.Images.SetKeyName(0, "capture.png");
+            this.imageList.Images.SetKeyName(1, "import.png");
+            // 
+            // openFileDialog
+            // 
+            this.openFileDialog.Filter = "Text Files (*.txt)|*.txt|All files (*.*)|*.*";
+            this.openFileDialog.Multiselect = true;
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.DefaultExt = "txt";
+            this.saveFileDialog.Filter = "Text File (*.txt)|*.txt";
             // 
             // EditLog
             // 
@@ -321,7 +303,6 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private Lupus_Fiddler.CaptureControl captureControl;
         private System.Windows.Forms.TabPage tpExtraTools;
-        private System.Windows.Forms.Button button3;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.Button btnRedetermineParameterTokens;
         private System.Windows.Forms.Button btnExportToTextFile;

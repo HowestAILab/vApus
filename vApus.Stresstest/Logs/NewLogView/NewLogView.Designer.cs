@@ -26,8 +26,9 @@
             this.components = new System.ComponentModel.Container();
             this.split = new System.Windows.Forms.SplitContainer();
             this.pnlFilter = new System.Windows.Forms.Panel();
-            this.picFilter = new System.Windows.Forms.PictureBox();
-            this.txtFilter = new System.Windows.Forms.TextBox();
+            this.picFind = new System.Windows.Forms.PictureBox();
+            this.llblFindAndReplace = new System.Windows.Forms.LinkLabel();
+            this.txtFind = new System.Windows.Forms.TextBox();
             this.logTreeView = new vApus.Stresstest.LogTreeView();
             this.editLog = new vApus.Stresstest.EditLog();
             this.editUserAction = new vApus.Stresstest.EditUserAction();
@@ -38,7 +39,7 @@
             this.split.Panel2.SuspendLayout();
             this.split.SuspendLayout();
             this.pnlFilter.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picFilter)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picFind)).BeginInit();
             this.SuspendLayout();
             // 
             // split
@@ -66,43 +67,64 @@
             // 
             this.pnlFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlFilter.Controls.Add(this.picFilter);
-            this.pnlFilter.Controls.Add(this.txtFilter);
+            this.pnlFilter.Controls.Add(this.picFind);
+            this.pnlFilter.Controls.Add(this.llblFindAndReplace);
+            this.pnlFilter.Controls.Add(this.txtFind);
             this.pnlFilter.Location = new System.Drawing.Point(0, 568);
             this.pnlFilter.MinimumSize = new System.Drawing.Size(227, 21);
             this.pnlFilter.Name = "pnlFilter";
             this.pnlFilter.Size = new System.Drawing.Size(348, 21);
             this.pnlFilter.TabIndex = 2;
             // 
-            // picFilter
+            // picFind
             // 
-            this.picFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picFilter.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picFilter.Image = global::vApus.Stresstest.Properties.Resources.find;
-            this.picFilter.Location = new System.Drawing.Point(328, 1);
-            this.picFilter.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.picFilter.Name = "picFilter";
-            this.picFilter.Size = new System.Drawing.Size(20, 20);
-            this.picFilter.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picFilter.TabIndex = 8;
-            this.picFilter.TabStop = false;
-            this.toolTip.SetToolTip(this.picFilter, "Type comma to split filter entries and \'return\' to submit. Wild card * can be use" +
-        "d. Not case sensitive.");
+            this.picFind.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picFind.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picFind.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picFind.Image = global::vApus.Stresstest.Properties.Resources.find;
+            this.picFind.Location = new System.Drawing.Point(307, 1);
+            this.picFind.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.picFind.Name = "picFind";
+            this.picFind.Size = new System.Drawing.Size(20, 20);
+            this.picFind.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picFind.TabIndex = 8;
+            this.picFind.TabStop = false;
+            this.toolTip.SetToolTip(this.picFind, "Find Next.");
+            this.picFind.Click += new System.EventHandler(this.picFind_Click);
             // 
-            // txtFilter
+            // llblFindAndReplace
             // 
-            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.llblFindAndReplace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.llblFindAndReplace.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.llblFindAndReplace.DisabledLinkColor = System.Drawing.Color.Black;
+            this.llblFindAndReplace.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.llblFindAndReplace.LinkColor = System.Drawing.Color.Black;
+            this.llblFindAndReplace.Location = new System.Drawing.Point(328, 1);
+            this.llblFindAndReplace.Name = "llblFindAndReplace";
+            this.llblFindAndReplace.Size = new System.Drawing.Size(20, 20);
+            this.llblFindAndReplace.TabIndex = 9;
+            this.llblFindAndReplace.TabStop = true;
+            this.llblFindAndReplace.Text = "...";
+            this.llblFindAndReplace.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.toolTip.SetToolTip(this.llblFindAndReplace, "Find and Replace...");
+            this.llblFindAndReplace.VisitedLinkColor = System.Drawing.Color.Black;
+            this.llblFindAndReplace.Click += new System.EventHandler(this.llblFindAndReplace_Click);
+            // 
+            // txtFind
+            // 
+            this.txtFind.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtFilter.HideSelection = false;
-            this.txtFilter.Location = new System.Drawing.Point(3, 1);
-            this.txtFilter.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.txtFilter.MinimumSize = new System.Drawing.Size(100, 4);
-            this.txtFilter.Name = "txtFilter";
-            this.txtFilter.Size = new System.Drawing.Size(345, 20);
-            this.txtFilter.TabIndex = 0;
-            this.txtFilter.TabStop = false;
-            this.toolTip.SetToolTip(this.txtFilter, "Type comma to split filter entries and \'return\' to submit. Wild card * can be use" +
-        "d. Not case sensitive.");
+            this.txtFind.HideSelection = false;
+            this.txtFind.Location = new System.Drawing.Point(3, 1);
+            this.txtFind.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.txtFind.MinimumSize = new System.Drawing.Size(100, 4);
+            this.txtFind.Name = "txtFind";
+            this.txtFind.Size = new System.Drawing.Size(304, 20);
+            this.txtFind.TabIndex = 0;
+            this.txtFind.TabStop = false;
+            this.toolTip.SetToolTip(this.txtFind, "Wild cards * + - \"\" can be used. Not case sensitive.");
+            this.txtFind.TextChanged += new System.EventHandler(this.txtFind_TextChanged);
+            this.txtFind.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFind_KeyDown);
             // 
             // logTreeView
             // 
@@ -168,7 +190,7 @@
             this.split.ResumeLayout(false);
             this.pnlFilter.ResumeLayout(false);
             this.pnlFilter.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picFilter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picFind)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -178,11 +200,12 @@
         private System.Windows.Forms.SplitContainer split;
         private LogTreeView logTreeView;
         private System.Windows.Forms.Panel pnlFilter;
-        private System.Windows.Forms.PictureBox picFilter;
-        private System.Windows.Forms.TextBox txtFilter;
+        private System.Windows.Forms.PictureBox picFind;
+        private System.Windows.Forms.TextBox txtFind;
         private EditLog editLog;
         private EditUserAction editUserAction;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Timer tmrRefreshGui;
+        private System.Windows.Forms.LinkLabel llblFindAndReplace;
     }
 }
