@@ -230,6 +230,15 @@ namespace vApus.Stresstest {
                 merged.LogEntryStringsAsImported.AddRange(ua.LogEntryStringsAsImported);
                 log.RemoveWithoutInvokingEvent(ua);
             }
+
+            //Update the linked indices for the other user actions.
+            for (int i = merged.Index; i != log.Count; i++) {
+                var ua = log[i] as UserAction;
+                var linkedIndices = ua.LinkedToUserActionIndices.ToArray();
+                for (int j = 0; j != linkedIndices.Length; j++)
+                    ua.LinkedToUserActionIndices[j] = linkedIndices[j] - merged.LinkedToUserActionIndices.Count;
+            }
+
             merged.LinkedToUserActionIndices.Clear();
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
@@ -264,6 +273,16 @@ namespace vApus.Stresstest {
                 l.Add(ua);
                 ++i;
             }
+
+            //Update the linked indices for the other user actions.
+            int add = l.Count - 1;
+            for (int j = index + 1; j != log.Count; j++) {
+                var ua = log[j] as UserAction;
+                var linkedIndices = ua.LinkedToUserActionIndices.ToArray();
+                for (int k = 0; k != linkedIndices.Length; k++)
+                    ua.LinkedToUserActionIndices[k] = linkedIndices[k] + add;
+            }
+
             log.InserRangeWithoutInvokingEvent(index, l, false);
             log.RemoveWithoutInvokingEvent(this);
 

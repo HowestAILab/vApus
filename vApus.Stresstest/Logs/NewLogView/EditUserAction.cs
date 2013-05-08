@@ -277,10 +277,16 @@ namespace vApus.Stresstest {
             if (SplitClicked != null) SplitClicked(this, null);
         }
         private void SetBtnSplit() {
-            if (_userActionTreeViewItem == null)
-                btnSplit.Enabled = false;
-            else
-                btnSplit.Enabled = _userActionTreeViewItem.UserAction.Count > 1;
+            bool enabled = _userActionTreeViewItem != null;
+            if (enabled) {
+                enabled = _userActionTreeViewItem.UserAction.Count > 1;
+                if (enabled) {
+                    UserAction linkUserAction;
+                    if (_userActionTreeViewItem.UserAction.IsLinked(out linkUserAction))
+                        enabled = false;
+                }
+            }
+            btnSplit.Enabled = enabled;
         }
         private void SetLinked() {
             var userAction = _userActionTreeViewItem.UserAction;
