@@ -144,6 +144,7 @@ namespace vApus.Stresstest {
             _log.Clear();
             if (ClearUserActionsClicked != null)
                 ClearUserActionsClicked(this, null);
+            _log.ApplyLogRuleSet();
         }
         private void _KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.ControlKey)
