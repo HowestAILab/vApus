@@ -81,6 +81,7 @@
             this.picFind.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picFind.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picFind.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picFind.Enabled = false;
             this.picFind.Image = global::vApus.Stresstest.Properties.Resources.find;
             this.picFind.Location = new System.Drawing.Point(307, 1);
             this.picFind.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);

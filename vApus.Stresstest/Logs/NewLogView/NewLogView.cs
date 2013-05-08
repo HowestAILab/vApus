@@ -120,7 +120,7 @@ namespace vApus.Stresstest {
         }
 
         private void txtFind_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter) Find();
+            if (e.KeyCode == Keys.Enter && txtFind.Text.Length != 0) Find();
         }
 
         private void Find(bool ignoreCase = true) {
@@ -201,6 +201,7 @@ namespace vApus.Stresstest {
 
                 _findAndReplaceDialog.SetFind(_find);
             }
+            picFind.Enabled = (txtFind.Text.Length != 0) ;
         }
         private void _findAndReplaceDialog_FindClicked(object sender, FindAndReplaceDialog.FindEventArgs e) {
             txtFind.Text = e.Find;
