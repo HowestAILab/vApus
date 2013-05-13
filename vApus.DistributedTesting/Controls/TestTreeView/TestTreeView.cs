@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -87,8 +88,17 @@ namespace vApus.DistributedTesting {
                 _distributedTestMode = distributedTestMode;
                 foreach (ITreeViewItem item in largeList.AllControls)
                     item.SetDistributedTestMode(_distributedTestMode);
-                //if (distributedTestMode == DistributedTestMode.TestAndReport) largeList[0][0].Select();
                 LockWindowUpdate(0);
+
+                //Otherwise the gui freezes, stupid winforms.
+                ThreadPool.QueueUserWorkItem((x) => {
+                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                        if (distributedTestMode == DistributedTestMode.Test) {
+                            largeList.RefreshControls();
+                            largeList[0][0].Select();
+                        }
+                    }, null);
+                }, null);
             }
         }
 
@@ -185,8 +195,7 @@ namespace vApus.DistributedTesting {
                     else
                         largeList.Add(tsvi, false);
                 }
-            }
-            else {
+            } else {
                 for (int i = tile.Count - 1; i != -1; i--) {
                     TileStresstestTreeViewItem tsvi = CreateTileStresstestTreeViewItem(tvi, tile[i] as TileStresstest);
                     tvi.ChildControls.Add(tsvi);
@@ -227,8 +236,7 @@ namespace vApus.DistributedTesting {
                     for (int j = index.Value + 1; j < largeList[i].Count; j++)
                         if (largeList[i][j] is TileTreeViewItem)
                             return largeList[i][j] as TileTreeViewItem;
-                }
-                else {
+                } else {
                     for (int j = 0; j < largeList[i].Count; j++)
                         if (largeList[i][j] is TileTreeViewItem)
                             return largeList[i][j] as TileTreeViewItem;
