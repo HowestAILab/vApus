@@ -10,12 +10,10 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     /// </summary>
-    public static class ProcessorAffinityCalculator
-    {
+    public static class ProcessorAffinityCalculator {
         /// <summary>
         ///     to know how much cores a group contains
         /// </summary>
@@ -29,13 +27,12 @@ namespace vApus.Util
         /// </summary>
         /// <param name="bitmask"></param>
         /// <returns></returns>
-        public static int[] FromBitmaskToArray(IntPtr bitmask)
-        {
+        public static int[] FromBitmaskToArray(IntPtr bitmask) {
             //To check if the bitmask contains the cpu's a binairy and is used.
             var cpus = new List<int>();
-            long iBitmask = bitmask.ToInt64();
+            long lBitmask = bitmask.ToInt64();
             for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) //(0xFFFF) to include all processor groups
-                if ((iBitmask & (int) Math.Pow(2, i)) > 0)
+                if ((lBitmask & (int)Math.Pow(2, i)) > 0)
                     cpus.Add(i);
             return cpus.ToArray();
         }
@@ -45,13 +42,12 @@ namespace vApus.Util
         /// </summary>
         /// <param name="array"></param>
         /// <returns></returns>
-        public static IntPtr FromArrayToBitmask(int[] array)
-        {
+        public static IntPtr FromArrayToBitmask(int[] array) {
             //Hex = 2^(n)
-            int i = 0;
+            long l = 0;
             for (int j = 0; j < array.Length; j++)
-                i += (int) Math.Pow(2, array[j]);
-            return new IntPtr(i);
+                l += (long)Math.Pow(2, array[j]);
+            return new IntPtr(l);
         }
     }
 }
