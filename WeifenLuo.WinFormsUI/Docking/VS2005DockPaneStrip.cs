@@ -1099,7 +1099,7 @@ namespace WeifenLuo.WinFormsUI.Docking {
             }
             if (SelectMenu.Items.Count > 1) {
                 SelectMenu.Items.Add(new ToolStripSeparator());
-                var closeOthers = SelectMenu.Items.Add("Close Others");
+                var closeOthers = SelectMenu.Items.Add("Close Other(s)");
                 closeOthers.Click += closeOthers_Click;
                 var closeAll = SelectMenu.Items.Add("Close All");
                 closeAll.Click += closeAll_Click;
