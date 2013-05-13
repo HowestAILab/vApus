@@ -1097,11 +1097,13 @@ namespace WeifenLuo.WinFormsUI.Docking {
                 item.Tag = tab.Content;
                 item.Click += ContextMenuItem_Click;
             }
-            SelectMenu.Items.Add(new ToolStripSeparator());
-            ToolStripItem closeOthers = SelectMenu.Items.Add("Close Others");
-            closeOthers.Click += closeOthers_Click;
-            ToolStripItem closeAll = SelectMenu.Items.Add("Close All");
-            closeAll.Click += closeAll_Click;
+            if (SelectMenu.Items.Count > 1) {
+                SelectMenu.Items.Add(new ToolStripSeparator());
+                var closeOthers = SelectMenu.Items.Add("Close Others");
+                closeOthers.Click += closeOthers_Click;
+                var closeAll = SelectMenu.Items.Add("Close All");
+                closeAll.Click += closeAll_Click;
+            }
             SelectMenu.Show(ButtonWindowList, x, y);
         }
 
