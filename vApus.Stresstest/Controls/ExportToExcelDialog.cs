@@ -5,15 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using SpreadsheetLight;
+using SpreadsheetLight.Charts;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using SpreadsheetLight;
-using SpreadsheetLight.Charts;
 using vApus.Results;
 using vApus.Util;
 
@@ -157,7 +156,7 @@ namespace vApus.Stresstest {
             var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-            chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 30, 20);
+            chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 45, 20);
 
             //Plot the throughput
             chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
@@ -172,7 +171,7 @@ namespace vApus.Stresstest {
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
             chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
             chart.SecondaryValueAxis.ShowTitle = true;
-
+            
             doc.InsertChart(chart);
 
             return worksheet;
@@ -264,7 +263,7 @@ namespace vApus.Stresstest {
                 var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
                 chart.SetChartType(SLColumnChartType.ClusteredColumn);
                 chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-                chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 30, 20);
+                chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 45, 20);
 
                 //Set the titles
                 chart.Title.SetTitle(title);
