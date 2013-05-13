@@ -51,7 +51,7 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     To push data back to the master.
         /// </summary>
-        public string PushIP;
+        public string[] PushIPs;
 
         /// <summary>
         ///     To push data back to the master.
