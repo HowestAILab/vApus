@@ -535,10 +535,8 @@ namespace vApus.DistributedTesting {
 
                 var pushIPs = new List<string>();
                 foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName())) {
-                    if (ipAddress.AddressFamily == masterSocketWrapper.IP.AddressFamily) {
+                    if (ipAddress.AddressFamily == masterSocketWrapper.IP.AddressFamily)
                         pushIPs.Add(ipAddress.ToString());
-                        break;
-                    }
                 }
                 var initializeTestMessage = new InitializeTestMessage() {
                     StresstestWrapper = tileStresstests[i].GetStresstestWrapper(stresstestIdsInDb[i], databaseName, runSynchronization),
