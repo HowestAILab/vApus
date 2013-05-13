@@ -20,6 +20,7 @@ using vApusSMT.Base;
 
 namespace vApus.Monitor {
     public class MonitorControl : DataGridView {
+
         #region Fields
         private readonly object _lock = new object();
         private readonly List<int> _filteredColumnIndices = new List<int>();

@@ -29,6 +29,8 @@ namespace vApus.DistributedTesting
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.pnlFastResultListing = new System.Windows.Forms.Panel();
@@ -95,6 +97,8 @@ namespace vApus.DistributedTesting
             // 
             this.dgvFastResults.AllowUserToAddRows = false;
             this.dgvFastResults.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dgvFastResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -111,6 +115,8 @@ namespace vApus.DistributedTesting
             this.dgvFastResults.ReadOnly = true;
             this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvFastResults.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvFastResults.Size = new System.Drawing.Size(936, 401);
             this.dgvFastResults.TabIndex = 3;
             this.dgvFastResults.VirtualMode = true;

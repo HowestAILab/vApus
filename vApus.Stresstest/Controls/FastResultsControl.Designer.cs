@@ -29,11 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.splitTop = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
+            this.pnlScrollConfigTo = new System.Windows.Forms.Panel();
             this.lblConfiguration = new System.Windows.Forms.Label();
             this.kvpStresstest = new vApus.Util.KeyValuePairControl();
             this.kvpConnection = new vApus.Util.KeyValuePairControl();
@@ -75,7 +78,6 @@
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnExport = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.pnlScrollConfigTo = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -193,6 +195,14 @@
             this.flpConfiguration.Name = "flpConfiguration";
             this.flpConfiguration.Size = new System.Drawing.Size(866, 85);
             this.flpConfiguration.TabIndex = 0;
+            // 
+            // pnlScrollConfigTo
+            // 
+            this.pnlScrollConfigTo.Location = new System.Drawing.Point(0, 0);
+            this.pnlScrollConfigTo.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlScrollConfigTo.Name = "pnlScrollConfigTo";
+            this.pnlScrollConfigTo.Size = new System.Drawing.Size(0, 0);
+            this.pnlScrollConfigTo.TabIndex = 0;
             // 
             // lblConfiguration
             // 
@@ -469,6 +479,8 @@
             // 
             this.dgvFastResults.AllowUserToAddRows = false;
             this.dgvFastResults.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dgvFastResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -485,6 +497,8 @@
             this.dgvFastResults.ReadOnly = true;
             this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvFastResults.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvFastResults.Size = new System.Drawing.Size(897, 258);
             this.dgvFastResults.TabIndex = 2;
             this.dgvFastResults.VirtualMode = true;
@@ -777,14 +791,6 @@
             this.btnExport.Text = "Export Messages...";
             this.btnExport.UseVisualStyleBackColor = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
-            // 
-            // pnlScrollConfigTo
-            // 
-            this.pnlScrollConfigTo.Location = new System.Drawing.Point(0, 0);
-            this.pnlScrollConfigTo.Margin = new System.Windows.Forms.Padding(0);
-            this.pnlScrollConfigTo.Name = "pnlScrollConfigTo";
-            this.pnlScrollConfigTo.Size = new System.Drawing.Size(0, 0);
-            this.pnlScrollConfigTo.TabIndex = 0;
             // 
             // FastResultsControl
             // 
