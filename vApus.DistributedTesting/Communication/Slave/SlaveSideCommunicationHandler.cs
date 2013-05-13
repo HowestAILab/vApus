@@ -81,6 +81,7 @@ namespace vApus.DistributedTesting {
                             var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                             _masterSocketWrapper = new SocketWrapper(address, initializeTestMessage.PushPort, socket);
                             _masterSocketWrapper.Connect(3000, 3);
+                            pushIPException = null;
                             break;
                         } catch (Exception e) {
                             pushIPException = e;
