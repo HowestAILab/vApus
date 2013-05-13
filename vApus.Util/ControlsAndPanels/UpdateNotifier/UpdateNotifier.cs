@@ -8,6 +8,7 @@
 
 using System.ComponentModel;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using Tamir.SharpSsh;
 using vApus.Util.Properties;
@@ -195,17 +196,26 @@ namespace vApus.Util {
         }
 
         private static string Get(string versionIniPath, string part) {
+            int retry = 0;
+        Retry:
             if (File.Exists(versionIniPath))
-                using (var sr = new StreamReader(versionIniPath)) {
-                    bool found = false;
-                    while (sr.Peek() != -1) {
-                        string line = sr.ReadLine();
-                        if (found)
-                            return line;
+                try {
+                    using (var sr = new StreamReader(versionIniPath)) {
+                        bool found = false;
+                        while (sr.Peek() != -1) {
+                            string line = sr.ReadLine();
+                            if (found)
+                                return line;
 
-                        if (line.Trim() == part)
-                            found = true;
+                            if (line.Trim() == part)
+                                found = true;
+                        }
                     }
+                } catch {
+                    if (++retry != 101) {
+                        Thread.Sleep(retry * 10);
+                        goto Retry;
+                    } else throw;
                 }
             return string.Empty;
         }
