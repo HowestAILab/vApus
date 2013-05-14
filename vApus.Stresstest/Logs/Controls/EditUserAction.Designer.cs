@@ -43,6 +43,8 @@
             this.btnShowHideParameterTokens = new System.Windows.Forms.Button();
             this.btnMerge = new System.Windows.Forms.Button();
             this.btnSplit = new System.Windows.Forms.Button();
+            this.picDelay = new System.Windows.Forms.PictureBox();
+            this.picCopy = new System.Windows.Forms.PictureBox();
             this.split = new System.Windows.Forms.SplitContainer();
             this.pnlBorderTokens = new System.Windows.Forms.Panel();
             this.cboParameterScope = new System.Windows.Forms.ComboBox();
@@ -57,8 +59,6 @@
             this.btnRevertToImported = new System.Windows.Forms.Button();
             this.lblLinkTo = new System.Windows.Forms.Label();
             this.flpLink = new System.Windows.Forms.FlowLayoutPanel();
-            this.picDelay = new System.Windows.Forms.PictureBox();
-            this.picCopy = new System.Windows.Forms.PictureBox();
             this.picMoveDown = new System.Windows.Forms.PictureBox();
             this.picMoveUp = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudMoveSteps)).BeginInit();
@@ -67,6 +67,8 @@
             this.tpStructured.SuspendLayout();
             this.tpPlainText.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picDelay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picCopy)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -74,8 +76,6 @@
             this.pnlBorderTokens.SuspendLayout();
             this.flpConfiguration.SuspendLayout();
             this.flpLink.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picDelay)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picCopy)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).BeginInit();
             this.SuspendLayout();
@@ -314,6 +314,35 @@
             this.btnSplit.UseVisualStyleBackColor = false;
             this.btnSplit.Click += new System.EventHandler(this.btnSplit_Click);
             // 
+            // picDelay
+            // 
+            this.picDelay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picDelay.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picDelay.Image = global::vApus.Stresstest.Properties.Resources.Delay;
+            this.picDelay.Location = new System.Drawing.Point(925, 67);
+            this.picDelay.Name = "picDelay";
+            this.picDelay.Size = new System.Drawing.Size(16, 16);
+            this.picDelay.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picDelay.TabIndex = 74;
+            this.picDelay.TabStop = false;
+            this.toolTip.SetToolTip(this.picDelay, "Click to NOT use delay after this user action.\r\nDelay is determined in the stress" +
+        "test settings.");
+            this.picDelay.Click += new System.EventHandler(this.picDelay_Click);
+            // 
+            // picCopy
+            // 
+            this.picCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picCopy.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picCopy.Image = ((System.Drawing.Image)(resources.GetObject("picCopy.Image")));
+            this.picCopy.Location = new System.Drawing.Point(903, 67);
+            this.picCopy.Name = "picCopy";
+            this.picCopy.Size = new System.Drawing.Size(16, 16);
+            this.picCopy.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picCopy.TabIndex = 73;
+            this.picCopy.TabStop = false;
+            this.toolTip.SetToolTip(this.picCopy, "Copy this user action");
+            this.picCopy.Click += new System.EventHandler(this.picCopy_Click);
+            // 
             // split
             // 
             this.split.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -341,6 +370,7 @@
             this.split.Size = new System.Drawing.Size(988, 449);
             this.split.SplitterDistance = 588;
             this.split.TabIndex = 46;
+            this.split.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.split_SplitterMoved);
             // 
             // pnlBorderTokens
             // 
@@ -526,35 +556,6 @@
             this.flpLink.Size = new System.Drawing.Size(930, 70);
             this.flpLink.TabIndex = 70;
             // 
-            // picDelay
-            // 
-            this.picDelay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picDelay.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picDelay.Image = global::vApus.Stresstest.Properties.Resources.Delay;
-            this.picDelay.Location = new System.Drawing.Point(925, 67);
-            this.picDelay.Name = "picDelay";
-            this.picDelay.Size = new System.Drawing.Size(16, 16);
-            this.picDelay.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picDelay.TabIndex = 74;
-            this.picDelay.TabStop = false;
-            this.toolTip.SetToolTip(this.picDelay, "Click to NOT use delay after this user action.\r\nDelay is determined in the stress" +
-        "test settings.");
-            this.picDelay.Click += new System.EventHandler(this.picDelay_Click);
-            // 
-            // picCopy
-            // 
-            this.picCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picCopy.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picCopy.Image = ((System.Drawing.Image)(resources.GetObject("picCopy.Image")));
-            this.picCopy.Location = new System.Drawing.Point(903, 67);
-            this.picCopy.Name = "picCopy";
-            this.picCopy.Size = new System.Drawing.Size(16, 16);
-            this.picCopy.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picCopy.TabIndex = 73;
-            this.picCopy.TabStop = false;
-            this.toolTip.SetToolTip(this.picCopy, "Copy this user action");
-            this.picCopy.Click += new System.EventHandler(this.picCopy_Click);
-            // 
             // picMoveDown
             // 
             this.picMoveDown.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -611,6 +612,8 @@
             this.tpStructured.ResumeLayout(false);
             this.tpPlainText.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picDelay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picCopy)).EndInit();
             this.split.Panel1.ResumeLayout(false);
             this.split.Panel2.ResumeLayout(false);
             this.split.Panel2.PerformLayout();
@@ -621,8 +624,6 @@
             this.flpConfiguration.PerformLayout();
             this.flpLink.ResumeLayout(false);
             this.flpLink.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picDelay)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picCopy)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).EndInit();
             this.ResumeLayout(false);

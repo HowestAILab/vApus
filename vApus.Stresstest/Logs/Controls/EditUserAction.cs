@@ -679,12 +679,17 @@ namespace vApus.Stresstest {
                 flpTokens.Height = split.Panel2.Height - flpTokens.Top - 43;
                 flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
 
+                cboParameterScope.Refresh();
+
             } else {
                 btnShowHideParameterTokens.Text = "Show Parameter Tokens";
                 pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                 flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                 split.Panel2Collapsed = true;
             }
+        }
+        private void split_SplitterMoved(object sender, SplitterEventArgs e) {
+            cboParameterScope.Refresh();
         }
 
         private void fctxtxPlainText_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
@@ -880,5 +885,6 @@ namespace vApus.Stresstest {
             }
         }
         #endregion
+
     }
 }

@@ -173,9 +173,7 @@ namespace vApus.Stresstest {
                 LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
 
-        public override void Activate() {
-            SolutionComponentViewManager.Show(this, typeof(NewLogView));
-        }
+        public override void Activate() { SolutionComponentViewManager.Show(this); }
 
         /// <summary>
         ///     This will apply the ruleset (lexing).
@@ -192,8 +190,7 @@ namespace vApus.Stresstest {
                 }
             }
 
-            if (LexicalResultChanged != null)
-                LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrors));
+            if (LexicalResultChanged != null) LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrors));
         }
 
         /// <summary>

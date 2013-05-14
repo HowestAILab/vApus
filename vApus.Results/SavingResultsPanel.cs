@@ -94,8 +94,6 @@ namespace vApus.Results {
 
                 btnTest.Enabled = btnDelete.Enabled = false;
             } else {
-                txtPassword.UseSystemPasswordChar = true;
-
                 string user, host, password;
                 int port;
                 SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
