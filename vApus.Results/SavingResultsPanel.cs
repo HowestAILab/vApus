@@ -74,6 +74,16 @@ namespace vApus.Results {
             cboConnectionString.Items.Add("<New>");
             cboConnectionString.SelectedIndex = Settings.Default.ConnectionStringIndex;
             btnSave.Enabled = false;
+
+            if (SettingsManager.Enabled) {
+                btnEnableDisable.Text = "Disable";
+                grp.Enabled = true;
+                btnDelete.Enabled = cboConnectionString.SelectedIndex > 0;
+                txt_TextChanged(txtHost, null);
+            } else {
+                btnEnableDisable.Text = "Enable";
+                grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = false;
+            }
         }
 
         private void cboConnectionStrings_SelectedIndexChanged(object sender, EventArgs e) {
@@ -81,10 +91,6 @@ namespace vApus.Results {
                 btnSave.Enabled = false;
                 txtUser.Text = txtHost.Text = txtPassword.Text = string.Empty;
                 nudPort.Value = 3306;
-
-                txtUser.InvokeOnLeave();
-                txtHost.InvokeOnLeave();
-                txtPassword.InvokeOnLeave();
 
                 btnTest.Enabled = btnDelete.Enabled = false;
             } else {
@@ -103,22 +109,10 @@ namespace vApus.Results {
             }
         }
 
-        private void txtPassword_Enter(object sender, EventArgs e) {
-            if (txtPassword.Text.Length == 0)
-                txtPassword.UseSystemPasswordChar = true;
-            else if (txtPassword.ForeColor != Color.DimGray && !txtPassword.UseSystemPasswordChar)
-                txtPassword.Text = string.Empty;
-        }
-
-        private void txtPassword_Leave(object sender, EventArgs e) {
-            if (txtPassword.ForeColor == Color.DimGray)
-                txtPassword.UseSystemPasswordChar = false;
-        }
         private void txt_TextChanged(object sender, EventArgs e) {
-            btnTest.Enabled = btnSave.Enabled =
-                              (txtUser.ForeColor != Color.DimGray && txtUser.Text.Trim().Length != 0) &&
-                              (txtHost.ForeColor != Color.DimGray && txtHost.Text.Trim().Length != 0) &&
-                              (txtPassword.ForeColor != Color.DimGray && txtPassword.Text.Trim().Length != 0);
+            txtPassword.Enabled = txtUser.Text.Trim().Length != 0;
+            if (!txtPassword.Enabled) txtPassword.Text = string.Empty;
+            btnTest.Enabled = btnSave.Enabled = txtUser.Text.Trim().Length != 0 && txtHost.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0;
 
             if (cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1) {
                 string user, host, password;
@@ -166,6 +160,18 @@ namespace vApus.Results {
         }
 
         #endregion
+
+        private void btnEnableDisable_Click(object sender, EventArgs e) {
+            if (btnEnableDisable.Text == "Disable") {
+                btnEnableDisable.Text = "Enable";
+                grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = SettingsManager.Enabled = false;
+            } else {
+                btnEnableDisable.Text = "Disable";
+                grp.Enabled = SettingsManager.Enabled = true;
+                btnDelete.Enabled = cboConnectionString.SelectedIndex > 0;
+                txt_TextChanged(txtHost, null);
+            }
+        }
 
     }
 }

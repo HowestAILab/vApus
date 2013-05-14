@@ -21,6 +21,16 @@ namespace vApus.Results {
 
         #endregion
 
+        public static bool Enabled {
+            get {
+                return Settings.Default.Enabled;
+            }
+            set {
+                Settings.Default.Enabled = value;
+                Settings.Default.Save();
+            }
+        }
+
         public static StringCollection GetConnectionStrings() {
             StringCollection connectionStrings = Settings.Default.ConnectionStrings;
             if (connectionStrings == null) connectionStrings = new StringCollection();
@@ -66,13 +76,15 @@ namespace vApus.Results {
 
         public static void GetCredentials(int connectionStringIndex, out string user, out string host, out int port, out string password) {
             lock (_lock) {
+                user = null;
+                host = null;
+                port = 0;
+                password = null;
+
+                if (!Enabled) return;
+
                 var connectionStrings = GetConnectionStrings();
-                if (connectionStrings.Count == 0) {
-                    user = null;
-                    host = null;
-                    port = 0;
-                    password = null;
-                } else {
+                if (connectionStrings.Count != 0) {
                     string connectionString = connectionStrings[connectionStringIndex];
                     user = connectionString.Split('@')[0];
                     connectionString = connectionString.Substring(user.Length + 1);
