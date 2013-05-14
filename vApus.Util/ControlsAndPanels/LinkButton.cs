@@ -72,6 +72,7 @@ namespace vApus.Util {
         }
 
         private void Activate() {
+            bool changed = false;
             if (RadioButtonBehavior) {
                 if (Parent != null) {
                     var otherActiveLinkButtons = new List<LinkButton>();
@@ -82,15 +83,23 @@ namespace vApus.Util {
                         }
 
                     if (Active) {
-                        if (otherActiveLinkButtons.Count != 0) Active = false;
+                        if (otherActiveLinkButtons.Count != 0) {
+                            Active = false;
+                            changed = true;
+                        }
                     } else {
                         Active = true;
                         foreach (LinkButton lbtn in otherActiveLinkButtons) lbtn.Active = false;
+
+                        changed = true;
                     }
                 }
-            } else Active = !Active;
+            } else {
+                Active = !Active;
+                changed = true;
+            }
 
-            if (ActiveChanged != null) ActiveChanged(this, null);
+            if (changed && ActiveChanged != null) ActiveChanged(this, null);
         }
     }
 }
