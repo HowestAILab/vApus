@@ -24,6 +24,8 @@ namespace vApus.Stresstest {
         public event EventHandler UserActionMoved, SplitClicked, MergeClicked, LinkedChanged;
 
         #region Fields
+        private static readonly object _lock = new object();
+
         private Log _log;
         private UserActionTreeViewItem _userActionTreeViewItem;
 
@@ -36,6 +38,7 @@ namespace vApus.Stresstest {
         /// Show the log entries structured.
         /// </summary>
         private DataTable _cache = new DataTable("Cache");
+        private System.Timers.Timer _tmr = new System.Timers.Timer(500); //Size columns
 
         private Rectangle _dragBoxFromMouseDown;
         private int _rowIndexFromMouseDown;
@@ -59,6 +62,7 @@ namespace vApus.Stresstest {
             InitializeComponent();
             try {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+                _tmr.Elapsed += _tmr_Elapsed;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
             } catch { }
         }
@@ -434,6 +438,7 @@ namespace vApus.Stresstest {
             }
 
             dgvLogEntries.RowCount = dgvLogEntries.ReadOnly ? _cache.Rows.Count : _cache.Rows.Count + 1;
+            SizeColumns();
 
             fctxtxPlainText.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
             fctxtxPlainText.Range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
@@ -446,6 +451,28 @@ namespace vApus.Stresstest {
             SetEditableOrAsImported();
 
             dgvLogEntries.CellValuePushed += dgvLogEntries_CellValuePushed;
+        }
+        private void SizeColumns() {
+            if (_tmr != null) {
+                _tmr.Stop();
+                dgvLogEntries.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                _tmr.Start();
+            }
+        }
+        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            lock (_lock) {
+                _tmr.Stop();
+                SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
+                    int[] widths = new int[dgvLogEntries.ColumnCount];
+                    for (int i = 0; i != widths.Length; i++) {
+                        int width = dgvLogEntries.Columns[i].Width;
+                        widths[i] = width > 500 ? 500 : width;
+                    }
+                    dgvLogEntries.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                    for (int i = 0; i != widths.Length; i++)
+                        dgvLogEntries.Columns[i].Width = widths[i];
+                }, null);
+            }
         }
         /// <summary>
         /// 
