@@ -62,16 +62,15 @@
             // 
             // btnSet
             // 
-            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSet.BackColor = System.Drawing.Color.White;
             this.btnSet.Enabled = false;
             this.btnSet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSet.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSet.Location = new System.Drawing.Point(297, 246);
+            this.btnSet.Location = new System.Drawing.Point(338, 243);
             this.btnSet.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnSet.Name = "btnSet";
-            this.btnSet.Size = new System.Drawing.Size(142, 24);
+            this.btnSet.Size = new System.Drawing.Size(100, 24);
             this.btnSet.TabIndex = 4;
             this.btnSet.Text = "Set";
             this.btnSet.UseVisualStyleBackColor = false;
@@ -80,14 +79,16 @@
             // btnClear
             // 
             this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnClear.AutoSize = true;
+            this.btnClear.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnClear.BackColor = System.Drawing.Color.White;
             this.btnClear.Enabled = false;
             this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(216, 246);
+            this.btnClear.Location = new System.Drawing.Point(284, 243);
             this.btnClear.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 24);
+            this.btnClear.Size = new System.Drawing.Size(48, 24);
             this.btnClear.TabIndex = 3;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = false;
@@ -102,7 +103,7 @@
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
-            this.groupBox1.Size = new System.Drawing.Size(427, 228);
+            this.groupBox1.Size = new System.Drawing.Size(427, 225);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             // 
@@ -115,7 +116,7 @@
             this.pnlRefresh.Controls.Add(this.lbl);
             this.pnlRefresh.Controls.Add(this.pic);
             this.pnlRefresh.Enabled = false;
-            this.pnlRefresh.Location = new System.Drawing.Point(1, 193);
+            this.pnlRefresh.Location = new System.Drawing.Point(1, 190);
             this.pnlRefresh.Name = "pnlRefresh";
             this.pnlRefresh.Padding = new System.Windows.Forms.Padding(3);
             this.pnlRefresh.Size = new System.Drawing.Size(425, 33);
@@ -338,7 +339,7 @@
             this.btnForceUpdate.BackColor = System.Drawing.Color.White;
             this.btnForceUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnForceUpdate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnForceUpdate.Location = new System.Drawing.Point(12, 246);
+            this.btnForceUpdate.Location = new System.Drawing.Point(13, 243);
             this.btnForceUpdate.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
             this.btnForceUpdate.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnForceUpdate.Name = "btnForceUpdate";

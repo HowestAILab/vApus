@@ -140,9 +140,9 @@
             this.btnTest.BackColor = System.Drawing.Color.White;
             this.btnTest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnTest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTest.Location = new System.Drawing.Point(93, 344);
+            this.btnTest.Location = new System.Drawing.Point(93, 343);
             this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(75, 23);
+            this.btnTest.Size = new System.Drawing.Size(75, 24);
             this.btnTest.TabIndex = 2;
             this.btnTest.Text = "Test";
             this.btnTest.UseVisualStyleBackColor = false;
@@ -154,24 +154,27 @@
             this.btnSave.BackColor = System.Drawing.Color.White;
             this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSave.Location = new System.Drawing.Point(300, 344);
+            this.btnSave.Location = new System.Drawing.Point(356, 343);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 3;
-            this.btnSave.Text = "Save";
+            this.btnSave.Size = new System.Drawing.Size(100, 24);
+            this.btnSave.TabIndex = 4;
+            this.btnSave.Text = "Set";
             this.btnSave.UseVisualStyleBackColor = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // btnDelete
             // 
             this.btnDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDelete.AutoSize = true;
+            this.btnDelete.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnDelete.BackColor = System.Drawing.Color.White;
             this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDelete.Location = new System.Drawing.Point(381, 344);
+            this.btnDelete.Location = new System.Drawing.Point(294, 343);
+            this.btnDelete.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(75, 23);
-            this.btnDelete.TabIndex = 4;
+            this.btnDelete.Size = new System.Drawing.Size(56, 24);
+            this.btnDelete.TabIndex = 3;
             this.btnDelete.Text = "Delete";
             this.btnDelete.UseVisualStyleBackColor = false;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
@@ -192,7 +195,7 @@
             this.grp.Controls.Add(this.label2);
             this.grp.Location = new System.Drawing.Point(12, 63);
             this.grp.Name = "grp";
-            this.grp.Size = new System.Drawing.Size(444, 275);
+            this.grp.Size = new System.Drawing.Size(444, 274);
             this.grp.TabIndex = 0;
             this.grp.TabStop = false;
             // 
@@ -231,9 +234,9 @@
             this.btnEnableDisable.BackColor = System.Drawing.Color.White;
             this.btnEnableDisable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnEnableDisable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnEnableDisable.Location = new System.Drawing.Point(12, 344);
+            this.btnEnableDisable.Location = new System.Drawing.Point(12, 343);
             this.btnEnableDisable.Name = "btnEnableDisable";
-            this.btnEnableDisable.Size = new System.Drawing.Size(75, 23);
+            this.btnEnableDisable.Size = new System.Drawing.Size(75, 24);
             this.btnEnableDisable.TabIndex = 1;
             this.btnEnableDisable.Text = "Disable";
             this.btnEnableDisable.UseVisualStyleBackColor = false;
@@ -254,6 +257,7 @@
             this.grp.ResumeLayout(false);
             this.grp.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

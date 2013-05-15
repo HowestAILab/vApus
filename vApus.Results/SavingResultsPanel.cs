@@ -78,7 +78,7 @@ namespace vApus.Results {
             if (SettingsManager.Enabled) {
                 btnEnableDisable.Text = "Disable";
                 grp.Enabled = true;
-                btnDelete.Enabled = cboConnectionString.SelectedIndex > 0;
+                btnDelete.Enabled = cboConnectionString.Items.Count != 1 && cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1;
                 txt_TextChanged(txtHost, null);
             } else {
                 btnEnableDisable.Text = "Enable";
@@ -166,7 +166,7 @@ namespace vApus.Results {
             } else {
                 btnEnableDisable.Text = "Disable";
                 grp.Enabled = SettingsManager.Enabled = true;
-                btnDelete.Enabled = cboConnectionString.SelectedIndex > 0;
+                btnDelete.Enabled = cboConnectionString.Items.Count != 1 && cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1;
                 txt_TextChanged(txtHost, null);
             }
         }

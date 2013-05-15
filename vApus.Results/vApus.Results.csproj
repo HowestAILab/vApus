@@ -82,7 +82,7 @@
     </Compile>
     <Compile Include="DataAccess\ResultsHelper.cs" />
     <Compile Include="SavingResultsPanel.cs">
-      <SubType>Component</SubType>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="SavingResultsPanel.Designer.cs">
       <DependentUpon>SavingResultsPanel.cs</DependentUpon>
