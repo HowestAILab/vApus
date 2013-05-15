@@ -298,8 +298,8 @@ namespace vApus.Stresstest {
             btnRerunning.Visible = rerun;
         }
 
-        public void ClearFastResults() {
-            lblUpdatesIn.Text = lblStarted.Text = lblMeasuredRuntime.Text = lblStopped.Text = string.Empty;
+        public void ClearFastResults(bool clearLabels = true) {
+            if (clearLabels) lblUpdatesIn.Text = lblStarted.Text = lblMeasuredRuntime.Text = lblStopped.Text = string.Empty;
 
             dgvFastResults.RowCount = 0;
 

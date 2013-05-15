@@ -91,15 +91,22 @@ namespace vApus.DistributedTesting {
                 LockWindowUpdate(0);
 
                 //Otherwise the gui freezes, stupid winforms.
-                ThreadPool.QueueUserWorkItem((x) => {
-                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                        if (distributedTestMode == DistributedTestMode.Test) {
-                            largeList.RefreshControls();
-                            largeList[0][0].Select();
-                        }
-                    }, null);
-                }, null);
+                System.Timers.Timer tmr = new System.Timers.Timer(500);
+                tmr.Elapsed += tmr_Elapsed;
+                tmr.Start();
             }
+        }
+
+        private void tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            try {
+                (sender as System.Timers.Timer).Stop();
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    if (_distributedTestMode == DistributedTestMode.Test) {
+                        largeList.RefreshControls();
+                        largeList[0][0].Focus();
+                    }
+                }, null);
+            } catch { }
         }
 
         public void SetDistributedTest(DistributedTest distributedTest) {
