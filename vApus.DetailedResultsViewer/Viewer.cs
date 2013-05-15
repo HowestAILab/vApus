@@ -31,6 +31,7 @@ namespace vApus.DetailedResultsViewer {
             _resultsPanel.ResultsHelper = _resultsHelper;
             _resultsPanel.Show(dockPanel);
             _resultsPanel.CloseButtonVisible = false;
+            _resultsPanel.ResultsDeleted += _resultsPanel_ResultsDeleted;
             _resultsPanel.FormClosing += _resultsPanel_FormClosing;
 
             pnlMask.BringToFront();
@@ -38,6 +39,10 @@ namespace vApus.DetailedResultsViewer {
 
         private void _settingsPanel_ResultsSelected(object sender, SettingsPanel.ResultsSelectedEventArgs e) {
             if (e.Database == null) _resultsPanel.ClearReport(); else _resultsPanel.RefreshReport(e.StresstestId);
+        }
+
+        private void _resultsPanel_ResultsDeleted(object sender, EventArgs e) {
+            _settingsPanel.RefreshDatabases(true);
         }
 
         private void _resultsPanel_FormClosing(object sender, FormClosingEventArgs e) {

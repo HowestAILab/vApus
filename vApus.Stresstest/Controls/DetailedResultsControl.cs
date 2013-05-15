@@ -25,6 +25,8 @@ namespace vApus.Stresstest {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
+        public event EventHandler ResultsDeleted;
+
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
 
@@ -274,6 +276,8 @@ namespace vApus.Stresstest {
             if (MessageBox.Show("Are you sure you want to delete the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 _resultsHelper.DeleteResults();
                 this.Enabled = false;
+
+                if (ResultsDeleted != null) ResultsDeleted(this, null);
             }
         }
     }

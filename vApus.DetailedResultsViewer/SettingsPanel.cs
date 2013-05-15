@@ -53,7 +53,7 @@ namespace vApus.DetailedResultsViewer {
         }
         private void llblRefresh_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) { RefreshDatabases(true); }
         private void filterDatabases_FilterChanged(object sender, EventArgs e) { RefreshDatabases(false); }
-        private void RefreshDatabases(bool setAvailableTags) {
+        public void RefreshDatabases(bool setAvailableTags) {
             var databaseActions = SetServerConnectStateInGui();
 
             _dataSource = null;
