@@ -8,7 +8,6 @@
 using System;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Windows.Forms;
 using vApus.Results.Properties;
 using vApus.Util;
@@ -108,12 +107,14 @@ namespace vApus.Results {
         }
 
         private void txt_TextChanged(object sender, EventArgs e) {
-            txtPassword.Enabled = txtUser.Text.Trim().Length != 0;
-            if (!txtPassword.Enabled) txtPassword.Text = string.Empty;
-            btnTest.Enabled = btnSave.Enabled = txtUser.Text.Trim().Length != 0 && txtHost.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0;
+            string host = txtHost.Text.Trim().ToLower();
+            if (host == "localhost" || host == "127.0.0.1" || host == "::1") {
+                MessageBox.Show("The MySQL server must be reachable from a remote location, otherwise distributed testing won't work!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtHost.Text = string.Empty;
+            }
 
             if (cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1) {
-                string user, host, password;
+                string user, password;
                 int port;
                 SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port,
                                                out password);
@@ -123,9 +124,16 @@ namespace vApus.Results {
                                   (int)nudPort.Value != port ||
                                   txtPassword.Text != password;
             }
+
+            txtPassword.Enabled = txtUser.Text.Trim().Length != 0;
+            if (!txtPassword.Enabled) txtPassword.Text = string.Empty;
+            btnTest.Enabled = txtUser.Text.Trim().Length != 0 && txtHost.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0;
+            if (btnSave.Enabled) btnSave.Enabled = btnTest.Enabled;
         }
 
         private void btnTest_Click(object sender, EventArgs e) {
+            if (btnSave.Enabled) btnSave.PerformClick();
+
             var dba = new DatabaseActions {
                 ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;", txtHost.Text, (int)nudPort.Value, txtUser.Text, txtPassword.Text)
             };
