@@ -93,9 +93,9 @@
             // 
             this.txtLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtLabel.Location = new System.Drawing.Point(61, 36);
+            this.txtLabel.Location = new System.Drawing.Point(56, 36);
             this.txtLabel.Name = "txtLabel";
-            this.txtLabel.Size = new System.Drawing.Size(930, 20);
+            this.txtLabel.Size = new System.Drawing.Size(935, 20);
             this.txtLabel.TabIndex = 25;
             this.txtLabel.TextChanged += new System.EventHandler(this.txtLabel_TextChanged);
             // 
@@ -111,7 +111,7 @@
             // lblSteps
             // 
             this.lblSteps.AutoSize = true;
-            this.lblSteps.Location = new System.Drawing.Point(105, 67);
+            this.lblSteps.Location = new System.Drawing.Point(98, 67);
             this.lblSteps.Name = "lblSteps";
             this.lblSteps.Size = new System.Drawing.Size(37, 13);
             this.lblSteps.TabIndex = 30;
@@ -119,7 +119,7 @@
             // 
             // nudMoveSteps
             // 
-            this.nudMoveSteps.Location = new System.Drawing.Point(148, 65);
+            this.nudMoveSteps.Location = new System.Drawing.Point(141, 65);
             this.nudMoveSteps.Maximum = new decimal(new int[] {
             99999,
             0,
@@ -541,9 +541,9 @@
             this.lblLinkTo.AutoSize = true;
             this.lblLinkTo.Location = new System.Drawing.Point(13, 101);
             this.lblLinkTo.Name = "lblLinkTo";
-            this.lblLinkTo.Size = new System.Drawing.Size(42, 13);
+            this.lblLinkTo.Size = new System.Drawing.Size(30, 13);
             this.lblLinkTo.TabIndex = 75;
-            this.lblLinkTo.Text = "Link to:";
+            this.lblLinkTo.Text = "Link:";
             // 
             // flpLink
             // 
@@ -551,16 +551,16 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpLink.AutoScroll = true;
             this.flpLink.Controls.Add(this.btnMerge);
-            this.flpLink.Location = new System.Drawing.Point(61, 94);
+            this.flpLink.Location = new System.Drawing.Point(56, 94);
             this.flpLink.Name = "flpLink";
-            this.flpLink.Size = new System.Drawing.Size(930, 70);
+            this.flpLink.Size = new System.Drawing.Size(935, 70);
             this.flpLink.TabIndex = 70;
             // 
             // picMoveDown
             // 
             this.picMoveDown.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picMoveDown.Image = global::vApus.Stresstest.Properties.Resources.MoveDown;
-            this.picMoveDown.Location = new System.Drawing.Point(83, 67);
+            this.picMoveDown.Location = new System.Drawing.Point(76, 67);
             this.picMoveDown.Name = "picMoveDown";
             this.picMoveDown.Size = new System.Drawing.Size(16, 16);
             this.picMoveDown.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -572,7 +572,7 @@
             // 
             this.picMoveUp.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picMoveUp.Image = global::vApus.Stresstest.Properties.Resources.MoveUp;
-            this.picMoveUp.Location = new System.Drawing.Point(63, 67);
+            this.picMoveUp.Location = new System.Drawing.Point(56, 67);
             this.picMoveUp.Name = "picMoveUp";
             this.picMoveUp.Size = new System.Drawing.Size(16, 16);
             this.picMoveUp.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;

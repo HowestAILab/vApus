@@ -176,33 +176,47 @@ namespace vApus.Stresstest {
             SetMove();
         }
         private void MoveUserAction(bool down) {
-            if (nudMoveSteps.Value == 0) return;
+            MoveUserAction(_userActionTreeViewItem.UserAction, down, (int)nudMoveSteps.Value);
+        }
+        private void MoveUserAction(UserAction userAction, bool down, int moveSteps, bool invokeEvents = true) {
+            if (moveSteps == 0) return;
 
-            var userAction = _userActionTreeViewItem.UserAction;
             UserAction linkUserAction;
             UserAction nextUserAction = null;
 
             //use the zero based index.
             int index = userAction.Index - 1;
-            int move = (int)nudMoveSteps.Value;
 
             if (!down) {
-                //We move the previous down, this makes the following logic easier (we don't need a 'move up' logic)
+                //We move the previous user action(s) down, this makes the following logic easier (we don't need a 'move up' logic)
                 //linked user actions are taken into account
+                var toMoveDown = new List<UserAction>();
                 if (!userAction.IsLinked(out linkUserAction) || userAction == linkUserAction) {
-                    for (int i = 0; i < move; i++) {
-                        if (--index == 0) break;
+                    for (int i = 0; i < moveSteps; i++) {
+                        if (--index == 0) {
+                            toMoveDown.Add(_log[index] as UserAction);
+                            break;
+                        }
 
                         userAction = _log[index] as UserAction;
+
                         while (userAction.IsLinked(out linkUserAction) && userAction != linkUserAction) {
                             if (--index == 0) break;
                             userAction = _log[index] as UserAction;
                         }
+                        userAction = _log[index] as UserAction;
+                        toMoveDown.Add(userAction);
+
+                        if (index == 0) break;
                     }
-                    userAction = _log[index] as UserAction;
                 } else if (index != 0) {
-                    userAction = _log[index - 1] as UserAction;
+                    toMoveDown.Add(_log[index - 1] as UserAction);
                 }
+
+                foreach (var ua in toMoveDown) MoveUserAction(ua, true, 1, false);
+                _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
+                if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
+                return;
             }
 
             index = userAction.Index - 1;
@@ -210,7 +224,7 @@ namespace vApus.Stresstest {
             //Step over link to useractions
             int moveIndex = index;
             if (!userAction.IsLinked(out linkUserAction) || userAction == linkUserAction) {
-                for (int i = 0; i < nudMoveSteps.Value; i++) {
+                for (int i = 0; i < moveSteps; i++) {
                     if (++moveIndex == _log.Count) break;
 
                     nextUserAction = _log[moveIndex] as UserAction;
@@ -255,9 +269,10 @@ namespace vApus.Stresstest {
             for (int j = 0; j != linkedIndices.Length; j++)
                 nextUserAction.LinkedToUserActionIndices[j] = linkedIndices[j] - subtract;
 
-            _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
-
-            if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
+            if (invokeEvents) {
+                _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
+                if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
+            }
         }
         private void picDelay_Click(object sender, EventArgs e) {
             _userActionTreeViewItem.UserAction.UseDelay = !_userActionTreeViewItem.UserAction.UseDelay;
