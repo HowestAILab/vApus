@@ -18,7 +18,7 @@ namespace vApus.DistributedTesting {
 
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private Stresstest.Stresstest _defaultSettingsTo;
-        private ActionAndLogEntryDistribution _distribute;
+        private UserActionDistribution _distribute;
         protected internal Log _log;
         private int _maximumDelay = 1100;
         private int _minimumDelay = 900;
@@ -139,7 +139,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description(
-            "The actions and loose log entries will be shuffled for each concurrent user when testing, creating unique usage patterns."
+            "The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns."
             )]
         [SavableCloneable, PropertyControl(5)]
         public bool Shuffle {
@@ -148,10 +148,10 @@ namespace vApus.DistributedTesting {
         }
 
         [Description(
-            "Action and Loose Log Entry Distribution; Fast: The length of the log stays the same, entries are picked by chance based on its occurance, Full: entries are executed X times its occurance."
+            "Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance."
             )]
         [SavableCloneable, PropertyControl(6)]
-        public ActionAndLogEntryDistribution Distribute {
+        public UserActionDistribution Distribute {
             get { return _distribute; }
             set { _distribute = value; }
         }

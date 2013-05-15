@@ -147,7 +147,7 @@ namespace vApus.Stresstest {
         }
 
         public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
-                                             int runs, int minimumDelay, int maximumDelay, bool shuffle, ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter) {
+                                             int runs, int minimumDelay, int maximumDelay, bool shuffle, UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
             kvpStresstest.Key = stresstest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;

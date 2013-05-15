@@ -22,7 +22,7 @@ namespace vApus.Stresstest
     }
 
     [Serializable]
-    public enum ActionAndLogEntryDistribution
+    public enum UserActionDistribution
     {
         None = 0,
         Fast = 1,

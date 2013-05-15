@@ -14,25 +14,11 @@ begin
 
     result := success and (install = 1) and (pos('4.5', version) = 1);
 end;
-function IsJavaDetected() : boolean;
-var
-    key, version: string;
-    success: boolean;
-begin
-    key := 'SOFTWARE\Wow6432Node\JavaSoft\Java Runtime Environment';
-    success := RegQueryStringValue(HKLM, key, 'CurrentVersion', version);
-
-    result := success and (pos('1.7', version) = 1);
-end;
 
 procedure DeinitializeSetup();
 var
   ResultCode: integer;
 begin
-	if not IsJavaDetected() then begin
-		Exec(ExpandConstant('{app}\JavaSetup7u17.exe'), '', '', SW_SHOW,
-			ewWaitUntilTerminated, ResultCode)
-	end;
     	if IsDotNetDetected() then begin
 		Exec(ExpandConstant('{app}\vApus.JumpStart.exe'), '', '', SW_SHOW, ewNoWait, ResultCode);
 	end

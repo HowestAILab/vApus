@@ -194,6 +194,15 @@ namespace vApus.SolutionTree {
             foreach (var item in collection) if(Remove(item)) removed = true;
             return removed;
         }
+        public bool RemoveRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection) {
+            bool removed = false;
+            //foreach (var item in collection)
+            //    if (RemoveWithoutInvokingEvent(item)) removed = true;
+            //if (removed)
+            //    InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            foreach (var item in collection) if (RemoveWithoutInvokingEvent(item)) removed = true;
+            return removed;
+        }
         public bool RemoveWithoutInvokingEvent(BaseItem item) {
             if (item == this)
                 throw new Exception("Use Parent.Remove(this) instead of Remove(this).");
@@ -294,6 +303,14 @@ namespace vApus.SolutionTree {
                 item.SetParent(this, invokeParentChanged);
                 item.ForceSettingChildsParent();
             }
+        }
+
+        public void Insert(int index, BaseItem item) {
+            InsertWithoutInvokingEvent(index, item);
+
+            //Added one
+            if (item.ShowInGui)
+                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
         }
 
         /// <summary>

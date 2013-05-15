@@ -175,6 +175,12 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
+    <Reference Include="FiddlerCore">
+      <HintPath>..\Prerequisites\Lupus Fiddler\FiddlerCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Lupus-Fiddler">
+      <HintPath>..\Prerequisites\Lupus Fiddler\Lupus-Fiddler.dll</HintPath>
+    </Reference>
     <Reference Include="SpreadsheetLight, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SpreadsheetLight\SpreadsheetLight.dll</HintPath>
@@ -230,6 +236,48 @@
     <Compile Include="Controls\ExportToExcelDialog.Designer.cs">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logs\Controls\EditLog.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\EditLog.Designer.cs">
+      <DependentUpon>EditLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\Controls\EditUserAction.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\EditUserAction.Designer.cs">
+      <DependentUpon>EditUserAction.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\FindAndReplaceDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs\FindAndReplaceDialog.Designer.cs">
+      <DependentUpon>FindAndReplaceDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\Controls\UserActionTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\UserActionTreeViewItem.Designer.cs">
+      <DependentUpon>UserActionTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\Controls\LogTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\LogTreeViewItem.Designer.cs">
+      <DependentUpon>LogTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\Controls\LogTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Logs\Controls\LogTreeView.Designer.cs">
+      <DependentUpon>LogTreeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs\LogView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs\LogView.Designer.cs">
+      <DependentUpon>LogView.cs</DependentUpon>
+    </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">
@@ -245,12 +293,6 @@
       <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="StresstestThreadPool.cs" />
-    <Compile Include="Logs\BulkEditLog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Logs\BulkEditLog.Designer.cs">
-      <DependentUpon>BulkEditLog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Logs\RedetermineTokens.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -336,24 +378,6 @@
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Delegates.cs" />
-    <Compile Include="Logs\Controls\ErrorAndFindSelector.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Logs\Controls\ErrorAndFindSelector.Designer.cs">
-      <DependentUpon>ErrorAndFindSelector.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Logs\Controls\LogEntryControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Logs\Controls\LogEntryControl.Designer.cs">
-      <DependentUpon>LogEntryControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Logs\Controls\UserActionControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Logs\Controls\UserActionControl.Designer.cs">
-      <DependentUpon>UserActionControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Logs\RuleSets\LogSyntaxItem.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -382,29 +406,11 @@
     <Compile Include="Connections\ConnectionProxyPool.cs" />
     <Compile Include="Connections\IConnectionProxy.cs" />
     <Compile Include="Connections\RuleSets\ConnectionProxySyntaxItem.cs" />
-    <Compile Include="Logs\AddEditLogEntry.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Logs\AddEditLogEntry.Designer.cs">
-      <DependentUpon>AddEditLogEntry.cs</DependentUpon>
-    </Compile>
     <Compile Include="Connections\Connection.cs" />
     <Compile Include="Connections\Connections.cs" />
-    <Compile Include="Logs\Controls\LogChildControlBase.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Logs\Controls\LogChildControlBase.designer.cs">
-      <DependentUpon>LogChildControlBase.cs</DependentUpon>
-    </Compile>
     <Compile Include="Logs\Log.cs" />
     <Compile Include="Logs\LogEntry.cs" />
     <Compile Include="Logs\Logs.cs" />
-    <Compile Include="Logs\LogView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Logs\LogView.Designer.cs">
-      <DependentUpon>LogView.cs</DependentUpon>
-    </Compile>
     <Compile Include="Logs\RuleSets\LogRuleSets.cs" />
     <Compile Include="Logs\UserAction.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -493,30 +499,26 @@
     <EmbeddedResource Include="Controls\ExportToExcelDialog.resx">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\AddEditLogEntry.resx">
-      <DependentUpon>AddEditLogEntry.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="Logs\Controls\EditLog.resx">
+      <DependentUpon>EditLog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\ErrorAndFindSelector.resx">
-      <DependentUpon>ErrorAndFindSelector.cs</DependentUpon>
+    <EmbeddedResource Include="Logs\Controls\EditUserAction.resx">
+      <DependentUpon>EditUserAction.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\UserActionControl.resx">
-      <DependentUpon>UserActionControl.cs</DependentUpon>
+    <EmbeddedResource Include="Logs\FindAndReplaceDialog.resx">
+      <DependentUpon>FindAndReplaceDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\LogChildControlBase.resx">
-      <DependentUpon>LogChildControlBase.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="Logs\Controls\UserActionTreeViewItem.resx">
+      <DependentUpon>UserActionTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\LogEntryControl.resx">
-      <DependentUpon>LogEntryControl.cs</DependentUpon>
+    <EmbeddedResource Include="Logs\Controls\LogTreeViewItem.resx">
+      <DependentUpon>LogTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\BulkEditLog.resx">
-      <DependentUpon>BulkEditLog.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="Logs\Controls\LogTreeView.resx">
+      <DependentUpon>LogTreeView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\LogView.resx">
       <DependentUpon>LogView.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\RedetermineTokens.resx">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
@@ -692,8 +694,15 @@
     <None Include="Resources\notparallel.png" />
     <None Include="Resources\Parallel.png" />
     <None Include="Resources\picErrors.Image.png" />
+    <None Include="Resources\find.png" />
+    <None Include="Resources\blank.png" />
+    <None Include="Resources\picMoveDownGreyedOut.png" />
+    <None Include="Resources\picMoveUpGreyedOut.png" />
+    <None Include="Resources\picMoveDown.Image.png" />
+    <None Include="Resources\picMoveUp.Image.png" />
     <Content Include="Resources\UserAction.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

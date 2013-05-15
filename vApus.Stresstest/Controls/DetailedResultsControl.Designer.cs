@@ -30,6 +30,8 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DetailedResultsControl));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
@@ -55,6 +57,7 @@
             this.chkAdvanced = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
             this.btnExportToExcel = new System.Windows.Forms.Button();
+            this.btnDeleteResults = new System.Windows.Forms.Button();
             this.lblLoading = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -69,6 +72,7 @@
             this.splitQueryData.Panel2.SuspendLayout();
             this.splitQueryData.SuspendLayout();
             this.pnlBorderExecute.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetailedResults)).BeginInit();
             this.flpDetailedMetrics.SuspendLayout();
             this.pnlBorderShow.SuspendLayout();
@@ -182,94 +186,94 @@
             // lbtnTags
             // 
             this.lbtnTags.Active = false;
-            this.lbtnTags.ActiveLinkColor = System.Drawing.Color.Blue;
+            this.lbtnTags.ActiveLinkColor = System.Drawing.Color.DimGray;
             this.lbtnTags.AutoSize = true;
             this.lbtnTags.BackColor = System.Drawing.Color.Transparent;
-            this.lbtnTags.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.lbtnTags.ForeColor = System.Drawing.Color.Blue;
+            this.lbtnTags.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnTags.ForeColor = System.Drawing.Color.DimGray;
             this.lbtnTags.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lbtnTags.LinkColor = System.Drawing.Color.Blue;
+            this.lbtnTags.LinkColor = System.Drawing.Color.DimGray;
             this.lbtnTags.Location = new System.Drawing.Point(198, 6);
             this.lbtnTags.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.lbtnTags.Name = "lbtnTags";
             this.lbtnTags.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.lbtnTags.RadioButtonBehavior = true;
-            this.lbtnTags.Size = new System.Drawing.Size(37, 20);
+            this.lbtnTags.Size = new System.Drawing.Size(41, 20);
             this.lbtnTags.TabIndex = 2;
             this.lbtnTags.TabStop = true;
             this.lbtnTags.Text = "Tags";
             this.lbtnTags.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnTags.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lbtnTags.VisitedLinkColor = System.Drawing.Color.DimGray;
             this.lbtnTags.ActiveChanged += new System.EventHandler(this.lbtnTags_ActiveChanged);
             // 
             // lbtnvApusInstance
             // 
             this.lbtnvApusInstance.Active = false;
-            this.lbtnvApusInstance.ActiveLinkColor = System.Drawing.Color.Blue;
+            this.lbtnvApusInstance.ActiveLinkColor = System.Drawing.Color.DimGray;
             this.lbtnvApusInstance.AutoSize = true;
             this.lbtnvApusInstance.BackColor = System.Drawing.Color.Transparent;
-            this.lbtnvApusInstance.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.lbtnvApusInstance.ForeColor = System.Drawing.Color.Blue;
+            this.lbtnvApusInstance.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnvApusInstance.ForeColor = System.Drawing.Color.DimGray;
             this.lbtnvApusInstance.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lbtnvApusInstance.LinkColor = System.Drawing.Color.Blue;
-            this.lbtnvApusInstance.Location = new System.Drawing.Point(238, 6);
+            this.lbtnvApusInstance.LinkColor = System.Drawing.Color.DimGray;
+            this.lbtnvApusInstance.Location = new System.Drawing.Point(242, 6);
             this.lbtnvApusInstance.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.lbtnvApusInstance.Name = "lbtnvApusInstance";
             this.lbtnvApusInstance.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.lbtnvApusInstance.RadioButtonBehavior = true;
-            this.lbtnvApusInstance.Size = new System.Drawing.Size(87, 20);
+            this.lbtnvApusInstance.Size = new System.Drawing.Size(101, 20);
             this.lbtnvApusInstance.TabIndex = 3;
             this.lbtnvApusInstance.TabStop = true;
             this.lbtnvApusInstance.Text = "vApus Instance";
             this.lbtnvApusInstance.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnvApusInstance.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lbtnvApusInstance.VisitedLinkColor = System.Drawing.Color.DimGray;
             this.lbtnvApusInstance.ActiveChanged += new System.EventHandler(this.lbtnvApusInstance_ActiveChanged);
             // 
             // lbtnStresstest
             // 
             this.lbtnStresstest.Active = false;
-            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.Blue;
+            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.DimGray;
             this.lbtnStresstest.AutoSize = true;
             this.lbtnStresstest.BackColor = System.Drawing.Color.Transparent;
-            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.lbtnStresstest.ForeColor = System.Drawing.Color.Blue;
+            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnStresstest.ForeColor = System.Drawing.Color.DimGray;
             this.lbtnStresstest.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lbtnStresstest.LinkColor = System.Drawing.Color.Blue;
-            this.lbtnStresstest.Location = new System.Drawing.Point(328, 6);
+            this.lbtnStresstest.LinkColor = System.Drawing.Color.DimGray;
+            this.lbtnStresstest.Location = new System.Drawing.Point(346, 6);
             this.lbtnStresstest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.lbtnStresstest.Name = "lbtnStresstest";
             this.lbtnStresstest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.lbtnStresstest.RadioButtonBehavior = true;
-            this.lbtnStresstest.Size = new System.Drawing.Size(59, 20);
+            this.lbtnStresstest.Size = new System.Drawing.Size(69, 20);
             this.lbtnStresstest.TabIndex = 4;
             this.lbtnStresstest.TabStop = true;
             this.lbtnStresstest.Text = "Stresstest";
             this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.DimGray;
             this.lbtnStresstest.ActiveChanged += new System.EventHandler(this.lbtnStresstest_ActiveChanged);
             // 
             // lbtnMonitors
             // 
             this.lbtnMonitors.Active = false;
-            this.lbtnMonitors.ActiveLinkColor = System.Drawing.Color.Blue;
+            this.lbtnMonitors.ActiveLinkColor = System.Drawing.Color.DimGray;
             this.lbtnMonitors.AutoSize = true;
             this.lbtnMonitors.BackColor = System.Drawing.Color.Transparent;
             this.flpConfiguration.SetFlowBreak(this.lbtnMonitors, true);
-            this.lbtnMonitors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.lbtnMonitors.ForeColor = System.Drawing.Color.Blue;
+            this.lbtnMonitors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnMonitors.ForeColor = System.Drawing.Color.DimGray;
             this.lbtnMonitors.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lbtnMonitors.LinkColor = System.Drawing.Color.Blue;
-            this.lbtnMonitors.Location = new System.Drawing.Point(390, 6);
+            this.lbtnMonitors.LinkColor = System.Drawing.Color.DimGray;
+            this.lbtnMonitors.Location = new System.Drawing.Point(418, 6);
             this.lbtnMonitors.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.lbtnMonitors.Name = "lbtnMonitors";
             this.lbtnMonitors.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.lbtnMonitors.RadioButtonBehavior = true;
-            this.lbtnMonitors.Size = new System.Drawing.Size(53, 20);
+            this.lbtnMonitors.Size = new System.Drawing.Size(61, 20);
             this.lbtnMonitors.TabIndex = 6;
             this.lbtnMonitors.TabStop = true;
             this.lbtnMonitors.Text = "Monitors";
             this.lbtnMonitors.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnMonitors.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lbtnMonitors.VisitedLinkColor = System.Drawing.Color.DimGray;
             this.lbtnMonitors.ActiveChanged += new System.EventHandler(this.lbtnMonitors_ActiveChanged);
             // 
             // splitQueryData
@@ -330,12 +334,13 @@
             // 
             // codeTextBox
             // 
-            this.codeTextBox.AllowDrop = true;
             this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
             this.codeTextBox.BackBrush = null;
+            this.codeTextBox.CharHeight = 14;
+            this.codeTextBox.CharWidth = 8;
             this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.codeTextBox.IsReplaceMode = false;
@@ -348,11 +353,14 @@
             this.codeTextBox.TabIndex = 0;
             this.codeTextBox.WordWrap = true;
             this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
+            this.codeTextBox.Zoom = 100;
             // 
             // dgvDetailedResults
             // 
             this.dgvDetailedResults.AllowUserToAddRows = false;
             this.dgvDetailedResults.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dgvDetailedResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvDetailedResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvDetailedResults.BackgroundColor = System.Drawing.Color.White;
             this.dgvDetailedResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -367,6 +375,8 @@
             this.dgvDetailedResults.ReadOnly = true;
             this.dgvDetailedResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvDetailedResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvDetailedResults.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvDetailedResults.Size = new System.Drawing.Size(897, 356);
             this.dgvDetailedResults.TabIndex = 0;
             this.dgvDetailedResults.VirtualMode = true;
@@ -383,6 +393,7 @@
             this.flpDetailedMetrics.Controls.Add(this.chkAdvanced);
             this.flpDetailedMetrics.Controls.Add(this.btnSaveDisplayedResults);
             this.flpDetailedMetrics.Controls.Add(this.btnExportToExcel);
+            this.flpDetailedMetrics.Controls.Add(this.btnDeleteResults);
             this.flpDetailedMetrics.Controls.Add(this.lblLoading);
             this.flpDetailedMetrics.Location = new System.Drawing.Point(-1, 40);
             this.flpDetailedMetrics.Name = "flpDetailedMetrics";
@@ -517,11 +528,29 @@
             this.btnExportToExcel.UseVisualStyleBackColor = false;
             this.btnExportToExcel.Click += new System.EventHandler(this.btnExportToExcel_Click);
             // 
+            // btnDeleteResults
+            // 
+            this.btnDeleteResults.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeleteResults.AutoSize = true;
+            this.btnDeleteResults.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnDeleteResults.BackColor = System.Drawing.SystemColors.Control;
+            this.btnDeleteResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnDeleteResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDeleteResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDeleteResults.Location = new System.Drawing.Point(3, 33);
+            this.btnDeleteResults.MaximumSize = new System.Drawing.Size(165, 24);
+            this.btnDeleteResults.Name = "btnDeleteResults";
+            this.btnDeleteResults.Size = new System.Drawing.Size(102, 24);
+            this.btnDeleteResults.TabIndex = 5;
+            this.btnDeleteResults.Text = "Delete Results";
+            this.btnDeleteResults.UseVisualStyleBackColor = false;
+            this.btnDeleteResults.Click += new System.EventHandler(this.btnDeleteResults_Click);
+            // 
             // lblLoading
             // 
             this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoading.Location = new System.Drawing.Point(3, 37);
+            this.lblLoading.Location = new System.Drawing.Point(111, 37);
             this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
             this.lblLoading.Name = "lblLoading";
             this.lblLoading.Size = new System.Drawing.Size(170, 13);
@@ -564,6 +593,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryData)).EndInit();
             this.splitQueryData.ResumeLayout(false);
             this.pnlBorderExecute.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetailedResults)).EndInit();
             this.flpDetailedMetrics.ResumeLayout(false);
             this.flpDetailedMetrics.PerformLayout();
@@ -602,5 +632,6 @@
         private Util.LinkButton lbtnMonitors;
         private System.Windows.Forms.Label lblLoading;
         private System.Windows.Forms.Button btnExportToExcel;
+        private System.Windows.Forms.Button btnDeleteResults;
     }
 }

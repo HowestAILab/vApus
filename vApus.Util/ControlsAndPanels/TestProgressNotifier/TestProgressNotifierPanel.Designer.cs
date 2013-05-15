@@ -74,7 +74,7 @@
             this.grp.Enabled = false;
             this.grp.Location = new System.Drawing.Point(12, 38);
             this.grp.Name = "grp";
-            this.grp.Size = new System.Drawing.Size(375, 277);
+            this.grp.Size = new System.Drawing.Size(486, 277);
             this.grp.TabIndex = 0;
             this.grp.TabStop = false;
             // 
@@ -104,15 +104,16 @@
             this.txtEmailaddress.ForeColor = System.Drawing.Color.Black;
             this.txtEmailaddress.Location = new System.Drawing.Point(14, 36);
             this.txtEmailaddress.Name = "txtEmailaddress";
-            this.txtEmailaddress.Size = new System.Drawing.Size(156, 20);
+            this.txtEmailaddress.Size = new System.Drawing.Size(267, 20);
             this.txtEmailaddress.TabIndex = 0;
+            this.txtEmailaddress.Text = "E-Mail Address";
             this.txtEmailaddress.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // chkSecure
             // 
             this.chkSecure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkSecure.AutoSize = true;
-            this.chkSecure.Location = new System.Drawing.Point(269, 97);
+            this.chkSecure.Location = new System.Drawing.Point(380, 97);
             this.chkSecure.Name = "chkSecure";
             this.chkSecure.Size = new System.Drawing.Size(71, 17);
             this.chkSecure.TabIndex = 3;
@@ -125,7 +126,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.Color.DimGray;
-            this.label1.Location = new System.Drawing.Point(232, 98);
+            this.label1.Location = new System.Drawing.Point(343, 98);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(31, 13);
             this.label1.TabIndex = 20;
@@ -139,8 +140,9 @@
             this.txtUsername.ForeColor = System.Drawing.Color.Black;
             this.txtUsername.Location = new System.Drawing.Point(14, 121);
             this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(156, 20);
+            this.txtUsername.Size = new System.Drawing.Size(267, 20);
             this.txtUsername.TabIndex = 4;
+            this.txtUsername.Text = "Username (optional)";
             this.txtUsername.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtSmtp
@@ -151,8 +153,9 @@
             this.txtSmtp.ForeColor = System.Drawing.Color.Black;
             this.txtSmtp.Location = new System.Drawing.Point(14, 95);
             this.txtSmtp.Name = "txtSmtp";
-            this.txtSmtp.Size = new System.Drawing.Size(156, 20);
+            this.txtSmtp.Size = new System.Drawing.Size(267, 20);
             this.txtSmtp.TabIndex = 1;
+            this.txtSmtp.Text = "smtp.foo.bar";
             this.txtSmtp.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtPassword
@@ -160,10 +163,11 @@
             this.txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPassword.EmptyTextBoxLabel = "Password (optional)";
             this.txtPassword.ForeColor = System.Drawing.Color.Black;
-            this.txtPassword.Location = new System.Drawing.Point(176, 121);
+            this.txtPassword.Location = new System.Drawing.Point(287, 121);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(120, 20);
             this.txtPassword.TabIndex = 5;
+            this.txtPassword.Text = "Password (optional)";
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.txt_TextChanged);
             this.txtPassword.Enter += new System.EventHandler(this.txtPassword_Enter);
@@ -172,7 +176,7 @@
             // nudPort
             // 
             this.nudPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.nudPort.Location = new System.Drawing.Point(176, 95);
+            this.nudPort.Location = new System.Drawing.Point(287, 95);
             this.nudPort.Maximum = new decimal(new int[] {
             99999,
             0,
@@ -242,14 +246,17 @@
             // btnClear
             // 
             this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClear.AutoSize = true;
+            this.btnClear.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnClear.BackColor = System.Drawing.Color.White;
             this.btnClear.Enabled = false;
             this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(312, 322);
+            this.btnClear.Location = new System.Drawing.Point(344, 321);
+            this.btnClear.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 23);
-            this.btnClear.TabIndex = 4;
+            this.btnClear.Size = new System.Drawing.Size(48, 24);
+            this.btnClear.TabIndex = 3;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = false;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
@@ -261,11 +268,11 @@
             this.btnSave.Enabled = false;
             this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSave.Location = new System.Drawing.Point(231, 322);
+            this.btnSave.Location = new System.Drawing.Point(398, 321);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 3;
-            this.btnSave.Text = "Save";
+            this.btnSave.Size = new System.Drawing.Size(100, 24);
+            this.btnSave.TabIndex = 4;
+            this.btnSave.Text = "Set";
             this.btnSave.UseVisualStyleBackColor = false;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
@@ -279,7 +286,7 @@
             this.btnEnableDisable.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnEnableDisable.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnEnableDisable.Name = "btnEnableDisable";
-            this.btnEnableDisable.Size = new System.Drawing.Size(61, 24);
+            this.btnEnableDisable.Size = new System.Drawing.Size(75, 24);
             this.btnEnableDisable.TabIndex = 1;
             this.btnEnableDisable.Text = "Enable";
             this.btnEnableDisable.UseVisualStyleBackColor = false;
@@ -291,11 +298,11 @@
             this.btnTest.BackColor = System.Drawing.Color.White;
             this.btnTest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnTest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTest.Location = new System.Drawing.Point(79, 321);
+            this.btnTest.Location = new System.Drawing.Point(93, 321);
             this.btnTest.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnTest.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(61, 24);
+            this.btnTest.Size = new System.Drawing.Size(75, 24);
             this.btnTest.TabIndex = 2;
             this.btnTest.Text = "Test";
             this.btnTest.UseVisualStyleBackColor = false;
@@ -313,7 +320,7 @@
             // 
             // TestProgressNotifierPanel
             // 
-            this.ClientSize = new System.Drawing.Size(399, 357);
+            this.ClientSize = new System.Drawing.Size(510, 357);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnTest);
             this.Controls.Add(this.btnClear);

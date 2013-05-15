@@ -46,9 +46,9 @@
             // 
             // groupBox
             // 
-            this.groupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox.Controls.Add(this.pnlUpdate);
             this.groupBox.Controls.Add(this.pnlFirewall);
             this.groupBox.Location = new System.Drawing.Point(12, 48);
@@ -59,8 +59,8 @@
             // 
             // pnlUpdate
             // 
-            this.pnlUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlUpdate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlUpdate.BackColor = System.Drawing.Color.LightGreen;
             this.pnlUpdate.Controls.Add(this.kvpWindowsAutoUpdate);
             this.pnlUpdate.Controls.Add(this.rdbUpdateOn);
@@ -110,8 +110,8 @@
             // 
             // pnlFirewall
             // 
-            this.pnlFirewall.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlFirewall.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlFirewall.BackColor = System.Drawing.Color.LightGreen;
             this.pnlFirewall.Controls.Add(this.kvpFirewall);
             this.pnlFirewall.Controls.Add(this.rdbFirewallOn);
@@ -161,8 +161,8 @@
             // 
             // btnDisableAll
             // 
-            this.btnDisableAll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDisableAll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.btnDisableAll.BackColor = System.Drawing.Color.White;
             this.btnDisableAll.Enabled = false;
             this.btnDisableAll.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -182,9 +182,11 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(268, 39);
+            this.label1.Size = new System.Drawing.Size(421, 26);
             this.label1.TabIndex = 19;
-            this.label1.Text = "The Windows firewall can block vApus communication and can break a stresstest.\r\nWindows auto update can restart the computer while a (scheduled) stresstest is running.";
+            this.label1.Text = "The Windows firewall can block vApus communication and can break a stresstest.\r\nW" +
+    "indows auto update can restart the computer while a (scheduled) stresstest is ru" +
+    "nning.";
             // 
             // DisableFirewallAutoUpdatePanel
             // 

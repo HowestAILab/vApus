@@ -31,8 +31,10 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Wizard));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.pnl = new System.Windows.Forms.Panel();
             this.chkReview = new System.Windows.Forms.CheckBox();
             this.btnRefresh = new System.Windows.Forms.Button();
@@ -145,6 +147,8 @@
             // 
             // dgvClients
             // 
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dgvClients.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvClients.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvClients.BackgroundColor = System.Drawing.Color.White;
@@ -162,6 +166,8 @@
             this.dgvClients.Location = new System.Drawing.Point(20, 295);
             this.dgvClients.Name = "dgvClients";
             this.dgvClients.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvClients.RowsDefaultCellStyle = dataGridViewCellStyle5;
             this.dgvClients.Size = new System.Drawing.Size(726, 150);
             this.dgvClients.TabIndex = 23;
             this.dgvClients.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvClients_CellFormatting);
@@ -193,8 +199,8 @@
             // 
             // clmSlaves
             // 
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle2;
             this.clmSlaves.HeaderText = "Number of Slaves (0)";
             this.clmSlaves.Name = "clmSlaves";
             this.clmSlaves.ReadOnly = true;
@@ -202,8 +208,8 @@
             // 
             // clmTests
             // 
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmTests.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmTests.DefaultCellStyle = dataGridViewCellStyle3;
             this.clmTests.HeaderText = "Number of Tests (0/?)";
             this.clmTests.Name = "clmTests";
             this.clmTests.ReadOnly = true;
@@ -211,8 +217,8 @@
             // 
             // clmCpuCores
             // 
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle4;
             this.clmCpuCores.HeaderText = "Number of CPU Cores";
             this.clmCpuCores.Name = "clmCpuCores";
             this.clmCpuCores.ReadOnly = true;

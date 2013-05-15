@@ -43,7 +43,7 @@
             this.tvw.Location = new System.Drawing.Point(0, 0);
             this.tvw.Margin = new System.Windows.Forms.Padding(0);
             this.tvw.Name = "tvw";
-            this.tvw.Size = new System.Drawing.Size(230, 466);
+            this.tvw.Size = new System.Drawing.Size(230, 462);
             this.tvw.TabIndex = 0;
             // 
             // split
@@ -56,7 +56,7 @@
             // split.Panel1
             // 
             this.split.Panel1.Controls.Add(this.tvw);
-            this.split.Size = new System.Drawing.Size(684, 466);
+            this.split.Size = new System.Drawing.Size(684, 462);
             this.split.SplitterDistance = 230;
             this.split.TabIndex = 0;
             // 
@@ -64,9 +64,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 466);
+            this.ClientSize = new System.Drawing.Size(684, 462);
             this.Controls.Add(this.split);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(700, 500);
             this.Name = "OptionsDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;

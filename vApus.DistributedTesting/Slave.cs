@@ -16,7 +16,7 @@ namespace vApus.DistributedTesting {
 
         #region Fields
 
-        private int _port = 1337;
+        private int _port = 1347;
         private int[] _processorAffinity = { };
 
         #endregion
@@ -34,7 +34,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public string IP {
             get {
-                if (Parent == null)   return null;
+                if (Parent == null) return null;
                 return (Parent as Client).IP;
             }
         }
@@ -44,7 +44,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public string HostName {
             get {
-                if (Parent == null)   return null;
+                if (Parent == null) return null;
                 return (Parent as Client).HostName;
             }
         }
@@ -93,23 +93,11 @@ namespace vApus.DistributedTesting {
 
         public Slave() {
             ShowInGui = false;
-            if (Solution.ActiveSolution != null)
-                Init();
-            else
-                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
 
         #endregion
 
         #region Functions
-
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            Init();
-        }
-
-        private void Init() {
-        }
 
         /// <summary>
         ///     Clears the stresstest if it is null.

@@ -295,6 +295,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.32x32.vApus.ico" />
+    <Content Include="makecert.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\dataGridViewCellStyle11.NullValue.png" />
     <None Include="app.manifest" />
     <None Include="Resources\FolderOpen_16x16_72.png" />

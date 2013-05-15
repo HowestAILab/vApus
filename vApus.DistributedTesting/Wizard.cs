@@ -22,6 +22,7 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     public partial class Wizard : Form {
+
         #region Fields
 
         //All connections in the solution.
@@ -644,7 +645,10 @@ namespace vApus.DistributedTesting {
                         break;
                     }
 
-                int startPort = clientIsMaster ? (SocketListener.GetInstance().Port + 1) : 1337;
+                int startPort = 1347;
+                if (clientIsMaster && startPort <= SocketListener.GetInstance().Port)
+                    startPort = SocketListener.GetInstance().Port + 1;
+
                 var alreadyUsedPas = new List<int>();
                 for (int i = 0; i != numberOfSlaves; i++) {
                     var slave = new Slave();

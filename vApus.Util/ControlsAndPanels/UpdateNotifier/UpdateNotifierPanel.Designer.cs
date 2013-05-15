@@ -37,51 +37,40 @@
             this.btnRefresh = new System.Windows.Forms.Button();
             this.lbl = new System.Windows.Forms.Label();
             this.pic = new System.Windows.Forms.PictureBox();
-            this.flpConnectTo = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.label5 = new System.Windows.Forms.Label();
-            this.txtHost = new System.Windows.Forms.TextBox();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.label6 = new System.Windows.Forms.Label();
-            this.nudPort = new System.Windows.Forms.NumericUpDown();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.label7 = new System.Windows.Forms.Label();
-            this.txtUsername = new System.Windows.Forms.TextBox();
-            this.panel4 = new System.Windows.Forms.Panel();
-            this.label8 = new System.Windows.Forms.Label();
-            this.txtPassword = new System.Windows.Forms.TextBox();
-            this.panel5 = new System.Windows.Forms.Panel();
-            this.label9 = new System.Windows.Forms.Label();
+            this.pnlConnectTo = new System.Windows.Forms.Panel();
             this.pnlBorderChannel = new System.Windows.Forms.Panel();
             this.cboChannel = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.txtPassword = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtUsername = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.nudPort = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtHost = new System.Windows.Forms.TextBox();
             this.chkSmartUpdate = new System.Windows.Forms.CheckBox();
             this.btnForceUpdate = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.pnlRefresh.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pic)).BeginInit();
-            this.flpConnectTo.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
-            this.panel3.SuspendLayout();
-            this.panel4.SuspendLayout();
-            this.panel5.SuspendLayout();
+            this.pnlConnectTo.SuspendLayout();
             this.pnlBorderChannel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
             this.SuspendLayout();
             // 
             // btnSet
             // 
-            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSet.BackColor = System.Drawing.Color.White;
             this.btnSet.Enabled = false;
             this.btnSet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSet.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSet.Location = new System.Drawing.Point(297, 206);
+            this.btnSet.Location = new System.Drawing.Point(338, 243);
             this.btnSet.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnSet.Name = "btnSet";
-            this.btnSet.Size = new System.Drawing.Size(75, 24);
+            this.btnSet.Size = new System.Drawing.Size(100, 24);
             this.btnSet.TabIndex = 4;
             this.btnSet.Text = "Set";
             this.btnSet.UseVisualStyleBackColor = false;
@@ -90,14 +79,16 @@
             // btnClear
             // 
             this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnClear.AutoSize = true;
+            this.btnClear.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnClear.BackColor = System.Drawing.Color.White;
             this.btnClear.Enabled = false;
             this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(216, 206);
+            this.btnClear.Location = new System.Drawing.Point(284, 243);
             this.btnClear.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 24);
+            this.btnClear.Size = new System.Drawing.Size(48, 24);
             this.btnClear.TabIndex = 3;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = false;
@@ -112,7 +103,7 @@
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
-            this.groupBox1.Size = new System.Drawing.Size(360, 188);
+            this.groupBox1.Size = new System.Drawing.Size(427, 225);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             // 
@@ -125,10 +116,10 @@
             this.pnlRefresh.Controls.Add(this.lbl);
             this.pnlRefresh.Controls.Add(this.pic);
             this.pnlRefresh.Enabled = false;
-            this.pnlRefresh.Location = new System.Drawing.Point(1, 153);
+            this.pnlRefresh.Location = new System.Drawing.Point(1, 190);
             this.pnlRefresh.Name = "pnlRefresh";
             this.pnlRefresh.Padding = new System.Windows.Forms.Padding(3);
-            this.pnlRefresh.Size = new System.Drawing.Size(358, 33);
+            this.pnlRefresh.Size = new System.Drawing.Size(425, 33);
             this.pnlRefresh.TabIndex = 1;
             // 
             // btnRefresh
@@ -137,7 +128,7 @@
             this.btnRefresh.AutoSize = true;
             this.btnRefresh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
-            this.btnRefresh.Location = new System.Drawing.Point(330, 5);
+            this.btnRefresh.Location = new System.Drawing.Point(397, 5);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(22, 22);
             this.btnRefresh.TabIndex = 0;
@@ -166,70 +157,119 @@
             this.pic.TabIndex = 2;
             this.pic.TabStop = false;
             // 
-            // flpConnectTo
+            // pnlConnectTo
             // 
-            this.flpConnectTo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.pnlConnectTo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpConnectTo.Controls.Add(this.panel1);
-            this.flpConnectTo.Controls.Add(this.panel2);
-            this.flpConnectTo.Controls.Add(this.panel3);
-            this.flpConnectTo.Controls.Add(this.panel4);
-            this.flpConnectTo.Controls.Add(this.panel5);
-            this.flpConnectTo.Controls.Add(this.chkSmartUpdate);
-            this.flpConnectTo.Location = new System.Drawing.Point(13, 20);
-            this.flpConnectTo.Name = "flpConnectTo";
-            this.flpConnectTo.Padding = new System.Windows.Forms.Padding(3);
-            this.flpConnectTo.Size = new System.Drawing.Size(358, 146);
-            this.flpConnectTo.TabIndex = 0;
+            this.pnlConnectTo.Controls.Add(this.pnlBorderChannel);
+            this.pnlConnectTo.Controls.Add(this.label9);
+            this.pnlConnectTo.Controls.Add(this.label8);
+            this.pnlConnectTo.Controls.Add(this.txtPassword);
+            this.pnlConnectTo.Controls.Add(this.label7);
+            this.pnlConnectTo.Controls.Add(this.txtUsername);
+            this.pnlConnectTo.Controls.Add(this.label6);
+            this.pnlConnectTo.Controls.Add(this.nudPort);
+            this.pnlConnectTo.Controls.Add(this.label5);
+            this.pnlConnectTo.Controls.Add(this.txtHost);
+            this.pnlConnectTo.Controls.Add(this.chkSmartUpdate);
+            this.pnlConnectTo.Location = new System.Drawing.Point(13, 20);
+            this.pnlConnectTo.Name = "pnlConnectTo";
+            this.pnlConnectTo.Padding = new System.Windows.Forms.Padding(3);
+            this.pnlConnectTo.Size = new System.Drawing.Size(425, 186);
+            this.pnlConnectTo.TabIndex = 0;
             // 
-            // panel1
+            // pnlBorderChannel
             // 
-            this.panel1.AutoSize = true;
-            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.txtHost);
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Margin = new System.Windows.Forms.Padding(0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(144, 31);
-            this.panel1.TabIndex = 0;
+            this.pnlBorderChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlBorderChannel.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderChannel.Controls.Add(this.cboChannel);
+            this.pnlBorderChannel.Location = new System.Drawing.Point(67, 68);
+            this.pnlBorderChannel.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
+            this.pnlBorderChannel.Name = "pnlBorderChannel";
+            this.pnlBorderChannel.Size = new System.Drawing.Size(186, 23);
+            this.pnlBorderChannel.TabIndex = 4;
             // 
-            // label5
+            // cboChannel
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 7);
-            this.label5.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(32, 13);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "Host:";
+            this.cboChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboChannel.BackColor = System.Drawing.Color.White;
+            this.cboChannel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboChannel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboChannel.FormattingEnabled = true;
+            this.cboChannel.Items.AddRange(new object[] {
+            "Stable",
+            "Nightly"});
+            this.cboChannel.Location = new System.Drawing.Point(1, 1);
+            this.cboChannel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboChannel.Name = "cboChannel";
+            this.cboChannel.Size = new System.Drawing.Size(184, 21);
+            this.cboChannel.TabIndex = 0;
+            this.cboChannel.SelectedIndexChanged += new System.EventHandler(this.cboChannel_SelectedIndexChanged);
             // 
-            // txtHost
+            // label9
             // 
-            this.txtHost.Location = new System.Drawing.Point(38, 5);
-            this.txtHost.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
-            this.txtHost.Name = "txtHost";
-            this.txtHost.Size = new System.Drawing.Size(100, 20);
-            this.txtHost.TabIndex = 0;
-            this.txtHost.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(9, 72);
+            this.label9.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(49, 13);
+            this.label9.TabIndex = 8;
+            this.label9.Text = "Channel:";
             // 
-            // panel2
+            // label8
             // 
-            this.panel2.AutoSize = true;
-            this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel2.Controls.Add(this.label6);
-            this.panel2.Controls.Add(this.nudPort);
-            this.panel2.Location = new System.Drawing.Point(147, 3);
-            this.panel2.Margin = new System.Windows.Forms.Padding(0);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(92, 31);
-            this.panel2.TabIndex = 1;
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(265, 42);
+            this.label8.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(56, 13);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "Password:";
+            // 
+            // txtPassword
+            // 
+            this.txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtPassword.Enabled = false;
+            this.txtPassword.Location = new System.Drawing.Point(321, 39);
+            this.txtPassword.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
+            this.txtPassword.Name = "txtPassword";
+            this.txtPassword.PasswordChar = '*';
+            this.txtPassword.Size = new System.Drawing.Size(100, 20);
+            this.txtPassword.TabIndex = 3;
+            this.txtPassword.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(9, 41);
+            this.label7.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(58, 13);
+            this.label7.TabIndex = 2;
+            this.label7.Text = "Username:";
+            // 
+            // txtUsername
+            // 
+            this.txtUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtUsername.Location = new System.Drawing.Point(67, 39);
+            this.txtUsername.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
+            this.txtUsername.Name = "txtUsername";
+            this.txtUsername.Size = new System.Drawing.Size(186, 20);
+            this.txtUsername.TabIndex = 2;
+            this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
+            this.txtUsername.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             // 
             // label6
             // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(7, 7);
+            this.label6.Location = new System.Drawing.Point(265, 11);
             this.label6.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(29, 13);
@@ -238,7 +278,8 @@
             // 
             // nudPort
             // 
-            this.nudPort.Location = new System.Drawing.Point(36, 5);
+            this.nudPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.nudPort.Location = new System.Drawing.Point(321, 8);
             this.nudPort.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
             this.nudPort.Maximum = new decimal(new int[] {
             99999,
@@ -255,124 +296,31 @@
             0});
             this.nudPort.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             // 
-            // panel3
+            // label5
             // 
-            this.panel3.AutoSize = true;
-            this.panel3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel3.Controls.Add(this.label7);
-            this.panel3.Controls.Add(this.txtUsername);
-            this.panel3.Location = new System.Drawing.Point(3, 34);
-            this.panel3.Margin = new System.Windows.Forms.Padding(0);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(170, 31);
-            this.panel3.TabIndex = 2;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(9, 10);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(32, 13);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "Host:";
             // 
-            // label7
+            // txtHost
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 7);
-            this.label7.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(58, 13);
-            this.label7.TabIndex = 2;
-            this.label7.Text = "Username:";
-            // 
-            // txtUsername
-            // 
-            this.txtUsername.Location = new System.Drawing.Point(64, 5);
-            this.txtUsername.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
-            this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(100, 20);
-            this.txtUsername.TabIndex = 2;
-            this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
-            this.txtUsername.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            // 
-            // panel4
-            // 
-            this.panel4.AutoSize = true;
-            this.panel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel4.Controls.Add(this.label8);
-            this.panel4.Controls.Add(this.txtPassword);
-            this.panel4.Location = new System.Drawing.Point(173, 34);
-            this.panel4.Margin = new System.Windows.Forms.Padding(0);
-            this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(168, 31);
-            this.panel4.TabIndex = 3;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 7);
-            this.label8.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(56, 13);
-            this.label8.TabIndex = 2;
-            this.label8.Text = "Password:";
-            // 
-            // txtPassword
-            // 
-            this.txtPassword.Enabled = false;
-            this.txtPassword.Location = new System.Drawing.Point(62, 5);
-            this.txtPassword.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(100, 20);
-            this.txtPassword.TabIndex = 3;
-            this.txtPassword.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
-            // 
-            // panel5
-            // 
-            this.panel5.AutoSize = true;
-            this.panel5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel5.Controls.Add(this.label9);
-            this.panel5.Controls.Add(this.pnlBorderChannel);
-            this.panel5.Location = new System.Drawing.Point(3, 65);
-            this.panel5.Margin = new System.Windows.Forms.Padding(0);
-            this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(161, 32);
-            this.panel5.TabIndex = 4;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 7);
-            this.label9.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(49, 13);
-            this.label9.TabIndex = 8;
-            this.label9.Text = "Channel:";
-            // 
-            // pnlBorderChannel
-            // 
-            this.pnlBorderChannel.BackColor = System.Drawing.Color.Silver;
-            this.pnlBorderChannel.Controls.Add(this.cboChannel);
-            this.pnlBorderChannel.Location = new System.Drawing.Point(55, 3);
-            this.pnlBorderChannel.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
-            this.pnlBorderChannel.Name = "pnlBorderChannel";
-            this.pnlBorderChannel.Size = new System.Drawing.Size(100, 23);
-            this.pnlBorderChannel.TabIndex = 4;
-            // 
-            // cboChannel
-            // 
-            this.cboChannel.BackColor = System.Drawing.Color.White;
-            this.cboChannel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboChannel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboChannel.FormattingEnabled = true;
-            this.cboChannel.Items.AddRange(new object[] {
-            "Stable",
-            "Nightly"});
-            this.cboChannel.Location = new System.Drawing.Point(1, 1);
-            this.cboChannel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.cboChannel.Name = "cboChannel";
-            this.cboChannel.Size = new System.Drawing.Size(98, 21);
-            this.cboChannel.TabIndex = 0;
-            this.cboChannel.SelectedIndexChanged += new System.EventHandler(this.cboChannel_SelectedIndexChanged);
+            this.txtHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtHost.Location = new System.Drawing.Point(67, 8);
+            this.txtHost.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
+            this.txtHost.Name = "txtHost";
+            this.txtHost.Size = new System.Drawing.Size(186, 20);
+            this.txtHost.TabIndex = 0;
+            this.txtHost.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             // 
             // chkSmartUpdate
             // 
             this.chkSmartUpdate.AutoSize = true;
-            this.chkSmartUpdate.Location = new System.Drawing.Point(167, 68);
+            this.chkSmartUpdate.Location = new System.Drawing.Point(12, 100);
             this.chkSmartUpdate.Name = "chkSmartUpdate";
             this.chkSmartUpdate.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.chkSmartUpdate.Size = new System.Drawing.Size(126, 23);
@@ -391,7 +339,7 @@
             this.btnForceUpdate.BackColor = System.Drawing.Color.White;
             this.btnForceUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnForceUpdate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnForceUpdate.Location = new System.Drawing.Point(12, 206);
+            this.btnForceUpdate.Location = new System.Drawing.Point(13, 243);
             this.btnForceUpdate.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
             this.btnForceUpdate.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnForceUpdate.Name = "btnForceUpdate";
@@ -404,8 +352,8 @@
             // 
             // UpdateNotifierPanel
             // 
-            this.ClientSize = new System.Drawing.Size(384, 242);
-            this.Controls.Add(this.flpConnectTo);
+            this.ClientSize = new System.Drawing.Size(451, 282);
+            this.Controls.Add(this.pnlConnectTo);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnSet);
             this.Controls.Add(this.groupBox1);
@@ -415,20 +363,10 @@
             this.pnlRefresh.ResumeLayout(false);
             this.pnlRefresh.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pic)).EndInit();
-            this.flpConnectTo.ResumeLayout(false);
-            this.flpConnectTo.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
-            this.panel3.ResumeLayout(false);
-            this.panel3.PerformLayout();
-            this.panel4.ResumeLayout(false);
-            this.panel4.PerformLayout();
-            this.panel5.ResumeLayout(false);
-            this.panel5.PerformLayout();
+            this.pnlConnectTo.ResumeLayout(false);
+            this.pnlConnectTo.PerformLayout();
             this.pnlBorderChannel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -443,7 +381,7 @@
         private System.Windows.Forms.Label lbl;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.PictureBox pic;
-        private System.Windows.Forms.FlowLayoutPanel flpConnectTo;
+        private System.Windows.Forms.Panel pnlConnectTo;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtHost;
         private System.Windows.Forms.Label label6;
@@ -456,11 +394,6 @@
         private System.Windows.Forms.Panel pnlBorderChannel;
         private System.Windows.Forms.ComboBox cboChannel;
         private System.Windows.Forms.Button btnForceUpdate;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkSmartUpdate;
     }

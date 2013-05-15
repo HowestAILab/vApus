@@ -103,24 +103,8 @@ namespace vApus.DistributedTesting {
                     masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
 
             if (masterSocketWrapper == null) {
-                var address = IPAddress.Any;
+                var address = slaveSocketWrapper.IP.AddressFamily == AddressFamily.InterNetwork ? IPAddress.Any : IPAddress.IPv6Any;
                 var adapters = NetworkInterface.GetAllNetworkInterfaces();
-
-                int slaveIPPrefixLength = GetIPPrefixLength(adapters, slaveSocketWrapper.IP);
-                foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName()))
-                    if (GetIPPrefixLength(adapters, ipAddress) == slaveIPPrefixLength) {
-                        address = ipAddress;
-                        break;
-                }
-
-                if (address == IPAddress.Any) {
-                    foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName())) {
-                        if (ipAddress.AddressFamily == slaveSocketWrapper.IP.AddressFamily) {
-                            address = ipAddress;
-                            break;
-                        }
-                    }
-                }
 
                 var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -142,17 +126,6 @@ namespace vApus.DistributedTesting {
             if (exception != null)
                 throw exception;
             return masterSocketWrapper;
-        }
-        //To check if the ip is in the same range
-        private static int GetIPPrefixLength(NetworkInterface[] adapters, IPAddress ip) {
-            foreach (var adapter in adapters) {
-                foreach (var uniCast in adapter.GetIPProperties().UnicastAddresses) {
-                    if (uniCast.Address.ToString() == ip.ToString()) {
-                       return uniCast.PrefixLength;
-                    }
-                }
-            }
-            return 0;
         }
         /// <summary>
         /// </summary>
@@ -559,9 +532,15 @@ namespace vApus.DistributedTesting {
                     break;
                 }
                 var masterSocketWrapper = _connectedSlaves[socketWrapper];
+
+                var pushIPs = new List<string>();
+                foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName())) {
+                    if (ipAddress.AddressFamily == masterSocketWrapper.IP.AddressFamily)
+                        pushIPs.Add(ipAddress.ToString());
+                }
                 var initializeTestMessage = new InitializeTestMessage() {
                     StresstestWrapper = tileStresstests[i].GetStresstestWrapper(stresstestIdsInDb[i], databaseName, runSynchronization),
-                    PushIP = masterSocketWrapper.IP.ToString(), PushPort = masterSocketWrapper.Port
+                    PushIPs = pushIPs.ToArray(), PushPort = masterSocketWrapper.Port
                 };
 
                 initializeTestData[i] = new InitializeTestWorkItem.InitializeTestData() { SocketWrapper = socketWrapper, InitializeTestMessage = initializeTestMessage };

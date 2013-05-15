@@ -73,10 +73,22 @@ namespace vApus.DistributedTesting {
                         try { SolutionComponentViewManager.DisposeViews(); } catch { }
                     }, null);
 
-                    var address = IPAddress.Parse(initializeTestMessage.PushIP);
-                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                    _masterSocketWrapper = new SocketWrapper(address, initializeTestMessage.PushPort, socket);
-                    _masterSocketWrapper.Connect(3000, 3);
+                    Exception pushIPException = null;
+                    //Try to connect to multiple ips to see wich one is reachable.
+                    foreach (string pushIP in initializeTestMessage.PushIPs) {
+                        try {
+                            var address = IPAddress.Parse(pushIP);
+                            var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                            _masterSocketWrapper = new SocketWrapper(address, initializeTestMessage.PushPort, socket);
+                            _masterSocketWrapper.Connect(3000, 3);
+                            pushIPException = null;
+                            break;
+                        } catch (Exception e) {
+                            pushIPException = e;
+                        }
+                    }
+
+                    if (pushIPException != null) throw pushIPException;
 
                     if (NewTest != null)
                         foreach (EventHandler<NewTestEventArgs> del in NewTest.GetInvocationList())

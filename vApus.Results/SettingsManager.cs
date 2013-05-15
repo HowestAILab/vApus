@@ -13,13 +13,19 @@ namespace vApus.Results {
 
         private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
 
-        private static readonly byte[] _salt =
-            {
-                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03,
-                0x62
-            };
+        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
 
         #endregion
+
+        public static bool Enabled {
+            get {
+                return Settings.Default.Enabled;
+            }
+            set {
+                Settings.Default.Enabled = value;
+                Settings.Default.Save();
+            }
+        }
 
         public static StringCollection GetConnectionStrings() {
             StringCollection connectionStrings = Settings.Default.ConnectionStrings;
@@ -66,13 +72,15 @@ namespace vApus.Results {
 
         public static void GetCredentials(int connectionStringIndex, out string user, out string host, out int port, out string password) {
             lock (_lock) {
+                user = null;
+                host = null;
+                port = 0;
+                password = null;
+
+                if (!Enabled) return;
+
                 var connectionStrings = GetConnectionStrings();
-                if (connectionStrings.Count == 0) {
-                    user = null;
-                    host = null;
-                    port = 0;
-                    password = null;
-                } else {
+                if (connectionStrings.Count != 0) {
                     string connectionString = connectionStrings[connectionStringIndex];
                     user = connectionString.Split('@')[0];
                     connectionString = connectionString.Substring(user.Length + 1);

@@ -14,10 +14,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class CodeBlock : UserControl
-    {
+namespace vApus.Stresstest {
+    public partial class CodeBlock : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -52,8 +50,7 @@ namespace vApus.Stresstest
         #region Properties
 
         [Description("Set to true for the code block containing all other codeblocks.")]
-        public bool ParentLevelControl
-        {
+        public bool ParentLevelControl {
             get { return _parentLevelControl; }
             set { _parentLevelControl = value; }
         }
@@ -66,10 +63,8 @@ namespace vApus.Stresstest
         ///     '\n' is the line delimiter.
         /// </summary>
         [ReadOnly(true)]
-        public string Code
-        {
-            get
-            {
+        public string Code {
+            get {
                 string code = lblHeader.Text + '\n';
 
                 if (_codeBlockTextBox == null)
@@ -81,72 +76,59 @@ namespace vApus.Stresstest
                 code += lblFooter.Text;
                 return code;
             }
-            set
-            {
+            set {
                 value = value.Replace("\r\n", "\n").Replace('\r', '\n');
                 var lines = new List<string>(value.Split('\n'));
                 SetCode(ref lines);
             }
         }
 
-        public bool HeaderVisible
-        {
+        public bool HeaderVisible {
             get { return !splitContainer.Panel1Collapsed; }
             set { splitContainer.Panel1Collapsed = !value; }
         }
 
-        public string Header
-        {
+        public string Header {
             get { return lblHeader.Text; }
             set { lblHeader.Text = value == null ? string.Empty : value.Trim(); }
         }
 
         [ReadOnly(true)]
-        public string Body
-        {
-            get
-            {
+        public string Body {
+            get {
                 if (_codeBlockTextBox == null)
                     return string.Empty;
                 return _codeBlockTextBox.Text;
             }
         }
 
-        public bool FooterVisible
-        {
+        public bool FooterVisible {
             get { return statusStrip.Visible; }
             set { statusStrip.Visible = value; }
         }
 
-        public string Footer
-        {
+        public string Footer {
             get { return lblFooter.Text; }
             set { lblFooter.Text = value == null ? string.Empty : value.Trim(); }
         }
 
-        public bool ReadOnly
-        {
-            get
-            {
+        public bool ReadOnly {
+            get {
                 if (_codeBlockTextBox == null)
                     return false;
                 return _codeBlockTextBox.ReadOnly;
             }
-            set
-            {
+            set {
                 if (_codeBlockTextBox == null || _codeBlockTextBox.ReadOnly == value)
                     return;
                 _codeBlockTextBox.ReadOnly = value;
-                if (_codeBlockTextBox.ReadOnly)
-                {
+                if (_codeBlockTextBox.ReadOnly) {
                     lblHeader.ForeColor = Color.DarkSlateGray;
                     lblFooter.ForeColor = Color.DarkSlateGray;
 
                     _codeBlockTextBox.EnterTextBox -= _codeBlockTextBox_EnterTextBox;
                     _codeBlockTextBox.LeaveTextBox -= _codeBlockTextBox_LeaveTextBox;
-                }
-                else
-                {
+                } else {
                     lblHeader.ForeColor = Color.Blue;
                     lblFooter.ForeColor = Color.Blue;
 
@@ -156,31 +138,25 @@ namespace vApus.Stresstest
             }
         }
 
-        public bool CanCollapse
-        {
+        public bool CanCollapse {
             get { return btnCollapseExpand.Visible; }
             set { btnCollapseExpand.Visible = value; }
         }
 
-        public bool Collapsed
-        {
+        public bool Collapsed {
             get { return splitContainer.Panel2Collapsed; }
-            set
-            {
+            set {
                 foreach (Control control in splitContainer.Panel2.Controls)
                     control.SizeChanged -= codeBlock_SizeChanged;
 
-                if (value && btnCollapseExpand.Text == "-")
-                {
+                if (value && btnCollapseExpand.Text == "-") {
                     btnCollapseExpand.Text = "+";
                     Tag = Height;
                     Height = splitContainer.Panel1.Height + statusStrip.Height;
-                }
-                else if (!value && btnCollapseExpand.Text == "+")
-                {
+                } else if (!value && btnCollapseExpand.Text == "+") {
                     btnCollapseExpand.Text = "-";
                     if (Tag != null)
-                        Height = (int) Tag;
+                        Height = (int)Tag;
                 }
                 splitContainer.Panel2Collapsed = value;
                 foreach (Control control in splitContainer.Panel2.Controls)
@@ -188,25 +164,21 @@ namespace vApus.Stresstest
             }
         }
 
-        public bool ShowLineNumbers
-        {
-            get
-            {
+        public bool ShowLineNumbers {
+            get {
                 if (_codeBlockTextBox != null)
                     return _codeBlockTextBox.ShowLineNumbers;
 
                 bool showLineNumbers = true;
                 foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
-                    if (!codeBlock.ShowLineNumbers)
-                    {
+                    if (!codeBlock.ShowLineNumbers) {
                         showLineNumbers = false;
                         break;
                     }
 
                 return showLineNumbers;
             }
-            set
-            {
+            set {
                 if (_codeBlockTextBox == null)
                     foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
                         codeBlock.ShowLineNumbers = value;
@@ -218,18 +190,14 @@ namespace vApus.Stresstest
         /// <summary>
         ///     For setting the line numbers
         /// </summary>
-        public int LineNumberOffset
-        {
-            get
-            {
+        public int LineNumberOffset {
+            get {
                 if (_codeBlockTextBox == null)
                     return _lineNumberOffset;
                 return _codeBlockTextBox.LineNumberOffset;
             }
-            set
-            {
-                if (_lineNumberOffset != value)
-                {
+            set {
+                if (_lineNumberOffset != value) {
                     _lineNumberOffset = value;
                     if (_codeBlockTextBox != null)
                         _codeBlockTextBox.SetLineNumbers(value);
@@ -238,10 +206,8 @@ namespace vApus.Stresstest
         }
 
         [Description("The header + the footer + the line count of the code text box if any.")]
-        public int CodeLineCount
-        {
-            get
-            {
+        public int CodeLineCount {
+            get {
                 if (_codeBlockTextBox == null)
                     return 2;
                 return _codeBlockTextBox.CodeLineCount + 2;
@@ -249,10 +215,8 @@ namespace vApus.Stresstest
         }
 
         [Description("The count of child code blocks.")]
-        public int CodeBlockCount
-        {
-            get
-            {
+        public int CodeBlockCount {
+            get {
                 if (_codeBlockTextBox != null)
                     return 0;
                 return splitContainer.Panel2.Controls.Count;
@@ -267,19 +231,14 @@ namespace vApus.Stresstest
         ///     Design time constructor.
         /// </summary>
         public CodeBlock()
-            : this(false)
-        {
+            : this(false) {
         }
 
-        public CodeBlock(bool showLineNumbers)
-        {
+        public CodeBlock(bool showLineNumbers) {
             InitializeComponent();
-            try
-            {
+            try {
                 InitBodyForText(showLineNumbers);
-            }
-            catch
-            {
+            } catch {
             }
         }
 
@@ -289,8 +248,7 @@ namespace vApus.Stresstest
         /// <param name="footer"></param>
         /// <param name="codeBlocks">If none, a code rich textbox is added.</param>
         public CodeBlock(string header, string footer, bool showLineNumbers, params CodeBlock[] codeBlocks)
-            : this(showLineNumbers)
-        {
+            : this(showLineNumbers) {
             Header = header;
             Footer = footer;
 
@@ -304,8 +262,7 @@ namespace vApus.Stresstest
 
         #region Code Block Text Box
 
-        public void InitBodyForText(bool showLineNumbers)
-        {
+        public void InitBodyForText(bool showLineNumbers) {
             bool readOnly = false;
             if (_codeBlockTextBox != null)
                 readOnly = _codeBlockTextBox.ReadOnly;
@@ -324,18 +281,15 @@ namespace vApus.Stresstest
             _codeBlockTextBox.LineCountChanged += _codeBlockTextBox_LineCountChanged;
             _codeBlockTextBox.CaretPositionChangedUsingKeyboard += _codeBlockTextBox_CaretPositionChangedUsingKeyboard;
 
-            if (!_codeBlockTextBox.ReadOnly)
-            {
+            if (!_codeBlockTextBox.ReadOnly) {
                 _codeBlockTextBox.EnterTextBox += _codeBlockTextBox_EnterTextBox;
                 _codeBlockTextBox.LeaveTextBox += _codeBlockTextBox_LeaveTextBox;
             }
             _codeBlockTextBox.ShowLineNumbers = showLineNumbers;
         }
 
-        private void RemoveCodeBlockTextBox()
-        {
-            if (_codeBlockTextBox != null)
-            {
+        private void RemoveCodeBlockTextBox() {
+            if (_codeBlockTextBox != null) {
                 splitContainer.Panel2.Controls.Remove(_codeBlockTextBox);
                 _codeBlockTextBox = null;
             }
@@ -344,15 +298,12 @@ namespace vApus.Stresstest
         /// <summary>
         /// </summary>
         /// <param name="lines">by ref explicitely because stuff need to happen after the recursion.</param>
-        private void SetCode(ref List<string> lines)
-        {
+        private void SetCode(ref List<string> lines) {
             //Remove the header, use this as a check
             bool headerFound = false;
-            for (int i = 0; i != lines.Count; i++)
-            {
+            for (int i = 0; i != lines.Count; i++) {
                 lines[i] = lines[i].Trim();
-                if (lines[i] == lblHeader.Text)
-                {
+                if (lines[i] == lblHeader.Text) {
                     headerFound = true;
                     lines.RemoveRange(0, i + 1); //Remove the lines we don't need (version differences).
                     break;
@@ -361,16 +312,13 @@ namespace vApus.Stresstest
             if (!headerFound)
                 return;
 
-            if (_codeBlockTextBox == null)
-            {
+            if (_codeBlockTextBox == null) {
                 foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
                     codeBlock.SetCode(ref lines);
                 //Remove the footer
                 if (lines.Count > 0)
                     lines.RemoveAt(0);
-            }
-            else
-            {
+            } else {
                 var newLines = new List<string>(lines.Count);
                 string body = string.Empty;
                 bool gotBody = false;
@@ -390,33 +338,27 @@ namespace vApus.Stresstest
         /// <summary>
         /// </summary>
         /// <param name="lineNumberOffset">You normally don't need this.</param>
-        public void RefreshLineNumbers(int lineNumberOffset = -1)
-        {
+        public void RefreshLineNumbers(int lineNumberOffset = -1) {
             ResetLineNumbers(lineNumberOffset);
             SetLineNumbers();
         }
 
-        private void ResetLineNumbers(int lineNumberOffset = -1)
-        {
+        private void ResetLineNumbers(int lineNumberOffset = -1) {
             if (lineNumberOffset == -1)
                 LineNumberOffset = (_parentLevelControl) ? 2 : 1;
             else
                 LineNumberOffset = lineNumberOffset;
 
-            if (_codeBlockTextBox == null)
-            {
+            if (_codeBlockTextBox == null) {
                 foreach (Control control in splitContainer.Panel2.Controls)
                     (control as CodeBlock).ResetLineNumbers();
             }
         }
 
-        private void SetLineNumbers()
-        {
-            if (_codeBlockTextBox == null)
-            {
+        private void SetLineNumbers() {
+            if (_codeBlockTextBox == null) {
                 CodeBlock previousCodeBlock = null;
-                foreach (Control control in splitContainer.Panel2.Controls)
-                {
+                foreach (Control control in splitContainer.Panel2.Controls) {
                     var codeBlock = control as CodeBlock;
                     if (previousCodeBlock != null)
                         codeBlock.LineNumberOffset = previousCodeBlock.LineNumberOffset +
@@ -426,9 +368,7 @@ namespace vApus.Stresstest
                     previousCodeBlock = codeBlock;
                     codeBlock.SetLineNumbers();
                 }
-            }
-            else
-            {
+            } else {
                 _codeBlockTextBox.SetLineNumbers(LineNumberOffset);
             }
         }
@@ -438,22 +378,18 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="absoluteLineNumber"></param>
         /// <returns></returns>
-        public CodeBlock ContainsLine(int absoluteLineNumber)
-        {
+        public CodeBlock ContainsLine(int absoluteLineNumber) {
             if (_codeBlockTextBox == null)
-                foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
-                {
+                foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls) {
                     CodeBlock childCodeBlock = codeBlock.ContainsLine(absoluteLineNumber);
                     if (childCodeBlock != null)
                         return childCodeBlock;
-                }
-            else if (_codeBlockTextBox.ContainsLine(absoluteLineNumber))
+                } else if (_codeBlockTextBox.ContainsLine(absoluteLineNumber))
                 return this;
             return null;
         }
 
-        public void SelectLine(int absoluteLineNumber)
-        {
+        public void SelectLine(int absoluteLineNumber) {
             Collapsed = false;
             if (_codeBlockTextBox == null)
                 foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
@@ -462,8 +398,7 @@ namespace vApus.Stresstest
                 _codeBlockTextBox.SelectLine(absoluteLineNumber);
         }
 
-        public void ClearSelection()
-        {
+        public void ClearSelection() {
             if (_codeBlockTextBox == null)
                 foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
                     codeBlock.ClearSelection();
@@ -478,18 +413,14 @@ namespace vApus.Stresstest
         /// <param name="wholeWords"></param>
         /// <param name="matchCase"></param>
         /// <returns></returns>
-        public Dictionary<int, string> Find(string text, bool wholeWords = false, bool matchCase = false)
-        {
+        public Dictionary<int, string> Find(string text, bool wholeWords = false, bool matchCase = false) {
             var found = new Dictionary<int, string>();
             if (_codeBlockTextBox == null)
-                foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
-                {
+                foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls) {
                     Dictionary<int, string> dict = codeBlock.Find(text, wholeWords, matchCase);
                     foreach (int absoluteLineNumber in dict.Keys)
                         found.Add(absoluteLineNumber, dict[absoluteLineNumber]);
-                }
-            else
-            {
+                } else {
                 Dictionary<int, string> dict = _codeBlockTextBox.Find(text, wholeWords, matchCase);
                 foreach (int absoluteLineNumber in dict.Keys)
                     found.Add(absoluteLineNumber, dict[absoluteLineNumber]);
@@ -510,18 +441,14 @@ namespace vApus.Stresstest
         /// <param name="matchCase"></param>
         /// <returns></returns>
         public Dictionary<int, string> Replace(string oldText, string newText, int atLine, bool wholeWords = false,
-                                               bool matchCase = false)
-        {
+                                               bool matchCase = false) {
             var replacedOrFound = new Dictionary<int, string>();
             if (_codeBlockTextBox == null)
-                foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
-                {
+                foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls) {
                     Dictionary<int, string> dict = codeBlock.Replace(oldText, newText, atLine, wholeWords, matchCase);
                     foreach (int absoluteLineNumber in dict.Keys)
                         replacedOrFound.Add(absoluteLineNumber, dict[absoluteLineNumber]);
-                }
-            else
-            {
+                } else {
                 Dictionary<int, string> dict = _codeBlockTextBox.Replace(oldText, newText, atLine, wholeWords, matchCase);
                 foreach (int absoluteLineNumber in dict.Keys)
                     replacedOrFound.Add(absoluteLineNumber, dict[absoluteLineNumber]);
@@ -533,50 +460,42 @@ namespace vApus.Stresstest
 
         #region Events
 
-        private void _codeBlockTextBox_TextChanged(object sender, EventArgs e)
-        {
+        private void _codeBlockTextBox_TextChanged(object sender, EventArgs e) {
             if (CodeTextChanged != null)
                 CodeTextChanged(this, e);
         }
 
-        private void _codeBlockTextBox_TextChangedDelayed(object sender, EventArgs e)
-        {
+        private void _codeBlockTextBox_TextChangedDelayed(object sender, EventArgs e) {
             if (CodeTextChangedDelayed != null)
                 CodeTextChangedDelayed(this, e);
         }
 
-        private void _codeBlockTextBox_CaretPositionChangedUsingKeyboard(object sender, EventArgs e)
-        {
+        private void _codeBlockTextBox_CaretPositionChangedUsingKeyboard(object sender, EventArgs e) {
             if (CaretPositionChangedUsingKeyboard != null)
                 CaretPositionChangedUsingKeyboard(this, new CaretPositionChangedEventArgs(CaretPosition.Get()));
         }
 
-        private void _codeBlockTextBox_LineCountChanged(object sender, EventArgs e)
-        {
+        private void _codeBlockTextBox_LineCountChanged(object sender, EventArgs e) {
             if (CodeLineCountChanged != null)
                 CodeLineCountChanged(this, new CodeLineCountChangedEventArgs(this));
             SetSize();
         }
 
-        private void _codeBlockTextBox_EnterTextBox(object sender, EventArgs e)
-        {
+        private void _codeBlockTextBox_EnterTextBox(object sender, EventArgs e) {
             splitContainer.Panel1.BackColor = Color.LightBlue;
             statusStrip.BackColor = Color.LightBlue;
         }
 
-        private void _codeBlockTextBox_LeaveTextBox(object sender, EventArgs e)
-        {
+        private void _codeBlockTextBox_LeaveTextBox(object sender, EventArgs e) {
             splitContainer.Panel1.BackColor = Color.WhiteSmoke;
             statusStrip.BackColor = Color.WhiteSmoke;
         }
 
-        private void SetSize()
-        {
+        private void SetSize() {
             LockWindowUpdate(Handle.ToInt32());
 
             Size size = CalculateRrtxtSize();
-            if (size.Height != _codeBlockTextBox.Height)
-            {
+            if (size.Height != _codeBlockTextBox.Height) {
                 _codeBlockTextBox.Height = size.Height;
                 splitContainer.Height = splitContainer.Panel1.Height + _codeBlockTextBox.Height;
                 Height = splitContainer.Height + statusStrip.Height;
@@ -591,22 +510,18 @@ namespace vApus.Stresstest
             LockWindowUpdate(0);
         }
 
-        private Size CalculateRrtxtSize()
-        {
+        private Size CalculateRrtxtSize() {
             var size = new Size();
             //12 == the height of the vertical scrollbar
             SizeF minimumSizeF = _g.MeasureString("A", Font);
-            if (_codeBlockTextBox.Text.Length == 0 | !IsHandleCreated)
-            {
-                size.Height = (int) (minimumSizeF.Height*2) + 12;
-                size.Width = (int) minimumSizeF.Width;
-            }
-            else
-            {
+            if (_codeBlockTextBox.Text.Length == 0 | !IsHandleCreated) {
+                size.Height = (int)(minimumSizeF.Height * 2) + 12;
+                size.Width = (int)minimumSizeF.Width;
+            } else {
                 SizeF sizeF = _g.MeasureString(_codeBlockTextBox.Text, Font);
 
-                size.Height = (int) sizeF.Height + (int) minimumSizeF.Height*2 + 12;
-                size.Width = (int) sizeF.Width;
+                size.Height = (int)sizeF.Height + (int)minimumSizeF.Height * 2 + 12;
+                size.Width = (int)sizeF.Width;
             }
             return size;
         }
@@ -621,8 +536,7 @@ namespace vApus.Stresstest
         ///     Will set the parent. Will remove the code block text box if any.
         /// </summary>
         /// <param name="codeBlock"></param>
-        public void Add(CodeBlock codeBlock)
-        {
+        public void Add(CodeBlock codeBlock) {
             RemoveCodeBlockTextBox();
 
             codeBlock.Parent = this;
@@ -636,14 +550,11 @@ namespace vApus.Stresstest
             codeBlock.CaretPositionChangedUsingKeyboard += codeBlock_CaretPositionChangedUsingKeyboard;
             codeBlock.SizeChanged += codeBlock_SizeChanged;
 
-            if (splitContainer.Panel2.Controls.Count > 0)
-            {
+            if (splitContainer.Panel2.Controls.Count > 0) {
                 var previousCodeBlock =
                     splitContainer.Panel2.Controls[splitContainer.Panel2.Controls.Count - 1] as CodeBlock;
                 codeBlock.Top = previousCodeBlock.Bottom + previousCodeBlock.Margin.Bottom + codeBlock.Margin.Top;
-            }
-            else if (codeBlock.Top == 0)
-            {
+            } else if (codeBlock.Top == 0) {
                 codeBlock.Top = splitContainer.Panel2.Padding.Top;
             }
             splitContainer.Panel2.Controls.Add(codeBlock);
@@ -655,19 +566,16 @@ namespace vApus.Stresstest
         ///     Will set the parent. Will remove the code block text box if any.
         /// </summary>
         /// <param name="codeBlock"></param>
-        public void AddRange(params CodeBlock[] codeBlock)
-        {
+        public void AddRange(params CodeBlock[] codeBlock) {
             foreach (CodeBlock codeBock in codeBlock)
                 Add(codeBock);
         }
 
-        public int IndexOf(CodeBlock codeBlock)
-        {
+        public int IndexOf(CodeBlock codeBlock) {
             return splitContainer.Panel2.Controls.IndexOf(codeBlock);
         }
 
-        public CodeBlock GetAt(int index)
-        {
+        public CodeBlock GetAt(int index) {
             return splitContainer.Panel2.Controls[index] as CodeBlock;
         }
 
@@ -675,8 +583,7 @@ namespace vApus.Stresstest
         ///     Get code blocks if any
         /// </summary>
         /// <returns></returns>
-        public CodeBlock[] GetCodeBlocks()
-        {
+        public CodeBlock[] GetCodeBlocks() {
             var codeBlocks = new List<CodeBlock>();
             if (_codeBlockTextBox == null)
                 foreach (CodeBlock codeBlock in splitContainer.Panel2.Controls)
@@ -687,39 +594,33 @@ namespace vApus.Stresstest
 
         #region Events
 
-        private void codeBlock_CaretPositionChangedUsingKeyboard(object sender, CaretPositionChangedEventArgs e)
-        {
+        private void codeBlock_CaretPositionChangedUsingKeyboard(object sender, CaretPositionChangedEventArgs e) {
             if (CaretPositionChangedUsingKeyboard != null)
                 CaretPositionChangedUsingKeyboard(sender, e);
         }
 
-        private void codeBlock_CodeLineCountChanged(object sender, CodeLineCountChangedEventArgs e)
-        {
+        private void codeBlock_CodeLineCountChanged(object sender, CodeLineCountChangedEventArgs e) {
             if (CodeLineCountChanged != null)
                 CodeLineCountChanged(sender, e);
         }
 
-        private void codeBlock_CodeTextChanged(object sender, EventArgs e)
-        {
+        private void codeBlock_CodeTextChanged(object sender, EventArgs e) {
             if (CodeTextChanged != null)
                 CodeTextChanged.Invoke(sender, e);
         }
 
-        private void codeBlock_CodeTextChangedDelayed(object sender, EventArgs e)
-        {
+        private void codeBlock_CodeTextChangedDelayed(object sender, EventArgs e) {
             if (CodeTextChangedDelayed != null)
                 CodeTextChangedDelayed.Invoke(sender, e);
         }
 
-        private void codeBlock_SizeChanged(object sender, EventArgs e)
-        {
+        private void codeBlock_SizeChanged(object sender, EventArgs e) {
             SuspendLayout();
             int combinedHeight = 0;
             // int greatestWidth = 0;
             int index = splitContainer.Panel2.Controls.IndexOf(sender as Control);
             Control previousControl = null;
-            for (int i = index; i < splitContainer.Panel2.Controls.Count; i++)
-            {
+            for (int i = index; i < splitContainer.Panel2.Controls.Count; i++) {
                 Control control = splitContainer.Panel2.Controls[i];
                 if (previousControl != null)
                     control.Top = previousControl.Bottom + previousControl.Margin.Bottom + control.Margin.Top;
@@ -743,16 +644,14 @@ namespace vApus.Stresstest
 
         #endregion
 
-        private void CodeBlock_SizeChanged(object sender, EventArgs e)
-        {
+        private void CodeBlock_SizeChanged(object sender, EventArgs e) {
         }
 
         /// <summary>
         ///     Strip the header and the footer.
         /// </summary>
         /// <param name="alsoChilds"></param>
-        public void Strip(bool alsoChilds = false)
-        {
+        public void Strip(bool alsoChilds = false) {
             HeaderVisible = false;
             FooterVisible = false;
 
@@ -761,29 +660,24 @@ namespace vApus.Stresstest
                     codeBlock.Strip(alsoChilds);
         }
 
-        private void btnCollapseExpand_Click(object sender, EventArgs e)
-        {
+        private void btnCollapseExpand_Click(object sender, EventArgs e) {
             Collapsed = btnCollapseExpand.Text == "-";
         }
 
         #endregion
 
-        public class CaretPositionChangedEventArgs : EventArgs
-        {
+        public class CaretPositionChangedEventArgs : EventArgs {
             public readonly Point CaretPosition;
 
-            public CaretPositionChangedEventArgs(Point caretPosition)
-            {
+            public CaretPositionChangedEventArgs(Point caretPosition) {
                 CaretPosition = caretPosition;
             }
         }
 
-        public class CodeLineCountChangedEventArgs : EventArgs
-        {
+        public class CodeLineCountChangedEventArgs : EventArgs {
             public readonly CodeBlock CodeBlock;
 
-            public CodeLineCountChangedEventArgs(CodeBlock codeBlock)
-            {
+            public CodeLineCountChangedEventArgs(CodeBlock codeBlock) {
                 CodeBlock = codeBlock;
             }
         }

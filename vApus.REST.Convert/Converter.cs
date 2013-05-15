@@ -26,7 +26,7 @@ namespace vApus.REST.Convert {
                                          Monitor.Monitor[] monitors, string slave,
                                          Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay,
                                          int maximumDelay, bool shuffle,
-                                         ActionAndLogEntryDistribution distribute, int monitorBefore, int monitorAfter) {
+                                         UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
             if (testConfigCache.Count == 0)
                 testConfigCache.Add("RunSynchronization", runSynchronization);
 

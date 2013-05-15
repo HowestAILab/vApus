@@ -64,7 +64,7 @@
             0,
             0});
             this.nudPort.Minimum = new decimal(new int[] {
-            1337,
+            1347,
             0,
             0,
             0});
@@ -72,7 +72,7 @@
             this.nudPort.Size = new System.Drawing.Size(50, 20);
             this.nudPort.TabIndex = 3;
             this.nudPort.Value = new decimal(new int[] {
-            1337,
+            1347,
             0,
             0,
             0});

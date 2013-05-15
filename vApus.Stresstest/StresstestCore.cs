@@ -316,7 +316,6 @@ namespace vApus.Stresstest {
                 if (item is UserAction)
                     foreach (LogEntry logEntry in item) {
                         logEntries.Add(logEntry);
-#warning Occurances for parallel executions?
 
                         if (logEntry.ExecuteInParallelWithPrevious)
                             ++_parallelConnectionsModifier;
@@ -324,19 +323,10 @@ namespace vApus.Stresstest {
                     logEntries.Add(item as LogEntry);
 
             _logEntries = logEntries.ToArray();
-            int actionCount = _stresstest.Distribute == ActionAndLogEntryDistribution.Fast
-                                  ? _stresstest.Log.Count
-                                  : _log.Count; //Needed for fast log entry distribution
+            int actionCount = _stresstest.Distribute == UserActionDistribution.Fast ? _stresstest.Log.Count : _log.Count; //Needed for fast log entry distribution
 
             _testPatternsAndDelaysGenerator = new TestPatternsAndDelaysGenerator
-                (
-                _logEntries,
-                actionCount,
-                _stresstest.Shuffle,
-                _stresstest.Distribute,
-                _stresstest.MinimumDelay,
-                _stresstest.MaximumDelay
-                );
+                (_logEntries, actionCount, _stresstest.Shuffle, _stresstest.Distribute, _stresstest.MinimumDelay, _stresstest.MaximumDelay);
             _sw.Stop();
             InvokeMessage(string.Format(" ...Log Initialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
@@ -348,53 +338,43 @@ namespace vApus.Stresstest {
         ///     This also applies the log ruleset.
         /// </summary>
         /// <returns></returns>
-        private Log LogTimesOccurancies(Log log, ActionAndLogEntryDistribution distribute) {
-            if (distribute == ActionAndLogEntryDistribution.None) {
+        private Log LogTimesOccurancies(Log log, UserActionDistribution distribute) {
+            if (distribute == UserActionDistribution.None) {
                 log.ApplyLogRuleSet();
                 return log;
             } else {
                 Log newLog = log.Clone(false);
-                foreach (BaseItem item in log) {
-                    if (item is UserAction) {
-                        var action = item as UserAction;
-                        var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
-                        for (int i = 0; i != action.Occurance; i++) {
-                            var actionClone = new UserAction(action.Label);
-                            actionClone.Occurance = 1; //Must be one now, this value doesn't matter anymore.
-                            actionClone.Pinned = action.Pinned;
+                var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
+                foreach (UserAction action in log) {
+                    var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
+                    for (int i = 0; i != action.Occurance; i++) {
+                        var actionClone = new UserAction(action.Label);
+                        actionClone.Occurance = 1; //Must be one now, this value doesn't matter anymore.
+                        actionClone.Pinned = action.Pinned;
 
-                            bool canAddClones = firstEntryClones.Count == 0;
-                            int logEntryIndex = 0;
-                            foreach (LogEntry child in action) {
-                                for (int j = 0; j != child.Occurance; j++) {
-                                    LogEntry childClone = child.Clone();
-                                    childClone.Occurance = 1;
+                        bool canAddClones = firstEntryClones.Count == 0;
+                        int logEntryIndex = 0;
+                        foreach (LogEntry child in action) {
+                            LogEntry childClone = child.Clone();
 
-                                    if (canAddClones && j == 0)
-                                        firstEntryClones.Add(childClone);
-                                    else
-                                        childClone.SameAs = firstEntryClones[logEntryIndex];
-
-                                    actionClone.AddWithoutInvokingEvent(childClone, false);
-                                }
-                                ++logEntryIndex;
-                            }
-
-                            newLog.AddWithoutInvokingEvent(actionClone, false);
-                        }
-                    } else {
-                        var entry = item as LogEntry;
-                        LogEntry firstEntryClone = null;
-                        for (int i = 0; i != entry.Occurance; i++) {
-                            LogEntry entryClone = entry.Clone();
-                            entryClone.Occurance = 1;
-
-                            if (firstEntryClone == null)
-                                firstEntryClone = entryClone;
+                            if (canAddClones)
+                                firstEntryClones.Add(childClone);
                             else
-                                entryClone.SameAs = firstEntryClone;
+                                childClone.SameAs = firstEntryClones[logEntryIndex];
 
-                            newLog.AddWithoutInvokingEvent(entryClone, false);
+                            actionClone.AddWithoutInvokingEvent(childClone, false);
+                            ++logEntryIndex;
+                        }
+
+                        newLog.AddWithoutInvokingEvent(actionClone, false);
+
+                        if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
+                            linkCloned.Add(action, actionClone);
+                        } else {
+                            UserAction linkUserAction;
+                            action.IsLinked(out linkUserAction);
+                            if (linkCloned.ContainsKey(linkUserAction))
+                                linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newLog.IndexOf(actionClone) + 1);
                         }
                     }
                 }

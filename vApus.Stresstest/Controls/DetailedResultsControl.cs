@@ -269,5 +269,12 @@ namespace vApus.Stresstest {
             dialog.Init(_resultsHelper);
             dialog.ShowDialog();
         }
+
+        private void btnDeleteResults_Click(object sender, EventArgs e) {
+            if (MessageBox.Show("Are you sure you want to delete the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                _resultsHelper.DeleteResults();
+                this.Enabled = false;
+            }
+        }
     }
 }
