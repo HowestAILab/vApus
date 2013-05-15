@@ -81,7 +81,7 @@
             // 
             // clmItems
             // 
-            this.clmItems.Text = "Items";
+            this.clmItems.Text = "";
             this.clmItems.Width = 400;
             // 
             // SelectCollectionItemsDialog

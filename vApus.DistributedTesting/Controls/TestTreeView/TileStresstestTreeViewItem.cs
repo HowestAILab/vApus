@@ -114,6 +114,12 @@ namespace vApus.DistributedTesting {
                                 ? string.Empty
                                 : _tileStresstest.BasicTileStresstest.Connection.ToString());
 
+            if (_tileStresstest.Use != chk.Checked) {
+                chk.CheckedChanged -= chk_CheckedChanged;
+                chk.Checked = _tileStresstest.Use;
+                chk.CheckedChanged += chk_CheckedChanged;
+            }
+
             if (lblTileStresstest.Text != label)
                 lblTileStresstest.Text = label;
         }
