@@ -153,12 +153,12 @@ namespace vApus.DistributedTesting {
 
                 _selectNextAvailableSlave = new LinkButton();
                 _selectNextAvailableSlave.Text = "Select Next Available Slave";
-                _selectNextAvailableSlave.LinkColor = _selectNextAvailableSlave.ActiveLinkColor =
-                    _selectNextAvailableSlave.VisitedLinkColor = _selectNextAvailableSlave.ForeColor = Color.DimGray;
+                _selectNextAvailableSlave.LinkColor = _selectNextAvailableSlave.ActiveLinkColor = _selectNextAvailableSlave.VisitedLinkColor = _selectNextAvailableSlave.ForeColor = Color.DimGray;
                 _selectNextAvailableSlave.LinkBehavior = LinkBehavior.AlwaysUnderline;
                 _selectNextAvailableSlave.TextAlign = ContentAlignment.TopCenter;
                 _selectNextAvailableSlave.Padding = new Padding(3, 4, 3, 3);
                 _selectNextAvailableSlave.AutoSize = true;
+                toolTip.SetToolTip(_selectNextAvailableSlave, "Slaves in unused tile stresstests can also be selected.");
                 _selectNextAvailableSlave.Click += _selectNextAvailableSlave_Click;
                 solutionComponentPropertyPanelBasic.Controls.Add(_selectNextAvailableSlave);
             } catch { }
