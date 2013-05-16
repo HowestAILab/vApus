@@ -150,7 +150,7 @@ namespace vApus.Stresstest {
                 dgvDetailedResults.DataSource = null;
                 dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = false;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
                 lblLoading.Visible = true;
 
                 int retry = 0;
@@ -175,7 +175,7 @@ namespace vApus.Stresstest {
                 SizeColumns();
 
                 lblLoading.Visible = false;
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = true;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = true;
                 dgvDetailedResults.Select();
             }
         }
@@ -197,7 +197,7 @@ namespace vApus.Stresstest {
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = false;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
 
             dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             var cultureInfo = Thread.CurrentThread.CurrentCulture;
@@ -208,7 +208,7 @@ namespace vApus.Stresstest {
             SizeColumns();
 
             lblLoading.Visible = false;
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = true;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = true;
         }
         private DataTable ExecuteQuery(string query, CultureInfo cultureInfo) {
             Thread.CurrentThread.CurrentCulture = cultureInfo;
