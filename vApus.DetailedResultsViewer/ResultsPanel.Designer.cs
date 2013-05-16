@@ -35,6 +35,7 @@
             this.detailedResultsControl.Name = "detailedResultsControl";
             this.detailedResultsControl.Size = new System.Drawing.Size(619, 413);
             this.detailedResultsControl.TabIndex = 2;
+            this.detailedResultsControl.ResultsDeleted += new System.EventHandler(this.detailedResultsControl_ResultsDeleted);
             // 
             // ResultsPanel
             // 

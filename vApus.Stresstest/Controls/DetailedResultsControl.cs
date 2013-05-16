@@ -25,6 +25,8 @@ namespace vApus.Stresstest {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
+        public event EventHandler ResultsDeleted;
+
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
 
@@ -148,7 +150,7 @@ namespace vApus.Stresstest {
                 dgvDetailedResults.DataSource = null;
                 dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = false;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
                 lblLoading.Visible = true;
 
                 int retry = 0;
@@ -173,7 +175,7 @@ namespace vApus.Stresstest {
                 SizeColumns();
 
                 lblLoading.Visible = false;
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = true;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = true;
                 dgvDetailedResults.Select();
             }
         }
@@ -195,7 +197,7 @@ namespace vApus.Stresstest {
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = false;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
 
             dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             var cultureInfo = Thread.CurrentThread.CurrentCulture;
@@ -206,7 +208,7 @@ namespace vApus.Stresstest {
             SizeColumns();
 
             lblLoading.Visible = false;
-            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = true;
+            flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = true;
         }
         private DataTable ExecuteQuery(string query, CultureInfo cultureInfo) {
             Thread.CurrentThread.CurrentCulture = cultureInfo;
@@ -250,6 +252,8 @@ namespace vApus.Stresstest {
         /// <param name="resultsHelper">Give hte helper that made the db</param>
         /// <param name="stresstestIds">Filter on one or more stresstests, if this is empty no filter is applied.</param>
         public void RefreshResults(ResultsHelper resultsHelper, params ulong[] stresstestIds) {
+            this.Enabled = true;
+
             _resultsHelper = resultsHelper;
             _stresstestIds = stresstestIds;
             foreach (var ctrl in flpConfiguration.Controls)
@@ -274,6 +278,8 @@ namespace vApus.Stresstest {
             if (MessageBox.Show("Are you sure you want to delete the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 _resultsHelper.DeleteResults();
                 this.Enabled = false;
+
+                if (ResultsDeleted != null) ResultsDeleted(this, null);
             }
         }
     }

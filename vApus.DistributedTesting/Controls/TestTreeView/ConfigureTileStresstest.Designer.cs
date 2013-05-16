@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigureTileStresstest));
             this.solutionComponentPropertyPanelBasic = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.solutionComponentPropertyPanelAdvanced = new vApus.SolutionTree.SolutionComponentPropertyPanel();
@@ -36,6 +37,7 @@
             this.lblUseRDP = new System.Windows.Forms.Label();
             this.lblRunSync = new System.Windows.Forms.Label();
             this.defaultAdvancedSettingsToControl = new vApus.DistributedTesting.DefaultAdvancedSettingsToControl();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // solutionComponentPropertyPanelBasic
@@ -161,5 +163,6 @@
         private System.Windows.Forms.Label lblUseRDP;
         private System.Windows.Forms.Label lblRunSync;
         private DefaultAdvancedSettingsToControl defaultAdvancedSettingsToControl;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

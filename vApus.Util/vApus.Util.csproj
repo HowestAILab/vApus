@@ -451,9 +451,6 @@
     <Compile Include="StringUtil.cs" />
     <Compile Include="SynchronizationContextWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ControlsAndPanels\ToggleButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifier.cs" />
     <Compile Include="ControlsAndPanels\Tracert\Tracert.cs" />
     <Compile Include="ControlsAndPanels\Tracert\TracertControl.cs">

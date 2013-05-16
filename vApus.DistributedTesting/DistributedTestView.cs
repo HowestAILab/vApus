@@ -730,7 +730,7 @@ namespace vApus.DistributedTesting {
         private void SetSlaveProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
             lock (_lock) {
                 //Build and add fast results.
-                fastResultsControl.ClearFastResults();
+                fastResultsControl.ClearFastResults(false);
                 if (testProgressMessage.StresstestMetricsCache != null) {
                     fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics());
                     fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics());

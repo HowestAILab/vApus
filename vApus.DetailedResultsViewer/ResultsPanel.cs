@@ -5,11 +5,15 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using System;
 using vApus.Results;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.DetailedResultsViewer {
     public partial class ResultsPanel : DockablePanel {
+
+        public event EventHandler ResultsDeleted;
+        
         private ResultsHelper _resultsHelper;
 
         public ResultsHelper ResultsHelper {
@@ -35,6 +39,10 @@ namespace vApus.DetailedResultsViewer {
             this.Enabled = false;
             if (stresstestId == 0) detailedResultsControl.RefreshResults(_resultsHelper); else detailedResultsControl.RefreshResults(_resultsHelper, stresstestId);
             this.Enabled = true;
+        }
+
+        private void detailedResultsControl_ResultsDeleted(object sender, System.EventArgs e) {
+            if (ResultsDeleted != null) ResultsDeleted(this, null);
         }
     }
 }
