@@ -218,10 +218,10 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
                 _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
-                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
-                _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
-                _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
+                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
+                _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
+                _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.ShowDialog(this);
@@ -582,33 +582,19 @@ namespace vApus.Gui {
             //}
         }
 
-        private void lblUpdateNotifier_Click(object sender, EventArgs e) {
-            ShowOptionsDialog(0);
-        }
+        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 
-        private void lblLogLevel_Click(object sender, EventArgs e) {
-            ShowOptionsDialog(1);
-        }
+        private void lblLogLevel_Click(object sender, EventArgs e) { ShowOptionsDialog(1); }
 
-        private void lblLocalization_Click(object sender, EventArgs e) {
-            ShowOptionsDialog(2);
-        }
+        private void lblLocalization_Click(object sender, EventArgs e) { ShowOptionsDialog(2); }
 
-        private void lblSocketListener_Click(object sender, EventArgs e) {
-            ShowOptionsDialog(3);
-        }
+        private void lblSocketListener_Click(object sender, EventArgs e) { ShowOptionsDialog(3); }
 
-        private void lblProcessorAffinity_Click(object sender, EventArgs e) {
-            ShowOptionsDialog(4);
-        }
+        private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
 
-        private void lblCleanTempData_Click(object sender, EventArgs e) {
-            ShowOptionsDialog(6);
-        }
+        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
 
-        private void lblWarning_Click(object sender, EventArgs e) {
-            if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(7); else ShowOptionsDialog(5);
-        }
+        private void lblWarning_Click(object sender, EventArgs e) { if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(7); else ShowOptionsDialog(6); }
 
         #endregion
     }
