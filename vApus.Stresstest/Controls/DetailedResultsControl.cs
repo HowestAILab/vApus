@@ -252,6 +252,8 @@ namespace vApus.Stresstest {
         /// <param name="resultsHelper">Give hte helper that made the db</param>
         /// <param name="stresstestIds">Filter on one or more stresstests, if this is empty no filter is applied.</param>
         public void RefreshResults(ResultsHelper resultsHelper, params ulong[] stresstestIds) {
+            this.Enabled = true;
+
             _resultsHelper = resultsHelper;
             _stresstestIds = stresstestIds;
             foreach (var ctrl in flpConfiguration.Controls)

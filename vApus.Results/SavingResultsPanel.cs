@@ -128,7 +128,7 @@ namespace vApus.Results {
             txtPassword.Enabled = txtUser.Text.Trim().Length != 0;
             if (!txtPassword.Enabled) txtPassword.Text = string.Empty;
             btnTest.Enabled = txtUser.Text.Trim().Length != 0 && txtHost.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0;
-            if (btnSave.Enabled) btnSave.Enabled = btnTest.Enabled;
+            if (btnSave.Enabled || cboConnectionString.Items.Count == 1) btnSave.Enabled = btnTest.Enabled;
         }
 
         private void btnTest_Click(object sender, EventArgs e) {
