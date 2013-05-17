@@ -6,10 +6,8 @@
  *    Dieter Vandroemme
  */
 
-namespace vApus.Results
-{
-    public class VirtualUserResult
-    {
+namespace vApus.Results {
+    public class VirtualUserResult {
         /// <summary>
         ///     For break on last runsync.
         /// </summary>
@@ -17,15 +15,14 @@ namespace vApus.Results
 
         public long BaseLogEntryCount {
             get { return _baseLogEntryCount; }
-        } 
+        }
 
         /// <summary>
         ///     For break on last runsync.
         /// </summary>
         private long _runOffset;
 
-        public VirtualUserResult(int logLength)
-        {
+        public VirtualUserResult(int logLength) {
             LogEntryResults = new LogEntryResult[logLength];
             _baseLogEntryCount = LogEntryResults.LongLength;
         }
@@ -42,16 +39,14 @@ namespace vApus.Results
         /// </summary>
         public LogEntryResult[] LogEntryResults { get; internal set; }
 
-        public void SetLogEntryResultAt(int index, LogEntryResult result)
-        {
-            LogEntryResults[_runOffset + index] = result;
+        public void SetLogEntryResultAt(int index, LogEntryResult result) {
+                LogEntryResults[_runOffset + index] = result;
         }
 
         /// <summary>
         ///     For break on last run sync. should only be used in the RunResult class.
         /// </summary>
-        public void PrepareForRerun()
-        {
+        public void PrepareForRerun() {
             _runOffset += _baseLogEntryCount;
 
             var increasedLogEntryResults = new LogEntryResult[LogEntryResults.LongLength + _baseLogEntryCount];

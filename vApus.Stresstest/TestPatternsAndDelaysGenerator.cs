@@ -123,15 +123,18 @@ namespace vApus.Stresstest {
                 var linkedAction = new List<int>();
                 linkedAction.SetTag(unlinkedAction.GetTag()); //Preserve pinned
 
-                foreach (int j in unlinkedAction) 
+                foreach (int j in unlinkedAction)
                     linkedAction.Add(j);
-                
-                if (linkedUserActions.ContainsKey(i)) {
-                    foreach (int j in linkedUserActions[i])
-                        foreach (int k in unlinkedActions[j]) 
-                            linkedAction.Add(k);
 
-                    i += linkedUserActions.Count;
+                if (linkedUserActions.ContainsKey(i)) {
+                    int add = 0;
+                    foreach (int j in linkedUserActions[i]) {
+                        foreach (int k in unlinkedActions[j])
+                            linkedAction.Add(k);
+                        ++add;
+                    }
+
+                    i += add;
                 }
                 _actions.Add(linkedAction);
             }

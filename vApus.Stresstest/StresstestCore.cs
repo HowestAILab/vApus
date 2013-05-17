@@ -309,7 +309,7 @@ namespace vApus.Stresstest {
 
             _log = LogTimesOccurancies(_stresstest.Log, _stresstest.Distribute);
 
-            //Parallel connections, check per user aciotn
+            //Parallel connections, check per user action
             _parallelConnectionsModifier = 0;
             var logEntries = new List<LogEntry>();
             foreach (BaseItem item in _log)
