@@ -76,7 +76,7 @@
             this.flpTags.AutoScroll = true;
             this.flpTags.Location = new System.Drawing.Point(23, 82);
             this.flpTags.Name = "flpTags";
-            this.flpTags.Size = new System.Drawing.Size(288, 30);
+            this.flpTags.Size = new System.Drawing.Size(288, 65);
             this.flpTags.TabIndex = 1;
             // 
             // FilterResults
@@ -89,7 +89,7 @@
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label2);
             this.Name = "FilterResults";
-            this.Size = new System.Drawing.Size(314, 115);
+            this.Size = new System.Drawing.Size(314, 150);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

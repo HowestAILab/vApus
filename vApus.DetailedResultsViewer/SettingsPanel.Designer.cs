@@ -73,7 +73,7 @@
             // 
             this.lblResults.AutoSize = true;
             this.lblResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblResults.Location = new System.Drawing.Point(29, 182);
+            this.lblResults.Location = new System.Drawing.Point(29, 217);
             this.lblResults.Name = "lblResults";
             this.lblResults.Size = new System.Drawing.Size(168, 16);
             this.lblResults.TabIndex = 9;
@@ -82,7 +82,7 @@
             // picDatabases
             // 
             this.picDatabases.Image = ((System.Drawing.Image)(resources.GetObject("picDatabases.Image")));
-            this.picDatabases.Location = new System.Drawing.Point(12, 182);
+            this.picDatabases.Location = new System.Drawing.Point(12, 217);
             this.picDatabases.Name = "picDatabases";
             this.picDatabases.Size = new System.Drawing.Size(16, 16);
             this.picDatabases.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -105,7 +105,7 @@
             this.dgvDatabases.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDatabases.EnableHeadersVisualStyles = false;
             this.dgvDatabases.Font = new System.Drawing.Font("Consolas", 9.75F);
-            this.dgvDatabases.Location = new System.Drawing.Point(32, 201);
+            this.dgvDatabases.Location = new System.Drawing.Point(32, 236);
             this.dgvDatabases.Name = "dgvDatabases";
             this.dgvDatabases.ReadOnly = true;
             this.dgvDatabases.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
@@ -113,7 +113,7 @@
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
             this.dgvDatabases.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvDatabases.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDatabases.Size = new System.Drawing.Size(502, 200);
+            this.dgvDatabases.Size = new System.Drawing.Size(502, 165);
             this.dgvDatabases.TabIndex = 2;
             this.dgvDatabases.VirtualMode = true;
             this.dgvDatabases.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDatabases_RowEnter);
@@ -123,7 +123,7 @@
             this.llblRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.llblRefresh.AutoSize = true;
             this.llblRefresh.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.llblRefresh.Location = new System.Drawing.Point(490, 184);
+            this.llblRefresh.Location = new System.Drawing.Point(490, 217);
             this.llblRefresh.Name = "llblRefresh";
             this.llblRefresh.Size = new System.Drawing.Size(44, 13);
             this.llblRefresh.TabIndex = 12;
@@ -175,7 +175,7 @@
             this.filterResults.BackColor = System.Drawing.Color.White;
             this.filterResults.Location = new System.Drawing.Point(9, 54);
             this.filterResults.Name = "filterResults";
-            this.filterResults.Size = new System.Drawing.Size(525, 115);
+            this.filterResults.Size = new System.Drawing.Size(525, 150);
             this.filterResults.TabIndex = 1;
             this.filterResults.FilterChanged += new System.EventHandler(this.filterDatabases_FilterChanged);
             // 
