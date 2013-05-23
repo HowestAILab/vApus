@@ -173,7 +173,7 @@ namespace vApus.Util {
                     internetCacheEntry = (INTERNET_CACHE_ENTRY_INFOA)Marshal.PtrToStructure(cacheEntryInfoBuffer, typeof(INTERNET_CACHE_ENTRY_INFOA));
 
                     cacheEntryInfoBufferSizeInitial = cacheEntryInfoBufferSize;
-                    returnValue = NativeMethods.DeleteUrlCacheEntry(internetCacheEntry.lpszSourceUrlName);
+                    returnValue = NativeMethods.DeleteUrlCacheEntry(internetCacheEntry.lpszLocalFileName);
                     if (!returnValue)
                         returnValue = NativeMethods.FindNextUrlCacheEntry(enumHandle, cacheEntryInfoBuffer, ref cacheEntryInfoBufferSizeInitial);
 
