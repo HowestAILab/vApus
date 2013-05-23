@@ -47,8 +47,8 @@ namespace vApus.DistributedTesting
         [SavableCloneable]
         public bool AutomaticDefaultAdvancedSettings
         {
-            get { return true; }
-            set { _automaticDefaultAdvancedSettings = true; }
+            get { return _automaticDefaultAdvancedSettings; }
+            set { _automaticDefaultAdvancedSettings = value; }
         }
         [SavableCloneable]
         public bool Use

@@ -37,7 +37,6 @@
             this.chkDefaultTo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.chkDefaultTo.AutoSize = true;
-            this.chkDefaultTo.Enabled = false;
             this.chkDefaultTo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.chkDefaultTo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
             this.chkDefaultTo.ForeColor = System.Drawing.Color.Blue;

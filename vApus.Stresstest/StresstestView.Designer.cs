@@ -57,7 +57,6 @@
             // solutionComponentPropertyPanel
             // 
             this.solutionComponentPropertyPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.solutionComponentPropertyPanel.Enabled = false;
             this.solutionComponentPropertyPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.solutionComponentPropertyPanel.Location = new System.Drawing.Point(3, 3);
             this.solutionComponentPropertyPanel.Name = "solutionComponentPropertyPanel";

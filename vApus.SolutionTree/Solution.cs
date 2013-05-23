@@ -16,14 +16,12 @@ using System.Xml;
 using vApus.Util;
 using WeifenLuo.WinFormsUI.Docking;
 
-namespace vApus.SolutionTree
-{
+namespace vApus.SolutionTree {
     /// <summary>
     /// The solution where everything is stored, this class also keeps its explorer and which solution that is active.
     /// Saving, Loading, making a solution is done here, this also keeps it's own explorer.
     /// </summary>
-    public class Solution
-    {
+    public class Solution {
         #region Manage
         /// <summary>
         /// Used if a new solution has been opened/created or if something has changed in the solution
@@ -50,11 +48,9 @@ namespace vApus.SolutionTree
         /// When set, will enforce loading in the treeview.
         /// (should only be used in load and new, the rest should be handeled with solution component changed)
         /// </summary>
-        public static Solution ActiveSolution
-        {
+        public static Solution ActiveSolution {
             get { return _activeSolution; }
-            private set
-            {
+            private set {
                 _activeSolution = value;
                 if (_activeSolution.FileName != null)
                     RegisterActiveSolutionAsRecent();
@@ -62,8 +58,7 @@ namespace vApus.SolutionTree
                     ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(false, true));
             }
         }
-        internal static DockPanel DockPanel
-        {
+        internal static DockPanel DockPanel {
             get { return _dockPanel; }
         }
         #endregion
@@ -74,8 +69,7 @@ namespace vApus.SolutionTree
         /// This is needed to be able to make a new solution avoiding circular dependencies.
         /// </summary>
         /// <param name="t"></param>
-        public static void RegisterProjectType(Type projectType)
-        {
+        public static void RegisterProjectType(Type projectType) {
             if (_projectTypes.Contains(projectType))
                 throw new ArgumentException("A project type may be added only once.");
             _projectTypes.Add(projectType);
@@ -84,8 +78,7 @@ namespace vApus.SolutionTree
         /// To be able to show the views for the solution components and the panel for the solution explorer.
         /// </summary>
         /// <param name="dockPanel"></param>
-        public static void RegisterDockPanel(DockPanel dockPanel)
-        {
+        public static void RegisterDockPanel(DockPanel dockPanel) {
             if (dockPanel == null)
                 throw new ArgumentNullException("dockpanel");
             _dockPanel = dockPanel;
@@ -95,25 +88,20 @@ namespace vApus.SolutionTree
         /// Note: call 'RegisterDockPanel(DockPanel dockPanel)' prior to this.
         /// </summary>
         /// <returns>True on success</returns>
-        public static bool ShowStresstestingSolutionExplorer()
-        {
-            try
-            {
+        public static bool ShowStresstestingSolutionExplorer() {
+            try {
                 int dockState = global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState;
                 if (dockState == -1)
                     dockState = 8; //DockLeft
 
                 _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
-            }
-            catch
-            {
+            } catch {
                 //Could fail for slaves
                 return false;
             }
             return true;
         }
-        public static void HideStresstestingSolutionExplorer()
-        {
+        public static void HideStresstestingSolutionExplorer() {
             _stresstestingSolutionExplorer.Hide();
         }
 
@@ -121,51 +109,41 @@ namespace vApus.SolutionTree
         /// Tooltips will be provide for the items.
         /// </summary>
         /// <returns></returns>
-        public static List<ToolStripMenuItem> GetRecentSolutionsMenuItems()
-        {
+        public static List<ToolStripMenuItem> GetRecentSolutionsMenuItems() {
             List<ToolStripMenuItem> recentSolutionsMenuItems = new List<ToolStripMenuItem>();
-            if (!_recentSolutions.Contains(@"foo:\\vApus Mark FOS.vass"))
-                _recentSolutions.Add(@"foo:\\vApus Mark FOS.vass");
+            _recentSolutions.Clear();
+            _recentSolutions.Add(@"foo:\\vApus Mark FOS.vass");
 
             string fileName = Path.Combine(Application.StartupPath, "vApus_Mark_FOS_Changes.vass");
-            if (!_recentSolutions.Contains(fileName) && File.Exists(fileName))
-                _recentSolutions.Add(fileName);
+            if (File.Exists(fileName)) _recentSolutions.Add(fileName);
 
 
-            foreach (string filename in _recentSolutions)
-            {
+            foreach (string filename in _recentSolutions) {
                 ToolStripMenuItem item = new ToolStripMenuItem(filename);
                 item.Click += new EventHandler(item_Click);
                 recentSolutionsMenuItems.Add(item);
             }
             return recentSolutionsMenuItems;
         }
-        private static void item_Click(object sender, EventArgs e)
-        {
+        private static void item_Click(object sender, EventArgs e) {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
             LoadSolution(item.Text);
             return;
-            if (File.Exists(item.Text))
-            {
+            if (File.Exists(item.Text)) {
                 LoadNewActiveSolution(item.Text);
-            }
-            else
-            {
+            } else {
                 _recentSolutions.Remove(item.Text);
                 global::vApus.SolutionTree.Properties.Settings.Default.Save();
                 MessageBox.Show(string.Format("'{0}' does not exist and could therefore not be opened!", item.Text), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
             }
         }
-        public static void ClearRecentSolutions()
-        {
+        public static void ClearRecentSolutions() {
             _recentSolutions.Clear();
             global::vApus.SolutionTree.Properties.Settings.Default.RecentSolutions.Clear();
             global::vApus.SolutionTree.Properties.Settings.Default.Save();
         }
-        private static void RegisterActiveSolutionAsRecent()
-        {
-            if (!_recentSolutions.Contains(_activeSolution.FileName))
-            {
+        private static void RegisterActiveSolutionAsRecent() {
+            if (!_recentSolutions.Contains(_activeSolution.FileName)) {
                 if (_recentSolutions.Count == 10)
                     _recentSolutions.RemoveAt(9);
                 _recentSolutions.Insert(0, _activeSolution.FileName);
@@ -175,19 +153,15 @@ namespace vApus.SolutionTree
         }
 
         #region File Management
-        public static void CreateNew()
-        {
-            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
-            {
+        public static void CreateNew() {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
                 DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before creating a new solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
                     ActiveSolution = new Solution();
                 else if (result == DialogResult.No)
                     ActiveSolution = new Solution();
                 //Do nothing on cancel.
-            }
-            else
-            {
+            } else {
                 ActiveSolution = new Solution();
             }
         }
@@ -195,12 +169,10 @@ namespace vApus.SolutionTree
         /// Returns true if it has been saved.
         /// </summary>
         /// <returns></returns>
-        public static bool SaveActiveSolution()
-        {
+        public static bool SaveActiveSolution() {
             if (_activeSolution.FileName == null)
                 return SaveActiveSolutionAs();
-            else
-            {
+            else {
                 _activeSolution.Save();
                 _activeSolution.IsSaved = true;
                 if (ActiveSolutionChanged != null)
@@ -214,11 +186,9 @@ namespace vApus.SolutionTree
         /// Returns true if it has been saved.
         /// </summary>
         /// <returns></returns>
-        public static bool SaveActiveSolutionAs()
-        {
+        public static bool SaveActiveSolutionAs() {
             return true;
-            if (_sfd.ShowDialog() == DialogResult.OK)
-            {
+            if (_sfd.ShowDialog() == DialogResult.OK) {
                 _activeSolution.FileName = _sfd.FileName;
                 return SaveActiveSolution();
             }
@@ -227,29 +197,23 @@ namespace vApus.SolutionTree
         /// <summary>
         /// Loads a new solution as the active one. Returns true if it has been loaded.
         /// </summary>
-        public static bool LoadNewActiveSolution()
-        {
+        public static bool LoadNewActiveSolution() {
             return LoadNewActiveSolution(null);
         }
-        public static bool LoadNewActiveSolution(string fileName)
-        {
-            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
-            {
+        public static bool LoadNewActiveSolution(string fileName) {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
                 DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
                     return true;// LoadSolution(fileName);
                 else if (result == DialogResult.No)
                     return true;// LoadSolution(fileName);
                 //Do nothing on cancel.
-            }
-            else
-            {
+            } else {
                 return true;// LoadSolution(fileName);
             }
             return false;
         }
-        public static void LoadSolution(string fileName = null)
-        {
+        public static void LoadSolution(string fileName = null) {
             string errorMessage = string.Empty;
 
             List<string> l = new List<string>();
@@ -275,74 +239,66 @@ namespace vApus.SolutionTree
             ActiveSolution.ResolveBranchedIndices();
             _activeSolution.IsSaved = true;
         }
-//        private static bool LoadSolution(string fileName)
-//        {
-//            string errorMessage = string.Empty;
-//            try
-//            {
-//                if (fileName != null)
-//                {
-//                    Solution sln = new Solution();
-//                    sln.FileName = fileName;
-//                    sln.Load(out errorMessage);
-//                    ActiveSolution = sln;
-//                    ActiveSolution.ResolveBranchedIndices();
-//                    _activeSolution.IsSaved = true;
-//                    return true;
-//                }
-//                else if (_ofd.ShowDialog() == DialogResult.OK)
-//                {
-//                    Solution sln = new Solution();
-//                    sln.FileName = _ofd.FileName;
-//                    sln.Load(out errorMessage);
-//                    ActiveSolution = sln;
-//                    ActiveSolution.ResolveBranchedIndices();
-//                    _activeSolution.IsSaved = true;
-//                    return true;
-//                }
-//            }
-//            catch { throw; }
-//            finally
-//            {
-//                if (errorMessage.Length > 0)
-//                    MessageBox.Show(@"Failed loading one or more items/properties.
-//
-//This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
-//Take a copy of the file to be sure and test if stresstesting works.
-//
-//See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-//            }
-//            return false;
-//        }
+        //        private static bool LoadSolution(string fileName)
+        //        {
+        //            string errorMessage = string.Empty;
+        //            try
+        //            {
+        //                if (fileName != null)
+        //                {
+        //                    Solution sln = new Solution();
+        //                    sln.FileName = fileName;
+        //                    sln.Load(out errorMessage);
+        //                    ActiveSolution = sln;
+        //                    ActiveSolution.ResolveBranchedIndices();
+        //                    _activeSolution.IsSaved = true;
+        //                    return true;
+        //                }
+        //                else if (_ofd.ShowDialog() == DialogResult.OK)
+        //                {
+        //                    Solution sln = new Solution();
+        //                    sln.FileName = _ofd.FileName;
+        //                    sln.Load(out errorMessage);
+        //                    ActiveSolution = sln;
+        //                    ActiveSolution.ResolveBranchedIndices();
+        //                    _activeSolution.IsSaved = true;
+        //                    return true;
+        //                }
+        //            }
+        //            catch { throw; }
+        //            finally
+        //            {
+        //                if (errorMessage.Length > 0)
+        //                    MessageBox.Show(@"Failed loading one or more items/properties.
+        //
+        //This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
+        //Take a copy of the file to be sure and test if stresstesting works.
+        //
+        //See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //            }
+        //            return false;
+        //        }
 
-        public static bool CreateNewFromTemplate()
-        {
+        public static bool CreateNewFromTemplate() {
             return CreateNewFromTemplate(null);
         }
-        private static bool CreateNewFromTemplate(string fileName)
-        {
-            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null))
-            {
+        private static bool CreateNewFromTemplate(string fileName) {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
                 DialogResult result = MessageBox.Show(string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
                     return LoadSolutionFromTemplate(fileName);
                 else if (result == DialogResult.No)
                     return LoadSolutionFromTemplate(fileName);
                 //Do nothing on cancel.
-            }
-            else
-            {
+            } else {
                 return LoadSolutionFromTemplate(fileName);
             }
             return false;
         }
-        private static bool LoadSolutionFromTemplate(string fileName)
-        {
+        private static bool LoadSolutionFromTemplate(string fileName) {
             string errorMessage = string.Empty;
-            try
-            {
-                if (fileName != null)
-                {
+            try {
+                if (fileName != null) {
                     Solution sln = new Solution();
                     sln.FileName = fileName;
                     sln.Load(out errorMessage);
@@ -350,11 +306,8 @@ namespace vApus.SolutionTree
                     ActiveSolution = sln;
                     ActiveSolution.ResolveBranchedIndices();
                     return true;
-                }
-                else
-                {
-                    if (_ofd.ShowDialog() == DialogResult.OK)
-                    {
+                } else {
+                    if (_ofd.ShowDialog() == DialogResult.OK) {
                         Solution sln = new Solution();
                         sln.FileName = _ofd.FileName;
                         sln.Load(out errorMessage);
@@ -364,10 +317,7 @@ namespace vApus.SolutionTree
                         return true;
                     }
                 }
-            }
-            catch { throw; }
-            finally
-            {
+            } catch { throw; } finally {
                 if (errorMessage.Length > 0)
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
@@ -396,12 +346,9 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         #endregion
 
         #region Properties
-        public string Name
-        {
-            get
-            {
-                if (_fileName != null)
-                {
+        public string Name {
+            get {
+                if (_fileName != null) {
                     int index = 0;
                     for (int i = 0; i < _fileName.Length; i++)
                         if (_fileName[i] == '\\') index = i;
@@ -412,25 +359,20 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
             }
         }
-        public string FileName
-        {
+        public string FileName {
             get { return _fileName; }
             private set { _fileName = value; }
         }
-        public bool IsSaved
-        {
+        public bool IsSaved {
             get { return _isSaved; }
             internal set { _isSaved = value; }
         }
-        public List<BaseProject> Projects
-        {
+        public List<BaseProject> Projects {
             get { return _projects; }
         }
 
-        public Form[] RegisteredForCancelFormClosing
-        {
-            get
-            {
+        public Form[] RegisteredForCancelFormClosing {
+            get {
                 //Cleanup first
                 CleanupRegisteredForCancelFormClosing();
                 var mdiChilds = new Form[_registeredForCancelFormClosing.Count];
@@ -441,16 +383,14 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// <summary>
         /// Do not forget to set this to false when cancelling
         /// </summary>
-        public bool ExplicitCancelFormClosing
-        {
+        public bool ExplicitCancelFormClosing {
             get { return _explicitCancelFormClosing; }
             set { _explicitCancelFormClosing = value; }
         }
         #endregion
 
         #region Constructors
-        static Solution()
-        {
+        static Solution() {
             if (global::vApus.SolutionTree.Properties.Settings.Default.RecentSolutions == null)
                 global::vApus.SolutionTree.Properties.Settings.Default.RecentSolutions = new System.Collections.Specialized.StringCollection();
             _recentSolutions = global::vApus.SolutionTree.Properties.Settings.Default.RecentSolutions;
@@ -464,43 +404,34 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
             _stresstestingSolutionExplorer.DockStateChanged += new EventHandler(_stresstestingSolutionExplorer_DockStateChanged);
         }
-        static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e)
-        {
-            if (_stresstestingSolutionExplorer.DockState == DockState.Hidden)
-            {
+        static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e) {
+            if (_stresstestingSolutionExplorer.DockState == DockState.Hidden) {
                 global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
                 global::vApus.SolutionTree.Properties.Settings.Default.Save();
-            }
-            else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown)
-            {
+            } else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown) {
                 global::vApus.SolutionTree.Properties.Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
                 global::vApus.SolutionTree.Properties.Settings.Default.Save();
             }
         }
-        private Solution()
-        {
+        private Solution() {
             _activeSolution = null;
             ObjectExtension.ClearCache();
             _projects = new List<BaseProject>();
-            foreach (Type projectType in _projectTypes)
-            {
+            foreach (Type projectType in _projectTypes) {
                 BaseProject project = Activator.CreateInstance(projectType) as BaseProject;
                 project.Parent = this;
                 _projects.Add(project);
             }
         }
         private Solution(string fileName)
-            : this()
-        {
+            : this() {
             FileName = fileName;
         }
         #endregion
 
         #region Functions
-        static void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
-            if (_activeSolution.FileName != null && ActiveSolutionChanged != null)
-            {
+        static void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            if (_activeSolution.FileName != null && ActiveSolutionChanged != null) {
                 _activeSolution.IsSaved = false;
                 ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(true, false));
             }
@@ -510,13 +441,11 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// Unregistering is not needed.
         /// </summary>
         /// <param name="mdiChild"></param>
-        public void RegisterForCancelFormClosing(Form mdiChild)
-        {
+        public void RegisterForCancelFormClosing(Form mdiChild) {
             CleanupRegisteredForCancelFormClosing();
             _registeredForCancelFormClosing.Add(mdiChild);
         }
-        private void CleanupRegisteredForCancelFormClosing()
-        {
+        private void CleanupRegisteredForCancelFormClosing() {
             var newRegisteredForCancelFormClosing = new HashSet<Form>();
             foreach (Form mdiChild in _registeredForCancelFormClosing)
                 if (mdiChild != null && !mdiChild.IsDisposed)
@@ -528,8 +457,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// </summary>
         /// <param name="typeName"></param>
         /// <returns></returns>
-        public BaseProject GetProject(string typeName)
-        {
+        public BaseProject GetProject(string typeName) {
             if (typeName == null)
                 throw new ArgumentNullException(typeName);
             foreach (BaseProject project in _projects)
@@ -542,8 +470,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public BaseProject GetProject(int index)
-        {
+        public BaseProject GetProject(int index) {
             return _projects[index];
         }
         /// <summary>
@@ -551,13 +478,11 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public SolutionComponent GetSolutionComponent(Type type)
-        {
+        public SolutionComponent GetSolutionComponent(Type type) {
             if (type == null)
                 throw new ArgumentNullException("type");
 
-            foreach (BaseProject project in _projects)
-            {
+            foreach (BaseProject project in _projects) {
                 SolutionComponent solutionComponent = project.GetSolutionComponent(type);
                 if (solutionComponent != null)
                     return solutionComponent;
@@ -570,15 +495,13 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// <param name="type"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public SolutionComponent GetSolutionComponent(Type type, string name)
-        {
+        public SolutionComponent GetSolutionComponent(Type type, string name) {
             if (type == null)
                 throw new ArgumentNullException("type");
             if (name == null)
                 throw new ArgumentNullException("name");
 
-            foreach (BaseProject project in _projects)
-            {
+            foreach (BaseProject project in _projects) {
                 SolutionComponent solutionComponent = project.GetSolutionComponent(type, name);
                 if (solutionComponent != null)
                     return solutionComponent;
@@ -592,15 +515,13 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// <param name="index"></param>
         /// <param name="label"></param>
         /// <returns></returns>
-        public LabeledBaseItem GetLabeledBaseItem(string name, int index, string label)
-        {
+        public LabeledBaseItem GetLabeledBaseItem(string name, int index, string label) {
             if (name == null)
                 throw new ArgumentNullException("name");
             if (label == null)
                 throw new ArgumentNullException("label");
 
-            foreach (BaseProject project in _projects)
-            {
+            foreach (BaseProject project in _projects) {
                 LabeledBaseItem labeledBaseItem = project.GetLabeledBaseItem(name, index, label);
                 if (labeledBaseItem != null)
                     return labeledBaseItem;
@@ -611,8 +532,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// Gets all project items as treenodes for visualization in a treeview.
         /// </summary>
         /// <returns></returns>
-        public List<TreeNode> GetTreeNodes()
-        {
+        public List<TreeNode> GetTreeNodes() {
             List<TreeNode> treeNodes = new List<TreeNode>(_projects.Count);
             foreach (BaseProject project in _projects)
                 if (project.ShowInGui)
@@ -620,13 +540,11 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             return treeNodes;
         }
 
-        protected void Save()
-        {
+        protected void Save() {
             string temp = Path.Combine(Application.StartupPath, "vApus_Mark_FOS_Changes");
 
             Package package = Package.Open(temp, FileMode.Create, FileAccess.ReadWrite);
-            foreach (BaseProject project in _projects)
-            {
+            foreach (BaseProject project in _projects) {
                 Uri uri = new Uri("/" + project.GetType().Name, UriKind.Relative);
                 PackagePart part = package.CreatePart(uri, string.Empty, CompressionOption.Maximum);
                 StreamWriter sw = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
@@ -639,50 +557,38 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
             FileName = temp + ".vass";
             if (File.Exists(FileName))
-                try
-                {
+                try {
                     File.Delete(FileName);
-                }
-                catch { }
+                } catch { }
             CryptoHelp.EncryptFile(temp, FileName, "{131B5B29-6E04-4BE4-BF02-EDA734ADB96F}");
 
-            try
-            {
+            try {
                 File.Delete(temp);
-            }
-            catch { }
+            } catch { }
 
-            if (!_recentSolutions.Contains(FileName))
-            {
+            if (!_recentSolutions.Contains(FileName)) {
                 _recentSolutions.Add(FileName);
                 global::vApus.SolutionTree.Properties.Settings.Default.Save();
             }
 
         }
-        protected void Load(out string errorMessage)
-        {
+        protected void Load(out string errorMessage) {
             //Error reporting.
             StringBuilder sb = new StringBuilder();
-            try
-            {
+            try {
                 Stream stream = null;
 
-                if (FileName.StartsWith("foo"))
-                {
+                if (FileName.StartsWith("foo")) {
                     stream = new MemoryStream(global::vApus.SolutionTree.Properties.Resources.vApus_Mark_FOS);
-                }
-                else
-                {
+                } else {
                     stream = new MemoryStream();
                     CryptoHelp.DecryptFile(FileName, stream, "{131B5B29-6E04-4BE4-BF02-EDA734ADB96F}");
                 }
 
                 Package package = Package.Open(stream);
-                foreach (PackagePart part in package.GetParts())
-                {
+                foreach (PackagePart part in package.GetParts()) {
                     foreach (BaseProject project in _projects)
-                        if (part.Uri.ToString().EndsWith(project.GetType().Name))
-                        {
+                        if (part.Uri.ToString().EndsWith(project.GetType().Name)) {
                             XmlDocument xmlDocument = new XmlDocument();
                             xmlDocument.Load(part.GetStream());
                             string projectErrorMessage;
@@ -691,15 +597,12 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         }
                 }
                 package.Close();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 sb.Append(ex);
             }
             errorMessage = sb.ToString();
         }
-        protected void ResolveBranchedIndices()
-        {
+        protected void ResolveBranchedIndices() {
             foreach (BaseProject project in _projects)
                 project.ResolveBranchedIndices();
         }
@@ -708,8 +611,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         #endregion
     }
 
-    public class ActiveSolutionChangedEventArgs : EventArgs
-    {
+    public class ActiveSolutionChangedEventArgs : EventArgs {
         /// <summary>
         /// Not for newly opened/created solutions.
         /// </summary>
@@ -723,8 +625,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         /// </summary>
         /// <param name="toBeSaved">Not for newly opened/created solutions.</param>
         /// <param name="toBeLoaded">To determine of the treeview should be reloaded or not.</param>
-        public ActiveSolutionChangedEventArgs(bool toBeSaved, bool toBeLoaded)
-        {
+        public ActiveSolutionChangedEventArgs(bool toBeSaved, bool toBeLoaded) {
             ToBeSaved = toBeSaved;
             ToBeLoaded = toBeLoaded;
         }
