@@ -108,10 +108,10 @@ namespace vApus.Results {
 
         private void txt_TextChanged(object sender, EventArgs e) {
             string host = txtHost.Text.Trim().ToLower();
-            if (host == "localhost" || host == "127.0.0.1" || host == "::1") {
-                MessageBox.Show("The MySQL server must be reachable from a remote location, otherwise distributed testing won't work!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtHost.Text = string.Empty;
-            }
+            //if (host == "localhost" || host == "127.0.0.1" || host == "::1") {
+            //    MessageBox.Show("The MySQL server must be reachable from a remote location, otherwise distributed testing won't work!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    txtHost.Text = string.Empty;
+            //}
 
             if (cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1) {
                 string user, password;
