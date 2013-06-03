@@ -298,7 +298,7 @@ namespace vApus.Stresstest {
             var userActions = new Dictionary<string, List<string>>();
             foreach (DataRow row in dt.Rows) {
                 string userAction = row.ItemArray[1] as string;
-                string logEntry = row.ItemArray[2] as string;
+                string logEntry = (row.ItemArray[2] as string).Replace("<16 0C 02 12$>", "•");
                 if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
                 userActions[userAction].Add(logEntry);
             }
