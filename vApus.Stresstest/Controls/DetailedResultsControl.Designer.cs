@@ -435,7 +435,7 @@
             "Average Log Entries",
             "Errors",
             "User Action Composition",
-            "Cummulative Response Times vs Achieved Throughput",
+            "Overview",
             "Machine Configurations",
             "Average Monitor Results"});
             this.cboShow.Location = new System.Drawing.Point(1, 1);

@@ -85,14 +85,14 @@ namespace vApus.Stresstest {
                         int worksheetIndex = 1; //Just for a unique sheet name
                         foreach (ulong stresstestId in stresstests.Keys) {
                             //For some strange reason the doubles are changed to string.
-                            var overview = _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(_cancellationTokenSource.Token, stresstestId);
+                            var overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
                             var avgUserActions = _resultsHelper.GetAverageUserActions(_cancellationTokenSource.Token, stresstestId);
                             var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                             var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId); ;
                             var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
 
                             string stresstest = stresstests[stresstestId];
-                            string fws = MakeCummulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Cummulative Response Times vs Achieved Throughput");
+                            string fws = MakeCumulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Cumulative Response Times vs Achieved Throughput");
                             if (firstWorksheet == null) firstWorksheet = fws;
 
                             MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
@@ -149,7 +149,7 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="title"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeCummulativeResponseTimesVsAchievedThroughputSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeCumulativeResponseTimesVsAchievedThroughputSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, dt, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
 
@@ -167,7 +167,7 @@ namespace vApus.Stresstest {
             chart.ShowChartTitle(false);
             chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
             chart.PrimaryTextAxis.ShowTitle = true;
-            chart.PrimaryValueAxis.Title.SetTitle("Cummulative Response Time (ms)");
+            chart.PrimaryValueAxis.Title.SetTitle("Cumulative Response Time (ms)");
             chart.PrimaryValueAxis.ShowTitle = true;
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
             chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");

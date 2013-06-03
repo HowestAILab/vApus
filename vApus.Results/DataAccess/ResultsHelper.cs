@@ -1210,8 +1210,8 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         /// </summary>
         /// <param name="stresstestIds"></param>
         /// <returns></returns>
-        public DataTable GetCummulativeResponseTimesVsAchievedThroughput(params ulong[] stresstestIds) {
-            return GetCummulativeResponseTimesVsAchievedThroughput(new CancellationToken(), stresstestIds);
+        public DataTable GetOverview(params ulong[] stresstestIds) {
+            return GetOverview(new CancellationToken(), stresstestIds);
         }
         /// <summary>
         /// Only works for the first stresstest.
@@ -1219,7 +1219,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         /// <param name="cancellationToken"></param>
         /// <param name="stresstestIds"></param>
         /// <returns></returns>
-        public DataTable GetCummulativeResponseTimesVsAchievedThroughput(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        public DataTable GetOverview(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
                 if (stresstestIds.Length == 0) {
