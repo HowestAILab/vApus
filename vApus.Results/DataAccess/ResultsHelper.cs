@@ -1248,6 +1248,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     }
                 }
                 averageResponseTimesAndThroughput.Columns.Add("Throughput");
+                averageResponseTimesAndThroughput.Columns.Add("Errors");
 
                 for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
                     if (cancellationToken.IsCancellationRequested) return null;
@@ -1261,6 +1262,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[3] : 0d);
                     }
                     row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
+                    row.Add(averageUserActions.Rows[offset].ItemArray[7]); //And the errors: Bonus
                     averageResponseTimesAndThroughput.Rows.Add(row.ToArray());
                 }
 

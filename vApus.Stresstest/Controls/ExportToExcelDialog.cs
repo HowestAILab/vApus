@@ -92,7 +92,7 @@ namespace vApus.Stresstest {
                             var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
 
                             string stresstest = stresstests[stresstestId];
-                            string fws = MakeCumulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Cumulative Response Times vs Achieved Throughput");
+                            string fws = MakeCumulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
                             if (firstWorksheet == null) firstWorksheet = fws;
 
                             MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
@@ -153,6 +153,8 @@ namespace vApus.Stresstest {
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, dt, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
 
+            //Don't use the bonus column "Errors"
+            --rangeWidth;
             //Plot the response times
             var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
             chart.SetChartType(SLColumnChartType.StackedColumn);
@@ -163,7 +165,7 @@ namespace vApus.Stresstest {
             chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
 
             //Set the titles
-            chart.Title.SetTitle(title);
+            chart.Title.SetTitle(title.Replace("Overview: Response Times, Throughput & Errors", "Cumulative Response Times vs Achieved Throughput"));
             chart.ShowChartTitle(false);
             chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
             chart.PrimaryTextAxis.ShowTitle = true;

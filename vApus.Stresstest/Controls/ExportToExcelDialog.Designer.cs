@@ -87,7 +87,7 @@
             this.picOverview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picOverview.TabIndex = 6;
             this.picOverview.TabStop = false;
-            this.toolTip.SetToolTip(this.picOverview, "Cumulative Response Times vs Achieved Throughput Example");
+            this.toolTip.SetToolTip(this.picOverview, "Overview / Cumulative Response Times vs Achieved Throughput Example");
             this.picOverview.Click += new System.EventHandler(this.pic_Click);
             // 
             // flpCharts
