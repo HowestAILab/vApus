@@ -11,13 +11,14 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using System.Runtime.InteropServices;
 
-namespace vApus.Util
-{
-    public partial class DisableFirewallAutoUpdatePanel : Panel
-    {
-        public enum Status
-        {
+namespace vApus.Util {
+    public partial class DisableFirewallAutoUpdatePanel : Panel {
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
+        public enum Status {
             AllDisabled = 0,
             WindowsFirewallEnabled = 1,
             WindowsAutoUpdateEnabled = 2,
@@ -27,27 +28,25 @@ namespace vApus.Util
         private readonly ActiveObject _activeObject = new ActiveObject();
         private readonly ApplyDel _applyCallback;
         private Status _status;
+        private bool _canCheckStatus = true;
 
-        public DisableFirewallAutoUpdatePanel()
-        {
+        public DisableFirewallAutoUpdatePanel() {
             InitializeComponent();
             _applyCallback = ApplyCallback;
             _activeObject.OnResult += _activeObject_OnResult;
             HandleCreated += DisableFirewallAutoUpdatePanel_HandleCreated;
         }
 
-        public Status __Status
-        {
+        public Status __Status {
             get { return _status; }
         }
 
-        private void DisableFirewallAutoUpdatePanel_HandleCreated(object sender, EventArgs e)
-        {
+        private void DisableFirewallAutoUpdatePanel_HandleCreated(object sender, EventArgs e) {
             CheckStatus();
         }
 
-        public Status CheckStatus()
-        {
+        public Status CheckStatus() {
+            if (!_canCheckStatus) return _status;
             _status = Status.AllDisabled;
 
             //Firewall
@@ -74,15 +73,11 @@ namespace vApus.Util
             return _status;
         }
 
-        private void EvaluateValue(object value, int validValue, Status append)
-        {
-            try
-            {
-                if ((int) value != validValue)
+        private void EvaluateValue(object value, int validValue, Status append) {
+            try {
+                if ((int)value != validValue)
                     _status |= append;
-            }
-            catch
-            {
+            } catch {
                 LogWrapper.LogByLevel(
                     "[" + this +
                     "] Failed checking if the firewall and Windows auto update are enabled or not!\nCould not find a registry key.",
@@ -90,8 +85,9 @@ namespace vApus.Util
             }
         }
 
-        private void SetGui()
-        {
+        private void SetGui() {
+            LockWindowUpdate(this.Handle.ToInt32());
+
             rdbFirewallOn.CheckedChanged -= rdb_CheckedChanged;
             rdbUpdateOn.CheckedChanged -= rdb_CheckedChanged;
 
@@ -99,8 +95,7 @@ namespace vApus.Util
             rdbFirewallOff.Checked = rdbUpdateOff.Checked = true;
             btnDisableAll.Enabled = false;
 
-            switch (_status)
-            {
+            switch (_status) {
                 case Status.WindowsFirewallEnabled:
                     pnlFirewall.BackColor = Color.Orange;
                     rdbFirewallOn.Checked = btnDisableAll.Enabled = true;
@@ -117,10 +112,11 @@ namespace vApus.Util
 
             rdbFirewallOn.CheckedChanged += rdb_CheckedChanged;
             rdbUpdateOn.CheckedChanged += rdb_CheckedChanged;
+
+            LockWindowUpdate(0);
         }
 
-        private void btnDisableAll_Click(object sender, EventArgs e)
-        {
+        private void btnDisableAll_Click(object sender, EventArgs e) {
             rdbFirewallOn.CheckedChanged -= rdb_CheckedChanged;
             rdbUpdateOn.CheckedChanged -= rdb_CheckedChanged;
 
@@ -132,23 +128,20 @@ namespace vApus.Util
             Disable();
         }
 
-        private void rdb_CheckedChanged(object sender, EventArgs e)
-        {
+        private void rdb_CheckedChanged(object sender, EventArgs e) {
             Disable();
         }
 
-        private void Disable()
-        {
+        private void Disable() {
+            _canCheckStatus = false;
             groupBox.Enabled = false;
             btnDisableAll.Enabled = false;
             btnDisableAll.Text = "Wait...";
             _activeObject.Send(_applyCallback);
         }
 
-        private void ApplyCallback()
-        {
-            try
-            {
+        private void ApplyCallback() {
+            try {
                 //Disable or enable Windows Firewall
                 int value = rdbFirewallOff.Checked ? 0 : 1;
                 Registry.SetValue(
@@ -164,16 +157,13 @@ namespace vApus.Util
                 //Restarting the process
                 StartProcess("NET", "STOP MpsSvc");
                 StartProcess("NET", "START MpsSvc");
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 LogWrapper.LogByLevel(
                     "[" + this + "] Failed enabling or disabling the firewall!\nCould not find a registry key.\n" + ex,
                     LogLevel.Error);
             }
 
-            try
-            {
+            try {
                 //Disabling Auto Update
                 int value = rdbUpdateOff.Checked ? 1 : 4;
                 Registry.SetValue(
@@ -183,53 +173,42 @@ namespace vApus.Util
                 //Restarting the process
                 StartProcess("NET", "STOP wuauserv");
                 StartProcess("NET", "START wuauserv");
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 LogWrapper.LogByLevel(
                     "[" + this + "] Failed enabling or disabling Windows auto update!\nCould not find a registry key.\n" +
                     ex, LogLevel.Error);
             }
+            _canCheckStatus = true;
         }
 
-        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
-        {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                {
-                    btnDisableAll.Text = "Disable All";
-                    groupBox.Enabled = true;
-                    CheckStatus();
-                }, null);
+        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                btnDisableAll.Text = "Disable All";
+                groupBox.Enabled = true;
+                CheckStatus();
+            }, null);
         }
 
-        private void StartProcess(string process, string arguments)
-        {
+        private void StartProcess(string process, string arguments) {
             Process p = null;
-            try
-            {
+            try {
                 var startInfo = new ProcessStartInfo(process, arguments);
                 startInfo.CreateNoWindow = true;
                 startInfo.UseShellExecute = false;
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 p = Process.Start(startInfo);
                 p.WaitForExit();
-            }
-            catch
-            {
+            } catch {
             }
             if (p != null)
-                try
-                {
+                try {
                     p.Dispose();
-                }
-                catch
-                {
+                } catch {
                 }
             p = null;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return "Windows Firewall / Auto Update";
         }
 
