@@ -72,6 +72,7 @@ namespace vApus.Stresstest {
                         sb.AppendLine(sr.ReadToEnd());
 
                 fctxtxImport.Text = sb.ToString().Trim();
+                SetCodeStyle();
             }
         }
 
