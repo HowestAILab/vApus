@@ -372,8 +372,7 @@ namespace vApus.Stresstest {
                             linkCloned.Add(action, actionClone);
                         } else {
                             UserAction linkUserAction;
-                            action.IsLinked(out linkUserAction);
-                            if (linkCloned.ContainsKey(linkUserAction))
+                            if (action.IsLinked(out linkUserAction) && linkCloned.ContainsKey(linkUserAction))
                                 linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newLog.IndexOf(actionClone) + 1);
                         }
                     }
