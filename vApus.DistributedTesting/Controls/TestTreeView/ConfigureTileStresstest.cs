@@ -166,29 +166,26 @@ namespace vApus.DistributedTesting {
 
         private void _selectNextAvailableSlave_Click(object sender, EventArgs e) {
             try {
-                var slaveIndices = TileStresstest.BasicTileStresstest.SlaveIndices;
-                if (slaveIndices.Length != 0) {
-                    //Get the ones that are available
-                    var availableSlaves = new List<Slave>();
+                //Get the ones that are available
+                var availableSlaves = new List<Slave>();
 
-                    var distributedTest = _tileStresstest.Parent.GetParent().GetParent() as DistributedTest;
-                    if (distributedTest != null) {
-                        foreach (Client client in distributedTest.Clients)
-                            foreach (Slave slave in client)
-                                availableSlaves.Add(slave);
+                var distributedTest = _tileStresstest.Parent.GetParent().GetParent() as DistributedTest;
+                if (distributedTest != null) {
+                    foreach (Client client in distributedTest.Clients)
+                        foreach (Slave slave in client)
+                            availableSlaves.Add(slave);
 
-                        foreach (Tile tile in distributedTest.Tiles)
-                            if (tile.Use)
-                                foreach (TileStresstest tileStresstest in tile)
-                                    if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
-                                        availableSlaves.Remove(tileStresstest.BasicTileStresstest.Slaves[0]);
+                    foreach (Tile tile in distributedTest.Tiles)
+                        if (tile.Use)
+                            foreach (TileStresstest tileStresstest in tile)
+                                if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
+                                    availableSlaves.Remove(tileStresstest.BasicTileStresstest.Slaves[0]);
 
-                        if (availableSlaves.Count != 0) {
-                            if (++_currentSlaveIndex >= availableSlaves.Count) _currentSlaveIndex = 0;
-                            _tileStresstest.BasicTileStresstest.Slaves = new Slave[] { availableSlaves[_currentSlaveIndex] };
-                            _tileStresstest.Use = true;
-                            _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                        }
+                    if (availableSlaves.Count != 0) {
+                        if (++_currentSlaveIndex >= availableSlaves.Count) _currentSlaveIndex = 0;
+                        _tileStresstest.BasicTileStresstest.Slaves = new Slave[] { availableSlaves[_currentSlaveIndex] };
+                        _tileStresstest.Use = true;
+                        _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                     }
                 }
             } catch {

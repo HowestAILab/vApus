@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -49,6 +50,7 @@ namespace vApus.DistributedTesting {
         private DistributedTestMode _distributedTestMode;
         private bool _exclamation;
         private StresstestStatus _stresstestStatus;
+        private Stopwatch _timeSinceStartRun = new Stopwatch(); //Decreases the 'jumpyness' of the progresscharts.
 
         #endregion
 
@@ -110,9 +112,7 @@ namespace vApus.DistributedTesting {
         public void RefreshGui() {
             string label = _tileStresstest.Index + ") " +
                            ((_tileStresstest.BasicTileStresstest.Connection == null ||
-                             _tileStresstest.BasicTileStresstest.Connection.IsEmpty)
-                                ? string.Empty
-                                : _tileStresstest.BasicTileStresstest.Connection.ToString());
+                             _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ? string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString());
 
             if (_tileStresstest.Use != chk.Checked) {
                 chk.CheckedChanged -= chk_CheckedChanged;
@@ -215,12 +215,17 @@ namespace vApus.DistributedTesting {
             ClearEvents();
             foreach (EventPanelEvent epe in events)
                 eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
+
+            EventPanelEvent lastEpe = new EventPanelEvent();
+            lastEpe.Message = string.Empty;
+            if (events.Count != 0) lastEpe = events[events.Count - 1];
+            if (lastEpe.Message.Contains("|----> |Run") && !lastEpe.Message.Contains("Finished")) _timeSinceStartRun = Stopwatch.StartNew();
         }
 
         public void SetStresstestStarted(DateTime start) { eventProgressChart.BeginOfTimeFrame = start; }
 
         public void SetEstimatedRunTimeLeft(TimeSpan measuredRunTime, TimeSpan estimatedRuntimeLeft) {
-            if (estimatedRuntimeLeft.Ticks != 0)
+            if (_timeSinceStartRun.ElapsedMilliseconds >= 1000L)
                 eventProgressChart.SetEndOfTimeFrameTo(eventProgressChart.BeginOfTimeFrame + measuredRunTime + estimatedRuntimeLeft);
         }
 

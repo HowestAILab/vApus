@@ -1,7 +1,5 @@
-﻿namespace vApus.DistributedTesting
-{
-    partial class TileStresstestTreeViewItem
-    {
+﻿namespace vApus.DistributedTesting {
+    partial class TileStresstestTreeViewItem {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
@@ -11,11 +9,13 @@
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
+        protected override void Dispose(bool disposing) {
+            if (disposing && (components != null)) {
                 components.Dispose();
+                try {
+                    if (_timeSinceStartRun != null && _timeSinceStartRun.IsRunning)
+                        _timeSinceStartRun.Stop();
+                } catch { }
             }
             base.Dispose(disposing);
         }
@@ -26,8 +26,7 @@
         /// Required method for Designer support - do not modify 
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TileStresstestTreeViewItem));
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -98,7 +97,7 @@
             // 
             // lblTileStresstest
             // 
-            this.lblTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblTileStresstest.AutoEllipsis = true;
             this.lblTileStresstest.Location = new System.Drawing.Point(40, 6);
@@ -122,7 +121,7 @@
             // 
             // eventProgressChart
             // 
-            this.eventProgressChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.eventProgressChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.eventProgressChart.BeginOfTimeFrame = new System.DateTime(((long)(0)));
             this.eventProgressChart.BehaveAsBar = true;
