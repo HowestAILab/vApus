@@ -64,6 +64,7 @@ namespace vApus.Results {
                 lblDescription.Visible = false;
                 grp.Top = 13;
             }
+            grp.Enabled = true;
             grp.Height = btnTest.Top - grp.Top - 6;
 
             cboConnectionString.Items.Clear();
@@ -74,14 +75,14 @@ namespace vApus.Results {
             cboConnectionString.SelectedIndex = Settings.Default.ConnectionStringIndex;
             btnSave.Enabled = false;
 
+            txt_TextChanged(txtHost, null);
             if (SettingsManager.Enabled) {
                 btnEnableDisable.Text = "Disable";
-                grp.Enabled = true;
                 btnDelete.Enabled = cboConnectionString.Items.Count != 1 && cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1;
-                txt_TextChanged(txtHost, null);
             } else {
                 btnEnableDisable.Text = "Enable";
-                grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = false;
+
+                grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = btnSave.Enabled = false;
             }
         }
 
@@ -95,7 +96,7 @@ namespace vApus.Results {
             } else {
                 string user, host, password;
                 int port;
-                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
+                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password, true);
 
                 txtUser.Text = user;
                 txtHost.Text = host;
@@ -116,19 +117,14 @@ namespace vApus.Results {
             if (cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1) {
                 string user, password;
                 int port;
-                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port,
-                                               out password);
+                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
 
-                btnSave.Enabled = txtUser.Text != user ||
-                                  txtHost.Text != host ||
-                                  (int)nudPort.Value != port ||
-                                  txtPassword.Text != password;
+                btnSave.Enabled = txtUser.Text != user || txtHost.Text != host || (int)nudPort.Value != port || txtPassword.Text != password;
             }
 
             txtPassword.Enabled = txtUser.Text.Trim().Length != 0;
             if (!txtPassword.Enabled) txtPassword.Text = string.Empty;
-            btnTest.Enabled = txtUser.Text.Trim().Length != 0 && txtHost.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0;
-            if (btnSave.Enabled || cboConnectionString.Items.Count == 1) btnSave.Enabled = btnTest.Enabled;
+            btnSave.Enabled = btnTest.Enabled = txtUser.Text.Trim().Length != 0 && txtHost.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0;
         }
 
         private void btnTest_Click(object sender, EventArgs e) {

@@ -70,14 +70,14 @@ namespace vApus.Results {
             GetCredentials(Settings.Default.ConnectionStringIndex, out user, out host, out port, out password);
         }
 
-        public static void GetCredentials(int connectionStringIndex, out string user, out string host, out int port, out string password) {
+        public static void GetCredentials(int connectionStringIndex, out string user, out string host, out int port, out string password, bool ignoreDisabled = false) {
             lock (_lock) {
                 user = null;
                 host = null;
                 port = 0;
                 password = null;
 
-                if (!Enabled) return;
+                if (!Enabled && !ignoreDisabled) return;
 
                 var connectionStrings = GetConnectionStrings();
                 if (connectionStrings.Count != 0) {
