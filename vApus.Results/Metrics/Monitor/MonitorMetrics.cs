@@ -7,12 +7,9 @@
  */
 
 using System;
-using System.Collections.Generic;
 
-namespace vApus.Results
-{
-    public class MonitorMetrics
-    {
+namespace vApus.Results {
+    public class MonitorMetrics {
         /// <summary>
         /// The to string of the monitor as identifier.
         /// </summary>
@@ -30,8 +27,7 @@ namespace vApus.Results
         public string[] Headers { get; set; }
         public float[] AverageMonitorResults { get; set; }
 
-        public MonitorMetrics()
-        {
+        public MonitorMetrics() {
             Headers = new string[0];
             AverageMonitorResults = new float[0];
         }

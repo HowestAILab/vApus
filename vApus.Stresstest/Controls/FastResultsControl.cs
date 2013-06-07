@@ -111,9 +111,8 @@ namespace vApus.Stresstest {
             //Double buffer the datagridview.
             (dgvFastResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvFastResults, true);
 
-            btnCollapseExpand.PerformClick();
             cboDrillDown.SelectedIndex = 0;
-            epnlMessages.Collapsed = true;
+            ToggleCollapseEventPanel();
         }
 
         #endregion
@@ -408,6 +407,9 @@ namespace vApus.Stresstest {
                     if (monitorToString != null) {
                         var row = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString][e.RowIndex];
                         e.Value = (e.ColumnIndex < row.Length) ? row[e.ColumnIndex] : "--";
+
+                        string valueString = e.Value.ToString();
+                        if (valueString == "0" || valueString == "-1") e.Value = "--";
                     }
                 }
             } catch { }
@@ -729,6 +731,10 @@ namespace vApus.Stresstest {
                 splitTop.IsSplitterFixed = false;
                 splitTop.BackColor = SystemColors.Control;
             }
+        }
+        public void ToggleCollapseEventPanel() {
+            btnCollapseExpand.PerformClick();
+            epnlMessages.Collapsed = btnCollapseExpand.Text == "+";
         }
         #endregion
     }

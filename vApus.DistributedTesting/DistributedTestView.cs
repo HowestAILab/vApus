@@ -780,7 +780,7 @@ namespace vApus.DistributedTesting {
                     //Build and add fast results.
                     if (testProgressMessage.StresstestMetricsCache != null) {
                         tileStresstestTreeViewItem.SetStresstestStarted(testProgressMessage.StartedAt);
-                            tileStresstestTreeViewItem.SetEstimatedRunTimeLeft(testProgressMessage.MeasuredRuntime, testProgressMessage.EstimatedRuntimeLeft);
+                        tileStresstestTreeViewItem.SetEstimatedRunTimeLeft(testProgressMessage.MeasuredRuntime, testProgressMessage.EstimatedRuntimeLeft);
 
                         //Set the distributed test tree view item
                         distributedTestTreeViewItem.SetStresstestStarted();
@@ -863,7 +863,7 @@ namespace vApus.DistributedTesting {
                 tmrSchedule.Stop();
                 tmrRefreshGui.Stop();
 
-                StopMonitorsUpdateDetailedResultsAndSetMode();
+                StopMonitorsUpdateDetailedResultsAndSetMode(true);
 
                 if (_distributedTestCore != null)
                     try { _distributedTestCore.Stop(); } catch { }
@@ -917,7 +917,7 @@ namespace vApus.DistributedTesting {
                 monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
                 monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
                 monitorAfterCountdown.Start();
-            } else { StopMonitorsUpdateDetailedResultsAndSetMode(); }
+            } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
         }
         private void RefreshDetailedResults() {
             ulong[] stresstestIds = null;
@@ -1130,7 +1130,7 @@ namespace vApus.DistributedTesting {
             }, null);
         }
         private void monitorAfterCountdown_Stopped(object sender, EventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(); }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
 
             var monitorAfterCountdown = sender as Countdown;
             monitorAfterCountdown.Dispose();
@@ -1143,27 +1143,28 @@ namespace vApus.DistributedTesting {
         }
 
         /// <summary>
-        ///     Only used in stop
+        ///     Only used in stop; this also saves the monitor results if any
         /// </summary>
-        private void StopMonitorsUpdateDetailedResultsAndSetMode() {
+        private void StopMonitorsUpdateDetailedResultsAndSetMode(bool disposing) {
             //Same view for multiple tilestresstests.
-            var stoppedMonitorViews = new List<MonitorView>();
+            var validMonitorViews = new List<MonitorView>();
             if (_monitorViews != null)
                 foreach (TileStresstest ts in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[ts])
-                        if (view != null && !view.IsDisposed && !stoppedMonitorViews.Contains(view)) {
-                            stoppedMonitorViews.Add(view);
+                        if (view != null && !view.IsDisposed && !validMonitorViews.Contains(view)) {
+                            validMonitorViews.Add(view);
                             view.Stop();
                             distributedStresstestControl.AppendMessages(view.Text + " is stopped.");
-
-                            try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
-                                LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
-                            }
                         }
+            foreach (MonitorView view in validMonitorViews)
+                try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
+                    LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
+                }
 
-            stoppedMonitorViews = null;
+            validMonitorViews = null;
 
-            SetMode(DistributedTestMode.Edit, true);
+            if (!disposing)
+                SetMode(DistributedTestMode.Edit, true);
 
             //Update the detailed results in the gui if any.
             RefreshDetailedResults();

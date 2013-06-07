@@ -9,10 +9,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace vApus.Results
-{
-    public class ConcurrencyResult
-    {
+namespace vApus.Results {
+    public class ConcurrencyResult {
         public int Concurrency { get; private set; }
 
         /// <summary>
@@ -24,7 +22,7 @@ namespace vApus.Results
         /// <summary>
         /// Set to DateTime.MinValue in the constructor.
         /// </summary>
-        public DateTime StoppedAt { get; internal set; }
+        public DateTime StoppedAt { get; set; }
 
         public List<RunResult> RunResults { get; private set; }
 
@@ -32,8 +30,7 @@ namespace vApus.Results
         /// </summary>
         /// <param name="concurrentUsers"></param>
         /// <param name="runCount">Not in the database, only for the metrics helper.</param>
-        public ConcurrencyResult(int concurrentUsers, int runCount)
-        {
+        public ConcurrencyResult(int concurrentUsers, int runCount) {
             StartedAt = DateTime.Now;
             StoppedAt = DateTime.MinValue;
             Concurrency = concurrentUsers;

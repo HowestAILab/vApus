@@ -85,7 +85,7 @@ namespace vApus.SolutionTree {
         }
 
         /// <summary>
-        ///     Do not forget to set this to false when cancelling
+        ///     If this is false the mainform will also be closed, do not forget to set this to true if you cancel the form closing of a child form.
         /// </summary>
         public static bool ExplicitCancelFormClosing { get; set; }
 

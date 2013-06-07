@@ -11,13 +11,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace vApus.Results
-{
+namespace vApus.Results {
     /// <summary>
     ///     Should be kept where the results are visualized (rows in a datagridview) and used together with MonitorMetricsHelper.
     /// </summary>
-    public class MonitorMetricsCache
-    {
+    public class MonitorMetricsCache {
         #region Fields
         private readonly List<MetricsCacheObject> _cache = new List<MetricsCacheObject>();
         #endregion
@@ -33,8 +31,7 @@ namespace vApus.Results
         /// </summary>
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
-        public List<MonitorMetrics> AddOrUpdate(ConcurrencyResult result, MonitorResultCache monitorResultCache)
-        {
+        public List<MonitorMetrics> AddOrUpdate(ConcurrencyResult result, MonitorResultCache monitorResultCache) {
             __AddOrUpdate(MonitorMetricsHelper.GetMetrics(result, monitorResultCache), monitorResultCache, result);
             return GetConcurrencyMetrics(monitorResultCache.Monitor);
         }
@@ -43,21 +40,17 @@ namespace vApus.Results
         /// </summary>
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
-        public List<MonitorMetrics> AddOrUpdate(RunResult result, MonitorResultCache monitorResultCache)
-        {
+        public List<MonitorMetrics> AddOrUpdate(RunResult result, MonitorResultCache monitorResultCache) {
             __AddOrUpdate(MonitorMetricsHelper.GetMetrics(result, monitorResultCache), monitorResultCache, result);
             return GetRunMetrics(monitorResultCache.Monitor);
         }
-        private void __AddOrUpdate(MonitorMetrics metrics, MonitorResultCache monitorResultCache = null, object result = null)
-        {
+        private void __AddOrUpdate(MonitorMetrics metrics, MonitorResultCache monitorResultCache = null, object result = null) {
             bool add = true; //False for update
             var cacheObject = new MetricsCacheObject { Metrics = metrics, MonitorResultCache = monitorResultCache, Result = result };
             if (result != null)
-                for (int i = 0; i != _cache.Count; i++)
-                {
+                for (int i = 0; i != _cache.Count; i++) {
                     MetricsCacheObject o = _cache[i];
-                    if (o.Result == result && o.MonitorResultCache == monitorResultCache)
-                    {
+                    if (o.Result == result && o.MonitorResultCache == monitorResultCache) {
                         _cache[i] = cacheObject;
                         add = false;
                         break;
@@ -73,15 +66,12 @@ namespace vApus.Results
         /// </summary>
         /// <monitorToString>The identifier of the monitor.</monitorToString>
         /// <returns></returns>
-        public List<MonitorMetrics> GetConcurrencyMetrics(string monitorToString)
-        {
+        public List<MonitorMetrics> GetConcurrencyMetrics(string monitorToString) {
             var removeResults = new List<MetricsCacheObject>();
             var metrics = new List<MonitorMetrics>();
             foreach (MetricsCacheObject o in _cache)
-                if (o.Metrics.Monitor == monitorToString && o.Metrics.Run == 0)
-                {
-                    if (o.Result != null && o.MonitorResultCache != null)
-                    {
+                if (o.Metrics.Monitor == monitorToString && o.Metrics.Run == 0) {
+                    if (o.Result != null && o.MonitorResultCache != null) {
                         var cr = o.Result as ConcurrencyResult;
                         o.Metrics = MonitorMetricsHelper.GetMetrics(cr, o.MonitorResultCache);
                         if (cr.StoppedAt != DateTime.MinValue) removeResults.Add(o);
@@ -89,8 +79,7 @@ namespace vApus.Results
                     metrics.Add(o.Metrics);
                 }
 
-            foreach (MetricsCacheObject removeResult in removeResults)
-            {
+            foreach (MetricsCacheObject removeResult in removeResults) {
                 var cr = removeResult.Result as ConcurrencyResult;
                 removeResult.Result = null;
 
@@ -103,12 +92,10 @@ namespace vApus.Results
         /// </summary>
         /// <monitorToString>The identifier of the monitor.</monitorToString>
         /// <returns></returns>
-        public List<MonitorMetrics> GetRunMetrics(string monitorToString)
-        {
+        public List<MonitorMetrics> GetRunMetrics(string monitorToString) {
             var metrics = new List<MonitorMetrics>();
             foreach (MetricsCacheObject o in _cache)
-                if (o.Metrics.Monitor == monitorToString && o.Metrics.Run != 0)
-                {
+                if (o.Metrics.Monitor == monitorToString && o.Metrics.Run != 0) {
                     if (o.Result != null && o.MonitorResultCache != null) o.Metrics = MonitorMetricsHelper.GetMetrics(o.Result as RunResult, o.MonitorResultCache);
                     metrics.Add(o.Metrics);
                 }
@@ -116,8 +103,7 @@ namespace vApus.Results
         }
         #endregion
 
-        private class MetricsCacheObject
-        {
+        private class MetricsCacheObject {
             public MonitorMetrics Metrics { get; set; }
             public MonitorResultCache MonitorResultCache { get; set; }
             /// <summary>
