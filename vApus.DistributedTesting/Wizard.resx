@@ -159,21 +159,9 @@
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="llblResultPath.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7O
-        HOkAAAAEZ0FNQQAAsY8L/GEFAAAACXBIWXMAAA3QAAAN0AEQbD0HAAAAGXRFWHRTb2Z0d2FyZQB3d3cu
-        aW5rc2NhcGUub3Jnm+48GgAAAe9JREFUOE+lk11IFFEYhg+CsCAsCIYgeOt90l1EUFdhF3UTBWVZa5EU
-        SVH0A0Gkw+7O7lTkhT9RhJIYpFA3IRQEIbWROrX5V2KWfVs67TBznHPcJfzab8BpZvBCaeA5HN73fc7d
-        MET8L9YNN4N7pLTEk3iyXfpJphRLTcdVRVG2hCU/7pFU4zkhHFxZkR62bWEm86ag3UrnqA+TUJVu7wHt
-        tjoppcB83vCwLBMdhyPlYRxnGclxH5i7XAvTV+uK8231+LVt64aYb6/H6Wt1xbkrtcBmL9YAf9ZakC9v
-        oHyVQDlyB0WmB+VoH4rsEIpPT9HRH6N431vK76EY6UD5Oo328PXC7KUaYJ/PV4PZf1gsDzUjH/xH+PN3
-        tCXny4VqYDPnqsDsPeDYA0fRHmj0WC2KAP6OtuTMtFYBmzpTCfkH+7jZd6gUHvT4Y34P4O9oS87U2Upg
-        E6ejYHTv4cb9/WgN38TCt3dYXBhdF+poQ1tyJlqiwLInK2CxYxdf6mrAxc4G/P0ohkIfRDn5PABl1NHG
-        3Zac7KkKYB9ORCCnbec/7+7GNX517kXrRQr524cudKfMvyHnYywCTD9WDgvxbfxHegcG0HbiUn+LC93D
-        PTl6UzmwsSNlMN4UMfRYlG+Y5igfPx4xxhrLIPBjbB5kfwFNEvGPzTGitwAAAABJRU5ErkJggg==
-</value>
-  </data>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
   <data name="cboRunSync.ToolTip" xml:space="preserve">
     <value>Run Synchronization exists to keep all the tests equal in duration.
 That way the tested applications are never idle and results can be matched/compared.

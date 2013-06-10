@@ -30,11 +30,11 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Wizard));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
             this.pnl = new System.Windows.Forms.Panel();
             this.chkReview = new System.Windows.Forms.CheckBox();
             this.btnRefresh = new System.Windows.Forms.Button();
@@ -53,8 +53,6 @@
             this.nudTiles = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.lblResultPath = new System.Windows.Forms.Label();
-            this.llblResultPath = new System.Windows.Forms.LinkLabel();
             this.label6 = new System.Windows.Forms.Label();
             this.pnlRunSync = new System.Windows.Forms.Panel();
             this.cboRunSync = new System.Windows.Forms.ComboBox();
@@ -98,8 +96,6 @@
             this.pnl.Controls.Add(this.nudTiles);
             this.pnl.Controls.Add(this.label8);
             this.pnl.Controls.Add(this.label7);
-            this.pnl.Controls.Add(this.lblResultPath);
-            this.pnl.Controls.Add(this.llblResultPath);
             this.pnl.Controls.Add(this.label6);
             this.pnl.Controls.Add(this.pnlRunSync);
             this.pnl.Controls.Add(this.chkUseRDP);
@@ -122,7 +118,7 @@
             this.chkReview.Checked = true;
             this.chkReview.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkReview.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkReview.Location = new System.Drawing.Point(323, 531);
+            this.chkReview.Location = new System.Drawing.Point(323, 533);
             this.chkReview.Name = "chkReview";
             this.chkReview.Size = new System.Drawing.Size(261, 17);
             this.chkReview.TabIndex = 27;
@@ -147,8 +143,8 @@
             // 
             // dgvClients
             // 
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
-            this.dgvClients.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle6.BackColor = System.Drawing.Color.White;
+            this.dgvClients.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dgvClients.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvClients.BackgroundColor = System.Drawing.Color.White;
@@ -163,11 +159,11 @@
             this.clmTests,
             this.clmCpuCores});
             this.dgvClients.EnableHeadersVisualStyles = false;
-            this.dgvClients.Location = new System.Drawing.Point(20, 295);
+            this.dgvClients.Location = new System.Drawing.Point(20, 285);
             this.dgvClients.Name = "dgvClients";
             this.dgvClients.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvClients.RowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle10.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvClients.RowsDefaultCellStyle = dataGridViewCellStyle10;
             this.dgvClients.Size = new System.Drawing.Size(726, 150);
             this.dgvClients.TabIndex = 23;
             this.dgvClients.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvClients_CellFormatting);
@@ -199,8 +195,8 @@
             // 
             // clmSlaves
             // 
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle7.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmSlaves.DefaultCellStyle = dataGridViewCellStyle7;
             this.clmSlaves.HeaderText = "Number of Slaves (0)";
             this.clmSlaves.Name = "clmSlaves";
             this.clmSlaves.ReadOnly = true;
@@ -208,8 +204,8 @@
             // 
             // clmTests
             // 
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmTests.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle8.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmTests.DefaultCellStyle = dataGridViewCellStyle8;
             this.clmTests.HeaderText = "Number of Tests (0/?)";
             this.clmTests.Name = "clmTests";
             this.clmTests.ReadOnly = true;
@@ -217,8 +213,8 @@
             // 
             // clmCpuCores
             // 
-            dataGridViewCellStyle4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle9.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.clmCpuCores.DefaultCellStyle = dataGridViewCellStyle9;
             this.clmCpuCores.HeaderText = "Number of CPU Cores";
             this.clmCpuCores.Name = "clmCpuCores";
             this.clmCpuCores.ReadOnly = true;
@@ -230,7 +226,7 @@
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancel.Location = new System.Drawing.Point(671, 527);
+            this.btnCancel.Location = new System.Drawing.Point(671, 529);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 22;
@@ -242,7 +238,7 @@
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOK.Location = new System.Drawing.Point(590, 527);
+            this.btnOK.Location = new System.Drawing.Point(590, 529);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 21;
@@ -255,7 +251,7 @@
             // 
             this.lblNotAssignedTests.AutoSize = true;
             this.lblNotAssignedTests.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.lblNotAssignedTests.Location = new System.Drawing.Point(17, 479);
+            this.lblNotAssignedTests.Location = new System.Drawing.Point(17, 469);
             this.lblNotAssignedTests.Name = "lblNotAssignedTests";
             this.lblNotAssignedTests.Size = new System.Drawing.Size(178, 13);
             this.lblNotAssignedTests.TabIndex = 20;
@@ -263,7 +259,7 @@
             // 
             // nudTests
             // 
-            this.nudTests.Location = new System.Drawing.Point(149, 201);
+            this.nudTests.Location = new System.Drawing.Point(149, 173);
             this.nudTests.Minimum = new decimal(new int[] {
             1,
             0,
@@ -281,7 +277,7 @@
             // 
             // nudTiles
             // 
-            this.nudTiles.Location = new System.Drawing.Point(149, 171);
+            this.nudTiles.Location = new System.Drawing.Point(149, 143);
             this.nudTiles.Minimum = new decimal(new int[] {
             1,
             0,
@@ -299,7 +295,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(17, 203);
+            this.label8.Location = new System.Drawing.Point(17, 175);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(126, 13);
             this.label8.TabIndex = 12;
@@ -308,35 +304,11 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(17, 173);
+            this.label7.Location = new System.Drawing.Point(17, 145);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(84, 13);
             this.label7.TabIndex = 11;
             this.label7.Text = "Number of Tiles:";
-            // 
-            // lblResultPath
-            // 
-            this.lblResultPath.AutoSize = true;
-            this.lblResultPath.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.lblResultPath.Location = new System.Drawing.Point(17, 113);
-            this.lblResultPath.Name = "lblResultPath";
-            this.lblResultPath.Size = new System.Drawing.Size(62, 13);
-            this.lblResultPath.TabIndex = 9;
-            this.lblResultPath.Text = "Result Path";
-            // 
-            // llblResultPath
-            // 
-            this.llblResultPath.Image = ((System.Drawing.Image)(resources.GetObject("llblResultPath.Image")));
-            this.llblResultPath.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.llblResultPath.Location = new System.Drawing.Point(17, 92);
-            this.llblResultPath.Name = "llblResultPath";
-            this.llblResultPath.Size = new System.Drawing.Size(90, 15);
-            this.llblResultPath.TabIndex = 8;
-            this.llblResultPath.TabStop = true;
-            this.llblResultPath.Text = "Result Path...";
-            this.llblResultPath.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.toolTip.SetToolTip(this.llblResultPath, "The stresstesting results will be saved to the chosen path.");
-            this.llblResultPath.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblResultPath_LinkClicked);
             // 
             // label6
             // 
@@ -394,7 +366,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(12, 273);
+            this.label3.Location = new System.Drawing.Point(12, 263);
             this.label3.Margin = new System.Windows.Forms.Padding(3, 12, 3, 6);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(138, 13);
@@ -405,7 +377,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(12, 151);
+            this.label2.Location = new System.Drawing.Point(12, 123);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 12, 3, 6);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(141, 13);
@@ -429,7 +401,7 @@
             this.pnlAddClientAndSlaves.Controls.Add(this.rdbSlavesPerCores);
             this.pnlAddClientAndSlaves.Controls.Add(this.nudSlavesPerClient);
             this.pnlAddClientAndSlaves.Controls.Add(this.rdbSlavesPerClient);
-            this.pnlAddClientAndSlaves.Location = new System.Drawing.Point(12, 448);
+            this.pnlAddClientAndSlaves.Location = new System.Drawing.Point(12, 438);
             this.pnlAddClientAndSlaves.Name = "pnlAddClientAndSlaves";
             this.pnlAddClientAndSlaves.Size = new System.Drawing.Size(451, 28);
             this.pnlAddClientAndSlaves.TabIndex = 25;
@@ -504,7 +476,7 @@
             this.pnlGenerateAndAddTiles.Controls.Add(this.rdbDoNotAddTiles);
             this.pnlGenerateAndAddTiles.Controls.Add(this.rdbStartFromScratch);
             this.pnlGenerateAndAddTiles.Controls.Add(this.rdbAppendTiles);
-            this.pnlGenerateAndAddTiles.Location = new System.Drawing.Point(12, 226);
+            this.pnlGenerateAndAddTiles.Location = new System.Drawing.Point(12, 198);
             this.pnlGenerateAndAddTiles.Name = "pnlGenerateAndAddTiles";
             this.pnlGenerateAndAddTiles.Size = new System.Drawing.Size(451, 27);
             this.pnlGenerateAndAddTiles.TabIndex = 26;
@@ -598,8 +570,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Panel pnlRunSync;
         private System.Windows.Forms.ComboBox cboRunSync;
-        private System.Windows.Forms.LinkLabel llblResultPath;
-        private System.Windows.Forms.Label lblResultPath;
         private System.Windows.Forms.NumericUpDown nudTests;
         private System.Windows.Forms.NumericUpDown nudTiles;
         private System.Windows.Forms.Label label8;

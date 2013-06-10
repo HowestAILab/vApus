@@ -67,7 +67,6 @@ namespace vApus.DistributedTesting {
 
             cboRunSync.SelectedIndex = (int)distributedTest.RunSynchronization;
             cboRunSync.SelectedIndexChanged += cboRunSync_SelectedIndexChanged;
-            toolTip.SetToolTip(picResultPath, "Result Path: " + _distributedTest.ResultPath);
         }
 
         #endregion
@@ -139,25 +138,6 @@ namespace vApus.DistributedTesting {
         private void _KeyUp(object sender, KeyEventArgs e) {
             if (_ctrl && e.KeyCode == Keys.I && AddTileClicked != null)
                 AddTileClicked(this, null);
-        }
-
-        private void picResultPath_Click(object sender, EventArgs e) {
-            if (_distributedTestMode == DistributedTestMode.Test)
-                return;
-
-            if (Directory.Exists(_distributedTest.ResultPath))
-                folderBrowserDialog.SelectedPath = _distributedTest.ResultPath;
-            else
-                folderBrowserDialog.SelectedPath = Application.StartupPath;
-
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK &&
-                _distributedTest.ResultPath != folderBrowserDialog.SelectedPath) {
-                _distributedTest.ResultPath = folderBrowserDialog.SelectedPath;
-                toolTip.SetToolTip(picResultPath, "Result Path: " + _distributedTest.ResultPath);
-
-
-                _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
         }
 
         public void SetStresstestStarted() {
