@@ -443,6 +443,9 @@ namespace vApus.Stresstest {
                     _monitorBeforeBogusRunResult = new RunResult(-1, 0);
                     _monitorBeforeBogusConcurrencyResult.RunResults.Add(_monitorBeforeBogusRunResult);
 
+                    _monitorAfterBogusConcurrencyResult = null;
+                    _monitorAfterBogusRunResult = null;
+
                     try {
                         foreach (var monitorResultCache in GetMonitorResultCaches()) {
                             fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache));
@@ -487,6 +490,10 @@ namespace vApus.Stresstest {
         }
 
         private void monitorBeforeCountDown_Stopped(object sender, EventArgs e) {
+            if (_monitorBeforeCountDown != null) {
+                _monitorBeforeCountDown.Dispose();
+                _monitorBeforeCountDown = null;
+            }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (_monitorBeforeBogusConcurrencyResult != null) {
                     _monitorBeforeBogusConcurrencyResult.StoppedAt = _monitorBeforeBogusRunResult.StoppedAt = DateTime.Now;
@@ -497,10 +504,7 @@ namespace vApus.Stresstest {
                     }
                 }
             }, null);
-            if (_monitorBeforeCountDown != null) {
-                _monitorBeforeCountDown.Dispose();
-                _monitorBeforeCountDown = null;
-            }
+
             MonitorBeforeDone();
         }
 

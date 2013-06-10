@@ -58,9 +58,12 @@ namespace vApus.DistributedTesting {
         ///     The monitors for the tests if any.
         /// </summary>
         private readonly Dictionary<TileStresstest, List<MonitorView>> _monitorViews = new Dictionary<TileStresstest, List<MonitorView>>();
-        private readonly Dictionary<TileStresstest, MonitorMetricsCache> _monitorMetricsCaches = new Dictionary<TileStresstest, MonitorMetricsCache>();
+        private Dictionary<TileStresstest, MonitorMetricsCache> _monitorMetricsCaches = new Dictionary<TileStresstest, MonitorMetricsCache>();
 
         private readonly AutoResetEvent _monitorViewsInitializedWaitHandle = new AutoResetEvent(false);
+
+        private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
+        private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
         #endregion
 
         #region Properties
@@ -682,14 +685,20 @@ namespace vApus.DistributedTesting {
                 var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
 
                 foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
-                    foreach (var concurrencyMetrics in testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics()) {
-                        var monitorMetrics = MonitorMetricsHelper.GetConcurrencyMetrics(monitorResultCache.Monitor, concurrencyMetrics, monitorResultCache);
-                        monitorMetricsCache.Add(monitorMetrics);
-                    }
-                    foreach (var runMetrics in testProgressMessage.StresstestMetricsCache.GetRunMetrics()) {
-                        var monitorMetrics = MonitorMetricsHelper.GetRunMetrics(monitorResultCache.Monitor, runMetrics, monitorResultCache);
-                        monitorMetricsCache.Add(monitorMetrics);
-                    }
+                    if (_monitorBeforeBogusConcurrencyResult != null)
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorBeforeBogusConcurrencyResult, monitorResultCache));
+                    foreach (var concurrencyMetrics in testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics())
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetConcurrencyMetrics(monitorResultCache.Monitor, concurrencyMetrics, monitorResultCache));
+                    if (_monitorAfterBogusConcurrencyResult != null)
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorAfterBogusConcurrencyResult, monitorResultCache));
+
+
+                    if (_monitorBeforeBogusRunResult != null)
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorBeforeBogusRunResult, monitorResultCache));
+                    foreach (var runMetrics in testProgressMessage.StresstestMetricsCache.GetRunMetrics())
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetRunMetrics(monitorResultCache.Monitor, runMetrics, monitorResultCache));
+                    if (_monitorAfterBogusRunResult != null)
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorAfterBogusRunResult, monitorResultCache));
                 }
             }
         }
@@ -747,11 +756,13 @@ namespace vApus.DistributedTesting {
                 if (testProgressMessage.Events == null) fastResultsControl.ClearEvents();
                 else fastResultsControl.SetEvents(testProgressMessage.Events);
 
-                fastResultsControl.SetStresstestStarted(testProgressMessage.StartedAt);
-                if (testProgressMessage.StresstestStatus == StresstestStatus.Busy)
-                    fastResultsControl.SetMeasuredRuntime(testProgressMessage.MeasuredRuntime);
-                else {
-                    fastResultsControl.SetStresstestStopped(testProgressMessage.StresstestStatus, testProgressMessage.MeasuredRuntime);
+                if (testProgressMessage.StartedAt != DateTime.MinValue) {
+                    fastResultsControl.SetStresstestStarted(testProgressMessage.StartedAt);
+                    if (testProgressMessage.StresstestStatus == StresstestStatus.Busy)
+                        fastResultsControl.SetMeasuredRuntime(testProgressMessage.MeasuredRuntime);
+                    else {
+                        fastResultsControl.SetStresstestStopped(testProgressMessage.StresstestStatus, testProgressMessage.MeasuredRuntime);
+                    }
                 }
 
                 fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage, testProgressMessage.ContextSwitchesPerSecond,
@@ -881,8 +892,6 @@ namespace vApus.DistributedTesting {
         private void Stop(bool monitorAfter = false) {
             Cursor = Cursors.WaitCursor;
 
-            SetMode(DistributedTestMode.Edit);
-
             if (_distributedTestCore != null)
                 try {
                     _distributedTestCore.Stop();
@@ -916,6 +925,26 @@ namespace vApus.DistributedTesting {
                 var monitorAfterCountdown = new Countdown(countdownTime, 5000);
                 monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
                 monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
+
+                _monitorAfterBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
+                _monitorAfterBogusRunResult = new RunResult(-1, 0);
+                _monitorAfterBogusConcurrencyResult.RunResults.Add(_monitorAfterBogusRunResult);
+
+                try {
+                    foreach (var tileStresstest in _monitorMetricsCaches.Keys)
+                        foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
+                            var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
+                            monitorMetricsCache.AddOrUpdate(_monitorAfterBogusConcurrencyResult, monitorResultCache);
+                            monitorMetricsCache.AddOrUpdate(_monitorAfterBogusRunResult, monitorResultCache);
+
+                            if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem && (_selectedTestTreeViewItem as TileStresstestTreeViewItem).TileStresstest == tileStresstest) {
+                                fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                            }
+                        }
+                } catch {
+                }
+
                 monitorAfterCountdown.Start();
             } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
         }
@@ -1058,13 +1087,56 @@ namespace vApus.DistributedTesting {
                     _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
                     _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                     _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
+
+                    _monitorBeforeBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
+                    _monitorBeforeBogusRunResult = new RunResult(-1, 0);
+                    _monitorBeforeBogusConcurrencyResult.RunResults.Add(_monitorBeforeBogusRunResult);
+
+                    _monitorAfterBogusConcurrencyResult = null;
+                    _monitorAfterBogusRunResult = null;
+
+                    try {
+                        foreach (var tileStresstest in _monitorMetricsCaches.Keys)
+                            foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
+                                var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
+                                monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache);
+                                monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusRunResult, monitorResultCache);
+
+                                if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem && (_selectedTestTreeViewItem as TileStresstestTreeViewItem).TileStresstest == tileStresstest) {
+                                    fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                    fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                                }
+                            }
+                    } catch {
+                    }
+
                     _monitorBeforeCountDown.Start();
-                } else MonitorBeforeDone();
-            } else MonitorBeforeDone();
+                } else {
+                    MonitorBeforeDone();
+                }
+            } else {
+                MonitorBeforeDone();
+            }
         }
 
         private void monitorBeforeCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                try {
+                    if (_monitorBeforeBogusConcurrencyResult != null)
+                        foreach (var tileStresstest in _monitorMetricsCaches.Keys)
+                            foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
+                                var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
+                                monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache);
+                                monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusRunResult, monitorResultCache);
+
+                                if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem && (_selectedTestTreeViewItem as TileStresstestTreeViewItem).TileStresstest == tileStresstest) {
+                                    fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                    fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                                }
+                            }
+                } catch {
+                }
+
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
                 distributedStresstestControl.AppendMessages("The test will start in " + ts.ToShortFormattedString() +
@@ -1094,6 +1166,9 @@ namespace vApus.DistributedTesting {
                 _monitorBeforeCountDown = null;
             }
 
+            if (_monitorBeforeBogusConcurrencyResult != null)
+                _monitorBeforeBogusConcurrencyResult.StoppedAt = _monitorBeforeBogusRunResult.StoppedAt = DateTime.Now;
+
 #if EnableBetaFeature
             WriteMonitorRestConfig();
             WriteMonitorRestProgress();
@@ -1107,10 +1182,25 @@ namespace vApus.DistributedTesting {
 
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                try {
+                    if (_monitorAfterBogusConcurrencyResult != null)
+                        foreach (var tileStresstest in _monitorMetricsCaches.Keys)
+                            foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
+                                var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
+                                monitorMetricsCache.AddOrUpdate(_monitorAfterBogusConcurrencyResult, monitorResultCache);
+                                monitorMetricsCache.AddOrUpdate(_monitorAfterBogusRunResult, monitorResultCache);
+
+                                if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem && (_selectedTestTreeViewItem as TileStresstestTreeViewItem).TileStresstest == tileStresstest) {
+                                    fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                    fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                                }
+                            }
+                } catch {
+                }
+
                 var monitorAfterCountDown = sender as Countdown;
                 var ts = new TimeSpan(monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
-                distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " +
-                                                            ts.ToShortFormattedString() + ".");
+                distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
                 foreach (TileStresstest tileStresstest in _monitorViews.Keys)
@@ -1130,11 +1220,14 @@ namespace vApus.DistributedTesting {
             }, null);
         }
         private void monitorAfterCountdown_Stopped(object sender, EventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
-
             var monitorAfterCountdown = sender as Countdown;
             monitorAfterCountdown.Dispose();
             monitorAfterCountdown = null;
+
+            if (_monitorAfterBogusConcurrencyResult != null)
+                _monitorAfterBogusConcurrencyResult.StoppedAt = _monitorAfterBogusRunResult.StoppedAt = DateTime.Now;
+
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
 
 #if EnableBetaFeature
             WriteMonitorRestConfig();

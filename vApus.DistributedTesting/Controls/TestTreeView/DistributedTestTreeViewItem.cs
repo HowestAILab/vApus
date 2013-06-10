@@ -166,7 +166,7 @@ namespace vApus.DistributedTesting {
                 _testStarted = true;
 
                 picStresstestStatus.Image = Resources.Busy;
-                toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting");
+                toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting or Monitoring");
             }
         }
 

@@ -22,7 +22,8 @@ namespace vApus.Results {
 
         #region Functions
         /// <summary>
-        ///     Caching metrics for results that are not known (master-slave vApus setup).
+        ///     Caching metrics for results that are not known (master-slave vApus setup). Use AddOrUpdate if you do not need this.
+        ///     Note: Before calling this fx you must clear the metrics. If you are unable to do that, use AddOrUpdate.
         /// </summary>
         /// <param name="metrics"></param>
         public void Add(MonitorMetrics metrics) { __AddOrUpdate(metrics); }
