@@ -264,7 +264,7 @@ namespace vApus.Stresstest {
                 kvmNicsSent.Value = Math.Round(nicsSent, 2).ToString() + " %";
                 if (nicsSent < 90) {
                     kvmNicsSent.BackColor = Color.GhostWhite;
-                } else {
+                } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmNicsSent.BackColor = Color.Orange;
                     AppendMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
                 }
@@ -275,7 +275,7 @@ namespace vApus.Stresstest {
                 kvmNicsReceived.Value = Math.Round(nicsReceived, 2).ToString() + " %";
                 if (nicsReceived < 90) {
                     kvmNicsReceived.BackColor = Color.GhostWhite;
-                } else {
+                } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmNicsReceived.BackColor = Color.Orange;
                     AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
                 }

@@ -98,14 +98,12 @@ namespace vApus.DistributedTesting {
 
             if (cpuUsage == -1) {
                 kvmMasterCPUUsage.Value = "N/A";
-            }
-            else {
+            } else {
                 kvmMasterCPUUsage.Value = Math.Round(cpuUsage, 2).ToString() + " %";
 
                 if (cpuUsage < 60) {
                     kvmMasterCPUUsage.BackColor = Color.GhostWhite;
-                }
-                else {
+                } else {
                     kvmMasterCPUUsage.BackColor = Color.Orange;
                     AppendMessages(cpuUsage + " % CPU Usage", LogLevel.Warning);
                 }
@@ -114,39 +112,33 @@ namespace vApus.DistributedTesting {
 
             if (memoryUsage == -1 || totalVisibleMemory == -1) {
                 kvmMasterMemoryUsage.Value = "N/A";
-            }
-            else {
+            } else {
                 kvmMasterMemoryUsage.Value = memoryUsage.ToString() + " / " + totalVisibleMemory + " MB";
                 if (memoryUsage < 0.9 * totalVisibleMemory) {
                     kvmMasterMemoryUsage.BackColor = Color.GhostWhite;
-                }
-                else if (memoryUsage != 0) {
+                } else if (memoryUsage != 0) {
                     kvmMasterMemoryUsage.BackColor = Color.Orange;
                     AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
                 }
             }
             if (nicsSent == -1) {
                 kvmMasterNicsSent.Value = "N/A";
-            }
-            else {
+            } else {
                 kvmMasterNicsSent.Value = Math.Round(nicsSent, 2).ToString() + " %";
                 if (nicsSent < 90) {
                     kvmMasterNicsSent.BackColor = Color.GhostWhite;
-                }
-                else {
+                } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmMasterNicsSent.BackColor = Color.Orange;
                     AppendMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
                 }
             }
             if (nicsReceived == -1) {
                 kvmMasterNicsReceived.Value = "N/A";
-            }
-            else {
+            } else {
                 kvmMasterNicsReceived.Value = Math.Round(nicsReceived, 2).ToString() + " %";
                 if (nicsSent < 90) {
                     kvmMasterNicsReceived.BackColor = Color.GhostWhite;
-                }
-                else {
+                } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmMasterNicsReceived.BackColor = Color.Orange;
                     AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
                 }
@@ -211,8 +203,7 @@ namespace vApus.DistributedTesting {
                     else dgvFastResults.RowCount = count;
                     dgvFastResults.AutoResizeColumns();
                 }
-            }
-            catch { }
+            } catch { }
         }
         private void SetOverallFastRunResults() {
             try {
@@ -224,8 +215,7 @@ namespace vApus.DistributedTesting {
                     else dgvFastResults.RowCount = count;
                     dgvFastResults.AutoResizeColumns();
                 }
-            }
-            catch { }
+            } catch { }
         }
 
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e) {
@@ -272,11 +262,10 @@ namespace vApus.DistributedTesting {
                 var metrics = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows;
                 if (e.RowIndex < metrics.Count) {
                     var row = metrics[e.RowIndex];
-                    if (e.ColumnIndex < row.Length) 
+                    if (e.ColumnIndex < row.Length)
                         e.Value = row[e.ColumnIndex];
                 }
-            }
-            catch { }
+            } catch { }
         }
 
         private void dgvFastResults_Scroll(object sender, ScrollEventArgs e) {
@@ -307,8 +296,7 @@ namespace vApus.DistributedTesting {
                         sw.Write(GetDisplayedResults());
                         sw.Flush();
                     }
-                }
-                catch {
+                } catch {
                     MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
         }
@@ -346,8 +334,7 @@ namespace vApus.DistributedTesting {
         }
 
         public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
-            try { eventView.AddEvent((EventViewEventType)logLevel, message); }
-            catch { }
+            try { eventView.AddEvent((EventViewEventType)logLevel, message); } catch { }
         }
 
         private void btnExport_Click(object sender, EventArgs e) { eventView.Export(); }

@@ -90,6 +90,8 @@ namespace vApus.DistributedTesting {
                     item.SetDistributedTestMode(_distributedTestMode);
                 LockWindowUpdate(0);
 
+                largeList.RefreshControls();
+
                 //Otherwise the gui freezes, stupid winforms.
                 System.Timers.Timer tmr = new System.Timers.Timer(500);
                 tmr.Elapsed += tmr_Elapsed;
@@ -101,10 +103,8 @@ namespace vApus.DistributedTesting {
             try {
                 (sender as System.Timers.Timer).Stop();
                 SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    if (_distributedTestMode == DistributedTestMode.Test) {
-                        largeList.RefreshControls();
+                    if (_distributedTestMode == DistributedTestMode.Test) 
                         largeList[0][0].Focus();
-                    }
                 }, null);
             } catch { }
         }
