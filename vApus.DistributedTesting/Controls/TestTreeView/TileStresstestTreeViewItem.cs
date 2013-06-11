@@ -110,18 +110,21 @@ namespace vApus.DistributedTesting {
         }
 
         public void RefreshGui() {
-            string label = _tileStresstest.Index + ") " +
-                           ((_tileStresstest.BasicTileStresstest.Connection == null ||
-                             _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ? string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString());
+            try {
+                string label = _tileStresstest.Index + ") " +
+                               ((_tileStresstest.BasicTileStresstest.Connection == null ||
+                                 _tileStresstest.BasicTileStresstest.Connection.IsEmpty) ? string.Empty : _tileStresstest.BasicTileStresstest.Connection.ToString());
 
-            if (_tileStresstest.Use != chk.Checked) {
-                chk.CheckedChanged -= chk_CheckedChanged;
-                chk.Checked = _tileStresstest.Use;
-                chk.CheckedChanged += chk_CheckedChanged;
+                if (_tileStresstest.Use != chk.Checked) {
+                    chk.CheckedChanged -= chk_CheckedChanged;
+                    chk.Checked = _tileStresstest.Use;
+                    chk.CheckedChanged += chk_CheckedChanged;
+                }
+
+                if (lblTileStresstest.Text != label)
+                    lblTileStresstest.Text = label;
+            } catch { 
             }
-
-            if (lblTileStresstest.Text != label)
-                lblTileStresstest.Text = label;
         }
 
         public void SetDistributedTestMode(DistributedTestMode distributedTestMode) {

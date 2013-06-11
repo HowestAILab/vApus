@@ -6,9 +6,11 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -22,10 +24,12 @@ namespace vApus.DistributedTesting {
         private int[] _monitorIndices = { };
         private Monitor.Monitor[] _monitors = { };
 
-        private List<Slave> _slavesParent = new List<Slave>();
         private int[] _slaveIndices = { };
         private Slave[] _slaves = { };
         private int[] _WorkDistribution = { };
+
+        //This is only set when this is null or a solutioncomponent changed event is invoked.
+        private List<Slave> _cachedSlavesParent = new List<Slave>();
 
         #endregion
 
@@ -118,21 +122,20 @@ namespace vApus.DistributedTesting {
         [Description("Currently limited to one (only the first one counts). More than one slave will be handy in the future for many-to-one testing.")]
         public Slave[] Slaves {
             get {
-
-                var slavesParent = SlavesParent;
-                if (slavesParent == null) return new Slave[0];
+                if (_cachedSlavesParent.Count == 0) FillAndGetSlavesParent();
+                if (_cachedSlavesParent.Count == 0) return new Slave[0];
                 if (_slaves.Length != _slaveIndices.Length) {
                     var l = new List<Slave>(_slaveIndices.Length);
                     foreach (int index in _slaveIndices)
-                        if (index < slavesParent.Count) {
-                            var slave = slavesParent[index] as Slave;
+                        if (index < _cachedSlavesParent.Count) {
+                            var slave = _cachedSlavesParent[index] as Slave;
                             if (!l.Contains(slave)) l.Add(slave);
                         }
 
                     Slaves = l.ToArray();
                 }
                 var currentParent = _slaves.GetParent();
-                if (currentParent == null || !currentParent.Equals(slavesParent)) _slaves.SetParent(slavesParent);
+                if (currentParent == null || !currentParent.Equals(_cachedSlavesParent)) _slaves.SetParent(_cachedSlavesParent);
                 return _slaves;
             }
             set {
@@ -140,37 +143,38 @@ namespace vApus.DistributedTesting {
 
                 _slaves = value;
 
-                var slavesParent = SlavesParent;
-                if (slavesParent != null) {
-                    _slaves.SetParent(slavesParent);
+                if (_cachedSlavesParent.Count == 0) FillAndGetSlavesParent();
+                if (_cachedSlavesParent.Count != 0) {
+                    _slaves.SetParent(_cachedSlavesParent);
 
                     var l = new List<int>(_slaves.Length);
-                    for (int index = 0; index != slavesParent.Count; index++)
-                        if (_slaves.Contains(slavesParent[index]) && !l.Contains(index))
+                    for (int index = 0; index != _cachedSlavesParent.Count; index++)
+                        if (_slaves.Contains(_cachedSlavesParent[index]) && !l.Contains(index))
                             l.Add(index);
 
                     _slaveIndices = l.ToArray();
                 }
             }
         }
-        internal List<Slave> SlavesParent {
-            get {
-                try {
-                    if (this.Parent != null &&
-                        this.Parent.GetParent() != null &&
-                        this.Parent.GetParent().GetParent() != null &&
-                        this.Parent.GetParent().GetParent().GetParent() != null) {
-                        _slavesParent.Clear();
-                        Clients clientsAndSlaves = (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).Clients;
+        internal List<Slave> FillAndGetSlavesParent() {
+            try {
+                if (this.Parent != null &&
+                    this.Parent.GetParent() != null &&
+                    this.Parent.GetParent().GetParent() != null &&
+                    this.Parent.GetParent().GetParent().GetParent() != null) {
+                    _cachedSlavesParent.Clear();
+                    Clients clientsAndSlaves = (this.Parent.GetParent().GetParent().GetParent() as DistributedTest).Clients;
 
-                        foreach (Client client in clientsAndSlaves)
-                            foreach (Slave slave in client) _slavesParent.Add(slave);
+                    foreach (Client client in clientsAndSlaves)
+                        foreach (Slave slave in client)
+                            _cachedSlavesParent.Add(slave);
 
-                        return _slavesParent;
-                    }
-                } catch { }
-                return null;
+
+                    return _cachedSlavesParent;
+                }
+            } catch {
             }
+            return null;
         }
         [SavableCloneable]
         public int[] WorkDistribution {
@@ -216,13 +220,13 @@ namespace vApus.DistributedTesting {
                         l.Add(monitor);
 
                 Monitors = l.ToArray();
-            } else //Cleanup slaves
+            } else if (sender is Clients || sender is Client || sender is Slave || sender is BasicTileStresstest || sender is Tile || sender is DistributedTest) //Cleanup slaves
             {
-                var slavesParent = SlavesParent;
-                if (slavesParent != null && (sender == slavesParent || sender is Client || sender is Slave)) {
-                    List<Slave> l = new List<Slave>(slavesParent.Count);
+                FillAndGetSlavesParent();
+                if (_cachedSlavesParent.Count != 0 && (sender == _cachedSlavesParent || sender is Client || sender is Slave)) {
+                    List<Slave> l = new List<Slave>(_cachedSlavesParent.Count);
                     foreach (Slave slave in _slaves)
-                        if (!l.Contains(slave) && slavesParent.Contains(slave))
+                        if (!l.Contains(slave) && _cachedSlavesParent.Contains(slave))
                             l.Add(slave);
 
                     Slaves = l.ToArray();
