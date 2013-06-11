@@ -496,7 +496,12 @@ namespace vApus.Stresstest {
             }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (_monitorBeforeBogusConcurrencyResult != null) {
-                    _monitorBeforeBogusConcurrencyResult.StoppedAt = _monitorBeforeBogusRunResult.StoppedAt = DateTime.Now;
+                    var stoppedAt = DateTime.Now;
+                    TimeSpan difference = stoppedAt - _monitorBeforeBogusConcurrencyResult.StartedAt;
+                    _monitorBeforeBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+
+                    difference = stoppedAt - _monitorBeforeBogusRunResult.StartedAt;
+                    _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
 
                     foreach (var monitorResultCache in GetMonitorResultCaches()) {
                         fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
@@ -726,7 +731,12 @@ namespace vApus.Stresstest {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 StopMonitorsAndUnlockGui(null, false);
                 if (_monitorAfterBogusConcurrencyResult != null) {
-                    _monitorAfterBogusConcurrencyResult.StoppedAt = _monitorAfterBogusRunResult.StoppedAt = DateTime.Now;
+                    var stoppedAt = DateTime.Now;
+                    var difference = stoppedAt - _monitorAfterBogusConcurrencyResult.StartedAt;
+                    _monitorAfterBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
+
+                    difference = stoppedAt - _monitorAfterBogusRunResult.StartedAt;
+                    _monitorAfterBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
 
                     foreach (var monitorResultCache in GetMonitorResultCaches()) {
                         fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));

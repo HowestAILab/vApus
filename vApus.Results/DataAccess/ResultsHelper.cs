@@ -1309,8 +1309,8 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
-                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
+                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection, MonitorBeforeInMinutes, MonitorAfterInMinutes From Stresstests;") :
+                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, MonitorBeforeInMinutes, MonitorAfterInMinutes From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                 if (stresstests.Rows.Count == 0) return null;
 
                 var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
@@ -1319,6 +1319,8 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                     object stresstestId = stresstestsRow.ItemArray[0];
                     string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                    int monitorBeforeInMinutes = (int)stresstestsRow.ItemArray[3];
+                    int monitorAfterInMinutes = (int)stresstestsRow.ItemArray[4];
 
                     var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
                     if (stresstestResults.Rows.Count == 0) continue;
@@ -1330,7 +1332,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                     //Get the timestamps to calculate the averages
                     var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id, Concurrency, StartedAt, StoppedAt FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
-                    var delimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                    var concurrencyDelimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
                     var runDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
                     var concurrencies = new Dictionary<int, int>();
                     foreach (DataRow crRow in concurrencyResults.Rows) {
@@ -1338,7 +1340,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                         int concurrencyId = (int)crRow.ItemArray[0];
                         int concurrency = (int)crRow.ItemArray[1];
-                        delimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
+                        concurrencyDelimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
                         var runResults = _databaseActions.GetDataTable(string.Format("SELECT StartedAt, StoppedAt FROM RunResults WHERE ConcurrencyResultId={0};", crRow.ItemArray[0]));
                         var d = new Dictionary<DateTime, DateTime>(runResults.Rows.Count);
                         foreach (DataRow rrRow in runResults.Rows) {
@@ -1349,6 +1351,51 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         }
                         runDelimiters.Add(concurrencyId, d);
                         concurrencies.Add(concurrencyId, concurrency);
+                    }
+
+                    //Make a bogus run and concurrency to be able to calcullate averages for monitor before and after.
+                    if (monitorAfterInMinutes != 0 && runDelimiters.Count != 0) {
+                        var lastConcurrency = runDelimiters[runDelimiters.Count];
+
+                        int i = 0;
+                        foreach (var lastStop in lastConcurrency.Values)
+                            if (i++ == lastConcurrency.Count - 1) {
+                                var bogusStart = lastStop.AddMilliseconds(1);
+                                var bogusStop = bogusStart.AddMinutes(monitorAfterInMinutes);
+                                var monitorAfterBogusRuns = new Dictionary<DateTime, DateTime>(0);
+                                monitorAfterBogusRuns.Add(bogusStart, bogusStop);
+                                int concurrencyId = runDelimiters.Count + 1;
+                                runDelimiters.Add(concurrencyId, monitorAfterBogusRuns);
+                                concurrencyDelimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>(bogusStart, bogusStop));
+                                concurrencies.Add(concurrencyId, 0);
+                            }
+                    }
+                    if (monitorBeforeInMinutes != 0 && runDelimiters.Count != 0) {
+                        var newRunDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                        var newConcurrencyDelimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                        var newConcurrencies = new Dictionary<int, int>();
+
+                        var firstConcurrency = runDelimiters[1];
+                        foreach (var firstStart in firstConcurrency.Keys) {
+                            var bogusStop = firstStart.Subtract(new TimeSpan(TimeSpan.TicksPerMillisecond));
+                            var bogusStart = bogusStop.Subtract(new TimeSpan(monitorAfterInMinutes * TimeSpan.TicksPerMinute));
+                            var monitorBeforeBogusRuns = new Dictionary<DateTime, DateTime>(0);
+                            monitorBeforeBogusRuns.Add(bogusStart, bogusStop);
+                            newRunDelimiters.Add(0, monitorBeforeBogusRuns);
+                            newConcurrencyDelimiters.Add(0, new KeyValuePair<DateTime, DateTime>(bogusStart, bogusStop));
+                            newConcurrencies.Add(0, 0);
+                            break;
+                        }
+                        foreach (var concurrency in runDelimiters)
+                            newRunDelimiters.Add(concurrency.Key, concurrency.Value);
+                        foreach (var concurrency in concurrencyDelimiters)
+                            newConcurrencyDelimiters.Add(concurrency.Key, concurrency.Value);
+                        foreach (var concurrency in concurrencies)
+                            newConcurrencies.Add(concurrency.Key, concurrency.Value);
+
+                        runDelimiters = newRunDelimiters;
+                        concurrencyDelimiters = newConcurrencyDelimiters;
+                        concurrencies = newConcurrencies;
                     }
 
                     //Calcullate the averages
@@ -1396,9 +1443,11 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             string averages = GetAverageMonitorResults(cancellationToken, monitorValues).Combine("; ");
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var startedAt = delimiters[concurrencyId].Key;
-                            var measuredRunTime = Math.Round((delimiters[concurrencyId].Value - startedAt).TotalMilliseconds, 2);
-                            averageMonitorResults.Rows.Add(stresstest, monitor, startedAt, measuredRunTime, concurrencies[concurrencyId], headers, averages);
+                            var startedAt = concurrencyDelimiters[concurrencyId].Key;
+                            var measuredRunTime = Math.Round((concurrencyDelimiters[concurrencyId].Value - startedAt).TotalMilliseconds, 2);
+
+                            string concurrency = concurrencies[concurrencyId] == 0 ? "--" : concurrencies[concurrencyId].ToString();
+                            averageMonitorResults.Rows.Add(stresstest, monitor, startedAt, measuredRunTime, concurrency, headers, averages);
                         }
                     }
                 }

@@ -1166,8 +1166,14 @@ namespace vApus.DistributedTesting {
                 _monitorBeforeCountDown = null;
             }
 
-            if (_monitorBeforeBogusConcurrencyResult != null)
-                _monitorBeforeBogusConcurrencyResult.StoppedAt = _monitorBeforeBogusRunResult.StoppedAt = DateTime.Now;
+            if (_monitorBeforeBogusConcurrencyResult != null) {
+                var stoppedAt = DateTime.Now;
+                TimeSpan difference = stoppedAt - _monitorBeforeBogusConcurrencyResult.StartedAt;
+                _monitorBeforeBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+
+                difference = stoppedAt - _monitorBeforeBogusRunResult.StartedAt;
+                _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+            }
 
 #if EnableBetaFeature
             WriteMonitorRestConfig();
@@ -1224,9 +1230,14 @@ namespace vApus.DistributedTesting {
             monitorAfterCountdown.Dispose();
             monitorAfterCountdown = null;
 
-            if (_monitorAfterBogusConcurrencyResult != null)
-                _monitorAfterBogusConcurrencyResult.StoppedAt = _monitorAfterBogusRunResult.StoppedAt = DateTime.Now;
+            if (_monitorAfterBogusConcurrencyResult != null) {
+                var stoppedAt = DateTime.Now;
+                var difference = stoppedAt - _monitorAfterBogusConcurrencyResult.StartedAt;
+                _monitorAfterBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
 
+                difference = stoppedAt - _monitorAfterBogusRunResult.StartedAt;
+                _monitorAfterBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
+            }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
 
 #if EnableBetaFeature
