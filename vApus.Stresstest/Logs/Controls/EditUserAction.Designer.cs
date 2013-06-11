@@ -61,6 +61,7 @@
             this.flpLink = new System.Windows.Forms.FlowLayoutPanel();
             this.picMoveDown = new System.Windows.Forms.PictureBox();
             this.picMoveUp = new System.Windows.Forms.PictureBox();
+            this.lblLogEntryCount = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nudMoveSteps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).BeginInit();
             this.tc.SuspendLayout();
@@ -580,11 +581,21 @@
             this.picMoveUp.TabStop = false;
             this.picMoveUp.Click += new System.EventHandler(this.picMoveUp_Click);
             // 
+            // lblLogEntryCount
+            // 
+            this.lblLogEntryCount.AutoSize = true;
+            this.lblLogEntryCount.Location = new System.Drawing.Point(78, 173);
+            this.lblLogEntryCount.Name = "lblLogEntryCount";
+            this.lblLogEntryCount.Size = new System.Drawing.Size(19, 13);
+            this.lblLogEntryCount.TabIndex = 78;
+            this.lblLogEntryCount.Text = "[0]";
+            // 
             // EditUserAction
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.lblLogEntryCount);
             this.Controls.Add(this.btnSplit);
             this.Controls.Add(this.flpLink);
             this.Controls.Add(this.lblLinkTo);
@@ -667,5 +678,6 @@
         private System.Windows.Forms.FlowLayoutPanel flpLink;
         private System.Windows.Forms.Button btnMerge;
         private System.Windows.Forms.Button btnSplit;
+        private System.Windows.Forms.Label lblLogEntryCount;
     }
 }

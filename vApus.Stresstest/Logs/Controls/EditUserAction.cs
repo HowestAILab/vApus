@@ -472,6 +472,8 @@ namespace vApus.Stresstest {
 
             SetEditableOrAsImported();
 
+            lblLogEntryCount.Text = "[" + _userActionTreeViewItem.UserAction.Count + "]";
+
             dgvLogEntries.CellValuePushed += dgvLogEntries_CellValuePushed;
         }
         private void SizeColumns() {
