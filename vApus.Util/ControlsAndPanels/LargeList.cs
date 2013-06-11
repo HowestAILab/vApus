@@ -557,10 +557,12 @@ namespace vApus.Util {
             if (index.Key <= ViewCount) {
                 for (int view = 0; view != ViewCount; view++)
                     if (view == index.Key) {
-                        if (this[view].Count > index.Value)
+                        if (this[view].Count > index.Value) {
                             flatIndex += index.Value;
-                        else
+                            return flatIndex;
+                        } else {
                             return -1;
+                        }
                     } else {
                         flatIndex += this[view].Count;
                     }
