@@ -94,6 +94,18 @@ namespace WeifenLuo.WinFormsUI.Docking
                 // if DockWindow is document, exclude the border
                 if (DockState == DockState.Document)
                 {
+                    try {
+                        //Sometimes panels are not displayed correctly because the dock window is not correctly sized.
+                        //If the sizing of this window goes wrong it reverts to the default height and width values.
+                        if (m_dockPanel != null) {
+                            if (Height < m_dockPanel.DocumentWindowBounds.Height)
+                                Height = m_dockPanel.DocumentWindowBounds.Height;
+                            if (Width < m_dockPanel.DocumentWindowBounds.Width)
+                                Width = m_dockPanel.DocumentWindowBounds.Width;
+                        }
+                    } catch {
+                    }
+
                     rect.X += 1;
                     rect.Y += 1;
                     rect.Width -= 2;
@@ -118,17 +130,6 @@ namespace WeifenLuo.WinFormsUI.Docking
                 return rect;
             }
         }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // if DockWindow is document, draw the border
-            if (DockState == DockState.Document)
-                e.Graphics.DrawRectangle(SystemPens.ControlDark, ClientRectangle.X, ClientRectangle.Y,
-                                         ClientRectangle.Width - 1, ClientRectangle.Height - 1);
-
-            base.OnPaint(e);
-        }
-
         protected override void OnLayout(LayoutEventArgs levent)
         {
             VisibleNestedPanes.Refresh();

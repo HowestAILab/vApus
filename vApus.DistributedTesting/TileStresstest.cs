@@ -134,6 +134,7 @@ namespace vApus.DistributedTesting {
         }
 
         /// <summary>
+        /// Select a slave if one is available, if not no slave will be selected.
         /// Call this function after adding a new tilestresstest or duplicating one in the GUI.
         /// This will not invoke an event to notify the GUI.
         /// </summary>
@@ -154,13 +155,12 @@ namespace vApus.DistributedTesting {
                                 if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
                                     availableSlaves.Remove(tileStresstest.BasicTileStresstest.Slaves[0]);
 
-                    if (availableSlaves.Count != 0) 
-                        BasicTileStresstest.Slaves = new Slave[] { availableSlaves[0] };
+                    BasicTileStresstest.Slaves = availableSlaves.Count == 0 ? new Slave[0] : new Slave[] { availableSlaves[0] };
                 }
             } catch {
             }
         }
-        
+
         public override string ToString() {
             return "[TS " + TileStresstestIndex + "] ";
         }
@@ -238,7 +238,7 @@ namespace vApus.DistributedTesting {
 
                 return new StresstestWrapper {
                     StresstestIdInDb = stresstestIdInDb,
-                    Stresstest = stresstest, 
+                    Stresstest = stresstest,
                     TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization,
                     MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
                 };

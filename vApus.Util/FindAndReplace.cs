@@ -19,9 +19,11 @@ namespace vApus.Util {
         /// <param name="rows"></param>
         /// <param name="columns"></param>
         /// <param name="matchLengths"></param>
-        public static void Find(string s, string inText, out List<int> rows, out List<int> columns, out List<int> matchLengths, bool ignoreCase = true) {
+        public static void Find(string s, string inText, out List<int> rows, out List<int> columns, out List<int> matchLengths, bool wholeWords, bool ignoreCase) {
             string text = inText.Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\r", "\n");
             string[] lines = text.Split('\n');
+
+            string wordDelimiter = wholeWords ? "\\b" : string.Empty;
 
             var mustHave = new List<string>(); //And relation
             var canHave = new List<string>(); //Or relation
@@ -52,21 +54,21 @@ namespace vApus.Util {
                         if (canHave.Contains(sss) || cannotHave.Contains(sss)) {
                             continue;
                         } else {
-                            sss = "(\\b.*" + sss + "\\b)";
+                            sss = "(" + wordDelimiter + ".*" + sss + wordDelimiter + ")";
                             if (!mustHave.Contains(sss)) mustHave.Add(sss);
                         }
                     } else if (addToCannotHave) {
                         if (canHave.Contains(sss) | mustHave.Contains(sss)) {
                             continue;
                         } else {
-                            sss = "(\\b" + sss + "\\b)";
+                            sss = "(" + wordDelimiter + sss + wordDelimiter + ")";
                             if (!cannotHave.Contains(sss)) cannotHave.Add(sss);
                         }
                     } else {
                         if (mustHave.Contains(sss) || cannotHave.Contains(sss)) {
                             continue;
                         } else {
-                            sss = "(\\b" + sss + "\\b)";
+                            sss = "(" + wordDelimiter + sss + wordDelimiter + ")";
                             if (!canHave.Contains(sss)) canHave.Add(sss);
                         }
                     }
@@ -169,7 +171,7 @@ namespace vApus.Util {
 
             return Replace(rows, columns, matchLengths, inText, with);
         }
-        
+
         /// <summary>
         /// Call Find(...) first.
         /// </summary>

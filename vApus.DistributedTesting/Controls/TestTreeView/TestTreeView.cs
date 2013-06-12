@@ -160,6 +160,8 @@ namespace vApus.DistributedTesting {
 
             dttvi.DistributedTest.Tiles.Add(tile);
 
+            foreach (TileStresstest tileStresstest in tile) tileStresstest.SelectAvailableSlave();
+
             dttvi.DistributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
             LockWindowUpdate(0);
         }
@@ -192,15 +194,11 @@ namespace vApus.DistributedTesting {
 
             //Just add if the index is invalid
             if (index.Key == -1) {
-                largeList.Add(tvi, tile.Count == 0);
+                largeList.Add(tvi, false);
                 for (int i = 0; i != tile.Count; i++) {
                     TileStresstestTreeViewItem tsvi = CreateTileStresstestTreeViewItem(tvi, tile[i] as TileStresstest);
                     tvi.ChildControls.Add(tsvi);
-
-                    if (i + 1 == tile.Count)
-                        largeList.Add(tsvi);
-                    else
-                        largeList.Add(tsvi, false);
+                    largeList.Add(tsvi, false);
                 }
             } else {
                 for (int i = tile.Count - 1; i != -1; i--) {
@@ -208,8 +206,9 @@ namespace vApus.DistributedTesting {
                     tvi.ChildControls.Add(tsvi);
                     largeList.Insert(tsvi, index, false);
                 }
-                largeList.Insert(tvi, index);
+                largeList.Insert(tvi, index, false);
             }
+            largeList.RefreshControls();
         }
 
         private void tvi_AddTileStresstestClicked(object sender, EventArgs e) {
@@ -290,6 +289,8 @@ namespace vApus.DistributedTesting {
                                                                     ? new KeyValuePair<int, int>(-1, -1)
                                                                     : largeList.IndexOf(closestNextTileTreeViewItem);
                 CreateAndInsertTileTreeViewItem(clone, cloneIndexForLargeList);
+
+                foreach (TileStresstest tileStresstest in clone) tileStresstest.SelectAvailableSlave();
 
                 parent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
             }

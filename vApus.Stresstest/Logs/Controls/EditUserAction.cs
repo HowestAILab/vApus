@@ -78,6 +78,7 @@ namespace vApus.Stresstest {
                 SetCodeStyle();
             }
         }
+        internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
             LockWindowUpdate(this.Handle.ToInt32());
             _log = log;
@@ -411,6 +412,8 @@ namespace vApus.Stresstest {
 
         private void lbtn_ActiveChanged(object sender, EventArgs e) {
             SetLogEntries();
+            SetParameters();
+            SetCodeStyle();
         }
         private void SetLogEntries() {
             dgvLogEntries.CellValuePushed -= dgvLogEntries_CellValuePushed;
@@ -457,7 +460,6 @@ namespace vApus.Stresstest {
                 dgvLogEntries.Columns.Add(clm);
             }
 
-            dgvLogEntries.RowCount = dgvLogEntries.ReadOnly ? _cache.Rows.Count : _cache.Rows.Count + 1;
             SizeColumns();
 
             fctxtxPlainText.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
@@ -471,6 +473,8 @@ namespace vApus.Stresstest {
             btnApply.Enabled = false;
 
             SetEditableOrAsImported();
+
+            dgvLogEntries.RowCount = dgvLogEntries.ReadOnly ? _cache.Rows.Count : _cache.Rows.Count + 1;
 
             lblLogEntryCount.Text = "[" + _userActionTreeViewItem.UserAction.Count + "]";
 
@@ -543,12 +547,14 @@ namespace vApus.Stresstest {
                 btnApply.Visible = tc.SelectedIndex == 1;
                 dgvLogEntries.ReadOnly = fctxtxPlainText.ReadOnly = false;
                 dgvLogEntries.AllowDrop = true;
+                dgvLogEntries.AllowUserToAddRows = true;
 
                 dgvLogEntries.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
             } else {
                 btnApply.Visible = btnRevertToImported.Visible = false;
                 dgvLogEntries.ReadOnly = fctxtxPlainText.ReadOnly = true;
                 dgvLogEntries.AllowDrop = false;
+                dgvLogEntries.AllowUserToAddRows = false;
 
                 dgvLogEntries.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlDarkDark;
             }
@@ -938,6 +944,7 @@ namespace vApus.Stresstest {
             }
         }
         #endregion
+
 
     }
 }

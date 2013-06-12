@@ -22,6 +22,9 @@ namespace vApus.Stresstest {
         private List<int> _foundMatchLengths = new List<int>();
         private int _findIndex = 0, _selectedUserAction = -1;
         private string _find = string.Empty;
+        private bool _findWholeWords = false;
+        private bool _findIgnoreCase = true;
+
         private FindAndReplaceDialog _findAndReplaceDialog = new FindAndReplaceDialog();
 
         public LogView() {
@@ -77,6 +80,7 @@ namespace vApus.Stresstest {
         private void SetLog() {
             logTreeView.SetLog(_log);
             editLog.SetLog(_log);
+            editUserAction.SetLog(_log);
             _log.ApplyLogRuleSet();
         }
 
@@ -116,14 +120,17 @@ namespace vApus.Stresstest {
         }
 
         private void picFind_Click(object sender, EventArgs e) {
-            Find();
+            Find(false, true);
         }
 
         private void txtFind_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter && txtFind.Text.Length != 0) Find();
+            if (e.KeyCode == Keys.Enter && txtFind.Text.Length != 0) Find(false, true);
         }
 
-        private void Find(bool ignoreCase = true) {
+        private void Find(bool wholeWords, bool ignoreCase) {
+            _findWholeWords = wholeWords;
+            _findIgnoreCase = ignoreCase;
+
             if (_foundUserActions.Count == 0) {
                 _find = txtFind.Text.TrimEnd();
                 for (int i = 0; i != _log.Count; i++) {
@@ -131,7 +138,7 @@ namespace vApus.Stresstest {
                     for (int j = 0; j != userAction.Count; j++) {
                         var logEntry = userAction[j] as LogEntry;
                         List<int> r, c, ml;
-                        vApus.Util.FindAndReplace.Find(_find, logEntry.LogEntryString, out r, out c, out ml, ignoreCase);
+                        vApus.Util.FindAndReplace.Find(_find, logEntry.LogEntryString, out r, out c, out ml, wholeWords, ignoreCase);
 
                         for (int k = 0; k != r.Count; k++) {
                             _foundUserActions.Add(i);
@@ -154,9 +161,9 @@ namespace vApus.Stresstest {
             txtFind.Select();
             txtFind.Focus();
         }
-        private void Replace(bool ignoreCase, string with, bool all) {
+        private void Replace(bool wholeWords, bool ignoreCase, string with, bool all) {
             if (_foundUserActions.Count == 0) {
-                Find(ignoreCase);
+                Find(wholeWords, ignoreCase);
                 if (--_findIndex < 0) _findIndex = 0;
             }
             if (_foundUserActions.Count != 0) {
@@ -192,24 +199,33 @@ namespace vApus.Stresstest {
 
         private void txtFind_TextChanged(object sender, EventArgs e) {
             if (_find != txtFind.Text) {
-                _find = txtFind.Text;
-                _foundUserActions.Clear();
-                _foundLogEntries.Clear();
-                _foundColumns.Clear();
-                _foundMatchLengths.Clear();
-                _findIndex = 0;
-
+                ResetFindCache();
                 _findAndReplaceDialog.SetFind(_find);
             }
-            picFind.Enabled = (txtFind.Text.Length != 0) ;
+            picFind.Enabled = (txtFind.Text.Length != 0);
         }
         private void _findAndReplaceDialog_FindClicked(object sender, FindAndReplaceDialog.FindEventArgs e) {
-            txtFind.Text = e.Find;
-            Find(e.IgnoreCase);
+            if (txtFind.Text != e.Find)
+                txtFind.Text = e.Find;
+            else if (_findWholeWords != e.WholeWords || _findIgnoreCase != e.IgnoreCase)
+                ResetFindCache();
+
+            //The above checked variables will be set here.
+            Find(e.WholeWords, e.IgnoreCase);
+        }
+        private void ResetFindCache() {
+            _find = txtFind.Text;
+            _foundUserActions.Clear();
+            _foundLogEntries.Clear();
+            _foundColumns.Clear();
+            _foundMatchLengths.Clear();
+            _findIndex = 0;
         }
         private void _findAndReplaceDialog_ReplaceClicked(object sender, FindAndReplaceDialog.ReplaceEventArgs e) {
             txtFind.Text = e.Find;
-            Replace(e.IgnoreCase, e.With, e.All);
+            ResetFindCache();
+
+            Replace(e.WholeWords, e.IgnoreCase, e.With, e.All);
         }
 
         private void llblFindAndReplace_Click(object sender, EventArgs e) {
