@@ -24,8 +24,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditUserAction));
             this.lblLabel = new System.Windows.Forms.Label();
             this.txtLabel = new System.Windows.Forms.TextBox();
@@ -144,8 +144,8 @@
             // 
             this.dgvLogEntries.AllowDrop = true;
             this.dgvLogEntries.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle5.BackColor = System.Drawing.Color.White;
-            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvLogEntries.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -161,8 +161,8 @@
             this.dgvLogEntries.Name = "dgvLogEntries";
             this.dgvLogEntries.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvLogEntries.Size = new System.Drawing.Size(982, 386);
             this.dgvLogEntries.TabIndex = 32;
             this.dgvLogEntries.VirtualMode = true;
@@ -270,9 +270,10 @@
             this.btnShowHideParameterTokens.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnShowHideParameterTokens.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnShowHideParameterTokens.Location = new System.Drawing.Point(515, 609);
+            this.btnShowHideParameterTokens.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnShowHideParameterTokens.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnShowHideParameterTokens.Name = "btnShowHideParameterTokens";
-            this.btnShowHideParameterTokens.Size = new System.Drawing.Size(157, 25);
+            this.btnShowHideParameterTokens.Size = new System.Drawing.Size(157, 24);
             this.btnShowHideParameterTokens.TabIndex = 72;
             this.btnShowHideParameterTokens.Text = "Show Parameter Tokens";
             this.toolTip.SetToolTip(this.btnShowHideParameterTokens, "Show Parameter Tokens");
@@ -288,9 +289,10 @@
             this.btnMerge.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMerge.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnMerge.Location = new System.Drawing.Point(3, 3);
+            this.btnMerge.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnMerge.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnMerge.Name = "btnMerge";
-            this.btnMerge.Size = new System.Drawing.Size(54, 25);
+            this.btnMerge.Size = new System.Drawing.Size(54, 24);
             this.btnMerge.TabIndex = 71;
             this.btnMerge.Text = "Merge";
             this.toolTip.SetToolTip(this.btnMerge, "Merge all linked user actions into a new one.");
@@ -305,10 +307,11 @@
             this.btnSplit.BackColor = System.Drawing.Color.White;
             this.btnSplit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSplit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSplit.Location = new System.Drawing.Point(947, 61);
+            this.btnSplit.Location = new System.Drawing.Point(947, 62);
+            this.btnSplit.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnSplit.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnSplit.Name = "btnSplit";
-            this.btnSplit.Size = new System.Drawing.Size(44, 25);
+            this.btnSplit.Size = new System.Drawing.Size(44, 24);
             this.btnSplit.TabIndex = 77;
             this.btnSplit.Text = "Split";
             this.toolTip.SetToolTip(this.btnSplit, "Split all log entries in seperate user actions.");
@@ -511,9 +514,10 @@
             this.btnApply.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnApply.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnApply.Location = new System.Drawing.Point(328, 609);
+            this.btnApply.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnApply.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(50, 25);
+            this.btnApply.Size = new System.Drawing.Size(50, 24);
             this.btnApply.TabIndex = 70;
             this.btnApply.Text = "Apply";
             this.btnApply.UseVisualStyleBackColor = false;
@@ -529,9 +533,10 @@
             this.btnRevertToImported.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRevertToImported.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRevertToImported.Location = new System.Drawing.Point(384, 609);
+            this.btnRevertToImported.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnRevertToImported.MinimumSize = new System.Drawing.Size(0, 24);
             this.btnRevertToImported.Name = "btnRevertToImported";
-            this.btnRevertToImported.Size = new System.Drawing.Size(125, 25);
+            this.btnRevertToImported.Size = new System.Drawing.Size(125, 24);
             this.btnRevertToImported.TabIndex = 71;
             this.btnRevertToImported.Text = "Revert to Imported";
             this.btnRevertToImported.UseVisualStyleBackColor = false;

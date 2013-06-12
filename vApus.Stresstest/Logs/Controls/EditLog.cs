@@ -17,7 +17,7 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class EditLog : UserControl {
-        public event EventHandler LogImported, RedeterminedTokens;
+        public event EventHandler LogImported, RevertedToAsImported, RedeterminedTokens;
 
         #region Fields
         private Log _log;
@@ -378,22 +378,20 @@ namespace vApus.Stresstest {
                 RedeterminedTokens(this, null);
         }
 
-        //private void SetIgnoreDelays() {
-        //    foreach (BaseItem item in _log)
-        //        if (item is UserAction) {
-        //            var userAction = item as UserAction;
-        //            //Determine the non parallel log entries, set ignore delay for the other ones (must always be ignored for these)
-        //            var nonParallelLogEntries = new List<LogEntry>();
-        //            foreach (LogEntry entry in userAction)
-        //                if (entry.ExecuteInParallelWithPrevious)
-        //                    entry.IgnoreDelay = true;
-        //                else
-        //                    nonParallelLogEntries.Add(entry);
+        private void btnRevertToImported_Click(object sender, EventArgs e) {
+            if (_log != null && MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                foreach (UserAction userAction in _log) {
+                    userAction.ClearWithoutInvokingEvent(false);
 
-        //            //Then set ignore delays for all but the last
-        //            for (int i = 0; i < nonParallelLogEntries.Count - 1; i++)
-        //                nonParallelLogEntries[i].IgnoreDelay = true;
-        //        }
-        //}
+                    foreach (string s in userAction.LogEntryStringsAsImported)
+                        userAction.AddWithoutInvokingEvent(new LogEntry(s), false);
+                }
+                _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+
+                _log.ApplyLogRuleSet();
+                if (RevertedToAsImported != null) 
+                    RevertedToAsImported(this, null);
+            }
+        }
     }
 }

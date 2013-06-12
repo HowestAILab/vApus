@@ -29,11 +29,11 @@
             this.picFind = new System.Windows.Forms.PictureBox();
             this.llblFindAndReplace = new System.Windows.Forms.LinkLabel();
             this.txtFind = new System.Windows.Forms.TextBox();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             this.logTreeView = new vApus.Stresstest.LogTreeView();
             this.editLog = new vApus.Stresstest.EditLog();
             this.editUserAction = new vApus.Stresstest.EditUserAction();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -127,6 +127,18 @@
             this.txtFind.TextChanged += new System.EventHandler(this.txtFind_TextChanged);
             this.txtFind.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFind_KeyDown);
             // 
+            // toolTip
+            // 
+            this.toolTip.AutomaticDelay = 100;
+            this.toolTip.AutoPopDelay = 10000;
+            this.toolTip.InitialDelay = 100;
+            this.toolTip.ReshowDelay = 20;
+            // 
+            // tmrRefreshGui
+            // 
+            this.tmrRefreshGui.Enabled = true;
+            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
+            // 
             // logTreeView
             // 
             this.logTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -147,6 +159,7 @@
             this.editLog.Size = new System.Drawing.Size(694, 595);
             this.editLog.TabIndex = 0;
             this.editLog.LogImported += new System.EventHandler(this.editLog_LogImported);
+            this.editLog.RevertedToAsImported += new System.EventHandler(this.editLog_RevertedToAsImported);
             this.editLog.RedeterminedTokens += new System.EventHandler(this.editLog_RedeterminedTokens);
             // 
             // editUserAction
@@ -162,18 +175,6 @@
             this.editUserAction.SplitClicked += new System.EventHandler(this.editUserAction_SplitClicked);
             this.editUserAction.MergeClicked += new System.EventHandler(this.editUserAction_MergeClicked);
             this.editUserAction.LinkedChanged += new System.EventHandler(this.editUserAction_LinkedChanged);
-            // 
-            // toolTip
-            // 
-            this.toolTip.AutomaticDelay = 100;
-            this.toolTip.AutoPopDelay = 10000;
-            this.toolTip.InitialDelay = 100;
-            this.toolTip.ReshowDelay = 20;
-            // 
-            // tmrRefreshGui
-            // 
-            this.tmrRefreshGui.Enabled = true;
-            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
             // 
             // LogView
             // 

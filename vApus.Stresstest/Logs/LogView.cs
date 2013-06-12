@@ -69,6 +69,11 @@ namespace vApus.Stresstest {
             editUserAction.SetParameters();
             editUserAction.SetCodeStyle();
         }
+        private void editLog_RevertedToAsImported(object sender, EventArgs e) {
+            SetLog();
+            editUserAction.SetParameters();
+            editUserAction.SetCodeStyle();
+        }
         private void editLog_RedeterminedTokens(object sender, EventArgs e) {
             SetLog();
             editUserAction.SetParameters();
@@ -76,6 +81,8 @@ namespace vApus.Stresstest {
         }
         private void LogRuleSet_LogRuleSetChanged(object sender, EventArgs e) {
             SetLog();
+            editUserAction.SetParameters();
+            editUserAction.SetCodeStyle();
         }
         private void SetLog() {
             logTreeView.SetLog(_log);

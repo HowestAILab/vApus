@@ -35,6 +35,7 @@
             this.btnBrowse = new System.Windows.Forms.Button();
             this.fctxtxImport = new FastColoredTextBoxNS.FastColoredTextBox();
             this.tpExtraTools = new System.Windows.Forms.TabPage();
+            this.btnRevertToImported = new System.Windows.Forms.Button();
             this.btnRedetermineParameterTokens = new System.Windows.Forms.Button();
             this.btnExportToTextFile = new System.Windows.Forms.Button();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
@@ -208,6 +209,7 @@
             // tpExtraTools
             // 
             this.tpExtraTools.BackColor = System.Drawing.Color.White;
+            this.tpExtraTools.Controls.Add(this.btnRevertToImported);
             this.tpExtraTools.Controls.Add(this.btnRedetermineParameterTokens);
             this.tpExtraTools.Controls.Add(this.btnExportToTextFile);
             this.tpExtraTools.Location = new System.Drawing.Point(0, 23);
@@ -217,19 +219,34 @@
             this.tpExtraTools.TabIndex = 2;
             this.tpExtraTools.Text = "Extra Tools";
             // 
+            // btnRevertToImported
+            // 
+            this.btnRevertToImported.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnRevertToImported.BackColor = System.Drawing.Color.White;
+            this.btnRevertToImported.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRevertToImported.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRevertToImported.Location = new System.Drawing.Point(269, 279);
+            this.btnRevertToImported.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnRevertToImported.MinimumSize = new System.Drawing.Size(0, 24);
+            this.btnRevertToImported.Name = "btnRevertToImported";
+            this.btnRevertToImported.Size = new System.Drawing.Size(209, 24);
+            this.btnRevertToImported.TabIndex = 1;
+            this.btnRevertToImported.Text = "Revert to Imported";
+            this.btnRevertToImported.UseVisualStyleBackColor = false;
+            this.btnRevertToImported.Click += new System.EventHandler(this.btnRevertToImported_Click);
+            // 
             // btnRedetermineParameterTokens
             // 
             this.btnRedetermineParameterTokens.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnRedetermineParameterTokens.AutoSize = true;
             this.btnRedetermineParameterTokens.BackColor = System.Drawing.Color.White;
             this.btnRedetermineParameterTokens.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRedetermineParameterTokens.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRedetermineParameterTokens.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnRedetermineParameterTokens.Location = new System.Drawing.Point(269, 294);
+            this.btnRedetermineParameterTokens.Location = new System.Drawing.Point(269, 309);
             this.btnRedetermineParameterTokens.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnRedetermineParameterTokens.Name = "btnRedetermineParameterTokens";
             this.btnRedetermineParameterTokens.Size = new System.Drawing.Size(209, 24);
-            this.btnRedetermineParameterTokens.TabIndex = 14;
+            this.btnRedetermineParameterTokens.TabIndex = 2;
             this.btnRedetermineParameterTokens.Text = "Redetermine Parameter Tokens...";
             this.btnRedetermineParameterTokens.UseVisualStyleBackColor = false;
             this.btnRedetermineParameterTokens.Click += new System.EventHandler(this.btnRedetermineParameterTokens_Click);
@@ -237,16 +254,15 @@
             // btnExportToTextFile
             // 
             this.btnExportToTextFile.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnExportToTextFile.AutoSize = true;
             this.btnExportToTextFile.BackColor = System.Drawing.Color.White;
             this.btnExportToTextFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportToTextFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnExportToTextFile.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnExportToTextFile.Location = new System.Drawing.Point(269, 264);
+            this.btnExportToTextFile.Location = new System.Drawing.Point(269, 249);
             this.btnExportToTextFile.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnExportToTextFile.Name = "btnExportToTextFile";
             this.btnExportToTextFile.Size = new System.Drawing.Size(209, 24);
-            this.btnExportToTextFile.TabIndex = 13;
+            this.btnExportToTextFile.TabIndex = 0;
             this.btnExportToTextFile.Text = "Export to Text File...";
             this.btnExportToTextFile.UseVisualStyleBackColor = false;
             this.btnExportToTextFile.Click += new System.EventHandler(this.btnExportToTextFile_Click);
@@ -283,7 +299,6 @@
             this.tpImport.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxImport)).EndInit();
             this.tpExtraTools.ResumeLayout(false);
-            this.tpExtraTools.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -304,6 +319,7 @@
         private Lupus_Fiddler.CaptureControl captureControl;
         private System.Windows.Forms.TabPage tpExtraTools;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.Button btnRevertToImported;
         private System.Windows.Forms.Button btnRedetermineParameterTokens;
         private System.Windows.Forms.Button btnExportToTextFile;
     }
