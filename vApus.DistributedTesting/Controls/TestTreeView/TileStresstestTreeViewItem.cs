@@ -253,7 +253,23 @@ namespace vApus.DistributedTesting {
             var sb = new StringBuilder();
             if (_tileStresstest.Use) {
                 if (_tileStresstest.BasicTileStresstest.Connection.IsEmpty) sb.AppendLine("The connection is not filled in.");
-                if (_tileStresstest.BasicTileStresstest.Slaves.Length == 0) sb.AppendLine("No slaves have been assigned.");
+                if (_tileStresstest.BasicTileStresstest.Slaves.Length == 0) {
+                    sb.AppendLine("No slave has been selected.");
+                } else {
+                    //Check of the slave is not already chosen in another tilestresstest.
+                    var distributedTest = _tileStresstest.Parent.GetParent().GetParent() as DistributedTest;
+                    if (distributedTest != null)
+                        foreach (Tile tile in distributedTest.Tiles)
+                            if (tile.Use)
+                                foreach (TileStresstest tileStresstest in tile)
+                                    if (tileStresstest.Use &&
+                                        tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0 &&
+                                        tileStresstest != _tileStresstest &&
+                                        tileStresstest.BasicTileStresstest.Slaves[0] == _tileStresstest.BasicTileStresstest.Slaves[0]) {
+                                        sb.AppendLine("The selected slave is already chosen in another tile stresstest.");
+                                        break;
+                                    }
+                }
                 if (_tileStresstest.AdvancedTileStresstest.Log.IsEmpty) sb.AppendLine("The log is not filled in. [Advanced Settings]");
             }
 
