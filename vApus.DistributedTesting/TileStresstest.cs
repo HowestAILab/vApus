@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -132,6 +133,34 @@ namespace vApus.DistributedTesting {
             }
         }
 
+        /// <summary>
+        /// Call this function after adding a new tilestresstest or duplicating one in the GUI.
+        /// This will not invoke an event to notify the GUI.
+        /// </summary>
+        public void SelectAvailableSlave() {
+            try {
+                //Get the ones that are available
+                var availableSlaves = new List<Slave>();
+
+                var distributedTest = Parent.GetParent().GetParent() as DistributedTest;
+                if (distributedTest != null) {
+                    foreach (Client client in distributedTest.Clients)
+                        foreach (Slave slave in client)
+                            availableSlaves.Add(slave);
+
+                    foreach (Tile tile in distributedTest.Tiles)
+                        if (tile.Use)
+                            foreach (TileStresstest tileStresstest in tile)
+                                if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
+                                    availableSlaves.Remove(tileStresstest.BasicTileStresstest.Slaves[0]);
+
+                    if (availableSlaves.Count != 0) 
+                        BasicTileStresstest.Slaves = new Slave[] { availableSlaves[0] };
+                }
+            } catch {
+            }
+        }
+        
         public override string ToString() {
             return "[TS " + TileStresstestIndex + "] ";
         }

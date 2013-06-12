@@ -103,7 +103,7 @@ namespace vApus.DistributedTesting {
             try {
                 (sender as System.Timers.Timer).Stop();
                 SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    if (_distributedTestMode == DistributedTestMode.Test) 
+                    if (_distributedTestMode == DistributedTestMode.Test)
                         largeList[0][0].Focus();
                 }, null);
             } catch { }
@@ -231,6 +231,8 @@ namespace vApus.DistributedTesting {
             tvi.Tile.AddWithoutInvokingEvent(ts, false);
             tvi.RefreshGui();
 
+            ts.SelectAvailableSlave();
+
             tvi.Tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
 
             LockWindowUpdate(0);
@@ -349,6 +351,8 @@ namespace vApus.DistributedTesting {
                     largeList.Add(cloneTsvi);
                 else
                     largeList.Insert(cloneTsvi, cloneIndexForLargeList);
+
+                clone.SelectAvailableSlave();
 
                 parent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
             }
