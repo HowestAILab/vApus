@@ -97,6 +97,7 @@ namespace vApus.DistributedTesting {
             AddAsDefaultItem(new AdvancedTileStresstest());
 
             if (Solution.ActiveSolution != null) {
+                _canDefaultAdvancedSettingsTo = false;
                 DefaultAdvancedSettingsTo =
                     GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
                                         Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
@@ -131,6 +132,14 @@ namespace vApus.DistributedTesting {
                     delegate { InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); },
                     null);
             }
+        }
+
+        /// <summary>
+        /// Use this after adding a slave.
+        /// </summary>
+        internal void ForceDefaultTo() {
+            if (_defaultAdvancedSettingsTo != null)
+                AdvancedTileStresstest.DefaultTo(_defaultAdvancedSettingsTo);
         }
 
         /// <summary>

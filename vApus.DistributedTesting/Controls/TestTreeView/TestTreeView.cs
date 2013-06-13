@@ -98,6 +98,17 @@ namespace vApus.DistributedTesting {
                 tmr.Start();
             }
         }
+        /// <summary>
+        /// This is automatically unset when the mode becomes Edit again. (SetMode fx)
+        /// </summary>
+        public void SetMonitoringBeforeAfter() {
+            foreach (ITreeViewItem item in largeList.AllControls)
+                if (item is TileStresstestTreeViewItem) {
+                    var ts = item as TileStresstestTreeViewItem;
+                    if (ts.TileStresstest.BasicTileStresstest.MonitorIndices.Length != 0)
+                        ts.SetMonitoringBeforeAfter();
+                }
+        }
 
         private void tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
             try {
@@ -217,6 +228,10 @@ namespace vApus.DistributedTesting {
             var tvi = sender as TileTreeViewItem;
 
             var ts = new TileStresstest();
+            tvi.Tile.AddWithoutInvokingEvent(ts, false);
+
+            ts.ForceDefaultTo();
+
             TileStresstestTreeViewItem tsvi = CreateTileStresstestTreeViewItem(tvi, ts);
             tvi.ChildControls.Add(tsvi);
 
@@ -227,9 +242,7 @@ namespace vApus.DistributedTesting {
                 largeList.Insert(tsvi, largeList.IndexOf(closestNextTileTreeViewItem));
 
 
-            tvi.Tile.AddWithoutInvokingEvent(ts, false);
             tvi.RefreshGui();
-
             ts.SelectAvailableSlave();
 
             tvi.Tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);

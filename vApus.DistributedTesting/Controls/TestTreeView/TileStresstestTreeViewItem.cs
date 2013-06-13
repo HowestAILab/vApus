@@ -128,6 +128,7 @@ namespace vApus.DistributedTesting {
             _distributedTestMode = distributedTestMode;
             if (_distributedTestMode == DistributedTestMode.Edit) {
                 if (_tileStresstest.Use) chk.Visible = true; else Visible = true;
+                SetStresstestStatus(_stresstestStatus);
             } else {
                 if (_tileStresstest.Use) {
                     chk.Visible = picDelete.Visible = picDuplicate.Visible = false;
@@ -139,6 +140,13 @@ namespace vApus.DistributedTesting {
                     toolTip.SetToolTip(picStresstestStatus, string.Empty);
                 } else Visible = false;
             }
+        }
+        /// <summary>
+        /// Only call this if the tile stresstest has monitors.
+        /// </summary>
+        public void SetMonitoringBeforeAfter() {
+            picStresstestStatus.Image = Resources.Busy;
+            toolTip.SetToolTip(picStresstestStatus, "Busy Monitoring");
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
