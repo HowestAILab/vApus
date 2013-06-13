@@ -25,7 +25,7 @@ namespace vApus.Stresstest {
         private bool _findWholeWords = false;
         private bool _findIgnoreCase = true;
 
-        private FindAndReplaceDialog _findAndReplaceDialog = new FindAndReplaceDialog();
+        private FindAndReplaceDialog _findAndReplaceDialog;
 
         public LogView() {
             InitializeComponent();
@@ -40,9 +40,6 @@ namespace vApus.Stresstest {
                 SetLog();
             else
                 HandleCreated += NewLogView_HandleCreated;
-
-            _findAndReplaceDialog.FindClicked += _findAndReplaceDialog_FindClicked;
-            _findAndReplaceDialog.ReplaceClicked += _findAndReplaceDialog_ReplaceClicked;
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
         }
@@ -207,6 +204,11 @@ namespace vApus.Stresstest {
         private void txtFind_TextChanged(object sender, EventArgs e) {
             if (_find != txtFind.Text) {
                 ResetFindCache();
+                if (_findAndReplaceDialog == null || _findAndReplaceDialog.IsDisposed) {
+                    _findAndReplaceDialog = new FindAndReplaceDialog();
+                    _findAndReplaceDialog.FindClicked += _findAndReplaceDialog_FindClicked;
+                    _findAndReplaceDialog.ReplaceClicked += _findAndReplaceDialog_ReplaceClicked;
+                }
                 _findAndReplaceDialog.SetFind(_find);
             }
             picFind.Enabled = (txtFind.Text.Length != 0);
@@ -236,6 +238,12 @@ namespace vApus.Stresstest {
         }
 
         private void llblFindAndReplace_Click(object sender, EventArgs e) {
+            if (_findAndReplaceDialog == null || _findAndReplaceDialog.IsDisposed) {
+                _findAndReplaceDialog = new FindAndReplaceDialog();
+                _findAndReplaceDialog.FindClicked += _findAndReplaceDialog_FindClicked;
+                _findAndReplaceDialog.ReplaceClicked += _findAndReplaceDialog_ReplaceClicked;
+            } 
+            _findAndReplaceDialog.SetFind(_find);
             if (!_findAndReplaceDialog.Visible) _findAndReplaceDialog.Show();
         }
     }
