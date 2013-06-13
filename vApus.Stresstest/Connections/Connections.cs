@@ -30,7 +30,9 @@ namespace vApus.Stresstest {
         private void Test_Click(object sender, EventArgs e) {
             SolutionComponentViewManager.Show(this, typeof(TestAllConnections));
         }
-
+        /// <summary>
+        /// Only clears connections, other items are not cleared.
+        /// </summary>
         public override void Clear() {
             var itemsCopy = new List<BaseItem>();
             foreach (BaseItem item in this)

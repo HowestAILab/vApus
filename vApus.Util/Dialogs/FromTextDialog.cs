@@ -7,47 +7,49 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public partial class FromTextDialog : Form
-    {
+namespace vApus.Util {
+    public partial class FromTextDialog : Form {
         #region Fields
-
-        private string[] _entries = new string[] {};
-
+        private string[] _entries = new string[] { };
         #endregion
 
         #region Properties
 
-        public string[] Entries
-        {
+        public string[] Entries {
             get { return _entries; }
         }
-
+        public string Description {
+            get { return rtxtDescription.Text; }
+            set {
+                rtxtDescription.Text = value.Trim();
+                split.Panel1Collapsed = rtxtDescription.Text.Length == 0;
+            }
+        }
+        [DefaultValue(true)]
+        public bool WarnForEndingWithNewLine { get; set; }
         #endregion
 
         #region Constructor
 
-        public FromTextDialog()
-        {
+        public FromTextDialog() {
             InitializeComponent();
+            WarnForEndingWithNewLine = true;
         }
 
         #endregion
 
         #region Functions
 
-        public void SetText(string text)
-        {
+        public void SetText(string text) {
             rtxt.Text = text;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
-            if ((rtxt.Text.EndsWith("\r") || rtxt.Text.EndsWith("\n"))
-                &&
+        private void btnOK_Click(object sender, EventArgs e) {
+            if (WarnForEndingWithNewLine &&
+                (rtxt.Text.EndsWith("\r") || rtxt.Text.EndsWith("\n")) &&
                 MessageBox.Show("The text ends with one ore more new line characters, do you want to trim these?",
                                 string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question,
                                 MessageBoxDefaultButton.Button1) == DialogResult.Yes)
@@ -58,11 +60,9 @@ namespace vApus.Util
             Close();
         }
 
-        private void rtxt_KeyPress(object sender, KeyPressEventArgs e)
-        {
+        private void rtxt_KeyPress(object sender, KeyPressEventArgs e) {
             //Paste
-            if (e.KeyChar == (char) 22)
-            {
+            if (e.KeyChar == (char)22) {
                 string text = rtxt.Text;
                 rtxt.Rtf = string.Empty;
                 rtxt.Text = text;
