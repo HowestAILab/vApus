@@ -123,7 +123,11 @@ namespace vApus.DistributedTesting {
         public Slave[] Slaves {
             get {
                 if (_cachedSlavesParent.Count == 0) FillAndGetSlavesParent();
-                if (_cachedSlavesParent.Count == 0) return new Slave[0];
+                if (_cachedSlavesParent.Count == 0) {
+                    var emptySlaves = new Slave[0];
+                    emptySlaves.SetParent(_cachedSlavesParent);
+                    return emptySlaves;
+                }
                 if (_slaves.Length != _slaveIndices.Length) {
                     var l = new List<Slave>(_slaveIndices.Length);
                     foreach (int index in _slaveIndices)
@@ -170,11 +174,11 @@ namespace vApus.DistributedTesting {
                             _cachedSlavesParent.Add(slave);
 
 
-                    return _cachedSlavesParent;
                 }
             } catch {
+                _cachedSlavesParent.Clear();
             }
-            return null;
+            return _cachedSlavesParent;
         }
         [SavableCloneable]
         public int[] WorkDistribution {

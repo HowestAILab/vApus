@@ -139,8 +139,8 @@ namespace vApus.DistributedTesting {
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
-            if (sender is DistributedTest)
-                SetDistributedTest(sender as DistributedTest);
+            if (sender == _distributedTest)
+                SetDistributedTest(_distributedTest);
             else if (sender is Tile || sender is TileStresstest || sender is Client || sender is Slave)
                 RefreshGui();
         }

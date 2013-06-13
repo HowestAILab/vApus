@@ -713,14 +713,10 @@ namespace vApus.DistributedTesting {
             int slaveIndex = 0;
             //Assign the tests to slaves
             foreach (Tile tile in _distributedTest.Tiles)
-                foreach (TileStresstest tileStresstest in tile)
-                    if (slaveIndex == slaves.Count) {
-                        tileStresstest.Use = false;
-                        tileStresstest.BasicTileStresstest.Slaves = new Slave[] { };
-                    } else {
-                        tileStresstest.Use = true;
-                        tileStresstest.BasicTileStresstest.Slaves = new[] { slaves[slaveIndex++] };
-                    }
+                foreach (TileStresstest tileStresstest in tile) {
+                    tileStresstest.Use = true;
+                    tileStresstest.BasicTileStresstest.Slaves = slaveIndex == slaves.Count ? new Slave[] { } : new Slave[] { slaves[slaveIndex++] };
+                }
         }
 
         /// <summary>
