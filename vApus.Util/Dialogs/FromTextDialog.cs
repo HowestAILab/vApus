@@ -26,6 +26,9 @@ namespace vApus.Util {
             set {
                 rtxtDescription.Text = value.Trim();
                 split.Panel1Collapsed = rtxtDescription.Text.Length == 0;
+                rtxt.Focus();
+                rtxt.Select();
+                rtxt.Select(rtxt.Text.Length, 0);
             }
         }
         [DefaultValue(true)]
@@ -45,6 +48,9 @@ namespace vApus.Util {
 
         public void SetText(string text) {
             rtxt.Text = text;
+            rtxt.Focus();
+            rtxt.Select();
+            rtxt.Select(rtxt.Text.Length, 0);
         }
 
         private void btnOK_Click(object sender, EventArgs e) {

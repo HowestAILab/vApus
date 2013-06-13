@@ -13,6 +13,9 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class LogView : BaseSolutionComponentView {
+        private const string VBLRn = "<16 0C 02 12n>";
+        private const string VBLRr = "<16 0C 02 12r>";
+
         private readonly Log _log;
 
         //For the find.
@@ -142,7 +145,7 @@ namespace vApus.Stresstest {
                     for (int j = 0; j != userAction.Count; j++) {
                         var logEntry = userAction[j] as LogEntry;
                         List<int> r, c, ml;
-                        vApus.Util.FindAndReplace.Find(_find, logEntry.LogEntryString, out r, out c, out ml, wholeWords, ignoreCase);
+                        vApus.Util.FindAndReplace.Find(_find, logEntry.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr), out r, out c, out ml, wholeWords, ignoreCase);
 
                         for (int k = 0; k != r.Count; k++) {
                             _foundUserActions.Add(i);

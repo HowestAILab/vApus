@@ -941,10 +941,11 @@ namespace vApus.Stresstest {
                     fctxtxPlainText.DoSelectionVisible();
                 }
                 Focus();
+
+                SetParameters();
+                SetCodeStyle();
             }
         }
         #endregion
-
-
     }
 }

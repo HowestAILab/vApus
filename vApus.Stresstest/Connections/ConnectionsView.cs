@@ -123,7 +123,8 @@ namespace vApus.Stresstest {
 
             //Remove the trailing \r\n.
             string text = sb.ToString();
-            text = text.Substring(0, text.Length - 2);
+            if (text.Length > 1)
+                text = text.Substring(0, text.Length - 2);
             dialog.SetText(text);
 
             //Make new connections.
