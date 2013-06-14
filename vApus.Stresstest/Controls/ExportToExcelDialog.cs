@@ -24,6 +24,7 @@ namespace vApus.Stresstest {
 
         public ExportToExcelDialog() {
             InitializeComponent();
+            saveFileDialog.FileName = "results" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
         }
         public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;

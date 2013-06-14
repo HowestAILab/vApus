@@ -9,7 +9,6 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 using vApus.DistributedTesting.Properties;
 using vApus.SolutionTree;
@@ -107,6 +106,13 @@ namespace vApus.DistributedTesting {
                 picStresstestStatus.Visible = true;
             }
         }
+        /// <summary>
+        /// Only call this if the tile stresstest has monitors.
+        /// </summary>
+        public void SetMonitoringBeforeAfter() {
+            picStresstestStatus.Image = Resources.Busy;
+            toolTip.SetToolTip(picStresstestStatus, "Busy Monitoring");
+        }
 
         private void chkUseRDP_CheckedChanged(object sender, EventArgs e) {
             _distributedTest.UseRDP = chkUseRDP.Checked;
@@ -146,7 +152,15 @@ namespace vApus.DistributedTesting {
                 _testStarted = true;
 
                 picStresstestStatus.Image = Resources.Busy;
-                toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting or Monitoring");
+                foreach (Tile t in _distributedTest.Tiles)
+                    if (t.Use)
+                        foreach (TileStresstest ts in t)
+                            if (ts.Use && ts.BasicTileStresstest.MonitorIndices.Length != 0) {
+                                toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting and Monitoring");
+                                return;
+                            }
+
+                toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting");
             }
         }
 

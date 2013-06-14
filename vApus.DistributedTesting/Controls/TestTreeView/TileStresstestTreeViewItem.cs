@@ -57,8 +57,8 @@ namespace vApus.DistributedTesting {
         #region Properties
 
         public TileStresstest TileStresstest { get { return _tileStresstest; } }
-
         public StresstestStatus StresstestResult { get { return _stresstestStatus; } }
+        public StresstestStatus StresstestStatus { get { return _stresstestStatus; } }
 
         /// <summary>
         ///     true if the test can't start.

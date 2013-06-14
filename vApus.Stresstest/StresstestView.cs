@@ -37,7 +37,7 @@ namespace vApus.Stresstest {
         private StresstestMetricsCache _stresstestMetricsCache;
         private MonitorMetricsCache _monitorMetricsCache;
 
-        private Countdown _monitorBeforeCountDown;
+        private Countdown _monitorBeforeCountDown, _monitorAfterCountDown;
         private int _monitorsInitialized;
 
         private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
@@ -623,15 +623,9 @@ namespace vApus.Stresstest {
         private void btnStop_Click(object sender, EventArgs e) {
             if (_stresstestCore == null)
                 Stop();
-            else {
-                if (_monitorBeforeCountDown != null) {
-                    _monitorBeforeCountDown.Stop();
-                    _monitorBeforeCountDown.Dispose();
-                    _monitorBeforeCountDown = null;
-                }
+            else
                 // Can only be cancelled once, calling multiple times is not a problem.
                 _stresstestCore.Cancel();
-            }
         }
 
         /// <summary>
@@ -674,9 +668,9 @@ namespace vApus.Stresstest {
 
                 if (monitorAfter && _stresstest.MonitorAfter != 0 && runningMonitors != 0 && stresstestStatus != StresstestStatus.Cancelled && stresstestStatus != StresstestStatus.Error) {
                     int countdownTime = _stresstest.MonitorAfter * 60000;
-                    var monitorAfterCountdown = new Countdown(countdownTime, 5000);
-                    monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
-                    monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
+                    _monitorAfterCountDown = new Countdown(countdownTime, 5000);
+                    _monitorAfterCountDown.Tick += monitorAfterCountdown_Tick;
+                    _monitorAfterCountDown.Stopped += monitorAfterCountdown_Stopped;
 
                     _monitorAfterBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
                     _monitorAfterBogusRunResult = new RunResult(-1, 0);
@@ -690,7 +684,7 @@ namespace vApus.Stresstest {
                     } catch {
                     }
 
-                    monitorAfterCountdown.Start();
+                    _monitorAfterCountDown.Start();
                 } else {
                     StopMonitorsAndUnlockGui(ex, false);
                 }
@@ -710,8 +704,7 @@ namespace vApus.Stresstest {
                         fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                     }
 
-                var monitorAfterCountDown = sender as Countdown;
-                var ts = new TimeSpan(monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
+                var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
                 fastResultsControl.AppendMessages("Monitoring after the test is finished: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
@@ -721,7 +714,7 @@ namespace vApus.Stresstest {
                             runningMonitors++;
 
                 if (runningMonitors == 0) {
-                    monitorAfterCountDown.Stop();
+                    _monitorAfterCountDown.Stop();
                     fastResultsControl.AppendMessages("All monitors were manually closed.");
                 }
             }, null);
@@ -744,10 +737,6 @@ namespace vApus.Stresstest {
                     }
                 }
             }, null);
-
-            var monitorAfterCountdown = sender as Countdown;
-            monitorAfterCountdown.Dispose();
-            monitorAfterCountdown = null;
         }
 
         /// <summary>
@@ -783,6 +772,15 @@ namespace vApus.Stresstest {
         ///     Only used in stop, stops the monitors if any, saves the results; Unlocks the gui so changes can be made to the stresstest.
         /// </summary>
         private void StopMonitorsAndUnlockGui(Exception exception, bool disposing) {
+            if (_monitorBeforeCountDown != null) {
+                try { _monitorBeforeCountDown.Dispose(); } catch { }
+                _monitorBeforeCountDown = null;
+            }
+            if (_monitorAfterCountDown != null) {
+                try { _monitorAfterCountDown.Dispose(); } catch { }
+                _monitorAfterCountDown = null;
+            }
+
             var validMonitorViews = new List<MonitorView>();
             if (_monitorViews != null && _stresstest.Monitors.Length != 0)
                 foreach (MonitorView view in _monitorViews)

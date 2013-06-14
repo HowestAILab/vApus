@@ -98,14 +98,26 @@ namespace vApus.DistributedTesting {
                 tmr.Start();
             }
         }
-        /// <summary>
-        /// This is automatically unset when the mode becomes Edit again. (SetMode fx)
-        /// </summary>
-        public void SetMonitoringBeforeAfter() {
+        public void SetMonitorBeforeCancelled() {
             foreach (ITreeViewItem item in largeList.AllControls)
                 if (item is TileStresstestTreeViewItem) {
                     var ts = item as TileStresstestTreeViewItem;
-                    if (ts.TileStresstest.BasicTileStresstest.MonitorIndices.Length != 0)
+                    if (ts.TileStresstest.Use && ts.StresstestStatus == Stresstest.StresstestStatus.Busy)
+                        ts.SetStresstestStatus(Stresstest.StresstestStatus.Cancelled);
+                }
+        }
+        /// <summary>
+        /// This is automatically unset when the mode becomes Edit again. (SetMode fx)
+        /// Use this in the monitor before function in the distributed test view.
+        /// </summary>
+        public void SetMonitoringBeforeAfter() {
+            foreach (ITreeViewItem item in largeList.AllControls)
+                if (item is DistributedTestTreeViewItem) {
+                    var ds = item as DistributedTestTreeViewItem;
+                    ds.SetMonitoringBeforeAfter();
+                } else if (item is TileStresstestTreeViewItem) {
+                    var ts = item as TileStresstestTreeViewItem;
+                    if (ts.TileStresstest.Use && ts.TileStresstest.BasicTileStresstest.MonitorIndices.Length != 0)
                         ts.SetMonitoringBeforeAfter();
                 }
         }

@@ -48,7 +48,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         private int _countDown;
 
-        private Countdown _monitorBeforeCountDown;
+        private Countdown _monitorBeforeCountDown, _monitorAfterCountDown;
         /// <summary>
         ///     The test can only start when this == 0.
         /// </summary>
@@ -545,7 +545,7 @@ namespace vApus.DistributedTesting {
 
         private void InitializeAndStartTest() {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { btnStop.Enabled = true; }, null);
-            if (InitializeTest() && _pendingMonitorViewInitializations == 0) StartTest();
+            if (InitializeTest() && _pendingMonitorViewInitializations == 0) StartTestAndMonitors();
         }
         private bool InitializeTest() {
             _pendingMonitorViewInitializations = 0;
@@ -576,18 +576,74 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     Can only start after that all monitor views are initialized.
         /// </summary>
-        private void StartTest() {
+        private void StartTestAndMonitors() {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                     try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); } catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI service.", LogLevel.Error); }
-                    tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
-                    tmrProgress.Start();
 
-                    tmrProgressDelayCountDown.Start();
+                    if (_monitorViews != null) {
+                        int runningMonitors = 0;
+                        int monitorBefore = 0;
+                        foreach (TileStresstest ts in _monitorViews.Keys) {
+                            if (ts.AdvancedTileStresstest.MonitorBefore > monitorBefore && ts.BasicTileStresstest.Monitors.Length != 0)
+                                monitorBefore = ts.AdvancedTileStresstest.MonitorBefore;
 
-                    _countDown = Stresstest.Stresstest.ProgressUpdateDelay - 1;
+                            foreach (MonitorView monitorView in _monitorViews[ts])
+                                if (monitorView != null && !monitorView.IsDisposed)
+                                    try {
+                                        monitorView.Start();
 
-                    StartMonitors();
+                                        if (_tileStresstestsWithDbIds.ContainsKey(ts))
+                                            monitorView.GetMonitorResultCache().MonitorConfigurationId =
+                                            _resultsHelper.SetMonitor(_tileStresstestsWithDbIds[ts], monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
+                                            monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
+
+                                        distributedStresstestControl.AppendMessages(monitorView.Text + " is started.");
+                                        ++runningMonitors;
+                                    } catch (Exception e) {
+                                        LogWrapper.LogByLevel(monitorView.Text + " is not started.\n" + e, LogLevel.Error);
+                                        distributedStresstestControl.AppendMessages(monitorView.Text + " is not started.");
+
+                                        try { monitorView.Stop(); } catch { }
+                                    }
+                        }
+
+                        if (runningMonitors != 0 && monitorBefore != 0) {
+                            int countdownTime = monitorBefore * 60000;
+                            _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
+                            _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
+                            _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
+
+                            _monitorBeforeBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
+                            _monitorBeforeBogusRunResult = new RunResult(-1, 0);
+                            _monitorBeforeBogusConcurrencyResult.RunResults.Add(_monitorBeforeBogusRunResult);
+
+                            _monitorAfterBogusConcurrencyResult = null;
+                            _monitorAfterBogusRunResult = null;
+
+                            try {
+                                foreach (var tileStresstest in _monitorMetricsCaches.Keys)
+                                    foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
+                                        var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
+                                        monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache);
+                                        monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusRunResult, monitorResultCache);
+
+                                        if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem && (_selectedTestTreeViewItem as TileStresstestTreeViewItem).TileStresstest == tileStresstest) {
+                                            fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                            fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                                        }
+                                    }
+                            } catch {
+                            }
+
+                            testTreeView.SetMonitoringBeforeAfter();
+                            _monitorBeforeCountDown.Start();
+                        } else {
+                            MonitorBeforeDone();
+                        }
+                    } else {
+                        MonitorBeforeDone();
+                    }
 
                     Cursor = Cursors.Default;
                 }, null);
@@ -738,8 +794,8 @@ namespace vApus.DistributedTesting {
         /// <param name="overalEndOfTimeFrame">The end of time frame for the full test.</param>
         private void SetSlaveProgress(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
             lock (_lock) {
-                //Build and add fast results.
-                fastResultsControl.ClearFastResults(false);
+                //Build and add fast results. Do not show the updates in label if monitoring before.
+                fastResultsControl.ClearFastResults(testProgressMessage.StartedAt == DateTime.MinValue);
                 if (testProgressMessage.StresstestMetricsCache != null) {
                     fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics());
                     fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics());
@@ -835,16 +891,14 @@ namespace vApus.DistributedTesting {
 
         private void btnStop_Click(object sender, EventArgs e) {
             distributedStresstestControl.AppendMessages("Stopping the test...");
-            if (_monitorBeforeCountDown != null) {
-                try { _monitorBeforeCountDown.Stop(); } catch { }
-                try { _monitorBeforeCountDown.Dispose(); } catch { }
-                _monitorBeforeCountDown = null;
-            }
+            bool monitorBeforeRunning = _monitorBeforeCountDown != null;
+            StopMonitorsUpdateDetailedResultsAndSetMode(false);
+            if (monitorBeforeRunning)
+                testTreeView.SetMonitorBeforeCancelled();
 
             if (_distributedTestCore != null) {
                 Cursor = Cursors.WaitCursor;
 
-                SetMode(DistributedTestMode.Edit);
                 btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
 
                 try {
@@ -852,9 +906,9 @@ namespace vApus.DistributedTesting {
                 } catch (Exception ex) {
                     string message = string.Format("The stresstest threw an exception:{0}{1}", Environment.NewLine, ex.Message);
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
-
-                    btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
                 }
+
+                btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
 
                 Cursor = Cursors.Default;
                 distributedStresstestControl.AppendMessages("Test Cancelled!", LogLevel.Warning);
@@ -922,9 +976,9 @@ namespace vApus.DistributedTesting {
             }
             if (monitorAfter && monitorAfterTime != 0 && runningMonitors != 0) {
                 int countdownTime = monitorAfterTime * 60000;
-                var monitorAfterCountdown = new Countdown(countdownTime, 5000);
-                monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
-                monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
+                _monitorAfterCountDown = new Countdown(countdownTime, 5000);
+                _monitorAfterCountDown.Tick += monitorAfterCountdown_Tick;
+                _monitorAfterCountDown.Stopped += monitorAfterCountdown_Stopped;
 
                 _monitorAfterBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
                 _monitorAfterBogusRunResult = new RunResult(-1, 0);
@@ -945,7 +999,8 @@ namespace vApus.DistributedTesting {
                 } catch {
                 }
 
-                monitorAfterCountdown.Start();
+                testTreeView.SetMonitoringBeforeAfter();
+                _monitorAfterCountDown.Start();
             } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
         }
         private void RefreshDetailedResults() {
@@ -1051,74 +1106,6 @@ namespace vApus.DistributedTesting {
             return l;
         }
 
-        /// <summary>
-        ///     Used in stresstest started eventhandling.
-        /// </summary>
-        private void StartMonitors() {
-            if (_monitorViews != null) {
-                int runningMonitors = 0;
-                int monitorBefore = 0;
-                foreach (TileStresstest ts in _monitorViews.Keys) {
-                    if (ts.AdvancedTileStresstest.MonitorBefore > monitorBefore && ts.BasicTileStresstest.Monitors.Length != 0)
-                        monitorBefore = ts.AdvancedTileStresstest.MonitorBefore;
-
-                    foreach (MonitorView monitorView in _monitorViews[ts])
-                        if (monitorView != null && !monitorView.IsDisposed)
-                            try {
-                                monitorView.Start();
-
-                                if (_tileStresstestsWithDbIds.ContainsKey(ts))
-                                    monitorView.GetMonitorResultCache().MonitorConfigurationId =
-                                    _resultsHelper.SetMonitor(_tileStresstestsWithDbIds[ts], monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
-                                    monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
-
-                                distributedStresstestControl.AppendMessages(monitorView.Text + " is started.");
-                                ++runningMonitors;
-                            } catch (Exception e) {
-                                LogWrapper.LogByLevel(monitorView.Text + " is not started.\n" + e, LogLevel.Error);
-                                distributedStresstestControl.AppendMessages(monitorView.Text + " is not started.");
-
-                                try { monitorView.Stop(); } catch { }
-                            }
-                }
-
-                if (runningMonitors != 0 && monitorBefore != 0) {
-                    int countdownTime = monitorBefore * 60000;
-                    _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
-                    _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
-                    _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
-
-                    _monitorBeforeBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
-                    _monitorBeforeBogusRunResult = new RunResult(-1, 0);
-                    _monitorBeforeBogusConcurrencyResult.RunResults.Add(_monitorBeforeBogusRunResult);
-
-                    _monitorAfterBogusConcurrencyResult = null;
-                    _monitorAfterBogusRunResult = null;
-
-                    try {
-                        foreach (var tileStresstest in _monitorMetricsCaches.Keys)
-                            foreach (var monitorResultCache in GetMonitorResultCaches(tileStresstest)) {
-                                var monitorMetricsCache = _monitorMetricsCaches[tileStresstest];
-                                monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache);
-                                monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusRunResult, monitorResultCache);
-
-                                if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem && (_selectedTestTreeViewItem as TileStresstestTreeViewItem).TileStresstest == tileStresstest) {
-                                    fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
-                                    fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
-                                }
-                            }
-                    } catch {
-                    }
-
-                    _monitorBeforeCountDown.Start();
-                } else {
-                    MonitorBeforeDone();
-                }
-            } else {
-                MonitorBeforeDone();
-            }
-        }
-
         private void monitorBeforeCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 try {
@@ -1183,7 +1170,15 @@ namespace vApus.DistributedTesting {
             MonitorBeforeDone();
         }
         private void MonitorBeforeDone() {
-            try { _distributedTestCore.Start(); } catch (Exception ex) { HandleInitializeOrStartException(ex); }
+            try {
+                tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
+                tmrProgress.Start();
+
+                tmrProgressDelayCountDown.Start();
+
+                _countDown = Stresstest.Stresstest.ProgressUpdateDelay - 1;
+                _distributedTestCore.Start();
+            } catch (Exception ex) { HandleInitializeOrStartException(ex); }
         }
 
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {
@@ -1204,8 +1199,7 @@ namespace vApus.DistributedTesting {
                 } catch {
                 }
 
-                var monitorAfterCountDown = sender as Countdown;
-                var ts = new TimeSpan(monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
+                var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
                 distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
@@ -1215,7 +1209,7 @@ namespace vApus.DistributedTesting {
                             ++runningMonitors;
 
                 if (runningMonitors == 0) {
-                    monitorAfterCountDown.Stop();
+                    _monitorAfterCountDown.Stop();
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
@@ -1226,10 +1220,6 @@ namespace vApus.DistributedTesting {
             }, null);
         }
         private void monitorAfterCountdown_Stopped(object sender, EventArgs e) {
-            var monitorAfterCountdown = sender as Countdown;
-            monitorAfterCountdown.Dispose();
-            monitorAfterCountdown = null;
-
             if (_monitorAfterBogusConcurrencyResult != null) {
                 var stoppedAt = DateTime.Now;
                 var difference = stoppedAt - _monitorAfterBogusConcurrencyResult.StartedAt;
@@ -1250,7 +1240,15 @@ namespace vApus.DistributedTesting {
         ///     Only used in stop; this also saves the monitor results if any
         /// </summary>
         private void StopMonitorsUpdateDetailedResultsAndSetMode(bool disposing) {
-            //Same view for multiple tilestresstests.
+            if (_monitorBeforeCountDown != null) {
+                try { _monitorBeforeCountDown.Dispose(); } catch { }
+                _monitorBeforeCountDown = null;
+            }
+            if (_monitorAfterCountDown != null) {
+                try { _monitorAfterCountDown.Dispose(); } catch { }
+                _monitorAfterCountDown = null;
+            }
+
             var validMonitorViews = new List<MonitorView>();
             if (_monitorViews != null)
                 foreach (TileStresstest ts in _monitorViews.Keys)
