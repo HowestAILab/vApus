@@ -545,10 +545,15 @@ namespace vApus.DistributedTesting {
 
         private void InitializeAndStartTest() {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { btnStop.Enabled = true; }, null);
-            if (InitializeTest() && _pendingMonitorViewInitializations == 0) StartTestAndMonitors();
+            //Avoid starting when pressed stop right before this.
+            if (InitializeTest() && _pendingMonitorViewInitializations == 0 && _distributedTestMode != DistributedTestMode.Edit)
+                StartTestAndMonitors();
         }
         private bool InitializeTest() {
             _pendingMonitorViewInitializations = 0;
+
+            //Avoid starting when pressed stop right before this.
+            if (_distributedTestMode == DistributedTestMode.Edit) return false;
 
             try {
                 _distributedTestCore.Initialize();

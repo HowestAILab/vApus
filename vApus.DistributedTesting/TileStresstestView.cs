@@ -298,7 +298,7 @@ namespace vApus.DistributedTesting {
         private void SendPushMessage(RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (!_finishedSent) {
                 var estimatedRuntimeLeft = StresstestMetricsHelper.GetEstimatedRuntimeLeft(_stresstestResult, _stresstest.Concurrencies.Length, _stresstest.Runs);
-                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt, 
+                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt,
                     fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, fastResultsControl.GetEvents(), runStateChange, runFinished, concurrencyFinished);
                 if (_stresstestStatus != StresstestStatus.Busy) _finishedSent = true;
             }
@@ -344,7 +344,17 @@ namespace vApus.DistributedTesting {
         ///     To stop the test from the slave side communication handler.
         /// </summary>
         public void PerformStopClick() {
-            if (_stresstestCore != null) _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
+            int busyThreadCount = -1;
+            if (_stresstestCore != null) {
+                _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
+                busyThreadCount = _stresstestCore.BusyThreadCount;
+            }
+            //This makes it able to 'stop' the test before it started.
+            if (busyThreadCount == 0)
+                try {
+                    Stop();
+                } catch {
+                }
         }
 
         /// <summary>
