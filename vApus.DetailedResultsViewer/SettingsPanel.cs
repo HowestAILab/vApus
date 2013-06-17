@@ -58,26 +58,34 @@ namespace vApus.DetailedResultsViewer {
 
             _dataSource = null;
             dgvDatabases.DataSource = null;
+            cboStresstest.Items.Clear();
+            cboStresstest.Enabled = false;
             if (databaseActions == null || setAvailableTags) filterResults.ClearAvailableTags();
-            if (databaseActions != null) {
+            if (databaseActions == null) {
+                if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
+            }else
+            {
                 if (setAvailableTags) filterResults.SetAvailableTags(databaseActions);
                 FillDatabasesDataGridView(databaseActions);
+                cboStresstest.Enabled = true;
             }
         }
         private DatabaseActions SetServerConnectStateInGui() {
             lblConnectToMySQL.Text = "Connect to a Results MySQL Server...";
             toolTip.SetToolTip(lblConnectToMySQL, null);
 
-            if (_mySQLServerDialog.Connected) {
-                lblConnectToMySQL.Text = "Results Server Connected!";
-                toolTip.SetToolTip(lblConnectToMySQL, "Click to choose another MySQL server.");
+            try {
+                if (_mySQLServerDialog.Connected) {
+                    lblConnectToMySQL.Text = "Results Server Connected!";
+                    toolTip.SetToolTip(lblConnectToMySQL, "Click to choose another MySQL server.");
 
-                return new DatabaseActions() { ConnectionString = _mySQLServerDialog.ConnectionString };
+                    return new DatabaseActions() { ConnectionString = _mySQLServerDialog.ConnectionString };
+                }
+                if (!_initing) MessageBox.Show("Could not connect to the results server.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            } catch {
             }
 
-            if (!_initing) MessageBox.Show("Could not connect to the database server.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             return null;
-
         }
 
         private void FillDatabasesDataGridView(DatabaseActions databaseActions) {

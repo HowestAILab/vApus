@@ -29,6 +29,7 @@ namespace vApus.DetailedResultsViewer {
             _settingsPanel.ResultsSelected += _settingsPanel_ResultsSelected;
 
             _resultsPanel.ResultsHelper = _resultsHelper;
+            _resultsPanel.Enabled = false;
             _resultsPanel.Show(dockPanel);
             _resultsPanel.CloseButtonVisible = false;
             _resultsPanel.ResultsDeleted += _resultsPanel_ResultsDeleted;
@@ -38,7 +39,13 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void _settingsPanel_ResultsSelected(object sender, SettingsPanel.ResultsSelectedEventArgs e) {
-            if (e.Database == null) _resultsPanel.ClearReport(); else _resultsPanel.RefreshReport(e.StresstestId);
+            if (e.Database == null) {
+                _resultsPanel.ClearReport();
+                _resultsPanel.Enabled = false;
+            } else {
+                _resultsPanel.RefreshReport(e.StresstestId);
+                _resultsPanel.Enabled = true;
+            }
         }
 
         private void _resultsPanel_ResultsDeleted(object sender, EventArgs e) {
