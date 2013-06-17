@@ -126,7 +126,7 @@ namespace vApus.DistributedTesting {
             try {
                 _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
             } catch (Exception ex) {
-                throw new Exception("A connection to the results server could not be made!\nMake sure that you DO NOT target localhost, 127.0.0.1, 0:0:0:0:0:0:0:1 or ::1 in options > Saving Test Results!", ex);
+                throw new Exception("A connection to the results server could not be made!\nMake sure that you DO NOT target localhost, 127.0.0.1, 0:0:0:0:0:0:0:1 or ::1 in options > Saving Test Results!");
             }
         }
         /// <summary>
