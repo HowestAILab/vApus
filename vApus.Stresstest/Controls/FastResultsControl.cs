@@ -490,7 +490,7 @@ namespace vApus.Stresstest {
             try {
                 string message = null;
                 if (exception != null) {
-                    message = "The stresstest threw an exception:\n" + exception + "\n\nSee " +
+                    message = exception + "\n\nSee " +
                               Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     LogWrapper.LogByLevel(message, LogLevel.Error);
                     AppendMessages(message, Color.Red);

@@ -655,9 +655,10 @@ namespace vApus.DistributedTesting {
             } catch (Exception ex) { HandleInitializeOrStartException(ex); }
         }
 
-        private void HandleInitializeOrStartException(Exception ex) {
+        private void HandleInitializeOrStartException(Exception exception) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                string message = string.Format("The stresstest threw an exception:{0}{1}", Environment.NewLine, ex.Message);
+                string message = exception +"\n\nSee " +
+                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt"); ;
                 distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                     _distributedTestCore.Dispose();
@@ -909,7 +910,8 @@ namespace vApus.DistributedTesting {
                 try {
                     _distributedTestCore.Stop();
                 } catch (Exception ex) {
-                    string message = string.Format("The stresstest threw an exception:{0}{1}", Environment.NewLine, ex.Message);
+                    string message = ex + "\n\nSee " +
+                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                 }
 
@@ -962,7 +964,8 @@ namespace vApus.DistributedTesting {
                                                                          LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                     } catch { } //Exception on false WMI. 
                 } catch (Exception ex) {
-                    string message = string.Format("The stresstest threw an exception:{0}{1}", Environment.NewLine, ex.Message);
+                    string message = ex + "\n\nSee " +
+                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                     monitorAfter = false;
                 }
