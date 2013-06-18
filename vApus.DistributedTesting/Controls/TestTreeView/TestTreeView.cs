@@ -179,37 +179,40 @@ namespace vApus.DistributedTesting {
 
             var tile = new Tile();
             tile.AddWithoutInvokingEvent(new TileStresstest(), false);
-            CreateAndAddTileTreeViewItem(tile);
 
             dttvi.DistributedTest.Tiles.Add(tile);
 
             foreach (TileStresstest tileStresstest in tile) tileStresstest.SelectAvailableSlave();
 
+            CreateAndAddTileTreeViewItem(tile);
+
             dttvi.DistributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
+            
             LockWindowUpdate(0);
         }
 
         private void CreateAndAddTileTreeViewItem(Tile tile) {
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
-            tvi.SetParent(largeList);
+            tvi.SetParent(largeList, false);
             tvi.AfterSelect += _AfterSelect;
             tvi.AddTileStresstestClicked += tvi_AddTileStresstestClicked;
             tvi.DuplicateClicked += tvi_DuplicateClicked;
             tvi.DeleteClicked += tvi_DeleteClicked;
 
-            largeList.Add(tvi);
+            largeList.Add(tvi, false);
             foreach (TileStresstest tileStresstest in tile) {
                 TileStresstestTreeViewItem tsvi = CreateTileStresstestTreeViewItem(tvi, tileStresstest);
                 tvi.ChildControls.Add(tsvi);
-                largeList.Add(tsvi);
+                largeList.Add(tsvi, false);
             }
+            largeList.RefreshControls();
         }
 
         private void CreateAndInsertTileTreeViewItem(Tile tile, KeyValuePair<int, int> index) {
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
-            tvi.SetParent(largeList);
+            tvi.SetParent(largeList, false);
             tvi.AfterSelect += _AfterSelect;
             tvi.AddTileStresstestClicked += tvi_AddTileStresstestClicked;
             tvi.DuplicateClicked += tvi_DuplicateClicked;
@@ -323,11 +326,10 @@ namespace vApus.DistributedTesting {
             LockWindowUpdate(0);
         }
 
-        private TileStresstestTreeViewItem CreateTileStresstestTreeViewItem(TileTreeViewItem parent,
-                                                                            TileStresstest tileStresstest) {
+        private TileStresstestTreeViewItem CreateTileStresstestTreeViewItem(TileTreeViewItem parent, TileStresstest tileStresstest) {
             var tsvi = new TileStresstestTreeViewItem(tileStresstest);
             //To be able to delete the control.
-            tsvi.SetParent(parent);
+            tsvi.SetParent(parent, false);
             tsvi.AfterSelect += _AfterSelect;
             tsvi.DuplicateClicked += tsvi_DuplicateClicked;
             tsvi.DeleteClicked += tsvi_DeleteClicked;
