@@ -15,6 +15,7 @@ using vApus.Util;
 namespace vApus.Results {
     public partial class SavingResultsPanel : Panel {
         private bool _showDescription = true;
+        private bool _showLocalHostWarning = true;
 
         public bool Connected {
             get {
@@ -42,8 +43,11 @@ namespace vApus.Results {
         public void GetCurrentCredentials(out string user, out string host, out int port, out string password) {
             SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
         }
+
         [DefaultValue(true)]
         public bool ShowDescription { get { return _showDescription; } set { _showDescription = value; } }
+        [DefaultValue(true)]
+        public bool ShowLocalHostWarning { get { return _showLocalHostWarning; } set { _showLocalHostWarning = value; } }
 
         public SavingResultsPanel() {
             InitializeComponent();
@@ -57,13 +61,14 @@ namespace vApus.Results {
         }
 
         private void SetGui() {
-            if (ShowDescription) {
+            if (_showDescription) {
                 lblDescription.Visible = true;
                 grp.Top = 63;
             } else {
                 lblDescription.Visible = false;
                 grp.Top = 13;
             }
+            grp.Enabled = true;
             grp.Height = btnTest.Top - grp.Top - 6;
 
             cboConnectionString.Items.Clear();
@@ -74,14 +79,14 @@ namespace vApus.Results {
             cboConnectionString.SelectedIndex = Settings.Default.ConnectionStringIndex;
             btnSave.Enabled = false;
 
+            txt_TextChanged(txtHost, null);
             if (SettingsManager.Enabled) {
                 btnEnableDisable.Text = "Disable";
-                grp.Enabled = true;
                 btnDelete.Enabled = cboConnectionString.Items.Count != 1 && cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1;
-                txt_TextChanged(txtHost, null);
             } else {
                 btnEnableDisable.Text = "Enable";
-                grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = false;
+
+                grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = btnSave.Enabled = false;
             }
         }
 
@@ -95,7 +100,7 @@ namespace vApus.Results {
             } else {
                 string user, host, password;
                 int port;
-                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
+                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password, true);
 
                 txtUser.Text = user;
                 txtHost.Text = host;
@@ -108,27 +113,17 @@ namespace vApus.Results {
 
         private void txt_TextChanged(object sender, EventArgs e) {
             string host = txtHost.Text.Trim().ToLower();
-            //if (host == "localhost" || host == "127.0.0.1" || host == "::1") {
-            //    MessageBox.Show("The MySQL server must be reachable from a remote location, otherwise distributed testing won't work!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //    txtHost.Text = string.Empty;
-            //}
-
             if (cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1) {
                 string user, password;
                 int port;
-                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port,
-                                               out password);
+                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
 
-                btnSave.Enabled = txtUser.Text != user ||
-                                  txtHost.Text != host ||
-                                  (int)nudPort.Value != port ||
-                                  txtPassword.Text != password;
+                btnSave.Enabled = txtUser.Text != user || txtHost.Text != host || (int)nudPort.Value != port || txtPassword.Text != password;
             }
 
             txtPassword.Enabled = txtUser.Text.Trim().Length != 0;
             if (!txtPassword.Enabled) txtPassword.Text = string.Empty;
-            btnTest.Enabled = txtUser.Text.Trim().Length != 0 && txtHost.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0;
-            if (btnSave.Enabled || cboConnectionString.Items.Count == 1) btnSave.Enabled = btnTest.Enabled;
+            btnSave.Enabled = btnTest.Enabled = txtUser.Text.Trim().Length != 0 && txtHost.Text.Trim().Length != 0 && txtPassword.Text.Trim().Length != 0;
         }
 
         private void btnTest_Click(object sender, EventArgs e) {
@@ -154,6 +149,10 @@ namespace vApus.Results {
             else
                 SettingsManager.EditCredentials(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
             SetGui();
+
+            string host = txtHost.Text.Trim().ToLower();
+            if (_showLocalHostWarning && (host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "0:0:0:0:0:0:0:1"))
+                MessageBox.Show("The results server must be reachable from a remote location, otherwise distributed testing won't work!\nBe sure that '" + txtHost.Text.Trim() + "' is what you want.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private void btnDelete_Click(object sender, EventArgs e) {

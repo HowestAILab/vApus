@@ -30,7 +30,9 @@
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.flpTags = new System.Windows.Forms.FlowLayoutPanel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.pnlTagsContainer = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            this.pnlTagsContainer.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox2
@@ -70,27 +72,44 @@
             // 
             // flpTags
             // 
-            this.flpTags.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.flpTags.AutoScroll = true;
+            this.flpTags.AutoSize = true;
+            this.flpTags.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flpTags.Location = new System.Drawing.Point(3, 3);
+            this.flpTags.Margin = new System.Windows.Forms.Padding(0);
+            this.flpTags.MaximumSize = new System.Drawing.Size(260, 9999);
+            this.flpTags.MinimumSize = new System.Drawing.Size(260, 0);
+            this.flpTags.Name = "flpTags";
+            this.flpTags.Size = new System.Drawing.Size(260, 0);
+            this.flpTags.TabIndex = 1;
+            // 
+            // pnlTagsContainer
+            // 
+            this.pnlTagsContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpTags.AutoScroll = true;
-            this.flpTags.Location = new System.Drawing.Point(23, 82);
-            this.flpTags.Name = "flpTags";
-            this.flpTags.Size = new System.Drawing.Size(288, 30);
-            this.flpTags.TabIndex = 1;
+            this.pnlTagsContainer.AutoScroll = true;
+            this.pnlTagsContainer.Controls.Add(this.flpTags);
+            this.pnlTagsContainer.Location = new System.Drawing.Point(23, 82);
+            this.pnlTagsContainer.Name = "pnlTagsContainer";
+            this.pnlTagsContainer.Size = new System.Drawing.Size(288, 65);
+            this.pnlTagsContainer.TabIndex = 8;
             // 
             // FilterResults
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.Controls.Add(this.flpTags);
+            this.Controls.Add(this.pnlTagsContainer);
             this.Controls.Add(this.txtFilter);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label2);
             this.Name = "FilterResults";
-            this.Size = new System.Drawing.Size(314, 115);
+            this.Size = new System.Drawing.Size(314, 150);
+            this.Resize += new System.EventHandler(this.FilterResults_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            this.pnlTagsContainer.ResumeLayout(false);
+            this.pnlTagsContainer.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -103,6 +122,7 @@
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.FlowLayoutPanel flpTags;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.Panel pnlTagsContainer;
 
 
     }

@@ -37,8 +37,12 @@ namespace vApus.Stresstest {
         private StresstestMetricsCache _stresstestMetricsCache;
         private MonitorMetricsCache _monitorMetricsCache;
 
-        private Countdown _monitorBeforeCountDown;
+        private Countdown _monitorBeforeCountDown, _monitorAfterCountDown;
         private int _monitorsInitialized;
+
+        private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
+        private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
+
         private StresstestCore _stresstestCore;
         private StresstestResult _stresstestResult;
 
@@ -309,9 +313,11 @@ namespace vApus.Stresstest {
                 ex = e;
             } finally {
                 if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                        Stop(stresstestStatus, ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
-                    }, null);
+                    try {
+                        SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                            Stop(stresstestStatus, ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
+                        }, null);
+                    } catch { }
                 }
             }
         }
@@ -432,17 +438,43 @@ namespace vApus.Stresstest {
                     _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
                     _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                     _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
+
+                    _monitorBeforeBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
+                    _monitorBeforeBogusRunResult = new RunResult(-1, 0);
+                    _monitorBeforeBogusConcurrencyResult.RunResults.Add(_monitorBeforeBogusRunResult);
+
+                    _monitorAfterBogusConcurrencyResult = null;
+                    _monitorAfterBogusRunResult = null;
+
+                    try {
+                        foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                            fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache));
+                            fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusRunResult, monitorResultCache));
+                        }
+                    } catch {
+                    }
+
+                    fastResultsControl.ToggleCollapseEventPanel();
                     _monitorBeforeCountDown.Start();
-                } else MonitorBeforeDone();
-            } else MonitorBeforeDone();
+                } else {
+                    MonitorBeforeDone();
+                }
+            } else {
+                MonitorBeforeDone();
+            }
         }
 
         private void monitorBeforeCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                if (_monitorBeforeBogusConcurrencyResult != null)
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                fastResultsControl.AppendMessages("The test will start in " + ts.ToShortFormattedString() +
-                                                 ", monitoring first.");
+                fastResultsControl.AppendMessages("The test will start in " + ts.ToShortFormattedString() + ", monitoring first.");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null && _stresstest.Monitors.Length != 0)
@@ -462,6 +494,22 @@ namespace vApus.Stresstest {
                 _monitorBeforeCountDown.Dispose();
                 _monitorBeforeCountDown = null;
             }
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                if (_monitorBeforeBogusConcurrencyResult != null) {
+                    var stoppedAt = DateTime.Now;
+                    TimeSpan difference = stoppedAt - _monitorBeforeBogusConcurrencyResult.StartedAt;
+                    _monitorBeforeBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+
+                    difference = stoppedAt - _monitorBeforeBogusRunResult.StartedAt;
+                    _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+                }
+            }, null);
+
             MonitorBeforeDone();
         }
 
@@ -555,7 +603,7 @@ namespace vApus.Stresstest {
             if (btnStart.Enabled || _stresstestCore == null || _stresstestCore.IsDisposed ||
                 MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning) == DialogResult.Yes) {
-                StopMonitors(null, true);
+                StopMonitorsAndUnlockGui(null, true);
                 StopStresstest();
 
                 tmrProgress.Stop();
@@ -573,14 +621,12 @@ namespace vApus.Stresstest {
         }
 
         private void btnStop_Click(object sender, EventArgs e) {
-            if (_stresstestCore == null)
-                Stop();
-            else {
-                if (_monitorBeforeCountDown != null) {
-                    _monitorBeforeCountDown.Stop();
-                    _monitorBeforeCountDown.Dispose();
-                    _monitorBeforeCountDown = null;
-                }
+            if (_stresstestCore == null || (_monitorAfterCountDown != null && _monitorAfterCountDown.CountdownTime != 0)) {
+                Stop(StresstestStatus.Cancelled);
+            } else if (_monitorBeforeCountDown != null && _monitorBeforeCountDown.CountdownTime != 0) {
+                _stresstestCore.Cancel();
+                Stop(StresstestStatus.Cancelled);
+            } else {
                 // Can only be cancelled once, calling multiple times is not a problem.
                 _stresstestCore.Cancel();
             }
@@ -612,9 +658,6 @@ namespace vApus.Stresstest {
 
 
                 fastResultsControl.SetStresstestStopped(stresstestStatus, ex);
-                if (stresstestStatus == StresstestStatus.Cancelled || stresstestStatus == StresstestStatus.Error)
-                    RemoveDatabase();
-
 
                 Cursor = Cursors.Default;
 
@@ -626,25 +669,46 @@ namespace vApus.Stresstest {
 
                 if (monitorAfter && _stresstest.MonitorAfter != 0 && runningMonitors != 0 && stresstestStatus != StresstestStatus.Cancelled && stresstestStatus != StresstestStatus.Error) {
                     int countdownTime = _stresstest.MonitorAfter * 60000;
-                    var monitorAfterCountdown = new Countdown(countdownTime, 5000);
-                    monitorAfterCountdown.Tick += monitorAfterCountdown_Tick;
-                    monitorAfterCountdown.Stopped += monitorAfterCountdown_Stopped;
-                    monitorAfterCountdown.Start();
+                    _monitorAfterCountDown = new Countdown(countdownTime, 5000);
+                    _monitorAfterCountDown.Tick += monitorAfterCountdown_Tick;
+                    _monitorAfterCountDown.Stopped += monitorAfterCountdown_Stopped;
+
+                    _monitorAfterBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
+                    _monitorAfterBogusRunResult = new RunResult(-1, 0);
+                    _monitorAfterBogusConcurrencyResult.RunResults.Add(_monitorAfterBogusRunResult);
+
+                    try {
+                        foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                            fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorAfterBogusConcurrencyResult, monitorResultCache));
+                            fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorAfterBogusRunResult, monitorResultCache));
+                        }
+                    } catch {
+                    }
+
+                    _monitorAfterCountDown.Start();
                 } else {
-                    StopMonitors(ex, false);
+                    StopMonitorsAndUnlockGui(ex, false);
                 }
+
+                if (stresstestStatus == StresstestStatus.Cancelled || stresstestStatus == StresstestStatus.Error)
+                    RemoveDatabase();
             }
         }
         private void RemoveDatabase(bool confirm = true) {
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
-                if (!confirm || MessageBox.Show("Do you want to remove the result database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                if (!confirm || MessageBox.Show("Do you want to remove the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
                     try { _resultsHelper.RemoveDatabase(); } catch { }
         }
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                var monitorAfterCountDown = sender as Countdown;
-                var ts = new TimeSpan(monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
+                if (_monitorAfterBogusConcurrencyResult != null)
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+
+                var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
                 fastResultsControl.AppendMessages("Monitoring after the test is finished: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
@@ -654,18 +718,29 @@ namespace vApus.Stresstest {
                             runningMonitors++;
 
                 if (runningMonitors == 0) {
-                    monitorAfterCountDown.Stop();
+                    _monitorAfterCountDown.Stop();
                     fastResultsControl.AppendMessages("All monitors were manually closed.");
                 }
             }, null);
         }
 
         private void monitorAfterCountdown_Stopped(object sender, EventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitors(null, false); }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                StopMonitorsAndUnlockGui(null, false);
+                if (_monitorAfterBogusConcurrencyResult != null) {
+                    var stoppedAt = DateTime.Now;
+                    var difference = stoppedAt - _monitorAfterBogusConcurrencyResult.StartedAt;
+                    _monitorAfterBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
 
-            var monitorAfterCountdown = sender as Countdown;
-            monitorAfterCountdown.Dispose();
-            monitorAfterCountdown = null;
+                    difference = stoppedAt - _monitorAfterBogusRunResult.StartedAt;
+                    _monitorAfterBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
+
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+                }
+            }, null);
         }
 
         /// <summary>
@@ -698,25 +773,33 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Only used in stop
+        ///     Only used in stop, stops the monitors if any, saves the results; Unlocks the gui so changes can be made to the stresstest.
         /// </summary>
-        private void StopMonitors(Exception ex, bool disposing) {
+        private void StopMonitorsAndUnlockGui(Exception exception, bool disposing) {
+            if (_monitorBeforeCountDown != null) {
+                try { _monitorBeforeCountDown.Dispose(); } catch { }
+                _monitorBeforeCountDown = null;
+            }
+            if (_monitorAfterCountDown != null) {
+                try { _monitorAfterCountDown.Dispose(); } catch { }
+                _monitorAfterCountDown = null;
+            }
+
+            var validMonitorViews = new List<MonitorView>();
             if (_monitorViews != null && _stresstest.Monitors.Length != 0)
                 foreach (MonitorView view in _monitorViews)
-                    if (view != null && !view.IsDisposed) {
+                    if (view != null && !view.IsDisposed && view.IsRunning) {
                         view.Stop();
                         fastResultsControl.AppendMessages(view.Text + " is stopped.");
+                        validMonitorViews.Add(view);
                     }
-            MonitorAfterFinishedOrStopAndSetGui(ex, disposing);
-        }
-        private void MonitorAfterFinishedOrStopAndSetGui(Exception exception, bool disposing) {
-            if (_monitorViews != null && _stresstest.Monitors.Length != 0)
-                foreach (MonitorView view in _monitorViews)
-                    if (view != null)
-                        try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
-                            LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
-                            _stresstestStatus = StresstestStatus.Error;
-                        }
+            foreach (MonitorView view in validMonitorViews)
+                try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
+                    LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
+                    _stresstestStatus = StresstestStatus.Error;
+                }
+
+            validMonitorViews = null;
 
             if (!disposing) {
                 solutionComponentPropertyPanel.Unlock();

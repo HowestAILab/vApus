@@ -111,9 +111,8 @@ namespace vApus.Stresstest {
             //Double buffer the datagridview.
             (dgvFastResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvFastResults, true);
 
-            btnCollapseExpand.PerformClick();
             cboDrillDown.SelectedIndex = 0;
-            epnlMessages.Collapsed = true;
+            ToggleCollapseEventPanel();
         }
 
         #endregion
@@ -265,7 +264,7 @@ namespace vApus.Stresstest {
                 kvmNicsSent.Value = Math.Round(nicsSent, 2).ToString() + " %";
                 if (nicsSent < 90) {
                     kvmNicsSent.BackColor = Color.GhostWhite;
-                } else {
+                } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmNicsSent.BackColor = Color.Orange;
                     AppendMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
                 }
@@ -276,7 +275,7 @@ namespace vApus.Stresstest {
                 kvmNicsReceived.Value = Math.Round(nicsReceived, 2).ToString() + " %";
                 if (nicsReceived < 90) {
                     kvmNicsReceived.BackColor = Color.GhostWhite;
-                } else {
+                } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmNicsReceived.BackColor = Color.Orange;
                     AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
                 }
@@ -408,6 +407,9 @@ namespace vApus.Stresstest {
                     if (monitorToString != null) {
                         var row = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString][e.RowIndex];
                         e.Value = (e.ColumnIndex < row.Length) ? row[e.ColumnIndex] : "--";
+
+                        string valueString = e.Value.ToString();
+                        if (valueString == "0" || valueString == "-1") e.Value = "--";
                     }
                 }
             } catch { }
@@ -488,7 +490,7 @@ namespace vApus.Stresstest {
             try {
                 string message = null;
                 if (exception != null) {
-                    message = "The stresstest threw an exception:\n" + exception + "\n\nSee " +
+                    message = exception.Message + "\n" + exception.StackTrace + "\n\nSee " +
                               Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     LogWrapper.LogByLevel(message, LogLevel.Error);
                     AppendMessages(message, Color.Red);
@@ -729,6 +731,10 @@ namespace vApus.Stresstest {
                 splitTop.IsSplitterFixed = false;
                 splitTop.BackColor = SystemColors.Control;
             }
+        }
+        public void ToggleCollapseEventPanel() {
+            btnCollapseExpand.PerformClick();
+            epnlMessages.Collapsed = btnCollapseExpand.Text == "+";
         }
         #endregion
     }

@@ -469,17 +469,12 @@ namespace vApus.Util {
             }
         }
         /// <summary>
-        /// 
+        /// This does not invoke parent changed.
         /// </summary>
         /// <returns>True if the cache was not empty.</returns>
-        public static bool ClearCache(bool invokeParentChanged = true) {
+        public static bool ClearCache() {
             lock (_tags.SyncRoot) {
                 bool cleared = _tags.Count != 0 || _parents.Count != 0 || _descriptions.Count != 0;
-
-                if (invokeParentChanged && ParentChanged != null)
-                    foreach (object o in _parents.Keys)
-                        foreach (ParentChangedEventHandler del in ParentChanged.GetInvocationList())
-                            del.BeginInvoke(new ParentOrTagChangedEventArgs(o, _parents[o], null), null, null);
 
                 _tags.Clear();
                 _parents.Clear();

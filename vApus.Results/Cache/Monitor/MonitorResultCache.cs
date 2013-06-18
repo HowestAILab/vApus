@@ -7,10 +7,8 @@
  */
 using System.Collections.Generic;
 
-namespace vApus.Results
-{
-    public class MonitorResultCache
-    {
+namespace vApus.Results {
+    public class MonitorResultCache {
         /// <summary>
         ///     Identifier for the metrics (the tostring of the monitor)
         /// </summary>
@@ -25,8 +23,7 @@ namespace vApus.Results
         public List<object[]> Rows { get; private set; }
         public string[] Headers { get; set; }
 
-        public MonitorResultCache()
-        {
+        public MonitorResultCache() {
             Rows = new List<object[]>();
             Headers = new string[0];
         }

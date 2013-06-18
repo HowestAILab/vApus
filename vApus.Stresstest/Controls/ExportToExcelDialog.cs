@@ -24,6 +24,7 @@ namespace vApus.Stresstest {
 
         public ExportToExcelDialog() {
             InitializeComponent();
+            saveFileDialog.FileName = "results" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
         }
         public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;
@@ -85,14 +86,14 @@ namespace vApus.Stresstest {
                         int worksheetIndex = 1; //Just for a unique sheet name
                         foreach (ulong stresstestId in stresstests.Keys) {
                             //For some strange reason the doubles are changed to string.
-                            var overview = _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(_cancellationTokenSource.Token, stresstestId);
+                            var overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
                             var avgUserActions = _resultsHelper.GetAverageUserActions(_cancellationTokenSource.Token, stresstestId);
                             var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                             var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId); ;
                             var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
 
                             string stresstest = stresstests[stresstestId];
-                            string fws = MakeCummulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Cummulative Response Times vs Achieved Throughput");
+                            string fws = MakeCumulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
                             if (firstWorksheet == null) firstWorksheet = fws;
 
                             MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
@@ -149,10 +150,12 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="title"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeCummulativeResponseTimesVsAchievedThroughputSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeCumulativeResponseTimesVsAchievedThroughputSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, dt, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
 
+            //Don't use the bonus column "Errors"
+            --rangeWidth;
             //Plot the response times
             var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
             chart.SetChartType(SLColumnChartType.StackedColumn);
@@ -163,11 +166,11 @@ namespace vApus.Stresstest {
             chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
 
             //Set the titles
-            chart.Title.SetTitle(title);
+            chart.Title.SetTitle(title.Replace("Overview: Response Times, Throughput & Errors", "Cumulative Response Times vs Achieved Throughput"));
             chart.ShowChartTitle(false);
             chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
             chart.PrimaryTextAxis.ShowTitle = true;
-            chart.PrimaryValueAxis.Title.SetTitle("Cummulative Response Time (ms)");
+            chart.PrimaryValueAxis.Title.SetTitle("Cumulative Response Time (ms)");
             chart.PrimaryValueAxis.ShowTitle = true;
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
             chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
@@ -298,7 +301,7 @@ namespace vApus.Stresstest {
             var userActions = new Dictionary<string, List<string>>();
             foreach (DataRow row in dt.Rows) {
                 string userAction = row.ItemArray[1] as string;
-                string logEntry = row.ItemArray[2] as string;
+                string logEntry = (row.ItemArray[2] as string).Replace("<16 0C 02 12$>", "•");
                 if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
                 userActions[userAction].Add(logEntry);
             }

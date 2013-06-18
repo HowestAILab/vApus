@@ -223,7 +223,9 @@ namespace vApus.DistributedTesting {
                             } else {
                                 Dispose();
                                 var ex = new Exception(string.Format("Could not connect to one of the slaves ({0} - {1})!{2}{3}", tileStresstest.Parent, tileStresstest, Environment.NewLine, exception));
-                                InvokeMessage(ex.ToString(), LogLevel.Error);
+                                string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
+                                                 Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
+                                InvokeMessage(message, LogLevel.Error);
                                 throw ex;
                             }
                         }
@@ -231,7 +233,9 @@ namespace vApus.DistributedTesting {
             }
             if (_usedTileStresstests.Count == 0) {
                 var ex = new Exception("Please use at least one test!");
-                InvokeMessage(ex.ToString(), LogLevel.Warning);
+                string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
+                   Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
+                InvokeMessage(message, LogLevel.Warning);
                 throw ex;
             }
             _sw.Stop();
@@ -500,7 +504,8 @@ namespace vApus.DistributedTesting {
             if (Message != null) {
                 if (logLevel == LogLevel.Error) {
                     string[] split = message.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
-                    message = split[0] + "\n See " + Logger.DEFAULT_LOCATION + " for the stack trace.";
+                    message = split[0] + "\n\nSee " +
+                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                 }
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
             }

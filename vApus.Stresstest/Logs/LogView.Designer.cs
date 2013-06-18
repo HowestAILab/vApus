@@ -29,11 +29,11 @@
             this.picFind = new System.Windows.Forms.PictureBox();
             this.llblFindAndReplace = new System.Windows.Forms.LinkLabel();
             this.txtFind = new System.Windows.Forms.TextBox();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             this.logTreeView = new vApus.Stresstest.LogTreeView();
             this.editLog = new vApus.Stresstest.EditLog();
             this.editUserAction = new vApus.Stresstest.EditUserAction();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -123,9 +123,21 @@
             this.txtFind.Size = new System.Drawing.Size(304, 20);
             this.txtFind.TabIndex = 0;
             this.txtFind.TabStop = false;
-            this.toolTip.SetToolTip(this.txtFind, "Wild cards * + - \"\" can be used. Not case sensitive.");
+            this.toolTip.SetToolTip(this.txtFind, "Wild cards * + - \"\" can be used. No whole words; Not case sensitive.");
             this.txtFind.TextChanged += new System.EventHandler(this.txtFind_TextChanged);
             this.txtFind.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFind_KeyDown);
+            // 
+            // toolTip
+            // 
+            this.toolTip.AutomaticDelay = 100;
+            this.toolTip.AutoPopDelay = 10000;
+            this.toolTip.InitialDelay = 100;
+            this.toolTip.ReshowDelay = 20;
+            // 
+            // tmrRefreshGui
+            // 
+            this.tmrRefreshGui.Enabled = true;
+            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
             // 
             // logTreeView
             // 
@@ -147,6 +159,7 @@
             this.editLog.Size = new System.Drawing.Size(694, 595);
             this.editLog.TabIndex = 0;
             this.editLog.LogImported += new System.EventHandler(this.editLog_LogImported);
+            this.editLog.RevertedToAsImported += new System.EventHandler(this.editLog_RevertedToAsImported);
             this.editLog.RedeterminedTokens += new System.EventHandler(this.editLog_RedeterminedTokens);
             // 
             // editUserAction
@@ -163,19 +176,7 @@
             this.editUserAction.MergeClicked += new System.EventHandler(this.editUserAction_MergeClicked);
             this.editUserAction.LinkedChanged += new System.EventHandler(this.editUserAction_LinkedChanged);
             // 
-            // toolTip
-            // 
-            this.toolTip.AutomaticDelay = 100;
-            this.toolTip.AutoPopDelay = 10000;
-            this.toolTip.InitialDelay = 100;
-            this.toolTip.ReshowDelay = 20;
-            // 
-            // tmrRefreshGui
-            // 
-            this.tmrRefreshGui.Enabled = true;
-            this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
-            // 
-            // NewLogView
+            // LogView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -183,7 +184,7 @@
             this.ClientSize = new System.Drawing.Size(1046, 595);
             this.Controls.Add(this.split);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Name = "NewLogView";
+            this.Name = "LogView";
             this.Text = "NewLogView";
             this.split.Panel1.ResumeLayout(false);
             this.split.Panel2.ResumeLayout(false);

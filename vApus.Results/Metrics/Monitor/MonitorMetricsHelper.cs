@@ -71,6 +71,13 @@ namespace vApus.Results {
 
             return metrics;
         }
+        /// <summary>
+        /// This is an override function, use GetMetrics if possible.
+        /// </summary>
+        /// <param name="monitor"></param>
+        /// <param name="concurrencyMetrics"></param>
+        /// <param name="monitorResultCache"></param>
+        /// <returns></returns>
         public static MonitorMetrics GetConcurrencyMetrics(string monitor, StresstestMetrics concurrencyMetrics, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitor;
@@ -90,6 +97,7 @@ namespace vApus.Results {
 
             return metrics;
         }
+
         public static MonitorMetrics GetMetrics(RunResult result, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitorResultCache.Monitor;
@@ -103,7 +111,13 @@ namespace vApus.Results {
 
             return metrics;
         }
-
+        /// <summary>
+        /// This is an override function, use GetMetrics if possible.
+        /// </summary>
+        /// <param name="monitor"></param>
+        /// <param name="runMetrics"></param>
+        /// <param name="monitorResultCache"></param>
+        /// <returns></returns>
         public static MonitorMetrics GetRunMetrics(string monitor, StresstestMetrics runMetrics, MonitorResultCache monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitor;

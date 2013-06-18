@@ -233,7 +233,7 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        private void DefaultTo(Stresstest.Stresstest stresstest) {
+        internal void DefaultTo(Stresstest.Stresstest stresstest) {
             _defaultSettingsTo = stresstest;
             Log = _defaultSettingsTo.Log;
             _concurrencies = new int[_defaultSettingsTo.Concurrencies.Length];

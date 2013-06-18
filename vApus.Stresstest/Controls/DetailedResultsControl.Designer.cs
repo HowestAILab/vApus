@@ -430,12 +430,12 @@
             this.cboShow.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboShow.FormattingEnabled = true;
             this.cboShow.Items.AddRange(new object[] {
+            "Overview: Response Times, Throughput & Errors",
             "Average Concurrency Results",
             "Average User Actions",
             "Average Log Entries",
             "Errors",
             "User Action Composition",
-            "Cummulative Response Times vs Achieved Throughput",
             "Machine Configurations",
             "Average Monitor Results"});
             this.cboShow.Location = new System.Drawing.Point(1, 1);

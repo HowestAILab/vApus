@@ -37,8 +37,9 @@
             this.pnlBorderStresstest = new System.Windows.Forms.Panel();
             this.cboStresstest = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.filterResults = new vApus.DetailedResultsViewer.FilterResults();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.btnDeleteListedDbs = new System.Windows.Forms.Button();
+            this.filterResults = new vApus.DetailedResultsViewer.FilterResults();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDatabases)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDatabases)).BeginInit();
@@ -73,7 +74,7 @@
             // 
             this.lblResults.AutoSize = true;
             this.lblResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblResults.Location = new System.Drawing.Point(29, 182);
+            this.lblResults.Location = new System.Drawing.Point(29, 217);
             this.lblResults.Name = "lblResults";
             this.lblResults.Size = new System.Drawing.Size(168, 16);
             this.lblResults.TabIndex = 9;
@@ -82,7 +83,7 @@
             // picDatabases
             // 
             this.picDatabases.Image = ((System.Drawing.Image)(resources.GetObject("picDatabases.Image")));
-            this.picDatabases.Location = new System.Drawing.Point(12, 182);
+            this.picDatabases.Location = new System.Drawing.Point(12, 217);
             this.picDatabases.Name = "picDatabases";
             this.picDatabases.Size = new System.Drawing.Size(16, 16);
             this.picDatabases.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -105,7 +106,7 @@
             this.dgvDatabases.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDatabases.EnableHeadersVisualStyles = false;
             this.dgvDatabases.Font = new System.Drawing.Font("Consolas", 9.75F);
-            this.dgvDatabases.Location = new System.Drawing.Point(32, 201);
+            this.dgvDatabases.Location = new System.Drawing.Point(32, 236);
             this.dgvDatabases.Name = "dgvDatabases";
             this.dgvDatabases.ReadOnly = true;
             this.dgvDatabases.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
@@ -113,7 +114,7 @@
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
             this.dgvDatabases.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvDatabases.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvDatabases.Size = new System.Drawing.Size(502, 200);
+            this.dgvDatabases.Size = new System.Drawing.Size(502, 165);
             this.dgvDatabases.TabIndex = 2;
             this.dgvDatabases.VirtualMode = true;
             this.dgvDatabases.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDatabases_RowEnter);
@@ -123,7 +124,7 @@
             this.llblRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.llblRefresh.AutoSize = true;
             this.llblRefresh.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.llblRefresh.Location = new System.Drawing.Point(490, 184);
+            this.llblRefresh.Location = new System.Drawing.Point(490, 217);
             this.llblRefresh.Name = "llblRefresh";
             this.llblRefresh.Size = new System.Drawing.Size(44, 13);
             this.llblRefresh.TabIndex = 12;
@@ -137,7 +138,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlBorderStresstest.BackColor = System.Drawing.Color.Silver;
             this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
-            this.pnlBorderStresstest.Location = new System.Drawing.Point(158, 417);
+            this.pnlBorderStresstest.Location = new System.Drawing.Point(158, 465);
             this.pnlBorderStresstest.Name = "pnlBorderStresstest";
             this.pnlBorderStresstest.Size = new System.Drawing.Size(377, 23);
             this.pnlBorderStresstest.TabIndex = 13;
@@ -162,11 +163,41 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(33, 421);
+            this.label1.Location = new System.Drawing.Point(33, 469);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(119, 16);
             this.label1.TabIndex = 14;
             this.label1.Text = "Select a Stresstest";
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+            this.pictureBox2.Location = new System.Drawing.Point(12, 469);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(16, 16);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox2.TabIndex = 15;
+            this.pictureBox2.TabStop = false;
+            // 
+            // btnDeleteListedDbs
+            // 
+            this.btnDeleteListedDbs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeleteListedDbs.AutoSize = true;
+            this.btnDeleteListedDbs.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnDeleteListedDbs.BackColor = System.Drawing.SystemColors.Control;
+            this.btnDeleteListedDbs.Enabled = false;
+            this.btnDeleteListedDbs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDeleteListedDbs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDeleteListedDbs.Location = new System.Drawing.Point(441, 407);
+            this.btnDeleteListedDbs.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnDeleteListedDbs.MinimumSize = new System.Drawing.Size(0, 24);
+            this.btnDeleteListedDbs.Name = "btnDeleteListedDbs";
+            this.btnDeleteListedDbs.Size = new System.Drawing.Size(94, 24);
+            this.btnDeleteListedDbs.TabIndex = 16;
+            this.btnDeleteListedDbs.Text = "Delete Listed";
+            this.toolTip.SetToolTip(this.btnDeleteListedDbs, "Delete all the listed (filtered) results databases.");
+            this.btnDeleteListedDbs.UseVisualStyleBackColor = false;
+            this.btnDeleteListedDbs.Click += new System.EventHandler(this.btnDeleteListedDbs_Click);
             // 
             // filterResults
             // 
@@ -175,19 +206,9 @@
             this.filterResults.BackColor = System.Drawing.Color.White;
             this.filterResults.Location = new System.Drawing.Point(9, 54);
             this.filterResults.Name = "filterResults";
-            this.filterResults.Size = new System.Drawing.Size(525, 115);
+            this.filterResults.Size = new System.Drawing.Size(525, 150);
             this.filterResults.TabIndex = 1;
             this.filterResults.FilterChanged += new System.EventHandler(this.filterDatabases_FilterChanged);
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(12, 421);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(16, 16);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox2.TabIndex = 15;
-            this.pictureBox2.TabStop = false;
             // 
             // SettingsPanel
             // 
@@ -196,6 +217,7 @@
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(546, 497);
+            this.Controls.Add(this.btnDeleteListedDbs);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnlBorderStresstest);
@@ -234,5 +256,6 @@
         private System.Windows.Forms.ComboBox cboStresstest;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.Button btnDeleteListedDbs;
     }
 }

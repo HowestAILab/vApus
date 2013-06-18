@@ -26,6 +26,9 @@ namespace vApus.Stresstest {
         #region Fields
         private static readonly object _lock = new object();
 
+        private const string VBLRn = "<16 0C 02 12n>";
+        private const string VBLRr = "<16 0C 02 12r>";
+        
         private Log _log;
         private UserActionTreeViewItem _userActionTreeViewItem;
 
@@ -75,6 +78,7 @@ namespace vApus.Stresstest {
                 SetCodeStyle();
             }
         }
+        internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
             LockWindowUpdate(this.Handle.ToInt32());
             _log = log;
@@ -181,15 +185,17 @@ namespace vApus.Stresstest {
         private void MoveUserAction(UserAction userAction, bool down, int moveSteps, bool invokeEvents = true) {
             if (moveSteps == 0) return;
 
-            UserAction linkUserAction;
-            UserAction nextUserAction = null;
-
             //use the zero based index.
             int index = userAction.Index - 1;
 
-            if (!down) {
+            if (down) {
+                for (int i = 0; i < moveSteps; i++)
+                    if (++index + userAction.LinkedToUserActionIndices.Count < _log.Count)
+                        MoveDownOneStep(userAction);
+            } else {
                 //We move the previous user action(s) down, this makes the following logic easier (we don't need a 'move up' logic)
                 //linked user actions are taken into account
+                UserAction linkUserAction;
                 var toMoveDown = new List<UserAction>();
                 if (!userAction.IsLinked(out linkUserAction) || userAction == linkUserAction) {
                     for (int i = 0; i < moveSteps; i++) {
@@ -213,27 +219,30 @@ namespace vApus.Stresstest {
                     toMoveDown.Add(_log[index - 1] as UserAction);
                 }
 
-                foreach (var ua in toMoveDown) MoveUserAction(ua, true, 1, false);
-                _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
-                if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
-                return;
+                foreach (var ua in toMoveDown) MoveDownOneStep(ua);
             }
 
-            index = userAction.Index - 1;
+            _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
+            if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
+        }
+        private void MoveDownOneStep(UserAction userAction) {
+            UserAction linkUserAction;
+            UserAction nextUserAction = null;
+
+            //use the zero based index.
+            int index = userAction.Index - 1;
 
             //Step over link to useractions
             int moveIndex = index;
             if (!userAction.IsLinked(out linkUserAction) || userAction == linkUserAction) {
-                for (int i = 0; i < moveSteps; i++) {
-                    if (++moveIndex == _log.Count) break;
-
+                if (++moveIndex < _log.Count) {
                     nextUserAction = _log[moveIndex] as UserAction;
                     while (nextUserAction.IsLinked(out linkUserAction) && nextUserAction != linkUserAction) {
                         if (++moveIndex == _log.Count) break;
                         nextUserAction = _log[moveIndex] as UserAction;
                     }
                 }
-            } else if (++moveIndex != _log.Count) {
+            } else if (++moveIndex < _log.Count) {
                 nextUserAction = _log[moveIndex] as UserAction;
             }
             if (nextUserAction == null) return;
@@ -268,11 +277,6 @@ namespace vApus.Stresstest {
             linkedIndices = nextUserAction.LinkedToUserActionIndices.ToArray();
             for (int j = 0; j != linkedIndices.Length; j++)
                 nextUserAction.LinkedToUserActionIndices[j] = linkedIndices[j] - subtract;
-
-            if (invokeEvents) {
-                _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
-                if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
-            }
         }
         private void picDelay_Click(object sender, EventArgs e) {
             _userActionTreeViewItem.UserAction.UseDelay = !_userActionTreeViewItem.UserAction.UseDelay;
@@ -408,6 +412,8 @@ namespace vApus.Stresstest {
 
         private void lbtn_ActiveChanged(object sender, EventArgs e) {
             SetLogEntries();
+            SetParameters();
+            SetCodeStyle();
         }
         private void SetLogEntries() {
             dgvLogEntries.CellValuePushed -= dgvLogEntries_CellValuePushed;
@@ -429,12 +435,14 @@ namespace vApus.Stresstest {
             var userAction = _userActionTreeViewItem.UserAction;
             if (lbtnEditable.Active)
                 foreach (LogEntry logEntry in userAction) {
+                    string formattedS = logEntry.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr);
                     AddRowToDgv(logEntry.LogEntryString);
-                    plainText.AppendLine(logEntry.LogEntryString);
+                    plainText.AppendLine(formattedS);
                 } else
                 foreach (string s in userAction.LogEntryStringsAsImported) {
+                    string formattedS = s.Replace("\n", VBLRn).Replace("\r", VBLRr);
                     AddRowToDgv(s);
-                    plainText.AppendLine(s);
+                    plainText.AppendLine(formattedS);
                 }
 
             var imageColumn = new DataGridViewImageColumn();
@@ -452,7 +460,6 @@ namespace vApus.Stresstest {
                 dgvLogEntries.Columns.Add(clm);
             }
 
-            dgvLogEntries.RowCount = dgvLogEntries.ReadOnly ? _cache.Rows.Count : _cache.Rows.Count + 1;
             SizeColumns();
 
             fctxtxPlainText.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
@@ -463,7 +470,13 @@ namespace vApus.Stresstest {
             fctxtxPlainText.ClearUndo();
             fctxtxPlainText.TextChanged += fctxtxPlainText_TextChanged;
 
+            btnApply.Enabled = false;
+
             SetEditableOrAsImported();
+
+            dgvLogEntries.RowCount = dgvLogEntries.ReadOnly ? _cache.Rows.Count : _cache.Rows.Count + 1;
+
+            lblLogEntryCount.Text = "[" + _userActionTreeViewItem.UserAction.Count + "]";
 
             dgvLogEntries.CellValuePushed += dgvLogEntries_CellValuePushed;
         }
@@ -532,15 +545,16 @@ namespace vApus.Stresstest {
             if (lbtnEditable.Active) {
                 btnRevertToImported.Visible = true;
                 btnApply.Visible = tc.SelectedIndex == 1;
-                btnApply.Enabled = false;
                 dgvLogEntries.ReadOnly = fctxtxPlainText.ReadOnly = false;
                 dgvLogEntries.AllowDrop = true;
+                dgvLogEntries.AllowUserToAddRows = true;
 
                 dgvLogEntries.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
             } else {
                 btnApply.Visible = btnRevertToImported.Visible = false;
                 dgvLogEntries.ReadOnly = fctxtxPlainText.ReadOnly = true;
                 dgvLogEntries.AllowDrop = false;
+                dgvLogEntries.AllowUserToAddRows = false;
 
                 dgvLogEntries.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlDarkDark;
             }
@@ -626,7 +640,8 @@ namespace vApus.Stresstest {
                 }
                 if (e.ColumnIndex == _cache.Columns.Count - 1) sb.Append(e.Value);
 
-                userAction.AddWithoutInvokingEvent(new LogEntry(sb.ToString()));
+                string formattedS = sb.ToString().Replace(VBLRn, "\n").Replace(VBLRr, "\r");
+                userAction.AddWithoutInvokingEvent(new LogEntry(formattedS));
             } else {
                 var row = _cache.Rows[e.RowIndex].ItemArray;
                 row[e.ColumnIndex] = e.Value;
@@ -638,7 +653,8 @@ namespace vApus.Stresstest {
                 }
                 sb.Append(row[row.Length - 1]);
 
-                (userAction[e.RowIndex] as LogEntry).LogEntryString = sb.ToString();
+                string formattedS = sb.ToString().Replace(VBLRn, "\n").Replace(VBLRr, "\r");
+                (userAction[e.RowIndex] as LogEntry).LogEntryString = formattedS;
             }
 
             _log.ApplyLogRuleSet();
@@ -656,7 +672,7 @@ namespace vApus.Stresstest {
                     int index = dgvLogEntries.Rows.IndexOf(row);
                     if (index != userAction.Count) toRemove.Add(userAction[index]);
                 }
-                userAction.RemoveRangeWithoutInvokingEvent(toRemove);
+                userAction.RemoveRangeWithoutInvokingEvent(toRemove, false);
 
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
 
@@ -744,14 +760,15 @@ namespace vApus.Stresstest {
 
             int i = 0;
             foreach (string s in fctxtxPlainText.Lines) {
+                string formattedS = s.Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                 if (i < userAction.Count) {
                     var logEntry = userAction[i] as LogEntry;
-                    if (logEntry.LogEntryString != s) {
-                        logEntry.LogEntryString = s;
+                    if (logEntry.LogEntryString != formattedS) {
+                        logEntry.LogEntryString = formattedS;
                         changed = true;
                     }
                 } else {
-                    userAction.AddWithoutInvokingEvent(new LogEntry(s));
+                    userAction.AddWithoutInvokingEvent(new LogEntry(formattedS));
                     changed = true;
                 }
                 ++i;
@@ -765,7 +782,7 @@ namespace vApus.Stresstest {
             if (changed) {
                 _log.ApplyLogRuleSet();
                 SetLogEntries();
-
+                SetCodeStyle();
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
             btnApply.Enabled = false;
@@ -924,9 +941,15 @@ namespace vApus.Stresstest {
                     fctxtxPlainText.DoSelectionVisible();
                 }
                 Focus();
+
+                SetParameters();
+                SetCodeStyle();
             }
         }
         #endregion
 
+        private void chkEditMultiline_CheckedChanged(object sender, EventArgs e) {
+            splitStructured.Panel2Collapsed = !chkEditMultiline.Checked;
+        }
     }
 }

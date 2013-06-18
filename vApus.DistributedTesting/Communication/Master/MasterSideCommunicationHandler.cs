@@ -652,14 +652,16 @@ namespace vApus.DistributedTesting {
                                         _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
 
                                         if (Interlocked.Increment(ref handled) == length && waitHandle != null)
-                                            try { waitHandle.Set(); } catch { }
-                                    } catch { }
+                                            try { waitHandle.Set(); } catch {
+                                            }
+                                    } catch {
+                                    }
                                 });
                                 t.IsBackground = true;
                                 t.Start(socketWrapper);
                             }
 
-                        waitHandle.WaitOne(5000);
+                        waitHandle.WaitOne(10000);
                         waitHandle.Dispose();
                         waitHandle = null;
 

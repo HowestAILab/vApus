@@ -183,12 +183,12 @@ namespace vApus.Stresstest {
             if (!cancellationToken.IsCancellationRequested) {
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
                 switch (_currentSelectedIndex) {
-                    case 0: return _resultsHelper.GetAverageConcurrentUsers(cancellationToken, _stresstestIds);
-                    case 1: return _resultsHelper.GetAverageUserActions(cancellationToken, _stresstestIds);
-                    case 2: return _resultsHelper.GetAverageLogEntries(cancellationToken, _stresstestIds);
-                    case 3: return _resultsHelper.GetErrors(cancellationToken, _stresstestIds);
-                    case 4: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
-                    case 5: return _resultsHelper.GetCummulativeResponseTimesVsAchievedThroughput(cancellationToken, _stresstestIds);
+                    case 0: return _resultsHelper.GetOverview(cancellationToken, _stresstestIds);
+                    case 1: return _resultsHelper.GetAverageConcurrentUsers(cancellationToken, _stresstestIds);
+                    case 2: return _resultsHelper.GetAverageUserActions(cancellationToken, _stresstestIds);
+                    case 3: return _resultsHelper.GetAverageLogEntries(cancellationToken, _stresstestIds);
+                    case 4: return _resultsHelper.GetErrors(cancellationToken, _stresstestIds);
+                    case 5: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
                     case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
                     case 7: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
                 }

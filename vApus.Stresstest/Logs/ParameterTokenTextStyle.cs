@@ -25,8 +25,11 @@ namespace vApus.Stresstest {
         private readonly IEnumerable<string> _customRandomParameters;
 
         //styles
-        private readonly TextStyle _delimiterStyle = new TextStyle(Brushes.Black, null, FontStyle.Bold);
+        private readonly TextStyle _delimiterStyle = new TextStyle(Brushes.Green, null, FontStyle.Bold);
+        private readonly TextStyle _vblrStyle = new TextStyle(Brushes.Gray, null, FontStyle.Italic);
+
         private readonly IEnumerable<string> _delimiters;
+        private readonly string[] _vblr = { "<16 0C 02 12n>", "<16 0C 02 12r>" };
         private readonly FastColoredTextBox _fastColoredTextBox;
 
         private readonly TextStyle _numericParameterStyle = new TextStyle(Brushes.Black, Brushes.LightGreen, FontStyle.Bold);
@@ -39,13 +42,8 @@ namespace vApus.Stresstest {
         private readonly TextStyle _whiteSpaceStyle = new TextStyle(Brushes.Black, new SolidBrush(Color.FromArgb(255, 240, 240, 240)), FontStyle.Regular);
         private bool _visualizeWhiteSpace;
 
-        public ParameterTokenTextStyle(FastColoredTextBox fastColoredTextBox,
-                                       IEnumerable<string> delimiters,
-                                       IEnumerable<string> customListParameters,
-                                       IEnumerable<string> numericParameters,
-                                       IEnumerable<string> textParameters,
-                                       IEnumerable<string> customRandomParameters,
-                                       bool visualizeWhiteSpace) {
+        public ParameterTokenTextStyle(FastColoredTextBox fastColoredTextBox, IEnumerable<string> delimiters, IEnumerable<string> customListParameters, IEnumerable<string> numericParameters, IEnumerable<string> textParameters,
+                                       IEnumerable<string> customRandomParameters, bool visualizeWhiteSpace) {
             if (delimiters == null || fastColoredTextBox == null || customListParameters == null ||
                 numericParameters == null || textParameters == null || customRandomParameters == null)
                 throw new ArgumentNullException();
@@ -93,6 +91,10 @@ namespace vApus.Stresstest {
             string regex = ExtractRegex(_delimiters);
             if (regex != null)
                 range.SetStyle(_delimiterStyle, regex);
+
+            regex = ExtractRegex(_vblr);
+            if (regex != null)
+                range.SetStyle(_vblrStyle, regex);
 
             regex = ExtractRegex(_customListParameters);
             if (regex != null)

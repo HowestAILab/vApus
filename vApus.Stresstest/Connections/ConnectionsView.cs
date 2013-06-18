@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -51,9 +52,7 @@ namespace vApus.Stresstest {
                 }
             dgvConnections.DataSource = _dataSource;
 
-            if (dgvConnections.RowCount == 0)
-                btnEdit.Enabled = btnDuplicate.Enabled = btnRemove.Enabled = btnRemoveAll.Enabled = btnSort.Enabled = false;
-            else {
+            if (dgvConnections.RowCount != 0) {
                 dgvConnections.ClearSelection();
                 if (_preferedRowToSelect == -1)
                     dgvConnections.Rows[0].Selected = true;
@@ -70,63 +69,113 @@ namespace vApus.Stresstest {
                 e.Value = new string('*', e.Value.ToString().Length);
             }
         }
-        private void dgvConnections_CellEnter(object sender, DataGridViewCellEventArgs e) {
-            btnEdit.Enabled = btnDuplicate.Enabled = btnRemove.Enabled = btnRemoveAll.Enabled = btnSort.Enabled = true;
-        }
-
-        private void btnAdd_Click(object sender, EventArgs e) {
-            _preferedRowToSelect = _dataSource.Rows.Count;
-            var connection = new Connection();
-            _connections.Add(connection);
-            //connection.Activate();
-        }
-        private void btnDuplicate_Click(object sender, EventArgs e) {
-            SolutionComponent.SolutionComponentChanged -= SolutionComponent_SolutionComponentChanged;
-            _preferedRowToSelect = _dataSource.Rows.Count;
-            var connections = new List<Connection>();
-            foreach (DataGridViewCell cell in dgvConnections.SelectedCells) {
-                var connection = _dataSource.Rows[cell.RowIndex].GetTag() as Connection;
-                if (connection != null && !connections.Contains(connection)) {
-                    connections.Add(connection);
-                    connection.Duplicate();
-                }
-            }
-            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-            FillConnectionsDatagrid();
-        }
-        private void btnEdit_Click(object sender, EventArgs e) {
-            foreach (DataGridViewCell cell in dgvConnections.SelectedCells) {
-                dgvConnections.Rows[cell.RowIndex].Cells[0].Selected = true;
-                var connection = _dataSource.Rows[cell.RowIndex].GetTag() as Connection;
-                if (connection != null) connection.Activate();
-                break;
-            }
-        }
-        private void btnSort_Click(object sender, EventArgs e) {
-            _preferedRowToSelect = -1;
-            _connections.SortItemsByLabel();
-        }
-        private void btnRemove_Click(object sender, EventArgs e) {
-            _preferedRowToSelect = -1;
-            var connections = new List<Connection>();
-            foreach (DataGridViewCell cell in dgvConnections.SelectedCells) {
-                var connection = _dataSource.Rows[cell.RowIndex].GetTag() as Connection;
-                if (connection != null && !connections.Contains(connection)) connections.Add(connection);
-                if (_preferedRowToSelect == -1) _preferedRowToSelect = cell.RowIndex;
-            }
-
-            SolutionComponent.SolutionComponentChanged -= SolutionComponent_SolutionComponentChanged;
-            bool removed = _connections.RemoveRange(connections);
-            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-            if (removed) FillConnectionsDatagrid();
-        }
-        private void btnRemoveAll_Click(object sender, EventArgs e) {
-            _preferedRowToSelect = -1;
-            _connections.Clear();
-        }
 
         private void chkShowConnectionStrings_CheckedChanged(object sender, EventArgs e) {
             dgvConnections.Refresh();
         }
+
+        private void btnEditConnectionStrings_Click(object sender, EventArgs e) {
+            var dialog = new FromTextDialog();
+            dialog.Height = 800;
+            dialog.Width = 800;
+            dialog.WarnForEndingWithNewLine = false;
+
+            var sb = new StringBuilder();
+            int cpIndex = 0;
+            ConnectionProxies cps = null;
+            foreach (var item in _connections) {
+                if (item is ConnectionProxies) {
+                    cps = item as ConnectionProxies;
+                    foreach (ConnectionProxy cp in cps) {
+                        sb.Append("    My ");
+                        sb.Append(cp.Label);
+                        sb.Append(" Connection; ");
+                        sb.Append((++cpIndex));
+                        sb.Append(";");
+
+                        var ruleSet = cp.ConnectionProxyRuleSet;
+                        if (ruleSet.Count == 0) {
+                            sb.AppendLine("Text");
+                        } else {
+                            for (int i = 0; i != ruleSet.Count - 1; i++) {
+                                sb.Append((ruleSet[i] as SyntaxItem).Label);
+                                sb.Append(ruleSet.ChildDelimiter);
+                            }
+                            sb.AppendLine((ruleSet[ruleSet.Count - 1] as SyntaxItem).Label);
+                        }
+                    }
+                    break;
+                }
+            }
+            dialog.Description = "Specify the label, the one-based connection proxy index and the connection string.\nThe delimiters are important. Invalid entries are discarded automatically.\n\nExample(s):\n\n" + sb.ToString().TrimEnd();
+
+            sb = new StringBuilder();
+
+            foreach (var item in _connections)
+                if (item is Connection) {
+                    var connection = item as Connection;
+                    sb.Append(connection.Label);
+                    sb.Append(";");
+                    sb.Append((connection.ConnectionProxy.Index));
+                    sb.Append(";");
+                    sb.AppendLine(connection.ConnectionString);
+                }
+
+            //Remove the trailing \r\n.
+            string text = sb.ToString();
+            if (text.Length > 1)
+                text = text.Substring(0, text.Length - 2);
+            dialog.SetText(text);
+
+            //Make new connections.
+            if (dialog.ShowDialog() == DialogResult.OK) {
+                //Set the undo data.
+                var connectionsUndo = new List<Connection>(_connections.Count);
+                foreach (var item in _connections)
+                    if (item is Connection)
+                        connectionsUndo.Add(item as Connection);
+                btnUndo.Tag = connectionsUndo;
+                btnUndo.Enabled = true;
+
+                //Build new connections.
+                _connections.Clear();
+                foreach (string entry in dialog.Entries)
+                    try {
+                        string s = entry;
+
+                        string label = s.Substring(0, s.IndexOf(';'));
+                        s = s.Substring(label.Length + 1);
+                        label = label.Trim();
+
+                        string cpIndexString = s.Substring(0, s.IndexOf(';'));
+                        s = s.Substring(cpIndexString.Length + 1);
+                        cpIndex = int.Parse(cpIndexString.TrimStart()) - 1;
+
+                        var connection = new Connection();
+                        connection.Label = label;
+                        connection.ConnectionProxy = cps[cpIndex] as ConnectionProxy;
+                        connection.ConnectionString = s;
+
+                        _connections.AddWithoutInvokingEvent(connection, false);
+
+                    } catch {
+                    }
+
+                _connections.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            }
+        }
+
+        private void btnUndo_Click(object sender, EventArgs e) {
+            if (btnUndo.Tag != null) {
+                var connectionsUndo = btnUndo.Tag as List<Connection>;
+                _connections.Clear();
+                _connections.AddRangeWithoutInvokingEvent(connectionsUndo, false);
+
+                _connections.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                btnUndo.Tag = null;
+            }
+            btnUndo.Enabled = false;
+        }
+
     }
 }

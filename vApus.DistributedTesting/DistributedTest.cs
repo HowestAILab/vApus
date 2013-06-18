@@ -22,7 +22,6 @@ namespace vApus.DistributedTesting {
 
         #region Fields
 
-        private string _resultPath;
         private RunSynchronization _runSynchronization = RunSynchronization.BreakOnFirstFinished;
 
         //For in the results database
@@ -55,19 +54,6 @@ namespace vApus.DistributedTesting {
             set { _runSynchronization = value; }
         }
 
-        /// <summary>
-        ///     The path where to the results are saved.
-        /// </summary>
-        [SavableCloneable]
-        public string ResultPath {
-            get {
-                if (_resultPath != DefaultResultPath || !Directory.Exists(_resultPath))
-                    _resultPath = DefaultResultPath;
-                return _resultPath;
-            }
-            set { _resultPath = value; }
-        }
-
         private string DefaultResultPath {
             get { return Path.Combine(Application.StartupPath, "DistributedTestResults"); }
         }
@@ -97,8 +83,6 @@ namespace vApus.DistributedTesting {
         #region Constructor
 
         public DistributedTest() {
-            _resultPath = DefaultResultPath;
-
             AddAsDefaultItem(new Tiles());
             AddAsDefaultItem(new Clients());
         }

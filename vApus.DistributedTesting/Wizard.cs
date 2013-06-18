@@ -76,7 +76,6 @@ namespace vApus.DistributedTesting {
         private void SetDefaultTestSettings() {
             chkUseRDP.Checked = _distributedTest.UseRDP;
             cboRunSync.SelectedIndex = (int)_distributedTest.RunSynchronization;
-            lblResultPath.Text = _distributedTest.ResultPath;
         }
 
         private void SetGenerateTiles() {
@@ -108,16 +107,6 @@ namespace vApus.DistributedTesting {
         private void chkUseRDP_CheckedChanged(object sender, EventArgs e) {
             clmUserName.HeaderText = chkUseRDP.Checked ? "* User Name (RDP)" : "User Name (RDP)";
             clmPassword.HeaderText = chkUseRDP.Checked ? "* Password" : "Password";
-        }
-
-        private void llblResultPath_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            folderBrowserDialog.SelectedPath = Directory.Exists(_distributedTest.ResultPath)
-                                                   ? _distributedTest.ResultPath
-                                                   : Application.StartupPath;
-
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK &&
-                lblResultPath.Text != folderBrowserDialog.SelectedPath)
-                lblResultPath.Text = folderBrowserDialog.SelectedPath;
         }
 
         #endregion
@@ -595,7 +584,6 @@ namespace vApus.DistributedTesting {
         private void SetDefaultTestSettingToDistributedTest() {
             _distributedTest.UseRDP = chkUseRDP.Checked;
             _distributedTest.RunSynchronization = (RunSynchronization)cboRunSync.SelectedIndex;
-            _distributedTest.ResultPath = lblResultPath.Text;
         }
 
         /// <summary></summary>
@@ -725,14 +713,10 @@ namespace vApus.DistributedTesting {
             int slaveIndex = 0;
             //Assign the tests to slaves
             foreach (Tile tile in _distributedTest.Tiles)
-                foreach (TileStresstest tileStresstest in tile)
-                    if (slaveIndex == slaves.Count) {
-                        tileStresstest.Use = false;
-                        tileStresstest.BasicTileStresstest.Slaves = new Slave[] { };
-                    } else {
-                        tileStresstest.Use = true;
-                        tileStresstest.BasicTileStresstest.Slaves = new[] { slaves[slaveIndex++] };
-                    }
+                foreach (TileStresstest tileStresstest in tile) {
+                    tileStresstest.Use = true;
+                    tileStresstest.BasicTileStresstest.Slaves = slaveIndex == slaves.Count ? new Slave[] { } : new Slave[] { slaves[slaveIndex++] };
+                }
         }
 
         /// <summary>

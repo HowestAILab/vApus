@@ -123,7 +123,11 @@ namespace vApus.DistributedTesting {
 
         #region Start
         public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
-            _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
+            try {
+                _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
+            } catch {
+                throw new Exception("MAKE SURE THAT YOU DO NOT TARGET 'localhost', '127.0.0.1', '0:0:0:0:0:0:0:1' or '::1' IN 'Options' > 'Saving Test Results'!\nA connection to the results server could not be made!");
+            }
         }
         /// <summary>
         ///     Thread safe
@@ -298,7 +302,7 @@ namespace vApus.DistributedTesting {
         private void SendPushMessage(RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (!_finishedSent) {
                 var estimatedRuntimeLeft = StresstestMetricsHelper.GetEstimatedRuntimeLeft(_stresstestResult, _stresstest.Concurrencies.Length, _stresstest.Runs);
-                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt, 
+                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt,
                     fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, fastResultsControl.GetEvents(), runStateChange, runFinished, concurrencyFinished);
                 if (_stresstestStatus != StresstestStatus.Busy) _finishedSent = true;
             }
@@ -344,7 +348,15 @@ namespace vApus.DistributedTesting {
         ///     To stop the test from the slave side communication handler.
         /// </summary>
         public void PerformStopClick() {
-            if (_stresstestCore != null) _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
+            int busyThreadCount = -1;
+            if (_stresstestCore != null) {
+                busyThreadCount = _stresstestCore.BusyThreadCount;
+                _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
+            }
+            //This makes it able to 'stop' the test before it started.
+            if (busyThreadCount == 0)
+                try { Stop(); } catch {
+                }
         }
 
         /// <summary>

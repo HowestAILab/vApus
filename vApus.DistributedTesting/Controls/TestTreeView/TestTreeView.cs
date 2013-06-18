@@ -90,21 +90,44 @@ namespace vApus.DistributedTesting {
                     item.SetDistributedTestMode(_distributedTestMode);
                 LockWindowUpdate(0);
 
+                largeList.RefreshControls();
+
                 //Otherwise the gui freezes, stupid winforms.
                 System.Timers.Timer tmr = new System.Timers.Timer(500);
                 tmr.Elapsed += tmr_Elapsed;
                 tmr.Start();
             }
         }
+        public void SetMonitorBeforeCancelled() {
+            foreach (ITreeViewItem item in largeList.AllControls)
+                if (item is TileStresstestTreeViewItem) {
+                    var ts = item as TileStresstestTreeViewItem;
+                    if (ts.TileStresstest.Use && ts.StresstestStatus == Stresstest.StresstestStatus.Busy)
+                        ts.SetStresstestStatus(Stresstest.StresstestStatus.Cancelled);
+                }
+        }
+        /// <summary>
+        /// This is automatically unset when the mode becomes Edit again. (SetMode fx)
+        /// Use this in the monitor before function in the distributed test view.
+        /// </summary>
+        public void SetMonitoringBeforeAfter() {
+            foreach (ITreeViewItem item in largeList.AllControls)
+                if (item is DistributedTestTreeViewItem) {
+                    var ds = item as DistributedTestTreeViewItem;
+                    ds.SetMonitoringBeforeAfter();
+                } else if (item is TileStresstestTreeViewItem) {
+                    var ts = item as TileStresstestTreeViewItem;
+                    if (ts.TileStresstest.Use && ts.TileStresstest.BasicTileStresstest.MonitorIndices.Length != 0)
+                        ts.SetMonitoringBeforeAfter();
+                }
+        }
 
         private void tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
             try {
                 (sender as System.Timers.Timer).Stop();
                 SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    if (_distributedTestMode == DistributedTestMode.Test) {
-                        largeList.RefreshControls();
+                    if (_distributedTestMode == DistributedTestMode.Test)
                         largeList[0][0].Focus();
-                    }
                 }, null);
             } catch { }
         }
@@ -156,35 +179,40 @@ namespace vApus.DistributedTesting {
 
             var tile = new Tile();
             tile.AddWithoutInvokingEvent(new TileStresstest(), false);
-            CreateAndAddTileTreeViewItem(tile);
 
             dttvi.DistributedTest.Tiles.Add(tile);
 
+            foreach (TileStresstest tileStresstest in tile) tileStresstest.SelectAvailableSlave();
+
+            CreateAndAddTileTreeViewItem(tile);
+
             dttvi.DistributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
+            
             LockWindowUpdate(0);
         }
 
         private void CreateAndAddTileTreeViewItem(Tile tile) {
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
-            tvi.SetParent(largeList);
+            tvi.SetParent(largeList, false);
             tvi.AfterSelect += _AfterSelect;
             tvi.AddTileStresstestClicked += tvi_AddTileStresstestClicked;
             tvi.DuplicateClicked += tvi_DuplicateClicked;
             tvi.DeleteClicked += tvi_DeleteClicked;
 
-            largeList.Add(tvi);
+            largeList.Add(tvi, false);
             foreach (TileStresstest tileStresstest in tile) {
                 TileStresstestTreeViewItem tsvi = CreateTileStresstestTreeViewItem(tvi, tileStresstest);
                 tvi.ChildControls.Add(tsvi);
-                largeList.Add(tsvi);
+                largeList.Add(tsvi, false);
             }
+            largeList.RefreshControls();
         }
 
         private void CreateAndInsertTileTreeViewItem(Tile tile, KeyValuePair<int, int> index) {
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
-            tvi.SetParent(largeList);
+            tvi.SetParent(largeList, false);
             tvi.AfterSelect += _AfterSelect;
             tvi.AddTileStresstestClicked += tvi_AddTileStresstestClicked;
             tvi.DuplicateClicked += tvi_DuplicateClicked;
@@ -192,15 +220,11 @@ namespace vApus.DistributedTesting {
 
             //Just add if the index is invalid
             if (index.Key == -1) {
-                largeList.Add(tvi, tile.Count == 0);
+                largeList.Add(tvi, false);
                 for (int i = 0; i != tile.Count; i++) {
                     TileStresstestTreeViewItem tsvi = CreateTileStresstestTreeViewItem(tvi, tile[i] as TileStresstest);
                     tvi.ChildControls.Add(tsvi);
-
-                    if (i + 1 == tile.Count)
-                        largeList.Add(tsvi);
-                    else
-                        largeList.Add(tsvi, false);
+                    largeList.Add(tsvi, false);
                 }
             } else {
                 for (int i = tile.Count - 1; i != -1; i--) {
@@ -208,8 +232,9 @@ namespace vApus.DistributedTesting {
                     tvi.ChildControls.Add(tsvi);
                     largeList.Insert(tsvi, index, false);
                 }
-                largeList.Insert(tvi, index);
+                largeList.Insert(tvi, index, false);
             }
+            largeList.RefreshControls();
         }
 
         private void tvi_AddTileStresstestClicked(object sender, EventArgs e) {
@@ -218,6 +243,10 @@ namespace vApus.DistributedTesting {
             var tvi = sender as TileTreeViewItem;
 
             var ts = new TileStresstest();
+            tvi.Tile.AddWithoutInvokingEvent(ts, false);
+
+            ts.ForceDefaultTo();
+
             TileStresstestTreeViewItem tsvi = CreateTileStresstestTreeViewItem(tvi, ts);
             tvi.ChildControls.Add(tsvi);
 
@@ -228,8 +257,8 @@ namespace vApus.DistributedTesting {
                 largeList.Insert(tsvi, largeList.IndexOf(closestNextTileTreeViewItem));
 
 
-            tvi.Tile.AddWithoutInvokingEvent(ts, false);
             tvi.RefreshGui();
+            ts.SelectAvailableSlave();
 
             tvi.Tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
 
@@ -289,17 +318,18 @@ namespace vApus.DistributedTesting {
                                                                     : largeList.IndexOf(closestNextTileTreeViewItem);
                 CreateAndInsertTileTreeViewItem(clone, cloneIndexForLargeList);
 
+                foreach (TileStresstest tileStresstest in clone) tileStresstest.SelectAvailableSlave();
+
                 parent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
             }
 
             LockWindowUpdate(0);
         }
 
-        private TileStresstestTreeViewItem CreateTileStresstestTreeViewItem(TileTreeViewItem parent,
-                                                                            TileStresstest tileStresstest) {
+        private TileStresstestTreeViewItem CreateTileStresstestTreeViewItem(TileTreeViewItem parent, TileStresstest tileStresstest) {
             var tsvi = new TileStresstestTreeViewItem(tileStresstest);
             //To be able to delete the control.
-            tsvi.SetParent(parent);
+            tsvi.SetParent(parent, false);
             tsvi.AfterSelect += _AfterSelect;
             tsvi.DuplicateClicked += tsvi_DuplicateClicked;
             tsvi.DeleteClicked += tsvi_DeleteClicked;
@@ -349,6 +379,8 @@ namespace vApus.DistributedTesting {
                     largeList.Add(cloneTsvi);
                 else
                     largeList.Insert(cloneTsvi, cloneIndexForLargeList);
+
+                clone.SelectAvailableSlave();
 
                 parent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
             }

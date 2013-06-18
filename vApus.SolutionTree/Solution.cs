@@ -85,7 +85,7 @@ namespace vApus.SolutionTree {
         }
 
         /// <summary>
-        ///     Do not forget to set this to false when cancelling
+        ///     If this is false the mainform will also be closed, do not forget to set this to true if you cancel the form closing of a child form.
         /// </summary>
         public static bool ExplicitCancelFormClosing { get; set; }
 
@@ -251,6 +251,22 @@ namespace vApus.SolutionTree {
         /// </summary>
         public static bool LoadNewActiveSolution() {
             return LoadNewActiveSolution(null);
+        }
+
+        /// <summary>
+        /// Reloads the solution if possible.
+        /// </summary>
+        /// <returns></returns>
+        public static bool ReloadSolution() {
+            if (_activeSolution != null && !_activeSolution.IsSaved &&
+                MessageBox.Show("Reopening the solution will discard the changes you've made.\nAre you sure you want to do this?",
+                                    string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                try {
+                    return LoadSolution(_activeSolution.FileName);
+                } catch (Exception ex) {
+                    LogWrapper.LogByLevel("Could not reopen the solution.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
+                }
+            return false;
         }
 
         public static bool LoadNewActiveSolution(string fileName) {

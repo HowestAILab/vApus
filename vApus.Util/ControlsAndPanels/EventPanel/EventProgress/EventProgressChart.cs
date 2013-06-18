@@ -274,8 +274,10 @@ namespace vApus.Util {
                     if (_previouslyHovered != null)
                         PerformMouseLeave();
 
-                    _toolTipThisShown = true;
-                    toolTip.Show("Time frame: " + _beginOfTimeFrame + " - " + _endOfTimeFrame, this);
+                    if (_beginOfTimeFrame != DateTime.MinValue) {
+                        _toolTipThisShown = true;
+                        toolTip.Show("Time frame: " + _beginOfTimeFrame + " - " + _endOfTimeFrame, this);
+                    }
                 }
             } else if (pe != _previouslyHovered) {
                 _toolTipThisShown = false;

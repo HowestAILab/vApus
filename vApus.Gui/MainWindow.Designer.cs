@@ -50,6 +50,7 @@
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newFromTemplateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reopenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openRecentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -115,6 +116,7 @@
             this.newToolStripMenuItem,
             this.newFromTemplateToolStripMenuItem,
             this.openToolStripMenuItem,
+            this.reopenToolStripMenuItem,
             this.openRecentToolStripMenuItem,
             this.toolStripSeparator,
             this.saveToolStripMenuItem,
@@ -151,6 +153,16 @@
             this.openToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // reopenToolStripMenuItem
+            // 
+            this.reopenToolStripMenuItem.Enabled = false;
+            this.reopenToolStripMenuItem.Name = "reopenToolStripMenuItem";
+            this.reopenToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.O)));
+            this.reopenToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.reopenToolStripMenuItem.Text = "Reopen";
+            this.reopenToolStripMenuItem.Click += new System.EventHandler(this.reOpenToolStripMenuItem_Click);
             // 
             // openRecentToolStripMenuItem
             // 
@@ -607,6 +619,7 @@
         private System.Windows.Forms.ToolStripStatusLabel lblPipeMicrosoftFirewallAutoUpdateEnabled;
         private System.Windows.Forms.ToolStripStatusLabel lblWarning;
         private System.Windows.Forms.ToolStripMenuItem newFromTemplateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reopenToolStripMenuItem;
     }
 }
 

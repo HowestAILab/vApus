@@ -63,6 +63,17 @@ namespace vApus.Monitor {
         public string Configuration {
             get { return _configuration; }
         }
+        public bool IsRunning {
+            get {
+                bool isRunning = false;
+                try {
+                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                        isRunning = btnStop.Enabled;
+                    }, null);
+                } catch { }
+                return isRunning;
+            }
+        }
 
         #endregion
 
@@ -321,7 +332,7 @@ namespace vApus.Monitor {
             llblCheckAllVisible.Enabled = HasUncheckedNodes();
         }
 
-        private void ExtractWIWForListViewAction() {            
+        private void ExtractWIWForListViewAction() {
             LockWindowUpdate(Handle.ToInt32());
             try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
@@ -776,54 +787,8 @@ namespace vApus.Monitor {
             return exception;
         }
 
-        /*
-                 private Exception ConnectToSMT(string ip)
-        {
-            Exception exception = null;
-
-            try
-            {
-                if (_monitorProxy != null)
-                {
-                    try {
-                        Exception stopEx;
-                        _monitorProxy.Stop(out stopEx); }
-                    catch { }
-                    try { _monitorProxy.Dispose(); }
-                    catch { }
-                    _monitorProxy = null;
-                }
-
-                _monitorProxy = CreateMonitorProxy(ip);
-                _monitorProxy.OnHandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnHandledException);
-                _monitorProxy.OnUnhandledException += new EventHandler<ErrorEventArgs>(_monitorProxy_OnUnhandledException);
-                _monitorProxy.OnMonitor += new EventHandler<OnMonitorEventArgs>(_monitorProxy_OnMonitor);
-                _monitorProxy.Connect(out exception);
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            if (exception == null)
-            {
-                //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
-                System.IO.Directory.SetCurrentDirectory(Application.StartupPath);
-
-                var sources = _monitorProxy.GetMonitorSources(out exception);
-                //Ignore this exception
-                _monitor.SetMonitorSources(sources);
-
-                exception = null;
-            }
-            return exception;
-        }
-*/
-
         /// <summary>
-        ///     Creates an instance using reflection.
         /// </summary>
-        /// <param name="ip">If 127.0.0.1 the local one will be used, otherwise the remote one.</param>
         /// <returns></returns>
         private IMonitorProxy CreateMonitorProxy() {
             var monitorProxy = new MonitorProxy();

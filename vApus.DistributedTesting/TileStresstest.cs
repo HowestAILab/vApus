@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -96,6 +97,7 @@ namespace vApus.DistributedTesting {
             AddAsDefaultItem(new AdvancedTileStresstest());
 
             if (Solution.ActiveSolution != null) {
+                _canDefaultAdvancedSettingsTo = false;
                 DefaultAdvancedSettingsTo =
                     GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
                                         Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
@@ -129,6 +131,42 @@ namespace vApus.DistributedTesting {
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate { InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); },
                     null);
+            }
+        }
+
+        /// <summary>
+        /// Use this after adding a slave.
+        /// </summary>
+        internal void ForceDefaultTo() {
+            if (_defaultAdvancedSettingsTo != null)
+                AdvancedTileStresstest.DefaultTo(_defaultAdvancedSettingsTo);
+        }
+
+        /// <summary>
+        /// Select a slave if one is available, if not no slave will be selected.
+        /// Call this function after adding a new tilestresstest or duplicating one in the GUI.
+        /// This will not invoke an event to notify the GUI.
+        /// </summary>
+        public void SelectAvailableSlave() {
+            try {
+                //Get the ones that are available
+                var availableSlaves = new List<Slave>();
+
+                var distributedTest = Parent.GetParent().GetParent() as DistributedTest;
+                if (distributedTest != null) {
+                    foreach (Client client in distributedTest.Clients)
+                        foreach (Slave slave in client)
+                            availableSlaves.Add(slave);
+
+                    foreach (Tile tile in distributedTest.Tiles)
+                        if (tile.Use)
+                            foreach (TileStresstest tileStresstest in tile)
+                                if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
+                                    availableSlaves.Remove(tileStresstest.BasicTileStresstest.Slaves[0]);
+
+                    BasicTileStresstest.Slaves = availableSlaves.Count == 0 ? new Slave[0] : new Slave[] { availableSlaves[0] };
+                }
+            } catch {
             }
         }
 
@@ -209,7 +247,7 @@ namespace vApus.DistributedTesting {
 
                 return new StresstestWrapper {
                     StresstestIdInDb = stresstestIdInDb,
-                    Stresstest = stresstest, 
+                    Stresstest = stresstest,
                     TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization,
                     MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
                 };

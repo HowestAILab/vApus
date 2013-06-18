@@ -21,11 +21,11 @@ namespace vApus.Stresstest {
         }
 
         private void btnFind_Click(object sender, EventArgs e) {
-            if(FindClicked != null) FindClicked(this, new FindEventArgs(txtFind.Text, !chkMatchCase.Checked));
+            if(FindClicked != null) FindClicked(this, new FindEventArgs(txtFind.Text, chkWholeWords.Checked, !chkMatchCase.Checked));
         }
 
         private void btnReplaceWith_Click(object sender, EventArgs e) {
-            if(ReplaceClicked != null) ReplaceClicked(this, new ReplaceEventArgs(txtFind.Text, !chkMatchCase.Checked, txtReplace.Text, chkReplaceAll.Checked));
+            if(ReplaceClicked != null) ReplaceClicked(this, new ReplaceEventArgs(txtFind.Text, chkWholeWords.Checked, !chkMatchCase.Checked, txtReplace.Text, chkReplaceAll.Checked));
         }
         private void txtFind_TextChanged(object sender, EventArgs e) {
             btnFind.Enabled = txtFind.Text.Length != 0;
@@ -44,19 +44,23 @@ namespace vApus.Stresstest {
         }
         public class FindEventArgs : EventArgs {
             public string Find { get; private set; }
+            public bool WholeWords { get; private set; }
             public bool IgnoreCase { get; private set; }
-            public FindEventArgs(string find, bool ignoreCase) {
+            public FindEventArgs(string find, bool wholeWords, bool ignoreCase) {
                 Find = find;
+                WholeWords = wholeWords;
                 IgnoreCase = ignoreCase;
             }
         }
         public class ReplaceEventArgs : EventArgs {
             public string Find { get; private set; }
+            public bool WholeWords { get; private set; }
             public bool IgnoreCase { get; private set; }
             public string With { get; private set; }
             public bool All { get; private set; }
-            public ReplaceEventArgs(string find, bool ignoreCase, string with, bool all) {
+            public ReplaceEventArgs(string find, bool wholeWords, bool ignoreCase, string with, bool all) {
                 Find = find;
+                WholeWords = wholeWords;
                 IgnoreCase = ignoreCase;
                 With = with;
                 All = all;
