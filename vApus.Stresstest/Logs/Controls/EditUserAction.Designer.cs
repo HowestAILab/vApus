@@ -24,8 +24,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditUserAction));
             this.lblLabel = new System.Windows.Forms.Label();
             this.txtLabel = new System.Windows.Forms.TextBox();
@@ -35,6 +35,9 @@
             this.dgvLogEntries = new System.Windows.Forms.DataGridView();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpStructured = new System.Windows.Forms.TabPage();
+            this.chkEditMultiline = new System.Windows.Forms.CheckBox();
+            this.splitStructured = new System.Windows.Forms.SplitContainer();
+            this.tctxtEditMultiline = new FastColoredTextBoxNS.FastColoredTextBox();
             this.tpPlainText = new System.Windows.Forms.TabPage();
             this.fctxtxPlainText = new FastColoredTextBoxNS.FastColoredTextBox();
             this.lblConnection = new System.Windows.Forms.Label();
@@ -66,6 +69,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).BeginInit();
             this.tc.SuspendLayout();
             this.tpStructured.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitStructured)).BeginInit();
+            this.splitStructured.Panel1.SuspendLayout();
+            this.splitStructured.Panel2.SuspendLayout();
+            this.splitStructured.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tctxtEditMultiline)).BeginInit();
             this.tpPlainText.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelay)).BeginInit();
@@ -144,26 +152,24 @@
             // 
             this.dgvLogEntries.AllowDrop = true;
             this.dgvLogEntries.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
-            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
-            this.dgvLogEntries.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvLogEntries.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvLogEntries.BackgroundColor = System.Drawing.Color.White;
             this.dgvLogEntries.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvLogEntries.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.dgvLogEntries.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dgvLogEntries.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvLogEntries.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvLogEntries.EnableHeadersVisualStyles = false;
             this.dgvLogEntries.Font = new System.Drawing.Font("Consolas", 9.75F);
-            this.dgvLogEntries.Location = new System.Drawing.Point(3, 3);
+            this.dgvLogEntries.Location = new System.Drawing.Point(0, 0);
             this.dgvLogEntries.Name = "dgvLogEntries";
             this.dgvLogEntries.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle4;
-            this.dgvLogEntries.Size = new System.Drawing.Size(982, 386);
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            this.dgvLogEntries.Size = new System.Drawing.Size(985, 387);
             this.dgvLogEntries.TabIndex = 32;
             this.dgvLogEntries.VirtualMode = true;
             this.dgvLogEntries.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValueNeeded);
@@ -193,13 +199,71 @@
             // tpStructured
             // 
             this.tpStructured.BackColor = System.Drawing.Color.White;
-            this.tpStructured.Controls.Add(this.dgvLogEntries);
+            this.tpStructured.Controls.Add(this.chkEditMultiline);
+            this.tpStructured.Controls.Add(this.splitStructured);
             this.tpStructured.Location = new System.Drawing.Point(0, 22);
             this.tpStructured.Name = "tpStructured";
             this.tpStructured.Padding = new System.Windows.Forms.Padding(3);
             this.tpStructured.Size = new System.Drawing.Size(987, 426);
             this.tpStructured.TabIndex = 0;
             this.tpStructured.Text = "Structured";
+            // 
+            // chkEditMultiline
+            // 
+            this.chkEditMultiline.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkEditMultiline.AutoSize = true;
+            this.chkEditMultiline.Location = new System.Drawing.Point(8, 400);
+            this.chkEditMultiline.Name = "chkEditMultiline";
+            this.chkEditMultiline.Size = new System.Drawing.Size(85, 17);
+            this.chkEditMultiline.TabIndex = 34;
+            this.chkEditMultiline.Text = "Edit Multiline";
+            this.chkEditMultiline.UseVisualStyleBackColor = true;
+            this.chkEditMultiline.Visible = false;
+            this.chkEditMultiline.CheckedChanged += new System.EventHandler(this.chkEditMultiline_CheckedChanged);
+            // 
+            // splitStructured
+            // 
+            this.splitStructured.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitStructured.BackColor = System.Drawing.SystemColors.Control;
+            this.splitStructured.Location = new System.Drawing.Point(0, 0);
+            this.splitStructured.Name = "splitStructured";
+            this.splitStructured.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitStructured.Panel1
+            // 
+            this.splitStructured.Panel1.BackColor = System.Drawing.Color.White;
+            this.splitStructured.Panel1.Controls.Add(this.dgvLogEntries);
+            // 
+            // splitStructured.Panel2
+            // 
+            this.splitStructured.Panel2.BackColor = System.Drawing.Color.White;
+            this.splitStructured.Panel2.Controls.Add(this.tctxtEditMultiline);
+            this.splitStructured.Panel2Collapsed = true;
+            this.splitStructured.Size = new System.Drawing.Size(985, 387);
+            this.splitStructured.SplitterDistance = 193;
+            this.splitStructured.TabIndex = 33;
+            // 
+            // tctxtEditMultiline
+            // 
+            this.tctxtEditMultiline.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.tctxtEditMultiline.BackBrush = null;
+            this.tctxtEditMultiline.CharHeight = 14;
+            this.tctxtEditMultiline.CharWidth = 8;
+            this.tctxtEditMultiline.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.tctxtEditMultiline.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.tctxtEditMultiline.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tctxtEditMultiline.IsReplaceMode = false;
+            this.tctxtEditMultiline.Location = new System.Drawing.Point(0, 0);
+            this.tctxtEditMultiline.Name = "tctxtEditMultiline";
+            this.tctxtEditMultiline.Paddings = new System.Windows.Forms.Padding(0);
+            this.tctxtEditMultiline.PreferredLineWidth = 65536;
+            this.tctxtEditMultiline.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.tctxtEditMultiline.Size = new System.Drawing.Size(150, 46);
+            this.tctxtEditMultiline.TabIndex = 2;
+            this.tctxtEditMultiline.WordWrap = true;
+            this.tctxtEditMultiline.Zoom = 100;
             // 
             // tpPlainText
             // 
@@ -626,6 +690,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).EndInit();
             this.tc.ResumeLayout(false);
             this.tpStructured.ResumeLayout(false);
+            this.tpStructured.PerformLayout();
+            this.splitStructured.Panel1.ResumeLayout(false);
+            this.splitStructured.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitStructured)).EndInit();
+            this.splitStructured.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.tctxtEditMultiline)).EndInit();
             this.tpPlainText.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelay)).EndInit();
@@ -684,5 +754,8 @@
         private System.Windows.Forms.Button btnMerge;
         private System.Windows.Forms.Button btnSplit;
         private System.Windows.Forms.Label lblLogEntryCount;
+        private System.Windows.Forms.CheckBox chkEditMultiline;
+        private System.Windows.Forms.SplitContainer splitStructured;
+        private FastColoredTextBoxNS.FastColoredTextBox tctxtEditMultiline;
     }
 }

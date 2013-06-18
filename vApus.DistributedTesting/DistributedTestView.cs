@@ -525,7 +525,8 @@ namespace vApus.DistributedTesting {
                     } else {
                         //Failed jump starting slaves
                         foreach (Exception ex in e.Exceptions) {
-                            string message = ex.ToString();
+                            string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
+                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                             distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                             LogWrapper.LogByLevel(message, LogLevel.Error);
                         }
@@ -657,7 +658,7 @@ namespace vApus.DistributedTesting {
 
         private void HandleInitializeOrStartException(Exception exception) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                string message = exception +"\n\nSee " +
+                string message = exception.Message + exception.StackTrace + "\n\nSee " +
                               Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt"); ;
                 distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
@@ -910,7 +911,7 @@ namespace vApus.DistributedTesting {
                 try {
                     _distributedTestCore.Stop();
                 } catch (Exception ex) {
-                    string message = ex + "\n\nSee " +
+                    string message = ex.Message + ex.StackTrace + "\n\nSee " +
                               Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                 }
@@ -964,7 +965,7 @@ namespace vApus.DistributedTesting {
                                                                          LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                     } catch { } //Exception on false WMI. 
                 } catch (Exception ex) {
-                    string message = ex + "\n\nSee " +
+                    string message = ex.Message + ex.StackTrace + "\n\nSee " +
                               Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                     monitorAfter = false;

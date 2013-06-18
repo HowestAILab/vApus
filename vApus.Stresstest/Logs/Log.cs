@@ -203,18 +203,26 @@ namespace vApus.Stresstest {
             endTokenDelimiter = string.Empty;
             logEntryContainsTokens = false;
 
-            foreach (LogEntry logEntry in GetAllLogEntries()) {
-                string b, e;
-                bool bln;
+            string b, e;
+            bool bln;
+            int tokenIndex = -1;
 
-                int i = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
+            if (this.CountOf(typeof(UserAction)) == 0) {
+                tokenIndex = (new LogEntry()).GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
+                logEntryContainsTokens = true;
+            
+                _preferredTokenDelimiterIndex = tokenIndex;
+            } else {
+                foreach (LogEntry logEntry in GetAllLogEntries()) {
+                    tokenIndex = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
 
-                if (i >= _preferredTokenDelimiterIndex) {
-                    beginTokenDelimiter = b;
-                    endTokenDelimiter = e;
-                    if (bln) logEntryContainsTokens = true;
+                    if (tokenIndex >= _preferredTokenDelimiterIndex) {
+                        beginTokenDelimiter = b;
+                        endTokenDelimiter = e;
+                        if (bln) logEntryContainsTokens = true;
 
-                    _preferredTokenDelimiterIndex = i;
+                        _preferredTokenDelimiterIndex = tokenIndex;
+                    }
                 }
             }
         }

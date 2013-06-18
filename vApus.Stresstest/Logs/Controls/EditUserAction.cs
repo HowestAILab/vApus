@@ -436,12 +436,12 @@ namespace vApus.Stresstest {
             if (lbtnEditable.Active)
                 foreach (LogEntry logEntry in userAction) {
                     string formattedS = logEntry.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr);
-                    AddRowToDgv(formattedS);
+                    AddRowToDgv(logEntry.LogEntryString);
                     plainText.AppendLine(formattedS);
                 } else
                 foreach (string s in userAction.LogEntryStringsAsImported) {
                     string formattedS = s.Replace("\n", VBLRn).Replace("\r", VBLRr);
-                    AddRowToDgv(formattedS);
+                    AddRowToDgv(s);
                     plainText.AppendLine(formattedS);
                 }
 
@@ -947,5 +947,9 @@ namespace vApus.Stresstest {
             }
         }
         #endregion
+
+        private void chkEditMultiline_CheckedChanged(object sender, EventArgs e) {
+            splitStructured.Panel2Collapsed = !chkEditMultiline.Checked;
+        }
     }
 }
