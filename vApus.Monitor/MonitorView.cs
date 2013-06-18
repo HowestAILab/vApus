@@ -63,6 +63,17 @@ namespace vApus.Monitor {
         public string Configuration {
             get { return _configuration; }
         }
+        public bool IsRunning {
+            get {
+                bool isRunning = false;
+                try {
+                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                        isRunning = btnStop.Enabled;
+                    }, null);
+                } catch { }
+                return isRunning;
+            }
+        }
 
         #endregion
 
@@ -321,7 +332,7 @@ namespace vApus.Monitor {
             llblCheckAllVisible.Enabled = HasUncheckedNodes();
         }
 
-        private void ExtractWIWForListViewAction() {            
+        private void ExtractWIWForListViewAction() {
             LockWindowUpdate(Handle.ToInt32());
             try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;

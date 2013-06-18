@@ -621,11 +621,15 @@ namespace vApus.Stresstest {
         }
 
         private void btnStop_Click(object sender, EventArgs e) {
-            if (_stresstestCore == null)
-                Stop();
-            else
+            if (_stresstestCore == null || (_monitorAfterCountDown != null && _monitorAfterCountDown.CountdownTime != 0)) {
+                Stop(StresstestStatus.Cancelled);
+            } else if (_monitorBeforeCountDown != null && _monitorBeforeCountDown.CountdownTime != 0) {
+                _stresstestCore.Cancel();
+                Stop(StresstestStatus.Cancelled);
+            } else {
                 // Can only be cancelled once, calling multiple times is not a problem.
                 _stresstestCore.Cancel();
+            }
         }
 
         /// <summary>
@@ -654,9 +658,6 @@ namespace vApus.Stresstest {
 
 
                 fastResultsControl.SetStresstestStopped(stresstestStatus, ex);
-                if (stresstestStatus == StresstestStatus.Cancelled || stresstestStatus == StresstestStatus.Error)
-                    RemoveDatabase();
-
 
                 Cursor = Cursors.Default;
 
@@ -688,6 +689,9 @@ namespace vApus.Stresstest {
                 } else {
                     StopMonitorsAndUnlockGui(ex, false);
                 }
+
+                if (stresstestStatus == StresstestStatus.Cancelled || stresstestStatus == StresstestStatus.Error)
+                    RemoveDatabase();
             }
         }
         private void RemoveDatabase(bool confirm = true) {
@@ -784,7 +788,7 @@ namespace vApus.Stresstest {
             var validMonitorViews = new List<MonitorView>();
             if (_monitorViews != null && _stresstest.Monitors.Length != 0)
                 foreach (MonitorView view in _monitorViews)
-                    if (view != null && !view.IsDisposed) {
+                    if (view != null && !view.IsDisposed && view.IsRunning) {
                         view.Stop();
                         fastResultsControl.AppendMessages(view.Text + " is stopped.");
                         validMonitorViews.Add(view);

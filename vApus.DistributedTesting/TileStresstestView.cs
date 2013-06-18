@@ -350,14 +350,12 @@ namespace vApus.DistributedTesting {
         public void PerformStopClick() {
             int busyThreadCount = -1;
             if (_stresstestCore != null) {
-                _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
                 busyThreadCount = _stresstestCore.BusyThreadCount;
+                _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
             }
             //This makes it able to 'stop' the test before it started.
             if (busyThreadCount == 0)
-                try {
-                    Stop();
-                } catch {
+                try { Stop(); } catch {
                 }
         }
 

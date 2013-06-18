@@ -403,7 +403,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
         public void SetMonitorResults(MonitorResultCache monitorResultCache) {
             lock (_lock) {
-                if (_databaseActions != null) {
+                if (_databaseActions != null && monitorResultCache.Rows.Count != 0) {
                     ulong monitorConfigurationId = monitorResultCache.MonitorConfigurationId;
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
                     foreach (var row in monitorResultCache.Rows) {

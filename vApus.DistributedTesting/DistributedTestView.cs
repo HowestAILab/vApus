@@ -1264,7 +1264,7 @@ namespace vApus.DistributedTesting {
             if (_monitorViews != null)
                 foreach (TileStresstest ts in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[ts])
-                        if (view != null && !view.IsDisposed && !validMonitorViews.Contains(view)) {
+                        if (view != null && !view.IsDisposed && view.IsRunning && !validMonitorViews.Contains(view)) {
                             validMonitorViews.Add(view);
                             view.Stop();
                             distributedStresstestControl.AppendMessages(view.Text + " is stopped.");
@@ -1276,11 +1276,12 @@ namespace vApus.DistributedTesting {
 
             validMonitorViews = null;
 
-            if (!disposing)
+            if (!disposing) {
                 SetMode(DistributedTestMode.Edit, true);
 
-            //Update the detailed results in the gui if any.
-            RefreshDetailedResults();
+                //Update the detailed results in the gui if any.
+                RefreshDetailedResults();
+            }
         }
         #endregion
 
