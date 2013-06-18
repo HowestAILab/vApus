@@ -190,7 +190,7 @@ namespace vApus.Stresstest {
 
             if (down) {
                 for (int i = 0; i < moveSteps; i++)
-                    if (++index < _log.Count)
+                    if (++index + userAction.LinkedToUserActionIndices.Count < _log.Count)
                         MoveDownOneStep(userAction);
             } else {
                 //We move the previous user action(s) down, this makes the following logic easier (we don't need a 'move up' logic)
