@@ -209,14 +209,18 @@ namespace vApus.Stresstest {
         ///     For monitoring --> to know the time offset of the counters so a range can be linked to a run.
         /// </summary>
         private void SetRunStopped() {
-            StresstestMetrics metrics = StresstestMetricsHelper.GetMetrics(_runResult);
-            InvokeMessage("|----> |Run Finished in " + metrics.MeasuredTime + "!", Color.MediumPurple);
-            if (_resultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
-            _resultsHelper.SetRunStopped(_runResult);
+            try {
+                StresstestMetrics metrics = StresstestMetricsHelper.GetMetrics(_runResult);
+                InvokeMessage("|----> |Run Finished in " + metrics.MeasuredTime + "!", Color.MediumPurple);
+                if (_resultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
+                _resultsHelper.SetRunStopped(_runResult);
 
-            if (!_cancel && RunStopped != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(
-                    delegate { RunStopped(this, new RunResultEventArgs(_runResult)); }, null);
+                if (!_cancel && RunStopped != null)
+                    SynchronizationContextWrapper.SynchronizationContext.Send(
+                        delegate { RunStopped(this, new RunResultEventArgs(_runResult)); }, null);
+            } catch {
+                //Mater removed the db.
+            }
         }
 
         /// <summary>
