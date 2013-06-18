@@ -60,14 +60,15 @@ namespace vApus.DetailedResultsViewer {
             dgvDatabases.DataSource = null;
             cboStresstest.Items.Clear();
             cboStresstest.Enabled = false;
+            btnDeleteListedDbs.Enabled = false;
             if (databaseActions == null || setAvailableTags) filterResults.ClearAvailableTags();
             if (databaseActions == null) {
                 if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
-            }else
-            {
+            } else {
                 if (setAvailableTags) filterResults.SetAvailableTags(databaseActions);
                 FillDatabasesDataGridView(databaseActions);
                 cboStresstest.Enabled = true;
+                btnDeleteListedDbs.Enabled = _dataSource.Rows.Count != 0;
             }
         }
         private DatabaseActions SetServerConnectStateInGui() {
@@ -281,6 +282,21 @@ namespace vApus.DetailedResultsViewer {
             public ResultsSelectedEventArgs(string database, ulong stresstestId) {
                 Database = database;
                 StresstestId = stresstestId;
+            }
+        }
+
+        private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
+            if (_resultsHelper != null &&
+                MessageBox.Show("Are you sure you want to delete the listed results databases?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                Cursor = Cursors.WaitCursor;
+                foreach (DataRow row in _dataSource.Rows) {
+                    try {
+                        _resultsHelper.DeleteResults(row[3] as string);
+                    } catch { }
+                }
+                _currentRow = null;
+                RefreshDatabases(true);
+                Cursor = Cursors.Default;
             }
         }
     }
