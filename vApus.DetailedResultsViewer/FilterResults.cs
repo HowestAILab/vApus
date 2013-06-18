@@ -128,13 +128,26 @@ namespace vApus.DetailedResultsViewer {
             }
         }
 
-
         private class GetTagsWorkItem {
             public List<string> GetTags(DatabaseActions databaseActions, string database) {
                 List<string> tags = new List<string>();
                 var t = databaseActions.GetDataTable("Select Tag from " + database + ".Tags;");
                 foreach (DataRow row in t.Rows) tags.Add((row.ItemArray[0] as string).Trim());
                 return tags;
+            }
+        }
+
+        private void FilterResults_Resize(object sender, EventArgs e) {
+            try {
+                int width = pnlTagsContainer.Width - 21;
+                if (width > flpTags.MaximumSize.Width) {
+                    flpTags.MaximumSize = new Size(width, 9999);
+                    flpTags.MinimumSize = new Size(width, pnlTagsContainer.Height);
+                } else {
+                    flpTags.MinimumSize = new Size(width, pnlTagsContainer.Height);
+                    flpTags.MaximumSize = new Size(width, 9999);
+                }
+            } catch { 
             }
         }
     }
