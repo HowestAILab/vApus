@@ -72,7 +72,12 @@ namespace vApus.Stresstest {
                         sb.AppendLine(sr.ReadToEnd());
 
                 fctxtxImport.Text = sb.ToString().Trim();
-                SetCodeStyle();
+
+                try {
+                    bool logEntryContainsTokens;
+                    _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
+                    SetCodeStyle();
+                } catch { }
             }
         }
 

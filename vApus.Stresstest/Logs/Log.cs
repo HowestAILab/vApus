@@ -210,7 +210,10 @@ namespace vApus.Stresstest {
             if (this.CountOf(typeof(UserAction)) == 0) {
                 tokenIndex = (new LogEntry()).GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
                 logEntryContainsTokens = true;
-            
+
+                beginTokenDelimiter = b;
+                endTokenDelimiter = e;
+
                 _preferredTokenDelimiterIndex = tokenIndex;
             } else {
                 foreach (LogEntry logEntry in GetAllLogEntries()) {
