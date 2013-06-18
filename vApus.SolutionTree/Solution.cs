@@ -253,6 +253,22 @@ namespace vApus.SolutionTree {
             return LoadNewActiveSolution(null);
         }
 
+        /// <summary>
+        /// Reloads the solution if possible.
+        /// </summary>
+        /// <returns></returns>
+        public static bool ReloadSolution() {
+            if (_activeSolution != null && !_activeSolution.IsSaved &&
+                MessageBox.Show("Reopening the solution will discard the changes you've made.\nAre you sure you want to do this?",
+                                    string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                try {
+                    return LoadSolution(_activeSolution.FileName);
+                } catch (Exception ex) {
+                    LogWrapper.LogByLevel("Could not reopen the solution.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
+                }
+            return false;
+        }
+
         public static bool LoadNewActiveSolution(string fileName) {
             if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
                 DialogResult result =

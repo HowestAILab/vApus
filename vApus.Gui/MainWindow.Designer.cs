@@ -91,6 +91,7 @@
             this.lblWarning = new System.Windows.Forms.ToolStripStatusLabel();
             this.tmrSetStatusStrip = new System.Windows.Forms.Timer(this.components);
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.reopenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -115,6 +116,7 @@
             this.newToolStripMenuItem,
             this.newFromTemplateToolStripMenuItem,
             this.openToolStripMenuItem,
+            this.reopenToolStripMenuItem,
             this.openRecentToolStripMenuItem,
             this.toolStripSeparator,
             this.saveToolStripMenuItem,
@@ -166,14 +168,14 @@
             // 
             this.clearToolStripMenuItem.Enabled = false;
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(98, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
             // 
             // toolStripSeparator
             // 
@@ -532,6 +534,14 @@
             this.dockPanel.Skin = dockPanelSkin1;
             this.dockPanel.TabIndex = 1;
             // 
+            // reopenToolStripMenuItem
+            // 
+            this.reopenToolStripMenuItem.Enabled = false;
+            this.reopenToolStripMenuItem.Name = "reopenToolStripMenuItem";
+            this.reopenToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.reopenToolStripMenuItem.Text = "Reopen";
+            this.reopenToolStripMenuItem.Click += new System.EventHandler(this.reOpenToolStripMenuItem_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -607,6 +617,7 @@
         private System.Windows.Forms.ToolStripStatusLabel lblPipeMicrosoftFirewallAutoUpdateEnabled;
         private System.Windows.Forms.ToolStripStatusLabel lblWarning;
         private System.Windows.Forms.ToolStripMenuItem newFromTemplateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reopenToolStripMenuItem;
     }
 }
 

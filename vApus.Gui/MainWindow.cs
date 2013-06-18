@@ -356,6 +356,12 @@ namespace vApus.Gui {
             Cursor = Cursors.Default;
         }
 
+        private void reOpenToolStripMenuItem_Click(object sender, EventArgs e) {
+            Cursor = Cursors.WaitCursor;
+            Solution.ReloadSolution();
+            Cursor = Cursors.Default;
+        }
+
         private void openRecentToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
@@ -478,9 +484,6 @@ namespace vApus.Gui {
 
         #region Help
 
-        private void helpToolStripMenuItem1_Click(object sender, EventArgs e) {
-        }
-
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
             _about.ShowDialog();
         }
@@ -507,7 +510,12 @@ namespace vApus.Gui {
         }
 
         private void tmrSetStatusStrip_Tick(object sender, EventArgs e) {
-            if (IsHandleCreated && Visible) try { SetStatusStrip(); } catch { }
+            if (IsHandleCreated && Visible) try {
+                    reopenToolStripMenuItem.Enabled =
+                        (Solution.ActiveSolution != null && Solution.ActiveSolution.FileName != null && !Solution.ActiveSolution.IsSaved);
+                    SetStatusStrip();
+                } catch {
+                }
         }
 
         private void SetStatusStrip() {
