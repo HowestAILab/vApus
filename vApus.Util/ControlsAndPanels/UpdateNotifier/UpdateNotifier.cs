@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
@@ -28,6 +29,10 @@ namespace vApus.Util {
     }
 
     public static class UpdateNotifier {
+        private static bool _failedRefresh;
+        private static bool _versionChanged;
+        private static bool _refreshed;
+
         /// <summary>
         ///     Keep this to create a update notifier dialog when needed.
         /// </summary>
@@ -50,9 +55,6 @@ namespace vApus.Util {
                 }
             }
         }
-        private static bool _failedRefresh;
-        private static bool _versionChanged;
-        private static bool _refreshed;
 
         public static UpdateNotifierState UpdateNotifierState {
             get {
@@ -170,6 +172,9 @@ namespace vApus.Util {
                 _newChannel = GetChannel(tempVersion);
 
                 _newHistory = GetHistory(tempVersion);
+
+                if (_newVersion.Length == 0 || _newChannel.Length == 0 || _newHistory.Length == 0)
+                    throw new Exception("Could not fetch the versioning data.");
 
                 _versionChanged = (CurrentVersion != _newVersion) || (CurrentChannel != _newChannel);
 
