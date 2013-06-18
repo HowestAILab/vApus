@@ -15,6 +15,7 @@ using vApus.Util;
 namespace vApus.Results {
     public partial class SavingResultsPanel : Panel {
         private bool _showDescription = true;
+        private bool _showLocalHostWarning = true;
 
         public bool Connected {
             get {
@@ -42,8 +43,11 @@ namespace vApus.Results {
         public void GetCurrentCredentials(out string user, out string host, out int port, out string password) {
             SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
         }
+
         [DefaultValue(true)]
         public bool ShowDescription { get { return _showDescription; } set { _showDescription = value; } }
+        [DefaultValue(true)]
+        public bool ShowLocalHostWarning { get { return _showLocalHostWarning; } set { _showLocalHostWarning = value; } }
 
         public SavingResultsPanel() {
             InitializeComponent();
@@ -57,7 +61,7 @@ namespace vApus.Results {
         }
 
         private void SetGui() {
-            if (ShowDescription) {
+            if (_showDescription) {
                 lblDescription.Visible = true;
                 grp.Top = 63;
             } else {
@@ -147,7 +151,7 @@ namespace vApus.Results {
             SetGui();
 
             string host = txtHost.Text.Trim().ToLower();
-            if (host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "0:0:0:0:0:0:0:1")
+            if (_showLocalHostWarning && (host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "0:0:0:0:0:0:0:1"))
                 MessageBox.Show("The results server must be reachable from a remote location, otherwise distributed testing won't work!\nBe sure that '" + txtHost.Text.Trim() + "' is what you want.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 

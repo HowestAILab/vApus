@@ -32,6 +32,7 @@
             this.savingResultsPanel.Location = new System.Drawing.Point(0, 0);
             this.savingResultsPanel.Name = "savingResultsPanel";
             this.savingResultsPanel.ShowDescription = false;
+            this.savingResultsPanel.ShowLocalHostWarning = false;
             this.savingResultsPanel.Size = new System.Drawing.Size(484, 262);
             this.savingResultsPanel.TabIndex = 0;
             this.savingResultsPanel.Text = "SavingResultsPanel";
