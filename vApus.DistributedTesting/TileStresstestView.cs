@@ -364,10 +364,8 @@ namespace vApus.DistributedTesting {
                             break;
                         Thread.Sleep(1000);
                     }
-                    if (_stresstestCore != null)
+                    if (_stresstestCore != null || busyThreadCount == 0)
                         SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
-                            MessageBox.Show("");
-
                             Stop();
                         }, null);
                 });
