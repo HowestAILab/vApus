@@ -161,7 +161,9 @@ namespace vApus.DistributedTesting {
                 stopMessage.Exception = "No Tile Stresstest View found!";
             else {
                 stopMessage.TileStresstestIndex = _tileStresstestView.TileStresstestIndex;
-                _tileStresstestView.PerformStopClick();
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    _tileStresstestView.PerformStopClick();
+                }, null);
             }
             message.Content = stopMessage;
             return message;

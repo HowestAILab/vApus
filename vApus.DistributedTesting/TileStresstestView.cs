@@ -350,18 +350,26 @@ namespace vApus.DistributedTesting {
         ///     To stop the test from the slave side communication handler.
         /// </summary>
         public void PerformStopClick() {
-            int busyThreadCount = -1;
-            if (_stresstestCore != null) {
-                busyThreadCount = _stresstestCore.BusyThreadCount;
-                _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
-            }
-            //This makes it able to 'stop' the test before it started.
-            if (busyThreadCount == 0)
-                try {
-                    Stop();
-                } catch (Exception ex) {
-                    LogWrapper.LogByLevel("Failed stopping the test.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
+            if (btnStop.Enabled) {
+                int busyThreadCount = -1;
+                if (_stresstestCore != null) {
+                    busyThreadCount = _stresstestCore.BusyThreadCount;
+                    _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
                 }
+
+                //Nasty, but last resort.
+                ThreadPool.QueueUserWorkItem((state) => {
+                    for (int i = 0; i != 30; i++) {
+                        if (_stresstestCore == null)
+                            break;
+                        Thread.Sleep(1000);
+                    }
+                    if (_stresstestCore != null || busyThreadCount == 0)
+                        SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
+                            Stop();
+                        }, null);
+                });
+            }
         }
 
         /// <summary>
@@ -369,26 +377,30 @@ namespace vApus.DistributedTesting {
         /// <param name="ex">The exception if failed.</param>
         private void Stop(Exception ex = null) {
             Cursor = Cursors.WaitCursor;
-            StopStresstest();
+            try {
+                StopStresstest();
 
-            tmrProgress.Stop();
-            StopProgressDelayCountDown();
+                tmrProgress.Stop();
+                StopProgressDelayCountDown();
 
-            btnStop.Enabled = false;
-            if (ex == null)
-                fastResultsControl.SetStresstestStopped(_stresstestStatus);
-            else {
-                _stresstestStatus = StresstestStatus.Error;
-                fastResultsControl.SetStresstestStopped(_stresstestStatus, ex);
+                btnStop.Enabled = false;
+                if (ex == null)
+                    fastResultsControl.SetStresstestStopped(_stresstestStatus);
+                else {
+                    _stresstestStatus = StresstestStatus.Error;
+                    fastResultsControl.SetStresstestStopped(_stresstestStatus, ex);
+                }
+
+                if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
+                    _stresstestCore.Dispose();
+                    _stresstestCore = null;
+                }
+
+                SendPushMessage(RunStateChange.None, false, false);
+            } catch (Exception eeee) {
+                MessageBox.Show(eeee.ToString());
+                LogWrapper.LogByLevel("Failed stopping the test.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
             }
-
-            if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
-                _stresstestCore.Dispose();
-                _stresstestCore = null;
-            }
-
-            SendPushMessage(RunStateChange.None, false, false);
-
             Cursor = Cursors.Default;
         }
 

@@ -64,8 +64,12 @@ namespace vApus.DistributedTesting {
             chkUseRDP.Checked = _distributedTest.UseRDP;
             chkUseRDP.CheckedChanged += chkUseRDP_CheckedChanged;
 
-            cboRunSync.SelectedIndex = (int)distributedTest.RunSynchronization;
+            cboRunSync.SelectedIndex = (int)_distributedTest.RunSynchronization;
             cboRunSync.SelectedIndexChanged += cboRunSync_SelectedIndexChanged;
+
+            nudMaxBreakOnLast.Value = _distributedTest.MaxRerunsBreakOnLast;
+            //nudMaxBreakOnLast.Visible = cboRunSync.SelectedIndex == 2;
+            nudMaxBreakOnLast.ValueChanged += nudMaxBreakOnLast_ValueChanged;
         }
 
         #endregion
@@ -90,12 +94,14 @@ namespace vApus.DistributedTesting {
             if (_distributedTestMode == DistributedTestMode.Edit) {
                 chkUseRDP.Enabled =
                     pnlRunSync.Enabled =
+                    nudMaxBreakOnLast.Enabled =
                     picAddTile.Visible = true;
 
                 picStresstestStatus.Visible = false;
             } else {
                 chkUseRDP.Enabled =
                     pnlRunSync.Enabled =
+                    nudMaxBreakOnLast.Enabled =
                     picAddTile.Visible = false;
 
                 _testStarted = false;
@@ -121,6 +127,10 @@ namespace vApus.DistributedTesting {
 
         private void cboRunSync_SelectedIndexChanged(object sender, EventArgs e) {
             _distributedTest.RunSynchronization = (RunSynchronization)cboRunSync.SelectedIndex;
+            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+        private void nudMaxBreakOnLast_ValueChanged(object sender, EventArgs e) {
+            _distributedTest.MaxRerunsBreakOnLast = (int)nudMaxBreakOnLast.Value;
             _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 

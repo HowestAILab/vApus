@@ -72,7 +72,6 @@
             // 
             // flpTags
             // 
-            this.flpTags.AutoScroll = true;
             this.flpTags.AutoSize = true;
             this.flpTags.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flpTags.Location = new System.Drawing.Point(3, 3);
