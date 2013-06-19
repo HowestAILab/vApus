@@ -16,6 +16,45 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     public partial class EventPanel : UserControl {
+        #region Static
+        //All this to be able to add events from the connection proxy code for debugging purposes.
+        private static readonly object _staticLock = new object();
+        private static List<EventPanel> _eventPanels = new List<EventPanel>();
+
+        private static void CleanEventPanels() {
+            var l = new List<EventPanel>();
+            foreach (var ep in _eventPanels)
+                if (ep != null && !ep.IsDisposed)
+                    l.Add(ep);
+            _eventPanels = l;
+        }
+        private static void RegisterEventPanel(EventPanel eventPanel) {
+            lock (_staticLock) {
+                if (!_eventPanels.Contains(eventPanel)) 
+                    _eventPanels.Add(eventPanel);
+                CleanEventPanels();
+            }
+        }
+
+        /// <summary>
+        /// This allows us to add events from within the connection proxy code, events will be added to all available event panels.
+        /// </summary>
+        /// <param name="message"></param>
+        public static void AddEvent(string message) {
+            lock (_staticLock) {
+                CleanEventPanels();
+                foreach (var ep in _eventPanels)
+                    try {
+                        SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                            ep.AddEvent(EventViewEventType.Info, Color.Black, message);
+                        }, null);
+                    } catch (Exception ex) {
+                        LogWrapper.LogByLevel("Failed to add events to an event panel from within connection proxy code.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
+                    }
+            }
+        }
+        #endregion
+
         private readonly object _lock = new object();
 
         private bool _expandOnErrorEvent;
@@ -24,6 +63,8 @@ namespace vApus.Util {
         public EventPanel() {
             InitializeComponent();
             cboFilter.SelectedIndex = 0;
+
+            RegisterEventPanel(this);
         }
 
         [Description("The begin of the time frame when the events occured ('at').")]
@@ -65,8 +106,7 @@ namespace vApus.Util {
 
                         eventProgressBar.Width += (cboFilter.Margin.Left + cboFilter.Width);
                         cboFilter.Visible = false;
-                    }
-                    else {
+                    } else {
                         btnCollapseExpand.Text = "-";
                         MinimumSize = DefaultMinimumSize;
                         MaximumSize = DefaultMaximumSize;
@@ -133,19 +173,21 @@ namespace vApus.Util {
         }
 
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at) {
-            LockWindowUpdate(Handle.ToInt32());
+            lock (_lock) {
+                LockWindowUpdate(Handle.ToInt32());
 
-            ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
-            EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter);
+                ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
+                EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter);
 
-            if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {
-                if (_expandOnErrorEvent)
-                    Collapsed = false;
+                if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {
+                    if (_expandOnErrorEvent)
+                        Collapsed = false;
 
-                eventProgressBar.PerformMouseEnter(at, false);
+                    eventProgressBar.PerformMouseEnter(at, false);
+                }
+
+                LockWindowUpdate(0);
             }
-
-            LockWindowUpdate(0);
         }
 
         public void SetEndOfTimeFrameToNow() {
