@@ -138,16 +138,22 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void FilterResults_Resize(object sender, EventArgs e) {
+            int tried = 0;
+        Retry:
             try {
                 int width = pnlTagsContainer.Width - 21;
                 if (width > flpTags.MaximumSize.Width) {
                     flpTags.MaximumSize = new Size(width, 9999);
-                    flpTags.MinimumSize = new Size(width, pnlTagsContainer.Height);
+                    flpTags.MinimumSize = new Size(width, pnlTagsContainer.Height - 3);
                 } else {
-                    flpTags.MinimumSize = new Size(width, pnlTagsContainer.Height);
+                    flpTags.MinimumSize = new Size(width, pnlTagsContainer.Height - 3);
                     flpTags.MaximumSize = new Size(width, 9999);
                 }
-            } catch { 
+
+                if (flpTags.HorizontalScroll.Visible || flpTags.VerticalScroll.Visible)
+                    if (++tried != 3)
+                        goto Retry;
+            } catch {
             }
         }
     }
