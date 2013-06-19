@@ -302,8 +302,10 @@ namespace vApus.DistributedTesting {
         private void SendPushMessage(RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (!_finishedSent) {
                 var estimatedRuntimeLeft = StresstestMetricsHelper.GetEstimatedRuntimeLeft(_stresstestResult, _stresstest.Concurrencies.Length, _stresstest.Runs);
+                var events = new List<EventPanelEvent>();
+                try { events = fastResultsControl.GetEvents(); } catch { }
                 SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt,
-                    fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, fastResultsControl.GetEvents(), runStateChange, runFinished, concurrencyFinished);
+                    fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, events, runStateChange, runFinished, concurrencyFinished);
                 if (_stresstestStatus != StresstestStatus.Busy) _finishedSent = true;
             }
         }
@@ -355,7 +357,10 @@ namespace vApus.DistributedTesting {
             }
             //This makes it able to 'stop' the test before it started.
             if (busyThreadCount == 0)
-                try { Stop(); } catch {
+                try {
+                    Stop();
+                } catch (Exception ex) {
+                    LogWrapper.LogByLevel("Failed stopping the test.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
                 }
         }
 
@@ -391,7 +396,7 @@ namespace vApus.DistributedTesting {
         ///     Only used in stop
         /// </summary>
         private void StopStresstest() {
-            if (_stresstestCore != null) {
+            if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
                 try {
                     fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
                                                           LocalMonitor.ContextSwitchesPerSecond,
@@ -406,7 +411,7 @@ namespace vApus.DistributedTesting {
                 fastResultsControl.SetRerunning(false);
 
                 // Can only be cancelled once, calling multiple times is not a problem.
-                _stresstestCore.Cancel();
+                if (_stresstestCore != null && !_stresstestCore.IsDisposed) try { _stresstestCore.Cancel(); } catch { }
             }
 
             fastResultsControl.SetStresstestStopped();

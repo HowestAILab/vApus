@@ -524,7 +524,6 @@ namespace vApus.DistributedTesting {
         }
 
         private void InvokeOnFinished() {
-            InvokeMessage("Test finished!");
             if (OnFinished != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate { OnFinished(this, new FinishedEventArgs(OK, Cancelled, Failed)); }, null);

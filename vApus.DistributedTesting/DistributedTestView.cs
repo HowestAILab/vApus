@@ -894,19 +894,15 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Stop
-
-
         private void btnStop_Click(object sender, EventArgs e) {
+            Cursor = Cursors.WaitCursor;
             distributedStresstestControl.AppendMessages("Stopping the test...");
             bool monitorBeforeRunning = _monitorBeforeCountDown != null;
-            StopMonitorsUpdateDetailedResultsAndSetMode(false);
-            if (monitorBeforeRunning)
-                testTreeView.SetMonitorBeforeCancelled();
+            bool monitorAfterRunning = _monitorAfterCountDown != null;
 
             if (_distributedTestCore != null) {
-                Cursor = Cursors.WaitCursor;
 
-                btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
+                btnStart.Enabled = btnStop.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
 
                 try {
                     _distributedTestCore.Stop();
@@ -916,18 +912,37 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                 }
 
-                btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
-
-                Cursor = Cursors.Default;
+            } else {
                 distributedStresstestControl.AppendMessages("Test Cancelled!", LogLevel.Warning);
+                
+                btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
+                StopMonitorsUpdateDetailedResultsAndSetMode(false);
+                RemoveDatabase();
             }
 
-            RemoveDatabase();
+            if (monitorBeforeRunning) {
+                testTreeView.SetMonitorBeforeCancelled();
+                StopMonitorsUpdateDetailedResultsAndSetMode(false);
+                RemoveDatabase();
+            }
+            if (monitorAfterRunning) {
+                StopMonitorsUpdateDetailedResultsAndSetMode(false);
+                RemoveDatabase();
+            }
+
+            Cursor = Cursors.Default;
         }
         private void _distributedTestCore_OnFinished(object sender, FinishedEventArgs e) {
             _distributedTestCore.OnFinished -= _distributedTestCore_OnFinished;
 
             Stop(e.Cancelled == 0 && e.Error == 0);
+
+            if (e.Cancelled == 0 && e.Error == 0) {
+                distributedStresstestControl.AppendMessages("Test finished!", LogLevel.Info);
+            } else {
+                distributedStresstestControl.AppendMessages("Test Cancelled!", LogLevel.Warning);
+                RemoveDatabase();
+            }
         }
 
         private void DistributedTestView_FormClosing(object sender, FormClosingEventArgs e) {
