@@ -27,6 +27,7 @@ namespace vApus.DistributedTesting {
         //For in the results database
         private string _description = string.Empty;
         private string[] _tags = new string[0];
+        private int _maxRerunsBreakOnLast = 10;
 
         #endregion
 
@@ -54,8 +55,16 @@ namespace vApus.DistributedTesting {
             set { _runSynchronization = value; }
         }
 
-        private string DefaultResultPath {
-            get { return Path.Combine(Application.StartupPath, "DistributedTestResults"); }
+        [SavableCloneable]
+        [DisplayName("Maximum Reruns for Break on Last Run Synchronisation"), 
+        Description("The minumum allowed value is 0 (infinite) the maximum is 99.")]
+        public int MaxRerunsBreakOnLast {
+            get { return _maxRerunsBreakOnLast; }
+            set {
+                if (value < 0) value = 0;
+                if (value > 99) value = 99;
+                _maxRerunsBreakOnLast = value;
+            }
         }
 
         [SavableCloneable]

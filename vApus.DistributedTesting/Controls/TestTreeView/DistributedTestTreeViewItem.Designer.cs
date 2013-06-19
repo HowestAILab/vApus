@@ -40,9 +40,11 @@
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
             this.chkUseRDP = new System.Windows.Forms.CheckBox();
+            this.nudMaxBreakOnLast = new System.Windows.Forms.NumericUpDown();
             this.pnlRunSync.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxBreakOnLast)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlRunSync
@@ -50,7 +52,7 @@
             this.pnlRunSync.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlRunSync.BackColor = System.Drawing.Color.Silver;
             this.pnlRunSync.Controls.Add(this.cboRunSync);
-            this.pnlRunSync.Location = new System.Drawing.Point(380, 6);
+            this.pnlRunSync.Location = new System.Drawing.Point(349, 6);
             this.pnlRunSync.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.pnlRunSync.Name = "pnlRunSync";
             this.pnlRunSync.Size = new System.Drawing.Size(127, 23);
@@ -86,7 +88,7 @@
             this.label1.Location = new System.Drawing.Point(3, 11);
             this.label1.MinimumSize = new System.Drawing.Size(0, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(241, 13);
+            this.label1.Size = new System.Drawing.Size(212, 13);
             this.label1.TabIndex = 19;
             this.label1.Text = "Distributed Test";
             this.label1.Click += new System.EventHandler(this._Enter);
@@ -116,7 +118,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(321, 11);
+            this.label2.Location = new System.Drawing.Point(292, 11);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(57, 13);
@@ -150,13 +152,29 @@
             this.chkUseRDP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkUseRDP.AutoSize = true;
             this.chkUseRDP.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkUseRDP.Location = new System.Drawing.Point(250, 9);
+            this.chkUseRDP.Location = new System.Drawing.Point(221, 9);
             this.chkUseRDP.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.chkUseRDP.Name = "chkUseRDP";
             this.chkUseRDP.Size = new System.Drawing.Size(68, 17);
             this.chkUseRDP.TabIndex = 0;
             this.chkUseRDP.Text = "Use RDP";
             this.chkUseRDP.UseVisualStyleBackColor = true;
+            // 
+            // nudMaxBreakOnLast
+            // 
+            this.nudMaxBreakOnLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.nudMaxBreakOnLast.Location = new System.Drawing.Point(475, 8);
+            this.nudMaxBreakOnLast.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.nudMaxBreakOnLast.Name = "nudMaxBreakOnLast";
+            this.nudMaxBreakOnLast.Size = new System.Drawing.Size(32, 20);
+            this.nudMaxBreakOnLast.TabIndex = 26;
+            this.toolTip.SetToolTip(this.nudMaxBreakOnLast, "Set the maximum number of reruns for a run in a tilestresstest for the Break on L" +
+        "ast Run Sync.\r\n(0 = infinite)");
+            this.nudMaxBreakOnLast.Visible = false;
             // 
             // DistributedTestTreeViewItem
             // 
@@ -166,9 +184,10 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnlRunSync);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.picAddTile);
             this.Controls.Add(this.picStresstestStatus);
+            this.Controls.Add(this.nudMaxBreakOnLast);
+            this.Controls.Add(this.label2);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "DistributedTestTreeViewItem";
             this.Size = new System.Drawing.Size(532, 35);
@@ -178,6 +197,7 @@
             this.pnlRunSync.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxBreakOnLast)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -195,6 +215,7 @@
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.PictureBox picStresstestStatus;
         private System.Windows.Forms.CheckBox chkUseRDP;
+        private System.Windows.Forms.NumericUpDown nudMaxBreakOnLast;
 
     }
 }
