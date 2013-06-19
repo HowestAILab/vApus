@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace vApus.Util {
@@ -104,16 +105,26 @@ namespace vApus.Util {
         /// <returns></returns>
         public List<EventPanelEvent> GetEvents() {
             lock (_lock) {
-                var l = new List<EventPanelEvent>(eventProgressBar.EventCount);
+                int tried = 0;
+            Retry:
+                try {
+                    var l = new List<EventPanelEvent>(eventProgressBar.EventCount);
 
-                List<EventViewItem> evEvents = eventView.GetEvents();
-                List<ChartProgressEvent> epbEvents = eventProgressBar.GetEvents();
-                for (int i = 0; i != eventProgressBar.EventCount; i++) {
-                    EventViewEventType type = evEvents[i].EventType;
-                    ChartProgressEvent pe = epbEvents[i];
-                    l.Add(new EventPanelEvent(type, pe.Color, pe.Message, pe.At));
+                    List<EventViewItem> evEvents = eventView.GetEvents();
+                    List<ChartProgressEvent> epbEvents = eventProgressBar.GetEvents();
+                    for (int i = 0; i != eventProgressBar.EventCount; i++) {
+                        EventViewEventType type = evEvents[i].EventType;
+                        ChartProgressEvent pe = epbEvents[i];
+                        l.Add(new EventPanelEvent(type, pe.Color, pe.Message, pe.At));
+                    }
+                    return l;
+                } catch {
+                    if (++tried != 3) {
+                        Thread.Sleep(tried * 100);
+                        goto Retry;
+                    }
                 }
-                return l;
+                return new List<EventPanelEvent>();
             }
         }
 
