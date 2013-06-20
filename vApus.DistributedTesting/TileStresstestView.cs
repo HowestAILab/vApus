@@ -155,7 +155,7 @@ namespace vApus.DistributedTesting {
                     _stresstestCore.ConcurrencyStopped += _stresstestCore_ConcurrencyStopped;
                     _stresstestCore.RunInitializedFirstTime += _stresstestCore_RunInitializedFirstTime;
                     _stresstestCore.RunDoneOnce += _stresstestCore_RunDoneOnce;
-                    _stresstestCore.RunDone += _stresstestCore_RunDone;
+                    _stresstestCore.RerunDone += _stresstestCore_RerunDone;
                     _stresstestCore.RunStopped += _stresstestCore_RunStopped;
                     _stresstestCore.Message += _stresstestCore_Message;
                     _stresstestCore.InitializeTest();
@@ -273,7 +273,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void _stresstestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce, false, false); }
-        private void _stresstestCore_RunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDone, false, false); }
+        private void _stresstestCore_RerunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDone, false, false); }
         private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) { SendPushMessage(RunStateChange.None, true, false); }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_countDown--); }

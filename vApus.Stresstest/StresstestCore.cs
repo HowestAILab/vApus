@@ -165,7 +165,7 @@ namespace vApus.Stresstest {
         public event EventHandler<RunResultEventArgs> RunStarted;
         public event EventHandler<RunResultEventArgs> RunStopped;
         public event EventHandler<RunResultEventArgs> RunInitializedFirstTime;
-        public event EventHandler RunDoneOnce, RunDone;
+        public event EventHandler RunDoneOnce, RerunDone;
         public event EventHandler<MessageEventArgs> Message;
 
         private void SetStresstestStarted() {
@@ -261,9 +261,9 @@ namespace vApus.Stresstest {
         ///     For run sync (break on last finished)
         ///     Do not use this in combination with run done once.
         /// </summary>
-        private void SetRunDone() {
-            if (!_cancel && RunDone != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDone(this, null); }, null);
+        private void SetRerunDone() {
+            if (!_cancel && RerunDone != null)
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RerunDone(this, null); }, null);
         }
 
         private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) { InvokeMessage(e.Message, e.Color, e.LogLevel); }
@@ -505,7 +505,7 @@ namespace vApus.Stresstest {
                     else if (_runSynchronization == RunSynchronization.BreakOnLastFinished && !_break) {
                         ++_rerun;
                         if (!SetRunDoneOnce())
-                            SetRunDone();
+                            SetRerunDone();
                         
                         //Allow one last rerun, then wait for the master for a continue, or rerun nfinite.
                         if (_maxRerunsBreakOnLast == 0 ||_rerun <= _maxRerunsBreakOnLast) {

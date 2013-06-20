@@ -28,7 +28,7 @@ namespace vApus.Stresstest {
 
         private const string VBLRn = "<16 0C 02 12n>";
         private const string VBLRr = "<16 0C 02 12r>";
-        
+
         private Log _log;
         private UserActionTreeViewItem _userActionTreeViewItem;
 
@@ -52,7 +52,7 @@ namespace vApus.Stresstest {
 
         private Parameters _parameters;
 
-        private ParameterTokenTextStyle _parameterTokenTextStyle;
+        private ParameterTokenTextStyle _plainTextParameterTokenTextStyle, _editViewParameterTokenTextStyle;
 
         private System.Timers.Timer _labelChanged = new System.Timers.Timer(500);
         #endregion
@@ -92,7 +92,7 @@ namespace vApus.Stresstest {
 
             _labelChanged.Elapsed += _labelChanged_Elapsed;
 
-            if (_parameterTokenTextStyle == null) SetCodeStyle();
+            if (_plainTextParameterTokenTextStyle == null) SetCodeStyle();
             SetMove();
             SetPicDelay();
             SetBtnSplit();
@@ -890,11 +890,21 @@ namespace vApus.Stresstest {
             fctxtxPlainText.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
             fctxtxPlainText.Range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
 
-            if (_parameterTokenTextStyle != null) {
-                _parameterTokenTextStyle.Dispose();
-                _parameterTokenTextStyle = null;
+            fctxteditView.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
+            fctxteditView.Range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
+
+            if (_editViewParameterTokenTextStyle != null) {
+                _editViewParameterTokenTextStyle.Dispose();
+                _editViewParameterTokenTextStyle = null;
             }
-            _parameterTokenTextStyle = new ParameterTokenTextStyle(fctxtxPlainText, GetDelimiters(_log.LogRuleSet), clp, np, tp, crp, true);
+
+            if (_plainTextParameterTokenTextStyle != null) {
+                _plainTextParameterTokenTextStyle.Dispose();
+                _plainTextParameterTokenTextStyle = null;
+            }
+
+            _plainTextParameterTokenTextStyle = new ParameterTokenTextStyle(fctxtxPlainText, GetDelimiters(_log.LogRuleSet), clp, np, tp, crp, true);
+            _editViewParameterTokenTextStyle = new ParameterTokenTextStyle(fctxteditView, GetDelimiters(_log.LogRuleSet), clp, np, tp, crp, true);
         }
         private string[] GetDelimiters(LogRuleSet logRuleSet) {
             var hs = new HashSet<string>();
@@ -948,8 +958,25 @@ namespace vApus.Stresstest {
         }
         #endregion
 
-        private void chkEditMultiline_CheckedChanged(object sender, EventArgs e) {
-            splitStructured.Panel2Collapsed = !chkEditMultiline.Checked;
+        private void chkUseEditView_CheckedChanged(object sender, EventArgs e) {
+            FillEditView();
+        }
+
+        private void dgvLogEntries_CellClick(object sender, DataGridViewCellEventArgs e) {
+            FillEditView();
+        }
+
+        private void FillEditView() {
+            splitStructured.Panel2Collapsed = !chkUseEditView.Checked || dgvLogEntries.CurrentCell == null || dgvLogEntries.CurrentCell.ColumnIndex == 0;
+            if (!splitStructured.Panel2Collapsed) {
+                SetParameters();
+                SetCodeStyle();
+                fctxteditView.Text = dgvLogEntries.CurrentCell.Value.ToString();
+            }
+        }
+
+        private void btnApplyEditView_Click(object sender, EventArgs e) {
+
         }
     }
 }
