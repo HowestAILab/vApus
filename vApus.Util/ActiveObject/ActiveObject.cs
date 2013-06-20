@@ -10,18 +10,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     To offload work to a background thread keeping that work in a synchronized order.
     /// </summary>
-    public class ActiveObject : IDisposable
-    {
+    public class ActiveObject : IDisposable {
         /// <summary>
         ///     To offload work to a background thread keeping that work in a synchronized order.
         /// </summary>
-        public ActiveObject()
-        {
+        public ActiveObject() {
             _sendQueue = new Queue<KeyValuePair<Delegate, object[]>>();
             _sendWaitHandle = new AutoResetEvent(false);
             _sendWorkerThread = new Thread(HandleSendQueue);
@@ -31,9 +28,8 @@ namespace vApus.Util
 
         public event EventHandler<OnResultEventArgs> OnResult;
 
-        ~ActiveObject()
-        {
-            Dispose(0);
+        ~ActiveObject() {
+            Dispose(10);
         }
 
         #region Functions
@@ -43,8 +39,7 @@ namespace vApus.Util
         /// <summary>
         ///     Wait indefinetly until the work is done before disposing.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             Dispose(-1);
         }
 
@@ -52,10 +47,8 @@ namespace vApus.Util
         ///     Wait the given timeout before disposing, if the work is not done it will be aborted.
         /// </summary>
         /// <param name="millisecondsTimeout"></param>
-        public void Dispose(int millisecondsTimeout)
-        {
-            if (!_isDisposed)
-            {
+        public void Dispose(int millisecondsTimeout) {
+            if (!_isDisposed) {
                 _isDisposed = true;
                 _sendWaitHandle.Set();
 
@@ -86,40 +79,27 @@ namespace vApus.Util
         /// </summary>
         /// <param name="del"></param>
         /// <param name="args"></param>
-        public void Send(Delegate del, params object[] args)
-        {
-            try
-            {
+        public void Send(Delegate del, params object[] args) {
+            try {
                 _sendQueue.Enqueue(new KeyValuePair<Delegate, object[]>(del, args));
                 _sendWaitHandle.Set();
-            }
-            catch
-            {
+            } catch {
                 //Exception on dispose if any.
             }
         }
 
-        private void HandleSendQueue()
-        {
-            try
-            {
-                while (!_isDisposed)
-                {
-                    while (_sendQueue.Count != 0)
-                    {
+        private void HandleSendQueue() {
+            try {
+                while (!_isDisposed) {
+                    while (_sendQueue.Count != 0) {
                         KeyValuePair<Delegate, object[]> kvp = _sendQueue.Dequeue();
                         object returned = null;
                         Exception exception = null;
-                        try
-                        {
+                        try {
                             returned = kvp.Key.DynamicInvoke(kvp.Value);
-                        }
-                        catch (Exception ex)
-                        {
+                        } catch (Exception ex) {
                             exception = ex;
-                        }
-                        finally
-                        {
+                        } finally {
                             if (OnResult != null)
                                 foreach (EventHandler<OnResultEventArgs> del in OnResult.GetInvocationList())
                                     del.BeginInvoke(this, new OnResultEventArgs(kvp.Key, kvp.Value, returned, exception),
@@ -128,25 +108,21 @@ namespace vApus.Util
                     }
                     _sendWaitHandle.WaitOne();
                 }
-            }
-            catch
-            {
+            } catch {
                 //Exception on dispose if any.
             }
         }
 
         #endregion
 
-        private void OnResultCallback(IAsyncResult ar)
-        {
+        private void OnResultCallback(IAsyncResult ar) {
         }
 
         #endregion
 
         #region EventArgs
 
-        public class OnResultEventArgs : EventArgs
-        {
+        public class OnResultEventArgs : EventArgs {
             /// <summary>
             ///     Out parameters are stored here too.
             /// </summary>
@@ -157,8 +133,7 @@ namespace vApus.Util
             public readonly Exception Exception;
             public readonly object Returned;
 
-            public OnResultEventArgs(Delegate del, object[] args, object returned, Exception exception)
-            {
+            public OnResultEventArgs(Delegate del, object[] args, object returned, Exception exception) {
                 Delegate = del;
                 Arguments = args;
                 Returned = returned;

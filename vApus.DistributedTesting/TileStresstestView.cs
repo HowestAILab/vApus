@@ -65,7 +65,7 @@ namespace vApus.DistributedTesting {
         }
 
         public RunSynchronization RunSynchronization { get; set; }
-
+        public int MaxRerunsBreakOnLast { get; set; }
         public StresstestResult StresstestResult {
             get { return _stresstestResult; }
         }
@@ -149,11 +149,13 @@ namespace vApus.DistributedTesting {
                     _stresstestCore = new StresstestCore(_stresstest);
                     _stresstestCore.ResultsHelper = _resultsHelper;
                     _stresstestCore.RunSynchronization = RunSynchronization;
+                    _stresstestCore.MaxRerunsBreakOnLast = MaxRerunsBreakOnLast;
                     _stresstestCore.StresstestStarted += _stresstestCore_StresstestStarted;
                     _stresstestCore.ConcurrencyStarted += _stresstestCore_ConcurrentUsersStarted;
                     _stresstestCore.ConcurrencyStopped += _stresstestCore_ConcurrencyStopped;
                     _stresstestCore.RunInitializedFirstTime += _stresstestCore_RunInitializedFirstTime;
                     _stresstestCore.RunDoneOnce += _stresstestCore_RunDoneOnce;
+                    _stresstestCore.RunDone += _stresstestCore_RunDone;
                     _stresstestCore.RunStopped += _stresstestCore_RunStopped;
                     _stresstestCore.Message += _stresstestCore_Message;
                     _stresstestCore.InitializeTest();
@@ -167,7 +169,6 @@ namespace vApus.DistributedTesting {
                 Cursor = Cursors.Default;
             }, null);
         }
-
 
         /// <summary>
         ///     Thread safe
@@ -272,6 +273,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void _stresstestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce, false, false); }
+        private void _stresstestCore_RunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDone, false, false); }
         private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) { SendPushMessage(RunStateChange.None, true, false); }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_countDown--); }

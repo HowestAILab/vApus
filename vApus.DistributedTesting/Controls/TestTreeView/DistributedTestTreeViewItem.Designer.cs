@@ -35,16 +35,16 @@
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picAddTile = new System.Windows.Forms.PictureBox();
+            this.nudMaxBreakOnLast = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.picStresstestStatus = new System.Windows.Forms.PictureBox();
             this.chkUseRDP = new System.Windows.Forms.CheckBox();
-            this.nudMaxBreakOnLast = new System.Windows.Forms.NumericUpDown();
             this.pnlRunSync.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxBreakOnLast)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlRunSync
@@ -114,6 +114,22 @@
             this.toolTip.SetToolTip(this.picAddTile, "Add Tile <ctrl+i>");
             this.picAddTile.Click += new System.EventHandler(this.picAddTile_Click);
             // 
+            // nudMaxBreakOnLast
+            // 
+            this.nudMaxBreakOnLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.nudMaxBreakOnLast.Location = new System.Drawing.Point(475, 8);
+            this.nudMaxBreakOnLast.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.nudMaxBreakOnLast.Name = "nudMaxBreakOnLast";
+            this.nudMaxBreakOnLast.Size = new System.Drawing.Size(32, 20);
+            this.nudMaxBreakOnLast.TabIndex = 26;
+            this.toolTip.SetToolTip(this.nudMaxBreakOnLast, "Set the maximum number of reruns for a run in a tiles tresstest for the Break on " +
+        "Last Run Sync.\r\n(0 = infinite)");
+            this.nudMaxBreakOnLast.Visible = false;
+            // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -160,22 +176,6 @@
             this.chkUseRDP.Text = "Use RDP";
             this.chkUseRDP.UseVisualStyleBackColor = true;
             // 
-            // nudMaxBreakOnLast
-            // 
-            this.nudMaxBreakOnLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.nudMaxBreakOnLast.Location = new System.Drawing.Point(475, 8);
-            this.nudMaxBreakOnLast.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.nudMaxBreakOnLast.Name = "nudMaxBreakOnLast";
-            this.nudMaxBreakOnLast.Size = new System.Drawing.Size(32, 20);
-            this.nudMaxBreakOnLast.TabIndex = 26;
-            this.toolTip.SetToolTip(this.nudMaxBreakOnLast, "Set the maximum number of reruns for a run in a tilestresstest for the Break on L" +
-        "ast Run Sync.\r\n(0 = infinite)");
-            this.nudMaxBreakOnLast.Visible = false;
-            // 
             // DistributedTestTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -196,8 +196,8 @@
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.pnlRunSync.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxBreakOnLast)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

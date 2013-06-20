@@ -42,6 +42,7 @@ namespace vApus.Stresstest
     {
         None = 0,
         ToRunInitializedFirstTime,
-        ToRunDoneOnce
+        ToRunDoneOnce,
+        ToRunDone
     }
 }

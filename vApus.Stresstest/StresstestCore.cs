@@ -59,6 +59,7 @@ namespace vApus.Stresstest {
 
         private RunResult _runResult;
         private RunSynchronization _runSynchronization;
+        private int _maxRerunsBreakOnLast;
         private AutoResetEvent _runSynchronizationContinueWaitHandle = new AutoResetEvent(false);
         private AutoResetEvent _sleepWaitHandle = new AutoResetEvent(false);
         private StresstestResult _stresstestResult;
@@ -78,6 +79,10 @@ namespace vApus.Stresstest {
         public RunSynchronization RunSynchronization {
             get { return _runSynchronization; }
             set { _runSynchronization = value; }
+        }
+        public int MaxRerunsBreakOnLast {
+            get { return _maxRerunsBreakOnLast; }
+            set { _maxRerunsBreakOnLast = value; }
         }
 
         public StresstestResult StresstestResult {
@@ -160,7 +165,7 @@ namespace vApus.Stresstest {
         public event EventHandler<RunResultEventArgs> RunStarted;
         public event EventHandler<RunResultEventArgs> RunStopped;
         public event EventHandler<RunResultEventArgs> RunInitializedFirstTime;
-        public event EventHandler RunDoneOnce;
+        public event EventHandler RunDoneOnce, RunDone;
         public event EventHandler<MessageEventArgs> Message;
 
         private void SetStresstestStarted() {
@@ -211,7 +216,7 @@ namespace vApus.Stresstest {
         private void SetRunStopped() {
             StresstestMetrics metrics = StresstestMetricsHelper.GetMetrics(_runResult);
             InvokeMessage("|----> |Run Finished in " + metrics.MeasuredTime + "!", Color.MediumPurple);
-            if (_resultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");            
+            if (_resultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
             _resultsHelper.SetRunStopped(_runResult);
 
             if (!_cancel && RunStopped != null)
@@ -241,13 +246,24 @@ namespace vApus.Stresstest {
 
         /// <summary>
         ///     For run sync (break on first and last finished)
+        ///     Returns true if run done once event invoked
         /// </summary>
-        private void SetRunDoneOnce() {
+        private bool SetRunDoneOnce() {
             if (!_runDoneOnce) {
                 _runDoneOnce = true;
                 if (!_cancel && RunDoneOnce != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, null); }, null);
+                return true;
             }
+            return false;
+        }
+        /// <summary>
+        ///     For run sync (break on last finished)
+        ///     Do not use this in combination with run done once.
+        /// </summary>
+        private void SetRunDone() {
+            if (!_cancel && RunDone != null)
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDone(this, null); }, null);
         }
 
         private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) { InvokeMessage(e.Message, e.Color, e.LogLevel); }
@@ -485,15 +501,22 @@ namespace vApus.Stresstest {
                         InvokeMessage("Continuing...");
                     }
                         //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
+                        //Also breaks after the rerun count == _maxRerunsBreakOnLast.
                     else if (_runSynchronization == RunSynchronization.BreakOnLastFinished && !_break) {
                         ++_rerun;
-                        SetRunDoneOnce();
-
-                        InvokeMessage("Initializing Rerun...");
-                        //Increase resultset
-                        _runResult.PrepareForRerun();
-                        _resultsHelper.SetRerun(_runResult);
-                        goto Rerun;
+                        if (!SetRunDoneOnce())
+                            SetRunDone();
+                        
+                        //Allow one last rerun, then wait for the master for a continue, or rerun nfinite.
+                        if (_maxRerunsBreakOnLast == 0 ||_rerun <= _maxRerunsBreakOnLast) {
+                            InvokeMessage("Initializing Rerun...");
+                            //Increase resultset
+                            _runResult.PrepareForRerun();
+                            _resultsHelper.SetRerun(_runResult);
+                            goto Rerun;
+                        } else {
+                            SetRunStopped();
+                        }
                     } else {
                         SetRunStopped();
                     }

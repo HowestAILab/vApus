@@ -196,7 +196,7 @@ namespace vApus.DistributedTesting {
         /// <param name="stresstestIdInDb">-1 for none</param>
         /// <param name="runSynchronization"></param>
         /// <returns></returns>
-        public StresstestWrapper GetStresstestWrapper(ulong stresstestIdInDb, string databaseName, RunSynchronization runSynchronization) {
+        public StresstestWrapper GetStresstestWrapper(ulong stresstestIdInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             lock (_lock) {
                 string tileStresstestIndex = TileStresstestIndex;
                 var stresstest = new Stresstest.Stresstest();
@@ -248,7 +248,7 @@ namespace vApus.DistributedTesting {
                 return new StresstestWrapper {
                     StresstestIdInDb = stresstestIdInDb,
                     Stresstest = stresstest,
-                    TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization,
+                    TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization, MaxRerunsBreakOnLast = maxRerunsBreakOnLast,
                     MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
                 };
             }

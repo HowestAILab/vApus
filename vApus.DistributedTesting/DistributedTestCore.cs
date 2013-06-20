@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -40,6 +41,7 @@ namespace vApus.DistributedTesting {
 
         private volatile string[] _runDoneOnce = new string[] { };
         private volatile string[] _runInitialized = new string[] { };
+        private volatile ConcurrentDictionary<string, RerunCounter> _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
         private Stopwatch _sw = new Stopwatch();
 
         /// <summary>
@@ -241,7 +243,7 @@ namespace vApus.DistributedTesting {
             _sw.Stop();
             InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
-           // Thread.Sleep(10000);
+            // Thread.Sleep(10000);
         }
 
         private void SendAndReceiveInitializeTest() {
@@ -251,7 +253,7 @@ namespace vApus.DistributedTesting {
             foreach (var ts in _usedTileStresstests)
                 stresstestIdsInDb.Add(_tileStresstestsWithDbIds.ContainsKey(ts) ? _tileStresstestsWithDbIds[ts] : 0);
 
-            Exception exception = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests, stresstestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization);
+            Exception exception = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests, stresstestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization, _distributedTest.MaxRerunsBreakOnLast);
             if (exception != null) {
                 var ex = new Exception("Could not initialize one or more tests!\n" + exception);
                 InvokeMessage(ex.ToString(), LogLevel.Error);
@@ -336,6 +338,12 @@ namespace vApus.DistributedTesting {
 
             return newArr;
         }
+        private int IncrementReruns(string tileStresstestIndex) {
+            if (!_breakOnLastReruns.ContainsKey(tileStresstestIndex))
+                _breakOnLastReruns.TryAdd(tileStresstestIndex, new RerunCounter());
+
+            return _breakOnLastReruns[tileStresstestIndex].Increment();
+        }
 
         private void _masterCommunication_OnTestProgressMessageReceived(object sender, TestProgressMessageReceivedEventArgs e) {
             if (_isDisposed)
@@ -407,6 +415,13 @@ namespace vApus.DistributedTesting {
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
                                     if (RunDoneOnceCount == Running) {
                                         _runDoneOnce = new string[] { };
+                                        _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
+                                        MasterSideCommunicationHandler.SendBreak();
+                                    }
+                                } else if (tpm.RunStateChange == RunStateChange.ToRunDone) {
+                                    if (IncrementReruns(tpm.TileStresstestIndex) == _distributedTest.MaxRerunsBreakOnLast) {
+                                        _runDoneOnce = new string[] { };
+                                        _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
                                         MasterSideCommunicationHandler.SendBreak();
                                     }
                                 }
@@ -453,7 +468,7 @@ namespace vApus.DistributedTesting {
 
                 var testConfigCache = new ConverterCollection();
                 var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), testConfigCache);
-                
+
                 foreach (Tile tile in _distributedTest.Tiles)
                     foreach (TileStresstest tileStresstest in tile)
                         if (tileStresstest.Use)
@@ -480,7 +495,7 @@ namespace vApus.DistributedTesting {
                                                     tileStresstest.AdvancedTileStresstest.MonitorAfter);
 
                 Converter.WriteToFile(testConfigCache, "TestConfig");
-            } catch { 
+            } catch {
             }
         }
 
@@ -530,5 +545,18 @@ namespace vApus.DistributedTesting {
         }
 
         #endregion
+
+        /// <summary>
+        /// For break on last max reruns functionality, Initial Value == 0 --> incremented on every run after the first (for a certain tile stresstest)
+        /// </summary>
+        private class RerunCounter {
+            private int _counter;
+            public int Counter { get { return _counter; } }
+            /// <summary>
+            /// Increments and returns the counter thread-safe.
+            /// </summary>
+            /// <returns></returns>
+            public int Increment() { return Interlocked.Increment(ref _counter); }
+        }
     }
 }

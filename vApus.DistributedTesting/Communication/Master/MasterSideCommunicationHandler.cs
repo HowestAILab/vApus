@@ -520,7 +520,7 @@ namespace vApus.DistributedTesting {
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public static Exception InitializeTests(List<TileStresstest> tileStresstests, List<ulong> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization) {
+        public static Exception InitializeTests(List<TileStresstest> tileStresstests, List<ulong> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             Exception exception = null;
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[tileStresstests.Count];
             for (int i = 0; i != initializeTestData.Length; i++) {
@@ -539,7 +539,7 @@ namespace vApus.DistributedTesting {
                         pushIPs.Add(ipAddress.ToString());
                 }
                 var initializeTestMessage = new InitializeTestMessage() {
-                    StresstestWrapper = tileStresstests[i].GetStresstestWrapper(stresstestIdsInDb[i], databaseName, runSynchronization),
+                    StresstestWrapper = tileStresstests[i].GetStresstestWrapper(stresstestIdsInDb[i], databaseName, runSynchronization, maxRerunsBreakOnLast),
                     PushIPs = pushIPs.ToArray(), PushPort = masterSocketWrapper.Port
                 };
 

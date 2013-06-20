@@ -71,6 +71,7 @@ namespace vApus.DistributedTesting {
         public string MySqlPassword;
 
         public RunSynchronization RunSynchronization;
+        public int MaxRerunsBreakOnLast;
         public Stresstest.Stresstest Stresstest;
 
         /// <summary>

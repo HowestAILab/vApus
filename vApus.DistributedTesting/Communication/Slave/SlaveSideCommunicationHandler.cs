@@ -101,6 +101,7 @@ namespace vApus.DistributedTesting {
                             _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
                             _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
                             _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
+                            _tileStresstestView.MaxRerunsBreakOnLast = stresstestWrapper.MaxRerunsBreakOnLast;
 
                             if (stresstestWrapper.StresstestIdInDb != 0 && !string.IsNullOrEmpty(stresstestWrapper.MySqlHost)) {
                                 _tileStresstestView.ConnectToExistingDatabase(stresstestWrapper.MySqlHost, stresstestWrapper.MySqlPort, stresstestWrapper.MySqlDatabaseName, stresstestWrapper.MySqlUser,
