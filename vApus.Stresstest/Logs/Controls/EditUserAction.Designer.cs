@@ -37,6 +37,7 @@
             this.tpStructured = new System.Windows.Forms.TabPage();
             this.chkUseEditView = new System.Windows.Forms.CheckBox();
             this.splitStructured = new System.Windows.Forms.SplitContainer();
+            this.btnApplyEditView = new System.Windows.Forms.Button();
             this.fctxteditView = new FastColoredTextBoxNS.FastColoredTextBox();
             this.tpPlainText = new System.Windows.Forms.TabPage();
             this.fctxtxPlainText = new FastColoredTextBoxNS.FastColoredTextBox();
@@ -48,7 +49,7 @@
             this.btnSplit = new System.Windows.Forms.Button();
             this.picDelay = new System.Windows.Forms.PictureBox();
             this.picCopy = new System.Windows.Forms.PictureBox();
-            this.split = new System.Windows.Forms.SplitContainer();
+            this.splitParameterTokens = new System.Windows.Forms.SplitContainer();
             this.pnlBorderTokens = new System.Windows.Forms.Panel();
             this.cboParameterScope = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -65,7 +66,6 @@
             this.picMoveDown = new System.Windows.Forms.PictureBox();
             this.picMoveUp = new System.Windows.Forms.PictureBox();
             this.lblLogEntryCount = new System.Windows.Forms.Label();
-            this.btnApplyEditView = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.nudMoveSteps)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).BeginInit();
             this.tc.SuspendLayout();
@@ -79,10 +79,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCopy)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
-            this.split.Panel1.SuspendLayout();
-            this.split.Panel2.SuspendLayout();
-            this.split.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitParameterTokens)).BeginInit();
+            this.splitParameterTokens.Panel1.SuspendLayout();
+            this.splitParameterTokens.Panel2.SuspendLayout();
+            this.splitParameterTokens.SuspendLayout();
             this.pnlBorderTokens.SuspendLayout();
             this.flpConfiguration.SuspendLayout();
             this.flpLink.SuspendLayout();
@@ -170,10 +170,10 @@
             this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
             this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle2;
-            this.dgvLogEntries.Size = new System.Drawing.Size(985, 193);
+            this.dgvLogEntries.Size = new System.Drawing.Size(985, 387);
             this.dgvLogEntries.TabIndex = 32;
             this.dgvLogEntries.VirtualMode = true;
-            this.dgvLogEntries.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLogEntries_CellClick);
+            this.dgvLogEntries.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLogEntries_CellEnter);
             this.dgvLogEntries.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValueNeeded);
             this.dgvLogEntries.CellValuePushed += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValuePushed);
             this.dgvLogEntries.DragDrop += new System.Windows.Forms.DragEventHandler(this.dgvLogEntries_DragDrop);
@@ -242,31 +242,49 @@
             // 
             this.splitStructured.Panel2.Controls.Add(this.btnApplyEditView);
             this.splitStructured.Panel2.Controls.Add(this.fctxteditView);
+            this.splitStructured.Panel2Collapsed = true;
             this.splitStructured.Size = new System.Drawing.Size(985, 387);
             this.splitStructured.SplitterDistance = 193;
             this.splitStructured.TabIndex = 33;
             // 
+            // btnApplyEditView
+            // 
+            this.btnApplyEditView.AutoSize = true;
+            this.btnApplyEditView.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnApplyEditView.BackColor = System.Drawing.Color.White;
+            this.btnApplyEditView.Enabled = false;
+            this.btnApplyEditView.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnApplyEditView.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnApplyEditView.Location = new System.Drawing.Point(467, 161);
+            this.btnApplyEditView.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnApplyEditView.MinimumSize = new System.Drawing.Size(0, 24);
+            this.btnApplyEditView.Name = "btnApplyEditView";
+            this.btnApplyEditView.Size = new System.Drawing.Size(50, 24);
+            this.btnApplyEditView.TabIndex = 72;
+            this.btnApplyEditView.Text = "Apply";
+            this.btnApplyEditView.UseVisualStyleBackColor = false;
+            this.btnApplyEditView.Click += new System.EventHandler(this.btnApplyEditView_Click);
+            // 
             // fctxteditView
             // 
-            this.fctxteditView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.fctxteditView.AutoScrollMinSize = new System.Drawing.Size(0, 14);
             this.fctxteditView.BackBrush = null;
             this.fctxteditView.CharHeight = 14;
             this.fctxteditView.CharWidth = 8;
             this.fctxteditView.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxteditView.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.fctxteditView.Enabled = false;
             this.fctxteditView.IsReplaceMode = false;
-            this.fctxteditView.Location = new System.Drawing.Point(0, 0);
+            this.fctxteditView.Location = new System.Drawing.Point(6, 0);
             this.fctxteditView.Name = "fctxteditView";
             this.fctxteditView.Paddings = new System.Windows.Forms.Padding(0);
             this.fctxteditView.PreferredLineWidth = 65536;
             this.fctxteditView.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.fctxteditView.Size = new System.Drawing.Size(985, 155);
+            this.fctxteditView.Size = new System.Drawing.Size(973, 155);
             this.fctxteditView.TabIndex = 2;
             this.fctxteditView.WordWrap = true;
             this.fctxteditView.Zoom = 100;
+            this.fctxteditView.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxteditView_TextChanged);
             // 
             // tpPlainText
             // 
@@ -326,7 +344,7 @@
             // 
             this.toolTip.AutomaticDelay = 100;
             this.toolTip.AutoPopDelay = 10000;
-            this.toolTip.InitialDelay = 100;
+            this.toolTip.InitialDelay = 50;
             this.toolTip.ReshowDelay = 20;
             // 
             // btnShowHideParameterTokens
@@ -414,34 +432,34 @@
             this.toolTip.SetToolTip(this.picCopy, "Copy this user action");
             this.picCopy.Click += new System.EventHandler(this.picCopy_Click);
             // 
-            // split
+            // splitParameterTokens
             // 
-            this.split.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.splitParameterTokens.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.split.BackColor = System.Drawing.SystemColors.Control;
-            this.split.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.split.Location = new System.Drawing.Point(9, 192);
-            this.split.Name = "split";
+            this.splitParameterTokens.BackColor = System.Drawing.SystemColors.Control;
+            this.splitParameterTokens.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitParameterTokens.Location = new System.Drawing.Point(9, 192);
+            this.splitParameterTokens.Name = "splitParameterTokens";
             // 
-            // split.Panel1
+            // splitParameterTokens.Panel1
             // 
-            this.split.Panel1.BackColor = System.Drawing.Color.White;
-            this.split.Panel1.Controls.Add(this.tc);
+            this.splitParameterTokens.Panel1.BackColor = System.Drawing.Color.White;
+            this.splitParameterTokens.Panel1.Controls.Add(this.tc);
             // 
-            // split.Panel2
+            // splitParameterTokens.Panel2
             // 
-            this.split.Panel2.BackColor = System.Drawing.Color.White;
-            this.split.Panel2.Controls.Add(this.pnlBorderTokens);
-            this.split.Panel2.Controls.Add(this.label4);
-            this.split.Panel2.Controls.Add(this.flpTokens);
-            this.split.Panel2.Controls.Add(this.label5);
-            this.split.Panel2.Controls.Add(this.label6);
-            this.split.Panel2Collapsed = true;
-            this.split.Size = new System.Drawing.Size(988, 449);
-            this.split.SplitterDistance = 588;
-            this.split.TabIndex = 46;
-            this.split.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.split_SplitterMoved);
+            this.splitParameterTokens.Panel2.BackColor = System.Drawing.Color.White;
+            this.splitParameterTokens.Panel2.Controls.Add(this.pnlBorderTokens);
+            this.splitParameterTokens.Panel2.Controls.Add(this.label4);
+            this.splitParameterTokens.Panel2.Controls.Add(this.flpTokens);
+            this.splitParameterTokens.Panel2.Controls.Add(this.label5);
+            this.splitParameterTokens.Panel2.Controls.Add(this.label6);
+            this.splitParameterTokens.Panel2Collapsed = true;
+            this.splitParameterTokens.Size = new System.Drawing.Size(988, 449);
+            this.splitParameterTokens.SplitterDistance = 588;
+            this.splitParameterTokens.TabIndex = 46;
+            this.splitParameterTokens.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.split_SplitterMoved);
             // 
             // pnlBorderTokens
             // 
@@ -662,24 +680,6 @@
             this.lblLogEntryCount.TabIndex = 78;
             this.lblLogEntryCount.Text = "[0]";
             // 
-            // btnApplyEditView
-            // 
-            this.btnApplyEditView.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.btnApplyEditView.AutoSize = true;
-            this.btnApplyEditView.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnApplyEditView.BackColor = System.Drawing.Color.White;
-            this.btnApplyEditView.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnApplyEditView.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnApplyEditView.Location = new System.Drawing.Point(467, 161);
-            this.btnApplyEditView.MaximumSize = new System.Drawing.Size(9999, 24);
-            this.btnApplyEditView.MinimumSize = new System.Drawing.Size(0, 24);
-            this.btnApplyEditView.Name = "btnApplyEditView";
-            this.btnApplyEditView.Size = new System.Drawing.Size(50, 24);
-            this.btnApplyEditView.TabIndex = 72;
-            this.btnApplyEditView.Text = "Apply";
-            this.btnApplyEditView.UseVisualStyleBackColor = false;
-            this.btnApplyEditView.Click += new System.EventHandler(this.btnApplyEditView_Click);
-            // 
             // EditUserAction
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -695,7 +695,7 @@
             this.Controls.Add(this.btnApply);
             this.Controls.Add(this.btnRevertToImported);
             this.Controls.Add(this.flpConfiguration);
-            this.Controls.Add(this.split);
+            this.Controls.Add(this.splitParameterTokens);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lblConnection);
             this.Controls.Add(this.nudMoveSteps);
@@ -722,11 +722,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCopy)).EndInit();
-            this.split.Panel1.ResumeLayout(false);
-            this.split.Panel2.ResumeLayout(false);
-            this.split.Panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.split)).EndInit();
-            this.split.ResumeLayout(false);
+            this.splitParameterTokens.Panel1.ResumeLayout(false);
+            this.splitParameterTokens.Panel2.ResumeLayout(false);
+            this.splitParameterTokens.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitParameterTokens)).EndInit();
+            this.splitParameterTokens.ResumeLayout(false);
             this.pnlBorderTokens.ResumeLayout(false);
             this.flpConfiguration.ResumeLayout(false);
             this.flpConfiguration.PerformLayout();
@@ -756,7 +756,7 @@
         private System.Windows.Forms.Label lblConnection;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.SplitContainer split;
+        private System.Windows.Forms.SplitContainer splitParameterTokens;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.FlowLayoutPanel flpTokens;
         private System.Windows.Forms.Label label5;

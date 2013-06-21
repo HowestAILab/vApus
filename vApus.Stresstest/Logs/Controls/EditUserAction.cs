@@ -415,7 +415,7 @@ namespace vApus.Stresstest {
             SetParameters();
             SetCodeStyle();
         }
-        private void SetLogEntries() {
+        private void SetLogEntries(bool fillEditView = true) {
             dgvLogEntries.CellValuePushed -= dgvLogEntries_CellValuePushed;
             _cache = new DataTable("Cache");
 
@@ -479,6 +479,9 @@ namespace vApus.Stresstest {
             lblLogEntryCount.Text = "[" + _userActionTreeViewItem.UserAction.Count + "]";
 
             dgvLogEntries.CellValuePushed += dgvLogEntries_CellValuePushed;
+
+            if (fillEditView)
+                FillEditView();
         }
         private void SizeColumns() {
             if (_tmr != null) {
@@ -630,21 +633,24 @@ namespace vApus.Stresstest {
             }
         }
         private void dgvLogEntries_CellValuePushed(object sender, DataGridViewCellValueEventArgs e) {
+            PushCellValueToLogEntry(e.RowIndex, e.ColumnIndex, e.Value);
+        }
+        private void PushCellValueToLogEntry(int cellRowIndex, int cellColumnIndex, object cellValue) {
             var userAction = _userActionTreeViewItem.UserAction;
 
-            if (e.RowIndex >= userAction.Count) {
+            if (cellRowIndex >= userAction.Count) {
                 var sb = new StringBuilder();
                 for (int i = 1; i < _cache.Columns.Count - 1; i++) {
-                    if (i == e.ColumnIndex) sb.Append(e.Value);
+                    if (i == cellColumnIndex) sb.Append(cellValue);
                     sb.Append(_log.LogRuleSet.ChildDelimiter);
                 }
-                if (e.ColumnIndex == _cache.Columns.Count - 1) sb.Append(e.Value);
+                if (cellColumnIndex == _cache.Columns.Count - 1) sb.Append(cellValue);
 
                 string formattedS = sb.ToString().Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                 userAction.AddWithoutInvokingEvent(new LogEntry(formattedS));
             } else {
-                var row = _cache.Rows[e.RowIndex].ItemArray;
-                row[e.ColumnIndex] = e.Value;
+                var row = _cache.Rows[cellRowIndex].ItemArray;
+                row[cellColumnIndex] = cellValue;
 
                 var sb = new StringBuilder();
                 for (int i = 1; i < row.Length - 1; i++) {
@@ -654,7 +660,7 @@ namespace vApus.Stresstest {
                 sb.Append(row[row.Length - 1]);
 
                 string formattedS = sb.ToString().Replace(VBLRn, "\n").Replace(VBLRr, "\r");
-                (userAction[e.RowIndex] as LogEntry).LogEntryString = formattedS;
+                (userAction[cellRowIndex] as LogEntry).LogEntryString = formattedS;
             }
 
             _log.ApplyLogRuleSet();
@@ -662,8 +668,16 @@ namespace vApus.Stresstest {
             userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
 
             SetBtnSplit();
-            SetLogEntries();
+            SetLogEntries(false);
+
+            var selectedCells = new List<DataGridViewCell>(dgvLogEntries.SelectedCells.Count);
+            foreach (DataGridViewCell cell in dgvLogEntries.SelectedCells) selectedCells.Add(cell);
+            foreach (var cell in selectedCells) cell.Selected = false;
+
+            dgvLogEntries.Rows[cellRowIndex].Cells[cellColumnIndex].Selected = true;
+            FillEditView();
         }
+
         private void dgvLogEntries_KeyUp(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Delete && dgvLogEntries.SelectedRows.Count != 0) {
                 var userAction = _userActionTreeViewItem.UserAction;
@@ -728,13 +742,13 @@ namespace vApus.Stresstest {
             if (btnShowHideParameterTokens.Text == "Show Parameter Tokens") {
                 btnShowHideParameterTokens.Text = "Hide Parameter Tokens";
 
-                split.Panel2Collapsed = false;
+                splitParameterTokens.Panel2Collapsed = false;
 
-                pnlBorderTokens.Width = split.Panel2.Width - pnlBorderTokens.Left - 9;
+                pnlBorderTokens.Width = splitParameterTokens.Panel2.Width - pnlBorderTokens.Left - 9;
                 pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
 
-                flpTokens.Width = split.Panel2.Width - flpTokens.Left - 9;
-                flpTokens.Height = split.Panel2.Height - flpTokens.Top - 43;
+                flpTokens.Width = splitParameterTokens.Panel2.Width - flpTokens.Left - 9;
+                flpTokens.Height = splitParameterTokens.Panel2.Height - flpTokens.Top - 43;
                 flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
 
                 cboParameterScope.Refresh();
@@ -743,7 +757,7 @@ namespace vApus.Stresstest {
                 btnShowHideParameterTokens.Text = "Show Parameter Tokens";
                 pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                 flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                split.Panel2Collapsed = true;
+                splitParameterTokens.Panel2Collapsed = true;
             }
         }
         private void split_SplitterMoved(object sender, SplitterEventArgs e) {
@@ -958,25 +972,57 @@ namespace vApus.Stresstest {
         }
         #endregion
 
-        private void chkUseEditView_CheckedChanged(object sender, EventArgs e) {
-            FillEditView();
-        }
-
-        private void dgvLogEntries_CellClick(object sender, DataGridViewCellEventArgs e) {
-            FillEditView();
-        }
-
-        private void FillEditView() {
-            splitStructured.Panel2Collapsed = !chkUseEditView.Checked || dgvLogEntries.CurrentCell == null || dgvLogEntries.CurrentCell.ColumnIndex == 0;
-            if (!splitStructured.Panel2Collapsed) {
-                SetParameters();
-                SetCodeStyle();
-                fctxteditView.Text = dgvLogEntries.CurrentCell.Value.ToString();
+        #region Edit View
+        private void chkUseEditView_CheckedChanged(object sender, EventArgs e) { FillEditView(); }
+        private void dgvLogEntries_CellEnter(object sender, DataGridViewCellEventArgs e) { FillEditView(); }
+        private void fctxteditView_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
+            if (dgvLogEntries.CurrentCell != null) {
+                btnApplyEditView.Enabled = true;
+                if (dgvLogEntries.CurrentCell.ColumnIndex != dgvLogEntries.Columns.Count - 1 && fctxteditView.Text.Contains(_log.LogRuleSet.ChildDelimiter))
+                    toolTip.SetToolTip(btnApplyEditView, "Be careful to insert the log entry delimiter (green-colored '" + _log.LogRuleSet.ChildDelimiter + "'), doing this can make log entries invalid!\nIf this happens you can fix it in the 'Plain Text'-tab page");
+                else
+                    toolTip.SetToolTip(btnApplyEditView, null);
             }
         }
+        private void btnApplyEditView_Click(object sender, EventArgs e) { PushCellValueToLogEntry(dgvLogEntries.CurrentCell.RowIndex, dgvLogEntries.CurrentCell.ColumnIndex, fctxteditView.Text); }
 
-        private void btnApplyEditView_Click(object sender, EventArgs e) {
+        private void FillEditView() {
+            try {
+                //Sadly enough DIY control composition due to dodgy Winforms/Weifenluo.
+                if (chkUseEditView.Checked) {
+                    splitStructured.Panel2Collapsed = false;
 
+                    fctxteditView.Width = splitStructured.Panel2.Width - fctxteditView.Left - 6;
+                    fctxteditView.Height = splitStructured.Panel2.Height - fctxteditView.Top - 33;
+                    fctxteditView.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+
+                    btnApplyEditView.Top = fctxteditView.Bottom + 3;
+                    btnApplyEditView.Left = splitStructured.Panel2.Width / 2 - btnApplyEditView.Width / 2;
+                    btnApplyEditView.Anchor = AnchorStyles.Bottom;
+
+                    //Set the text and style.
+                    fctxteditView.TextChanged -= fctxteditView_TextChanged;
+
+                    if (dgvLogEntries.SelectedCells.Count == 1) dgvLogEntries.CurrentCell = dgvLogEntries.SelectedCells[0];
+                    fctxteditView.Enabled = dgvLogEntries.CurrentCell != null && dgvLogEntries.CurrentCell.ColumnIndex != 0 && dgvLogEntries.SelectedCells.Count == 1;
+                    if (fctxteditView.Enabled) {
+                        SetParameters();
+                        SetCodeStyle();
+                        fctxteditView.Text = dgvLogEntries.CurrentCell.Value.ToString();
+                    } else {
+                        toolTip.SetToolTip(btnApplyEditView, null);
+                        fctxteditView.Text = string.Empty;
+                    }
+                    btnApplyEditView.Enabled = false;
+
+                    fctxteditView.TextChanged += fctxteditView_TextChanged;
+                } else {
+                    fctxteditView.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                    splitStructured.Panel2Collapsed = true;
+                }
+            } catch {
+            }
         }
+        #endregion
     }
 }
