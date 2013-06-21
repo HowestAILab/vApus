@@ -15,13 +15,11 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    [ContextMenu(new[] {"Activate_Click"}, new[] {"Edit"})]
-    [Hotkeys(new[] {"Activate_Click"}, new[] {Keys.Enter})]
+namespace vApus.Stresstest {
+    [ContextMenu(new[] { "Activate_Click" }, new[] { "Edit" })]
+    [Hotkeys(new[] { "Activate_Click" }, new[] { Keys.Enter })]
     [DisplayName("Connection Proxy Code"), Serializable]
-    public class ConnectionProxyCode : BaseItem, ISerializable
-    {
+    public class ConnectionProxyCode : BaseItem, ISerializable {
         #region Fields
 
         private const string DEFAULTCODE =
@@ -199,17 +197,14 @@ namespace vApus.Stresstest {
         #region Properties
 
         //Never use this in a distributed test.
-        public ConnectionProxyRuleSet ConnectionProxyRuleSet
-        {
+        public ConnectionProxyRuleSet ConnectionProxyRuleSet {
             get { return Parent[0] as ConnectionProxyRuleSet; }
         }
 
         [SavableCloneable]
-        public string Code
-        {
+        public string Code {
             get { return _code; }
-            set
-            {
+            set {
                 if (!string.IsNullOrEmpty(value))
                     _code = value;
             }
@@ -219,8 +214,7 @@ namespace vApus.Stresstest {
 
         #region Constructor
 
-        public ConnectionProxyCode()
-        {
+        public ConnectionProxyCode() {
         }
 
         /// <summary>
@@ -228,11 +222,9 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
-        public ConnectionProxyCode(SerializationInfo info, StreamingContext ctxt)
-        {
+        public ConnectionProxyCode(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
-            using (sr = SerializationReader.GetReader(info))
-            {
+            using (sr = SerializationReader.GetReader(info)) {
                 _code = sr.ReadString();
             }
             sr = null;
@@ -249,11 +241,9 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
             SerializationWriter sw;
-            using (sw = SerializationWriter.GetWriter())
-            {
+            using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(_code);
                 sw.AddToInfo(info);
             }
@@ -262,57 +252,57 @@ namespace vApus.Stresstest {
             GC.Collect();
         }
 
-        public string BuildConnectionProxyClass(ConnectionProxyRuleSet connectionProxyRuleSet, string connectionString)
-        {
-            string[] split = _code.Split(new[] {"// -- RuleSetFields --"}, StringSplitOptions.None);
+        public string BuildConnectionProxyClass(ConnectionProxyRuleSet connectionProxyRuleSet, string connectionString) {
+            string[] split = _code.Split(new[] { "// -- RuleSetFields --" }, StringSplitOptions.None);
             split[1] = BuildRuleSetFields(connectionProxyRuleSet, connectionString);
 
             string connectionProxyClass = split[0].Trim() + "\n" + split[1].Trim() + "\n\n" + split[2].Trim();
             return connectionProxyClass;
         }
 
-        private string BuildRuleSetFields(ConnectionProxyRuleSet connectionProxyRuleSet, string connectionString = "")
-        {
+        private string BuildRuleSetFields(ConnectionProxyRuleSet connectionProxyRuleSet, string connectionString = "") {
             var sb = new StringBuilder();
 
             sb.AppendLine("// -- RuleSetFields --");
             List<string> splitInput = string.IsNullOrEmpty(connectionString)
                                           ? null
                                           : new List<string>(
-                                                connectionString.Split(new[] {connectionProxyRuleSet.ChildDelimiter},
+                                                connectionString.Split(new[] { connectionProxyRuleSet.ChildDelimiter },
                                                                        StringSplitOptions.None));
 
-            for (int i = 0; i < connectionProxyRuleSet.Count; i++)
-            {
+            for (int i = 0; i < connectionProxyRuleSet.Count; i++) {
                 var syntaxItem = connectionProxyRuleSet[i] as ConnectionProxySyntaxItem;
-                Type valueType = (syntaxItem.Count > 0 && syntaxItem[0] is Rule)
-                                     ? Rule.GetType((syntaxItem[0] as Rule).ValueType)
-                                     : typeof (string);
+                var rule = (syntaxItem.Count != 0 && syntaxItem[0] is Rule) ? syntaxItem[0] as Rule : null;
+                Type valueType = (rule == null) ? typeof(string) : Rule.GetType(rule.ValueType);
+
                 string name = syntaxItem.GetType().Name;
                 name = name[0].ToString().ToLower() + name.Substring(1);
 
-                if (splitInput != null && i < splitInput.Count)
-                {
-                    if (valueType == typeof (string))
-                        sb.AppendFormat("{0} _{1}{2} = \"{3}\";", valueType, name, i, splitInput[i]);
-                    else
-                        sb.AppendFormat("{0} _{1}{2} = {3};", valueType, name, i, splitInput[i].ToLower());
+                bool defaultValueUsed = false;
+                string part = splitInput == null || i >= splitInput.Count ? null : splitInput[i];
+                if (part == null && syntaxItem.DefaultValue.Length != 0) { //Default to.
+                    part = syntaxItem.DefaultValue;
+                    defaultValueUsed = true;
                 }
-                else
-                {
-                    if (valueType == typeof (string))
+
+                if (part == null) {
+                    if (valueType == typeof(string))
                         sb.AppendFormat("{0} _{1}{2} = string.Empty;", valueType, name, i);
                     else
                         sb.AppendFormat("{0} _{1}{2};", valueType, name, i);
+                } else {
+                    if (valueType == typeof(string))
+                        sb.AppendFormat("{0} _{1}{2} = \"{3}\";", valueType, name, i, part);
+                    else
+                        sb.AppendFormat("{0} _{1}{2} = {3};", valueType, name, i, part.ToLower());
                 }
-                sb.AppendLine(" // " + syntaxItem.Label);
+                sb.AppendLine(defaultValueUsed ? " // " + syntaxItem.Label + " [The default value for this syntax item is used if no value is provided in the connection.]" : " // " + syntaxItem.Label);
             }
             sb.AppendLine("// -- RuleSetFields --");
             return sb.ToString();
         }
 
-        public override void Activate()
-        {
+        public override void Activate() {
             SolutionComponentViewManager.Show(this);
         }
 
