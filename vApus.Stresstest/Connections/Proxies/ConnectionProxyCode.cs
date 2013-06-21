@@ -280,7 +280,7 @@ namespace vApus.Stresstest {
 
                 bool defaultValueUsed = false;
                 string part = splitInput == null || i >= splitInput.Count ? null : splitInput[i];
-                if (part == null && syntaxItem.DefaultValue.Length != 0) { //Default to.
+                if (string.IsNullOrEmpty(part) && syntaxItem.DefaultValue.Length != 0) { //Default to.
                     part = syntaxItem.DefaultValue;
                     defaultValueUsed = true;
                 }
