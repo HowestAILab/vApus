@@ -205,7 +205,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public void DeleteResults(string databaseName) {
             try {
                 _databaseActions.ExecuteSQL("drop schema " + databaseName + ";");
-            } catch { }
+            } catch { 
+            }
         }
 
         //SET
@@ -1265,7 +1266,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[3] : 0d);
                     }
                     row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
-                    row.Add(averageUserActions.Rows[offset].ItemArray[7]); //And the errors: Bonus
+                    row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[12]); //And the errors: Bonus
                     averageResponseTimesAndThroughput.Rows.Add(row.ToArray());
                 }
 
