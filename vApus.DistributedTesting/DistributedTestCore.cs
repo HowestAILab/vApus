@@ -211,12 +211,13 @@ namespace vApus.DistributedTesting {
                     foreach (BaseItem childItem in tile) {
                         var tileStresstest = childItem as TileStresstest;
                         if (tileStresstest.Use) {
-                            Exception exception;
-#warning Allow multiple slaves to be able to distribute work.
-                            int processID;
-                            MasterSideCommunicationHandler.ConnectSlave(
-                                tileStresstest.BasicTileStresstest.Slaves[0].IP,
-                                tileStresstest.BasicTileStresstest.Slaves[0].Port, out processID, out exception);
+                            Exception exception = null;
+                            foreach (var slave in tileStresstest.BasicTileStresstest.Slaves) {
+                                int processID;
+                                MasterSideCommunicationHandler.ConnectSlave(slave.IP, slave.Port, out processID, out exception);
+                                if (exception != null) break;
+                            }
+
                             if (exception == null) {
                                 _usedTileStresstests.Add(tileStresstest);
                                 lock (_testProgressMessagesLock)

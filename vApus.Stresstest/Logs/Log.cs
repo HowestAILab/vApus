@@ -97,6 +97,8 @@ namespace vApus.Stresstest {
             set { _allow = value; }
         }
         [SavableCloneable]
+        public bool AllowIncludeReferer { get; set; }
+        [SavableCloneable]
         public bool UseDeny { get; set; }
         [SavableCloneable]
         public string[] Deny {
@@ -209,7 +211,7 @@ namespace vApus.Stresstest {
 
             if (this.CountOf(typeof(UserAction)) == 0) {
                 tokenIndex = (new LogEntry()).GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
-                logEntryContainsTokens = true;
+                if (bln) logEntryContainsTokens = true;
 
                 beginTokenDelimiter = b;
                 endTokenDelimiter = e;

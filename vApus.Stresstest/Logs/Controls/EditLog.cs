@@ -58,6 +58,7 @@ namespace vApus.Stresstest {
 
             captureControl.UseAllow = _log.UseAllow;
             captureControl.UseDeny = _log.UseDeny;
+            captureControl.AllowIncludeReferer = _log.AllowIncludeReferer;
 
             captureControl.Allow = _log.Allow;
             captureControl.Deny = _log.Deny;
@@ -349,6 +350,10 @@ namespace vApus.Stresstest {
                         _log.Allow = captureControl.Allow;
                         editted = true;
                     }
+                    if (_log.AllowIncludeReferer != captureControl.AllowIncludeReferer) {
+                        _log.AllowIncludeReferer = captureControl.AllowIncludeReferer;
+                        editted = true;
+                    }
                     if (_log.UseDeny != captureControl.UseDeny) {
                         _log.UseDeny = captureControl.UseDeny;
                         editted = true;
@@ -370,7 +375,7 @@ namespace vApus.Stresstest {
                     sb.Append(_log.LogRuleSet.BeginCommentString);
                     sb.Append(ua.Label);
                     sb.AppendLine(_log.LogRuleSet.EndCommentString);
-                    foreach (LogEntry le in ua) 
+                    foreach (LogEntry le in ua)
                         sb.AppendLine(le.LogEntryString);
                 }
                 using (var sw = new StreamWriter(saveFileDialog.FileName))
@@ -394,7 +399,7 @@ namespace vApus.Stresstest {
                 _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 
                 _log.ApplyLogRuleSet();
-                if (RevertedToAsImported != null) 
+                if (RevertedToAsImported != null)
                     RevertedToAsImported(this, null);
             }
         }

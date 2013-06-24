@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using vApus.Stresstest;
 using vApus.Util;
+using System.Linq;
 
 namespace vApus.DistributedTesting {
     public static class MasterSideCommunicationHandler {
@@ -522,9 +523,12 @@ namespace vApus.DistributedTesting {
         /// <param name="exception"></param>
         public static Exception InitializeTests(List<TileStresstest> tileStresstests, List<ulong> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             Exception exception = null;
-            var initializeTestData = new InitializeTestWorkItem.InitializeTestData[tileStresstests.Count];
+            List<TileStresstest> dividedTileStresstests;
+            List<ulong> dividedStresstestIdsInDB;
+            DivideTileStresstestsOverSlaves(tileStresstests, stresstestIdsInDb, out dividedTileStresstests, out dividedStresstestIdsInDB);
+            var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedTileStresstests.Count];
             for (int i = 0; i != initializeTestData.Length; i++) {
-                var slave = tileStresstests[i].BasicTileStresstest.Slaves[0];
+                var slave = dividedTileStresstests[i].BasicTileStresstest.Slaves[0];
                 Exception ex;
                 var socketWrapper = Get(slave.IP, slave.Port, out ex);
                 if (ex != null) {
@@ -539,7 +543,7 @@ namespace vApus.DistributedTesting {
                         pushIPs.Add(ipAddress.ToString());
                 }
                 var initializeTestMessage = new InitializeTestMessage() {
-                    StresstestWrapper = tileStresstests[i].GetStresstestWrapper(stresstestIdsInDb[i], databaseName, runSynchronization, maxRerunsBreakOnLast),
+                    StresstestWrapper = dividedTileStresstests[i].GetStresstestWrapper(dividedStresstestIdsInDB[i], databaseName, runSynchronization, maxRerunsBreakOnLast),
                     PushIPs = pushIPs.ToArray(), PushPort = masterSocketWrapper.Port
                 };
 
@@ -791,6 +795,87 @@ namespace vApus.DistributedTesting {
                         exceptions.Add(new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex));
                     }
             }
+        }
+        #endregion
+
+        #region Divide et Impera
+        private static void DivideTileStresstestsOverSlaves(List<TileStresstest> tileStresstests, List<ulong> stresstestIdsInDb, out List<TileStresstest> dividedTileStresstests, out List<ulong> dividedStresstestIdsInDB) {
+            dividedTileStresstests = new List<TileStresstest>();
+            dividedStresstestIdsInDB = new List<ulong>();
+            for(int i = 0; i != tileStresstests.Count ; i++) {
+                List<TileStresstest> partTileStresstests;
+                List<ulong> partStresstestIdsInDb;
+                DivideTileStresstestsOverSlaves(tileStresstests[i], stresstestIdsInDb[i], out partTileStresstests, out partStresstestIdsInDb);
+                dividedTileStresstests.AddRange(partTileStresstests);
+                dividedStresstestIdsInDB.AddRange(partStresstestIdsInDb);
+            }
+        }
+        /// <summary>
+        /// Divide the load over the multiple slaves.
+        /// </summary>
+        /// <param name="tileStresstest">A tile stresstest that is 'Used'.</param>
+        /// <returns></returns>
+        private static void DivideTileStresstestsOverSlaves(TileStresstest tileStresstest, ulong stresstestIdInDb, out List<TileStresstest> dividedTileStresstests, out List<ulong> dividedStresstestIdsInDB) {
+            int count = tileStresstest.BasicTileStresstest.SlaveIndices.Length;
+            dividedTileStresstests = new List<TileStresstest>(count);
+            dividedStresstestIdsInDB = new List<ulong>(count);
+            if (count == 1) {
+                dividedTileStresstests.Add(tileStresstest);
+                dividedStresstestIdsInDB.Add(stresstestIdInDb);
+            } else if (count != 0) {
+                var concurrencies = new int[tileStresstest.AdvancedTileStresstest.Concurrencies.Length];
+                var addOneToFirstClone = new bool[concurrencies.Length]; //When numbers after the dot.
+                for (int i = 0; i != concurrencies.Length; i++) {
+                    int concurrency = tileStresstest.AdvancedTileStresstest.Concurrencies[i];
+                    concurrencies[i] = concurrency / count;
+                    addOneToFirstClone[i] = concurrency % count != 0;
+                }
+
+                foreach (var slave in tileStresstest.BasicTileStresstest.Slaves) {
+                    var clone = tileStresstest.Clone();
+                    clone.Parent = tileStresstest.Parent;
+                    concurrencies.CopyTo(clone.AdvancedTileStresstest.Concurrencies, 0);
+                    clone.BasicTileStresstest.Slaves = new Slave[] { slave };
+                    dividedTileStresstests.Add(clone);
+                    dividedStresstestIdsInDB.Add(stresstestIdInDb);
+                }
+
+                if (addOneToFirstClone.Contains(true)) {
+                    var first = new List<int>(concurrencies);
+                    for (int i = 0; i != addOneToFirstClone.Length; i++)
+                        if (addOneToFirstClone[i])
+                            ++first[i];
+
+                    dividedTileStresstests[0].AdvancedTileStresstest.Concurrencies = first.ToArray();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Only checks tile stresstests that are 'Used'.
+        /// </summary>
+        /// <param name="slave"></param>
+        /// <param name="distributedTest"></param>
+        /// <returns></returns>
+        private static TileStresstest FromSlaveToTileStresstest(Slave slave, DistributedTest distributedTest) {
+            return FromSlaveToTileStresstest(slave.IP, slave.Port, distributedTest);
+        }
+        /// <summary>
+        /// Only checks tile stresstests that are 'Used'.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <param name="distributedTest"></param>
+        /// <returns></returns>
+        private static TileStresstest FromSlaveToTileStresstest(string ip, int port, DistributedTest distributedTest) {
+            foreach (Tile tile in distributedTest.Tiles)
+                if (tile.Use)
+                    foreach (TileStresstest tileStresstest in tile)
+                        if (tileStresstest.Use)
+                            foreach (var slave in tileStresstest.BasicTileStresstest.Slaves)
+                                if (slave.IP == ip && slave.Port == port)
+                                    return tileStresstest;
+            return null;
         }
         #endregion
     }
