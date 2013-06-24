@@ -29,7 +29,7 @@ namespace vApus.DistributedTesting {
 
         private Stresstest.Stresstest _defaultAdvancedSettingsTo;
         private bool _use = true;
-
+        private string _dividedStresstestIndex;
         private readonly object _lock = new object();
 
         #endregion
@@ -65,6 +65,14 @@ namespace vApus.DistributedTesting {
             get { return _use; }
             set { _use = value; }
         }
+        /// <summary>
+        /// If the work is divided on multiple slaves and this is a clone of the original stresstest this must be filled in.
+        /// Must be the original index + . + #
+        /// </summary>
+        public string DividedStresstestIndex {
+            get { return _dividedStresstestIndex; }
+            set { _dividedStresstestIndex = value; }
+        }
 
         /// <summary>
         ///     To be able to link the stresstest to the right tile stresstest.
@@ -72,10 +80,13 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public string TileStresstestIndex {
             get {
-                object parent = Parent;
-                if (parent == null)
-                    return "-1";
-                return (parent as Tile).Index + "." + Index;
+                if (_dividedStresstestIndex == null) {
+                    object parent = Parent;
+                    if (parent == null)
+                        return "-1";
+                    return (parent as Tile).Index + "." + Index;
+                }
+                return _dividedStresstestIndex;
             }
         }
 

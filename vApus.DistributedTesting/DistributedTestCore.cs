@@ -45,9 +45,9 @@ namespace vApus.DistributedTesting {
         private Stopwatch _sw = new Stopwatch();
 
         /// <summary>
-        ///     The messages pusht from the slaves.
+        ///     The messages pushed from the slaves.
         /// </summary>
-        private Dictionary<TileStresstest, TestProgressMessage> _testProgressMessages = new Dictionary<TileStresstest, TestProgressMessage>();
+        private Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>> _testProgressMessages = new Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>>();
 
         private object _testProgressMessagesLock = new object();
         private List<TileStresstest> _usedTileStresstests = new List<TileStresstest>();
@@ -67,12 +67,24 @@ namespace vApus.DistributedTesting {
         }
 
         /// <summary>
-        ///     Key= index of the tile stresstest. Value = pusht progress message from slave.
+        ///     Key= index of the tile stresstest. Value = pushed progress message from slave.
+        ///     Divided progress is combined.
         /// </summary>
         public Dictionary<TileStresstest, TestProgressMessage> TestProgressMessages {
             get {
-                lock (_testProgressMessagesLock)
-                    return _testProgressMessages;
+                lock (_testProgressMessagesLock) {
+                    var testProgressMessages = new Dictionary<TileStresstest, TestProgressMessage>(_testProgressMessages.Count);
+                    foreach (var ts in _testProgressMessages.Keys) {
+                        var testProgressMessage = new TestProgressMessage();
+                        if (testProgressMessages.ContainsKey(ts)) {
+                            var prev = testProgressMessages[ts];
+
+                        } else {
+                            testProgressMessages.Add(ts, testProgressMessage);
+                        }
+                    }
+                    return testProgressMessages;
+                }
             }
         }
 
@@ -212,24 +224,32 @@ namespace vApus.DistributedTesting {
                         var tileStresstest = childItem as TileStresstest;
                         if (tileStresstest.Use) {
                             Exception exception = null;
-                            foreach (var slave in tileStresstest.BasicTileStresstest.Slaves) {
+                            int slaveCount = tileStresstest.BasicTileStresstest.SlaveIndices.Length;
+                            for (int i = 0; i != slaveCount; i++) {
+                                //Keep dividing of stresstests over slaves into account.
+                                string tileStresstestIndex = slaveCount == 1 ? tileStresstest.TileStresstestIndex : tileStresstest.TileStresstestIndex + "." + (i + 1);
+
+                                var slave = tileStresstest.BasicTileStresstest.Slaves[i];
                                 int processID;
                                 MasterSideCommunicationHandler.ConnectSlave(slave.IP, slave.Port, out processID, out exception);
-                                if (exception != null) break;
-                            }
 
-                            if (exception == null) {
-                                _usedTileStresstests.Add(tileStresstest);
-                                lock (_testProgressMessagesLock)
-                                    _testProgressMessages.Add(tileStresstest, new TestProgressMessage());
-                                InvokeMessage(string.Format("|->Connected {0} - {1}", tileStresstest.Parent, tileStresstest));
-                            } else {
-                                Dispose();
-                                var ex = new Exception(string.Format("Could not connect to one of the slaves ({0} - {1})!{2}{3}", tileStresstest.Parent, tileStresstest, Environment.NewLine, exception));
-                                string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
-                                                 Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                                InvokeMessage(message, LogLevel.Error);
-                                throw ex;
+                                if (exception == null) {
+                                    _usedTileStresstests.Add(tileStresstest);
+                                    lock (_testProgressMessagesLock) {
+                                        if (!_testProgressMessages.ContainsKey(tileStresstest))
+                                            _testProgressMessages.Add(tileStresstest, new Dictionary<string, TestProgressMessage>());
+
+                                        _testProgressMessages[tileStresstest].Add(tileStresstestIndex, new TestProgressMessage());
+                                    }
+                                    InvokeMessage(string.Format("|->Connected {0} - {1}", tileStresstest.Parent, slaveCount == 1 ? tileStresstest.ToString() : tileStresstest + " [" + tileStresstestIndex + "]"));
+                                } else {
+                                    Dispose();
+                                    var ex = new Exception(string.Format("Could not connect to one of the slaves ({0} - {1})!{2}{3}", tileStresstest.Parent, tileStresstest, Environment.NewLine, exception));
+                                    string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
+                                                     Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
+                                    InvokeMessage(message, LogLevel.Error);
+                                    throw ex;
+                                }
                             }
                         }
                     }
@@ -356,7 +376,7 @@ namespace vApus.DistributedTesting {
 
                     TestProgressMessage tpm = e.TestProgressMessage;
                     TileStresstest ts = GetTileStresstest(e.TestProgressMessage.TileStresstestIndex);
-                    lock (_testProgressMessagesLock) _testProgressMessages[ts] = tpm;
+                    lock (_testProgressMessagesLock) _testProgressMessages[ts][tpm.TileStresstestIndex] = tpm;
 
                     bool okCancelError = true;
                     switch (tpm.StresstestStatus) {
@@ -440,7 +460,8 @@ namespace vApus.DistributedTesting {
         private TileStresstest GetTileStresstest(string tileStresstestIndex) {
             lock (_usedTileStresstestsLock) {
                 foreach (TileStresstest ts in _usedTileStresstests)
-                    if (ts.TileStresstestIndex == tileStresstestIndex) return ts;
+                    if (tileStresstestIndex.Contains(ts.TileStresstestIndex)) //Take divided stresstests into account.
+                        return ts;
                 return null;
             }
         }

@@ -802,7 +802,7 @@ namespace vApus.DistributedTesting {
         private static void DivideTileStresstestsOverSlaves(List<TileStresstest> tileStresstests, List<ulong> stresstestIdsInDb, out List<TileStresstest> dividedTileStresstests, out List<ulong> dividedStresstestIdsInDB) {
             dividedTileStresstests = new List<TileStresstest>();
             dividedStresstestIdsInDB = new List<ulong>();
-            for(int i = 0; i != tileStresstests.Count ; i++) {
+            for (int i = 0; i != tileStresstests.Count; i++) {
                 List<TileStresstest> partTileStresstests;
                 List<ulong> partStresstestIdsInDb;
                 DivideTileStresstestsOverSlaves(tileStresstests[i], stresstestIdsInDb[i], out partTileStresstests, out partStresstestIdsInDb);
@@ -831,11 +831,12 @@ namespace vApus.DistributedTesting {
                     addOneToFirstClone[i] = concurrency % count != 0;
                 }
 
-                foreach (var slave in tileStresstest.BasicTileStresstest.Slaves) {
+                for (int i = 0; i != tileStresstest.BasicTileStresstest.Slaves.Length; i++) {
                     var clone = tileStresstest.Clone();
+                    clone.DividedStresstestIndex = tileStresstest.TileStresstestIndex + "." + (i + 1);
                     clone.Parent = tileStresstest.Parent;
                     concurrencies.CopyTo(clone.AdvancedTileStresstest.Concurrencies, 0);
-                    clone.BasicTileStresstest.Slaves = new Slave[] { slave };
+                    clone.BasicTileStresstest.Slaves = new Slave[] { tileStresstest.BasicTileStresstest.Slaves[i] };
                     dividedTileStresstests.Add(clone);
                     dividedStresstestIdsInDB.Add(stresstestIdInDb);
                 }
