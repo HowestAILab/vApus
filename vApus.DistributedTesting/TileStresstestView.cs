@@ -273,7 +273,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void _stresstestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce, false, false); }
-        private void _stresstestCore_RerunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDone, false, false); }
+        private void _stresstestCore_RerunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRerunDone, false, false); }
         private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) { SendPushMessage(RunStateChange.None, true, false); }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_countDown--); }

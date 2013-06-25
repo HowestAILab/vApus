@@ -246,8 +246,7 @@ namespace vApus.Results {
 
                                 if (logEntriesProcessed == 0) {
                                     ++runs;
-                                }
-                                else {
+                                } else {
                                     var measuredTime = (now - rr.StartedAt).Ticks;
                                     estimatedRuntimeLeft = (long)((measuredTime / logEntriesProcessed) * (logEntries - logEntriesProcessed));
                                     if (estimatedRuntimeLeft < 0) estimatedRuntimeLeft = 0;
@@ -255,7 +254,7 @@ namespace vApus.Results {
                                     //Get the estimated time left for the other runs, here we need the the already measured time.
                                     if (runs > 0) {
                                         var nextErl = estimatedRuntimeLeft + measuredTime;
-                                        estimatedRuntimeLeft +=(nextErl * runs);
+                                        estimatedRuntimeLeft += (nextErl * runs);
                                         runs = 0;
                                     }
                                 }
@@ -354,6 +353,80 @@ namespace vApus.Results {
                     Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
                     metrics.Errors
                 };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metricsCaches">Must contains more than one entry.</param>
+        /// <returns></returns>
+        public static StresstestMetricsCache MergeStresstestMetricsCaches(List<StresstestMetricsCache> metricsCaches) {
+            int count = metricsCaches.Count;
+            if (count < 2)
+                throw new Exception("Cannot merge less than 2 metrics");
+
+            //First get all the metrics...
+            int maxConcurrencyAndRunCount = 0;
+            var allMetrics = new List<List<StresstestMetrics>>(count);
+            foreach (var metricsCache in metricsCaches) {
+                var m = metricsCache.GetAllMetrics();
+                allMetrics.Add(m);
+                if (m.Count > maxConcurrencyAndRunCount)
+                    maxConcurrencyAndRunCount = m.Count;
+            }
+
+            //...then pivot them (We do not want to merge all the results for one stresstest, but the concurrencies and runs over the tests at the same index).
+            var pivotedMetrics = new List<List<StresstestMetrics>>(maxConcurrencyAndRunCount);
+            for (int i = 0; i < maxConcurrencyAndRunCount; i++) {
+                var l = new List<StresstestMetrics>(count);
+                for (int j = 0; j < count; j++) {
+                    var part = allMetrics[j];
+                    if (i < part.Count) l.Add(part[i]);
+                }
+                pivotedMetrics.Add(l);
+            }
+
+            //Now do the merge.
+            var mergedMetricsCache = new StresstestMetricsCache();
+            foreach (var toBeMerged in pivotedMetrics)
+                mergedMetricsCache.Add(MergeStresstestMetrics(toBeMerged));
+            return mergedMetricsCache;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metrics">Must contains more than one entry.</param>
+        /// <returns></returns>
+        private static StresstestMetrics MergeStresstestMetrics(List<StresstestMetrics> metrics) {
+            int count = metrics.Count;
+            if (count < 2)
+                throw new Exception("Cannot merge less than 2 metrics");
+
+            var mergedMetrics = new StresstestMetrics();
+            mergedMetrics.StartMeasuringTime = metrics[0].StartMeasuringTime;
+            mergedMetrics.StartsAndStopsRuns = metrics[0].StartsAndStopsRuns;
+
+            foreach (var m in metrics) {
+                if (m.EstimatedTimeLeft > mergedMetrics.EstimatedTimeLeft) mergedMetrics.EstimatedTimeLeft = m.EstimatedTimeLeft;
+                if (m.MeasuredTime > mergedMetrics.MeasuredTime) mergedMetrics.MeasuredTime = m.MeasuredTime;
+                mergedMetrics.Concurrency += m.Concurrency;
+                if (m.Run > mergedMetrics.Run) mergedMetrics.Run = m.Run;
+                if (m.RerunCount > mergedMetrics.RerunCount) mergedMetrics.RerunCount = m.RerunCount;
+                mergedMetrics.LogEntries += m.LogEntries;
+                mergedMetrics.ResponsesPerSecond += m.ResponsesPerSecond;
+                mergedMetrics.UserActionsPerSecond += m.UserActionsPerSecond;
+
+                mergedMetrics.AverageResponseTime += new TimeSpan(m.AverageResponseTime.Ticks / count);
+
+                if (m.MaxResponseTime > mergedMetrics.MaxResponseTime) mergedMetrics.MaxResponseTime = m.MaxResponseTime;
+
+                mergedMetrics.AverageDelay += new TimeSpan(m.AverageDelay.Ticks / count);
+                mergedMetrics.Errors += m.Errors;
+                mergedMetrics.LogEntriesProcessed += m.LogEntriesProcessed;
+            }
+
+            return mergedMetrics;
+
         }
         #endregion
     }

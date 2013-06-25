@@ -513,7 +513,7 @@ namespace vApus.DistributedTesting {
 
                         _distributedTestCore = new DistributedTestCore(_distributedTest, _resultsHelper, _tileStresstestsWithDbIds);
                         _distributedTestCore.Message += _distributedTestCore_Message;
-                        _distributedTestCore.OnTestProgressMessageReceived += _distributedTestCore_TestProgressMessageReceivedEventArgs;
+                        _distributedTestCore.OnTestProgressMessageReceivedDelayed += _distributedTestCore_TestProgressMessageReceivedDelayed;
                         _distributedTestCore.OnListeningError += _distributedTestCore_OnListeningError;
                         _distributedTestCore.OnFinished += _distributedTestCore_OnFinished;
 
@@ -678,8 +678,8 @@ namespace vApus.DistributedTesting {
 
         private void _distributedTestCore_Message(object sender, MessageEventArgs e) { distributedStresstestControl.AppendMessages(e.Message); }
 
-        private void _distributedTestCore_TestProgressMessageReceivedEventArgs(object sender, TestProgressMessageReceivedEventArgs e) {
-            Handle_distributedTestCore_TestProgressMessageReceivedEventArgs(e.TileStresstest, e.TestProgressMessage);
+        private void _distributedTestCore_TestProgressMessageReceivedDelayed(object sender, EventArgs e) {
+            Handle_distributedTestCore_TestProgressMessageReceivedDelayed(null, new TestProgressMessage());
         }
         private void _distributedTestCore_OnListeningError(object sender, ListeningErrorEventArgs e) {
             //Stop the distributed test (it is not valid anymore if a slave fails)
@@ -695,7 +695,7 @@ namespace vApus.DistributedTesting {
                             testProgressMessage.StresstestStatus = StresstestStatus.Error;
                             _distributedTestCore.TestProgressMessages[tileStresstest] = testProgressMessage;
 
-                            Handle_distributedTestCore_TestProgressMessageReceivedEventArgs(tileStresstest, testProgressMessage);
+                            Handle_distributedTestCore_TestProgressMessageReceivedDelayed(tileStresstest, testProgressMessage);
                         }
                         found = true;
                         break;
@@ -703,39 +703,56 @@ namespace vApus.DistributedTesting {
                 if (found) break;
             }
         }
-        private void Handle_distributedTestCore_TestProgressMessageReceivedEventArgs(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
-            if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem && (_selectedTestTreeViewItem as TileStresstestTreeViewItem).TileStresstest == tileStresstest) {
-                SetSlaveProgress(tileStresstest, testProgressMessage);
+        private void Handle_distributedTestCore_TestProgressMessageReceivedDelayed(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
+            var testProgressMessages = _distributedTestCore.TestProgressMessages;
+            if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem) {
+                var tileStresstestTreeviewItem = _selectedTestTreeViewItem as TileStresstestTreeViewItem;
+                if (tileStresstest == null) {
+                    tileStresstest = tileStresstestTreeviewItem.TileStresstest;
+                    testProgressMessage = testProgressMessages[tileStresstest];
+                }
 
-                if (testProgressMessage.StresstestStatus == StresstestStatus.Busy) {
-                    tmrProgressDelayCountDown.Stop();
-                    _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
-                    fastResultsControl.SetCountDownProgressDelay(_countDown);
-                    tmrProgressDelayCountDown.Start();
+                if (tileStresstestTreeviewItem.TileStresstest == tileStresstest) {
+                    SetSlaveProgress(tileStresstest, testProgressMessage);
+
+                    if (testProgressMessage.StresstestStatus == StresstestStatus.Busy) {
+                        tmrProgressDelayCountDown.Stop();
+                        _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
+                        fastResultsControl.SetCountDownProgressDelay(_countDown);
+                        tmrProgressDelayCountDown.Start();
+                    }
                 }
             }
-
-            UpdateMonitorMetricsCaches(tileStresstest, testProgressMessage);
 
             SetOverallProgress();
-            SetSlaveProgressInTreeView(tileStresstest, testProgressMessage);
 
-            //Notify by mail if set in the options panel.
-            if (testProgressMessage.StresstestStatus == StresstestStatus.Busy) {
-                if (testProgressMessage.RunFinished) {
-                    var l = testProgressMessage.StresstestMetricsCache.GetRunMetrics();
-                    var runMetrics = l[l.Count - 1];
-                    string message = string.Concat(tileStresstest.ToString(), " - Run ", runMetrics.Run, " of concurrency ", runMetrics.Concurrency, " finished.");
-                    TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
-                } else if (testProgressMessage.ConcurrencyFinished) {
-                    var l = testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics();
-                    var concurrencyMetrics = l[l.Count - 1];
-                    string message = string.Concat(tileStresstest.ToString(), " - Concurrency ", concurrencyMetrics.Concurrency, " finished.");
-                    TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
+            //Update the progress for all seperate tile stresstests, since a delayed invoke is used we must do this.
+            foreach (var ts in _distributedTestCore.UsedTileStresstests)
+                if (testProgressMessages.ContainsKey(ts)) {
+                    tileStresstest = ts;
+                    testProgressMessage = testProgressMessages[ts];
+
+                    UpdateMonitorMetricsCaches(tileStresstest, testProgressMessage);
+
+                    SetSlaveProgressInTreeView(tileStresstest, testProgressMessage);
+
+                    //Notify by mail if set in the options panel.
+                    if (testProgressMessage.StresstestStatus == StresstestStatus.Busy) {
+                        if (testProgressMessage.RunFinished) {
+                            var l = testProgressMessage.StresstestMetricsCache.GetRunMetrics();
+                            var runMetrics = l[l.Count - 1];
+                            string message = string.Concat(tileStresstest.ToString(), " - Run ", runMetrics.Run, " of concurrency ", runMetrics.Concurrency, " finished.");
+                            TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
+                        } else if (testProgressMessage.ConcurrencyFinished) {
+                            var l = testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics();
+                            var concurrencyMetrics = l[l.Count - 1];
+                            string message = string.Concat(tileStresstest.ToString(), " - Concurrency ", concurrencyMetrics.Concurrency, " finished.");
+                            TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
+                        }
+                    } else {
+                        TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(tileStresstest.ToString(), " finished. Status: ", testProgressMessage.StresstestStatus, "."));
+                    }
                 }
-            } else {
-                TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(tileStresstest.ToString(), " finished. Status: ", testProgressMessage.StresstestStatus, "."));
-            }
 
 #if EnableBetaFeature
             WriteRestProgress();
@@ -914,7 +931,7 @@ namespace vApus.DistributedTesting {
 
             } else {
                 distributedStresstestControl.AppendMessages("Test Cancelled!", LogLevel.Warning);
-                
+
                 btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
                 RemoveDatabase();

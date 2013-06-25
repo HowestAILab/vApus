@@ -64,8 +64,8 @@ namespace vApus.Util {
                 largeList.ScrollIntoView(item);
 
 
-            if (eventType == EventViewEventType.Error && _userEntered == null)
-                item.PerformMouseEnter();
+            //if (eventType == EventViewEventType.Error && _userEntered == null)
+            //    item.PerformMouseEnter();
 
             item.MouseHover += item_MouseHover;
             item.MouseLeave += item_MouseLeave;

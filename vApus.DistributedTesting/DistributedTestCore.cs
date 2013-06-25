@@ -51,6 +51,7 @@ namespace vApus.DistributedTesting {
 
         private object _testProgressMessagesLock = new object();
         private List<TileStresstest> _usedTileStresstests = new List<TileStresstest>();
+        private int _totalTestCount = 0; //Not always the used test count if tilestresstests are divided over different slaves.
         private object _usedTileStresstestsLock = new object();
 
         private ResultsHelper _resultsHelper;
@@ -75,12 +76,54 @@ namespace vApus.DistributedTesting {
                 lock (_testProgressMessagesLock) {
                     var testProgressMessages = new Dictionary<TileStresstest, TestProgressMessage>(_testProgressMessages.Count);
                     foreach (var ts in _testProgressMessages.Keys) {
-                        var testProgressMessage = new TestProgressMessage();
-                        if (testProgressMessages.ContainsKey(ts)) {
-                            var prev = testProgressMessages[ts];
+                        var dict = _testProgressMessages[ts]; //Dictionary of divided stresstest results, for when the same test is divided over 2 or more slaves.
+                        var firstTpm = new TestProgressMessage();
+                        foreach (var tpm in dict.Values) {
+                            firstTpm = tpm;
+                            break;
+                        }
 
+                        if (dict.Count == 1) {
+                            testProgressMessages.Add(ts, firstTpm);
                         } else {
-                            testProgressMessages.Add(ts, testProgressMessage);
+                            var toBeMerged = new List<StresstestMetricsCache>();
+                            foreach (var tpm in dict.Values) toBeMerged.Add(tpm.StresstestMetricsCache);
+
+                            if (toBeMerged.Contains(null)) {
+                                testProgressMessages.Add(ts, firstTpm);
+                            } else {
+                                var testProgressMessage = new TestProgressMessage();
+
+                                //First merge the status, events and resource usage
+                                testProgressMessage.StresstestStatus = StresstestStatus.Error;
+                                testProgressMessage.StartedAt = DateTime.MaxValue;
+                                foreach (var tpm in dict.Values) {
+                                    if (tpm.CPUUsage > testProgressMessage.CPUUsage) testProgressMessage.CPUUsage = tpm.CPUUsage;
+                                    if (tpm.ContextSwitchesPerSecond > testProgressMessage.ContextSwitchesPerSecond) testProgressMessage.ContextSwitchesPerSecond = tpm.ContextSwitchesPerSecond;
+                                    if (testProgressMessage.Events == null)
+                                        testProgressMessage.Events = tpm.Events;
+                                    else
+                                        testProgressMessage.Events.AddRange(tpm.Events);
+                                    if (!string.IsNullOrEmpty(tpm.Exception)) {
+                                        if (testProgressMessage.Exception == null) testProgressMessage.Exception = string.Empty;
+                                        testProgressMessage.Exception += tpm.Exception + "\n";
+                                    }
+                                    if (tpm.MemoryUsage > testProgressMessage.MemoryUsage) testProgressMessage.MemoryUsage = tpm.MemoryUsage;
+                                    if (tpm.NicsReceived > testProgressMessage.NicsReceived) testProgressMessage.NicsReceived = tpm.NicsReceived;
+                                    if (tpm.NicsSent > testProgressMessage.NicsSent) testProgressMessage.NicsSent = tpm.NicsSent;
+                                    //if (tpm.RunStateChange > testProgressMessage.RunStateChange) testProgressMessage.RunStateChange = tpm.RunStateChange; //OKAY for run sync?
+                                    if (tpm.StresstestStatus < testProgressMessage.StresstestStatus) testProgressMessage.StresstestStatus = tpm.StresstestStatus;
+                                    if (tpm.StartedAt < testProgressMessage.StartedAt) testProgressMessage.StartedAt = tpm.StartedAt;
+                                    if (tpm.MeasuredRuntime > testProgressMessage.MeasuredRuntime) testProgressMessage.MeasuredRuntime = tpm.MeasuredRuntime;
+                                    if (tpm.EstimatedRuntimeLeft > testProgressMessage.EstimatedRuntimeLeft) testProgressMessage.EstimatedRuntimeLeft = tpm.EstimatedRuntimeLeft;
+                                    testProgressMessage.ThreadsInUse += tpm.ThreadsInUse;
+                                    testProgressMessage.TileStresstestIndex = ts.TileStresstestIndex;
+                                    if (tpm.TotalVisibleMemory > testProgressMessage.TotalVisibleMemory) testProgressMessage.TotalVisibleMemory = tpm.TotalVisibleMemory;
+                                }
+                                //Then the test progress
+                                testProgressMessage.StresstestMetricsCache = StresstestMetricsHelper.MergeStresstestMetricsCaches(toBeMerged);
+                                testProgressMessages.Add(ts, testProgressMessage);
+                            }
                         }
                     }
                     return testProgressMessages;
@@ -116,7 +159,7 @@ namespace vApus.DistributedTesting {
         ///     The stresstests that are not finished.
         /// </summary>
         public int Running {
-            get { return _usedTileStresstests.Count - Finished; }
+            get { return _totalTestCount - Finished; }
         }
 
         public int Finished {
@@ -145,6 +188,8 @@ namespace vApus.DistributedTesting {
             MasterSideCommunicationHandler.ListeningError += _masterCommunication_ListeningError;
             MasterSideCommunicationHandler.TestInitialized += MasterSideCommunicationHandler_TestInitialized;
             MasterSideCommunicationHandler.OnTestProgressMessageReceived += _masterCommunication_OnTestProgressMessageReceived;
+
+            _tmrOnInvokeTestProgressMessageReceivedDelayed.Elapsed += _tmrOnInvokeTestProgressMessageReceivedDelayed_Elapsed;
 
 #if EnableBetaFeature
             WriteRestConfig();
@@ -176,6 +221,7 @@ namespace vApus.DistributedTesting {
 
                     _hasResults = false;
                     _usedTileStresstests = null;
+                    _totalTestCount = 0;
                     _testProgressMessages = null;
                     _sw = null;
 
@@ -185,6 +231,8 @@ namespace vApus.DistributedTesting {
 
                     _runInitialized = null;
                     _runDoneOnce = null;
+
+                    _tmrOnInvokeTestProgressMessageReceivedDelayed = null;
                 } catch {
                 }
 
@@ -234,7 +282,10 @@ namespace vApus.DistributedTesting {
                                 MasterSideCommunicationHandler.ConnectSlave(slave.IP, slave.Port, out processID, out exception);
 
                                 if (exception == null) {
-                                    _usedTileStresstests.Add(tileStresstest);
+                                    ++_totalTestCount;
+                                    if (!_usedTileStresstests.Contains(tileStresstest))
+                                        _usedTileStresstests.Add(tileStresstest);
+
                                     lock (_testProgressMessagesLock) {
                                         if (!_testProgressMessages.ContainsKey(tileStresstest))
                                             _testProgressMessages.Add(tileStresstest, new Dictionary<string, TestProgressMessage>());
@@ -254,7 +305,7 @@ namespace vApus.DistributedTesting {
                         }
                     }
             }
-            if (_usedTileStresstests.Count == 0) {
+            if (_totalTestCount == 0) {
                 var ex = new Exception("Please use at least one test!");
                 string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
                    Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
@@ -327,7 +378,7 @@ namespace vApus.DistributedTesting {
 
             lock (_communicationLock) {
                 try {
-                    if (!_isDisposed && Finished < _usedTileStresstests.Count) {
+                    if (!_isDisposed && Finished < _totalTestCount) {
 #warning Allow multiple slaves for work distribution
                         foreach (TileStresstest tileStresstest in _usedTileStresstests)
                             if (tileStresstest.BasicTileStresstest.Slaves[0].IP == e.SlaveIP &&
@@ -339,7 +390,7 @@ namespace vApus.DistributedTesting {
                         Stop();
                         //The test cannot be valid, therefore stop testing. It is stopped in the gui also, but stop it here explicitely for when the gui fails.
 
-                        if (Finished == _usedTileStresstests.Count)
+                        if (Finished == _totalTestCount)
                             HandleFinished();
                     }
                 } catch {
@@ -413,7 +464,7 @@ namespace vApus.DistributedTesting {
                                     }
                                 } else if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) {
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
-                                    if (RunDoneOnceCount == _usedTileStresstests.Count) {
+                                    if (RunDoneOnceCount == _totalTestCount) {
                                         _runDoneOnce = new string[] { };
                                         //Increment the index here to be able to continue to the next run.
                                         MasterSideCommunicationHandler.SendContinue();
@@ -439,7 +490,7 @@ namespace vApus.DistributedTesting {
                                         _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
                                         MasterSideCommunicationHandler.SendBreak();
                                     }
-                                } else if (tpm.RunStateChange == RunStateChange.ToRunDone) {
+                                } else if (tpm.RunStateChange == RunStateChange.ToRerunDone) {
                                     if (IncrementReruns(tpm.TileStresstestIndex) == _distributedTest.MaxRerunsBreakOnLast) {
                                         _runDoneOnce = new string[] { };
                                         _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
@@ -449,10 +500,11 @@ namespace vApus.DistributedTesting {
                                 break;
                         }
                     }
-                    InvokeOnTestProgressMessageReceived(ts, tpm);
+                    //Take merging divided stresstest loads into account, do not put the test progress message here as is.
+                    InvokeOnTestProgressMessageReceivedDelayed(ts);
 
                     if (Cancelled != 0 || Failed != 0) Stop(); //Test is invalid stop the test.
-                    if (Finished == _usedTileStresstests.Count) HandleFinished();
+                    if (Finished == _totalTestCount) HandleFinished();
                 } catch { }
             }
         }
@@ -530,9 +582,14 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public event EventHandler<MessageEventArgs> Message;
 
-        public event EventHandler<TestProgressMessageReceivedEventArgs> OnTestProgressMessageReceived;
+        /// <summary>
+        /// Get the TileStresstestMessage from eg var tpms = _distributedTestCore.TileStresstestMessages; var tpm = tpms[e.TileStresstest].
+        /// </summary>
+        public event EventHandler OnTestProgressMessageReceivedDelayed;
         public event EventHandler<ListeningErrorEventArgs> OnListeningError;
         public event EventHandler<FinishedEventArgs> OnFinished;
+
+        private System.Timers.Timer _tmrOnInvokeTestProgressMessageReceivedDelayed = new System.Timers.Timer(1000);
 
         private void InvokeMessage(string message, LogLevel logLevel = LogLevel.Info) { InvokeMessage(message, Color.Empty, logLevel); }
 
@@ -548,10 +605,20 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        private void InvokeOnTestProgressMessageReceived(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
-            if (OnTestProgressMessageReceived != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(
-                    delegate { OnTestProgressMessageReceived(this, new TestProgressMessageReceivedEventArgs(tileStresstest, testProgressMessage)); }, null);
+        private void InvokeOnTestProgressMessageReceivedDelayed(TileStresstest tileStresstest) {
+            if (OnTestProgressMessageReceivedDelayed != null && _tmrOnInvokeTestProgressMessageReceivedDelayed != null)
+                try {
+                    _tmrOnInvokeTestProgressMessageReceivedDelayed.Stop();
+                    _tmrOnInvokeTestProgressMessageReceivedDelayed.Start();
+                } catch { }
+        }
+
+        private void _tmrOnInvokeTestProgressMessageReceivedDelayed_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            if (!_isDisposed && _tmrOnInvokeTestProgressMessageReceivedDelayed != null)
+                try {
+                    _tmrOnInvokeTestProgressMessageReceivedDelayed.Stop();
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnTestProgressMessageReceivedDelayed(this, null); }, null);
+                } catch { }
         }
 
         private void InvokeOnListeningError(ListeningErrorEventArgs listeningErrorEventArgs) {

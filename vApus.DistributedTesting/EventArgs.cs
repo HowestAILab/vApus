@@ -42,7 +42,9 @@ namespace vApus.DistributedTesting {
         public TestProgressMessageReceivedEventArgs(TestProgressMessage testProgressMessage)
             : this(null, testProgressMessage) {
         }
-
+        public TestProgressMessageReceivedEventArgs(TileStresstest tileStresstest)
+            : this(tileStresstest, new TestProgressMessage()) {
+        }
         public TestProgressMessageReceivedEventArgs(TileStresstest tileStresstest,
                                                     TestProgressMessage testProgressMessage) {
             TileStresstest = tileStresstest;
