@@ -13,10 +13,8 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting
-{
-    public partial class SlaveTreeView : UserControl
-    {
+namespace vApus.DistributedTesting {
+    public partial class SlaveTreeView : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -24,6 +22,7 @@ namespace vApus.DistributedTesting
         ///     The selected item is the sender
         /// </summary>
         public event EventHandler AfterSelect;
+        public event EventHandler ClientTreeViewItemDoubleClicked;
 
         public event EventHandler ClientHostNameAndIPSet;
 
@@ -36,8 +35,7 @@ namespace vApus.DistributedTesting
 
         #region Constructors
 
-        public SlaveTreeView()
-        {
+        public SlaveTreeView() {
             InitializeComponent();
         }
 
@@ -45,8 +43,7 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        public void SetDistributedTest(DistributedTest distributedTest)
-        {
+        public void SetDistributedTest(DistributedTest distributedTest) {
             if (IsDisposed)
                 return;
 
@@ -69,8 +66,7 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private void castvi_AddClientClicked(object sender, EventArgs e)
-        {
+        private void castvi_AddClientClicked(object sender, EventArgs e) {
             LockWindowUpdate(Handle.ToInt32());
 
             var castvi = sender as ClientsAndSlavesTreeViewItem;
@@ -84,12 +80,12 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private void CreateAndAddClientTreeViewItem(Client client)
-        {
+        private void CreateAndAddClientTreeViewItem(Client client) {
             var cvi = new ClientTreeViewItem(_distributedTest, client);
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += _AfterSelect;
+            cvi.DoubleClicked += cvi_DoubleClicked;
             cvi.DuplicateClicked += cvi_DuplicateClicked;
             cvi.DeleteClicked += cvi_DeleteClicked;
             cvi.HostNameAndIPSet += cvi_HostNameAndIPSet;
@@ -99,12 +95,12 @@ namespace vApus.DistributedTesting
             largeList.Add(cvi);
         }
 
-        private void CreateAndInsertClientTreeViewItem(Client client, KeyValuePair<int, int> index)
-        {
+        private void CreateAndInsertClientTreeViewItem(Client client, KeyValuePair<int, int> index) {
             var cvi = new ClientTreeViewItem(_distributedTest, client);
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += _AfterSelect;
+            cvi.DoubleClicked += cvi_DoubleClicked;
             cvi.DuplicateClicked += cvi_DuplicateClicked;
             cvi.DeleteClicked += cvi_DeleteClicked;
             cvi.HostNameAndIPSet += cvi_HostNameAndIPSet;
@@ -116,13 +112,15 @@ namespace vApus.DistributedTesting
             cvi.SetHostNameAndIP();
         }
 
-        private void cvi_DuplicateClicked(object sender, EventArgs e)
-        {
+        private void cvi_DoubleClicked(object sender, EventArgs e) {
+            if (ClientTreeViewItemDoubleClicked != null) ClientTreeViewItemDoubleClicked.Invoke(this, null);
+        }
+
+        private void cvi_DuplicateClicked(object sender, EventArgs e) {
             LockWindowUpdate(Handle.ToInt32());
 
             var cvi = sender as ClientTreeViewItem;
-            if (cvi.Client.Parent != null)
-            {
+            if (cvi.Client.Parent != null) {
                 Client clone = cvi.Client.Clone();
                 var parent = cvi.Client.Parent as Clients;
                 int cloneIndex = parent.IndexOf(cvi.Client) + 1;
@@ -146,8 +144,7 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private void cvi_DeleteClicked(object sender, EventArgs e)
-        {
+        private void cvi_DeleteClicked(object sender, EventArgs e) {
             LockWindowUpdate(Handle.ToInt32());
 
             var cvi = sender as ClientTreeViewItem;
@@ -164,8 +161,7 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private void _AfterSelect(object sender, EventArgs e)
-        {
+        private void _AfterSelect(object sender, EventArgs e) {
             LockWindowUpdate(Handle.ToInt32());
 
             foreach (ITreeViewItem item in largeList.AllControls)
@@ -178,26 +174,21 @@ namespace vApus.DistributedTesting
             LockWindowUpdate(0);
         }
 
-        private void cvi_HostNameAndIPSet(object sender, EventArgs e)
-        {
+        private void cvi_HostNameAndIPSet(object sender, EventArgs e) {
             if (ClientHostNameAndIPSet != null)
                 ClientHostNameAndIPSet(sender, e);
         }
 
-        public void SetGui()
-        {
-            foreach (ITreeViewItem ctrl in largeList.AllControls)
-            {
+        public void SetGui() {
+            foreach (ITreeViewItem ctrl in largeList.AllControls) {
                 ctrl.SetVisibleControls();
                 //To determine what add tile stresstest control can be visible
                 ctrl.RefreshGui();
             }
         }
 
-        public void SetMode(DistributedTestMode distributedTestMode)
-        {
-            if (_distributedTestMode != distributedTestMode)
-            {
+        public void SetMode(DistributedTestMode distributedTestMode) {
+            if (_distributedTestMode != distributedTestMode) {
                 LockWindowUpdate(Handle.ToInt32());
                 _distributedTestMode = distributedTestMode;
                 foreach (ITreeViewItem item in largeList.AllControls)

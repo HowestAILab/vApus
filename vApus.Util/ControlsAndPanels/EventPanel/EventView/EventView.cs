@@ -47,25 +47,26 @@ namespace vApus.Util {
             return AddEvent(eventType, message, DateTime.Now);
         }
 
-        public EventViewItem AddEvent(EventViewEventType eventType, string message, DateTime at, bool visible = true) {
+        public EventViewItem AddEvent(EventViewEventType eventType, string message, DateTime at, bool visible = true, bool performMouseEnter = true, bool refreshGui = true) {
             var item = new EventViewItem(largeList, eventType, message, at);
             item.Visible = visible;
 
             //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
-            bool autoScroll = _userEntered == null &&
-                              (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
+            bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
 
 
             SetSize(item);
 
-            largeList.Add(item);
+            largeList.Add(item, refreshGui);
 
-            if (autoScroll)
-                largeList.ScrollIntoView(item);
+            if (visible) {
+                if (autoScroll)
+                    largeList.ScrollIntoView(item);
 
 
-            //if (eventType == EventViewEventType.Error && _userEntered == null)
-            //    item.PerformMouseEnter();
+                if (eventType == EventViewEventType.Error && _userEntered == null)
+                    item.PerformMouseEnter();
+            }
 
             item.MouseHover += item_MouseHover;
             item.MouseLeave += item_MouseLeave;

@@ -30,7 +30,7 @@ namespace vApus.Util {
         }
         private static void RegisterEventPanel(EventPanel eventPanel) {
             lock (_staticLock) {
-                if (!_eventPanels.Contains(eventPanel)) 
+                if (!_eventPanels.Contains(eventPanel))
                     _eventPanels.Add(eventPanel);
                 CleanEventPanels();
             }
@@ -175,17 +175,52 @@ namespace vApus.Util {
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at) {
             lock (_lock) {
                 LockWindowUpdate(Handle.ToInt32());
+                AddEvent(eventType, eventPrograssBarEventColor, message, at, true);
+                LockWindowUpdate(0);
+            }
+        }
+        private void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at, bool refreshGui) {
+            ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
+            EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter, refreshGui);
 
-                ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
-                EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter);
+            if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {
+                if (_expandOnErrorEvent)
+                    Collapsed = false;
 
-                if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {
-                    if (_expandOnErrorEvent)
-                        Collapsed = false;
-
-                    eventProgressBar.PerformMouseEnter(at, false);
+                eventProgressBar.PerformMouseEnter(at, false);
+            }
+        }
+        public void AddEvents(List<EventPanelEvent> events) {
+            lock (_lock) {
+                LockWindowUpdate(Handle.ToInt32());
+                int count = events.Count;
+                if (count != 0) {
+                    EventPanelEvent epe;
+                    for (int i = 0; i < count - 1; i++) {
+                        epe = events[i];
+                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+                    }
+                    epe = events[count - 1];
+                    AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
                 }
+                LockWindowUpdate(0);
+            }
+        }
+        public void SetEvents(List<EventPanelEvent> events) {
+            lock (_lock) {
+                LockWindowUpdate(Handle.ToInt32());
+                ClearEvents();
 
+                int count = events.Count;
+                if (count != 0) {
+                    EventPanelEvent epe;
+                    for (int i = 0; i < count - 1; i++) {
+                        epe = events[i];
+                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+                    }
+                    epe = events[count - 1];
+                    AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
+                }
                 LockWindowUpdate(0);
             }
         }

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,6 +16,7 @@ using vApus.DistributedTesting.Properties;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
+using System.Linq;
 
 namespace vApus.DistributedTesting {
     [ToolboxItem(false)]
@@ -30,6 +30,7 @@ namespace vApus.DistributedTesting {
 
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
+        public event EventHandler DoubleClicked;
 
         /// <summary>
         ///     Event of the test clicked.
@@ -173,6 +174,10 @@ namespace vApus.DistributedTesting {
             if (AfterSelect != null) AfterSelect(this, null);
         }
 
+        private void _DoubleClick(object sender, EventArgs e) {
+            if (DoubleClicked != null) DoubleClicked.Invoke(this, null);
+        }
+
         private void _MouseEnter(object sender, EventArgs e) { SetVisibleControls(); }
 
         private void _MouseLeave(object sender, EventArgs e) { SetVisibleControls(); }
@@ -270,11 +275,8 @@ namespace vApus.DistributedTesting {
                         foreach (Tile tile in distributedTest.Tiles)
                             if (tile.Use)
                                 foreach (TileStresstest tileStresstest in tile)
-                                    if (tileStresstest.Use &&
-                                        tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0 &&
-                                        tileStresstest != _tileStresstest &&
-                                        tileStresstest.BasicTileStresstest.Slaves[0] == _tileStresstest.BasicTileStresstest.Slaves[0]) {
-                                        sb.AppendLine("The selected slave is already chosen in another tile stresstest.");
+                                    if (SlaveUsedElsewhere(tileStresstest)) {
+                                        sb.AppendLine("One or more selected slaves are already chosen in another tile stresstest.");
                                         break;
                                     }
                 }
@@ -290,7 +292,16 @@ namespace vApus.DistributedTesting {
                 _exclamation = lblExclamation.Visible = false;
             }
         }
-
+        private bool SlaveUsedElsewhere(TileStresstest elsewhere) {
+            if (elsewhere.Use && elsewhere != _tileStresstest) {
+                var slavesA = _tileStresstest.BasicTileStresstest.SlaveIndices;
+                var slavesB = elsewhere.BasicTileStresstest.SlaveIndices;
+                foreach (int slaveA in slavesA)
+                    if (slavesB.Contains(slaveA))
+                        return true;
+            }
+            return false;
+        }
         #endregion
     }
 }

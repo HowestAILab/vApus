@@ -178,8 +178,9 @@ namespace vApus.DistributedTesting {
                     foreach (Tile tile in distributedTest.Tiles)
                         if (tile.Use)
                             foreach (TileStresstest tileStresstest in tile)
-                                if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
-                                    availableSlaves.Remove(tileStresstest.BasicTileStresstest.Slaves[0]);
+                                if (tileStresstest.Use)
+                                    foreach (var slave in tileStresstest.BasicTileStresstest.Slaves)
+                                        availableSlaves.Remove(slave);
 
                     if (availableSlaves.Count != 0) {
                         if (++_currentSlaveIndex >= availableSlaves.Count) _currentSlaveIndex = 0;

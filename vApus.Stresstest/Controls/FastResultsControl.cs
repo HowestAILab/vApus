@@ -98,6 +98,8 @@ namespace vApus.Stresstest {
             get { return _resultsHelper; }
             set { _resultsHelper = value; }
         }
+
+        public string Stresstest { get { return kvpStresstest.Key; } }
         #endregion
 
         #region Constructor
@@ -565,12 +567,18 @@ namespace vApus.Stresstest {
         /// </summary>
         public void SetEvents(List<EventPanelEvent> events) {
             if (IsDisposed) return;
+            int toSetCount = events.Count;
+            int currentEventCount = epnlMessages.EventCount;
 
-            LockWindowUpdate(Handle.ToInt32());
-            epnlMessages.ClearEvents();
-            foreach (EventPanelEvent epe in events)
-                epnlMessages.AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At);
-            LockWindowUpdate(0);
+            if (currentEventCount == 0 || toSetCount < currentEventCount) {
+                epnlMessages.SetEvents(events);
+            } else if (toSetCount > currentEventCount) {
+                var eventSubset = new List<EventPanelEvent>(toSetCount - currentEventCount);
+                for (int i = currentEventCount; i != toSetCount; i++)
+                    eventSubset.Add(events[i]);
+
+                epnlMessages.AddEvents(eventSubset);
+            }
         }
 
         public void ClearEvents() { epnlMessages.ClearEvents(); }

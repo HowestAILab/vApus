@@ -204,6 +204,7 @@
     <Compile Include="Controls\SlaveTreeView\SlaveTile.Designer.cs">
       <DependentUpon>SlaveTile.cs</DependentUpon>
     </Compile>
+    <Compile Include="DivideEtImpera.cs" />
     <Compile Include="Wizard.cs">
       <SubType>Form</SubType>
     </Compile>

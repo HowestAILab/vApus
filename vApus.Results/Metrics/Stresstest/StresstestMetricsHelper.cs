@@ -358,12 +358,14 @@ namespace vApus.Results {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="metricsCaches">Must contains more than one entry.</param>
+        /// <param name="metricsCaches">If only one entry the list will be returned directly.</param>
         /// <returns></returns>
         public static StresstestMetricsCache MergeStresstestMetricsCaches(List<StresstestMetricsCache> metricsCaches) {
             int count = metricsCaches.Count;
-            if (count < 2)
-                throw new Exception("Cannot merge less than 2 metrics");
+            if (count == 0)
+                throw new Exception("The given list must contain more than 0 metrics caches.");
+            else if (count == 1)
+                return metricsCaches[0];
 
             //First get all the metrics...
             int maxConcurrencyAndRunCount = 0;
@@ -395,12 +397,14 @@ namespace vApus.Results {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="metrics">Must contains more than one entry.</param>
+        /// <param name="metrics">If only one entry the list will be returned directly..</param>
         /// <returns></returns>
         private static StresstestMetrics MergeStresstestMetrics(List<StresstestMetrics> metrics) {
             int count = metrics.Count;
-            if (count < 2)
-                throw new Exception("Cannot merge less than 2 metrics");
+            if (count == 0)
+                throw new Exception("The given list must contain more than 0 metrics.");
+            else if (count == 1)
+                return metrics[0];
 
             var mergedMetrics = new StresstestMetrics();
             mergedMetrics.StartMeasuringTime = metrics[0].StartMeasuringTime;

@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
@@ -56,7 +57,7 @@ namespace vApus.DistributedTesting {
         }
 
         [SavableCloneable]
-        [DisplayName("Maximum Reruns for Break on Last Run Synchronisation"), 
+        [DisplayName("Maximum Reruns for Break on Last Run Synchronisation"),
         Description("The minumum allowed value is 0 (infinite) the maximum is 99.")]
         public int MaxRerunsBreakOnLast {
             get { return _maxRerunsBreakOnLast; }
@@ -85,6 +86,16 @@ namespace vApus.DistributedTesting {
 
         public Clients Clients {
             get { return this[1] as Clients; }
+        }
+
+        public IEnumerable<TileStresstest> UsedTileStresstests {
+            get {
+                foreach (Tile tile in Tiles)
+                    if (tile.Use)
+                        foreach (TileStresstest tileStresstest in tile)
+                            if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
+                                yield return tileStresstest;
+            }
         }
 
         #endregion
