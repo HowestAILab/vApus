@@ -205,7 +205,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public void DeleteResults(string databaseName) {
             try {
                 _databaseActions.ExecuteSQL("drop schema " + databaseName + ";");
-            } catch { 
+            } catch {
             }
         }
 
@@ -518,14 +518,86 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         #endregion
 
         #region Not So Stored Procedures
+        private Dictionary<string, List<ulong>> GetOriginalStresstestsAndDividedStresstestIds() {
+            var dict = new Dictionary<string, List<ulong>>();
+            if (_databaseActions != null) {
+                var dt = _databaseActions.GetDataTable("Select Id, Stresstest From Stresstests;");
+                foreach (DataRow row in dt.Rows) {
+                    string stresstest = GetCombinedStresstestToString(row.ItemArray[1] as string);
+                    if (!dict.ContainsKey(stresstest))
+                        dict.Add(stresstest, new List<ulong>());
+                    int id = (int)row.ItemArray[0];
+                    dict[stresstest].Add((ulong)id);
+                }
+            }
+            return dict;
+        }
+        private Dictionary<string, string> GetDividedAndOriginalStresstestsToStrings() {
+            var dict = new Dictionary<string, string>();
+            if (_databaseActions != null) {
+                var dt = _databaseActions.GetDataTable("Select Stresstest, Connection From Stresstests;");
+                foreach (DataRow row in dt.Rows) {
+                    string divided = row.ItemArray[0] as string;
+                    string combined = GetCombinedStresstestToString(divided) + " " + row.ItemArray[1];
+                    divided += " " + row.ItemArray[1];
+
+                    dict.Add(divided, combined);
+                }
+            }
+            return dict;
+        }
+        private ulong[] AppendSiblingStresstestIds(ulong[] stresstestIds) {
+            var l = new List<ulong>();
+            if (stresstestIds.Length != 0) {
+                var dict = GetOriginalStresstestsAndDividedStresstestIds();
+                foreach (ulong id in stresstestIds)
+                    foreach (var ids in dict.Values)
+                        if (ids.Contains(id))
+                            l.AddRange(ids);
+            }
+            return l.ToArray();
+        }
+
+        private string GetCombinedStresstestToString(string stresstest) {
+            string combined = string.Empty;
+            int dotCount = 0;
+            foreach (char c in stresstest) {
+                if (c == '.') ++dotCount;
+                if (dotCount != 2) combined += c;
+            }
+            if (dotCount == 2) combined += ']';
+            return combined;
+        }
+        private bool IsDivided(string stresstest) {
+            int dotCount = 0;
+            foreach (char c in stresstest)
+                if (c == '.') ++dotCount;
+            return dotCount == 2;
+        }
         /// <summary>
         /// Get all the stresstests: ID, Stresstest, Connection
+        /// If the workload was divided over multiple slaves the datatable entries will be combined, in that case the first Id will be put in a row.
         /// </summary>
         /// <returns></returns>
         public DataTable GetStresstests() {
             lock (_lock) {
-                if (_databaseActions != null)
-                    return _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;");
+                if (_databaseActions != null) {
+                    var dict = GetOriginalStresstestsAndDividedStresstestIds();
+                    var combined = CreateEmptyDataTable("Stresstests", "Id", "Stresstest", "Connection");
+
+                    foreach (string key in dict.Keys) {
+                        var row = new object[3];
+                        row[0] = dict[key][0];
+                        row[1] = key;
+
+                        var dt = _databaseActions.GetDataTable("Select Connection From Stresstests Where Id=" + row[0] + ";");
+                        row[2] = dt.Rows[0].ItemArray[0];
+
+                        combined.Rows.Add(row);
+                    }
+
+                    return combined;
+                }
                 return null;
             }
         }
@@ -541,6 +613,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetAverageConcurrentUsers(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
+                    stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                     var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests;") :
                     _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                     if (stresstests.Rows.Count == 0) return null;
@@ -635,11 +708,101 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 Math.Round(metrics.AverageDelay.TotalMilliseconds, 2), metrics.Errors);
                         }
                     }
+                    CombineDividedAverageConcurrentUsers(averageConcurrentUsers);
                     return averageConcurrentUsers;
                 }
                 return null;
             }
         }
+        private DataTable CombineDividedAverageConcurrentUsers(DataTable toBeCombined) {
+            var combinedDict = new List<object[]>();
+            var toBeCombinedDict = new Dictionary<string, Dictionary<string, List<object[]>>>(); //combined, stresstest, rows
+
+            var match = GetDividedAndOriginalStresstestsToStrings();
+            bool mustCombine = false;
+            foreach (DataRow row in toBeCombined.Rows) {
+                string stresstest = row.ItemArray[0] as string;
+                string combined = stresstest;
+                if (IsDivided(stresstest)) {
+                    mustCombine = true;
+                    combined = match[stresstest];
+                }
+
+                if (!toBeCombinedDict.ContainsKey(combined))
+                    toBeCombinedDict.Add(combined, new Dictionary<string, List<object[]>>());
+                if (!toBeCombinedDict[combined].ContainsKey(stresstest))
+                    toBeCombinedDict[combined].Add(stresstest, new List<object[]>());
+                toBeCombinedDict[combined][stresstest].Add(row.ItemArray);
+            }
+            if (!mustCombine) return toBeCombined;
+
+            foreach (string combined in toBeCombinedDict.Keys) {
+                int count = toBeCombinedDict[combined].Count;
+
+                //Add the rows to a more handleble structure.
+                var toBePivotedRows = new List<List<object[]>>();
+                int maxRowCount = 0;
+                foreach (string stresstest in toBeCombinedDict[combined].Keys) {
+                    var l = toBeCombinedDict[combined][stresstest];
+                    toBePivotedRows.Add(l);
+
+                    if (l.Count > maxRowCount) maxRowCount = l.Count;
+                }
+
+                //Pivot them.
+                var pivotedRows = new List<List<object[]>>();
+                for (int i = 0; i != maxRowCount; i++) {
+                    var l = new List<object[]>(count);
+                    for (int j = 0; j < count; j++) {
+                        var part = toBePivotedRows[j];
+                        if (i < part.Count) l.Add(part[i]);
+                    }
+                    pivotedRows.Add(l);
+                }
+
+                //Do the merge.
+                foreach (var toBePivoted in pivotedRows) {
+                    combinedDict.Add(Merge(toBePivoted, combined));
+                }
+            }
+
+            var combinedDt = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
+                                    "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
+                                    "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+
+            return combinedDt;
+        }
+        private object[] Merge(List<object[]> rows, string combined) {
+            int dividedCount = rows.Count;
+
+            var combinedRow = new object[13];
+            foreach (var row in rows) {
+                combinedRow[0] = combined;
+                DateTime startedAt = (DateTime)row[1];
+                if (combinedRow[1] == null || (DateTime)combinedRow[1] > startedAt)
+                    combinedRow[1] = startedAt;
+
+                double measuredTime = (double)row[2];
+                if (combinedRow[2] == null || (double)combinedRow[2] < measuredTime)
+                    combinedRow[2] = measuredTime;
+
+                int concurrency = (int)row[3];
+                combinedRow[3] = (combinedRow[3] == null) ? concurrency : (int)combinedRow[3] + concurrency;
+
+                long logEntriesProcessed = (long)row[4];
+                combinedRow[4] = (combinedRow[4] == null) ? logEntriesProcessed : (long)combinedRow[4] + logEntriesProcessed;
+
+                long logEntries = (long)row[5];
+                combinedRow[5] = (combinedRow[5] == null) ? logEntries : (long)combinedRow[5] + logEntries;
+
+                double throughput = (double)row[6];
+                combinedRow[6] = (combinedRow[6] == null) ? throughput / dividedCount : (double)combinedRow[6] + (logEntries / dividedCount);
+
+            }
+
+            return combinedRow;
+        }
+
 
         public DataTable GetAverageUserActions(params ulong[] stresstestIds) {
             return GetAverageUserActions(new CancellationToken(), stresstestIds);
@@ -647,6 +810,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetAverageUserActions(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
+                    stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                     var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
                     _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                     if (stresstests.Rows.Count == 0) return null;
@@ -882,6 +1046,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetAverageLogEntries(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
+                    stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                     var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
                     _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                     if (stresstests.Rows.Count == 0) return null;
@@ -1054,6 +1219,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetErrors(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
+                    stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                     var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
                     _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                     if (stresstests.Rows.Count == 0) return null;
@@ -1121,6 +1287,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
+                stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                 var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
                 _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                 if (stresstests.Rows.Count == 0) return null;
@@ -1203,7 +1370,6 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         }
                         break;
                     }
-                    break;
                 }
                 return userActionComposition;
             }
@@ -1226,6 +1392,8 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetOverview(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
+
+                stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                 if (stresstestIds.Length == 0) {
                     var stresstests = _databaseActions.GetDataTable("Select Id From Stresstests;");
                     if (stresstests.Rows.Count == 0) return null;
@@ -1281,6 +1449,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public DataTable GetMachineConfigurations(CancellationToken cancellationToken, params ulong[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
+                    stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                     var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
                     _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                     if (stresstests.Rows.Count == 0) return null;
@@ -1313,6 +1482,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
+                stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                 var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection, MonitorBeforeInMinutes, MonitorAfterInMinutes From Stresstests;") :
                     _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, MonitorBeforeInMinutes, MonitorAfterInMinutes From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                 if (stresstests.Rows.Count == 0) return null;
@@ -1503,6 +1673,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
+                stresstestIds = AppendSiblingStresstestIds(stresstestIds);
                 var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
                 if (stresstests.Rows.Count == 0) return null;
