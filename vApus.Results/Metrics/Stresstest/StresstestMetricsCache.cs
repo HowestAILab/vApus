@@ -93,7 +93,7 @@ namespace vApus.Results {
             var metrics = new List<StresstestMetrics>();
             foreach (MetricsCacheObject o in _cache)
                 if (o.Metrics.Run != 0) {
-                    if (o.Result != null) o.Metrics = StresstestMetricsHelper.GetMetrics(o.Result as RunResult);
+                    if (o.Result != null && (o.Metrics.LogEntries == 0 || o.Metrics.LogEntriesProcessed != o.Metrics.LogEntries)) o.Metrics = StresstestMetricsHelper.GetMetrics(o.Result as RunResult, false);
                     metrics.Add(o.Metrics);
                 }
             return metrics;
