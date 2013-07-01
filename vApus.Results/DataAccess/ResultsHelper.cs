@@ -708,14 +708,14 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 Math.Round(metrics.AverageDelay.TotalMilliseconds, 2), metrics.Errors);
                         }
                     }
-                    CombineDividedAverageConcurrentUsers(averageConcurrentUsers);
+                    averageConcurrentUsers = CombineDividedAverageConcurrentUsers(averageConcurrentUsers);
                     return averageConcurrentUsers;
                 }
                 return null;
             }
         }
         private DataTable CombineDividedAverageConcurrentUsers(DataTable toBeCombined) {
-            var combinedDict = new List<object[]>();
+            var combinedList = new List<object[]>();
             var toBeCombinedDict = new Dictionary<string, Dictionary<string, List<object[]>>>(); //combined, stresstest, rows
 
             var match = GetDividedAndOriginalStresstestsToStrings();
@@ -761,14 +761,15 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 }
 
                 //Do the merge.
-                foreach (var toBePivoted in pivotedRows) {
-                    combinedDict.Add(Merge(toBePivoted, combined));
-                }
+                foreach (var toBePivoted in pivotedRows)
+                    combinedList.Add(Merge(toBePivoted, combined));
             }
 
             var combinedDt = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
                                     "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
                                     "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+            foreach (var row in combinedList)
+                combinedDt.Rows.Add(row);
 
             return combinedDt;
         }
@@ -798,6 +799,23 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 double throughput = (double)row[6];
                 combinedRow[6] = (combinedRow[6] == null) ? throughput / dividedCount : (double)combinedRow[6] + (logEntries / dividedCount);
 
+                double userActionsPerSecond = (double)row[7];
+                combinedRow[7] = (combinedRow[7] == null) ? userActionsPerSecond / dividedCount : (double)combinedRow[7] + (userActionsPerSecond / dividedCount);
+
+                double avgResponseTime = (double)row[8];
+                combinedRow[8] = (combinedRow[8] == null) ? avgResponseTime / dividedCount : (double)combinedRow[8] + (avgResponseTime / dividedCount);
+
+                double maxResponseTime = (double)row[9];
+                if (combinedRow[9] == null || (double)combinedRow[9] < maxResponseTime)
+                    combinedRow[9] = maxResponseTime;
+
+                //How the f am I going to calcullate the 95the percentile?
+
+                double avgDelay = (double)row[11];
+                combinedRow[11] = (combinedRow[11] == null) ? avgDelay / dividedCount : (double)combinedRow[11] + (avgDelay / dividedCount);
+
+                long errors = (long)row[12];
+                combinedRow[12] = (combinedRow[12] == null) ? errors : (long)combinedRow[12] + errors;
             }
 
             return combinedRow;
