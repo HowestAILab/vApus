@@ -521,7 +521,7 @@ namespace vApus.DistributedTesting {
         /// <param name="port"></param>
         /// <param name="tileStresstest"></param>
         /// <param name="exception"></param>
-        public static Exception InitializeTests(Dictionary<TileStresstest, TileStresstest> dividedAndOriginalTileStresstests, List<ulong> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public static Exception InitializeTests(Dictionary<TileStresstest, TileStresstest> dividedAndOriginalTileStresstests, List<int> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             Exception exception = null;
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStresstests.Count];
 

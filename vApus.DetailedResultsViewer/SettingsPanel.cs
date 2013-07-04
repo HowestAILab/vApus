@@ -107,7 +107,7 @@ namespace vApus.DetailedResultsViewer {
                 var temp = databaseActions.GetDataTable("Show Databases;");
                 foreach (DataRow rrDB in temp.Rows) {
                     string db = rrDB.ItemArray[0] as string;
-                    if (db.StartsWith("vapus", StringComparison.InvariantCultureIgnoreCase)) dbs.Rows.Add(db);
+                    if (db.StartsWith("vapus", StringComparison.OrdinalIgnoreCase)) dbs.Rows.Add(db);
                 }
 
                 int count = dbs.Rows.Count;
@@ -181,14 +181,14 @@ namespace vApus.DetailedResultsViewer {
 
                     cboStresstest.SelectedIndex = 1;
 
-                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, (ulong)cboStresstest.SelectedIndex));
+                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, cboStresstest.SelectedIndex));
                 }
 
                 cboStresstest.SelectedIndexChanged += cboStresstest_SelectedIndexChanged;
             }
         }
         private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
-            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, (ulong)cboStresstest.SelectedIndex));
+            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, cboStresstest.SelectedIndex));
         }
 
         private class FilterDatabasesWorkItem {
@@ -273,13 +273,13 @@ namespace vApus.DetailedResultsViewer {
             /// <summary>
             /// 0 for all
             /// </summary>
-            public ulong StresstestId { get; private set; }
+            public int StresstestId { get; private set; }
             /// <summary>
             /// 
             /// </summary>
             /// <param name="database"></param>
             /// <param name="stresstestId">0 for all</param>
-            public ResultsSelectedEventArgs(string database, ulong stresstestId) {
+            public ResultsSelectedEventArgs(string database, int stresstestId) {
                 Database = database;
                 StresstestId = stresstestId;
             }

@@ -48,7 +48,7 @@ namespace vApus.DetailedResultsViewer {
                 var temp = databaseActions.GetDataTable("Show Databases;");
                 foreach (DataRow rrDB in temp.Rows) {
                     string db = rrDB.ItemArray[0] as string;
-                    if (db.StartsWith("vapus", StringComparison.InvariantCultureIgnoreCase)) dbs.Rows.Add(db);
+                    if (db.StartsWith("vapus", StringComparison.OrdinalIgnoreCase)) dbs.Rows.Add(db);
                 }
 
                 int count = dbs.Rows.Count;

@@ -574,6 +574,22 @@ namespace vApus.Util {
                 return sb.ToString();
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="item">Case sensitive in case of strings.</param>
+        /// <returns>-1 if not found</returns>
+        public static int IndexOf(this Array array, object item) {
+            int i = 0;
+            foreach (var o in array) {
+                if (o.Equals(item))
+                    return i;
+                ++i;
+            }
+            return -1;
+        }
     }
     public static class ConcurrentBagExtension {
         /// <summary>

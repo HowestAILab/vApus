@@ -588,9 +588,9 @@ namespace vApus.DistributedTesting {
                                     try {
                                         monitorView.Start();
 
-                                        if (_distributedTestCore.TileStresstestsWithDbIds.ContainsKey(ts))
-                                            monitorView.GetMonitorResultCache().MonitorConfigurationId =
-                                            _resultsHelper.SetMonitor(_distributedTestCore.TileStresstestsWithDbIds[ts], monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
+                                        int dbId = _distributedTestCore.GetDbId(ts);
+                                        if (dbId != -1)
+                                            monitorView.GetMonitorResultCache().MonitorConfigurationId = _resultsHelper.SetMonitor(dbId, monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
                                             monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
 
                                         distributedStresstestControl.AppendMessages(monitorView.Text + " is started.");
@@ -1039,24 +1039,26 @@ namespace vApus.DistributedTesting {
             } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
         }
         private void RefreshDetailedResults() {
-            ulong[] stresstestIds = null;
+            int[] stresstestIds = null;
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null && _distributedTestMode == DistributedTestMode.Edit && _selectedTestTreeViewItem != null) {
                 if (_selectedTestTreeViewItem is TileStresstestTreeViewItem) {
                     var tstvi = _selectedTestTreeViewItem as TileStresstestTreeViewItem;
-                    if (_distributedTestCore.TileStresstestsWithDbIds.ContainsKey(tstvi.TileStresstest))
-                        stresstestIds = new ulong[] { _distributedTestCore.TileStresstestsWithDbIds[tstvi.TileStresstest] };
+                    int dbId = _distributedTestCore.GetDbId(tstvi.TileStresstest);
+                    if (dbId != -1)
+                        stresstestIds = new int[] { dbId };
                 } else if (_selectedTestTreeViewItem is TileTreeViewItem) {
-                    var l = new List<ulong>();
+                    var l = new List<int>();
                     var ttvi = _selectedTestTreeViewItem as TileTreeViewItem;
                     foreach (var ctrl in ttvi.ChildControls)
                         if (ctrl is TileStresstestTreeViewItem) {
                             var tstvi = ctrl as TileStresstestTreeViewItem;
-                            if (_distributedTestCore.TileStresstestsWithDbIds.ContainsKey(tstvi.TileStresstest))
-                                l.Add(_distributedTestCore.TileStresstestsWithDbIds[tstvi.TileStresstest]);
+                            int dbId = _distributedTestCore.GetDbId(tstvi.TileStresstest);
+                            if (dbId != -1)
+                                l.Add(dbId);
                         }
                     stresstestIds = l.ToArray();
                 } else if (_selectedTestTreeViewItem is DistributedTestTreeViewItem) {
-                    stresstestIds = new ulong[] { };
+                    stresstestIds = new int[] { };
                 }
             }
             if (stresstestIds == null) {

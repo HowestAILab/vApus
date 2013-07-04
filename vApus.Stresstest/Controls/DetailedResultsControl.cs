@@ -30,7 +30,7 @@ namespace vApus.Stresstest {
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
 
-        private ulong[] _stresstestIds = new ulong[0];
+        private int[] _stresstestIds = new int[0];
 
         private int _currentSelectedIndex = -1; //The event is raised even when the index stays the same, this is used to avoid it;
 
@@ -184,9 +184,9 @@ namespace vApus.Stresstest {
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
                 switch (_currentSelectedIndex) {
                     case 0: return _resultsHelper.GetOverview(cancellationToken, _stresstestIds);
-                    case 1: return _resultsHelper.GetAverageConcurrentUsers(cancellationToken, _stresstestIds);
-                    case 2: return _resultsHelper.GetAverageUserActions(cancellationToken, _stresstestIds);
-                    case 3: return _resultsHelper.GetAverageLogEntries(cancellationToken, _stresstestIds);
+                    case 1: return _resultsHelper.GetAverageConcurrencyResults(cancellationToken, _stresstestIds);
+                    case 2: return _resultsHelper.GetAverageUserActionResults(cancellationToken, _stresstestIds);
+                    case 3: return _resultsHelper.GetAverageLogEntryResults(cancellationToken, _stresstestIds);
                     case 4: return _resultsHelper.GetErrors(cancellationToken, _stresstestIds);
                     case 5: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
                     case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
@@ -251,7 +251,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="resultsHelper">Give hte helper that made the db</param>
         /// <param name="stresstestIds">Filter on one or more stresstests, if this is empty no filter is applied.</param>
-        public void RefreshResults(ResultsHelper resultsHelper, params ulong[] stresstestIds) {
+        public void RefreshResults(ResultsHelper resultsHelper, params int[] stresstestIds) {
             this.Enabled = true;
 
             _resultsHelper = resultsHelper;

@@ -63,7 +63,7 @@ namespace vApus.DistributedTesting {
 
     [Serializable]
     public class StresstestWrapper {
-        public ulong StresstestIdInDb;
+        public int StresstestIdInDb;
         public string MySqlHost;
         public int MySqlPort;
         public string MySqlDatabaseName;

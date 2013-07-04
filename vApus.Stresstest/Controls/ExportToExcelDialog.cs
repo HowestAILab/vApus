@@ -45,7 +45,7 @@ namespace vApus.Stresstest {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
-                ulong selectedIndex = (ulong)cboStresstest.SelectedIndex;
+                int selectedIndex = cboStresstest.SelectedIndex;
                 bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
 
                 string fileNameWithoutExtension = saveFileDialog.FileName;
@@ -60,23 +60,23 @@ namespace vApus.Stresstest {
                         var doc = new SLDocument();
 
                         //Make different sheets per test.
-                        var stresstests = new Dictionary<ulong, string>();
+                        var stresstests = new Dictionary<int, string>();
                         var stresstestsDt = _resultsHelper.GetStresstests();
                         if (selectedIndex == 0) {
                             foreach (DataRow row in stresstestsDt.Rows) {
                                 string stresstest = row.ItemArray[1] as string;
                                 if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1];
                                 stresstest += " " + (row.ItemArray[2] as string);
-                                stresstests.Add(Convert.ToUInt64(row.ItemArray[0]), stresstest);
+                                stresstests.Add((int)row.ItemArray[0], stresstest);
                             }
                         } else {
                             foreach (DataRow row in stresstestsDt.Rows) {
-                                ulong ul = Convert.ToUInt64(row.ItemArray[0]);
-                                if (selectedIndex == ul) {
+                                int i = (int)row.ItemArray[0];
+                                if (selectedIndex == i) {
                                     string stresstest = row.ItemArray[1] as string;
                                     if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1].TrimStart();
                                     stresstest += " " + (row.ItemArray[2] as string);
-                                    stresstests.Add(ul, stresstest);
+                                    stresstests.Add(i, stresstest);
                                     break;
                                 }
                             }
@@ -84,10 +84,10 @@ namespace vApus.Stresstest {
 
                         string firstWorksheet = null;
                         int worksheetIndex = 1; //Just for a unique sheet name
-                        foreach (ulong stresstestId in stresstests.Keys) {
+                        foreach (int stresstestId in stresstests.Keys) {
                             //For some strange reason the doubles are changed to string.
                             var overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
-                            var avgUserActions = _resultsHelper.GetAverageUserActions(_cancellationTokenSource.Token, stresstestId);
+                            var avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
                             var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                             var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId); ;
                             var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);

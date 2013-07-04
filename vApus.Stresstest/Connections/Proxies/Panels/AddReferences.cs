@@ -39,7 +39,7 @@ namespace vApus.Stresstest
             foreach (string processorArchitecture in Directory.GetDirectories(gac))
             {
                 string trimmedProcessorArchitecture = Path.GetFileName(processorArchitecture);
-                if (!trimmedProcessorArchitecture.StartsWith("GAC", StringComparison.InvariantCultureIgnoreCase))
+                if (!trimmedProcessorArchitecture.StartsWith("GAC", StringComparison.OrdinalIgnoreCase))
                     continue;
                 trimmedProcessorArchitecture = trimmedProcessorArchitecture.Length > 4
                                                    ? trimmedProcessorArchitecture.Substring(4)

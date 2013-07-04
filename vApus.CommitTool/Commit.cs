@@ -470,7 +470,7 @@ namespace vApus.CommitTool
                 if ((s.StartsWith("*") && s.EndsWith("*") && name.Contains(s.Substring(1, s.Length - 2)))
                     || (s.StartsWith("*") && name.EndsWith(s.Substring(1)))
                     || (s.EndsWith("*") && name.StartsWith(s.Substring(0, s.Length - 1)))
-                    || name.EndsWith(s, StringComparison.CurrentCultureIgnoreCase))
+                    || name.EndsWith(s, StringComparison.OrdinalIgnoreCase))
                     return true;
             return false;
         }

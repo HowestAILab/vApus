@@ -27,7 +27,7 @@ namespace vApus.DistributedTesting {
 
         private readonly DistributedTest _distributedTest;
         // For adding and getting results.
-        private Dictionary<TileStresstest, ulong> _tileStresstestsWithDbIds;
+        private Dictionary<TileStresstest, int> _tileStresstestsWithDbIds;
 
         private readonly object _lock = new object();
 
@@ -69,54 +69,39 @@ namespace vApus.DistributedTesting {
         public Dictionary<TileStresstest, TileStresstest> UsedTileStresstests {
             get { return _usedTileStresstests; }
         }
-        /// <summary>
-        /// For adding and getting results.
-        /// </summary>
-        public Dictionary<TileStresstest, ulong> TileStresstestsWithDbIds {
-            get { return _tileStresstestsWithDbIds; }
+
+        /// <returns>-1 if not found or the first Id if the given is a divided tile stresstest.</returns>
+        public int GetDbId(TileStresstest tileStresstest) {
+            string tileStresstestToString = ReaderAndCombiner.GetCombinedStresstestToString(tileStresstest.ToString());
+            foreach (TileStresstest ts in _tileStresstestsWithDbIds.Keys)
+                if (tileStresstestToString == ReaderAndCombiner.GetCombinedStresstestToString(ts.ToString()))
+                    return _tileStresstestsWithDbIds[ts];
+            return -1;
         }
 
-        public bool IsDisposed {
-            get { return _isDisposed; }
-        }
+        public bool IsDisposed { get { return _isDisposed; } }
 
-        public int OK {
-            get { return _ok.Length; }
-        }
+        public int OK { get { return _ok.Length; } }
 
-        public int Cancelled {
-            get { return _cancelled.Length; }
-        }
+        public int Cancelled { get { return _cancelled.Length; } }
 
-        public int Failed {
-            get { return _failed.Length; }
-        }
+        public int Failed { get { return _failed.Length; } }
 
-        public int RunInitializedCount {
-            get { return _runInitialized.Length; }
-        }
+        public int RunInitializedCount { get { return _runInitialized.Length; } }
 
-        public int RunDoneOnceCount {
-            get { return _runDoneOnce.Length; }
-        }
+        public int RunDoneOnceCount { get { return _runDoneOnce.Length; } }
 
         /// <summary>
         ///     The stresstests that are not finished.
         /// </summary>
-        public int Running {
-            get { return _totalTestCount - Finished; }
-        }
+        public int Running { get { return _totalTestCount - Finished; } }
 
-        public int Finished {
-            get { return OK + Cancelled + Failed; }
-        }
+        public int Finished { get { return OK + Cancelled + Failed; } }
 
         /// <summary>
         ///     To check wheter you can close the distributed test view without a warning or not.
         /// </summary>
-        public bool HasResults {
-            get { return _hasResults; }
-        }
+        public bool HasResults { get { return _hasResults; } }
 
         #endregion
 
@@ -256,11 +241,11 @@ namespace vApus.DistributedTesting {
         }
 
         private void SetvApusInstancesAndStresstestsInDb() {
-            _tileStresstestsWithDbIds = new Dictionary<TileStresstest, ulong>(_usedTileStresstests.Count);
+            _tileStresstestsWithDbIds = new Dictionary<TileStresstest, int>(_usedTileStresstests.Count);
             foreach (TileStresstest ts in _usedTileStresstests.Keys) {
                 var slave = ts.BasicTileStresstest.Slaves[0];
                 _resultsHelper.SetvApusInstance(slave.HostName, slave.IP, slave.Port, string.Empty, string.Empty, false);
-                ulong id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
+                int id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
                           ts.BasicTileStresstest.Connection.ConnectionString, ts.AdvancedTileStresstest.Log.ToString(), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
                           ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.Distribute.ToString(),
                           ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
@@ -275,7 +260,7 @@ namespace vApus.DistributedTesting {
         private void SendAndReceiveInitializeTest() {
             InvokeMessage("Initializing tests on slaves [Please, be patient]...");
             _sw.Start();
-            List<ulong> stresstestIdsInDb = new List<ulong>(_usedTileStresstests.Count);
+            List<int> stresstestIdsInDb = new List<int>(_usedTileStresstests.Count);
             foreach (var ts in _usedTileStresstests.Keys)
                 stresstestIdsInDb.Add(_tileStresstestsWithDbIds.ContainsKey(ts) ? _tileStresstestsWithDbIds[ts] : 0);
 
