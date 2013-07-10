@@ -9,6 +9,25 @@ using vApus.Util;
 
 namespace vApus.Results {
     public static class ReaderAndCombiner {
+        //private static Dictionary<string, List<int>> GetStresstestAndDividedIds(DatabaseActions databaseActions) {
+        //    var dict = new Dictionary<string, List<int>>();
+        //    if (databaseActions != null) {
+        //        var dt = databaseActions.GetDataTable("Select Id, Stresstest From Stresstests;");
+        //        foreach (DataRow row in dt.Rows) {
+        //            int id = (int)row.ItemArray[0];
+        //            string stresstest = row.ItemArray[1] as string;
+        //            string combined = TrimDividedPart(stresstest);
+        //            if (!dict.Keys.Contains(combined))
+        //                dict.Add(combined, new List<int>());
+
+        //            dict[combined].Add(id);
+        //        }
+
+        //        foreach (var l in dict.Values)
+        //            l.Sort();
+        //    }
+        //    return dict;
+        //}
         private static int[] GetStresstestIdsAndSiblings(DatabaseActions databaseActions, int[] stresstestIds) {
             var l = new List<int>();
             if (databaseActions != null) {
@@ -39,44 +58,62 @@ namespace vApus.Results {
         private static int[] GetStresstestResultIdsAndSiblings(DatabaseActions databaseActions, int[] stresstestResultIds) {
             var l = new List<int>();
             if (databaseActions != null) {
-                var dictStresstestStresstestResults = GetStresstestsAndDividedStresstestResultRows(databaseActions, new string[] { "Id" }, null);
+                //Link to FK table.
+                var dt = databaseActions.GetDataTable(string.Format("Select StresstestId From StresstestResults Where Id in({0});", stresstestResultIds.Combine(", ")));
 
-                var dt = databaseActions.GetDataTable("Select StresstestId From StresstestResults;");
-                foreach (string stresstest in dictStresstestStresstestResults.Keys) {
-                    var cancidates = new List<int>();
-                    foreach (DataRow row in dictStresstestStresstestResults[stresstest].Rows)
-                        cancidates.Add((int)row.ItemArray[0]);
+                var stresstestIds = new int[dt.Rows.Count];
+                int i = 0;
+                foreach (DataRow row in dt.Rows)
+                    stresstestIds[i++] = (int)row.ItemArray[0];
 
-                    foreach (DataRow row in dt.Rows) {
-                        if (cancidates.Contains((int)row.ItemArray[0])) {
-                            l.AddRange(cancidates);
-                            break;
-                        }
-                    }
-                }
+                stresstestIds = GetStresstestIdsAndSiblings(databaseActions, stresstestIds);
+
+                dt = databaseActions.GetDataTable(string.Format("Select Id From StresstestResults Where StresstestId in({0});", stresstestIds.Combine(", ")));
+
+                foreach (DataRow row in dt.Rows)
+                    l.Add((int)row.ItemArray[0]);
             }
+
             l.Sort();
             return l.ToArray();
         }
         private static int[] GetConcurrencyResultIdsAndSiblings(DatabaseActions databaseActions, int[] concurrencyResultIds) {
             var l = new List<int>();
             if (databaseActions != null) {
-                var dictStresstestConcurrencyResults = GetStresstestsAndDividedConcurrencyResultRows(databaseActions, new string[] { "Id", "StresstestResultId" }, null);
+                //Find to which combined stresstest the different concurrencies belong to.
+                var dt = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From ConcurrencyResults Where Id in({0});", concurrencyResultIds.Combine(", ")));
 
-                var dt = databaseActions.GetDataTable("Select StresstestResultId From ConcurrencyResults;");
-                foreach (string stresstest in dictStresstestConcurrencyResults.Keys)
-                    foreach (var crDt in dictStresstestConcurrencyResults[stresstest]) {
-                        var cancidates = new List<int>();
-                        foreach (DataRow row in crDt.Rows)
-                            cancidates.Add((int)row.ItemArray[0]);
+                foreach (DataRow row in dt.Rows) {
+                    int concurrencyResultId = (int)row["Id"];
+                    l.Add(concurrencyResultId);
 
-                        foreach (DataRow row in dt.Rows) {
-                            if (cancidates.Contains((int)row.ItemArray[0])) {
-                                l.AddRange(cancidates);
+                    int stresstestResultId = (int)row["StresstestResultId"];
+
+                    int[] stresstestResultIds = GetStresstestResultIdsAndSiblings(databaseActions, new int[] { stresstestResultId });
+
+                    if (stresstestResultIds.Length != 1) {
+                        //Find the index of the concurrency.
+                        int concurrencyIndex = 0;
+                        var filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From ConcurrencyResults Where StresstestResultId={0};", stresstestResultId));
+                        foreach (DataRow row2 in filterOnStresstestResultId.Rows) {
+                            if ((int)row2["Id"] == concurrencyResultId)
                                 break;
-                            }
+                            ++concurrencyIndex;
                         }
+
+                        //Find the other concurrency indices.
+                        for (int i = 0; i != stresstestResultIds.Length; i++)
+                            if (stresstestResultIds[i] != stresstestResultId) {
+                                filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id From ConcurrencyResults Where StresstestResultId={0};", stresstestResultIds[i]));
+                                if (concurrencyIndex < filterOnStresstestResultId.Rows.Count) {
+                                    DataRow row2 = filterOnStresstestResultId.Rows[concurrencyIndex];
+                                    int id = (int)row2["Id"];
+                                    if (!l.Contains(id))
+                                        l.Add(id);
+                                }
+                            }
                     }
+                }
             }
             l.Sort();
             return l.ToArray();
@@ -84,22 +121,40 @@ namespace vApus.Results {
         private static int[] GetRunResultIdsAndSiblings(DatabaseActions databaseActions, int[] runResultIds) {
             var l = new List<int>();
             if (databaseActions != null) {
-                var dictStresstestRunResults = GetStresstestsAndDividedRunResultRows(databaseActions, new string[] { "Id", "ConcurrencyResultId" }, null);
+                //Find to which concurrencies the runs belong to.
+                var dt = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From RunResults Where Id in({0});", runResultIds.Combine(", ")));
 
-                var dt = databaseActions.GetDataTable("Select ConcurrencyResultId From RunResults;");
-                foreach (string stresstest in dictStresstestRunResults.Keys)
-                    foreach (var crDt in dictStresstestRunResults[stresstest]) {
-                        var cancidates = new List<int>();
-                        foreach (DataRow row in crDt.Rows)
-                            cancidates.Add((int)row.ItemArray[0]);
+                foreach (DataRow row in dt.Rows) {
+                    int runResultId = (int)row["Id"];
+                    l.Add(runResultId);
 
-                        foreach (DataRow row in dt.Rows) {
-                            if (cancidates.Contains((int)row.ItemArray[0])) {
-                                l.AddRange(cancidates);
+                    int concurrencyResultId = (int)row["ConcurrencyResultId"];
+
+                    int[] concurrencyResultIds = GetConcurrencyResultIdsAndSiblings(databaseActions, new int[] { concurrencyResultId });
+
+                    if (concurrencyResultIds.Length != 1) {
+                        //Find the index of the run.
+                        int runIndex = 0;
+                        var filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From RunResults Where ConcurrencyResultId={0};", concurrencyResultId));
+                        foreach (DataRow row2 in filterOnConcurrencyResultId.Rows) {
+                            if ((int)row2["Id"] == runResultId)
                                 break;
-                            }
+                            ++runIndex;
                         }
+
+                        //Find the other concurrency indices.
+                        for (int i = 0; i != concurrencyResultIds.Length; i++)
+                            if (concurrencyResultIds[i] != concurrencyResultId) {
+                                filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id From RunResults Where ConcurrencyResultId={0};", concurrencyResultIds[i]));
+                                if (runIndex < filterOnConcurrencyResultId.Rows.Count) {
+                                    DataRow row2 = filterOnConcurrencyResultId.Rows[runIndex];
+                                    int id = (int)row2["Id"];
+                                    if (!l.Contains(id))
+                                        l.Add(id);
+                                }
+                            }
                     }
+                }
             }
             l.Sort();
             return l.ToArray();
@@ -165,7 +220,7 @@ namespace vApus.Results {
             return dataTable;
         }
         private static string GetValidSelect(string[] selectColumns) {
-            return (selectColumns == null) ? "*" : selectColumns.Combine(", ");
+            return (selectColumns == null || selectColumns.Length == 0) ? "*" : selectColumns.Combine(", ");
         }
         private static string GetValidWhere(string where, bool mustStartWithWhere) {
             if (where == null) {
@@ -190,7 +245,7 @@ namespace vApus.Results {
         /// <param name="columns">If not null the column "Stresstest" is added is not there.</param>
         /// <param name="stresstestIds"></param>
         /// <returns></returns>
-        private static Dictionary<string, DataTable> GetStresstestsAndDividedStresstestRows(DatabaseActions databaseActions, string[] selectColumns, params int[] stresstestIds) {
+        private static Dictionary<string, DataTable> GetStresstestsAndDividedStresstestRows(DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             var dict = new Dictionary<string, DataTable>();
             if (databaseActions != null) {
                 DataTable dt = null;
@@ -215,7 +270,7 @@ namespace vApus.Results {
         /// <summary>
         /// The number of result rows in a datatable is the number of divided stresstests.
         /// </summary>
-        private static Dictionary<string, DataTable> GetStresstestsAndDividedStresstestResultRows(DatabaseActions databaseActions, string[] selectColumns, string where, params int[] stresstestIds) {
+        private static Dictionary<string, DataTable> GetStresstestsAndDividedStresstestResultRows(DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             var dict = new Dictionary<string, DataTable>();
             if (databaseActions != null) {
 
@@ -236,10 +291,9 @@ namespace vApus.Results {
                 }
 
                 string select = GetValidSelect(selectColumns);
-                where = GetValidWhere(where, false);
                 foreach (string stresstest in dictStresstest.Keys) {
                     foreach (int stresstestId in dictStresstest[stresstest]) {
-                        dt = databaseActions.GetDataTable(string.Format("Select {0} From StresstestResults Where StresstestId={1}{2};", select, stresstestId, where));
+                        dt = databaseActions.GetDataTable(string.Format("Select {0} From StresstestResults Where StresstestId={1};", select, stresstestId));
                         if (!dict.ContainsKey(stresstest))
                             dict.Add(stresstest, MakeEmptyCopy(dt));
 
@@ -251,10 +305,10 @@ namespace vApus.Results {
         }
 
         /// <returns>Key: Stresstest, Value: List of data tables, each entry stands for one divided test.</returns>
-        private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedConcurrencyResultRows(DatabaseActions databaseActions, string[] selectColumns, string where, params int[] stresstestResultIds) {
+        private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedConcurrencyResultRows(DatabaseActions databaseActions, string where, int[] stresstestResultIds, params string[] selectColumns) {
             var dict = new Dictionary<string, List<DataTable>>();
             if (databaseActions != null) {
-                var dictStresstestResults = GetStresstestsAndDividedStresstestResultRows(databaseActions, new string[] { "Id" }, null);
+                var dictStresstestResults = GetStresstestsAndDividedStresstestResultRows(databaseActions, new int[0], "Id");
 
                 DataTable dt = null;
                 if (stresstestResultIds.Length == 0) {
@@ -282,20 +336,20 @@ namespace vApus.Results {
             return dict;
         }
         /// <returns>Key: Stresstest, Value: List of data tables, each entry stands for one divided test.</returns>
-        private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedRunResultRows(DatabaseActions databaseActions, string[] selectColumns, string where, params int[] concurrencyResultIds) {
+        private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedRunResultRows(DatabaseActions databaseActions, string where, int[] concurrencyResultIds, params string[] selectColumns) {
             var dict = new Dictionary<string, List<DataTable>>();
             if (databaseActions != null) {
-                var dictStresstestConcurrencyResults = GetStresstestsAndDividedConcurrencyResultRows(databaseActions, new string[] { "Id", "StresstestResultId" }, null);
+                var dictStresstestConcurrencyResults = GetStresstestsAndDividedConcurrencyResultRows(databaseActions, null, new int[0], "Id", "StresstestResultId");
 
                 DataTable dt = null;
                 if (concurrencyResultIds.Length == 0) {
                     dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From RunResults{1};", GetValidSelect(selectColumns),
+                        string.Format("Select {0} From RunResults{1} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
                         GetValidWhere(where, true)));
                 } else {
                     concurrencyResultIds = GetConcurrencyResultIdsAndSiblings(databaseActions, concurrencyResultIds);
                     dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From RunResults Where ConcurrencyResultId In({1}){2};", GetValidSelect(selectColumns),
+                        string.Format("Select {0} From RunResults Where ConcurrencyResultId In({1}){2} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
                         concurrencyResultIds.Combine(", "), GetValidWhere(where, false)));
                 }
 
@@ -318,7 +372,7 @@ namespace vApus.Results {
         private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedLogEntryResultRows(DatabaseActions databaseActions, string[] selectColumns, string where, params int[] runResultIds) {
             var dict = new Dictionary<string, List<DataTable>>();
             if (databaseActions != null) {
-                var dictStresstestRunResults = GetStresstestsAndDividedRunResultRows(databaseActions, new string[] { "Id", "ConcurrencyResultId" }, null);
+                var dictStresstestRunResults = GetStresstestsAndDividedRunResultRows(databaseActions, null, new int[0], "Id", "ConcurrencyResultId");
 
                 DataTable dt = null;
                 if (runResultIds.Length == 0) {
@@ -354,12 +408,18 @@ namespace vApus.Results {
         /// </summary>
         public static DataTable GetvApusInstances(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM vApusInstances"); }
 
+        public static DataTable GetStresstests(DatabaseActions databaseActions, params string[] selectColumns) {
+            return GetStresstests(databaseActions, new int[0], selectColumns);
+        }
+        public static DataTable GetStresstests(DatabaseActions databaseActions, int stresstestId, params string[] selectColumns) {
+            return GetStresstests(databaseActions, new int[] { stresstestId }, selectColumns);
+        }
         /// <param name="stresstestIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
-        public static DataTable GetStresstests(DatabaseActions databaseActions, string[] selectColumns = null, params int[] stresstestIds) {
+        public static DataTable GetStresstests(DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             //The select columns can place a column at another index.
             int stresstestIndex = 2;
 
-            if (selectColumns != null) {
+            if (selectColumns.Length != 0) {
                 stresstestIndex = selectColumns.IndexOf("Stresstest");
                 if (!selectColumns.Contains("Stresstest")) {
                     var copy = new string[selectColumns.Length + 1];
@@ -369,7 +429,7 @@ namespace vApus.Results {
                 }
             }
 
-            var stresstestsAndDividedRows = GetStresstestsAndDividedStresstestRows(databaseActions, selectColumns, stresstestIds);
+            var stresstestsAndDividedRows = GetStresstestsAndDividedStresstestRows(databaseActions, stresstestIds, selectColumns);
 
             DataTable combined = null;
 
@@ -389,21 +449,25 @@ namespace vApus.Results {
 
             return combined;
         }
-        /// <param name="vApusInstanceIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
-        public static DataTable GetStresstestResults(DatabaseActions databaseActions, string[] selectColumns = null, string where = null, params int[] stresstestIds) {
+
+        public static DataTable GetStresstestResults(DatabaseActions databaseActions, int stresstestId, params string[] selectColumns) {
+            return GetStresstestResults(databaseActions, new int[] { stresstestId }, selectColumns);
+        }
+        /// <param name="stresstestIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
+        public static DataTable GetStresstestResults(DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             int startedAtIndex = 2;
             int stoppedAtIndex = 3;
             int statusIndex = 4;
             int statusMessageIndex = 5;
 
-            if (selectColumns != null) {
+            if (selectColumns.Length != 0) {
                 startedAtIndex = selectColumns.IndexOf("StartedAt");
                 stoppedAtIndex = selectColumns.IndexOf("StoppedAt");
                 statusIndex = selectColumns.IndexOf("Status");
                 statusMessageIndex = selectColumns.IndexOf("StatusMessage");
             }
 
-            var stresstestsAndDividedRows = GetStresstestsAndDividedStresstestResultRows(databaseActions, selectColumns, where, stresstestIds);
+            var stresstestsAndDividedRows = GetStresstestsAndDividedStresstestResultRows(databaseActions, stresstestIds, selectColumns);
 
             DataTable combined = null;
 
@@ -449,13 +513,23 @@ namespace vApus.Results {
 
             return combined;
         }
-        /// <param name="vApusInstanceIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
-        public static DataTable GetConcurrencyResults(DatabaseActions databaseActions, string[] selectColumns = null, string where = null, params int[] stresstestResultIds) {
+
+        public static DataTable GetConcurrencyResults(DatabaseActions databaseActions, int stresstestResultId, params string[] selectColumns) {
+            return GetConcurrencyResults(databaseActions, null, stresstestResultId, selectColumns);
+        }
+        public static DataTable GetConcurrencyResults(DatabaseActions databaseActions, string where, int stresstestResultId, params string[] selectColumns) {
+            return GetConcurrencyResults(databaseActions, where, new int[] { stresstestResultId }, selectColumns);
+        }
+        public static DataTable GetConcurrencyResults(DatabaseActions databaseActions, int[] stresstestResultIds, params string[] selectColumns) {
+            return GetConcurrencyResults(databaseActions, null, stresstestResultIds, selectColumns);
+        }
+        /// <param name="stresstestResultIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
+        public static DataTable GetConcurrencyResults(DatabaseActions databaseActions, string where, int[] stresstestResultIds, params string[] selectColumns) {
             int concurrencyIndex = 2;
             int startedAtIndex = 3;
             int stoppedAtIndex = 4;
 
-            if (selectColumns != null) {
+            if (selectColumns.Length != 0) {
                 concurrencyIndex = selectColumns.IndexOf("Concurrency");
                 startedAtIndex = selectColumns.IndexOf("StartedAt");
                 stoppedAtIndex = selectColumns.IndexOf("StoppedAt");
@@ -467,7 +541,7 @@ namespace vApus.Results {
                     selectColumns = copy;
                 }
             }
-            var stresstestsAndDividedRows = GetStresstestsAndDividedConcurrencyResultRows(databaseActions, selectColumns, where, stresstestResultIds);
+            var stresstestsAndDividedRows = GetStresstestsAndDividedConcurrencyResultRows(databaseActions, where, stresstestResultIds, selectColumns);
 
             DataTable combined = null;
 
@@ -508,14 +582,24 @@ namespace vApus.Results {
 
             return combined;
         }
-        /// <param name="vApusInstanceIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
-        public static DataTable GetRunResults(DatabaseActions databaseActions, string[] selectColumns = null, string where = null, params int[] concurrencyResultIds) {
+
+        public static DataTable GetRunResults(DatabaseActions databaseActions, int concurrencyResultId, params string[] selectColumns) {
+            return GetRunResults(databaseActions, null, concurrencyResultId, selectColumns);
+        }
+        public static DataTable GetRunResults(DatabaseActions databaseActions, string where, int concurrencyResultId, params string[] selectColumns) {
+            return GetRunResults(databaseActions, where, new int[] { concurrencyResultId }, selectColumns);
+        }
+        public static DataTable GetRunResults(DatabaseActions databaseActions, int[] concurrencyResultIds, params string[] selectColumns) {
+            return GetRunResults(databaseActions, null, concurrencyResultIds, selectColumns);
+        }
+        /// <param name="concurrencyResultIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
+        public static DataTable GetRunResults(DatabaseActions databaseActions, string where, int[] concurrencyResultIds, params string[] selectColumns) {
             int totalLogEntryCountIndex = 3;
             int rerunCountIndex = 4;
             int startedAtIndex = 5;
             int stoppedAtIndex = 6;
 
-            if (selectColumns != null) {
+            if (selectColumns.Length != 0) {
                 totalLogEntryCountIndex = selectColumns.IndexOf("TotalLogEntryCount");
                 rerunCountIndex = selectColumns.IndexOf("RerunCount");
                 startedAtIndex = selectColumns.IndexOf("StartedAt");
@@ -528,7 +612,7 @@ namespace vApus.Results {
                     selectColumns = copy;
                 }
             }
-            var stresstestsAndDividedRows = GetStresstestsAndDividedRunResultRows(databaseActions, selectColumns, where, concurrencyResultIds);
+            var stresstestsAndDividedRows = GetStresstestsAndDividedRunResultRows(databaseActions, where, concurrencyResultIds, selectColumns);
 
             DataTable combined = null;
 
@@ -576,12 +660,23 @@ namespace vApus.Results {
 
             return combined;
         }
-        /// <param name="vApusInstanceIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
-        public static DataTable GetLogEntryResults(DatabaseActions databaseActions, string[] selectColumns = null, string where = null, params int[] runResultIds) {
+        /// <param name="runResultId">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
+
+        public static DataTable GetLogEntryResults(DatabaseActions databaseActions, int runResultId, params string[] selectColumns) {
+            return GetLogEntryResults(databaseActions, null, runResultId, selectColumns);
+        }
+        public static DataTable GetLogEntryResults(DatabaseActions databaseActions, string where, int runResultId, params string[] selectColumns) {
+            return GetLogEntryResults(databaseActions, where, new int[] { runResultId }, selectColumns);
+        }
+        public static DataTable GetLogEntryResults(DatabaseActions databaseActions, int[] runResultIds, params string[] selectColumns) {
+            return GetLogEntryResults(databaseActions, null, runResultIds, selectColumns);
+        }
+        /// <param name="runResultIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
+        public static DataTable GetLogEntryResults(DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
             int idIndex = 0;
             int runResultIdIndex = 1;
             int virtualUserIndex = 2;
-            if (selectColumns != null) {
+            if (selectColumns.Length != 0) {
                 idIndex = selectColumns.IndexOf("Id");
                 virtualUserIndex = selectColumns.IndexOf("VirtualUser");
                 runResultIdIndex = selectColumns.IndexOf("RunResultId");
@@ -593,83 +688,105 @@ namespace vApus.Results {
                     selectColumns = copy;
                 }
             }
-            var stresstestsAndDividedRows = GetStresstestsAndDividedLogEntryResultRows(databaseActions, selectColumns, where, runResultIds);
 
             DataTable combined = null;
             string virtualUserFirstPart = "vApus Thread Pool Thread #";
 
-            foreach (string stresstest in stresstestsAndDividedRows.Keys) {
-                var dividedParts = stresstestsAndDividedRows[stresstest];
-                ulong correctId = 0;
-                int correctRunResultId = 0;
-                var linkReplaceVirtualUsers = new Dictionary<string, string>();
-                int linkReplaceVirtualUsersCount = 0;
-                if (combined == null) {
-                    combined = dividedParts[0];
-                    if (idIndex != -1)
-                        correctId = (ulong)combined.Rows.Count;
+            //Instead of pivotting we need to update the ids and the virtual user names, however we need to do this for each divided run in the right order.
+            foreach (int runResultId in runResultIds) {
+                DataTable combinedRun = null;
 
-                    if (virtualUserIndex != -1 || runResultIdIndex != -1)
-                        foreach (DataRow row in combined.Rows) {
-                            if (virtualUserIndex != -1) {
-                                string virtualUser = row.ItemArray[virtualUserIndex] as string;
-                                if (!linkReplaceVirtualUsers.ContainsKey(virtualUser))
-                                    linkReplaceVirtualUsers.Add(virtualUser, null);
+                var stresstestsAndDividedRows = GetStresstestsAndDividedLogEntryResultRows(databaseActions, selectColumns, where, runResultId);
+
+                foreach (string stresstest in stresstestsAndDividedRows.Keys) {
+                    var dividedParts = stresstestsAndDividedRows[stresstest];
+                    ulong correctId = 0;
+                    int correctRunResultId = 0;
+                    var linkReplaceVirtualUsers = new Dictionary<string, string>();
+                    int linkReplaceVirtualUsersCount = 0;
+                    if (combinedRun == null) {
+                        combinedRun = dividedParts[0];
+
+                        //Only do this when there are multiple parts to be combined.
+                        if (dividedParts.Count != 1) {
+                            if (idIndex != -1)
+                                correctId = (ulong)combinedRun.Rows.Count;
+
+                            if (virtualUserIndex != -1 || runResultIdIndex != -1)
+                                foreach (DataRow row in combinedRun.Rows) {
+                                    if (virtualUserIndex != -1) {
+                                        string virtualUser = row.ItemArray[virtualUserIndex] as string;
+                                        if (!linkReplaceVirtualUsers.ContainsKey(virtualUser))
+                                            linkReplaceVirtualUsers.Add(virtualUser, null);
+                                    }
+
+                                    if (runResultIdIndex != -1 && correctRunResultId == 0)
+                                        correctRunResultId = (int)row.ItemArray[correctRunResultId];
+                                }
+                        }
+                    }
+
+                    //Add instead of merge, just increase the Id and the vApus Thread Pool Thread # if needed.
+                    string[] linkReplaceVirtualUsersKeys = new string[linkReplaceVirtualUsers.Count];
+                    linkReplaceVirtualUsers.Keys.CopyTo(linkReplaceVirtualUsersKeys, 0);
+                    for (int i = 1; i != dividedParts.Count; i++) {
+                        if (virtualUserIndex != -1) {
+                            linkReplaceVirtualUsersCount += linkReplaceVirtualUsers.Count;
+                            foreach (var s in linkReplaceVirtualUsersKeys) {
+                                int j = int.Parse(s.Substring(virtualUserFirstPart.Length)) + linkReplaceVirtualUsersCount;
+                                linkReplaceVirtualUsers[s] = virtualUserFirstPart + j;
                             }
-
-                            if (runResultIdIndex != -1 && correctRunResultId == 0)
-                                correctRunResultId = (int)row.ItemArray[correctRunResultId];
                         }
-                }
 
-                //Add instead of merge, just increase the Id and the vApus Thread Pool Thread # if needed.
-                string[]linkReplaceVirtualUsersKeys = new string[linkReplaceVirtualUsers.Count];
-                linkReplaceVirtualUsers.Keys.CopyTo(linkReplaceVirtualUsersKeys, 0);
-                for (int i = 1; i != dividedParts.Count; i++) {
-                    if (virtualUserIndex != -1) {
-                        linkReplaceVirtualUsersCount += linkReplaceVirtualUsers.Count;
-                        foreach (var s in linkReplaceVirtualUsersKeys) {
-                            int j = int.Parse(s.Substring(virtualUserFirstPart.Length)) + linkReplaceVirtualUsersCount;
-                            linkReplaceVirtualUsers[s] = virtualUserFirstPart + j;
+                        var dividedPart = dividedParts[i];
+                        foreach (DataRow row in dividedPart.Rows) {
+                            var itemArray = row.ItemArray;
+
+                            if (idIndex != -1)
+                                itemArray[idIndex] = ++correctId;
+
+                            if (runResultIdIndex != -1)
+                                itemArray[runResultIdIndex] = correctRunResultId;
+
+                            if (virtualUserIndex != -1)
+                                itemArray[virtualUserIndex] = linkReplaceVirtualUsers[itemArray[virtualUserIndex] as string];
+
+                            combinedRun.Rows.Add(itemArray);
                         }
                     }
 
-                    var dividedPart = dividedParts[i];
-                    foreach (DataRow row in dividedPart.Rows) {
-                        var itemArray = row.ItemArray;
+                    if (combined == null)
+                        combined = MakeEmptyCopy(combinedRun);
 
-                        if (idIndex != -1)
-                            itemArray[idIndex] = ++correctId;
-
-                        if(runResultIdIndex != -1)
-                            itemArray[runResultIdIndex] = correctRunResultId;
-
-                        if (virtualUserIndex != -1)
-                            itemArray[virtualUserIndex] = linkReplaceVirtualUsers[itemArray[virtualUserIndex] as string];
-
-                        combined.Rows.Add(itemArray);
-                    }
+                    foreach (DataRow row in combinedRun.Rows)
+                        combined.Rows.Add(row.ItemArray);
                 }
             }
-
             return combined;
         }
 
-        /// <param name="vApusInstanceIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
-        public static DataTable GetMonitors(DatabaseActions databaseActions, string[] selectColumns = null, params int[] stresstestIds) {
-            if (databaseActions != null) {
-                DataTable dt = null;
-
+        public static DataTable GetMonitors(DatabaseActions databaseActions, params string[] selectColumns) {
+            return GetMonitors(databaseActions, new int[0], selectColumns);
+        }
+        public static DataTable GetMonitors(DatabaseActions databaseActions, int stresstestId, params string[] selectColumns) {
+            return GetMonitors(databaseActions, new int[] { stresstestId }, selectColumns);
+        }
+        /// <param name="stresstestIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
+        public static DataTable GetMonitors(DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
+            DataTable dt = null;
+            if (databaseActions != null)
                 if (stresstestIds.Length == 0) {
                     dt = databaseActions.GetDataTable(string.Format("Select {0} From Monitors;", GetValidSelect(selectColumns)));
                 } else {
                     stresstestIds = GetStresstestIdsAndSiblings(databaseActions, stresstestIds);
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From Stresstests Where Id In({1});", GetValidSelect(selectColumns), stresstestIds.Combine(", ")));
+                    dt = databaseActions.GetDataTable(string.Format("Select {0} From Monitors Where StresstestId In({1});", GetValidSelect(selectColumns), stresstestIds.Combine(", ")));
                 }
-            }
-            return null;
+            return dt;
         }
-        public static DataTable GetMonitorResults(DatabaseActions databaseActions, string[] selectColumns = null, params int[] monitorIds) {
+        public static DataTable GetMonitorResults(DatabaseActions databaseActions, int monitorId, params string[] selectColumns) {
+            return GetMonitorResults(databaseActions, new int[] { monitorId }, selectColumns);
+        }
+        public static DataTable GetMonitorResults(DatabaseActions databaseActions, int[] monitorIds, params string[] selectColumns) {
             if (databaseActions != null)
                 return (monitorIds.Length == 0) ?
                     databaseActions.GetDataTable(string.Format("Select {0} From MonitorResults;", GetValidSelect(selectColumns))) :

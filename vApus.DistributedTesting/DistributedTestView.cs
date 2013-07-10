@@ -203,6 +203,7 @@ namespace vApus.DistributedTesting {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void testTreeView_AfterSelect(object sender, EventArgs e) {
+            bool wasSelectedBefore = _selectedTestTreeViewItem == sender;
             _selectedTestTreeViewItem = sender as ITreeViewItem;
             if (sender is TileStresstestTreeViewItem) {
                 var tstvi = sender as TileStresstestTreeViewItem;
@@ -212,7 +213,7 @@ namespace vApus.DistributedTesting {
                 distributedStresstestControl.Visible = false;
 
                 string tileStresstestToString = tstvi.TileStresstest.ToString();
-                if (fastResultsControl.Stresstest != tileStresstestToString) {
+                if (!wasSelectedBefore) {
                     fastResultsControl.SetConfigurationControlsAndMonitorLinkButtons(tileStresstestToString, tstvi.TileStresstest.BasicTileStresstest.Connection,
                        tstvi.TileStresstest.BasicTileStresstest.ConnectionProxy, tstvi.TileStresstest.AdvancedTileStresstest.Log, tstvi.TileStresstest.AdvancedTileStresstest.LogRuleSet,
                        tstvi.TileStresstest.BasicTileStresstest.Monitors, tstvi.TileStresstest.AdvancedTileStresstest.Concurrencies, tstvi.TileStresstest.AdvancedTileStresstest.Runs,
@@ -546,8 +547,13 @@ namespace vApus.DistributedTesting {
             if (_distributedTestMode == DistributedTestMode.Edit) return false;
 
             try {
-                _distributedTestCore.Initialize();
+                bool addedOneConcurrencyToTheFirstCloneForATest;
+                _distributedTestCore.Initialize(out addedOneConcurrencyToTheFirstCloneForATest);
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                    if (addedOneConcurrencyToTheFirstCloneForATest) 
+                        distributedStresstestControl.AppendMessages("The averages in the fast results for one or more tile stresstests will NOT be correct because one or more given concurrencies divided by the number of slaves is not an integer!" +
+                            "Please use the detailed results.\nSee the log for more details.", LogLevel.Warning);
+
                     fastResultsControl.SetStresstestInitialized();
 
                     //Initialize the monitors.

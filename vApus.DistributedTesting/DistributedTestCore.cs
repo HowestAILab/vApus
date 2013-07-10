@@ -173,7 +173,7 @@ namespace vApus.DistributedTesting {
         ///     Connects + sends tests
         /// </summary>
         /// <returns>Stresstests and the IDs in the db</returns>
-        public void Initialize() {
+        public void Initialize(out bool addedOneConcurrencyToTheFirstCloneForATest) {
             InvokeMessage("Initializing the Test.");
 
             //_ok = new string[] { };
@@ -185,18 +185,18 @@ namespace vApus.DistributedTesting {
             //_finishedHandled = false;
             //_hasResults = false;
 
-            Connect();
+            Connect(out addedOneConcurrencyToTheFirstCloneForATest);
             SetvApusInstancesAndStresstestsInDb();
             SendAndReceiveInitializeTest();
         }
 
-        private void Connect() {
+        private void Connect(out bool addedOneConcurrencyToTheFirstCloneForATest) {
             InvokeMessage("Connecting slaves...");
             _sw.Start();
 
             MasterSideCommunicationHandler.Init();
 
-            _usedTileStresstests = DivideEtImpera.DivideTileStresstestsOverSlaves(_distributedTest);
+            _usedTileStresstests = DivideEtImpera.DivideTileStresstestsOverSlaves(_distributedTest, out addedOneConcurrencyToTheFirstCloneForATest);
             _totalTestCount = _usedTileStresstests.Count;
 
             foreach (var dividedTileStresstest in _usedTileStresstests.Keys) {

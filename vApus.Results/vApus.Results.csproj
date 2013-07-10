@@ -61,8 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataAccess\Combine\ReaderAndCombiner.cs" />
-    <Compile Include="DataAccess\Copy of ResultsHelper.cs" />
+    <Compile Include="DataAccess\ReaderAndCombiner.cs" />
     <Compile Include="DataAccess\Schema.cs" />
     <Compile Include="DescriptionAndTagsInputDialog.cs">
       <SubType>Form</SubType>
