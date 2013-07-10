@@ -218,6 +218,7 @@
     <Compile Include="Connections\TestAllConnections.Designer.cs">
       <DependentUpon>TestAllConnections.cs</DependentUpon>
     </Compile>
+    <Compile Include="Connections\TestConnections.cs" />
     <Compile Include="Controls\ChartDialog.cs">
       <SubType>Form</SubType>
     </Compile>

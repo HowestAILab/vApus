@@ -348,6 +348,9 @@ namespace vApus.DistributedTesting {
                 MessageBox.Show("Could not start the distributed test because the number of runs for the different single stresstests are not equal to each other.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            TestConnections();
+
             if (InitDatabaseBeforeStart()) {
                 if (btnSchedule.Tag != null && btnSchedule.Tag is DateTime && (DateTime)btnSchedule.Tag > DateTime.Now)
                     ScheduleTest();
@@ -373,6 +376,29 @@ namespace vApus.DistributedTesting {
                         }
                 }
             return true;
+        }
+
+        private void TestConnections() {
+            distributedStresstestControl.AppendMessages("Testing the tile stresstest connections...");
+
+            var l = new List<Connection>();
+            foreach (var ts in _distributedTest.UsedTileStresstests) {
+                var connection = ts.BasicTileStresstest.Connection;
+                if (!l.Contains(connection))
+                    l.Add(connection);
+            }
+
+            var testConnections = new TestConnections();
+            testConnections.Message += testConnections_Message;
+
+            testConnections.Test(l);
+        }
+
+        private void testConnections_Message(object sender, TestConnections.TestWorkItem.MessageEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                if (!e.Succes) 
+                    distributedStresstestControl.AppendMessages("The master cannot connect to " + e.Connection + ". It is likely that the slave won't be able to connect also!\nThe test will continue regardlessly.\nDetails: " + e.Message, LogLevel.Warning);
+            }, null);
         }
 
         /// <summary>
@@ -550,7 +576,7 @@ namespace vApus.DistributedTesting {
                 bool addedOneConcurrencyToTheFirstCloneForATest;
                 _distributedTestCore.Initialize(out addedOneConcurrencyToTheFirstCloneForATest);
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    if (addedOneConcurrencyToTheFirstCloneForATest) 
+                    if (addedOneConcurrencyToTheFirstCloneForATest)
                         distributedStresstestControl.AppendMessages("The averages in the fast results for one or more tile stresstests will NOT be correct because one or more given concurrencies divided by the number of slaves is not an integer!" +
                             "Please use the detailed results.\nSee the log for more details.", LogLevel.Warning);
 
