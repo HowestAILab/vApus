@@ -199,8 +199,8 @@ namespace vApus.Stresstest {
             if (dt.Rows.Count != 0) {
                 DataRow dr = dt.Rows[dt.Rows.Count - 1];
 
-                //0 = stresstest, 1 = concurrency, last = throughput
-                for (int i = 2; i < dt.Columns.Count - 1; i++) {
+                //0 = stresstest, 1 = concurrency, second to last = throughput, last = errors
+                for (int i = 2; i < dt.Columns.Count - 2; i++) {
                     var o = dr.ItemArray[i];
                     double value = (o is double ? (double)o : double.Parse(o as string));
 
