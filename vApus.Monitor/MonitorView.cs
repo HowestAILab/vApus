@@ -177,7 +177,7 @@ namespace vApus.Monitor {
 
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
-            parameterPanel.Lock();
+            parameterPanel.Enabled = false;
             split.Panel2.Enabled = false;
 
             tvwCounters.Nodes.Clear();
@@ -231,7 +231,7 @@ namespace vApus.Monitor {
                 }
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
-                parameterPanel.Unlock();
+                parameterPanel.Enabled = true;
 
                 Cursor = Cursors.Default;
             }, null);
