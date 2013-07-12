@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -26,6 +27,7 @@ namespace vApus.DistributedTesting {
         #region Fields
 
         private readonly object _lock = new object();
+        private Win32WindowMessageHandler _msgHandler;
 
         private Schedule _schedule = null;
 
@@ -465,7 +467,10 @@ namespace vApus.DistributedTesting {
 
                 if (smartUpdate) {
                     if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound) {
-                        MessageBox.Show("In order to be able to update the used slaves the master must be up to date as well.\nPlease update vApus, then you can start the test.", "Smart Update Slaves", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        if (MessageBox.Show("In order to be able to update the used slaves the master must be up to date as well.\nDo you want to do this now?", "Smart Update Slaves",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) 
+                                Update(host, port, username, password, channel);
+
                         throw new Exception();
                     } else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.UpToDate) {
                         distributedStresstestControl.AppendMessages("Updating the slaves, this can take a while...");
@@ -495,7 +500,33 @@ namespace vApus.DistributedTesting {
                 Stop();
             }
         }
+        private void Update(string host, int port, string username, string password, int channel) {
+            Cursor = Cursors.WaitCursor;
+            string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
+            if (File.Exists(path)) {
+                var process = new Process();
+                process.EnableRaisingEvents = true;
+                process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " + port + " " +
+                    username + " " + password + " " + channel + " " + false + " " + false);
 
+                Enabled = false;
+
+                process.Exited += updateProcess_Exited;
+                process.Start();
+            } else {
+                MessageBox.Show("vApus could not be updated because the update tool was not found!", string.Empty,
+                                MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+            }
+            Cursor = Cursors.Default;
+        }
+        private void updateProcess_Exited(object sender, EventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                Enabled = true;
+                _msgHandler.PostMessage();
+
+                UpdateNotifier.Refresh();
+            }, null);
+        }
         /// <summary>
         ///     A remote desktop is needed in order for the distributed test to work.
         /// </summary>
