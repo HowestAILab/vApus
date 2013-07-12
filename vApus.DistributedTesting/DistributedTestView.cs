@@ -111,6 +111,8 @@ namespace vApus.DistributedTesting {
             : base(solutionComponent, args) {
             InitializeComponent();
 
+            _msgHandler = new Win32WindowMessageHandler();
+
             SetDistributedTest(solutionComponent as DistributedTest);
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
