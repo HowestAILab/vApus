@@ -6,10 +6,8 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -396,7 +394,7 @@ namespace vApus.DistributedTesting {
 
         private void testConnections_Message(object sender, TestConnections.TestWorkItem.MessageEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                if (!e.Succes) 
+                if (!e.Succes)
                     distributedStresstestControl.AppendMessages("The master cannot connect to " + e.Connection + ". It is likely that the slave won't be able to connect also!\nThe test will continue regardlessly.\nDetails: " + e.Message, LogLevel.Warning);
             }, null);
         }
@@ -792,7 +790,8 @@ namespace vApus.DistributedTesting {
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorBeforeBogusConcurrencyResult, monitorResultCache));
                     foreach (var concurrencyMetrics in testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics())
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetConcurrencyMetrics(monitorResultCache.Monitor, concurrencyMetrics, monitorResultCache));
-                    if (_monitorAfterBogusConcurrencyResult != null)
+
+                    if (_monitorAfterCountDown == null && _monitorAfterBogusConcurrencyResult != null)
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorAfterBogusConcurrencyResult, monitorResultCache));
 
 
@@ -800,7 +799,8 @@ namespace vApus.DistributedTesting {
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorBeforeBogusRunResult, monitorResultCache));
                     foreach (var runMetrics in testProgressMessage.StresstestMetricsCache.GetRunMetrics())
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetRunMetrics(monitorResultCache.Monitor, runMetrics, monitorResultCache));
-                    if (_monitorAfterBogusRunResult != null)
+
+                    if (_monitorAfterCountDown == null && _monitorAfterBogusRunResult != null)
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorAfterBogusRunResult, monitorResultCache));
                 }
             }
@@ -1044,8 +1044,8 @@ namespace vApus.DistributedTesting {
             if (monitorAfter && monitorAfterTime != 0 && runningMonitors != 0) {
                 int countdownTime = monitorAfterTime * 60000;
                 _monitorAfterCountDown = new Countdown(countdownTime, 5000);
-                _monitorAfterCountDown.Tick += monitorAfterCountdown_Tick;
-                _monitorAfterCountDown.Stopped += monitorAfterCountdown_Stopped;
+                _monitorAfterCountDown.Tick += _monitorAfterCountDown_Tick;
+                _monitorAfterCountDown.Stopped += monitorAfterCountDown_Stopped;
 
                 _monitorAfterBogusConcurrencyResult = new ConcurrencyResult(-1, 1);
                 _monitorAfterBogusRunResult = new RunResult(-1, 0);
@@ -1250,7 +1250,7 @@ namespace vApus.DistributedTesting {
             } catch (Exception ex) { HandleInitializeOrStartException(ex); }
         }
 
-        private void monitorAfterCountdown_Tick(object sender, EventArgs e) {
+        private void _monitorAfterCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 try {
                     if (_monitorAfterBogusConcurrencyResult != null)
@@ -1288,7 +1288,7 @@ namespace vApus.DistributedTesting {
 #endif
             }, null);
         }
-        private void monitorAfterCountdown_Stopped(object sender, EventArgs e) {
+        private void monitorAfterCountDown_Stopped(object sender, EventArgs e) {
             if (_monitorAfterBogusConcurrencyResult != null) {
                 var stoppedAt = DateTime.Now;
                 var difference = stoppedAt - _monitorAfterBogusConcurrencyResult.StartedAt;
