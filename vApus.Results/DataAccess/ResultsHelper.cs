@@ -1238,9 +1238,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     stresstestIds = new int[stresstests.Rows.Count];
                     for (int i = 0; i != stresstestIds.Length; i++)
                         stresstestIds[i] = (int)stresstests.Rows[i].ItemArray[0];
-                } else {
-                    stresstestIds = new int[] { stresstestIds[0] };
-                }
+                } 
 
                 var averageUserActions = GetAverageUserActionResults(new CancellationToken(), stresstestIds);
                 if (averageUserActions == null) return null;

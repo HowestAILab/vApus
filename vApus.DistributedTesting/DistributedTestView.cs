@@ -468,8 +468,8 @@ namespace vApus.DistributedTesting {
                 if (smartUpdate) {
                     if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound) {
                         if (MessageBox.Show("In order to be able to update the used slaves the master must be up to date as well.\nDo you want to do this now?", "Smart Update Slaves",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) 
-                                Update(host, port, username, password, channel);
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                            Update(host, port, username, password, channel);
 
                         throw new Exception();
                     } else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.UpToDate) {
@@ -1111,17 +1111,16 @@ namespace vApus.DistributedTesting {
                         stresstestIds = new int[] { dbId };
                 } else if (_selectedTestTreeViewItem is TileTreeViewItem) {
                     var l = new List<int>();
-                    var ttvi = _selectedTestTreeViewItem as TileTreeViewItem;
-                    foreach (var ctrl in ttvi.ChildControls)
-                        if (ctrl is TileStresstestTreeViewItem) {
-                            var tstvi = ctrl as TileStresstestTreeViewItem;
-                            int dbId = _distributedTestCore.GetDbId(tstvi.TileStresstest);
+                    var tile = (_selectedTestTreeViewItem as TileTreeViewItem).Tile;
+                    foreach (TileStresstest ts in tile)
+                        if (ts.Use) {
+                            int dbId = _distributedTestCore.GetDbId(ts);
                             if (dbId != -1)
                                 l.Add(dbId);
                         }
                     stresstestIds = l.ToArray();
                 } else if (_selectedTestTreeViewItem is DistributedTestTreeViewItem) {
-                    stresstestIds = new int[] { };
+                    stresstestIds = new int[0];
                 }
             }
             if (stresstestIds == null) {
