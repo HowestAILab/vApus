@@ -1234,7 +1234,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (stresstestIds.Length == 0) {
                     var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, "Id");
                     if (stresstests == null || stresstests.Rows.Count == 0) return null;
-                    stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
+
+                    stresstestIds = new int[stresstests.Rows.Count];
+                    for (int i = 0; i != stresstestIds.Length; i++)
+                        stresstestIds[i] = (int)stresstests.Rows[i].ItemArray[0];
                 } else {
                     stresstestIds = new int[] { stresstestIds[0] };
                 }

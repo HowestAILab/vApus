@@ -53,17 +53,18 @@ namespace vApus.DistributedTesting {
                     concurrencies[i] = concurrency / slaves;
 
                     int mod = concurrency % slaves;
-                    notACleanDivision = mod != 0;
 
-                    if (notACleanDivision) {
-                        addOnesPerConcurrency.Add(DetermineModConcurrencyOverSlaves(mod, slaves));
+                    bool[] addOne = new bool[slaves];
+                    for (int j = 0; j != mod; j++)
+                        addOne[j] = true;
+                    addOnesPerConcurrency.Add(addOne);
+
+                    notACleanDivision = mod != 0;
+                    if (notACleanDivision) 
                         LogWrapper.LogByLevel(tileStresstest.ToString() +
                             " The averages in the fast results will NOT be correct because one or more given concurrencies divided by the number of slaves is not an integer! Please use the detailed results." +
                             "\nIn the following example both outcomes should be the same, but that is not possible:\n\t3 concurrencies; 1 slave; a log of one entry.\n\tAvg.Response time: (10 + 7 + 9) / 3 = 26 / 3 = 8,67." +
                             "\n\t---\n\t3 concurrencies; 2 slaves; a log of one entry.\n\tAvg.Response time: (10 + (7 + 9) / 2) / 2 = 18 / 2 = 9.", LogLevel.Warning);
-                    } else {
-                        addOnesPerConcurrency.Add(new bool[slaves]);
-                    }
                 }
 
                 for (int i = 0; i != tileStresstest.BasicTileStresstest.Slaves.Length; i++) {
@@ -86,21 +87,6 @@ namespace vApus.DistributedTesting {
                 }
             }
             return dividedTileStresstestsAndOriginal;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mod"></param>
-        /// <param name="slaves"></param>
-        /// <returns>Returns a bool at each slave index if there must be added one to the divided concurrency for a slave.</returns>
-        private static bool[] DetermineModConcurrencyOverSlaves(int mod, int slaves) {
-            bool[] addOne = new bool[slaves];
-
-            for (int i = 0; i != mod; i++)
-                addOne[i] = true;
-
-            return addOne;
         }
     }
 }

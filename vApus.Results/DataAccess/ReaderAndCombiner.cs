@@ -294,10 +294,13 @@ namespace vApus.Results {
                 foreach (string stresstest in dictStresstest.Keys) {
                     foreach (int stresstestId in dictStresstest[stresstest]) {
                         dt = databaseActions.GetDataTable(string.Format("Select {0} From StresstestResults Where StresstestId={1};", select, stresstestId));
-                        if (!dict.ContainsKey(stresstest))
-                            dict.Add(stresstest, MakeEmptyCopy(dt));
 
-                        dict[stresstest].Rows.Add(dt.Rows[0].ItemArray);
+                        if (dt.Rows.Count != 0) {
+                            if (!dict.ContainsKey(stresstest))
+                                dict.Add(stresstest, MakeEmptyCopy(dt));
+
+                            dict[stresstest].Rows.Add(dt.Rows[0].ItemArray);
+                        }
                     }
                 }
             }
@@ -329,8 +332,12 @@ namespace vApus.Results {
                         foreach (DataRow toAdd in dt.Rows)
                             if (toAdd["StresstestResultId"].Equals(row["Id"]))
                                 emptyCopy.Rows.Add(toAdd.ItemArray);
-                        dict[stresstest].Add(emptyCopy);
+
+                        if (emptyCopy.Rows.Count != 0)
+                            dict[stresstest].Add(emptyCopy);
                     }
+                    if (dict[stresstest].Count == 0)
+                        dict.Remove(stresstest);
                 }
             }
             return dict;
@@ -357,13 +364,16 @@ namespace vApus.Results {
                     dict.Add(stresstest, new List<DataTable>());
                     foreach (var crDt in dictStresstestConcurrencyResults[stresstest]) {
                         var emptyCopy = MakeEmptyCopy(dt);
-                        foreach (DataRow row in crDt.Rows) {
+                        foreach (DataRow row in crDt.Rows) 
                             foreach (DataRow toAdd in dt.Rows)
                                 if (toAdd["ConcurrencyResultId"].Equals(row["Id"]))
                                     emptyCopy.Rows.Add(toAdd.ItemArray);
-                        }
-                        dict[stresstest].Add(emptyCopy);
+                        
+                        if (emptyCopy.Rows.Count != 0)
+                            dict[stresstest].Add(emptyCopy);
                     }
+                    if (dict[stresstest].Count == 0)
+                        dict.Remove(stresstest);
                 }
             }
             return dict;
@@ -386,15 +396,18 @@ namespace vApus.Results {
 
                 foreach (string stresstest in dictStresstestRunResults.Keys) {
                     dict.Add(stresstest, new List<DataTable>());
-                    foreach (var crDt in dictStresstestRunResults[stresstest]) {
+                    foreach (var rrDt in dictStresstestRunResults[stresstest]) {
                         var emptyCopy = MakeEmptyCopy(dt);
-                        foreach (DataRow row in crDt.Rows) {
+                        foreach (DataRow row in rrDt.Rows) 
                             foreach (DataRow toAdd in dt.Rows)
                                 if (toAdd["RunResultId"].Equals(row["Id"]))
                                     emptyCopy.Rows.Add(toAdd.ItemArray);
-                        }
-                        dict[stresstest].Add(emptyCopy);
+                        
+                        if (emptyCopy.Rows.Count != 0)
+                            dict[stresstest].Add(emptyCopy);
                     }
+                    if (dict[stresstest].Count == 0)
+                        dict.Remove(stresstest);
                 }
             }
             return dict;
