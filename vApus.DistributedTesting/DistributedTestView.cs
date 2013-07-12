@@ -573,10 +573,10 @@ namespace vApus.DistributedTesting {
             if (_distributedTestMode == DistributedTestMode.Edit) return false;
 
             try {
-                bool addedOneConcurrencyToTheFirstCloneForATest;
-                _distributedTestCore.Initialize(out addedOneConcurrencyToTheFirstCloneForATest);
+                bool notACleanDivision;
+                _distributedTestCore.Initialize(out notACleanDivision);
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    if (addedOneConcurrencyToTheFirstCloneForATest)
+                    if (notACleanDivision)
                         distributedStresstestControl.AppendMessages("The averages in the fast results for one or more tile stresstests will NOT be correct because one or more given concurrencies divided by the number of slaves is not an integer!" +
                             "Please use the detailed results.\nSee the log for more details.", LogLevel.Warning);
 

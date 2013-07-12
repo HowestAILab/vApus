@@ -19,16 +19,16 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <param name="distributedTest"></param>
         /// <returns>key = Divided, value = original</returns>
-        public static Dictionary<TileStresstest, TileStresstest> DivideTileStresstestsOverSlaves(DistributedTest distributedTest, out bool addedOneConcurrencyToTheFirstCloneForATest) {
-            addedOneConcurrencyToTheFirstCloneForATest = false;
+        public static Dictionary<TileStresstest, TileStresstest> DivideTileStresstestsOverSlaves(DistributedTest distributedTest, out bool notACleanDivision) {
+            notACleanDivision = false;
             var dividedAndOriginalTileStresstests = new Dictionary<TileStresstest, TileStresstest>();
             foreach (TileStresstest tileStresstest in distributedTest.UsedTileStresstests) {
                 bool b;
                 foreach (var kvp in DivideTileStresstestOverSlaves(tileStresstest, out b))
                     dividedAndOriginalTileStresstests.Add(kvp.Key, kvp.Value);
-               
+
                 if (b)
-                    addedOneConcurrencyToTheFirstCloneForATest = true;
+                    notACleanDivision = true;
             }
 
             return dividedAndOriginalTileStresstests;
@@ -38,27 +38,32 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <param name="tileStresstest">A tile stresstest that is 'Used'.</param>
         /// <returns></returns>
-        private static Dictionary<TileStresstest, TileStresstest> DivideTileStresstestOverSlaves(TileStresstest tileStresstest, out bool addedOneConcurrencyToTheFirstClone) {
-            addedOneConcurrencyToTheFirstClone = false;
-            int count = tileStresstest.BasicTileStresstest.SlaveIndices.Length;
-            var dividedTileStresstestsAndOriginal = new Dictionary<TileStresstest, TileStresstest>(count);
-            if (count == 1) {
+        private static Dictionary<TileStresstest, TileStresstest> DivideTileStresstestOverSlaves(TileStresstest tileStresstest, out bool notACleanDivision) {
+            notACleanDivision = false;
+            int slaves = tileStresstest.BasicTileStresstest.SlaveIndices.Length;
+            var dividedTileStresstestsAndOriginal = new Dictionary<TileStresstest, TileStresstest>(slaves);
+            if (slaves == 1) {
                 dividedTileStresstestsAndOriginal.Add(tileStresstest, tileStresstest);
-            } else if (count != 0) {
+            } else if (slaves != 0) {
+                var addOnesPerConcurrency = new List<bool[]>();
+
                 var concurrencies = new int[tileStresstest.AdvancedTileStresstest.Concurrencies.Length];
-                var addOneToFirstClone = new bool[concurrencies.Length]; //When numbers after the dot.
                 for (int i = 0; i != concurrencies.Length; i++) {
                     int concurrency = tileStresstest.AdvancedTileStresstest.Concurrencies[i];
-                    concurrencies[i] = concurrency / count;
+                    concurrencies[i] = concurrency / slaves;
 
-                    addedOneConcurrencyToTheFirstClone = concurrency % count != 0;
-                    addOneToFirstClone[i] = addedOneConcurrencyToTheFirstClone;
+                    int mod = concurrency % slaves;
+                    notACleanDivision = mod != 0;
 
-                    if (addedOneConcurrencyToTheFirstClone) 
-                        LogWrapper.LogByLevel(tileStresstest.ToString() + 
+                    if (notACleanDivision) {
+                        addOnesPerConcurrency.Add(DetermineModConcurrencyOverSlaves(mod, slaves));
+                        LogWrapper.LogByLevel(tileStresstest.ToString() +
                             " The averages in the fast results will NOT be correct because one or more given concurrencies divided by the number of slaves is not an integer! Please use the detailed results." +
-                            "\nIn the following example both outcomes should be the same, but that is not possible:\n\t3 concurrencies; 1 slave; a log of one entry.\n\tAvg.Response time: (10 + 7 + 9) / 3 = 26 / 3 = 8,67." + 
+                            "\nIn the following example both outcomes should be the same, but that is not possible:\n\t3 concurrencies; 1 slave; a log of one entry.\n\tAvg.Response time: (10 + 7 + 9) / 3 = 26 / 3 = 8,67." +
                             "\n\t---\n\t3 concurrencies; 2 slaves; a log of one entry.\n\tAvg.Response time: (10 + (7 + 9) / 2) / 2 = 18 / 2 = 9.", LogLevel.Warning);
+                    } else {
+                        addOnesPerConcurrency.Add(new bool[slaves]);
+                    }
                 }
 
                 for (int i = 0; i != tileStresstest.BasicTileStresstest.Slaves.Length; i++) {
@@ -70,18 +75,32 @@ namespace vApus.DistributedTesting {
                     dividedTileStresstestsAndOriginal.Add(clone, tileStresstest);
                 }
 
-                if (addOneToFirstClone.Contains(true)) {
-                    var first = new List<int>(concurrencies);
-                    for (int i = 0; i != addOneToFirstClone.Length; i++)
-                        if (addOneToFirstClone[i])
-                            ++first[i];
-                    foreach (var clone in dividedTileStresstestsAndOriginal.Keys) {
-                        clone.AdvancedTileStresstest.Concurrencies = first.ToArray();
-                        break;
-                    }
+                //Add the mod to the concurrencies.
+                for (int j = 0; j != addOnesPerConcurrency.Count; j++) {
+                    var addOnes = addOnesPerConcurrency[j];
+
+                    int k = 0;
+                    foreach (var clone in dividedTileStresstestsAndOriginal.Keys)
+                        if (addOnes[k++])
+                            clone.AdvancedTileStresstest.Concurrencies[j] += 1;
                 }
             }
             return dividedTileStresstestsAndOriginal;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mod"></param>
+        /// <param name="slaves"></param>
+        /// <returns>Returns a bool at each slave index if there must be added one to the divided concurrency for a slave.</returns>
+        private static bool[] DetermineModConcurrencyOverSlaves(int mod, int slaves) {
+            bool[] addOne = new bool[slaves];
+
+            for (int i = 0; i != mod; i++)
+                addOne[i] = true;
+
+            return addOne;
         }
     }
 }
