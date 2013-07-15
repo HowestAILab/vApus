@@ -7,7 +7,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -32,16 +31,12 @@ namespace vApus.Monitor {
 
         #region Fields
 
-        //Point the solution component to here.
         private readonly ActiveObject _activeObject = new ActiveObject();
         private readonly Monitor _monitor;
 
         private readonly Dictionary<Parameter, object> _parametersWithValues = new Dictionary<Parameter, object>();
         private readonly WDYHDel _wdyhDel;
 
-        //The refresht time of the counter pushing In ms 
-
-        private string _configuration = string.Empty;
         private bool _forStresstest;
         private IMonitorProxy _monitorProxy;
         private string _previousFilter;
@@ -60,9 +55,7 @@ namespace vApus.Monitor {
             get { return _monitor; }
         }
 
-        public string Configuration {
-            get { return _configuration; }
-        }
+        public string Configuration { get; private set; }
         public bool IsRunning {
             get {
                 bool isRunning = false;
@@ -216,7 +209,7 @@ namespace vApus.Monitor {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (exception == null) {
                     btnConfiguration.Enabled = (configuration != null);
-                    _configuration = configuration;
+                    Configuration = configuration;
                     try { FillEntities(wdyh); } catch (Exception ex) { exception = ex; }
                 }
 
@@ -599,8 +592,8 @@ namespace vApus.Monitor {
         }
 
         private void btnConfiguration_Click(object sender, EventArgs e) {
-            if (_configuration != string.Empty)
-                (new ConfigurationDialog(_configuration)).ShowDialog();
+            if (string.IsNullOrEmpty(Configuration))
+                (new ConfigurationDialog(Configuration)).ShowDialog();
         }
 
         private void btnStart_Click(object sender, EventArgs e) {
@@ -917,9 +910,10 @@ namespace vApus.Monitor {
                     TreeNode counterNode = null;
 
                     //Search from end (faster) if the counter node already exists.
+                    //The number of instances is important, it is possible that not each instance has the same entities for a counter.
                     for (int j = tvwCounters.Nodes.Count - 1; j != -1; j--) {
                         TreeNode node = tvwCounters.Nodes[j];
-                        if (node.Text == counter) {
+                        if (node.Text == counter && node.Nodes.Count == counterInfo.Instances.Count) {
                             counterNode = node;
                             break;
                         }
@@ -1134,7 +1128,7 @@ namespace vApus.Monitor {
             split.Panel2.Enabled = false;
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
-            parameterPanel.Lock();
+            parameterPanel.Enabled = false;
 
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
@@ -1251,7 +1245,7 @@ namespace vApus.Monitor {
                 split.Panel2.Enabled = true;
                 btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
-                parameterPanel.Unlock();
+                parameterPanel.Enabled = true;
 
                 if (!toolStrip.Visible) {
                     //Releasing it from stresstest if any

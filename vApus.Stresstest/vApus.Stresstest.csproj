@@ -339,18 +339,6 @@
     <Compile Include="Connections\Proxies\Panels\AddReferences.designer.cs">
       <DependentUpon>AddReferences.cs</DependentUpon>
     </Compile>
-    <Compile Include="Connections\Proxies\CodeBlock.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Connections\Proxies\CodeBlock.designer.cs">
-      <DependentUpon>CodeBlock.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Connections\Proxies\CodeBlockTextBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Connections\Proxies\CodeBlockTextBox.designer.cs">
-      <DependentUpon>CodeBlockTextBox.cs</DependentUpon>
-    </Compile>
     <Compile Include="Connections\Proxies\Panels\Compile.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -466,12 +454,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\Panels\AddReferences.resx">
       <DependentUpon>AddReferences.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\CodeBlock.resx">
-      <DependentUpon>CodeBlock.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\CodeBlockTextBox.resx">
-      <DependentUpon>CodeBlockTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\Panels\Compile.resx">
       <DependentUpon>Compile.cs</DependentUpon>

@@ -5,12 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using FastColoredTextBoxNS;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using FastColoredTextBoxNS;
 using vApus.SolutionTree;
 using vApus.Util;
 

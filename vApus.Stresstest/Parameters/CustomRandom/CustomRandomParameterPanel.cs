@@ -5,70 +5,57 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class CustomRandomParameterPanel : UserControl
-    {
-        private CustomRandomParameter _parameter;
-
-        public CustomRandomParameterPanel()
-        {
-            InitializeComponent();
-        }
+namespace vApus.Stresstest {
+    public partial class CustomRandomParameterPanel : UserControl {
+        private CSharpTextStyle _csharpTextStyle;
 
         /// <summary>
         ///     Call Init(...) to set.
         /// </summary>
-        public CustomRandomParameter Parameter
-        {
-            get { return _parameter; }
+        public CustomRandomParameter Parameter { get; private set; }
+
+        public CustomRandomParameterPanel() {
+            InitializeComponent();
         }
 
-        public void Init(SolutionComponent solutionComponent)
-        {
-            cbGenerate.CodeTextChangedDelayed -= cbGenerate_CodeTextChangedDelayed;
+        public void Init(SolutionComponent solutionComponent) {
+            ctxtGenerate.TextChangedDelayed -= ctxtGenerate_TextChangedDelayed;
 
-            _parameter = solutionComponent as CustomRandomParameter;
-            compileCustomRandom.Document = cbGenerate;
-            compileCustomRandom.Parameter = _parameter;
+            Parameter = solutionComponent as CustomRandomParameter;
+            compileCustomRandom.Document = ctxtGenerate;
+            compileCustomRandom.Parameter = Parameter;
 
-            cbGenerate.ShowLineNumbers = true;
-            cbGenerate.Code = _parameter.GenerateFunction;
-            cbGenerate.RefreshLineNumbers(2);
-            cbGenerate.CodeTextChangedDelayed += cbGenerate_CodeTextChangedDelayed;
+            ctxtGenerate.ShowLineNumbers = true;
+            _csharpTextStyle = new CSharpTextStyle(ctxtGenerate);
+            ctxtGenerate.Text = Parameter.GenerateFunction;
+            ctxtGenerate.TextChangedDelayed += ctxtGenerate_TextChangedDelayed;
 
             chkUnique.CheckedChanged -= chkUnique_CheckedChanged;
-            chkUnique.Checked = _parameter.Unique;
+            chkUnique.Checked = Parameter.Unique;
             chkUnique.CheckedChanged += chkUnique_CheckedChanged;
         }
 
-        private void cbGenerate_CodeTextChangedDelayed(object sender, EventArgs e)
-        {
-            cbGenerate.RefreshLineNumbers(2);
-            _parameter.GenerateFunction = cbGenerate.Code;
-            _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        private void ctxtGenerate_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
+            Parameter.GenerateFunction = ctxtGenerate.Text;
+            Parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void compileCustomRandom_CompileErrorButtonClicked(object sender,
-                                                                   TestCustomRandom.CompileErrorButtonClickedEventArgs e)
-        {
-            e.CodePart.SelectLine(e.LineNumber);
+        private void compileCustomRandom_CompileErrorButtonClicked(object sender, TestCustomRandom.CompileErrorButtonClickedEventArgs e) {
+            ctxtGenerate.SelectLine(e.LineNumber);
         }
 
-        internal void TryCompileAndTestCode(out Exception exception)
-        {
+        internal void TryCompileAndTestCode(out Exception exception) {
             compileCustomRandom.TryCompileAndTestCode(out exception);
         }
 
-        private void chkUnique_CheckedChanged(object sender, EventArgs e)
-        {
-            _parameter.Unique = chkUnique.Checked;
-            _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, null);
+        private void chkUnique_CheckedChanged(object sender, EventArgs e) {
+            Parameter.Unique = chkUnique.Checked;
+            Parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, null);
         }
     }
 }

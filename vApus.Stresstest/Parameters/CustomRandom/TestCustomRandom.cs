@@ -12,12 +12,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class TestCustomRandom : UserControl
-    {
-        public TestCustomRandom()
-        {
+namespace vApus.Stresstest {
+    public partial class TestCustomRandom : UserControl {
+        public TestCustomRandom() {
             InitializeComponent();
         }
 
@@ -27,8 +24,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="deleteTempFiles"></param>
         /// <returns>bull if fails</returns>
-        internal void TryCompileAndTestCode(out Exception exception)
-        {
+        internal void TryCompileAndTestCode(out Exception exception) {
             Cursor = Cursors.WaitCursor;
             flpCompileLog.Controls.Clear();
 
@@ -40,8 +36,7 @@ namespace vApus.Stresstest
             Cursor = Cursors.Default;
         }
 
-        private void TryCompile(out Exception exception)
-        {
+        private void TryCompile(out Exception exception) {
             exception = null;
             CompilerResults results = Parameter.CreateInstance();
 
@@ -50,8 +45,7 @@ namespace vApus.Stresstest
 
             lblCount.Text = string.Empty;
 
-            foreach (CompilerError errorOrWarning in results.Errors)
-            {
+            foreach (CompilerError errorOrWarning in results.Errors) {
                 if (errorOrWarning.IsWarning)
                     ++warnings;
                 else
@@ -72,25 +66,20 @@ namespace vApus.Stresstest
                 exception = new Exception("The custom code does not compile!\nPlease check it for errors.");
         }
 
-        private void TestCode(out Exception exception)
-        {
+        private void TestCode(out Exception exception) {
             exception = null;
 
             var values = new string[3];
             int index = 0;
-            try
-            {
-                for (int i = 0; i != values.Length; i++)
-                {
+            try {
+                for (int i = 0; i != values.Length; i++) {
                     Parameter.Next();
                     values[i] = Parameter.Value;
 
                     index = i;
                 }
                 AddSuccessButton(values);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 exception = ex;
 
                 for (int i = index; i != values.Length; i++)
@@ -105,14 +94,12 @@ namespace vApus.Stresstest
             }
         }
 
-        private void btnTryCompile_Click(object sender, EventArgs e)
-        {
+        private void btnTryCompile_Click(object sender, EventArgs e) {
             Exception exception;
             TryCompileAndTestCode(out exception);
         }
 
-        private void AddSuccessButton(string[] values)
-        {
+        private void AddSuccessButton(string[] values) {
             var btn = new Button();
             btn.AutoSize = true;
             btn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -131,8 +118,7 @@ namespace vApus.Stresstest
             btn.Height = height;
         }
 
-        private void AddErrorOrWarningButton(CompilerError error)
-        {
+        private void AddErrorOrWarningButton(CompilerError error) {
             var btn = new Button();
             btn.AutoSize = true;
             btn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -141,14 +127,11 @@ namespace vApus.Stresstest
 
             btn.FlatStyle = FlatStyle.Flat;
 
-            int line = error.Line - 6;
-            if (error.IsWarning)
-            {
+            int line = error.Line - 7;
+            if (error.IsWarning) {
                 btn.FlatAppearance.BorderColor = Color.DarkOrange;
                 btn.Text = "Warning at line " + line + " column " + error.Column + ":\n" + error.ErrorText;
-            }
-            else
-            {
+            } else {
                 btn.FlatAppearance.BorderColor = Color.Red;
                 btn.Text = "Error at line " + line + " column " + error.Column + ":\n" + error.ErrorText;
             }
@@ -162,19 +145,14 @@ namespace vApus.Stresstest
             btn.Height = height;
         }
 
-        private void btn_Click(object sender, EventArgs e)
-        {
-            var lineNumber = (int) (sender as Button).Tag;
-            CodeBlock codeBlock = Document.ContainsLine(lineNumber);
-            while (codeBlock == null)
-                codeBlock = Document.ContainsLine(++lineNumber);
+        private void btn_Click(object sender, EventArgs e) {
+            var lineNumber = (int)(sender as Button).Tag;
 
             if (CompileErrorButtonClicked != null)
-                CompileErrorButtonClicked(this, new CompileErrorButtonClickedEventArgs(lineNumber, codeBlock));
+                CompileErrorButtonClicked(this, new CompileErrorButtonClickedEventArgs(lineNumber));
         }
 
-        private void flpCompileLog_SizeChanged(object sender, EventArgs e)
-        {
+        private void flpCompileLog_SizeChanged(object sender, EventArgs e) {
             foreach (Control control in flpCompileLog.Controls)
                 control.Width = flpCompileLog.ClientSize.Width - 18;
         }
@@ -185,20 +163,16 @@ namespace vApus.Stresstest
 
         #region Fields
 
-        public CodeBlock Document;
+        public CodeTextBox Document;
         public CustomRandomParameter Parameter;
 
         #endregion
 
-        public class CompileErrorButtonClickedEventArgs : EventArgs
-        {
-            public readonly CodeBlock CodePart;
-            public readonly int LineNumber;
+        public class CompileErrorButtonClickedEventArgs : EventArgs {
+            public int LineNumber {get; private set;}
 
-            public CompileErrorButtonClickedEventArgs(int lineNumber, CodeBlock codePart)
-            {
+            public CompileErrorButtonClickedEventArgs(int lineNumber) {
                 LineNumber = lineNumber;
-                CodePart = codePart;
             }
         }
     }

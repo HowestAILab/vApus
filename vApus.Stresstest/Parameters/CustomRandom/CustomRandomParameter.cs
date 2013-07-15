@@ -13,11 +13,9 @@ using System.Reflection;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     [DisplayName("Custom Random Parameter"), Serializable]
-    public class CustomRandomParameter : BaseParameter
-    {
+    public class CustomRandomParameter : BaseParameter {
         private ICustomRandomParameter _customRandomParameter;
         private string _generateFunction = @"public string Generate() {
 //
@@ -27,45 +25,37 @@ namespace vApus.Stresstest
         private bool _unique;
 
         [SavableCloneable]
-        public string GenerateFunction
-        {
+        public string GenerateFunction {
             get { return _generateFunction; }
             set { _generateFunction = value; }
         }
 
         [SavableCloneable]
-        public bool Unique
-        {
+        public bool Unique {
             get { return _unique; }
             set { _unique = value; }
         }
 
-        public override void Next()
-        {
+        public override void Next() {
             lock (_lock)
-                //For thread safety, only here, because only for this type of parameter this function can be used while testing.
+            //For thread safety, only here, because only for this type of parameter this function can be used while testing.
             {
-                try
-                {
+                try {
                     if (_customRandomParameter == null)
                         CreateInstance();
 
                     _value = _customRandomParameter.Generate();
-                }
-                catch
-                {
+                } catch {
                     throw new Exception("[" + this + "] The custom code does not compile!\nPlease check it for errors.");
                 }
 
-                if (_unique)
-                {
+                if (_unique) {
                     if (_chosenValues.Count == int.MaxValue)
                         _chosenValues.Clear();
 
                     int loops = 0; //Preferably max 1, detecting infinite loops here.
                     int maxLoops = 10;
-                    while (!_chosenValues.Add(_value))
-                    {
+                    while (!_chosenValues.Add(_value)) {
                         if (_chosenValues.Count == int.MaxValue)
                             _chosenValues.Clear();
 
@@ -78,8 +68,7 @@ namespace vApus.Stresstest
             }
         }
 
-        internal CompilerResults CreateInstance()
-        {
+        internal CompilerResults CreateInstance() {
             var cu = new CompilerUnit();
             CompilerResults results;
             Assembly assembly = cu.Compile(BuildCode(), false, out results);
@@ -91,8 +80,7 @@ namespace vApus.Stresstest
             return results;
         }
 
-        internal string BuildCode()
-        {
+        internal string BuildCode() {
             return @"// dllreferences:System.dll;vApus.Stresstest.dll
 using System;
 namespace vApus.Stresstest
@@ -103,20 +91,17 @@ public CustomRandomParameter() {}"
                    + _generateFunction + "}}";
         }
 
-        public override void ResetValue()
-        {
+        public override void ResetValue() {
             _customRandomParameter = null;
             _chosenValues.Clear();
         }
 
-        public override void Activate()
-        {
+        public override void Activate() {
             SolutionComponentViewManager.Show(this);
         }
     }
 
-    public interface ICustomRandomParameter
-    {
+    public interface ICustomRandomParameter {
         string Generate();
     }
 }
