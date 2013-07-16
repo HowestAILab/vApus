@@ -22,7 +22,7 @@ using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
-    public class DistributedTestCore : IDisposable {
+    public class DistributedTestCore  {
         #region Fields
 
         private readonly DistributedTest _distributedTest;

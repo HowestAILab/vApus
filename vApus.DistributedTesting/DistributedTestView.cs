@@ -119,9 +119,6 @@ namespace vApus.DistributedTesting {
 
             RemoteDesktopClient.RdpException += RemoteDesktopClient_RdpException;
 
-            //Jumpstart the slaves when starting the test
-            JumpStart.Done += JumpStart_Done;
-
             Shown += DistributedTestView_Shown; //if the test is empty, show the wizard.
         }
 
@@ -490,9 +487,12 @@ namespace vApus.DistributedTesting {
                 distributedStresstestControl.AppendMessages("Jump Starting the slaves...");
                 try {
                     //Jumpstart the slaves first, an event will be fired when this is done and the test will start
+                    JumpStart.Done += JumpStart_Done;
                     JumpStart.Do(_distributedTest);
                 } catch {
                     //Only one test can run at the same time.
+                    JumpStart.Done -= JumpStart_Done;
+
                     distributedStresstestControl.AppendMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
                     throw;
                 }
@@ -550,6 +550,8 @@ namespace vApus.DistributedTesting {
         }
 
         private void JumpStart_Done(object sender, JumpStart.DoneEventArgs e) {
+            JumpStart.Done -= JumpStart_Done;
+
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 try {
                     if (e.Exceptions.Length == 0) {
@@ -586,6 +588,7 @@ namespace vApus.DistributedTesting {
                     string message = "Cannot start this test because another one is still running.";
                     distributedStresstestControl.AppendMessages(message, LogLevel.Error);
                     LogWrapper.LogByLevel(message, LogLevel.Error);
+                    RemoveDatabase();
                     Stop();
                 }
             }, null);
