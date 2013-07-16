@@ -17,17 +17,42 @@ namespace vApus.Stresstest {
     [DisplayName("Custom Random Parameter"), Serializable]
     public class CustomRandomParameter : BaseParameter {
         private ICustomRandomParameter _customRandomParameter;
-        private string _generateFunction = @"public string Generate() {
-//
-// You can use anything from the 'System' namespace to generate a random string (e.g. DateTime).
-//
+        private string _code = @"// dllreferences:System.dll;vApus.Stresstest.dll
+using System;
+namespace vApus.Stresstest {
+public class CustomRandomParameter : ICustomRandomParameter {
+public string Generate() {
+// Example:
+return GetRandomDateTime(" + "\"03-05-1986\", \"03-05-2086\").ToString();" + @"
+
+// Custom DateTime to string formats can be found here http://msdn.microsoft.com/en-us/library/8kb3ddd4.aspx.
+}
+private DateTime GetRandomDateTime(string start, string stop) {
+return GetRandomDateTime(DateTime.Parse(start), DateTime.Parse(stop));
+}
+private DateTime GetRandomDateTime(DateTime start, DateTime stop) {
+// Uncomment the following line to test if the returning of unique values works. This line is not needed in a test.
+// System.Threading.Thread.Sleep(1);
+
+// A random can only handle 32-bit integers and we need a 64-bit integer, therefore this workaround.
+var rand = new Random();
+byte[] buffer = new byte[8];
+
+rand.NextBytes(buffer);
+
+long longRand = BitConverter.ToInt64(buffer, 0);            
+long randomTicks = Math.Abs(longRand % (stop.Ticks - start.Ticks));
+
+return start.AddTicks(randomTicks);
+}
+}
 }";
         private bool _unique;
 
         [SavableCloneable]
-        public string GenerateFunction {
-            get { return _generateFunction; }
-            set { _generateFunction = value; }
+        public string Code {
+            get { return _code; }
+            set { _code = value; }
         }
 
         [SavableCloneable]
@@ -71,24 +96,13 @@ namespace vApus.Stresstest {
         internal CompilerResults CreateInstance() {
             var cu = new CompilerUnit();
             CompilerResults results;
-            Assembly assembly = cu.Compile(BuildCode(), false, out results);
+            Assembly assembly = cu.Compile(_code, false, out results);
 
             if (assembly != null)
                 _customRandomParameter =
                     assembly.CreateInstance("vApus.Stresstest.CustomRandomParameter") as ICustomRandomParameter;
 
             return results;
-        }
-
-        internal string BuildCode() {
-            return @"// dllreferences:System.dll;vApus.Stresstest.dll
-using System;
-namespace vApus.Stresstest
-{
-public class CustomRandomParameter : ICustomRandomParameter
-{
-public CustomRandomParameter() {}"
-                   + _generateFunction + "}}";
         }
 
         public override void ResetValue() {

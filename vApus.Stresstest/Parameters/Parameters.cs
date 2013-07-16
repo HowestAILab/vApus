@@ -21,6 +21,18 @@ namespace vApus.Stresstest {
             AddAsDefaultItem(new NumericParameters());
             AddAsDefaultItem(new TextParameters());
             AddAsDefaultItem(new CustomRandomParameters());
+
+            Loaded += Parameters_Loaded;
+        }
+
+        private void Parameters_Loaded(object sender, EventArgs e) {
+            Loaded -= Parameters_Loaded;
+
+            //Make sure this value is set, otherwise synchronizing parameter indices will not work the first time.
+            int i = 1;
+            foreach (BaseItem item in this)
+                foreach (BaseParameter parameter in item)
+                    parameter.TokenNumericIdentifier = i++;
         }
 
         /// <summary>

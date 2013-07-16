@@ -32,7 +32,7 @@ namespace vApus.Stresstest {
 
             ctxtGenerate.ShowLineNumbers = true;
             _csharpTextStyle = new CSharpTextStyle(ctxtGenerate);
-            ctxtGenerate.Text = Parameter.GenerateFunction;
+            ctxtGenerate.Text = Parameter.Code;
             ctxtGenerate.TextChangedDelayed += ctxtGenerate_TextChangedDelayed;
 
             chkUnique.CheckedChanged -= chkUnique_CheckedChanged;
@@ -41,7 +41,7 @@ namespace vApus.Stresstest {
         }
 
         private void ctxtGenerate_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
-            Parameter.GenerateFunction = ctxtGenerate.Text;
+            Parameter.Code = ctxtGenerate.Text;
             Parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 

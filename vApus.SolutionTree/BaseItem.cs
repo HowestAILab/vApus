@@ -9,6 +9,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -21,6 +22,11 @@ namespace vApus.SolutionTree {
     /// </summary>
     [Serializable]
     public abstract class BaseItem : SolutionComponent {
+        /// <summary>
+        /// To handle stuff that needs to happen after the solution is loaded and Solution.ActiveSolutionChanged is not sufficient.
+        /// This will also be invoked on errors.
+        /// </summary>
+        public event EventHandler Loaded;
 
         #region Fields
 
@@ -347,6 +353,9 @@ namespace vApus.SolutionTree {
                             break;
                         }
             errorMessage = sb.ToString();
+
+            if (Loaded != null) 
+                Loaded(this, null);
         }
 
         /// <summary>
@@ -419,38 +428,63 @@ namespace vApus.SolutionTree {
             ofd.Filter = "Xml Files (*.xml) | *.xml";
             ofd.Title = (sender is ToolStripMenuItem)
                             ? (sender as ToolStripMenuItem).Text
-                            : ofd.Title = "Import from...";
+                            : "Import from...";
 
-            if (ofd.ShowDialog() == DialogResult.OK) {
-                var sb = new StringBuilder();
-                foreach (string fileName in ofd.FileNames) {
-                    var xmlDocument = new XmlDocument();
-                    xmlDocument.Load(fileName);
+            if (ofd.ShowDialog() == DialogResult.OK)
+                Import(true, ofd.FileNames);
+        }
+        public void Import(bool invokeSolutionComponentChangedEvent, params string[] fileNames) {
+            if (fileNames.Length == 0)
+                return;
 
-                    try {
-                        if (xmlDocument.FirstChild.Name == GetType().Name &&
-                            xmlDocument.FirstChild.FirstChild.Name == "Items") {
-                            string errorMessage;
-                            LoadFromXml(xmlDocument.FirstChild, out errorMessage);
-                            sb.Append(errorMessage);
-                            if (errorMessage.Length == 0) {
-                                ResolveBranchedIndices();
-                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,
-                                                                    true);
-                            }
-                        } else {
-                            sb.Append(fileName + " contains no valid structure to load;");
+            var errors = new StringBuilder();
+
+            var streams = new Stream[fileNames.Length];
+            for (int i = 0; i != fileNames.Length; i++)
+                using (var sw = new StreamReader(fileNames[i]))
+                    Import(false, sw.BaseStream, errors);
+
+            InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, streams.Length == 1);
+
+            if (errors.ToString().Length > 0) {
+                string s = "Failed loading: " + errors;
+                LogWrapper.LogByLevel(s, LogLevel.Error);
+                MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
+                    MessageBoxDefaultButton.Button1);
+            }
+        }
+        /// <summary>
+        /// Import and add a structure
+        /// </summary>
+        /// <param name="invokeSolutionComponentChangedEvent"></param>
+        /// <param name="fileNames"></param>
+        public void Import(bool invokeSolutionComponentChanged, Stream stream, StringBuilder errors = null) {
+
+            var xmlDocument = new XmlDocument();
+            xmlDocument.Load(stream);
+
+            try {
+                bool validStructureFound = false;
+                foreach (XmlNode node in xmlDocument.ChildNodes) {
+                    if (node.Name == GetType().Name && node.FirstChild.Name == "Items") {
+                        string errorMessage;
+                        LoadFromXml(node, out errorMessage);
+                        if (errors != null) errors.Append(errorMessage);
+                        if (errorMessage.Length == 0) {
+                            ResolveBranchedIndices();
+                            if (invokeSolutionComponentChanged)
+                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
                         }
-                    } catch {
-                        sb.Append("Unknown or non-existing item found in " + fileName + ";");
+
+                        validStructureFound = true;
+                        break;
                     }
                 }
-                if (sb.ToString().Length > 0) {
-                    string s = "Failed loading: " + sb;
-                    LogWrapper.LogByLevel(s, LogLevel.Error);
-                    MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
-                                    MessageBoxDefaultButton.Button1);
-                }
+                if (!validStructureFound)
+                    errors.Append(stream + " contains no valid structure to load;");
+
+            } catch {
+                errors.Append("Unknown or non-existing item found in " + stream + ";");
             }
         }
 

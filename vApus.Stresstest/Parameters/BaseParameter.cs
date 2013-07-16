@@ -14,20 +14,18 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    [ContextMenu(new[] {"Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {"Edit", "Remove", "Export", "Copy", "Cut", "Duplicate"})]
-    [Hotkeys(new[] {"Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D)})]
+namespace vApus.Stresstest {
+    [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { "Edit", "Remove", "Export", "Copy", "Cut", "Duplicate" })]
+    [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [Serializable]
-    public abstract class BaseParameter : LabeledBaseItem
-    {
-        public enum Fixed
-        {
+    public abstract class BaseParameter : LabeledBaseItem {
+        public enum Fixed {
             Prefix = 0,
             Suffix = 1,
-            [Description("Pre- and Suffix")] PrefixAndSuffix = 2
+            [Description("Pre- and Suffix")]
+            PrefixAndSuffix = 2
         }
 
         #region Fields
@@ -44,8 +42,7 @@ namespace vApus.Stresstest
 
         #region Properties
 
-        public string Value
-        {
+        public string Value {
             get { return _value; }
         }
 
@@ -53,12 +50,9 @@ namespace vApus.Stresstest
         ///     To synchronize the numeric portion of the parameter token in the log entries when a parameter is added or removed.
         ///     (One-based)
         /// </summary>
-        public int TokenNumericIdentifier
-        {
-            get
-            {
-                lock (_lock)
-                {
+        public int TokenNumericIdentifier {
+            get {
+                lock (_lock) {
                     if (_tokenNumericIdentifier == -1)
                         DetermineTokenNumericIdentifier();
 
@@ -69,24 +63,19 @@ namespace vApus.Stresstest
         }
 
         [PropertyControl(int.MaxValue), DisplayName("Read Me")]
-        public string ReadMe
-        {
+        public string ReadMe {
             get { return "All parameter values are determined before the stresstest starts."; }
         }
 
-        private void DetermineTokenNumericIdentifier()
-        {
+        private void DetermineTokenNumericIdentifier() {
             _tokenNumericIdentifier = 0;
 
             //One based
-            if (Parent != null && Parent.GetParent() != null)
-            {
+            if (Parent != null) {
                 object grandParent = Parent.GetParent();
-                if (grandParent is Parameters)
-                {
+                if (grandParent != null && grandParent is Parameters) {
                     var parameters = grandParent as Parameters;
-                    foreach (BaseParameter parameter in parameters.GetAllParameters())
-                    {
+                    foreach (BaseParameter parameter in parameters.GetAllParameters()) {
                         ++_tokenNumericIdentifier;
                         if (parameter == this)
                             break;
@@ -108,9 +97,8 @@ namespace vApus.Stresstest
 
         public abstract void ResetValue();
 
-        public override void Activate()
-        {
-            SolutionComponentViewManager.Show(this, typeof (ParameterView));
+        public override void Activate() {
+            SolutionComponentViewManager.Show(this, typeof(ParameterView));
         }
 
         #endregion

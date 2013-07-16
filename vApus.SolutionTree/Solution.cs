@@ -471,8 +471,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
         #region Functions
 
-        private static void SolutionComponent_SolutionComponentChanged(object sender,
-                                                                       SolutionComponentChangedEventArgs e) {
+        private static void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (_activeSolution.FileName != null && ActiveSolutionChanged != null) {
                 _activeSolution.IsSaved = false;
                 ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(true, false));
@@ -605,6 +604,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         }
                 }
                 package.Close();
+
             } catch (Exception ex) {
                 sb.Append(ex);
             }

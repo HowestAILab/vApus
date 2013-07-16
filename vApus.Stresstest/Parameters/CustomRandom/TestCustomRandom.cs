@@ -85,7 +85,7 @@ namespace vApus.Stresstest {
                 for (int i = index; i != values.Length; i++)
                     values[i] = values[index];
 
-                string[] lines = Parameter.BuildCode().Replace("\r\n", "\n").Replace("\n\r", "\n").Split('\r', '\n');
+                string[] lines = Parameter.Code.Replace("\r\n", "\n").Replace("\n\r", "\n").Split('\r', '\n');
 
                 var error = new CompilerError(string.Empty, lines.Length - 1, 6, "-1",
                                               exception.Message + "\nGenerated three values: " + values.Combine(", "));
