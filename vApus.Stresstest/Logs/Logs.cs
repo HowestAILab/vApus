@@ -121,10 +121,6 @@ namespace vApus.Stresstest {
                     var indexMapLeft = new List<int>();
                     var indexMapRight = new List<int>();
 
-                    int previousCustomListParametersCount = customListParameters.Count;
-                    int previousNumericParametersCount = numericParameters.Count;
-                    int previousTextParametersCount = textParameters.Count;
-
                     if (customListParameterParts.Count != 0) {
                         foreach (var part in customListParameterParts) {
                             int index = int.Parse(part.Uri.ToString().Substring(("/Custom_List_Parameter_").Length));
@@ -139,7 +135,7 @@ namespace vApus.Stresstest {
                         foreach (var part in numericParameterParts) {
                             int index = int.Parse(part.Uri.ToString().Substring(("/Numeric_Parameter_").Length));
                             numericParameters.Import(false, part.GetStream());
-                            indexMapLeft.Add(previousCustomListParametersCount + index);
+                            indexMapLeft.Add(customListParameterParts.Count + index);
                             indexMapRight.Add(customListParameters.Count + numericParameters.Count);
                         }
                         numericParameters.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, numericParameterParts.Count == 1);
@@ -149,7 +145,7 @@ namespace vApus.Stresstest {
                         foreach (var part in textParameterParts) {
                             int index = int.Parse(part.Uri.ToString().Substring(("/Text_Parameter_").Length));
                             textParameters.Import(false, part.GetStream());
-                            indexMapLeft.Add(previousCustomListParametersCount + previousNumericParametersCount + index);
+                            indexMapLeft.Add(customListParameterParts.Count + numericParameterParts.Count + index);
                             indexMapRight.Add(customListParameters.Count + numericParameters.Count + textParameters.Count);
                         }
                         textParameters.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, textParameterParts.Count == 1);
@@ -159,7 +155,7 @@ namespace vApus.Stresstest {
                         foreach (var part in customRandomParameterParts) {
                             int index = int.Parse(part.Uri.ToString().Substring(("/Custom_Random_Parameter_").Length));
                             customRandomParameters.Import(false, part.GetStream());
-                            indexMapLeft.Add(previousCustomListParametersCount + previousNumericParametersCount + previousTextParametersCount + index);
+                            indexMapLeft.Add(customListParameterParts.Count + numericParameterParts.Count + textParameterParts.Count + index);
                             indexMapRight.Add(customListParameters.Count + numericParameters.Count + textParameters.Count + customRandomParameters.Count);
                         }
                         customRandomParameters.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, customRandomParameterParts.Count == 1);
