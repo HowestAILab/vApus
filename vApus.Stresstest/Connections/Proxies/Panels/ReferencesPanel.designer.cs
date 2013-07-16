@@ -1,6 +1,6 @@
 ﻿namespace vApus.Stresstest
 {
-    partial class References
+    partial class ReferencesPanel
     {
         /// <summary>
         /// Required designer variable.

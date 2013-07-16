@@ -36,11 +36,11 @@ namespace vApus.Stresstest
             this.btnExport = new System.Windows.Forms.Button();
             this.tcTools = new System.Windows.Forms.TabControl();
             this.tpReferences = new System.Windows.Forms.TabPage();
-            this.references = new vApus.Stresstest.References();
+            this.references = new vApus.Stresstest.ReferencesPanel();
             this.tpFind = new System.Windows.Forms.TabPage();
-            this.find = new vApus.Stresstest.FindAndReplace();
+            this.find = new vApus.Stresstest.FindAndReplacePanel();
             this.tpCompile = new System.Windows.Forms.TabPage();
-            this.compile = new vApus.Stresstest.Compile();
+            this.compile = new vApus.Stresstest.CompilePanel();
             this.sfd = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitCode)).BeginInit();
             this.splitCode.Panel1.SuspendLayout();
@@ -173,7 +173,7 @@ namespace vApus.Stresstest
             this.find.Padding = new System.Windows.Forms.Padding(9);
             this.find.Size = new System.Drawing.Size(783, 147);
             this.find.TabIndex = 0;
-            this.find.FoundReplacedButtonClicked += new System.EventHandler<vApus.Stresstest.FindAndReplace.FoundReplacedButtonClickedEventArgs>(this.find_FoundButtonClicked);
+            this.find.FoundReplacedButtonClicked += new System.EventHandler<vApus.Stresstest.FindAndReplacePanel.FoundReplacedButtonClickedEventArgs>(this.find_FoundButtonClicked);
             // 
             // tpCompile
             // 
@@ -195,7 +195,7 @@ namespace vApus.Stresstest
             this.compile.Size = new System.Drawing.Size(783, 147);
             this.compile.TabIndex = 0;
             this.compile.CompileError += new System.EventHandler(this.compile_CompileError);
-            this.compile.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.Compile.CompileErrorButtonClickedEventArgs>(this.compile_CompileErrorButtonClicked);
+            this.compile.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.CompilePanel.CompileErrorButtonClickedEventArgs>(this.compile_CompileErrorButtonClicked);
             // 
             // sfd
             // 
@@ -230,10 +230,10 @@ namespace vApus.Stresstest
         private System.Windows.Forms.TabControl tcTools;
         private System.Windows.Forms.TabPage tpReferences;
         private System.Windows.Forms.TabPage tpCompile;
-        private References references;
-        private Compile compile;
+        private ReferencesPanel references;
+        private CompilePanel compile;
         private System.Windows.Forms.TabPage tpFind;
-        private FindAndReplace find;
+        private FindAndReplacePanel find;
         private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.SaveFileDialog sfd;
         private System.Windows.Forms.Button btnCollapseExpand;

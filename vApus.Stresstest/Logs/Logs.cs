@@ -206,11 +206,11 @@ namespace vApus.Stresstest {
                             var logEntry = x as LogEntry;
                             for (int i = indexMapLeft1.Length - 1; i != -1; i--) {
                                 List<int> rows, columns, matchLengths;
-                                vApus.Util.FindAndReplace.Find(indexMapLeft1[i], logEntry.LogEntryString, out rows, out columns, out matchLengths, false, true);
+                                FindAndReplace.Find(indexMapLeft1[i], logEntry.LogEntryString, out rows, out columns, out matchLengths, false, true);
                                 if (matchLengths.Count != 0)
                                     logEntry.LogEntryString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, logEntry.LogEntryString, indexMapRight1[i]);
 
-                                vApus.Util.FindAndReplace.Find(indexMapLeft2[i], logEntry.LogEntryString, out rows, out columns, out matchLengths, false, true);
+                                FindAndReplace.Find(indexMapLeft2[i], logEntry.LogEntryString, out rows, out columns, out matchLengths, false, true);
                                 if (matchLengths.Count != 0)
                                     logEntry.LogEntryString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, logEntry.LogEntryString, indexMapRight2[i]);
                             }

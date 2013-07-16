@@ -6,17 +6,15 @@
  *    Dieter Vandroemme
  */
 
+using FastColoredTextBoxNS;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using FastColoredTextBoxNS;
 
-namespace vApus.Stresstest
-{
-    public partial class References : UserControl
-    {
+namespace vApus.Stresstest {
+    public partial class ReferencesPanel : UserControl {
         private AddReferences _addReferences;
 
         #region Fields
@@ -27,45 +25,37 @@ namespace vApus.Stresstest
 
         #region Properties
 
-        public CodeTextBox CodeTextBox
-        {
+        public CodeTextBox CodeTextBox {
             get { return _codeTextBox; }
-            set
-            {
+            set {
                 _codeTextBox = value;
                 SetGui();
                 _codeTextBox.TextChangedDelayed += _codeTextBox_TextChangedDelayed;
             }
         }
 
-        private List<string> Filenames
-        {
-            get
-            {
+        private List<string> Filenames {
+            get {
                 var filenames = new List<string>();
 
-                string[] split = _codeTextBox.Text.Split(new[] {"// dllreferences:"}, StringSplitOptions.None);
-                if (split.Length == 2)
-                {
+                string[] split = _codeTextBox.Text.Split(new[] { "// dllreferences:" }, StringSplitOptions.None);
+                if (split.Length == 2) {
                     string references = split[1];
-                    references = references.Split(new[] {"\n", "\r"}, StringSplitOptions.None)[0];
+                    references = references.Split(new[] { "\n", "\r" }, StringSplitOptions.None)[0];
                     if (references.Length >= 2)
-                        filenames.AddRange(references.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries));
+                        filenames.AddRange(references.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
                 }
 
                 return filenames;
             }
-            set
-            {
-                string[] split = _codeTextBox.Text.Split(new[] {"// dllreferences:"}, StringSplitOptions.None);
-                if (split.Length == 2)
-                {
+            set {
+                string[] split = _codeTextBox.Text.Split(new[] { "// dllreferences:" }, StringSplitOptions.None);
+                if (split.Length == 2) {
                     string references = split[1];
-                    references = references.Split(new[] {"\n", "\r"}, StringSplitOptions.None)[0];
+                    references = references.Split(new[] { "\n", "\r" }, StringSplitOptions.None)[0];
 
                     var sb = new StringBuilder();
-                    foreach (string reference in value)
-                    {
+                    foreach (string reference in value) {
                         sb.Append(reference);
                         sb.Append(';');
                     }
@@ -86,24 +76,20 @@ namespace vApus.Stresstest
 
         #endregion
 
-        public References()
-        {
+        public ReferencesPanel() {
             InitializeComponent();
         }
 
         #region Functions
 
-        private void _codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e)
-        {
+        private void _codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e) {
             SetGui();
         }
 
-        private void SetGui()
-        {
+        private void SetGui() {
             lvwReferences.Items.Clear();
             List<string> filenames = Filenames;
-            foreach (string reference in filenames)
-            {
+            foreach (string reference in filenames) {
                 ListViewItem item = lvwReferences.Items.Add(reference);
                 item.Name = reference;
             }
@@ -112,12 +98,10 @@ namespace vApus.Stresstest
                 lvwReferences.Items[0].Selected = true;
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
-        {
+        private void btnAdd_Click(object sender, EventArgs e) {
             if (_addReferences == null)
                 _addReferences = new AddReferences();
-            if (_addReferences.ShowDialog() == DialogResult.OK)
-            {
+            if (_addReferences.ShowDialog() == DialogResult.OK) {
                 List<string> filenames = Filenames;
                 foreach (string reference in _addReferences.References)
                     if (!filenames.Contains(reference))
@@ -127,19 +111,15 @@ namespace vApus.Stresstest
             }
         }
 
-        private void btnBrowse_Click(object sender, EventArgs e)
-        {
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
+        private void btnBrowse_Click(object sender, EventArgs e) {
+            if (openFileDialog.ShowDialog() == DialogResult.OK) {
                 List<string> filenames = Filenames;
-                foreach (string filename in openFileDialog.FileNames)
-                {
+                foreach (string filename in openFileDialog.FileNames) {
                     string shortFilename = Path.GetFileName(filename);
 
                     if (!filenames.Contains(shortFilename))
                         filenames.Add(shortFilename);
-                    try
-                    {
+                    try {
                         /*
                           <runtime>
                             <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
@@ -153,16 +133,13 @@ namespace vApus.Stresstest
                                                                               "ConnectionProxyPrerequisites");
                         string dest1 = Path.Combine(connectionProxyPrerequisitesDir, shortFilename);
                         string dest2 = Path.Combine(Application.StartupPath, shortFilename);
-                        if (dest1 != filename || dest2 != filename)
-                        {
+                        if (dest1 != filename || dest2 != filename) {
                             if (!Directory.Exists(connectionProxyPrerequisitesDir))
                                 Directory.CreateDirectory(connectionProxyPrerequisitesDir);
 
                             File.Copy(filename, dest1, true);
                         }
-                    }
-                    catch (Exception ex)
-                    {
+                    } catch (Exception ex) {
                         MessageBox.Show(
                             "Could not copy '" + filename + "' to '" +
                             Path.Combine(Application.StartupPath, shortFilename) + "'.\n" + ex, string.Empty,
@@ -173,8 +150,7 @@ namespace vApus.Stresstest
             }
         }
 
-        private void btnRemove_Click(object sender, EventArgs e)
-        {
+        private void btnRemove_Click(object sender, EventArgs e) {
             List<string> filenames = Filenames;
             foreach (ListViewItem item in lvwReferences.Items)
                 if (lvwReferences.SelectedItems.Contains(item))
@@ -183,13 +159,11 @@ namespace vApus.Stresstest
             Filenames = filenames;
         }
 
-        private void References_Resize(object sender, EventArgs e)
-        {
+        private void References_Resize(object sender, EventArgs e) {
             clm.Width = lvwReferences.Width - 18;
         }
 
-        private void References_VisibleChanged(object sender, EventArgs e)
-        {
+        private void References_VisibleChanged(object sender, EventArgs e) {
             if (lvwReferences.SelectedIndices.Count == 0 && lvwReferences.Items.Count != 0)
                 lvwReferences.Items[0].Selected = true;
         }

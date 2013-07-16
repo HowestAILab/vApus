@@ -206,11 +206,11 @@
     <Compile Include="Connections\Proxies\CodeTextBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\FindAndReplace.cs">
+    <Compile Include="Connections\Proxies\Panels\FindAndReplacePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\FindAndReplace.designer.cs">
-      <DependentUpon>FindAndReplace.cs</DependentUpon>
+    <Compile Include="Connections\Proxies\Panels\FindAndReplacePanel.designer.cs">
+      <DependentUpon>FindAndReplacePanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\TestAllConnections.cs">
       <SubType>Form</SubType>
@@ -339,11 +339,11 @@
     <Compile Include="Connections\Proxies\Panels\AddReferences.designer.cs">
       <DependentUpon>AddReferences.cs</DependentUpon>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\Compile.cs">
+    <Compile Include="Connections\Proxies\Panels\CompilePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\Compile.designer.cs">
-      <DependentUpon>Compile.cs</DependentUpon>
+    <Compile Include="Connections\Proxies\Panels\CompilePanel.designer.cs">
+      <DependentUpon>CompilePanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\Proxies\ConnectionProxies.cs" />
     <Compile Include="Connections\Proxies\ConnectionProxy.cs" />
@@ -353,11 +353,11 @@
     <Compile Include="Connections\Proxies\ConnectionProxyCodeView.designer.cs">
       <DependentUpon>ConnectionProxyCodeView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\References.cs">
+    <Compile Include="Connections\Proxies\Panels\ReferencesPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\References.designer.cs">
-      <DependentUpon>References.cs</DependentUpon>
+    <Compile Include="Connections\Proxies\Panels\ReferencesPanel.designer.cs">
+      <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
     <Compile Include="Controls\FastResultsControl.cs">
@@ -455,17 +455,17 @@
     <EmbeddedResource Include="Connections\Proxies\Panels\AddReferences.resx">
       <DependentUpon>AddReferences.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\Compile.resx">
-      <DependentUpon>Compile.cs</DependentUpon>
+    <EmbeddedResource Include="Connections\Proxies\Panels\CompilePanel.resx">
+      <DependentUpon>CompilePanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\FindAndReplace.resx">
-      <DependentUpon>FindAndReplace.cs</DependentUpon>
+    <EmbeddedResource Include="Connections\Proxies\Panels\FindAndReplacePanel.resx">
+      <DependentUpon>FindAndReplacePanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\ConnectionProxyCodeView.resx">
       <DependentUpon>ConnectionProxyCodeView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\References.resx">
-      <DependentUpon>References.cs</DependentUpon>
+    <EmbeddedResource Include="Connections\Proxies\Panels\ReferencesPanel.resx">
+      <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\TestAllConnections.resx">
       <DependentUpon>TestAllConnections.cs</DependentUpon>

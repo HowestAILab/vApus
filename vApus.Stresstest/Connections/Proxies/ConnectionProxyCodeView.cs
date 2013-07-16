@@ -91,7 +91,7 @@ namespace vApus.Stresstest {
 
         #region Tools
 
-        private void find_FoundButtonClicked(object sender, FindAndReplace.FoundReplacedButtonClickedEventArgs e) {
+        private void find_FoundButtonClicked(object sender, FindAndReplacePanel.FoundReplacedButtonClickedEventArgs e) {
             codeTextBox.ClearSelection();
             codeTextBox.SelectLine(e.LineNumber);
         }
@@ -100,7 +100,7 @@ namespace vApus.Stresstest {
             tcTools.SelectedIndex = 2;
         }
 
-        private void compile_CompileErrorButtonClicked(object sender, Compile.CompileErrorButtonClickedEventArgs e) {
+        private void compile_CompileErrorButtonClicked(object sender, CompilePanel.CompileErrorButtonClickedEventArgs e) {
             codeTextBox.ClearSelection();
             codeTextBox.SelectLine(e.LineNumber);
         }

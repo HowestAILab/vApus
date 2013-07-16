@@ -12,8 +12,8 @@ using System.Drawing;
 using System.Windows.Forms;
 
 namespace vApus.Stresstest {
-    public partial class FindAndReplace : UserControl {
-        public FindAndReplace() {
+    public partial class FindAndReplacePanel : UserControl {
+        public FindAndReplacePanel() {
             InitializeComponent();
         }
 

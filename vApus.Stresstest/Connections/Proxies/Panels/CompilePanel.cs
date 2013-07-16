@@ -11,12 +11,9 @@ using System.CodeDom.Compiler;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace vApus.Stresstest
-{
-    public partial class Compile : UserControl
-    {
-        public Compile()
-        {
+namespace vApus.Stresstest {
+    public partial class CompilePanel : UserControl {
+        public CompilePanel() {
             InitializeComponent();
         }
 
@@ -26,8 +23,7 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="deleteTempFiles"></param>
         /// <returns>bull if fails</returns>
-        public ConnectionProxyPool TryCompile(bool debug, bool deleteTempFiles)
-        {
+        public ConnectionProxyPool TryCompile(bool debug, bool deleteTempFiles) {
             Cursor = Cursors.WaitCursor;
 
             var connection = new Connection();
@@ -45,20 +41,15 @@ namespace vApus.Stresstest
             lblCount.Text = string.Empty;
 
 
-            foreach (CompilerError errorOrWarning in results.Errors)
-            {
+            foreach (CompilerError errorOrWarning in results.Errors) {
                 bool can = false;
 
-                if (errorOrWarning.IsWarning)
-                {
-                    if (!errorOrWarning.ErrorText.Contains("_connectionProxySyntaxItem"))
-                    {
+                if (errorOrWarning.IsWarning) {
+                    if (!errorOrWarning.ErrorText.Contains("_connectionProxySyntaxItem")) {
                         can = true;
                         ++warnings;
                     }
-                }
-                else
-                {
+                } else {
                     can = true;
                     ++errors;
                 }
@@ -67,22 +58,17 @@ namespace vApus.Stresstest
                     AddErrorOrWarningButton(errorOrWarning);
             }
 
-            if (errors != 0 && warnings != 0)
-            {
+            if (errors != 0 && warnings != 0) {
                 connectionProxyPool.Dispose();
                 connectionProxyPool = null;
 
                 lblCount.Text = errors + " error(s), " + warnings + " warning(s)";
-            }
-            else if (errors != 0)
-            {
+            } else if (errors != 0) {
                 connectionProxyPool.Dispose();
                 connectionProxyPool = null;
 
                 lblCount.Text = errors + " error(s)";
-            }
-            else if (warnings != 0)
-            {
+            } else if (warnings != 0) {
                 lblCount.Text = warnings + " warning(s)";
             }
 
@@ -96,13 +82,11 @@ namespace vApus.Stresstest
             return connectionProxyPool;
         }
 
-        private void btnTryCompile_Click(object sender, EventArgs e)
-        {
+        private void btnTryCompile_Click(object sender, EventArgs e) {
             TryCompile(false, true);
         }
 
-        private void AddSuccessButton()
-        {
+        private void AddSuccessButton() {
             var btn = new Button();
             btn.AutoSize = true;
             btn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -121,8 +105,7 @@ namespace vApus.Stresstest
             btn.Height = height;
         }
 
-        private void AddErrorOrWarningButton(CompilerError errorOrWarning)
-        {
+        private void AddErrorOrWarningButton(CompilerError errorOrWarning) {
             var btn = new Button();
             btn.AutoSize = true;
             btn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -131,14 +114,11 @@ namespace vApus.Stresstest
 
             btn.FlatStyle = FlatStyle.Flat;
 
-            if (errorOrWarning.IsWarning)
-            {
+            if (errorOrWarning.IsWarning) {
                 btn.FlatAppearance.BorderColor = Color.DarkOrange;
                 btn.Text = "Warning at line " + errorOrWarning.Line + " column " + errorOrWarning.Column + ":\n" +
                            errorOrWarning.ErrorText;
-            }
-            else
-            {
+            } else {
                 btn.FlatAppearance.BorderColor = Color.Red;
                 btn.Text = "Error at line " + errorOrWarning.Line + " column " + errorOrWarning.Column + ":\n" +
                            errorOrWarning.ErrorText;
@@ -153,15 +133,13 @@ namespace vApus.Stresstest
             btn.Height = height;
         }
 
-        private void btn_Click(object sender, EventArgs e)
-        {
-            var lineNumber = (int) (sender as Button).Tag;
+        private void btn_Click(object sender, EventArgs e) {
+            var lineNumber = (int)(sender as Button).Tag;
             if (CompileErrorButtonClicked != null)
                 CompileErrorButtonClicked(this, new CompileErrorButtonClickedEventArgs(lineNumber));
         }
 
-        private void flpCompileLog_SizeChanged(object sender, EventArgs e)
-        {
+        private void flpCompileLog_SizeChanged(object sender, EventArgs e) {
             foreach (Control control in flpCompileLog.Controls)
                 control.Width = flpCompileLog.ClientSize.Width - 18;
         }
@@ -177,12 +155,10 @@ namespace vApus.Stresstest
 
         #endregion
 
-        public class CompileErrorButtonClickedEventArgs : EventArgs
-        {
+        public class CompileErrorButtonClickedEventArgs : EventArgs {
             public readonly int LineNumber;
 
-            public CompileErrorButtonClickedEventArgs(int lineNumber)
-            {
+            public CompileErrorButtonClickedEventArgs(int lineNumber) {
                 LineNumber = lineNumber;
             }
         }

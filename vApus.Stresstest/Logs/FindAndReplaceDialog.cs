@@ -29,10 +29,11 @@ namespace vApus.Stresstest {
         }
         private void txtFind_TextChanged(object sender, EventArgs e) {
             btnFind.Enabled = txtFind.Text.Length != 0;
+            btnReplaceWith.Enabled = txtFind.Text.Length != 0 && txtReplace.Text.Length != 0 && txtFind.Text != txtReplace.Text;
         }
 
         private void txtReplace_TextChanged(object sender, EventArgs e) {
-            btnReplaceWith.Enabled = txtFind.Text.Length != 0 && txtReplace.Text.Length != 0;
+            btnReplaceWith.Enabled = txtFind.Text.Length != 0 && txtReplace.Text.Length != 0 && txtFind.Text != txtReplace.Text;
         }
 
         private void txtFind_KeyDown(object sender, KeyEventArgs e) {

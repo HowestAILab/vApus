@@ -1,6 +1,6 @@
 ﻿namespace vApus.Stresstest
 {
-    partial class FindAndReplace
+    partial class FindAndReplacePanel
     {
         /// <summary> 
         /// Required designer variable.

@@ -1,6 +1,6 @@
 ﻿namespace vApus.Stresstest
 {
-    partial class Compile
+    partial class CompilePanel
     {
         /// <summary> 
         /// Required designer variable.
