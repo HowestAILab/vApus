@@ -60,7 +60,7 @@ namespace vApus.DistributedTesting {
                         foreach (string ip in ips) {
                             var t = new Thread(delegate(object state) {
                                 _workItem = new WorkItem();
-                                _workItem.DoSmartUpdate(state as string, version, host, username, password, port, channel);
+                                exs.Add(_workItem.DoSmartUpdate(state as string, version, host, username, password, port, channel));
 
                                 if (Interlocked.Increment(ref i) == count) waithandle.Set();
                             });

@@ -476,8 +476,11 @@ namespace vApus.DistributedTesting {
                         var exceptions = await JumpStart.SmartUpdate(_distributedTest);
 
                         if (exceptions.Length != 0) {
+                            string message = "Failed to update one or more slaves.\n";
                             foreach (Exception ex in exceptions)
-                                distributedStresstestControl.AppendMessages(ex.Message, LogLevel.Error);
+                                message += ex.Message + "\n";
+
+                            distributedStresstestControl.AppendMessages(message.Trim(), LogLevel.Error);
 
                             throw new Exception();
                         }
