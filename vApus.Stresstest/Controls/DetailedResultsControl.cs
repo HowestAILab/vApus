@@ -157,16 +157,22 @@ namespace vApus.Stresstest {
             Retry:
                 if (_resultsHelper != null) {
                     DataTable dt = null;
+                    Exception exception = null;
                     var cultureInfo = Thread.CurrentThread.CurrentCulture;
                     try {
                         dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token, cultureInfo), _cancellationTokenSource.Token);
-                    } catch {
+                    } catch (Exception ex) {
+                        exception = ex;
                     }
 
                     //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview and retry 3 times.
                     if (dt == null) {
                         if (retry++ < 2)
                             goto Retry;
+                        else if (exception != null)
+                            try {
+                                LogWrapper.LogByLevel("Failed loading detailed results.\n" + exception.Message + "\n" + exception.StackTrace, LogLevel.Error);
+                            } catch { }
                     } else {
                         dgvDetailedResults.DataSource = dt;
                     }
