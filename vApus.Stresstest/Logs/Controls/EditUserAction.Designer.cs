@@ -219,7 +219,7 @@
             this.chkUseEditView.Size = new System.Drawing.Size(92, 17);
             this.chkUseEditView.TabIndex = 34;
             this.chkUseEditView.Text = "Use Edit View";
-            this.toolTip.SetToolTip(this.chkUseEditView, "Show an edit view when a cell is selected if checked.");
+            this.toolTip.SetToolTip(this.chkUseEditView, "Show an edit view when a cell is selected, if checked.");
             this.chkUseEditView.UseVisualStyleBackColor = true;
             this.chkUseEditView.CheckedChanged += new System.EventHandler(this.chkUseEditView_CheckedChanged);
             // 

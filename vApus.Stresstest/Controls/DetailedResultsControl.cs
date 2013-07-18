@@ -183,6 +183,8 @@ namespace vApus.Stresstest {
                 lblLoading.Visible = false;
                 flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = true;
                 dgvDetailedResults.Select();
+
+                FillCellView();
             }
         }
         private DataTable GetDataSource(CancellationToken cancellationToken, CultureInfo cultureInfo) {
@@ -286,6 +288,32 @@ namespace vApus.Stresstest {
                 this.Enabled = false;
 
                 if (ResultsDeleted != null) ResultsDeleted(this, null);
+            }
+        }
+
+        private void chkShowCellView_CheckedChanged(object sender, EventArgs e) { FillCellView(); }
+        private void dgvDetailedResults_CellEnter(object sender, DataGridViewCellEventArgs e) { FillCellView(); }
+
+        private void FillCellView() {
+            try {
+                //Sadly enough DIY control composition due to dodgy Winforms/Weifenluo.
+                if (chkShowCellView.Checked) {
+                    splitData.Panel2Collapsed = false;
+
+                    fctxtCellView.Width = splitData.Panel2.Width - fctxtCellView.Left;
+                    fctxtCellView.Height = splitData.Panel2.Height - fctxtCellView.Top;
+                    fctxtCellView.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+
+                    //Set the text.
+                    if (dgvDetailedResults.SelectedCells.Count == 1) dgvDetailedResults.CurrentCell = dgvDetailedResults.SelectedCells[0];
+                    fctxtCellView.Enabled = dgvDetailedResults.CurrentCell != null && dgvDetailedResults.SelectedCells.Count == 1;
+                    fctxtCellView.Text = fctxtCellView.Enabled ? dgvDetailedResults.CurrentCell.Value.ToString() : string.Empty;
+
+                } else {
+                    fctxtCellView.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                    splitData.Panel2Collapsed = true;
+                }
+            } catch {
             }
         }
     }
