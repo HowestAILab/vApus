@@ -10,17 +10,14 @@ using System;
 using System.Text;
 using System.Threading;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary></summary>
-    public static class StringUtil
-    {
+    public static class StringUtil {
         /// <summary>
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static bool IsNumeric(object o)
-        {
+        public static bool IsNumeric(object o) {
             if (o == null)
                 throw new ArgumentNullException("o");
 
@@ -39,20 +36,19 @@ namespace vApus.Util
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsNumericType(Type t)
-        {
+        public static bool IsNumericType(Type t) {
             if (t == null)
                 throw new ArgumentNullException("t");
 
-            return t == typeof (short)
-                   || t == typeof (int)
-                   || t == typeof (long)
-                   || t == typeof (ushort)
-                   || t == typeof (uint)
-                   || t == typeof (ulong)
-                   || t == typeof (float)
-                   || t == typeof (double)
-                   || t == typeof (decimal);
+            return t == typeof(short)
+                   || t == typeof(int)
+                   || t == typeof(long)
+                   || t == typeof(ushort)
+                   || t == typeof(uint)
+                   || t == typeof(ulong)
+                   || t == typeof(float)
+                   || t == typeof(double)
+                   || t == typeof(decimal);
         }
 
         /// <summary>
@@ -60,14 +56,12 @@ namespace vApus.Util
         /// </summary>
         /// <param name="len"></param>
         /// <returns></returns>
-        public static string GenerateRandomName(int len)
-        {
+        public static string GenerateRandomName(int len) {
             var sb = new StringBuilder();
             var random = new Random();
             char c;
-            for (int i = 0; i < len; i++)
-            {
-                c = Convert.ToChar(Convert.ToInt32(Math.Floor(26*random.NextDouble() + 65)));
+            for (int i = 0; i < len; i++) {
+                c = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
                 sb.Append(c);
             }
             return sb.ToString();
@@ -79,8 +73,7 @@ namespace vApus.Util
         /// <param name="min"></param>
         /// <param name="max">exclusive</param>
         /// <returns></returns>
-        public static string GenerateRandomName(int min, int max)
-        {
+        public static string GenerateRandomName(int min, int max) {
             return GenerateRandomName((new Random()).Next(min, max));
         }
 
@@ -98,19 +91,16 @@ namespace vApus.Util
         /// </summary>
         /// <param name="pattern"></param>
         /// <returns></returns>
-        public static string GenerateRandomPattern(string pattern)
-        {
+        public static string GenerateRandomPattern(string pattern) {
             char[] chars = pattern.ToCharArray();
             var returnPattern = new StringBuilder();
 
-            for (int j = 0; j < chars.Length; j++)
-            {
+            for (int j = 0; j < chars.Length; j++) {
                 char c = chars[j];
                 var rand = new Random();
                 int i = 0;
 
-                switch (c)
-                {
+                switch (c) {
                     case '0':
                         returnPattern.Append(Convert.ToChar(rand.Next(48, 58)));
                         break;
@@ -152,8 +142,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="f"></param>
         /// <returns></returns>
-        public static string FloatToLongString(float f, bool thousandSeparator = false)
-        {
+        public static string FloatToLongString(float f, bool thousandSeparator = false) {
             return NumberToLongString(f, thousandSeparator && f > 999);
         }
 
@@ -162,8 +151,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="f"></param>
         /// <returns></returns>
-        public static string DoubleToLongString(double d, bool thousandSeparator = false)
-        {
+        public static string DoubleToLongString(double d, bool thousandSeparator = false) {
             return NumberToLongString(d, thousandSeparator && d > 999);
         }
 
@@ -172,8 +160,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        private static string NumberToLongString(object o, bool thousandSeparator)
-        {
+        private static string NumberToLongString(object o, bool thousandSeparator) {
             string s = o.ToString().ToUpper();
 
             //if string representation was collapsed from scientific notation, just return it
@@ -185,7 +172,7 @@ namespace vApus.Util
             string[] decimalParts = exponentParts[0].Split(separator);
 
             //fix missing decimal point
-            if (decimalParts.Length == 1) decimalParts = new[] {exponentParts[0], "0"};
+            if (decimalParts.Length == 1) decimalParts = new[] { exponentParts[0], "0" };
             string newNumber = decimalParts[0] + decimalParts[1];
 
             int exponentValue = int.Parse(exponentParts[1]);
@@ -202,27 +189,23 @@ namespace vApus.Util
             return s;
         }
 
-        private static string GetZeros(int zeroCount)
-        {
+        private static string GetZeros(int zeroCount) {
             if (zeroCount < 0)
                 zeroCount = Math.Abs(zeroCount);
 
             return new string('0', zeroCount);
         }
 
-        private static string SeparateThousands(string s)
-        {
+        private static string SeparateThousands(string s) {
             string separator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             string[] split = s.Split(separator[0]);
 
             var sb = new StringBuilder(split[0].Length + 1);
 
             int j = 0;
-            for (int i = split[0].Length - 1; i != -1; i--)
-            {
+            for (int i = split[0].Length - 1; i != -1; i--) {
                 sb.Append(split[0][i]);
-                if (++j == 3)
-                {
+                if (++j == 3) {
                     j = 0;
                     sb.Append(" ");
                 }

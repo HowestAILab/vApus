@@ -11,17 +11,14 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest
-{
-    [ContextMenu(new[] {"Add_Click", "Import_Click", "Clear_Click", "Paste_Click"},
-        new[] {"Add Numeric Parameter", "Import Parameter(s)", "Clear", "Paste"})]
-    [Hotkeys(new[] {"Add_Click", "Paste_Click"}, new[] {Keys.Insert, (Keys.Control | Keys.V)})]
+namespace vApus.Stresstest {
+    [ContextMenu(new[] { "Add_Click", "Import_Click", "Clear_Click", "Paste_Click" },
+        new[] { "Add Numeric Parameter", "Import Parameter(s)", "Clear", "Paste" })]
+    [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Insert, (Keys.Control | Keys.V) })]
     [DisplayName("Numeric Parameters")]
     [Serializable]
-    public class NumericParameters : BaseItem
-    {
-        private void Add_Click(object sender, EventArgs e)
-        {
+    public class NumericParameters : BaseItem {
+        private void Add_Click(object sender, EventArgs e) {
             Add(new NumericParameter());
         }
     }

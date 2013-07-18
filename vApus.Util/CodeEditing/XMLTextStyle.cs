@@ -6,14 +6,12 @@
  *    Dieter Vandroemme
  */
 
+using FastColoredTextBoxNS;
 using System.Drawing;
 using System.Text.RegularExpressions;
-using FastColoredTextBoxNS;
 
-namespace vApus.Util
-{
-    public class XMLTextStyle
-    {
+namespace vApus.Util {
+    public class XMLTextStyle {
         //styles
         private readonly TextStyle BlueStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
         public readonly Style GreenStyle = new TextStyle(Brushes.Green, null, FontStyle.Italic);
@@ -32,8 +30,7 @@ namespace vApus.Util
         private Regex _HTMLTagRegex;
 
 
-        public XMLTextStyle(FastColoredTextBox fastColoredTextBox)
-        {
+        public XMLTextStyle(FastColoredTextBox fastColoredTextBox) {
             _fastColoredTextBox = fastColoredTextBox;
 
             _fastColoredTextBox.ClearStylesBuffer();
@@ -46,8 +43,7 @@ namespace vApus.Util
             _fastColoredTextBox.TextChanged += _fastColoredTextBox_TextChanged;
         }
 
-        private void InitHTMLRegex()
-        {
+        private void InitHTMLRegex() {
             _HTMLCommentRegex1 = new Regex(@"(<!--.*?-->)|(<!--.*)", RegexOptions.Singleline | RegexOptions.Compiled);
             _HTMLCommentRegex2 = new Regex(@"(<!--.*?-->)|(.*-->)",
                                            RegexOptions.Singleline | RegexOptions.RightToLeft | RegexOptions.Compiled);
@@ -63,8 +59,7 @@ namespace vApus.Util
         /// <summary>
         ///     No html specifics taken into account.
         /// </summary>
-        private void _fastColoredTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
+        private void _fastColoredTextBox_TextChanged(object sender, TextChangedEventArgs e) {
             Range range = e.ChangedRange;
             range.tb.CommentPrefix = null;
             range.tb.LeftBracket = '<';

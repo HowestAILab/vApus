@@ -9,40 +9,32 @@
 using System;
 using vApus.SolutionTree;
 
-namespace vApus.DistributedTesting
-{
-    public partial class RemoteDesktopClient : BaseSolutionComponentView
-    {
-        public RemoteDesktopClient()
-        {
+namespace vApus.DistributedTesting {
+    public partial class RemoteDesktopClient : BaseSolutionComponentView {
+        public RemoteDesktopClient() {
             InitializeComponent();
         }
 
         public RemoteDesktopClient(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args)
-        {
+            : base(solutionComponent, args) {
             InitializeComponent();
         }
 
         #region Functions
 
-        public void ShowRemoteDesktop(string hostName, string ip, string userName, string password, string domain)
-        {
+        public void ShowRemoteDesktop(string hostName, string ip, string userName, string password, string domain) {
             rdc.ShowRemoteDesktop(hostName, ip, userName, password, domain);
         }
 
-        public void ClearRemoteDesktops()
-        {
+        public void ClearRemoteDesktops() {
             rdc.ClearRemoteDesktops();
         }
 
-        private void rdc_AllConnectionsClosed(object sender, EventArgs e)
-        {
+        private void rdc_AllConnectionsClosed(object sender, EventArgs e) {
             Close();
         }
 
-        private void rdc_RdpException(object sender, Util.RemoteDesktopClient.RdpExceptionEventArgs e)
-        {
+        private void rdc_RdpException(object sender, Util.RemoteDesktopClient.RdpExceptionEventArgs e) {
             if (RdpException != null)
                 RdpException(this, e);
         }

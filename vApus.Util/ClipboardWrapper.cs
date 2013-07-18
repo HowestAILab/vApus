@@ -9,53 +9,36 @@
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public static class ClipboardWrapper
-    {
-        public static IDataObject GetDataObject()
-        {
+namespace vApus.Util {
+    public static class ClipboardWrapper {
+        public static IDataObject GetDataObject() {
             // retry 2 times should be enough for read access
-            try
-            {
+            try {
                 return Clipboard.GetDataObject();
-            }
-            catch (ExternalException)
-            {
-                try
-                {
+            } catch (ExternalException) {
+                try {
                     return Clipboard.GetDataObject();
-                }
-                catch (ExternalException)
-                {
+                } catch (ExternalException) {
                     return new DataObject();
                 }
             }
         }
 
-        public static void Clear()
-        {
+        public static void Clear() {
             Clipboard.Clear();
         }
 
         /// <summary>
         /// </summary>
         /// <param name="data">Must be serializable.</param>
-        public static void SetDataObject(object data)
-        {
-            try
-            {
+        public static void SetDataObject(object data) {
+            try {
                 Clipboard.SetDataObject(data, true, 10, 50);
-            }
-            catch (ExternalException)
-            {
+            } catch (ExternalException) {
                 Application.DoEvents();
-                try
-                {
+                try {
                     Clipboard.SetDataObject(data, true, 10, 50);
-                }
-                catch (ExternalException)
-                {
+                } catch (ExternalException) {
                 }
             }
         }

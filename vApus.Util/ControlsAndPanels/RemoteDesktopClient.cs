@@ -6,11 +6,11 @@
  *    Dieter Vandroemme
  */
 
+using AxMSTSCLib;
+using MSTSCLib;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using AxMSTSCLib;
-using MSTSCLib;
 using IMsTscAxEvents_OnFatalErrorEventHandler = AxMSTSCLib.IMsTscAxEvents_OnFatalErrorEventHandler;
 using IMsTscAxEvents_OnLogonErrorEventHandler = AxMSTSCLib.IMsTscAxEvents_OnLogonErrorEventHandler;
 

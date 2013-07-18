@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 namespace vApus.Stresstest {
     public partial class ReferencesPanel : UserControl {
-        private AddReferences _addReferences;
+        private AddReferencesDialog _addReferences;
 
         #region Fields
 
@@ -100,7 +100,7 @@ namespace vApus.Stresstest {
 
         private void btnAdd_Click(object sender, EventArgs e) {
             if (_addReferences == null)
-                _addReferences = new AddReferences();
+                _addReferences = new AddReferencesDialog();
             if (_addReferences.ShowDialog() == DialogResult.OK) {
                 List<string> filenames = Filenames;
                 foreach (string reference in _addReferences.References)

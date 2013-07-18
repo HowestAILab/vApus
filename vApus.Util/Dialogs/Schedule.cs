@@ -9,35 +9,28 @@
 using System;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public partial class Schedule : Form
-    {
+namespace vApus.Util {
+    public partial class Schedule : Form {
         private DateTime _scheduledAt;
 
-        public Schedule()
-        {
+        public Schedule() {
             InitializeComponent();
         }
 
         public Schedule(DateTime scheduledAt)
-            : this()
-        {
+            : this() {
             rdbLater.Checked = (scheduledAt > dtpTime.Value);
-            if (rdbLater.Checked)
-            {
+            if (rdbLater.Checked) {
                 dtpDate.Value = scheduledAt;
                 dtpTime.Value = scheduledAt;
             }
         }
 
-        public DateTime ScheduledAt
-        {
+        public DateTime ScheduledAt {
             get { return _scheduledAt; }
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             _scheduledAt = (rdbNow.Checked) ? DateTime.Now : (dtpDate.Value.Date + dtpTime.Value.TimeOfDay);
             if (_scheduledAt < DateTime.Now)
                 _scheduledAt = DateTime.Now;
@@ -45,8 +38,7 @@ namespace vApus.Util
             DialogResult = DialogResult.OK;
         }
 
-        private void dtp_ValueChanged(object sender, EventArgs e)
-        {
+        private void dtp_ValueChanged(object sender, EventArgs e) {
             rdbLater.Checked = true;
         }
     }

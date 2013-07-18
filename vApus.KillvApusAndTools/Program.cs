@@ -10,30 +10,24 @@ using System;
 using System.Diagnostics;
 
 //Kill vApus and Tools when uninstalling vApus.
-
-namespace vApus.KillvApusAndTools
-{
-    internal static class Program
-    {
+namespace vApus.KillvApusAndTools {
+    internal static class Program {
         /// <summary>
         ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main()
-        {
+        private static void Main() {
             foreach (Process p in Process.GetProcessesByName("vApus"))
                 if (p != null)
                     p.Kill();
 
             foreach (Process p in Process.GetProcessesByName("vApus.UpdateTool"))
-                if (p != null)
-                {
+                if (p != null) {
                     p.Kill();
                     break;
                 }
             foreach (Process p in Process.GetProcessesByName("vApus.UpdateToolLoader"))
-                if (p != null)
-                {
+                if (p != null) {
                     p.Kill();
                     break;
                 }
@@ -41,13 +35,8 @@ namespace vApus.KillvApusAndTools
                 if (p != null)
                     p.Kill();
 
-            foreach (Process p in Process.GetProcessesByName("vApus.LogFixer"))
-                if (p != null)
-                    p.Kill();
-
             foreach (Process p in Process.GetProcessesByName("vApus.JumpStart"))
-                if (p != null)
-                {
+                if (p != null) {
                     p.Kill();
                     break;
                 }

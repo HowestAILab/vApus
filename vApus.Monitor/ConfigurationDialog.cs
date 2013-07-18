@@ -13,10 +13,8 @@ using System.Windows.Forms;
 using System.Xml;
 using vApus.Util;
 
-namespace vApus.Monitor
-{
-    public partial class ConfigurationDialog : Form
-    {
+namespace vApus.Monitor {
+    public partial class ConfigurationDialog : Form {
         #region Fields
 
         // The XmlDocument where the formatted configuration is loaded into.
@@ -27,8 +25,7 @@ namespace vApus.Monitor
 
         #region Constructor
 
-        public ConfigurationDialog(string configuration)
-        {
+        public ConfigurationDialog(string configuration) {
             InitializeComponent();
             LoadConfiguration(configuration);
         }
@@ -37,76 +34,59 @@ namespace vApus.Monitor
 
         #region Functions
 
-        private void LoadConfiguration(string configuration)
-        {
-            try
-            {
+        private void LoadConfiguration(string configuration) {
+            try {
                 Cursor = Cursors.WaitCursor;
 
                 var stringReader = new StringReader(configuration);
                 _configuration = new XmlDocument();
 
-                try
-                {
+                try {
                     _configuration.Load(stringReader);
-                }
-                catch
-                {
+                } catch {
                     throw;
-                }
-                finally
-                {
+                } finally {
                     stringReader.Close();
                 }
 
-                foreach (XmlNode node in _configuration.ChildNodes)
-                {
-                    if (node.Name != null && node.NodeType != XmlNodeType.Text && node.Name != "xml")
-                    {
+                foreach (XmlNode node in _configuration.ChildNodes) {
+                    if (node.Name != null && node.NodeType != XmlNodeType.Text && node.Name != "xml") {
                         var treeNode = new TreeNode();
                         treeNode.Text = node.Name;
                         foreach (XmlAttribute attribute in node.Attributes)
                             treeNode.Text += " " + attribute.Name + "= " + attribute.Value;
 
                         tv.Nodes.Add(treeNode);
-                        if (node.HasChildNodes)
-                        {
+                        if (node.HasChildNodes) {
                             if (node.FirstChild.NodeType == XmlNodeType.Text)
                                 treeNode.Tag = node.FirstChild.Value;
                             AddNodesToTreeView(node, treeNode);
                         }
                     }
                 }
-                if (tv.Nodes.Count != 0)
-                {
+                if (tv.Nodes.Count != 0) {
                     tv.SelectedNode = tv.Nodes[0];
                     tv.SelectedNode.Expand();
                 }
 
                 Cursor = Cursors.Default;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 LogWrapper.LogByLevel("[" + this + "] " + "The configuration is not a wellformed xml.\n" + ex,
                                       LogLevel.Error);
                 Close();
             }
         }
 
-        private void AddNodesToTreeView(XmlNode xmlNode, TreeNode treeNode)
-        {
-            foreach (XmlNode node in xmlNode.ChildNodes)
-            {
-                if (node.Name != null && node.NodeType != XmlNodeType.Text)
-                {
+        private void AddNodesToTreeView(XmlNode xmlNode, TreeNode treeNode) {
+            foreach (XmlNode node in xmlNode.ChildNodes) {
+                if (node.Name != null && node.NodeType != XmlNodeType.Text) {
                     var tn = new TreeNode();
                     tn.Text = node.Name;
                     foreach (XmlAttribute attribute in node.Attributes)
                         tn.Text += " " + attribute.Name + "= " + attribute.Value;
 
                     treeNode.Nodes.Add(tn);
-                    if (xmlNode.HasChildNodes && xmlNode.ChildNodes.Count > 0)
-                    {
+                    if (xmlNode.HasChildNodes && xmlNode.ChildNodes.Count > 0) {
                         if (node.FirstChild != null && node.FirstChild.NodeType == XmlNodeType.Text)
                             tn.Tag = node.FirstChild.Value;
                         AddNodesToTreeView(node, tn);
@@ -115,23 +95,20 @@ namespace vApus.Monitor
             }
         }
 
-        private void tv_AfterSelect(object sender, TreeViewEventArgs e)
-        {
+        private void tv_AfterSelect(object sender, TreeViewEventArgs e) {
             Cursor = Cursors.WaitCursor;
             rtxt.Clear();
             rtxt.Text = GetText(tv.SelectedNode, 0);
             Cursor = Cursors.Default;
         }
 
-        private string GetText(TreeNode node, int indent)
-        {
+        private string GetText(TreeNode node, int indent) {
             var sb = new StringBuilder();
-            var spaces = new string(' ', indent*2);
+            var spaces = new string(' ', indent * 2);
             sb.Append(spaces);
             sb.Append(node.Text.ToUpper());
 
-            if (node.Tag != null)
-            {
+            if (node.Tag != null) {
                 sb.Append(": ");
                 sb.Append(node.Tag);
             }
@@ -145,8 +122,7 @@ namespace vApus.Monitor
             return sb.ToString();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
-        {
+        private void btnSave_Click(object sender, EventArgs e) {
             if (sfd.ShowDialog() == DialogResult.OK)
                 _configuration.Save(sfd.FileName);
         }

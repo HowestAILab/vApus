@@ -6,12 +6,12 @@
  *    Dieter Vandroemme
  */
 
+using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Windows.Forms;
-using Microsoft.Win32;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace vApus.Util {
     public partial class DisableFirewallAutoUpdatePanel : Panel {

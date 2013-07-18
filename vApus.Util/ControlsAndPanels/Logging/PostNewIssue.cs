@@ -12,14 +12,11 @@ using System.IO.Compression;
 using System.Net;
 using System.Xml;
 
-namespace vApus.Util
-{
-    public static class NewIssue
-    {
+namespace vApus.Util {
+    public static class NewIssue {
         private static readonly PostDelegate _postDelegate;
 
-        static NewIssue()
-        {
+        static NewIssue() {
             _postDelegate = PostCallback;
             StaticActiveObjectWrapper.ActiveObject.OnResult += ActiveObject_OnResult;
         }
@@ -32,16 +29,13 @@ namespace vApus.Util
         /// </summary>
         /// <param name="applicationLogEntry"></param>
         /// <returns>Issue url</returns>
-        public static void Post(string applicationLogEntry)
-        {
+        public static void Post(string applicationLogEntry) {
             StaticActiveObjectWrapper.ActiveObject.Send(_postDelegate, applicationLogEntry);
         }
 
-        private static string PostCallback(string applicationLogEntry)
-        {
+        private static string PostCallback(string applicationLogEntry) {
             var statusCode = HttpStatusCode.OK;
-            try
-            {
+            try {
                 string host = "redmine.sizingservers.be";
                 string apiKey = "a5a8cbd56a3e66e807b3c80009ca73ad81ebec6e"; //apiKey for the vapususer
 
@@ -56,7 +50,7 @@ namespace vApus.Util
                 string description = escape.InnerXml;
 
                 var httpWebRequest =
-                    (HttpWebRequest) WebRequest.Create(new Uri("http://" + host + "/issues.xml?key=" + apiKey));
+                    (HttpWebRequest)WebRequest.Create(new Uri("http://" + host + "/issues.xml?key=" + apiKey));
                 httpWebRequest.UserAgent = "vApus v2 - Test connection function";
                 httpWebRequest.ServicePoint.Expect100Continue = true;
 
@@ -93,18 +87,15 @@ namespace vApus.Util
                     using (
                         var streamReader =
                             new StreamReader(new GZipStream(httpWebResponse.GetResponseStream(),
-                                                            CompressionMode.Decompress)))
-                    {
+                                                            CompressionMode.Decompress))) {
                         response = streamReader.ReadToEnd();
-                    }
-                else
+                    } else
                     using (
                         var streamReader = new StreamReader(httpWebResponse.GetResponseStream(),
                                                             (httpWebResponse.ContentEncoding.Length != 0)
                                                                 ? System.Text.Encoding.GetEncoding(
                                                                     httpWebResponse.ContentEncoding)
-                                                                : System.Text.Encoding.GetEncoding(1252)))
-                    {
+                                                                : System.Text.Encoding.GetEncoding(1252))) {
                         response = streamReader.ReadToEnd();
                     }
                 doc = new XmlDocument();
@@ -113,23 +104,19 @@ namespace vApus.Util
                 issueUrl = "http://" + host + "/issues/" + doc.ChildNodes[1].ChildNodes[0].InnerText;
 
                 return issueUrl;
-            }
-            catch
-            {
+            } catch {
                 if (statusCode == HttpStatusCode.Unauthorized)
                     throw;
                 throw new Exception("The bug report server could not be found, are you connected to the internet?");
             }
         }
 
-        private static void ActiveObject_OnResult(object sender, ActiveObject.OnResultEventArgs e)
-        {
+        private static void ActiveObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
             if (Done != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Done(null, e); }, null);
         }
 
-        private static void ApplyPostData(HttpWebRequest httpWebRequest, string postData)
-        {
+        private static void ApplyPostData(HttpWebRequest httpWebRequest, string postData) {
             httpWebRequest.ContentLength = postData.Length;
             Stream postStream = httpWebRequest.GetRequestStream();
             var postStreamWriter = new StreamWriter(postStream);

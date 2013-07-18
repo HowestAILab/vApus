@@ -10,21 +10,18 @@
 using System;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     A sorter
     /// </summary>
-    public abstract class ListViewSorter
-    {
+    public abstract class ListViewSorter {
         /// <summary>
         ///     Internal sorting. Specialized objects should provide an implementation for this
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public virtual int OnSort(object x, object y, SortOrder sortOrder)
-        {
+        public virtual int OnSort(object x, object y, SortOrder sortOrder) {
             throw new NotImplementedException("ListviewSorter is sorting");
         }
 
@@ -33,8 +30,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        public ListViewItem.ListViewSubItem GetLeft(Object x)
-        {
+        public ListViewItem.ListViewSubItem GetLeft(Object x) {
             var item = x as ListViewItem.ListViewSubItem;
             return (item);
         }
@@ -44,8 +40,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="y"></param>
         /// <returns></returns>
-        public ListViewItem.ListViewSubItem GetRight(Object y)
-        {
+        public ListViewItem.ListViewSubItem GetRight(Object y) {
             var item = y as ListViewItem.ListViewSubItem;
             return (item);
         }
@@ -62,30 +57,23 @@ namespace vApus.Util
             ListViewItem.ListViewSubItem left,
             ListViewItem.ListViewSubItem right,
             SortOrder sortOrder
-            )
-        {
-            if (sortOrder == SortOrder.Ascending)
-            {
-                if (left.Text == string.Empty)
-                {
+            ) {
+            if (sortOrder == SortOrder.Ascending) {
+                if (left.Text == string.Empty) {
                     return (-1);
                 }
 
-                if (right.Text == string.Empty)
-                {
+                if (right.Text == string.Empty) {
                     return (1);
                 }
             }
 
-            if (sortOrder == SortOrder.Descending)
-            {
-                if (left.Text == string.Empty)
-                {
+            if (sortOrder == SortOrder.Descending) {
+                if (left.Text == string.Empty) {
                     return (1);
                 }
 
-                if (right.Text == string.Empty)
-                {
+                if (right.Text == string.Empty) {
                     return (-1);
                 }
             }

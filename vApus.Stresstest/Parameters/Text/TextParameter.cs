@@ -11,11 +11,9 @@ using System.ComponentModel;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     [DisplayName("Text Parameter"), Serializable]
-    public class TextParameter : BaseParameter
-    {
+    public class TextParameter : BaseParameter {
         #region Fields
 
         private Fixed _fixed;
@@ -31,11 +29,9 @@ namespace vApus.Stresstest
 
         [PropertyControl(0), SavableCloneable]
         [DisplayName("Minimum Length"), Description("Only applicable if no pattern is given.")]
-        public int MinLength
-        {
+        public int MinLength {
             get { return _minLength; }
-            set
-            {
+            set {
                 if (value < 0)
                     throw new ArgumentOutOfRangeException("Cannot be smaller then zero.");
 
@@ -48,11 +44,9 @@ namespace vApus.Stresstest
 
         [PropertyControl(1), SavableCloneable]
         [DisplayName("Maximum Length"), Description("Only applicable if no pattern is given.")]
-        public int MaxLength
-        {
+        public int MaxLength {
             get { return _maxLength; }
-            set
-            {
+            set {
                 if (value < _minLength)
                     value = _minLength;
 
@@ -64,24 +58,21 @@ namespace vApus.Stresstest
         [Description(
             "0 = numeric char, obligatory; 9 = optional; A = capital, obligatory; a = non-capital; B = capital, optional; b = non-capital; # = random char, obligatory; ? = optional."
             )]
-        public string Pattern
-        {
+        public string Pattern {
             get { return _pattern; }
             set { _pattern = value; }
         }
 
         [PropertyControl(100), SavableCloneable]
         [Description("Prefix the output value.")]
-        public string Prefix
-        {
+        public string Prefix {
             get { return _prefix; }
             set { _prefix = value; }
         }
 
         [PropertyControl(101), SavableCloneable]
         [Description("Suffix the output value.")]
-        public string Suffix
-        {
+        public string Suffix {
             get { return _suffix; }
             set { _suffix = value; }
         }
@@ -91,8 +82,7 @@ namespace vApus.Stresstest
          Description(
              "If a pre- or suffix is not fixed their length will be adepted to the output value (try generate custom list)."
              )]
-        public Fixed _Fixed
-        {
+        public Fixed _Fixed {
             get { return _fixed; }
             set { _fixed = value; }
         }
@@ -101,14 +91,12 @@ namespace vApus.Stresstest
 
         #region Constructor
 
-        public TextParameter()
-        {
+        public TextParameter() {
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
 
         public TextParameter(string pattern)
-            : this()
-        {
+            : this() {
             _pattern = pattern;
         }
 
@@ -116,21 +104,18 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (Parent != null && Parent is CustomListParameter)
                 ShowInGui = false;
         }
 
-        public override void Next()
-        {
+        public override void Next() {
             SetValue();
             while (!_chosenValues.Add(_value))
                 SetValue();
         }
 
-        private void SetValue()
-        {
+        private void SetValue() {
             if (_chosenValues.Count == int.MaxValue)
                 _chosenValues.Clear();
 
@@ -140,8 +125,7 @@ namespace vApus.Stresstest
             _value = GetFixedValue();
         }
 
-        public override void ResetValue()
-        {
+        public override void ResetValue() {
             _value = string.Empty;
             _chosenValues.Clear();
         }
@@ -150,17 +134,13 @@ namespace vApus.Stresstest
         ///     Value with prefix and suffix if any.
         /// </summary>
         /// <returns></returns>
-        private string GetFixedValue()
-        {
+        private string GetFixedValue() {
             string pre = _prefix, suf = _suffix, value = Value;
             int length;
-            if (_fixed == Fixed.Suffix)
-            {
+            if (_fixed == Fixed.Suffix) {
                 length = pre.Length - value.Length + 1;
                 pre = (length > 0) ? pre.Substring(0, length) : string.Empty;
-            }
-            else if (_fixed == Fixed.Prefix)
-            {
+            } else if (_fixed == Fixed.Prefix) {
                 length = suf.Length - value.Length + 1;
                 suf = (length > 0) ? suf.Substring(suf.Length - length) : string.Empty;
             }

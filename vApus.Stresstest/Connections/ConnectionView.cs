@@ -13,10 +13,8 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class ConnectionView : BaseSolutionComponentView
-    {
+namespace vApus.Stresstest {
+    public partial class ConnectionView : BaseSolutionComponentView {
         #region Fields
 
         private readonly Connection _connection;
@@ -35,14 +33,12 @@ namespace vApus.Stresstest
 
         #region Constructors
 
-        public ConnectionView()
-        {
+        public ConnectionView() {
             InitializeComponent();
         }
 
         public ConnectionView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args)
-        {
+            : base(solutionComponent, args) {
             InitializeComponent();
             _connection = solutionComponent as Connection;
 
@@ -58,29 +54,25 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        private void ConnectionView_HandleCreated(object sender, EventArgs e)
-        {
+        private void ConnectionView_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= ConnectionView_HandleCreated;
             SetGui();
         }
 
-        private void SetGui()
-        {
+        private void SetGui() {
             solutionComponentPropertyPanel.SolutionComponent = _connection;
             ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connection.ConnectionProxy.ConnectionProxyRuleSet,
                                                       _connection.ConnectionString);
             ruleSetSyntaxItemPanel.InputChanged += ruleSetSyntaxItemPanel_InputChanged;
         }
 
-        private void ruleSetSyntaxItemPanel_InputChanged(object sender, EventArgs e)
-        {
+        private void ruleSetSyntaxItemPanel_InputChanged(object sender, EventArgs e) {
             _connection.ConnectionString = ruleSetSyntaxItemPanel.Input;
             _canUpdateGui = false;
             _connection.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void btnTestConnection_Click(object sender, EventArgs e)
-        {
+        private void btnTestConnection_Click(object sender, EventArgs e) {
             _testing = true;
             split.Enabled = false;
             btnTestConnection.Enabled = false;
@@ -89,13 +81,10 @@ namespace vApus.Stresstest
             StaticActiveObjectWrapper.ActiveObject.Send(_testConnectionDel);
         }
 
-        private void TestConnection()
-        {
+        private void TestConnection() {
             _testing = false;
-            if (_connection.ConnectionProxy.IsEmpty)
-            {
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                    {
+            if (_connection.ConnectionProxy.IsEmpty) {
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         btnTestConnection.Text = "Test Connection";
                         if (!_tracing)
                             split.Enabled = true;
@@ -113,20 +102,17 @@ namespace vApus.Stresstest
             var connectionProxyPool = new ConnectionProxyPool(_connection);
             CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(false);
 
-            if (compilerResults.Errors.HasErrors)
-            {
+            if (compilerResults.Errors.HasErrors) {
                 string error = "Failed at compiling the connection proxy class";
                 var sb = new StringBuilder(error + ": ");
                 sb.AppendLine();
-                foreach (CompilerError ce in compilerResults.Errors)
-                {
+                foreach (CompilerError ce in compilerResults.Errors) {
                     sb.AppendFormat("Error number {0}, Line {1}, Column {2}: {3}", ce.ErrorNumber, ce.Line, ce.Column,
                                     ce.ErrorText);
                     sb.AppendLine();
                 }
 
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                    {
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         btnTestConnection.Text = "Test Connection";
                         if (!_tracing)
                             split.Enabled = true;
@@ -137,27 +123,21 @@ namespace vApus.Stresstest
 
                         LogWrapper.LogByLevel("[" + _connection + "] " + sb, LogLevel.Warning);
                     }, null);
-            }
-            else
-            {
+            } else {
                 string errorMessage;
                 connectionProxyPool.TestConnection(out errorMessage);
 
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate
-                    {
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         btnTestConnection.Text = "Test Connection";
                         if (!_tracing)
                             split.Enabled = true;
                         btnTestConnection.Enabled = true;
 
-                        if (errorMessage == null)
-                        {
+                        if (errorMessage == null) {
                             MessageBox.Show(this, "The connection has been established! and closed again successfully.",
                                             string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information,
                                             MessageBoxDefaultButton.Button1);
-                        }
-                        else
-                        {
+                        } else {
                             string error =
                                 "The connection could not be made, please make sure everything is filled in correctly.";
                             MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
@@ -172,18 +152,16 @@ namespace vApus.Stresstest
             connectionProxyPool = null;
         }
 
-        private void tracertControl_BeforeTrace(object sender, EventArgs e)
-        {
+        private void tracertControl_BeforeTrace(object sender, EventArgs e) {
             _tracing = true;
             split.Enabled = false;
 
             string[] sp =
                 _connection.ConnectionString.Split(
-                    new[] {_connection.ConnectionProxy.ConnectionProxyRuleSet.ChildDelimiter}, StringSplitOptions.None);
+                    new[] { _connection.ConnectionProxy.ConnectionProxyRuleSet.ChildDelimiter }, StringSplitOptions.None);
             string tracertField = sp[_connection.ConnectionProxy.ConnectionProxyRuleSet.TracertField - 1];
 
-            if (tracertField.ContainsChars('/'))
-            {
+            if (tracertField.ContainsChars('/')) {
                 if (tracertField.StartsWith("http://"))
                     tracertField = tracertField.Substring("http://".Length);
 
@@ -193,17 +171,14 @@ namespace vApus.Stresstest
             tracertControl.SetToTrace(tracertField);
         }
 
-        private void tracertControl_Done(object sender, EventArgs e)
-        {
+        private void tracertControl_Done(object sender, EventArgs e) {
             _tracing = false;
             if (!_testing)
                 split.Enabled = true;
         }
 
-        public override void Refresh()
-        {
-            if (_canUpdateGui)
-            {
+        public override void Refresh() {
+            if (_canUpdateGui) {
                 base.Refresh();
                 solutionComponentPropertyPanel.Refresh();
                 ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connection.ConnectionProxy.ConnectionProxyRuleSet,

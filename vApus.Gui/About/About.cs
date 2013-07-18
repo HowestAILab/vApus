@@ -17,10 +17,8 @@ using System.Windows.Forms;
 using System.Xml;
 using vApus.Gui.Properties;
 
-namespace vApus.Gui
-{
-    public partial class About : Form
-    {
+namespace vApus.Gui {
+    public partial class About : Form {
         #region Fields
 
         private readonly Font _dateFont;
@@ -32,46 +30,39 @@ namespace vApus.Gui
         #region Properties
 
         /// <summary></summary>
-        private string AssemblyVersion
-        {
+        private string AssemblyVersion {
             get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
         }
 
         /// <summary></summary>
-        private string AssemblyDescription
-        {
-            get
-            {
+        private string AssemblyDescription {
+            get {
                 object[] attributes =
-                    Assembly.GetExecutingAssembly().GetCustomAttributes(typeof (AssemblyDescriptionAttribute), false);
+                    Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
                 if (attributes.Length == 0)
                     return "";
-                return ((AssemblyDescriptionAttribute) attributes[0]).Description;
+                return ((AssemblyDescriptionAttribute)attributes[0]).Description;
             }
         }
 
         /// <summary></summary>
-        private string AssemblyCopyright
-        {
-            get
-            {
+        private string AssemblyCopyright {
+            get {
                 object[] attributes =
-                    Assembly.GetExecutingAssembly().GetCustomAttributes(typeof (AssemblyCopyrightAttribute), false);
+                    Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
                 if (attributes.Length == 0)
                     return "";
-                return ((AssemblyCopyrightAttribute) attributes[0]).Copyright;
+                return ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
             }
         }
 
-        private string Licenses
-        {
+        private string Licenses {
             get { return Resources.Licenses; }
         }
 
         #endregion
 
-        public About()
-        {
+        public About() {
             InitializeComponent();
 
             lblDescription.Text = AssemblyDescription;
@@ -86,24 +77,20 @@ namespace vApus.Gui
             rtxtLicenses.Text = Licenses;
         }
 
-        private void ReadVersionIni()
-        {
+        private void ReadVersionIni() {
             string ini = Path.Combine(Application.StartupPath, "version.ini");
             string line = string.Empty;
             bool versionFound = false, channelFound = false, historyFound = false;
 
-            if (File.Exists(ini))
-            {
+            if (File.Exists(ini)) {
                 var sr = new StreamReader(ini);
-                while (sr.Peek() != -1)
-                {
+                while (sr.Peek() != -1) {
                     line = sr.ReadLine().Trim();
 
                     if (line.Length == 0)
                         continue;
 
-                    switch (line)
-                    {
+                    switch (line) {
                         case "[VERSION]":
                             versionFound = true;
                             continue;
@@ -115,57 +102,41 @@ namespace vApus.Gui
                             continue;
                     }
 
-                    if (historyFound)
-                    {
+                    if (historyFound) {
                         FillHistory(line);
                         break;
-                    }
-                    else if (channelFound)
-                    {
+                    } else if (channelFound) {
                         txtChannel.Text = "Channel: " + line;
                         channelFound = false;
-                    }
-                    else if (versionFound)
-                    {
+                    } else if (versionFound) {
                         txtVersion.Text = "Version: " + line;
                         versionFound = false;
                     }
                 }
-                try
-                {
+                try {
                     sr.Close();
+                } catch {
                 }
-                catch
-                {
-                }
-                try
-                {
+                try {
                     sr.Dispose();
-                }
-                catch
-                {
+                } catch {
                 }
                 sr = null;
             }
         }
 
-        private void FillHistory(string historyOfChanges)
-        {
+        private void FillHistory(string historyOfChanges) {
             var parts = new List<HistoryPart>();
             var doc = new XmlDocument();
             XmlNode node = doc.ReadNode(XmlReader.Create(new MemoryStream(Encoding.ASCII.GetBytes(historyOfChanges))));
 
             //First filling the rtxt and then applying the style
             int previousCaretPosition = 0;
-            foreach (XmlNode n in node.ChildNodes)
-            {
-                switch (n.Name)
-                {
+            foreach (XmlNode n in node.ChildNodes) {
+                switch (n.Name) {
                     case "t":
-                        foreach (XmlNode nn in n.ChildNodes)
-                        {
-                            switch (nn.Name)
-                            {
+                        foreach (XmlNode nn in n.ChildNodes) {
+                            switch (nn.Name) {
                                 case "d":
                                     rtxtHistory.Text = rtxtHistory.Text + " (" + nn.InnerText + ")" +
                                                        Environment.NewLine;
@@ -193,11 +164,9 @@ namespace vApus.Gui
                 }
                 previousCaretPosition = rtxtHistory.Text.Length;
             }
-            foreach (HistoryPart part in parts)
-            {
+            foreach (HistoryPart part in parts) {
                 rtxtHistory.Select(part.SelectionStart, part.Length);
-                switch (part.Type)
-                {
+                switch (part.Type) {
                     case "d":
                         rtxtHistory.SelectionFont = _dateFont;
                         rtxtHistory.SelectionColor = Color.Blue;
@@ -215,8 +184,7 @@ namespace vApus.Gui
             rtxtHistory.Select(0, 0);
         }
 
-        private void lblWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
+        private void lblWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             Process.Start("http://www.sizingservers.be");
         }
     }

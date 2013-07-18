@@ -9,10 +9,8 @@
 using System;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public interface IConnectionProxy : IDisposable
-    {
+namespace vApus.Stresstest {
+    public interface IConnectionProxy : IDisposable {
         bool IsConnectionOpen { get; }
         bool IsDisposed { get; }
         void TestConnection(out string error);

@@ -6,14 +6,11 @@
  *    Dieter Vandroemme
  */
 
-namespace vApus.Util
-{
-    public static class StaticActiveObjectWrapper
-    {
+namespace vApus.Util {
+    public static class StaticActiveObjectWrapper {
         public static readonly ActiveObject ActiveObject;
 
-        static StaticActiveObjectWrapper()
-        {
+        static StaticActiveObjectWrapper() {
             ActiveObject = new ActiveObject();
         }
     }

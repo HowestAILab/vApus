@@ -564,23 +564,21 @@ namespace WeifenLuo.WinFormsUI.Docking
 
         public void DockTo(DockPanel panel, DockStyle dockStyle)
         {
-            if (panel != DockPanel)
-                throw new ArgumentException(Strings.IDockDragSource_DockTo_InvalidPanel, "panel");
+                if (panel != DockPanel)
+                    throw new ArgumentException(Strings.IDockDragSource_DockTo_InvalidPanel, "panel");
 
-            DockPane pane;
+                DockPane pane;
 
-            if (dockStyle == DockStyle.Top)
-                pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.DockTop, true);
-            else if (dockStyle == DockStyle.Bottom)
-                pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.DockBottom, true);
-            else if (dockStyle == DockStyle.Left)
-                pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.DockLeft, true);
-            else if (dockStyle == DockStyle.Right)
-                pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.DockRight, true);
-            else if (dockStyle == DockStyle.Fill)
-                pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.Document, true);
-            else
-                return;
+                if (dockStyle == DockStyle.Top)
+                    pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.DockTop, true);
+                else if (dockStyle == DockStyle.Bottom)
+                    pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.DockBottom, true);
+                else if (dockStyle == DockStyle.Left)
+                    pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.DockLeft, true);
+                else if (dockStyle == DockStyle.Right)
+                    pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.DockRight, true);
+                else if (dockStyle == DockStyle.Fill)
+                    pane = DockPanel.DockPaneFactory.CreateDockPane(Content, DockState.Document, true);
         }
 
         #endregion

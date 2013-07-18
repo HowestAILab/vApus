@@ -10,10 +10,8 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace vApus.Util
-{
-    public static class CaretPosition
-    {
+namespace vApus.Util {
+    public static class CaretPosition {
         /*- Retrieves information about active window or any specific GUI thread -*/
 
         [DllImport("user32.dll", EntryPoint = "GetGUIThreadInfo")]
@@ -24,15 +22,14 @@ namespace vApus.Util
         [DllImport("user32.dll")]
         public static extern bool ClientToScreen(IntPtr hWnd, out Point position);
 
-        public static Point Get()
-        {
+        public static Point Get() {
             var guiInfo = new GUITHREADINFO();
-            guiInfo.cbSize = (uint) Marshal.SizeOf(guiInfo);
+            guiInfo.cbSize = (uint)Marshal.SizeOf(guiInfo);
 
             // Get GuiThreadInfo into guiInfo
             GetGUIThreadInfo(0, out guiInfo);
 
-            var point = new Point((int) guiInfo.rcCaret.Left, (int) guiInfo.rcCaret.Top);
+            var point = new Point((int)guiInfo.rcCaret.Left, (int)guiInfo.rcCaret.Top);
 
             ClientToScreen(guiInfo.hwndCaret, out point);
 
@@ -40,8 +37,7 @@ namespace vApus.Util
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct GUITHREADINFO
-        {
+        public struct GUITHREADINFO {
             public uint cbSize;
             public uint flags;
             public IntPtr hwndActive;
@@ -54,8 +50,7 @@ namespace vApus.Util
         };
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
+        public struct RECT {
             public uint Left;
             public uint Top;
             public uint Right;

@@ -9,15 +9,12 @@
 using System;
 using System.Diagnostics;
 
-namespace vApus.Util
-{
-    public static class ExceptionHelper
-    {
+namespace vApus.Util {
+    public static class ExceptionHelper {
         /// <summary>
         ///     Use this to parse an exeption to an usable string. Note on this that this only gets the last frame from the stacktrace.
         /// </summary>
-        public static string ParseExceptionToString(Exception ex)
-        {
+        public static string ParseExceptionToString(Exception ex) {
             var trace = new StackTrace(ex, true);
 
             string methodName = trace.GetFrame(0).GetMethod().Name;

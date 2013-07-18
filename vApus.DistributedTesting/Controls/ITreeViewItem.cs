@@ -6,10 +6,8 @@
  *    Dieter Vandroemme
  */
 
-namespace vApus.DistributedTesting
-{
-    public interface ITreeViewItem
-    {
+namespace vApus.DistributedTesting {
+    public interface ITreeViewItem {
         /// </summary>
         void SetVisibleControls();
 

@@ -11,15 +11,13 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     Serves to register a window message to your application.
     ///     For instance, in combination with a named mutex you can bring the already running app to the front.
     ///     (See vApus.UpdateTool.Update)
     /// </summary>
-    public class Win32WindowMessageHandler
-    {
+    public class Win32WindowMessageHandler {
         public const int HWND_BROADCAST = 0xffff;
         public readonly int WINDOW_MSG;
 
@@ -27,8 +25,7 @@ namespace vApus.Util
         ///     Win32WindowMessageHandler(Assembly.GetEntryAssembly().FullName + " " + Process.GetCurrentProcess().Id.ToString())
         /// </summary>
         public Win32WindowMessageHandler()
-            : this(Assembly.GetEntryAssembly().FullName + " " + Process.GetCurrentProcess().Id.ToString())
-        {
+            : this(Assembly.GetEntryAssembly().FullName + " " + Process.GetCurrentProcess().Id.ToString()) {
         }
 
         /// <summary>
@@ -36,8 +33,7 @@ namespace vApus.Util
         ///     For instance, in combination with a named mutex you can bring the already running app to the front.
         ///     (See vApus.UpdateTool.Update)
         /// </summary>
-        public Win32WindowMessageHandler(string windowMessage)
-        {
+        public Win32WindowMessageHandler(string windowMessage) {
             WINDOW_MSG = RegisterWindowMessage(windowMessage);
         }
 
@@ -50,8 +46,7 @@ namespace vApus.Util
         /// <summary>
         ///     This will broadcast the message to all the running apps, WndProc should be overridden in your main form to handle the message.
         /// </summary>
-        public void PostMessage()
-        {
+        public void PostMessage() {
             PostMessage(IntPtr.Zero, IntPtr.Zero);
         }
 
@@ -60,9 +55,8 @@ namespace vApus.Util
         /// </summary>
         /// <param name="wparam"></param>
         /// <param name="lparam"></param>
-        public void PostMessage(IntPtr wparam, IntPtr lparam)
-        {
-            PostMessage((IntPtr) HWND_BROADCAST, WINDOW_MSG, wparam, lparam);
+        public void PostMessage(IntPtr wparam, IntPtr lparam) {
+            PostMessage((IntPtr)HWND_BROADCAST, WINDOW_MSG, wparam, lparam);
         }
     }
 }

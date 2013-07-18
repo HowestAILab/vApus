@@ -6,7 +6,6 @@
  *    Dieter Vandroemme
  */
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     public delegate void WorkItemCallback(int threadIndex);
 }

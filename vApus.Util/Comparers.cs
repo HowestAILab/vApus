@@ -11,10 +11,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public enum SortBy
-    {
+namespace vApus.Util {
+    public enum SortBy {
         Text = 1,
         ToString = 2,
         Name = 4,
@@ -24,41 +22,35 @@ namespace vApus.Util
     /// <summary>
     ///     Compares the name of the property info's.
     /// </summary>
-    public class PropertyInfoComparer : IComparer<PropertyInfo>
-    {
+    public class PropertyInfoComparer : IComparer<PropertyInfo> {
         private static readonly PropertyInfoComparer _propertyInfoComparer;
 
         /// <summary>
         ///     Compares the name of the property info's.
         /// </summary>
-        static PropertyInfoComparer()
-        {
+        static PropertyInfoComparer() {
             _propertyInfoComparer = new PropertyInfoComparer();
         }
 
         private PropertyInfoComparer() { }
 
-        public int Compare(PropertyInfo x, PropertyInfo y)
-        {
+        public int Compare(PropertyInfo x, PropertyInfo y) {
             return x.Name.CompareTo(y.Name);
         }
 
         /// <summary>
         ///     Compares the name of the property info's.
         /// </summary>
-        public static PropertyInfoComparer GetInstance()
-        {
+        public static PropertyInfoComparer GetInstance() {
             return _propertyInfoComparer;
         }
     }
 
-    public class ControlComparer : IComparer<Control>
-    {
+    public class ControlComparer : IComparer<Control> {
         private readonly SortBy _sortBy;
         private readonly SortOrder _sortOrder;
 
-        public ControlComparer(SortBy sortBy, SortOrder sortOrder)
-        {
+        public ControlComparer(SortBy sortBy, SortOrder sortOrder) {
             _sortBy = sortBy;
             _sortOrder = sortOrder;
         }
@@ -69,17 +61,13 @@ namespace vApus.Util
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public int Compare(Control x, Control y)
-        {
+        public int Compare(Control x, Control y) {
             int output = 0;
-            for (int i = 0; i < 4; i++)
-            {
+            for (int i = 0; i < 4; i++) {
                 //Using a 'binairy and' to see what needs to be compared.
                 var containsSortBy = (int)Math.Pow(2, i);
-                if (((int)_sortBy & containsSortBy) > 0)
-                {
-                    switch (containsSortBy)
-                    {
+                if (((int)_sortBy & containsSortBy) > 0) {
+                    switch (containsSortBy) {
                         //Text
                         case 1:
                             output += x.Text.CompareTo(y.Text);

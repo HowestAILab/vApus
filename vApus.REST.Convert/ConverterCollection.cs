@@ -7,10 +7,7 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
 namespace vApus.REST.Convert {
-    //public class ConverterCollection : List<ConverterKVP> {
-    //}
     public class ConverterCollection : IDictionary<object, object> {
         private List<KeyValuePair<object, object>> _cache = new List<KeyValuePair<object, object>>();
         public void Add(object key, object value) {

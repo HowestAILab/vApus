@@ -12,18 +12,15 @@ using System.Drawing;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     /// <summary>
     ///     Don't forget to call VisualizeSynchronization.
     /// </summary>
-    public partial class ParameterTokenSynchronization : BaseSolutionComponentView
-    {
+    public partial class ParameterTokenSynchronization : BaseSolutionComponentView {
         /// <summary>
         ///     Design time constructor
         /// </summary>
-        public ParameterTokenSynchronization()
-        {
+        public ParameterTokenSynchronization() {
             InitializeComponent();
         }
 
@@ -33,8 +30,7 @@ namespace vApus.Stresstest
         /// <param name="solutionComponent"></param>
         /// <param name="args"></param>
         public ParameterTokenSynchronization(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args)
-        {
+            : base(solutionComponent, args) {
             InitializeComponent();
         }
 
@@ -42,13 +38,11 @@ namespace vApus.Stresstest
         ///     Visualize the synchronization
         /// </summary>
         /// <param name="oldAndNewIndices"></param>
-        public void VisualizeSynchronization(Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices)
-        {
+        public void VisualizeSynchronization(Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices) {
             lvw.Items.Clear();
 
             var l = new List<ListViewItem>(oldAndNewIndices.Count);
-            foreach (BaseParameter parameter in oldAndNewIndices.Keys)
-            {
+            foreach (BaseParameter parameter in oldAndNewIndices.Keys) {
                 Color color = GetBackColor(parameter);
 
                 var item = new ListViewItem(parameter.ToString());
@@ -74,8 +68,7 @@ namespace vApus.Stresstest
             lvw.Items.AddRange(l.ToArray());
         }
 
-        private Color GetBackColor(BaseParameter parameter)
-        {
+        private Color GetBackColor(BaseParameter parameter) {
             if (parameter is CustomListParameter)
                 return Color.LightPink;
             else if (parameter is NumericParameter)
@@ -87,8 +80,7 @@ namespace vApus.Stresstest
             return Color.Transparent;
         }
 
-        private void ParameterTokenSynchronization_Resize(object sender, EventArgs e)
-        {
+        private void ParameterTokenSynchronization_Resize(object sender, EventArgs e) {
             clmParameter.Width = lvw.ClientSize.Width - clmOld.Width - clmNew.Width - 18;
         }
     }

@@ -9,12 +9,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace vApus.Util
-{
-    public static class DictionaryUtil
-    {
-        public static TKey GetKeyAt<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, int index)
-        {
+namespace vApus.Util {
+    public static class DictionaryUtil {
+        public static TKey GetKeyAt<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, int index) {
             if (index < 0)
                 throw new IndexOutOfRangeException("index < 0");
             else if (index >= dictionary.Count)
@@ -28,11 +25,9 @@ namespace vApus.Util
             return enumerator.Current;
         }
 
-        public static bool TryGetKey<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value, out TKey key)
-        {
+        public static bool TryGetKey<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value, out TKey key) {
             foreach (TKey k in dictionary.Keys)
-                if (dictionary[k].Equals(value))
-                {
+                if (dictionary[k].Equals(value)) {
                     key = k;
                     return true;
                 }

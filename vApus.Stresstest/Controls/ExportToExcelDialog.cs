@@ -1,11 +1,11 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using SpreadsheetLight;
 using SpreadsheetLight.Charts;
 using System;
@@ -175,7 +175,7 @@ namespace vApus.Stresstest {
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
             chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
             chart.SecondaryValueAxis.ShowTitle = true;
-            
+
             doc.InsertChart(chart);
 
             return worksheet;

@@ -8,16 +8,13 @@
 
 using System;
 
-namespace vApus.CommitTool
-{
-    internal static class Program
-    {
+namespace vApus.CommitTool {
+    internal static class Program {
         /// <summary>
         ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main(string[] args)
-        {
+        private static void Main(string[] args) {
             Console.WriteLine("/*");
             Console.WriteLine("* Copyright 2012 (c) Sizing Servers Lab");
             Console.WriteLine("* University College of West-Flanders, Department GKG");
@@ -30,10 +27,8 @@ namespace vApus.CommitTool
             Commit commit = Commit.GetInstance();
 
             Exception exception;
-            if (args.Length >= 8)
-            {
-                try
-                {
+            if (args.Length >= 8) {
+                try {
                     var excludedFilesOrFolders = new string[args.Length - 8];
                     int j = 0;
                     for (int i = 8; i < args.Length; i++)
@@ -41,18 +36,13 @@ namespace vApus.CommitTool
 
                     commit.Do(args[0], int.Parse(args[1]), args[2], args[3], args[4], args[5], out exception, args[6],
                               args[7], excludedFilesOrFolders);
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     exception = ex;
                 }
-            }
-            else
-            {
+            } else {
                 exception = new ArgumentException("Not enough arguments.");
             }
-            if (exception != null)
-            {
+            if (exception != null) {
                 Console.WriteLine(
                     "Usage: vApus.CommitTool.exe host port username password historyXml localGitRepository gitCmd excludeFilesOrFolders 1 ... n");
                 Console.WriteLine(

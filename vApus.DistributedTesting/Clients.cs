@@ -8,12 +8,9 @@
 
 using vApus.SolutionTree;
 
-namespace vApus.DistributedTesting
-{
-    public class Clients : BaseItem
-    {
-        public Clients()
-        {
+namespace vApus.DistributedTesting {
+    public class Clients : BaseItem {
+        public Clients() {
             ShowInGui = false;
         }
     }

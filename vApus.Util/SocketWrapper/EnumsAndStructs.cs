@@ -8,13 +8,11 @@
 
 using System;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     How data will be send.
     /// </summary>
-    public enum SendType
-    {
+    public enum SendType {
         Bytes = 0,
         Text = 1,
         Binary = 2,
@@ -24,8 +22,7 @@ namespace vApus.Util
     /// <summary>
     ///     Encoding for SendType.Text or SendType.SOAP.
     /// </summary>
-    public enum Encoding
-    {
+    public enum Encoding {
         ASCII = 0,
         BigEndianUnicode = 1,
 
@@ -45,8 +42,7 @@ namespace vApus.Util
     /// </summary>
     /// <typeparam name="TKey"> Defines what should happen with the content. Can be whatever serializable type you like, ex. an enumeration.</typeparam>
     [Serializable]
-    public struct Message<TKey>
-    {
+    public struct Message<TKey> {
         #region Fields
 
         /// <summary>
@@ -69,8 +65,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="key">Defines what should happen with the content. Can be whatever serializable type you like, ex. an enumeration.</param>
         /// <param name="content">The actual data you want to transmit.</param>
-        public Message(TKey key, object content)
-        {
+        public Message(TKey key, object content) {
             Key = key;
             Content = content;
         }
@@ -83,8 +78,7 @@ namespace vApus.Util
     ///     Works for SendType.Binary too, personally I like the generic approach more.
     /// </summary>
     [Serializable]
-    public struct SOAPMessage
-    {
+    public struct SOAPMessage {
         #region Fields
 
         /// <summary>
@@ -101,8 +95,7 @@ namespace vApus.Util
 
         #region Constructor
 
-        public SOAPMessage(string key, object content)
-        {
+        public SOAPMessage(string key, object content) {
             Key = key;
             Content = content;
         }

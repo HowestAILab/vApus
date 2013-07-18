@@ -8,13 +8,11 @@
 
 using vApus.SolutionTree;
 
-namespace vApus.DistributedTesting
-{
+namespace vApus.DistributedTesting {
     /// <summary>
     ///     A tile of stresstests.
     /// </summary>
-    public class Tile : LabeledBaseItem
-    {
+    public class Tile : LabeledBaseItem {
         #region Fields
 
         private bool _use;
@@ -24,8 +22,7 @@ namespace vApus.DistributedTesting
         #region Properties
 
         [SavableCloneable]
-        public bool Use
-        {
+        public bool Use {
             get { return _use; }
             set { _use = value; }
         }
@@ -37,8 +34,7 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     A tile of stresstests.
         /// </summary>
-        public Tile()
-        {
+        public Tile() {
             ShowInGui = false;
         }
 
@@ -50,8 +46,7 @@ namespace vApus.DistributedTesting
         ///     Create a clone of this.
         /// </summary>
         /// <returns></returns>
-        public Tile Clone()
-        {
+        public Tile Clone() {
             var clone = new Tile();
             clone.Use = _use;
             foreach (TileStresstest ts in this)

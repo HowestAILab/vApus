@@ -12,10 +12,8 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class ParameterView : BaseSolutionComponentView
-    {
+namespace vApus.Stresstest {
+    public partial class ParameterView : BaseSolutionComponentView {
         #region Fields
 
         private CustomListGenerator _customListGenerator;
@@ -25,14 +23,12 @@ namespace vApus.Stresstest
 
         #region Constructors
 
-        public ParameterView()
-        {
+        public ParameterView() {
             InitializeComponent();
         }
 
         public ParameterView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args)
-        {
+            : base(solutionComponent, args) {
             InitializeComponent();
             _parameter = solutionComponent as BaseParameter;
             solutionComponentPropertyPanel.SolutionComponent = solutionComponent;
@@ -43,50 +39,41 @@ namespace vApus.Stresstest
 
         #endregion
 
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e)
-        {
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             solutionComponentPropertyPanel.Refresh();
             SetGui();
         }
 
-        private void SetGui()
-        {
-            if (_parameter is CustomListParameter)
-            {
+        private void SetGui() {
+            if (_parameter is CustomListParameter) {
                 pnlCustomList.Visible = true;
 
                 var parameter = _parameter as CustomListParameter;
                 btnClear.Enabled = parameter.CustomList.Length > 0;
                 var entries = new HashSet<string>();
                 foreach (string s in parameter.CustomList)
-                    if (!entries.Add(s))
-                    {
+                    if (!entries.Add(s)) {
                         btnRemoveDuplicates.Enabled = true;
                         return;
                     }
                 btnRemoveDuplicates.Enabled = false;
-            }
-            else
-            {
+            } else {
                 pnlCustomList.Visible = false;
             }
         }
 
-        private void btnGenerate_Click(object sender, EventArgs e)
-        {
+        private void btnGenerate_Click(object sender, EventArgs e) {
             if (_customListGenerator == null)
                 _customListGenerator = new CustomListGenerator(_parameter as CustomListParameter);
 
-            if (_customListGenerator.ShowDialog() == DialogResult.OK)
-            {
+            if (_customListGenerator.ShowDialog() == DialogResult.OK) {
                 SolutionComponent.InvokeSolutionComponentChangedEvent(
                     SolutionComponentChangedEventArgs.DoneAction.Edited);
                 solutionComponentPropertyPanel.Refresh();
             }
         }
 
-        private void btnAddFromText_Click(object sender, EventArgs e)
-        {
+        private void btnAddFromText_Click(object sender, EventArgs e) {
             var parameter = _parameter as CustomListParameter;
 
             var fromTextDialog = new FromTextDialog();
@@ -99,15 +86,13 @@ namespace vApus.Stresstest
             solutionComponentPropertyPanel.Refresh();
         }
 
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            (_parameter as CustomListParameter).CustomList = new string[] {};
+        private void btnClear_Click(object sender, EventArgs e) {
+            (_parameter as CustomListParameter).CustomList = new string[] { };
             SolutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             solutionComponentPropertyPanel.Refresh();
         }
 
-        private void btnRemoveDuplicates_Click(object sender, EventArgs e)
-        {
+        private void btnRemoveDuplicates_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             var parameter = _parameter as CustomListParameter;
             var entries = new HashSet<string>();

@@ -9,7 +9,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -188,7 +187,7 @@ namespace vApus.DistributedTesting {
             CreateAndAddTileTreeViewItem(tile);
 
             dttvi.DistributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
-            
+
             LockWindowUpdate(0);
         }
 

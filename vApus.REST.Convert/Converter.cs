@@ -5,13 +5,13 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
+using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using vApus.Results;
 using vApus.Stresstest;
 

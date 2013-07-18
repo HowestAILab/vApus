@@ -8,25 +8,20 @@
 
 using System;
 
-namespace vApus.Monitor
-{
+namespace vApus.Monitor {
     [Serializable]
-    public class MonitorSource
-    {
+    public class MonitorSource {
         private readonly string _source = "<None>";
 
-        public MonitorSource(string source)
-        {
+        public MonitorSource(string source) {
             _source = source;
         }
 
-        public string Source
-        {
+        public string Source {
             get { return _source; }
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return _source;
         }
     }

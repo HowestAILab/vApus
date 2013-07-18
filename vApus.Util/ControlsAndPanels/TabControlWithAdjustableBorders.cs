@@ -9,41 +9,33 @@
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public class TabControlWithAdjustableBorders : TabControl
-    {
+namespace vApus.Util {
+    public class TabControlWithAdjustableBorders : TabControl {
         private const int TCM_ADJUSTRECT = 0X1328;
         private bool _bottomVisible, _leftVisible, _rightVisible, _topVisible;
 
-        public bool LeftVisible
-        {
+        public bool LeftVisible {
             get { return _leftVisible; }
             set { _leftVisible = value; }
         }
 
-        public bool RightVisible
-        {
+        public bool RightVisible {
             get { return _rightVisible; }
             set { _rightVisible = value; }
         }
 
-        public bool TopVisible
-        {
+        public bool TopVisible {
             get { return _topVisible; }
             set { _topVisible = value; }
         }
 
-        public bool BottomVisible
-        {
+        public bool BottomVisible {
             get { return _bottomVisible; }
             set { _bottomVisible = value; }
         }
 
-        protected override void WndProc(ref Message m)
-        {
-            if (m.Msg == TCM_ADJUSTRECT)
-            {
+        protected override void WndProc(ref Message m) {
+            if (m.Msg == TCM_ADJUSTRECT) {
                 var rc = (RECT)m.GetLParam(typeof(RECT));
 
                 if (!_leftVisible) rc.Left -= 4;
@@ -56,8 +48,7 @@ namespace vApus.Util
             base.WndProc(ref m);
         }
 
-        private struct RECT
-        {
+        private struct RECT {
             public int Left, Top, Right, Bottom;
         }
     }

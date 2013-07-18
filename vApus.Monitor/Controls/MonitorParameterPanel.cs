@@ -11,14 +11,11 @@ using System.Collections.Generic;
 using vApus.Util;
 using vApusSMT.Base;
 
-namespace vApus.Monitor
-{
-    public partial class MonitorParameterPanel : ValueControlPanel
-    {
+namespace vApus.Monitor {
+    public partial class MonitorParameterPanel : ValueControlPanel {
         private Dictionary<Parameter, object> _parametersWithValues;
 
-        public MonitorParameterPanel()
-        {
+        public MonitorParameterPanel() {
             InitializeComponent();
             if (IsHandleCreated)
                 SetGui();
@@ -31,12 +28,10 @@ namespace vApus.Monitor
         /// <summary>
         ///     Sets the Gui if the panel is empty.
         /// </summary>
-        public Dictionary<Parameter, object> ParametersWithValues
-        {
+        public Dictionary<Parameter, object> ParametersWithValues {
             //Get is not used, but it is here when needed.
             get { return _parametersWithValues; }
-            set
-            {
+            set {
                 _parametersWithValues = value;
                 SetGui();
             }
@@ -45,19 +40,16 @@ namespace vApus.Monitor
         /// <summary>
         ///     All the solution component property controls.
         /// </summary>
-        public ControlCollection ParameterControls
-        {
+        public ControlCollection ParameterControls {
             get { return base.Controls; }
         }
 
         public event EventHandler ParameterValueChanged;
 
-        private void ParameterPanel_ValueChanged(object sender, ValueChangedEventArgs e)
-        {
+        private void ParameterPanel_ValueChanged(object sender, ValueChangedEventArgs e) {
             int i = 0;
             foreach (Parameter parameter in _parametersWithValues.Keys)
-                if (i++ == e.Index)
-                {
+                if (i++ == e.Index) {
                     _parametersWithValues[parameter] = e.NewValue;
                     break;
                 }
@@ -65,18 +57,14 @@ namespace vApus.Monitor
                 ParameterValueChanged(this, null);
         }
 
-        private void ParameterPanel_HandleCreated(object sender, EventArgs e)
-        {
+        private void ParameterPanel_HandleCreated(object sender, EventArgs e) {
             SetGui();
         }
 
-        private void SetGui()
-        {
-            if (_parametersWithValues != null)
-            {
+        private void SetGui() {
+            if (_parametersWithValues != null) {
                 var values = new List<BaseValueControl.Value>(_parametersWithValues.Count);
-                foreach (Parameter parameter in _parametersWithValues.Keys)
-                {
+                foreach (Parameter parameter in _parametersWithValues.Keys) {
                     object value = _parametersWithValues[parameter];
                     if (value == null)
                         value = parameter.DefaultValue;
@@ -87,14 +75,13 @@ namespace vApus.Monitor
                     if (!parameter.Optional)
                         description += " [Obligatory]";
 
-                    values.Add(new BaseValueControl.Value
-                        {
-                            __Value = value,
-                            Description = description,
-                            IsEncrypted = parameter.Encrypted,
-                            IsReadOnly = false,
-                            Label = parameter.Name
-                        });
+                    values.Add(new BaseValueControl.Value {
+                        __Value = value,
+                        Description = description,
+                        IsEncrypted = parameter.Encrypted,
+                        IsReadOnly = false,
+                        Label = parameter.Name
+                    });
                 }
                 base.SetValues(values.ToArray());
             }

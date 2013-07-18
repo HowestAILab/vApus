@@ -12,10 +12,8 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class CustomListGenerator : Form
-    {
+namespace vApus.Stresstest {
+    public partial class CustomListGenerator : Form {
         private readonly CustomListParameter _customListParameter;
         private readonly CustomRandomParameterPanel _customRandomParameterPanel = new CustomRandomParameterPanel();
 
@@ -24,57 +22,44 @@ namespace vApus.Stresstest
 
         private BaseParameter _generateFromParameter;
 
-        public CustomListGenerator()
-        {
+        public CustomListGenerator() {
             InitializeComponent();
         }
 
         public CustomListGenerator(CustomListParameter customListParameter)
-            : this()
-        {
+            : this() {
             _customListParameter = customListParameter;
 
-            if (IsHandleCreated)
-            {
-                if (cboParameterType.SelectedIndex == -1)
-                {
+            if (IsHandleCreated) {
+                if (cboParameterType.SelectedIndex == -1) {
                     if (_customListParameter.GenerateFromParameter is NumericParameter)
                         cboParameterType.SelectedIndex = 0;
                     else if (_customListParameter.GenerateFromParameter is TextParameter)
                         cboParameterType.SelectedIndex = 1;
                     else
                         cboParameterType.SelectedIndex = 2;
-                }
-                else
-                {
+                } else {
                     timer.Start();
                 }
-            }
-            else
-            {
+            } else {
                 HandleCreated += CustomListGenerator_HandleCreated;
             }
         }
 
-        private void CustomListGenerator_HandleCreated(object sender, EventArgs e)
-        {
-            if (cboParameterType.SelectedIndex == -1)
-            {
+        private void CustomListGenerator_HandleCreated(object sender, EventArgs e) {
+            if (cboParameterType.SelectedIndex == -1) {
                 if (_customListParameter.GenerateFromParameter is NumericParameter)
                     cboParameterType.SelectedIndex = 0;
                 else if (_customListParameter.GenerateFromParameter is TextParameter)
                     cboParameterType.SelectedIndex = 1;
                 else
                     cboParameterType.SelectedIndex = 2;
-            }
-            else
-            {
+            } else {
                 timer.Start();
             }
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
-        {
+        private void btnOK_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             var entries = new List<string>(_customListParameter.CustomList);
             bool customRandomParameterException = false;
@@ -86,32 +71,24 @@ namespace vApus.Stresstest
 
             if (_generateFromParameter is TextParameter ||
                 (_generateFromParameter is NumericParameter && (_generateFromParameter as NumericParameter).Random))
-                for (int i = 0; i != nudGenerate.Value; i++)
-                {
+                for (int i = 0; i != nudGenerate.Value; i++) {
                     _generateFromParameter.Next();
                     entries.Add(_generateFromParameter.Value);
-                }
-            else if (_generateFromParameter is CustomRandomParameter)
-                try
-                {
+                } else if (_generateFromParameter is CustomRandomParameter)
+                try {
                     Exception exception;
                     _customRandomParameterPanel.TryCompileAndTestCode(out exception);
                     if (exception != null)
                         throw exception;
 
-                    for (int i = 0; i != nudGenerate.Value; i++)
-                    {
+                    for (int i = 0; i != nudGenerate.Value; i++) {
                         _generateFromParameter.Next();
                         entries.Add(_generateFromParameter.Value);
                     }
-                }
-                catch
-                {
+                } catch {
                     customRandomParameterException = true;
-                }
-            else
-                for (int i = 0; i != nudGenerate.Value; i++)
-                {
+                } else
+                for (int i = 0; i != nudGenerate.Value; i++) {
                     entries.Add(_generateFromParameter.Value);
                     _generateFromParameter.Next();
                 }
@@ -119,8 +96,7 @@ namespace vApus.Stresstest
 
             Cursor = Cursors.Default;
 
-            if (!customRandomParameterException)
-            {
+            if (!customRandomParameterException) {
                 _customListParameter.CustomList = entries.ToArray();
 
                 DialogResult = DialogResult.OK;
@@ -128,14 +104,12 @@ namespace vApus.Stresstest
             }
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
+        private void btnCancel_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.Cancel;
             Close();
         }
 
-        private void cboParameterType_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cboParameterType_SelectedIndexChanged(object sender, EventArgs e) {
             timer.Stop();
             if (cboParameterType.SelectedIndex == 0)
                 _generateFromParameter = new NumericParameter();
@@ -146,21 +120,16 @@ namespace vApus.Stresstest
 
             _customListParameter.GenerateFromParameter = _generateFromParameter;
 
-            if (_generateFromParameter is CustomRandomParameter)
-            {
-                if (pnlPlaceHolder.Controls.Count == 0 || pnlPlaceHolder.Controls[0] != _customRandomParameterPanel)
-                {
+            if (_generateFromParameter is CustomRandomParameter) {
+                if (pnlPlaceHolder.Controls.Count == 0 || pnlPlaceHolder.Controls[0] != _customRandomParameterPanel) {
                     pnlPlaceHolder.Controls.Clear();
                     pnlPlaceHolder.Controls.Add(_customRandomParameterPanel);
                     _customRandomParameterPanel.Dock = DockStyle.Fill;
                 }
                 _customRandomParameterPanel.Init(_generateFromParameter);
-            }
-            else
-            {
+            } else {
                 if (pnlPlaceHolder.Controls.Count == 0 ||
-                    pnlPlaceHolder.Controls[0] != _parameterTypeSolutionComponentPropertyPanel)
-                {
+                    pnlPlaceHolder.Controls[0] != _parameterTypeSolutionComponentPropertyPanel) {
                     pnlPlaceHolder.Controls.Clear();
                     pnlPlaceHolder.Controls.Add(_parameterTypeSolutionComponentPropertyPanel);
                     _parameterTypeSolutionComponentPropertyPanel.Dock = DockStyle.Fill;
@@ -171,12 +140,10 @@ namespace vApus.Stresstest
             }
         }
 
-        private void timer_Tick(object sender, EventArgs e)
-        {
+        private void timer_Tick(object sender, EventArgs e) {
             if (!IsDisposed && IsHandleCreated && Visible)
                 foreach (BaseValueControl ctrl in _parameterTypeSolutionComponentPropertyPanel.ValueControls)
-                    if (ctrl.Label == "Label")
-                    {
+                    if (ctrl.Label == "Label") {
                         ctrl.Visible = false;
                         timer.Stop();
                         break;

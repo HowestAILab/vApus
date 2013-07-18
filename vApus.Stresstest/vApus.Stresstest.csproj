@@ -333,11 +333,11 @@
       <DependentUpon>ConnectionView.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\Proxies\ConnectionProxyCode.cs" />
-    <Compile Include="Connections\Proxies\Panels\AddReferences.cs">
+    <Compile Include="Connections\Proxies\Panels\AddReferencesDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\AddReferences.designer.cs">
-      <DependentUpon>AddReferences.cs</DependentUpon>
+    <Compile Include="Connections\Proxies\Panels\AddReferencesDialog.designer.cs">
+      <DependentUpon>AddReferencesDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\Proxies\Panels\CompilePanel.cs">
       <SubType>UserControl</SubType>
@@ -452,8 +452,8 @@
     <EmbeddedResource Include="Connections\ConnectionView.resx">
       <DependentUpon>ConnectionView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\AddReferences.resx">
-      <DependentUpon>AddReferences.cs</DependentUpon>
+    <EmbeddedResource Include="Connections\Proxies\Panels\AddReferencesDialog.resx">
+      <DependentUpon>AddReferencesDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\Panels\CompilePanel.resx">
       <DependentUpon>CompilePanel.cs</DependentUpon>

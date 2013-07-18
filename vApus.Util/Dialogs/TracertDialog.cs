@@ -9,12 +9,9 @@
 using System;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public partial class TracertDialog : Form
-    {
-        public TracertDialog()
-        {
+namespace vApus.Util {
+    public partial class TracertDialog : Form {
+        public TracertDialog() {
             InitializeComponent();
         }
 
@@ -25,19 +22,16 @@ namespace vApus.Util
         /// <param name="ip"></param>
         /// <param name="hostName"></param>
         /// <param name="roundtripTime">Already formatted</param>
-        public void AddHop(string ip, string hostName, string roundtripTime)
-        {
+        public void AddHop(string ip, string hostName, string roundtripTime) {
             btnCancelTraceRoute.Enabled = true;
-            lvw.Items.Add(new ListViewItem(new[] {(lvw.Items.Count + 1).ToString(), ip, hostName, roundtripTime}));
+            lvw.Items.Add(new ListViewItem(new[] { (lvw.Items.Count + 1).ToString(), ip, hostName, roundtripTime }));
         }
 
-        public void ClearHops()
-        {
+        public void ClearHops() {
             lvw.Items.Clear();
         }
 
-        private void btnCancelTraceRoute_Click(object sender, EventArgs e)
-        {
+        private void btnCancelTraceRoute_Click(object sender, EventArgs e) {
             btnCancelTraceRoute.Enabled = false;
             if (CancelTraceRoute != null)
                 CancelTraceRoute(this, null);

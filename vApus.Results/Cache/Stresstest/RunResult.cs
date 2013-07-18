@@ -8,10 +8,8 @@
 
 using System;
 
-namespace vApus.Results
-{
-    public class RunResult
-    {
+namespace vApus.Results {
+    public class RunResult {
         public int Run { get; private set; }
 
         /// <summary>
@@ -37,8 +35,7 @@ namespace vApus.Results
         /// <summary>
         ///     Only used for break on last run ync.
         /// </summary>
-        public void PrepareForRerun()
-        {
+        public void PrepareForRerun() {
             ++RerunCount;
             foreach (VirtualUserResult result in VirtualUserResults)
                 result.PrepareForRerun();

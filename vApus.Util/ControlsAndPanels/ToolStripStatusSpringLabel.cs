@@ -11,13 +11,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     [ToolStripItemDesignerAvailability(ToolStripItemDesignerAvailability.StatusStrip)]
-    public class ToolStripStatusSpringLabel : ToolStripStatusLabel
-    {
-        protected override void OnPaint(PaintEventArgs e)
-        {
+    public class ToolStripStatusSpringLabel : ToolStripStatusLabel {
+        protected override void OnPaint(PaintEventArgs e) {
             TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.EndEllipsis;
             var bounds = new Rectangle(0, 0, Bounds.Width, Bounds.Height);
 
