@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Windows.Forms;
 
@@ -37,8 +36,6 @@ namespace vApus.JumpStart {
             }
         }
 
-        private static void Application_ApplicationExit(object sender, EventArgs e) {
-            StopSocketListener();
-        }
+        private static void Application_ApplicationExit(object sender, EventArgs e) { StopSocketListener(); }
     }
 }

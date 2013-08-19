@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Threading;
 
@@ -18,8 +17,7 @@ namespace vApus.Util {
         /// </summary>
         public static SynchronizationContext SynchronizationContext {
             get {
-                if (_synchronizationContext == null)
-                    _synchronizationContext = SynchronizationContext.Current;
+                if (_synchronizationContext == null) _synchronizationContext = SynchronizationContext.Current;
                 return _synchronizationContext;
             }
             set {

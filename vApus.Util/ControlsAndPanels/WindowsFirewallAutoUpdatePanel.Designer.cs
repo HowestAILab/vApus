@@ -1,6 +1,6 @@
 ﻿namespace vApus.Util
 {
-    partial class DisableFirewallAutoUpdatePanel
+    partial class WindowsFirewallAutoUpdatePanel
     {
         /// <summary>
         /// Required designer variable.

@@ -5,7 +5,6 @@
  * Author(s):
  *    Glenn Desmadryl
  */
-
 using System;
 using System.Diagnostics;
 
@@ -15,11 +14,11 @@ namespace vApus.Util {
         ///     Use this to parse an exeption to an usable string. Note on this that this only gets the last frame from the stacktrace.
         /// </summary>
         public static string ParseExceptionToString(Exception ex) {
-            var trace = new StackTrace(ex, true);
+            var traceFrame = new StackTrace(ex, true).GetFrame(0);
 
-            string methodName = trace.GetFrame(0).GetMethod().Name;
-            string lineNumber = trace.GetFrame(0).GetFileLineNumber() + "";
-            string columnNumber = trace.GetFrame(0).GetFileColumnNumber() + "";
+            string methodName = traceFrame.GetMethod().Name;
+            string lineNumber = traceFrame.GetFileLineNumber() + "";
+            string columnNumber = traceFrame.GetFileColumnNumber() + "";
 
             return "Method:" + methodName + ";Line:" + lineNumber + ";Column:" + columnNumber + ";Message:" + ex.Message;
         }

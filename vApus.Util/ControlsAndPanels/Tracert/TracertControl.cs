@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Drawing;
 using System.Net.NetworkInformation;
@@ -13,13 +12,30 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     public partial class TracertControl : UserControl {
+        /// <summary>
+        ///     You can call SetToTrace here last minute.
+        /// </summary>
+        public event EventHandler BeforeTrace;
+        public event EventHandler Done;
+
+        #region Fields
+
+        private readonly TracertDialog _tracertDialog = new TracertDialog();
+        private int _hops;
+
+        private string _hostNameOrIP;
+        private IPStatus _lastStatus;
+        private int _maxHops, _timeout;
+        private Tracert _tracert;
+
+        #endregion
+
         public TracertControl() {
             InitializeComponent();
             _tracertDialog.CancelTraceRoute += _tracertDialog_CancelTraceRoute;
         }
 
         #region Functions
-
         public void SetToTrace(string hostNameOrIP, int maxHops = 100, int timeout = 5000) {
             _hostNameOrIP = hostNameOrIP;
             _maxHops = maxHops;
@@ -106,26 +122,6 @@ namespace vApus.Util {
         private void btnStatus_Click(object sender, EventArgs e) {
             _tracertDialog.ShowDialog();
         }
-
-        #endregion
-
-        /// <summary>
-        ///     You can call SetToTrace here last minute.
-        /// </summary>
-        public event EventHandler BeforeTrace;
-
-        public event EventHandler Done;
-
-        #region Fields
-
-        private readonly TracertDialog _tracertDialog = new TracertDialog();
-        private int _hops;
-
-        private string _hostNameOrIP;
-        private IPStatus _lastStatus;
-        private int _maxHops, _timeout;
-        private Tracert _tracert;
-
         #endregion
     }
 }

@@ -194,17 +194,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveObject\ActiveObject.cs" />
-    <Compile Include="CaretPosition.cs" />
     <Compile Include="ClipboardWrapper.cs" />
     <Compile Include="CompilerUnit.cs" />
     <Compile Include="CodeEditing\XMLTextStyle.cs" />
     <Compile Include="CodeEditing\CSharpTextStyle.cs" />
-    <Compile Include="ControlsAndPanels\DataGridViewImageCellBlank.cs" />
-    <Compile Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.cs">
+    <Compile Include="ControlsAndPanels\CleanTempDataPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.Designer.cs">
-      <DependentUpon>DisableFirewallAutoUpdatePanel.cs</DependentUpon>
+    <Compile Include="ControlsAndPanels\CleanTempDataPanel.Designer.cs">
+      <DependentUpon>CleanTempDataPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\DataGridViewImageCellBlank.cs" />
+    <Compile Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.Designer.cs">
+      <DependentUpon>WindowsFirewallAutoUpdatePanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\FixedNumericUpDown.cs">
       <SubType>Component</SubType>
@@ -275,11 +280,14 @@
     <Compile Include="ControlsAndPanels\LargeList.designer.cs">
       <DependentUpon>LargeList.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\ScrollablePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ControlsAndPanels\ToolStripStatusSpringLabel.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Dialogs\LogErrorToolTip.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\LogErrorToolTip.Designer.cs">
+      <DependentUpon>LogErrorToolTip.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\UpdateNotifierDialog.cs">
       <SubType>Form</SubType>
@@ -468,8 +476,12 @@
     <Compile Include="Win32WindowMessageHandler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ControlsAndPanels\DisableFirewallAutoUpdatePanel.resx">
-      <DependentUpon>DisableFirewallAutoUpdatePanel.cs</DependentUpon>
+    <EmbeddedResource Include="ControlsAndPanels\CleanTempDataPanel.resx">
+      <DependentUpon>CleanTempDataPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.resx">
+      <DependentUpon>WindowsFirewallAutoUpdatePanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\EventPanel\EventPanel.resx">
       <DependentUpon>EventPanel.cs</DependentUpon>
@@ -493,6 +505,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.resx">
       <DependentUpon>TestProgressNotifierPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\LogErrorToolTip.resx">
+      <DependentUpon>LogErrorToolTip.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\UpdateNotifierDialog.resx">
       <DependentUpon>UpdateNotifierDialog.cs</DependentUpon>
@@ -605,6 +621,12 @@
     <None Include="Resources\Warning.png" />
     <None Include="Resources\OK.png" />
     <None Include="Resources\Error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\folderopen_16x16_72.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete16x16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

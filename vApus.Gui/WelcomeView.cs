@@ -13,10 +13,10 @@ using vApus.Gui.Properties;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.Gui {
-    public partial class Welcome : DockablePanel {
+    public partial class WelcomeView : DockablePanel {
         private bool _formClosingEventHandlingEnabled = true;
 
-        public Welcome() {
+        public WelcomeView() {
             InitializeComponent();
 
             HandleCreated += Welcome_HandleCreated;

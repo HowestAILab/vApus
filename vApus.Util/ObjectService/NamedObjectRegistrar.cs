@@ -14,9 +14,7 @@ namespace vApus.Util {
     /// </summary>
     public static class NamedObjectRegistrar {
         private static ConcurrentDictionary<string, object> register = new ConcurrentDictionary<string, object>();
-        public static void RegisterOrUpdate(string name, object obj) {
-            register.AddOrUpdate(name, obj, (key, oldValue) => obj);
-        }
+        public static void RegisterOrUpdate(string name, object obj) {  register.AddOrUpdate(name, obj, (key, oldValue) => obj);   }
         public static bool Unregister(string name) {
             object obj;
             return register.TryRemove(name, out obj);

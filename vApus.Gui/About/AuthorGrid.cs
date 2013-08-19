@@ -3,9 +3,8 @@
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
- *    Ben Motmans, Dieter Vandroemme
+ *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,8 +15,11 @@ using vApus.Gui.Properties;
 
 namespace vApus.Gui {
     public partial class AuthorGrid : UserControl {
+        #region Fields
         private List<XmlNode> _authors;
+        #endregion
 
+        #region Constructors
         public AuthorGrid() {
             InitializeComponent();
 
@@ -30,7 +32,9 @@ namespace vApus.Gui {
             else
                 HandleCreated += AuthorGrid_HandleCreated;
         }
+        #endregion
 
+        #region Functions
         private void AuthorGrid_HandleCreated(object sender, EventArgs e) {
             SetGui();
         }
@@ -144,5 +148,6 @@ namespace vApus.Gui {
         private void dataGrid_CellMouseLeave(object sender, DataGridViewCellEventArgs e) {
             dataGrid.Cursor = Cursors.Default;
         }
+        #endregion
     }
 }

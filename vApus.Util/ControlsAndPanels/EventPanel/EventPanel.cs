@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,9 +14,13 @@ using System.Threading;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Encapsulates EventProgressChar and EventView.
+    /// </summary>
     public partial class EventPanel : UserControl {
+
         #region Static
-        //All this to be able to add events from the connection proxy code for debugging purposes.
+        //All this to be able to add events from anywhere (for example the connection proxy code) for debugging purposes.
         private static readonly object _staticLock = new object();
         private static List<EventPanel> _eventPanels = new List<EventPanel>();
 
@@ -55,17 +58,18 @@ namespace vApus.Util {
         }
         #endregion
 
+        public event EventHandler CollapsedChanged;
+
+        #region Fields
         private readonly object _lock = new object();
 
         private bool _expandOnErrorEvent;
         private int _preferredHeight = 150;
+        #endregion
 
-        public EventPanel() {
-            InitializeComponent();
-            cboFilter.SelectedIndex = 0;
-
-            RegisterEventPanel(this);
-        }
+        #region Properties
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         [Description("The begin of the time frame when the events occured ('at').")]
         /// </summary>
@@ -133,12 +137,18 @@ namespace vApus.Util {
             get { return (EventViewEventType)cboFilter.SelectedIndex; }
             set { cboFilter.SelectedIndex = (int)value; }
         }
+        #endregion
 
-        public event EventHandler CollapsedChanged;
+        #region Constructor
+        public EventPanel() {
+            InitializeComponent();
+            cboFilter.SelectedIndex = 0;
 
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+            RegisterEventPanel(this);
+        }
+        #endregion
 
+        #region Functions
         /// <summary>
         ///     Thread safe.
         /// </summary>
@@ -283,5 +293,6 @@ namespace vApus.Util {
 
             Cursor = Cursors.Default;
         }
+        #endregion
     }
 }

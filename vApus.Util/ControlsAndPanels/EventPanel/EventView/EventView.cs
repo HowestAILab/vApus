@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,21 +14,12 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Can list events in a user friendly manner. Is encapsulated in the EventPanel together with the EventProgressChart.
+    /// </summary>
     public partial class EventView : UserControl {
-        private EventViewItem _userEntered;
 
-        public EventView() {
-            InitializeComponent();
-        }
-
-        public EventViewItem UserEntered {
-            get { return _userEntered; }
-        }
-
-        public int ItemCount {
-            get { return largeList.ControlCount; }
-        }
-
+        #region Events
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -38,7 +28,22 @@ namespace vApus.Util {
 
         [Description("Occurs when the cursor leaves a progress event.")]
         public event EventHandler<EventViewItemEventArgs> EventViewItemMouseLeave;
+        #endregion
 
+        private EventViewItem _userEntered;
+
+        #region Properties
+        public EventViewItem UserEntered { get { return _userEntered; } }
+
+        public int ItemCount { get { return largeList.ControlCount; } }
+        #endregion
+
+        /// <summary>
+        /// Can list events in a user friendly manner. Is encapsulated in the EventPanel together with the EventProgressBar.
+        /// </summary>
+        public EventView() { InitializeComponent(); }
+
+        #region Functions
         public EventViewItem AddEvent(string message) {
             return AddEvent(EventViewEventType.Info, message);
         }
@@ -176,6 +181,7 @@ namespace vApus.Util {
                                     MessageBoxIcon.Error);
                 }
         }
+        #endregion
 
         public class EventViewItemEventArgs : EventArgs {
             public readonly EventViewItem EventViewItem;

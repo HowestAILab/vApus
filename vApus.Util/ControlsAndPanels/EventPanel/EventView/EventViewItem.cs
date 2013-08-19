@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,7 +15,10 @@ using System.Windows.Forms;
 namespace vApus.Util {
     [ToolboxItem(false)]
     public class EventViewItem : Label {
+
         #region Fields
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         private readonly LargeList _parent;
         private readonly ToolTip _toolTip = new ToolTip();
@@ -26,14 +28,9 @@ namespace vApus.Util {
         private EventViewEventType _eventType;
         private List<int> _lineBreaks = new List<int>();
         private string _message;
-
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         #endregion
 
         #region Properties
-
         public EventViewEventType EventType {
             get { return _eventType; }
             set {
@@ -45,8 +42,7 @@ namespace vApus.Util {
                     _toolTip.SetToolTip(this, "Right-click to copy.");
                     ForeColor = Color.Orange;
                 } else {
-                    _toolTip.SetToolTip(this,
-                                        "The given stack trace, if any, is for the developer. Right-click to copy.");
+                    _toolTip.SetToolTip(this, "The given stack trace, if any, is for the developer. Right-click to copy.");
                     ForeColor = Color.Red;
                 }
             }
@@ -67,7 +63,6 @@ namespace vApus.Util {
                 SetText();
             }
         }
-
         #endregion
 
         public EventViewItem(LargeList parent, EventViewEventType eventType, string message, DateTime at) {
@@ -87,7 +82,6 @@ namespace vApus.Util {
         }
 
         #region Functions
-
         private void SetText() {
             string message;
             if (_entered) {
@@ -146,7 +140,6 @@ namespace vApus.Util {
             if (e.Button == MouseButtons.Right)
                 ClipboardWrapper.SetDataObject(Text);
         }
-
         #endregion
     }
 }

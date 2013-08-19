@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Globalization;
 using System.Threading;
@@ -14,12 +13,22 @@ using vApus.Gui.Properties;
 using vApus.Util;
 
 namespace vApus.Gui {
+    /// <summary>
+    /// To set the localization for formatting numbers. DateTime is always formatted using the ISO 8601 standard. Used in vApus.Util.OptionsDialog.
+    /// </summary>
     public partial class LocalizationPanel : Panel {
+
+        #region Constructors
+        /// <summary>
+        /// To set the localization for formatting numbers. DateTime is always formatted using the ISO 8601 standard. Used in vApus.Util.OptionsDialog.
+        /// </summary>
         public LocalizationPanel() {
             InitializeComponent();
             HandleCreated += LocalizationPanel_HandleCreated;
         }
+        #endregion
 
+        #region Functions
         private void LocalizationPanel_HandleCreated(object sender, EventArgs e) {
             if (cboCulture.Items.Count == 0)
                 foreach (CultureInfo info in CultureInfo.GetCultures(CultureTypes.SpecificCultures)) {
@@ -61,5 +70,6 @@ namespace vApus.Gui {
         public override string ToString() {
             return "Localization";
         }
+        #endregion
     }
 }

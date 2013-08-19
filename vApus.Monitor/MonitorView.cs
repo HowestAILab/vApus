@@ -22,35 +22,35 @@ using vApusSMT.Proxy;
 using PowerState = vApusSMT.Base.PowerState;
 
 namespace vApus.Monitor {
+    /// <summary>
+    /// Communicates to a number of monitor sources provided using the vApusSMT binaries (See monitorsources in the vApus build folder).
+    /// Hardware configs can be retrieved if any; various hardware devices can be monitored.
+    /// </summary>
     public partial class MonitorView : BaseSolutionComponentView {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         public event EventHandler<MonitorInitializedEventArgs> MonitorInitialized;
         public event EventHandler<ErrorEventArgs> OnHandledException, OnUnhandledException;
 
         #region Fields
-
         private readonly ActiveObject _activeObject = new ActiveObject();
         private readonly Monitor _monitor;
+        private IMonitorProxy _monitorProxy;
+
 
         private readonly Dictionary<Parameter, object> _parametersWithValues = new Dictionary<Parameter, object>();
         private readonly WDYHDel _wdyhDel;
 
+        private int _refreshTimeInMS;
+
         private bool _forStresstest;
-        private IMonitorProxy _monitorProxy;
         private string _previousFilter;
         private MonitorSource _previousMonitorSourceForParameters;
-        private int _refreshTimeInMS;
 
         private System.Timers.Timer _invokeChangedTmr = new System.Timers.Timer(1000);
 
         private delegate void WDYHDel(bool suppressErrorMessageBox);
-
         #endregion
 
         #region Properties
-
         public Monitor Monitor {
             get { return _monitor; }
         }
@@ -67,18 +67,21 @@ namespace vApus.Monitor {
                 return isRunning;
             }
         }
-
         #endregion
 
         #region Constructors
-
         /// <summary>
         ///     Designer time only
         /// </summary>
         public MonitorView() {
             InitializeComponent();
         }
-
+        /// <summary>
+        /// Communicates to a number of monitor sources provided using the vApusSMT binaries (See monitorsources in the vApus build folder).
+        /// Hardware configs can be retrieved if any; various hardware devices can be monitored.
+        /// </summary>
+        /// <param name="solutionComponent"></param>
+        /// <param name="args"></param>
         public MonitorView(SolutionComponent solutionComponent, params object[] args)
             : base(solutionComponent, args) {
             InitializeComponent();
@@ -94,12 +97,13 @@ namespace vApus.Monitor {
             else
                 HandleCreated += MonitorView_HandleCreated;
         }
-
         #endregion
 
         #region Functions
 
         #region Private
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         private void _monitorProxy_OnHandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -593,7 +597,7 @@ namespace vApus.Monitor {
 
         private void btnConfiguration_Click(object sender, EventArgs e) {
             if (string.IsNullOrEmpty(Configuration))
-                (new ConfigurationDialog(Configuration)).ShowDialog();
+                (new HardwareConfigurationDialog(Configuration)).ShowDialog();
         }
 
         private void btnStart_Click(object sender, EventArgs e) {

@@ -21,6 +21,7 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void NewViewer_HandleCreated(object sender, EventArgs e) {
+            //All gui stuff is added here because this is easier to set the gui right.
             HandleCreated -= NewViewer_HandleCreated;
 
             _settingsPanel.ResultsHelper = _resultsHelper;

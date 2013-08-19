@@ -1,4 +1,4 @@
-﻿namespace vApus.Gui
+﻿namespace vApus.Util
 {
     partial class CleanTempDataPanel
     {
@@ -68,7 +68,7 @@
             this.btnDeleteUpdateTempFiles.Enabled = false;
             this.btnDeleteUpdateTempFiles.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDeleteUpdateTempFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDeleteUpdateTempFiles.Image = global::vApus.Gui.Properties.Resources.delete16x16;
+            this.btnDeleteUpdateTempFiles.Image = global::vApus.Util.Properties.Resources.delete16x16;
             this.btnDeleteUpdateTempFiles.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnDeleteUpdateTempFiles.Location = new System.Drawing.Point(367, 82);
             this.btnDeleteUpdateTempFiles.Name = "btnDeleteUpdateTempFiles";
@@ -87,7 +87,7 @@
             this.btnOpenUpdateTempFiles.Enabled = false;
             this.btnOpenUpdateTempFiles.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOpenUpdateTempFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOpenUpdateTempFiles.Image = global::vApus.Gui.Properties.Resources.FolderOpen_16x16_72;
+            this.btnOpenUpdateTempFiles.Image = global::vApus.Util.Properties.Resources.FolderOpen_16x16_72;
             this.btnOpenUpdateTempFiles.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnOpenUpdateTempFiles.Location = new System.Drawing.Point(6, 81);
             this.btnOpenUpdateTempFiles.Name = "btnOpenUpdateTempFiles";
@@ -108,7 +108,7 @@
             this.btnDeleteLogs.Enabled = false;
             this.btnDeleteLogs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDeleteLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDeleteLogs.Image = global::vApus.Gui.Properties.Resources.delete16x16;
+            this.btnDeleteLogs.Image = global::vApus.Util.Properties.Resources.delete16x16;
             this.btnDeleteLogs.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnDeleteLogs.Location = new System.Drawing.Point(367, 51);
             this.btnDeleteLogs.Name = "btnDeleteLogs";
@@ -127,7 +127,7 @@
             this.btnOpenLogs.Enabled = false;
             this.btnOpenLogs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOpenLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOpenLogs.Image = global::vApus.Gui.Properties.Resources.FolderOpen_16x16_72;
+            this.btnOpenLogs.Image = global::vApus.Util.Properties.Resources.FolderOpen_16x16_72;
             this.btnOpenLogs.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnOpenLogs.Location = new System.Drawing.Point(6, 50);
             this.btnOpenLogs.Name = "btnOpenLogs";
@@ -148,7 +148,7 @@
             this.btnDeleteConnectionProxyTempFiles.Enabled = false;
             this.btnDeleteConnectionProxyTempFiles.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDeleteConnectionProxyTempFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDeleteConnectionProxyTempFiles.Image = global::vApus.Gui.Properties.Resources.delete16x16;
+            this.btnDeleteConnectionProxyTempFiles.Image = global::vApus.Util.Properties.Resources.delete16x16;
             this.btnDeleteConnectionProxyTempFiles.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnDeleteConnectionProxyTempFiles.Location = new System.Drawing.Point(367, 19);
             this.btnDeleteConnectionProxyTempFiles.Name = "btnDeleteConnectionProxyTempFiles";
@@ -167,7 +167,7 @@
             this.btnOpenConnectionProxyTempFiles.Enabled = false;
             this.btnOpenConnectionProxyTempFiles.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOpenConnectionProxyTempFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnOpenConnectionProxyTempFiles.Image = global::vApus.Gui.Properties.Resources.FolderOpen_16x16_72;
+            this.btnOpenConnectionProxyTempFiles.Image = global::vApus.Util.Properties.Resources.FolderOpen_16x16_72;
             this.btnOpenConnectionProxyTempFiles.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnOpenConnectionProxyTempFiles.Location = new System.Drawing.Point(6, 19);
             this.btnOpenConnectionProxyTempFiles.Name = "btnOpenConnectionProxyTempFiles";

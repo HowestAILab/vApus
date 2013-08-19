@@ -5,7 +5,6 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-
 using System;
 
 namespace vApus.Util {
@@ -43,8 +42,8 @@ namespace vApus.Util {
     /// <typeparam name="TKey"> Defines what should happen with the content. Can be whatever serializable type you like, ex. an enumeration.</typeparam>
     [Serializable]
     public struct Message<TKey> {
-        #region Fields
 
+        #region Fields
         /// <summary>
         ///     The actual data you want to transmit.
         /// </summary>
@@ -54,11 +53,9 @@ namespace vApus.Util {
         ///     Defines what should happen with the content. Can be whatever serializable type you like, ex. an enumeration.
         /// </summary>
         public TKey Key;
-
         #endregion
 
         #region Constructor
-
         /// <summary>
         ///     A general class for sending messages from one endpoint to another.
         ///     Note: Use the 'SOAPMessage' class for 'SendType.SOAP', because SOAP does not support generics.
@@ -69,7 +66,6 @@ namespace vApus.Util {
             Key = key;
             Content = content;
         }
-
         #endregion
     }
 
@@ -79,8 +75,8 @@ namespace vApus.Util {
     /// </summary>
     [Serializable]
     public struct SOAPMessage {
-        #region Fields
 
+        #region Fields
         /// <summary>
         ///     The actual data you want to transmit.
         /// </summary>
@@ -90,16 +86,13 @@ namespace vApus.Util {
         ///     Defines what should happen with the content.
         /// </summary>
         public string Key;
-
         #endregion
 
         #region Constructor
-
         public SOAPMessage(string key, object content) {
             Key = key;
             Content = content;
         }
-
         #endregion
     }
 }

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -21,12 +20,9 @@ namespace vApus.REST.Convert {
 
         public static string WriteDir { get { return _writeDir; } }
 
-        public static void SetTestConfig(ConverterCollection testConfigCache, string runSynchronization,
-                                         string tileStresstest, Connection connection, string connectionProxy,
-                                         Monitor.Monitor[] monitors, string slave,
-                                         Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay,
-                                         int maximumDelay, bool shuffle,
-                                         UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
+        public static void SetTestConfig(ConverterCollection testConfigCache, string runSynchronization, string tileStresstest, Connection connection, string connectionProxy,
+                                         Monitor.Monitor[] monitors, string slave, Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay,
+                                         int maximumDelay, bool shuffle, UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
             if (testConfigCache.Count == 0)
                 testConfigCache.Add("RunSynchronization", runSynchronization);
 

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,29 +13,37 @@ using System.Net.NetworkInformation;
 using System.Timers;
 
 namespace vApus.Monitor {
+    /// <summary>
+    /// Monitors local hardware usage.
+    /// </summary>
     public static class LocalMonitor {
+
+        #region Fields
         private static object _lock = new object();
         private static readonly Timer _tmr = new Timer();
 
-        private static readonly PerformanceCounter _cpuUsage = new PerformanceCounter("Processor", "% Processor Time",
-                                                                                      "_Total", true);
-
-        private static readonly PerformanceCounter _contextSwitchesPerSecond = new PerformanceCounter("System",
-                                                                                                      "Context Switches/sec",
-                                                                                                      true);
-
-        private static readonly ManagementObjectSearcher _availableMemory =
-            new ManagementObjectSearcher("SELECT AvailableMBytes FROM Win32_PerfFormattedData_PerfOS_Memory");
-
+        private static readonly PerformanceCounter _cpuUsage = new PerformanceCounter("Processor", "% Processor Time", "_Total", true);
+        private static readonly PerformanceCounter _contextSwitchesPerSecond = new PerformanceCounter("System", "Context Switches/sec", true);
+        private static readonly ManagementObjectSearcher _availableMemory = new ManagementObjectSearcher("SELECT AvailableMBytes FROM Win32_PerfFormattedData_PerfOS_Memory");
         private static readonly PerformanceCounterCategory _nicsCat = new PerformanceCounterCategory("Network Interface");
 
         private static int _nicsDifference;
         private static readonly List<object> _nics = new List<object>();
+        #endregion
 
-        public static float CPUUsage, ContextSwitchesPerSecond;
-        public static uint MemoryUsage, TotalVisibleMemory;
-        public static float NicsSent, NicsReceived;
+        #region Properties
+        public static float CPUUsage { get; private set; }
+        public static float ContextSwitchesPerSecond { get; private set; }
+        public static uint MemoryUsage { get; private set; }
+        public static uint TotalVisibleMemory { get; private set; }
+        public static float NicsSent { get; private set; }
+        public static float NicsReceived { get; private set; }
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Monitors local hardware usage.
+        /// </summary>
         static LocalMonitor() {
             _tmr.Elapsed += _tmr_Elapsed;
 
@@ -44,13 +51,14 @@ namespace vApus.Monitor {
             foreach (ManagementObject queryObj in searcher.Get())
                 TotalVisibleMemory = Convert.ToUInt32(queryObj.Properties["TotalVisibleMemorySize"].Value) / 1024;
         }
+        #endregion
 
+        #region Functions
         public static void StartMonitoring(int refreshInterval) {
             _tmr.Stop();
             _tmr.Interval = refreshInterval;
             _tmr.Start();
         }
-
         private static void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
             try {
                 CPUUsage = _cpuUsage.NextValue();
@@ -128,5 +136,6 @@ namespace vApus.Monitor {
             } catch {
             }
         }
+        #endregion
     }
 }

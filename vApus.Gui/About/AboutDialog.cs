@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,7 +17,8 @@ using System.Xml;
 using vApus.Gui.Properties;
 
 namespace vApus.Gui {
-    public partial class About : Form {
+    public partial class AboutDialog : Form {
+
         #region Fields
 
         private readonly Font _dateFont;
@@ -62,7 +62,7 @@ namespace vApus.Gui {
 
         #endregion
 
-        public About() {
+        public AboutDialog() {
             InitializeComponent();
 
             lblDescription.Text = AssemblyDescription;
@@ -77,6 +77,7 @@ namespace vApus.Gui {
             rtxtLicenses.Text = Licenses;
         }
 
+        #region Functions
         private void ReadVersionIni() {
             string ini = Path.Combine(Application.StartupPath, "version.ini");
             string line = string.Empty;
@@ -185,7 +186,8 @@ namespace vApus.Gui {
         }
 
         private void lblWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            Process.Start("http://www.sizingservers.be");
+            try { Process.Start("http://www.sizingservers.be"); } catch { }
         }
+        #endregion
     }
 }

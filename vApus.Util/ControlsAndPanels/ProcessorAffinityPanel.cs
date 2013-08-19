@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +12,9 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Used in OptionsDialog, Handy to keep threads for different running instances of vApus separated.
+    /// </summary>
     public partial class ProcessorAffinityPanel : Panel {
         public ProcessorAffinityPanel() {
             InitializeComponent();

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -28,7 +27,11 @@ namespace vApus.Util {
         UpToDate
     }
 
+    /// <summary>
+    /// Notifies if an update for vApus is available when given correct credentials.
+    /// </summary>
     public static class UpdateNotifier {
+        #region Fields
         private static bool _failedRefresh;
         private static bool _versionChanged;
         private static bool _refreshed;
@@ -55,7 +58,9 @@ namespace vApus.Util {
                 }
             }
         }
+        #endregion
 
+        #region Functions
         public static UpdateNotifierState UpdateNotifierState {
             get {
                 if (_failedRefresh)
@@ -104,8 +109,7 @@ namespace vApus.Util {
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="channel">0 == Stable; 1 == Nightly</param>
-        public static void GetCredentials(out string host, out int port, out string username, out string password,
-                                          out int channel, out bool smartUpdate) {
+        public static void GetCredentials(out string host, out int port, out string username, out string password,   out int channel, out bool smartUpdate) {
             host = Settings.Default.UNHost;
             port = Settings.Default.UNPort;
             username = Settings.Default.UNUsername;
@@ -228,5 +232,6 @@ namespace vApus.Util {
         public static UpdateNotifierDialog GetUpdateNotifierDialog() {
             return new UpdateNotifierDialog(CurrentVersion, _newVersion, CurrentChannel, _newChannel, _newHistory);
         }
+        #endregion
     }
 }

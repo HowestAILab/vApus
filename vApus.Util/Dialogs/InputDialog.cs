@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -15,24 +14,19 @@ namespace vApus.Util {
     ///     An implementation of the old VB6 input dialog.
     /// </summary>
     public partial class InputDialog : Form {
-        #region Fields
 
+        #region Fields
         private DialogResult _cancel = DialogResult.Cancel;
         private MessageBoxButtons _messageBoxButtons = MessageBoxButtons.OKCancel;
         private int _minimumInputLength;
         private DialogResult _ok = DialogResult.OK;
-
         #endregion
 
         #region Properties
 
-        public int MinimumInputLength {
-            get { return _minimumInputLength; }
-        }
+        public int MinimumInputLength {   get { return _minimumInputLength; }    }
 
-        public int MaximumInputLength {
-            get { return txtInput.MaxLength; }
-        }
+        public int MaximumInputLength {  get { return txtInput.MaxLength; }   }
 
         public string Input {
             get { return txtInput.Text; }
@@ -97,9 +91,7 @@ namespace vApus.Util {
 
         #region Functions
 
-        private void InputDialog_HandleCreated(object sender, EventArgs e) {
-            SetGui();
-        }
+        private void InputDialog_HandleCreated(object sender, EventArgs e) {   SetGui();    }
 
         private void SetGui() {
             Graphics g = lblQuestion.CreateGraphics();
@@ -128,9 +120,7 @@ namespace vApus.Util {
             Close();
         }
 
-        private void txtInput_TextChanged(object sender, EventArgs e) {
-            btnOK.Enabled = txtInput.Text.Length >= _minimumInputLength;
-        }
+        private void txtInput_TextChanged(object sender, EventArgs e) {   btnOK.Enabled = txtInput.Text.Length >= _minimumInputLength;   }
 
 
         protected override void OnShown(EventArgs e) {

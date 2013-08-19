@@ -6,9 +6,11 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
@@ -285,15 +287,21 @@ namespace vApus.DetailedResultsViewer {
             }
         }
 
-        private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
+        async private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
             if (_resultsHelper != null &&
                 MessageBox.Show("Are you sure you want to delete the listed results databases?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                 Cursor = Cursors.WaitCursor;
+
+                var toDelete = new ConcurrentBag<string>();
                 foreach (DataRow row in _dataSource.Rows) {
-                    try {
-                        _resultsHelper.DeleteResults(row[3] as string);
-                    } catch { }
+                    await Task.Run(() => {
+                        try {
+                            _resultsHelper.DeleteResults(row[3] as string);
+                        } catch {
+                        }
+                    });
                 }
+                
                 _currentRow = null;
                 RefreshDatabases(true);
                 Cursor = Cursors.Default;

@@ -5,17 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Windows.Forms;
 
 namespace vApus.Util {
     public partial class TracertDialog : Form {
-        public TracertDialog() {
-            InitializeComponent();
-        }
-
         public event EventHandler CancelTraceRoute;
+
+        public TracertDialog() { InitializeComponent(); }
 
         /// <summary>
         /// </summary>
@@ -27,9 +24,7 @@ namespace vApus.Util {
             lvw.Items.Add(new ListViewItem(new[] { (lvw.Items.Count + 1).ToString(), ip, hostName, roundtripTime }));
         }
 
-        public void ClearHops() {
-            lvw.Items.Clear();
-        }
+        public void ClearHops() { lvw.Items.Clear(); }
 
         private void btnCancelTraceRoute_Click(object sender, EventArgs e) {
             btnCancelTraceRoute.Enabled = false;

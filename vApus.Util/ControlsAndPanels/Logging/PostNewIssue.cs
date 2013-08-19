@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -13,9 +12,15 @@ using System.Net;
 using System.Xml;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Post a new issue to Redmine using the Post function. Used in the LogMessageDialog.
+    /// </summary>
     public static class NewIssue {
         private static readonly PostDelegate _postDelegate;
 
+        /// <summary>
+        /// Post a new issue to Redmine using the Post function. Used in the LogMessageDialog.
+        /// </summary>
         static NewIssue() {
             _postDelegate = PostCallback;
             StaticActiveObjectWrapper.ActiveObject.OnResult += ActiveObject_OnResult;

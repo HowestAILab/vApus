@@ -7,7 +7,6 @@
  *    
  * Thx 'NanoWizard' from stackoverflow
  */
-
 using System;
 using System.Windows.Forms;
 

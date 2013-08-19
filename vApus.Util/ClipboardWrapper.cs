@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -24,9 +23,7 @@ namespace vApus.Util {
             }
         }
 
-        public static void Clear() {
-            Clipboard.Clear();
-        }
+        public static void Clear() { Clipboard.Clear(); }
 
         /// <summary>
         /// </summary>

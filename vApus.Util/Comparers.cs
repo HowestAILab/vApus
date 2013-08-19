@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -28,9 +27,7 @@ namespace vApus.Util {
         /// <summary>
         ///     Compares the name of the property info's.
         /// </summary>
-        static PropertyInfoComparer() {
-            _propertyInfoComparer = new PropertyInfoComparer();
-        }
+        static PropertyInfoComparer() { _propertyInfoComparer = new PropertyInfoComparer(); }
 
         private PropertyInfoComparer() { }
 
@@ -41,9 +38,7 @@ namespace vApus.Util {
         /// <summary>
         ///     Compares the name of the property info's.
         /// </summary>
-        public static PropertyInfoComparer GetInstance() {
-            return _propertyInfoComparer;
-        }
+        public static PropertyInfoComparer GetInstance() { return _propertyInfoComparer; }
     }
 
     public class ControlComparer : IComparer<Control> {

@@ -5,7 +5,6 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-
 using System;
 using System.IO;
 using System.Text;
@@ -14,42 +13,38 @@ using System.Xml;
 using vApus.Util;
 
 namespace vApus.Monitor {
-    public partial class ConfigurationDialog : Form {
+    public partial class HardwareConfigurationDialog : Form {
+
         #region Fields
-
         // The XmlDocument where the formatted configuration is loaded into.
-        private XmlDocument _configuration;
+        private XmlDocument _hardwareConfiguration;
         private StringBuilder _sb = new StringBuilder();
-
         #endregion
 
         #region Constructor
-
-        public ConfigurationDialog(string configuration) {
+        public HardwareConfigurationDialog(string configuration) {
             InitializeComponent();
             LoadConfiguration(configuration);
         }
-
         #endregion
 
         #region Functions
-
         private void LoadConfiguration(string configuration) {
             try {
                 Cursor = Cursors.WaitCursor;
 
                 var stringReader = new StringReader(configuration);
-                _configuration = new XmlDocument();
+                _hardwareConfiguration = new XmlDocument();
 
                 try {
-                    _configuration.Load(stringReader);
+                    _hardwareConfiguration.Load(stringReader);
                 } catch {
                     throw;
                 } finally {
                     stringReader.Close();
                 }
 
-                foreach (XmlNode node in _configuration.ChildNodes) {
+                foreach (XmlNode node in _hardwareConfiguration.ChildNodes) {
                     if (node.Name != null && node.NodeType != XmlNodeType.Text && node.Name != "xml") {
                         var treeNode = new TreeNode();
                         treeNode.Text = node.Name;
@@ -71,8 +66,7 @@ namespace vApus.Monitor {
 
                 Cursor = Cursors.Default;
             } catch (Exception ex) {
-                LogWrapper.LogByLevel("[" + this + "] " + "The configuration is not a wellformed xml.\n" + ex,
-                                      LogLevel.Error);
+                LogWrapper.LogByLevel("[" + this + "] " + "The configuration is not a wellformed xml.\n" + ex, LogLevel.Error);
                 Close();
             }
         }
@@ -124,9 +118,8 @@ namespace vApus.Monitor {
 
         private void btnSave_Click(object sender, EventArgs e) {
             if (sfd.ShowDialog() == DialogResult.OK)
-                _configuration.Save(sfd.FileName);
+                _hardwareConfiguration.Save(sfd.FileName);
         }
-
         #endregion
     }
 }

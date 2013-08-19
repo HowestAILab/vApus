@@ -4,8 +4,10 @@
  * 
  * Author(s):
  *    Dieter Vandroemme
+ *    
+ * 
+ * All following stuff in in a different project (JumpStartStructures instead of JumpStart) to avoid circular dependencies.
  */
-
 using System;
 
 namespace vApus.JumpStartStructures {
@@ -23,12 +25,10 @@ namespace vApus.JumpStartStructures {
         ///     All ports comma separated.
         /// </summary>
         public string Port;
-
         /// <summary>
         ///     All cores space separated, comma separated per port.
         /// </summary>
         public string ProcessorAffinity;
-
         /// <summary>
         /// </summary>
         /// <param name="ip"></param>
@@ -42,9 +42,8 @@ namespace vApus.JumpStartStructures {
 
     [Serializable]
     public struct KillMessage {
-        //The master port for example
+        //The master processID for example
         public int ExcludeProcessID;
-
         /// <summary>
         /// </summary>
         /// <param name="excludeIP"></param>
@@ -58,7 +57,6 @@ namespace vApus.JumpStartStructures {
     [Serializable]
     public struct CpuCoreCountMessage {
         public int CpuCoreCount;
-
         public CpuCoreCountMessage(int cpuCoreCount) {
             CpuCoreCount = cpuCoreCount;
         }

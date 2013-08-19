@@ -15,7 +15,7 @@ using System.Windows.Forms;
 using vApus.Util;
 
 namespace vApus.DetailedResultsViewer {
-    public partial class FilterResults : UserControl {
+    public partial class FilterResultsControl : UserControl {
         public event EventHandler FilterChanged;
 
         private System.Windows.Forms.Timer _filterChangedDelayedTimer = new System.Windows.Forms.Timer() { Interval = 1000 };
@@ -27,12 +27,12 @@ namespace vApus.DetailedResultsViewer {
 
         public string[] Filter { get { return txtFilter.Text.Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries); } }
 
-        public FilterResults() {
+        public FilterResultsControl() {
             InitializeComponent();
             ClearAvailableTags();
             _filterChangedDelayedTimer.Tick += _filterChangedDelayedTimer_Tick;
         }
-        ~FilterResults() { try { _waitHandle.Dispose(); } catch { } }
+        ~FilterResultsControl() { try { _waitHandle.Dispose(); } catch { } }
 
         /// <summary>
         /// Duplicate tags are ignored.

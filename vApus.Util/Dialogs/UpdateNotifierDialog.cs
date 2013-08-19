@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,21 +14,12 @@ using System.Xml;
 
 namespace vApus.Util {
     public partial class UpdateNotifierDialog : Form {
-        private readonly string _currentChannel;
-        private readonly string _currentVersion;
-        private readonly string _history;
-        private readonly string _newChannel;
-        private readonly string _newVersion;
-        private Font _dateFont;
-        private Font _itemFont;
-        private Font _titleFont;
+        private readonly string _currentChannel, _currentVersion, _history, _newChannel, _newVersion;
+        private Font _dateFont, _itemFont, _titleFont;
 
-        public UpdateNotifierDialog() {
-            InitializeComponent();
-        }
+        public UpdateNotifierDialog() { InitializeComponent(); }
 
-        public UpdateNotifierDialog(string currentVersion, string newVersion, string currentChannel, string newChannel,
-                                    string history)
+        public UpdateNotifierDialog(string currentVersion, string newVersion, string currentChannel, string newChannel, string history)
             : this() {
             _currentVersion = currentVersion;
             _newVersion = newVersion;
@@ -77,12 +67,10 @@ namespace vApus.Util {
                                     break;
                                 default:
                                     if (previousCaretPosition > 0)
-                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + Environment.NewLine +
-                                                                    nn.InnerText;
+                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + Environment.NewLine + nn.InnerText;
                                     else
                                         rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + nn.InnerText;
-                                    parts.Add(new HistoryPart("t", previousCaretPosition,
-                                                              rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
+                                    parts.Add(new HistoryPart("t", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
                                     break;
                             }
                             previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
@@ -123,8 +111,7 @@ namespace vApus.Util {
         }
 
         public struct HistoryPart {
-            public int Length;
-            public int SelectionStart;
+            public int Length, SelectionStart;
             public string Type;
 
             public HistoryPart(string type, int selectionStart, int length) {

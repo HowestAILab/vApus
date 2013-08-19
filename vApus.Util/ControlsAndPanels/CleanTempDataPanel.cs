@@ -15,17 +15,14 @@ using System.Windows.Forms;
 using vApus.Util;
 using Timer = System.Timers.Timer;
 
-namespace vApus.Gui
-{
-    public partial class CleanTempDataPanel : Panel
-    {
+namespace vApus.Util {
+    public partial class CleanTempDataPanel : Panel {
         private static readonly object _lock = new object();
         //Every 10 minutes
         private readonly Dictionary<string, double> _d = new Dictionary<string, double>(4);
         private readonly Timer _tmr = new Timer(600000);
 
-        public CleanTempDataPanel()
-        {
+        public CleanTempDataPanel() {
             InitializeComponent();
 
             _d.Add("ConnectionProxyTempFiles", 0);
@@ -40,12 +37,9 @@ namespace vApus.Gui
             HandleCreated += CleanTempDataPanel_HandleCreated;
         }
 
-        public double TempDataSizeInMB
-        {
-            get
-            {
-                lock (_lock)
-                {
+        public double TempDataSizeInMB {
+            get {
+                lock (_lock) {
                     double total = 0;
                     foreach (double size in _d.Values)
                         total += size;
@@ -54,32 +48,25 @@ namespace vApus.Gui
             }
         }
 
-        private void _tmr_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            try
-            {
+        private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
+            try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { GetAndStoreAllSizes(); }, null);
-            }
-            catch
-            {
+            } catch {
             }
         }
 
-        private void CleanTempDataPanel_HandleCreated(object sender, EventArgs e)
-        {
+        private void CleanTempDataPanel_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= CleanTempDataPanel_HandleCreated;
             GetAndStoreAllSizes();
         }
 
-        private void GetAndStoreAllSizes()
-        {
+        private void GetAndStoreAllSizes() {
             var keys = new string[_d.Keys.Count];
             _d.Keys.CopyTo(keys, 0);
             foreach (string d in keys)
                 GetAndStoreSize(d);
 
-            if (IsHandleCreated)
-            {
+            if (IsHandleCreated) {
                 btnOpenConnectionProxyTempFiles.Text = string.Format("     ConnectionProxyTempFiles... [{0}MB]",
                                                                      _d["ConnectionProxyTempFiles"]);
                 btnOpenConnectionProxyTempFiles.Enabled =
@@ -100,25 +87,20 @@ namespace vApus.Gui
         /// <summary>
         /// </summary>
         /// <param name="d"></param>
-        private void GetAndStoreSize(string d)
-        {
+        private void GetAndStoreSize(string d) {
             string d2 = Path.Combine(Application.StartupPath, d);
             double sizeInMB = 0;
 
-            try
-            {
+            try {
                 sizeInMB = Directory.Exists(d2) ? DirSize(new DirectoryInfo(d2)) : 0;
-            }
-            catch
-            {
+            } catch {
             }
 
-            sizeInMB /= (1024*1024);
+            sizeInMB /= (1024 * 1024);
             _d[d] = Math.Round(sizeInMB, 0);
         }
 
-        private double DirSize(DirectoryInfo d)
-        {
+        private double DirSize(DirectoryInfo d) {
             double size = 0;
             FileInfo[] fis = d.GetFiles();
             foreach (FileInfo fi in fis)
@@ -131,8 +113,7 @@ namespace vApus.Gui
             return size;
         }
 
-        private void btnOpen_Click(object sender, EventArgs e)
-        {
+        private void btnOpen_Click(object sender, EventArgs e) {
             var btn = sender as Button;
             string s = Path.Combine(Application.StartupPath, btn.Tag.ToString());
 
@@ -140,44 +121,34 @@ namespace vApus.Gui
                 Process.Start(s);
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
-        {
+        private void btnDelete_Click(object sender, EventArgs e) {
             Delete((sender as Button).Tag.ToString());
             GetAndStoreAllSizes();
         }
 
-        private void Delete(string d)
-        {
+        private void Delete(string d) {
             d = Path.Combine(Application.StartupPath, d);
             if (Directory.Exists(d))
-                try
-                {
+                try {
                     string[] files = Directory.GetFiles(d);
                     foreach (string f in files)
-                        try
-                        {
+                        try {
                             File.Delete(f);
-                        }
-                        catch
-                        {
+                        } catch {
                         }
 
                     Directory.Delete(d, true);
-                }
-                catch
-                {
+                } catch {
                 }
         }
 
-        private void btnDeleteAll_Click(object sender, EventArgs e)
-        {
+        private void btnDeleteAll_Click(object sender, EventArgs e) {
             foreach (string d in _d.Keys)
                 Delete(d);
             GetAndStoreAllSizes();
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return "Clean Temporary Data";
         }
     }

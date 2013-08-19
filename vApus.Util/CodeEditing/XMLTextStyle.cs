@@ -20,18 +20,14 @@ namespace vApus.Util {
         private readonly MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
         private readonly FastColoredTextBox _fastColoredTextBox;
 
-        private Regex _HTMLAttrRegex,
-                      _HTMLAttrValRegex,
-                      _HTMLCommentRegex1,
-                      _HTMLCommentRegex2;
+        private Regex _HTMLAttrRegex, _HTMLAttrValRegex, _HTMLCommentRegex1, _HTMLCommentRegex2, _HTMLEndTagRegex, _HTMLTagNameRegex, _HTMLTagRegex;
 
-        private Regex _HTMLEndTagRegex;
-        private Regex _HTMLTagNameRegex;
-        private Regex _HTMLTagRegex;
-
-
-        public XMLTextStyle(FastColoredTextBox fastColoredTextBox) {
-            _fastColoredTextBox = fastColoredTextBox;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="applyTo"></param>
+        public XMLTextStyle(FastColoredTextBox applyTo) {
+            _fastColoredTextBox = applyTo;
 
             _fastColoredTextBox.ClearStylesBuffer();
 
@@ -50,10 +46,8 @@ namespace vApus.Util {
             _HTMLTagRegex = new Regex(@"<|/>|</|>", RegexOptions.Compiled);
             _HTMLTagNameRegex = new Regex(@"<(?<range>[!\w:]+)", RegexOptions.Compiled);
             _HTMLEndTagRegex = new Regex(@"</(?<range>[\w:]+)>", RegexOptions.Compiled);
-            _HTMLAttrRegex = new Regex(@"(?<range>\S+?)='[^']*'|(?<range>\S+)=""[^""]*""|(?<range>\S+)=\S+",
-                                       RegexOptions.Compiled);
-            _HTMLAttrValRegex = new Regex(@"\S+?=(?<range>'[^']*')|\S+=(?<range>""[^""]*"")|\S+=(?<range>\S+)",
-                                          RegexOptions.Compiled);
+            _HTMLAttrRegex = new Regex(@"(?<range>\S+?)='[^']*'|(?<range>\S+)=""[^""]*""|(?<range>\S+)=\S+", RegexOptions.Compiled);
+            _HTMLAttrValRegex = new Regex(@"\S+?=(?<range>'[^']*')|\S+=(?<range>""[^""]*"")|\S+=(?<range>\S+)", RegexOptions.Compiled);
         }
 
         /// <summary>

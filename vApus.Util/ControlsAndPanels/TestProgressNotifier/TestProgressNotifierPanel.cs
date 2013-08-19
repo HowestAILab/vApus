@@ -15,9 +15,15 @@ using System.Windows.Forms;
 using vApus.Util.Properties;
 
 namespace vApus.Util {
+    /// <summary>
+    /// By using this panel you can set the behaviour of test progress notification and to which e-mail address notifications need to be sent. Used in the OptionsDialog.
+    /// </summary>
     public partial class TestProgressNotifierPanel : Panel {
 
         #region Constructor
+        /// <summary>
+        /// By using this panel you can set the behaviour of test progress notification and to which e-mail address notifications need to be sent. Used in the OptionsDialog.
+        /// </summary>
         public TestProgressNotifierPanel() {
             InitializeComponent();
             LoadSettings();

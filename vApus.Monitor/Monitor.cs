@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,23 +14,26 @@ using vApus.Util;
 using vApusSMT.Base;
 
 namespace vApus.Monitor {
+    /// <summary>
+    /// Keeps all the monitoring settings the previous "what I want" counter info if any.
+    /// </summary>
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [Serializable]
     public class Monitor : LabeledBaseItem {
+
         #region Fields
-
         private string[] _filter = new string[0];
-        private MonitorSource _monitorSource = new MonitorSource(string.Empty);
-        private int _monitorSourceIndex;
-        protected internal List<MonitorSource> _monitorSources = new List<MonitorSource>();
-        private object[] _parameters = new object[0];
 
-        private int _previousMonitorSourceIndexForCounters;
+        private MonitorSource _monitorSource = new MonitorSource(string.Empty);
+        private int _monitorSourceIndex, _previousMonitorSourceIndexForCounters;
+        protected internal List<MonitorSource> _monitorSources = new List<MonitorSource>();
+
         private Dictionary<Entity, List<CounterInfo>> _wiw = new Dictionary<Entity, List<CounterInfo>>();
 
+        private object[] _parameters = new object[0];
         #endregion
 
         #region Properties
@@ -111,9 +113,7 @@ namespace vApus.Monitor {
         }
 
         [SavableCloneable]
-        [Description(
-            "To filter the counters in a (large) counter collection. Wild card * can be used. Not case sensitive. All entries are in OR-relation with each other."
-            )]
+        [Description("To filter the counters in a (large) counter collection. Wild card * can be used. Not case sensitive. All entries are in OR-relation with each other.")]
         public string[] Filter {
             get { return _filter; }
             set { _filter = value; }
@@ -148,9 +148,7 @@ namespace vApus.Monitor {
             }
         }
 
-        public override void Activate() {
-            SolutionComponentViewManager.Show(this);
-        }
+        public override void Activate() { SolutionComponentViewManager.Show(this); }
 
         #endregion
     }

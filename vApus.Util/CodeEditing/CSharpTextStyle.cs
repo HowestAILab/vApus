@@ -23,8 +23,8 @@ namespace vApus.Util {
         private readonly FastColoredTextBox _fastColoredTextBox;
         private TextStyle MaroonStyle = new TextStyle(Brushes.Maroon, null, FontStyle.Regular);
 
-        public CSharpTextStyle(FastColoredTextBox fastColoredTextBox) {
-            _fastColoredTextBox = fastColoredTextBox;
+        public CSharpTextStyle(FastColoredTextBox applyTo) {
+            _fastColoredTextBox = applyTo;
 
             _fastColoredTextBox.ClearStylesBuffer();
 

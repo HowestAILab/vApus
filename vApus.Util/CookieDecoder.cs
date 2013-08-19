@@ -10,7 +10,6 @@
  * Thanks to Andy Taylor and Trustin Lee of the Netty Project http://www.jboss.org/netty/
  * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/handler/codec/http/CookieDecoder.html
  */
-
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -62,30 +61,21 @@ namespace vApus.Util {
                                 lowerCaseName = name.ToLower();
                                 value = values[j];
 
-                                if (lowerCaseName == "discard")
-                                    discard = true;
-                                else if (lowerCaseName == "secure")
-                                    secure = true;
-                                else if (lowerCaseName == "httponly")
-                                    httpOnly = true;
-                                else if (lowerCaseName == "comment")
-                                    comment = value;
+                                if (lowerCaseName == "discard") discard = true;
+                                else if (lowerCaseName == "secure") secure = true;
+                                else if (lowerCaseName == "httponly") httpOnly = true;
+                                else if (lowerCaseName == "comment") comment = value;
                                 else if (lowerCaseName == "commenturl")
                                     try {
                                         commentUri = new Uri(value);
                                     } catch {
                                     } else if (lowerCaseName == "domain")
                                     domain = value;
-                                else if (lowerCaseName == "path")
-                                    path = value;
-                                else if (lowerCaseName == "expires")
-                                    DateTime.TryParse(value, out expires);
-                                else if (lowerCaseName == "version")
-                                    int.TryParse(value, out version);
-                                else if (lowerCaseName == "port")
-                                    ports.AddRange(value.Split(','));
-                                else
-                                    break;
+                                else if (lowerCaseName == "path") path = value;
+                                else if (lowerCaseName == "expires") DateTime.TryParse(value, out expires);
+                                else if (lowerCaseName == "version") int.TryParse(value, out version);
+                                else if (lowerCaseName == "port") ports.AddRange(value.Split(','));
+                                else break;
                             }
 
                             cookie.Version = version;
@@ -182,8 +172,7 @@ namespace vApus.Util {
         }
 
         private string DecodeValue(string value) {
-            if (value == null)
-                return value;
+            if (value == null) return value;
             return value.Replace("\\\"", "\"").Replace("\\\\", "\\");
         }
     }

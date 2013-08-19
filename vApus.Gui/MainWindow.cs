@@ -25,36 +25,33 @@ namespace vApus.Gui {
     public partial class MainWindow : Form {
 
         #region Fields
-
-        public const UInt32 FLASHW_TRAY = 2;
-        private readonly About _about = new About();
         private readonly string[] _args;
-
-        private readonly Welcome _welcome = new Welcome();
-        private CleanTempDataPanel _cleanTempDataPanel;
-        private DisableFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
-        private LocalizationPanel _localizationPanel;
-        private LogErrorToolTip _logErrorToolTip;
-        private LogPanel _logPanel;
         private Win32WindowMessageHandler _msgHandler;
-        private OptionsDialog _optionsDialog;
-        private ProcessorAffinityPanel _processorAffinityPanel;
-
-        private TestProgressNotifierPanel _progressNotifierPannel;
-        private SavingResultsPanel _savingResultsPanel;
-        private UpdateNotifierPanel _updateNotifierPanel;
-
         private delegate void CloseDelayed();
 
+        private readonly WelcomeView _welcomeView = new WelcomeView();
+        private readonly AboutDialog _aboutDialog = new AboutDialog();
+        private LogErrorToolTip _logErrorToolTip;
+
+        private OptionsDialog _optionsDialog;
+        private UpdateNotifierPanel _updateNotifierPanel;
+        private LogPanel _logPanel;
+        private LocalizationPanel _localizationPanel;
+        private ProcessorAffinityPanel _processorAffinityPanel;
+        private TestProgressNotifierPanel _progressNotifierPannel;
+        private SavingResultsPanel _savingResultsPanel;
+        private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
+        private CleanTempDataPanel _cleanTempDataPanel;
         #endregion
 
+        #region Constructor
         public MainWindow(string[] args = null) {
             _args = args;
             Init();
         }
+        #endregion
 
         #region Init
-
         private void Init() {
             InitializeComponent();
             mainMenu.ImageList = new ImageList { ColorDepth = ColorDepth.Depth24Bit };
@@ -77,7 +74,7 @@ namespace vApus.Gui {
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
                 if (Solution.ShowStresstestingSolutionExplorer() && Settings.Default.GreetWithWelcomePage)
-                    _welcome.Show(dockPanel);
+                    _welcomeView.Show(dockPanel);
                 OnActiveSolutionChanged(null);
 
                 string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
@@ -93,7 +90,7 @@ namespace vApus.Gui {
                 _localizationPanel = new LocalizationPanel();
                 _processorAffinityPanel = new ProcessorAffinityPanel();
                 _cleanTempDataPanel = new CleanTempDataPanel();
-                _disableFirewallAutoUpdatePanel = new DisableFirewallAutoUpdatePanel();
+                _disableFirewallAutoUpdatePanel = new WindowsFirewallAutoUpdatePanel();
 
                 //When this vApus is used for a slave, the title bar will change.
                 SocketListenerLinker.NewTest += SocketListenerLinker_NewTest;
@@ -109,7 +106,7 @@ namespace vApus.Gui {
                     UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
                     //Doing stuff automatically
                     if (Update(host, port, username, password, channel)) {
-                        StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(CloseDelayedCallback));
+                        StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(() => SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Close(); }, null)));
                     }
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
@@ -118,24 +115,13 @@ namespace vApus.Gui {
                 LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
             }
         }
-
-        private void CloseDelayedCallback() {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Close(); }, null);
-        }
-
         #endregion
 
-        private void SocketListenerLinker_NewTest(object sender, EventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Text = sender.ToString(); }, null);
-        }
+        private void SocketListenerLinker_NewTest(object sender, EventArgs e) { SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Text = sender.ToString(); }, null); }
 
-        private void MainWindow_LocationChanged(object sender, EventArgs e) {
-            RelocateLogErrorToolTip();
-        }
+        private void MainWindow_LocationChanged(object sender, EventArgs e) { RelocateLogErrorToolTip(); }
 
-        private void MainWindow_SizeChanged(object sender, EventArgs e) {
-            RelocateLogErrorToolTip();
-        }
+        private void MainWindow_SizeChanged(object sender, EventArgs e) { RelocateLogErrorToolTip(); }
 
         private void RelocateLogErrorToolTip() {
             try {
@@ -150,7 +136,6 @@ namespace vApus.Gui {
         }
 
         #region Menu
-
         private void SetToolStripMenuItemImage(ToolStripMenuItem item) {
             var component = item.Tag as SolutionComponent;
             string componentTypeName = component.GetType().Name;
@@ -259,7 +244,7 @@ namespace vApus.Gui {
                 TopMost = false;
             }
             if (m.Msg == 16) //WM_CLOSE
-                _welcome.DisableFormClosingEventHandling();
+                _welcomeView.DisableFormClosingEventHandling();
 
             base.WndProc(ref m);
         }
@@ -317,10 +302,10 @@ namespace vApus.Gui {
                         Solution.SaveActiveSolution();
                     tmrSetStatusStrip.Stop();
 
-                    _welcome.DisableFormClosingEventHandling();
+                    _welcomeView.DisableFormClosingEventHandling();
                     //For the DockablePanels that are shown as dockstate document, otherwise the form won't close.
-                    _welcome.Hide();
-                    _welcome.Close();
+                    _welcomeView.Hide();
+                    _welcomeView.Close();
                     SolutionComponentViewManager.DisposeViews();
                     e.Cancel = false;
                 } else if (result == DialogResult.Cancel) {
@@ -329,10 +314,10 @@ namespace vApus.Gui {
             } else {
                 tmrSetStatusStrip.Stop();
 
-                _welcome.DisableFormClosingEventHandling();
+                _welcomeView.DisableFormClosingEventHandling();
                 //For the DockablePanels that are shown as dockstate document, otherwise the form won't close.
-                _welcome.Hide();
-                _welcome.Close();
+                _welcomeView.Hide();
+                _welcomeView.Close();
                 SolutionComponentViewManager.DisposeViews();
                 e.Cancel = false;
             }
@@ -420,9 +405,8 @@ namespace vApus.Gui {
         #endregion
 
         #region View
-
         private void welcomeToolStripMenuItem_Click(object sender, EventArgs e) {
-            _welcome.Show(dockPanel);
+            _welcomeView.Show(dockPanel);
             //Show it again the next time.
             Settings.Default.GreetWithWelcomePage = true;
             Settings.Default.Save();
@@ -431,11 +415,9 @@ namespace vApus.Gui {
         private void stresstestingSolutionExplorerToolStripMenuItem_Click(object sender, EventArgs e) {
             Solution.ShowStresstestingSolutionExplorer();
         }
-
         #endregion
 
         #region Monitors and Stresstests
-
         private void monitorToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
             monitorToolStripMenuItem.DropDownItems.Clear();
             if (Solution.ActiveSolution != null)
@@ -479,21 +461,17 @@ namespace vApus.Gui {
         private void item_Click(object sender, EventArgs e) {
             ((sender as ToolStripMenuItem).Tag as LabeledBaseItem).Activate();
         }
-
         #endregion
 
         #region Help
-
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
-            _about.ShowDialog();
+            _aboutDialog.ShowDialog();
         }
-
         #endregion
 
         #endregion
 
         #region Status Strip
-
         private void _logPanel_LogErrorCountChanged(object sender, LogPanel.LogErrorCountChangedEventArgs e) {
             try {
                 //Show the error messages in a tooltip.
@@ -566,20 +544,20 @@ namespace vApus.Gui {
         }
 
         private void SetWarningLabel() {
-            DisableFirewallAutoUpdatePanel.Status status = _disableFirewallAutoUpdatePanel.CheckStatus();
+            WindowsFirewallAutoUpdatePanel.Status status = _disableFirewallAutoUpdatePanel.CheckStatus();
             switch (status) {
-                case DisableFirewallAutoUpdatePanel.Status.AllDisabled:
+                case WindowsFirewallAutoUpdatePanel.Status.AllDisabled:
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = false;
                     break;
-                case DisableFirewallAutoUpdatePanel.Status.WindowsFirewallEnabled:
+                case WindowsFirewallAutoUpdatePanel.Status.WindowsFirewallEnabled:
                     lblWarning.Text = "Windows Firewall enabled!";
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
-                case DisableFirewallAutoUpdatePanel.Status.WindowsAutoUpdateEnabled:
+                case WindowsFirewallAutoUpdatePanel.Status.WindowsAutoUpdateEnabled:
                     lblWarning.Text = "Windows Auto Update enabled!";
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
-                case DisableFirewallAutoUpdatePanel.Status.AllEnabled:
+                case WindowsFirewallAutoUpdatePanel.Status.AllEnabled:
                     lblWarning.Text = "Windows Firewall and Auto Update enabled!";
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
@@ -603,7 +581,6 @@ namespace vApus.Gui {
         private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
 
         private void lblWarning_Click(object sender, EventArgs e) { if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(7); else ShowOptionsDialog(6); }
-
         #endregion
     }
 }

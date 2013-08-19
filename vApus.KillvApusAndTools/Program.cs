@@ -5,12 +5,13 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Diagnostics;
 
-//Kill vApus and Tools when uninstalling vApus.
 namespace vApus.KillvApusAndTools {
+    /// <summary>
+    /// Used to Kill vApus and Tools when uninstalling or updating vApus. Can be used manually if you want.
+    /// </summary>
     internal static class Program {
         /// <summary>
         ///     The main entry point for the application.

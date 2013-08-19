@@ -5,17 +5,17 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace vApus.Gui {
+namespace vApus.Util {
+    /// <summary>
+    /// This can be shown if an application error is repported to the Logger.
+    /// </summary>
     public partial class LogErrorToolTip : Form {
-        public LogErrorToolTip() {
-            InitializeComponent();
-        }
 
+        #region Properties
         public int NumberOfErrorsOrFatals {
             set { lblTitle.Text = value + ((value == 1) ? " new error or fatal!" : " new errors or fatals!"); }
         }
@@ -27,7 +27,18 @@ namespace vApus.Gui {
             get { return timer.Interval; }
             set { timer.Interval = value; }
         }
+        #endregion
 
+        #region Constructors
+        /// <summary>
+        /// This can be shown if an application error is repported to the Logger.
+        /// </summary>
+        public LogErrorToolTip() {
+            InitializeComponent();
+        }
+        #endregion
+
+        #region Functions
         protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);
             //Draw border
@@ -73,5 +84,6 @@ namespace vApus.Gui {
             Owner.SizeChanged -= Owner_SizeChanged;
             Hide();
         }
+        #endregion
     }
 }

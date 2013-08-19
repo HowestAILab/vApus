@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using Microsoft.Win32;
 using System;
 using System.Diagnostics;
@@ -14,10 +13,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace vApus.Util {
-    public partial class DisableFirewallAutoUpdatePanel : Panel {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
+    public partial class WindowsFirewallAutoUpdatePanel : Panel {
         public enum Status {
             AllDisabled = 0,
             WindowsFirewallEnabled = 1,
@@ -25,22 +21,31 @@ namespace vApus.Util {
             AllEnabled = 3
         }
 
+        private delegate void ApplyDel();
+
+        #region Fields
         private readonly ActiveObject _activeObject = new ActiveObject();
         private readonly ApplyDel _applyCallback;
         private Status _status;
         private bool _canCheckStatus = true;
+        #endregion
 
-        public DisableFirewallAutoUpdatePanel() {
+        #region Properties
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+        public Status __Status { get { return _status; } }
+        #endregion
+
+        #region Constructor
+        public WindowsFirewallAutoUpdatePanel() {
             InitializeComponent();
             _applyCallback = ApplyCallback;
             _activeObject.OnResult += _activeObject_OnResult;
             HandleCreated += DisableFirewallAutoUpdatePanel_HandleCreated;
         }
+        #endregion
 
-        public Status __Status {
-            get { return _status; }
-        }
-
+        #region Functions
         private void DisableFirewallAutoUpdatePanel_HandleCreated(object sender, EventArgs e) {
             CheckStatus();
         }
@@ -211,7 +216,6 @@ namespace vApus.Util {
         public override string ToString() {
             return "Windows Firewall / Auto Update";
         }
-
-        private delegate void ApplyDel();
+        #endregion
     }
 }

@@ -4,6 +4,8 @@
  * 
  * Author(s):
  *    Dieter Vandroemme
+ *
+ * makecert.exe is in place to be able to auto generate an ssl certificate for capturing https trafic (vApus.Stresstest.EditLog).  
  */
 using System;
 using System.Diagnostics;

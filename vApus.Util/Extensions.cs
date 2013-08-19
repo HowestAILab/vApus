@@ -276,6 +276,12 @@ namespace vApus.Util {
             }
         }
 
+        /// <summary>
+        /// If the string is a binary representation of an object you can use this class to make an object out of it.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
         public static object ToByteArrayToObject(this string s, string separator = ",") {
             lock (_lock) {
                 string[] split = s.Split(new string[] { separator }, StringSplitOptions.None);

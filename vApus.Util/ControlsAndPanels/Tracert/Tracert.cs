@@ -5,14 +5,28 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Determines the trace route for a given destination host or IP.
+    /// </summary>
     public class Tracert : IDisposable {
+        public event EventHandler<HopEventArgs> Hop;
+        public event EventHandler Done;
+
+        #region Fields
+        private static byte[] _buffer;
+        private int _hops;
+        private IPAddress _ip;
+        private bool _isDone;
+        private int _maxHops;
+        private PingOptions _options;
+        private Ping _ping;
+        private int _timeout;
         private static byte[] Buffer {
             get {
                 if (_buffer == null) {
@@ -23,9 +37,9 @@ namespace vApus.Util {
                 return _buffer;
             }
         }
+        #endregion
 
         #region Functions
-
         /// <summary>
         /// </summary>
         /// <param name="hostNameOrIP"></param>
@@ -60,14 +74,14 @@ namespace vApus.Util {
 
         private void OnPingCompleted(object sender, PingCompletedEventArgs e) {
             ThreadPool.QueueUserWorkItem(delegate {
-                    if (!_isDone)
-                        try {
-                            _options.Ttl += 1;
-                            ProcessHop(e.Reply.Address, e.Reply.Status);
-                            _ping.SendAsync(_ip, _timeout, Buffer, _options, null);
-                        } catch {
-                        }
-                });
+                if (!_isDone)
+                    try {
+                        _options.Ttl += 1;
+                        ProcessHop(e.Reply.Address, e.Reply.Status);
+                        _ping.SendAsync(_ip, _timeout, Buffer, _options, null);
+                    } catch {
+                    }
+            });
         }
 
         protected void ProcessHop(IPAddress ip, IPStatus status) {
@@ -112,8 +126,6 @@ namespace vApus.Util {
                 Done(this, null);
         }
 
-        #endregion
-
         public void Dispose() {
             _isDone = true;
             if (_ping != null)
@@ -123,21 +135,6 @@ namespace vApus.Util {
                 }
             _ping = null;
         }
-
-        public event EventHandler<HopEventArgs> Hop;
-        public event EventHandler Done;
-
-        #region Fields
-
-        private static byte[] _buffer;
-        private int _hops;
-        private IPAddress _ip;
-        private bool _isDone;
-        private int _maxHops;
-        private PingOptions _options;
-        private Ping _ping;
-        private int _timeout;
-
         #endregion
 
         public class HopEventArgs : EventArgs {

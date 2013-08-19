@@ -5,11 +5,13 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// If you want to be able to set a fixed duration, use ExtendedSchedule.
+    /// </summary>
     public partial class Schedule : Form {
         private DateTime _scheduledAt;
 

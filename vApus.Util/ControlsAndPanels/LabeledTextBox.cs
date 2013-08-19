@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -15,11 +14,15 @@ namespace vApus.Util {
     ///     Serves at combining a label control and a text box.
     /// </summary>
     public class LabeledTextBox : TextBox {
+
+        #region Fields
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _canInvokeTextChanged = true;
         private string _emptyTextBoxLabel = "Label";
         private bool _settingLabel;
+        #endregion
 
+        #region Properties
         public string EmptyTextBoxLabel {
             get { return _emptyTextBoxLabel; }
             set {
@@ -40,11 +43,15 @@ namespace vApus.Util {
                 base.Text = value;
             }
         }
+        #endregion
 
+        #region Constructor
         public LabeledTextBox() {
             ForeColor = Color.DimGray;
         }
+        #endregion
 
+        #region Functions
         protected override void OnEnter(EventArgs e) {
             _canInvokeTextChanged = false;
             if (ForeColor == Color.DimGray)
@@ -70,5 +77,6 @@ namespace vApus.Util {
             if (_canInvokeTextChanged && ForeColor != Color.DimGray)
                 base.OnTextChanged(e);
         }
+        #endregion
     }
 }

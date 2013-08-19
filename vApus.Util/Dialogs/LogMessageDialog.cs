@@ -5,12 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// A dialog designed to show a application log message. You are able to report such a message as a bug to the Sizing Servers Redmine.
+    /// </summary>
     public partial class LogMessageDialog : Form {
         /// <summary>
         ///     The form cannot be closed if this is true.

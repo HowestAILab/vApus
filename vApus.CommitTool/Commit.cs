@@ -1,11 +1,10 @@
 ﻿/*
- * Copyright 2012 (c) Sizing Servers Lab
+ * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,28 +36,32 @@ namespace vApus.CommitTool {
         /// <param name="exception"></param>
         /// <param name="gitCmd">eg C:\Program Files (x86)\Git\cmd\git.cmd</param>
         /// <param name="historyXml">The path to the history.xml</param>
-        /// <param name="timeStamp"></param>
+        /// <param name="timeStamp">Give the timestamp that is appended to the package name that all files are put into, if Any. For example, if you zip the files and put them elsewhere, or make an installer. Then the time stamp is the same everywhere.</param>
         /// <param name="excludedFilesOrFolders"></param>
-        public void Do(string host, int port, string username, string password, string historyXml,
-                       string localGitRepository, out Exception exception,
-                       string gitCmd = @"C:\Program Files (x86)\Git\cmd\git.cmd",
-                       string timeStamp = "",
-                       params string[] excludedFilesOrFolders) {
-            Sftp sftp;
-            SshStream ssh;
-            Connect(host, port, username, password, out sftp, out ssh, out exception);
-            if (exception == null) {
-                string channel;
-                List<string> fileList, folderList;
+        public Exception Do(string host, int port, string username, string password, string historyXml, string localGitRepository, string gitCmd, string timeStamp, params string[] excludedFilesOrFolders) {
+            Exception exception = null;
 
-                MakeVersionIni(historyXml, localGitRepository, gitCmd, timeStamp, excludedFilesOrFolders, out channel,
-                               out fileList, out folderList, out exception);
-                if (exception == null)
-                    CommitBinaries(sftp, ssh, channel, fileList, folderList, out exception);
+            try {
+                Sftp sftp;
+                SshStream ssh;
+                exception = Connect(host, port, username, password, out sftp, out ssh);
+                if (exception == null) {
+                    string channel;
+                    List<string> fileList, folderList;
+
+                    //Version ini contains the version number needed for the updater, the history of changes and a list of included files and checksums (to be able to update only changed files)
+                    exception = MakeVersionIni(historyXml, localGitRepository, gitCmd, timeStamp, excludedFilesOrFolders, out channel, out fileList, out folderList);
+                    if (exception == null)
+                        exception = CommitBinaries(sftp, ssh, channel, fileList, folderList);
+                }
+
+                //This does a null check also.
+                Disconnect(sftp, ssh);
+            } catch (Exception ex) {
+                exception = ex;
             }
 
-            //This does a null check also.
-            Disconnect(sftp, ssh);
+            return exception;
         }
 
         #region Communication
@@ -70,11 +73,10 @@ namespace vApus.CommitTool {
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="sftp">For putting binaries</param>
-        /// <param name="ssh">For removing foldersthat are not empty</param>
+        /// <param name="ssh">For removing folders that are not empty</param>
         /// <param name="exception"></param>
-        private void Connect(string host, int port, string username, string password, out Sftp sftp, out SshStream ssh,
-                             out Exception exception) {
-            exception = null;
+        private Exception Connect(string host, int port, string username, string password, out Sftp sftp, out SshStream ssh) {
+            Exception exception = null;
             sftp = null;
             ssh = null;
             try {
@@ -89,6 +91,7 @@ namespace vApus.CommitTool {
                 Disconnect(sftp, ssh);
                 exception = ex;
             }
+            return exception;
         }
 
         /// <summary>
@@ -113,66 +116,57 @@ namespace vApus.CommitTool {
             }
         }
 
-        private void CommitBinaries(Sftp sftp, SshStream ssh, string channel, List<string> fileList,
-                                    List<string> folderList, out Exception exception) {
+        private Exception CommitBinaries(Sftp sftp, SshStream ssh, string channel, List<string> fileList, List<string> folderList) {
+            Exception exception = null;
             string channelDir = channel.ToLower();
-            exception = null;
+
             try {
-                try {
-                    //Remake the channel dir for a clean start
-                    ssh.Write("rm -rf " + channelDir);
-                    ssh.ReadResponse();
-                    //A bit sad, but otherwise the following command doesn't work (10 seconds should be okay, just being sure)
-                    Thread.Sleep(60000);
-                } catch {
-                }
-                try {
-                    sftp.Mkdir(channelDir);
-                } catch {
-                }
+                //Remake the channel dir for a clean start
+                ssh.Write("rm -rf " + channelDir);
+                ssh.ReadResponse();
+                //A bit sad, but otherwise the following command doesn't work (1 minute should be okay, just being sure)
+                Thread.Sleep(60000);
+                sftp.Mkdir(channelDir);
 
                 int startupPathLength = Application.StartupPath.Length;
                 foreach (string folder in folderList)
-                    try {
-                        sftp.Mkdir(channelDir + folder.Substring(startupPathLength).Replace('\\', '/'));
-                    } catch {
-                    }
+                    sftp.Mkdir(channelDir + folder.Substring(startupPathLength).Replace('\\', '/'));
+
                 foreach (string file in fileList)
-                    try {
-                        sftp.Put(file, channelDir + file.Substring(startupPathLength).Replace('\\', '/'));
-                    } catch {
-                    }
+                    sftp.Put(file, channelDir + file.Substring(startupPathLength).Replace('\\', '/'));
+
             } catch (Exception ex) {
                 exception = ex;
             }
+            return exception;
         }
 
         #endregion
 
         #region Make the version.ini and get files and folder to commit to the server
 
-        private void MakeVersionIni(string historyXml, string localGitRepository, string gitCmd, string timeStamp,
+        private Exception MakeVersionIni(string historyXml, string localGitRepository, string gitCmd, string timeStamp,
                                     string[] excludedFilesOrFolders, out string channel, out List<string> fileList,
-                                    out List<string> folderList, out Exception exception) {
-            exception = null;
+                                    out List<string> folderList) {
+            Exception exception = null;
             channel = null;
             fileList = null;
             folderList = null;
 
             string version = GetVersion(localGitRepository, gitCmd, out exception);
-            if (exception != null) return;
+            if (exception != null) return exception;
 
             if (timeStamp.Length != 0)
                 version += " " + timeStamp;
 
             channel = GetChannel(localGitRepository, gitCmd, out exception);
-            if (exception != null) return;
+            if (exception != null) return exception;
 
             string history = GetHistory(historyXml, out exception);
-            if (exception != null) return;
+            if (exception != null) return exception;
 
             string files = GetFiles(excludedFilesOrFolders, out fileList, out folderList, out exception);
-            if (exception != null) return;
+            if (exception != null) return exception;
 
             using (var sw = new StreamWriter(Path.Combine(Application.StartupPath, "version.ini"))) {
                 sw.WriteLine("[VERSION]");
@@ -186,13 +180,15 @@ namespace vApus.CommitTool {
 
                 sw.Flush();
             }
+
+            return exception;
         }
 
         /// <summary>
         ///     Gets a version from the git tags
         /// </summary>
         /// <param name="localGitRepository"></param>
-        /// <param name="gitCmd">Don't forget to escape this</param>
+        /// <param name="gitCmd"></param>
         /// <param name="exception"></param>
         /// <returns>git tag (latest tag) </returns>
         private string GetVersion(string localGitRepository, string gitCmd, out Exception exception) {
@@ -214,7 +210,7 @@ namespace vApus.CommitTool {
         /// <param name="localGitRepository"></param>
         /// <param name="gitCmd"></param>
         /// <param name="exception"></param>
-        /// <returns>If the branch equals "* development" "Stable" is returned, otherwise "Nightly".</returns>
+        /// <returns>If the branch equals "* master" "Stable" is returned, otherwise "Nightly".</returns>
         private string GetChannel(string localGitRepository, string gitCmd, out Exception exception) {
             string channel = null;
             try {
@@ -297,8 +293,7 @@ namespace vApus.CommitTool {
             return output;
         }
 
-        private bool AppendToOutput_DetermineInputFound(List<string> output, string line, string input, bool killProcess,
-                                                        Process p) {
+        private bool AppendToOutput_DetermineInputFound(List<string> output, string line, string input, bool killProcess, Process p) {
             if (line == null)
                 return false;
 

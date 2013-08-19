@@ -52,10 +52,7 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static bool Unregister(object obj) {
-            lock (_lock)
-                return _register.Remove(obj);
-        }
+        public static bool Unregister(object obj) { lock (_lock) return _register.Remove(obj); }
 
         /// <summary>
         ///     Thread safe.

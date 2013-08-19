@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -15,7 +14,6 @@ namespace vApus.Util {
         public event EventHandler MouseEnter, MouseLeave, Click;
 
         #region Fields
-
         public const int WIDTH = 2;
 
         private readonly EventProgressChart _parent;
@@ -25,9 +23,9 @@ namespace vApus.Util {
 
         private string _message;
         private Pen _pen;
-
         #endregion
 
+        #region Constructors
         /// <summary>
         /// </summary>
         /// <param name="parent">Where it must be drawn upon.</param>
@@ -40,10 +38,9 @@ namespace vApus.Util {
             _message = message;
             _at = at;
         }
-
+        #endregion
 
         #region Properties
-
         public Color Color {
             get { return _pen == null ? Color.Transparent : _pen.Color; }
             set { _pen = new Pen(value, WIDTH); }
@@ -65,16 +62,12 @@ namespace vApus.Util {
         /// <summary>
         ///     The shown tool tip text (if enabled in the parent).
         /// </summary>
-        public string ToolTipText {
-            get { return _message + "\n" + _at; }
-        }
+        public string ToolTipText { get { return _message + "\n" + _at; } }
 
         /// <summary>
         ///     The location where it is drawn (only x changes).
         /// </summary>
-        public Point Location {
-            get { return new Point(X, 0); }
-        }
+        public Point Location { get { return new Point(X, 0); } }
 
         private int X {
             get {
@@ -104,14 +97,10 @@ namespace vApus.Util {
         /// <summary>
         ///     Mouse over
         /// </summary>
-        public bool Entered {
-            get { return _entered; }
-        }
-
+        public bool Entered { get { return _entered; } }
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Draw at the calculated x (location)
         /// </summary>
@@ -142,11 +131,7 @@ namespace vApus.Util {
                 MouseLeave(this, new EventArgs());
         }
 
-        public void PerformClick() {
-            if (Click != null)
-                Click(this, new EventArgs());
-        }
-
+        public void PerformClick() { if (Click != null)  Click(this, new EventArgs()); }
         #endregion
     }
 }

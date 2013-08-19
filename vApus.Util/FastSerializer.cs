@@ -33,25 +33,10 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace vApus.Util {
     // Enum for the standard types handled by Read/WriteObject()
     internal enum ObjType : byte {
-        nullType,
-        boolType,
-        byteType,
-        uint16Type,
-        uint32Type,
-        uint64Type,
-        sbyteType,
-        int16Type,
-        int32Type,
-        int64Type,
-        charType,
-        stringType,
-        singleType,
-        doubleType,
-        decimalType,
-        dateTimeType,
-        byteArrayType,
-        charArrayType,
-        otherType
+        nullType, boolType, byteType, uint16Type, uint32Type,
+        uint64Type, sbyteType, int16Type, int32Type, int64Type,
+        charType, stringType, singleType, doubleType, decimalType,
+        dateTimeType, byteArrayType, charArrayType, otherType
     }
 
     /// <summary>
@@ -62,8 +47,7 @@ namespace vApus.Util {
         private BinaryFormatter _binaryFormatter;
 
         private SerializationWriter(Stream s)
-            : base(s) {
-        }
+            : base(s) { }
 
         /// <summary> Static method to initialise the writer with a suitable MemoryStream. </summary>
         public static SerializationWriter GetWriter() {
@@ -106,7 +90,7 @@ namespace vApus.Util {
             } else {
                 int len = c.Length;
                 Write(len);
-                if (len > 0)
+                if (len != 0)
                     base.Write(c);
             }
         }
@@ -114,13 +98,9 @@ namespace vApus.Util {
         /// <summary>
         ///     Writes a DateTime to the buffer.
         ///     <summary>
-        public void Write(DateTime dt) {
-            Write(dt.Ticks);
-        }
+        public void Write(DateTime dt) { Write(dt.Ticks); }
 
-        public void Write(TimeSpan ts) {
-            Write(ts.Ticks);
-        }
+        public void Write(TimeSpan ts) { Write(ts.Ticks); }
 
         /// <summary>
         ///     Writes a generic ICollection (such as an IList<T> or Array) to the buffer.
@@ -268,8 +248,7 @@ namespace vApus.Util {
         private BinaryFormatter _binaryFormatter;
 
         private SerializationReader(Stream s)
-            : base(s) {
-        }
+            : base(s) { }
 
         /// <summary>
         ///     Static method to take a SerializationInfo object (an input to an ISerializable constructor)
@@ -311,13 +290,9 @@ namespace vApus.Util {
         }
 
         /// <summary> Reads a DateTime from the buffer. </summary>
-        public DateTime ReadDateTime() {
-            return new DateTime(ReadInt64());
-        }
+        public DateTime ReadDateTime() { return new DateTime(ReadInt64()); }
 
-        public TimeSpan ReadTimeSpan() {
-            return new TimeSpan(ReadInt64());
-        }
+        public TimeSpan ReadTimeSpan() { return new TimeSpan(ReadInt64()); }
 
         public Array ReadArray(Type elementType) {
             int count = ReadInt32();

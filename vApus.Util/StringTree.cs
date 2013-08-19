@@ -128,7 +128,10 @@ namespace vApus.Util {
         IEnumerator IEnumerable.GetEnumerator() {
             return _childs.GetEnumerator();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>If this has no childs the value is returned.</returns>
         public string CombineValues() {
             lock (this) {
                 var sb = new StringBuilder(_value);

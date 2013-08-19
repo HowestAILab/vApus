@@ -15,16 +15,17 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Gui {
+    /// <summary>
+    /// Basic vApus CLI stuff.
+    /// </summary>
     internal static class ArgumentsAnalyzer {
 
         #region Delegates
-
         //Two types each returning a string, if the string equals "" that means there is no error
         //else this is the error message written to the console and analyzing/executing will abort.
         private delegate string ArgumentsAnalyzerDelegate();
 
         private delegate string ArgumentsAnalyzerParametersDelegate(List<string> parameters);
-
         #endregion
 
         #region Fields
@@ -46,11 +47,10 @@ namespace vApus.Gui {
         #endregion
 
         #region Constructor
-
-        static ArgumentsAnalyzer() {
-            Init();
-        }
-
+        /// <summary>
+        /// Basic vApus CLI stuff.
+        /// </summary>
+        static ArgumentsAnalyzer() { Init(); }
         #endregion
 
         #region Functions
@@ -192,8 +192,8 @@ namespace vApus.Gui {
         private static string About() {
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("ABOUT");
-            Console.WriteLine("Developed by Dieter Vandroemme aka Didjeeh.");
-            Console.WriteLine("(mail: dieter.vandroemme@gmail.com)");
+            Console.WriteLine("Developed by Dieter Vandroemme.");
+            Console.WriteLine("(mail: dieter@sizingservers.be)");
             Console.WriteLine("_____");
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.White;

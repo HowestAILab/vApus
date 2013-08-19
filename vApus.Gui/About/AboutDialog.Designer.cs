@@ -1,6 +1,6 @@
 ﻿namespace vApus.Gui
 {
-    partial class About
+    partial class AboutDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(About));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutDialog));
             this.pnl = new System.Windows.Forms.Panel();
             this.txtChannel = new System.Windows.Forms.TextBox();
             this.lblWebsite = new System.Windows.Forms.LinkLabel();
