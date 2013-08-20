@@ -18,8 +18,8 @@ namespace vApus.DetailedResultsViewer {
                 return null;
             }
         }
-        public void GetCurrentCredentials(out string user, out string host, out int port, out string password) {
-            savingResultsPanel.GetCurrentCredentials(out user, out host, out port, out password);
+        public void GetCurrentConnectionString(out string user, out string host, out int port, out string password) {
+            savingResultsPanel.GetCurrentConnectionString(out user, out host, out port, out password);
         }
         public MySQLServerDialog() {
             InitializeComponent();

@@ -254,7 +254,7 @@ namespace vApus.DistributedTesting {
 
                 string user, host, password;
                 int port;
-                vApus.Results.SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+                vApus.Results.ConnectionStringManager.GetCurrentConnectionString(out user, out host, out port, out password);
 
                 return new StresstestWrapper {
                     StresstestIdInDb = stresstestIdInDb,

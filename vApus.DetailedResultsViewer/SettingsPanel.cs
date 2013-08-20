@@ -167,14 +167,14 @@ namespace vApus.DetailedResultsViewer {
 
                 string user, host, password;
                 int port;
-                _mySQLServerDialog.GetCurrentCredentials(out user, out host, out port, out password);
+                _mySQLServerDialog.GetCurrentConnectionString(out user, out host, out port, out password);
                 _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
 
                 //Fill the stresstest cbo
                 cboStresstest.SelectedIndexChanged -= cboStresstest_SelectedIndexChanged;
                 cboStresstest.Items.Clear();
                 var stresstests = _resultsHelper.GetStresstests();
-                if (stresstests.Rows.Count == 0) {
+                if (stresstests == null || stresstests.Rows.Count == 0) {
                     if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
                 } else {
                     cboStresstest.Items.Add("<All>");

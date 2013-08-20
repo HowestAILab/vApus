@@ -123,25 +123,19 @@ TimeStamp datetime(6) NOT NULL, Value longtext NOT NULL)");
         }
 
         private static DatabaseActions GetDatabaseActions() {
-            string user, host, password;
-            int port;
-            SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+            string connectionString = ConnectionStringManager.GetCurrentConnectionString();
 
-            if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
+            if (string.IsNullOrEmpty(connectionString)) throw new Exception("No MySQL connection was set.");
 
-            return new DatabaseActions { ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;", host, port, user, password) };
+            return new DatabaseActions { ConnectionString = connectionString };
         }
 
         internal static DatabaseActions GetDatabaseActionsUsingDatabase(string databaseName) {
-            string user, host, password;
-            int port;
-            SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+            string connectionString = ConnectionStringManager.GetCurrentConnectionString(databaseName);
 
-            if (string.IsNullOrEmpty(host)) throw new Exception("No MySql connection was set.");
+            if (string.IsNullOrEmpty(connectionString)) throw new Exception("No MySQL connection was set.");
 
-            var databaseActions = new DatabaseActions {
-                ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password)
-            };
+            var databaseActions = new DatabaseActions {  ConnectionString = connectionString };
 
             return databaseActions;
         }
@@ -160,7 +154,7 @@ TimeStamp datetime(6) NOT NULL, Value longtext NOT NULL)");
         }
 
         /// <summary>
-        /// Remove a schema (after cancel or failed)
+        /// To remove a schema (after a test is cancelled or failed for instance)
         /// </summary>
         /// <param name="name"></param>
         internal static void Drop(string databaseName, DatabaseActions databaseActions) {

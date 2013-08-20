@@ -554,7 +554,6 @@ namespace vApus.Util {
         }
     }
     public static class ArrayExtension {
-        private static readonly object _lock = new object();
         /// <summary>
         /// Combine a one-dimensional array.
         /// </summary>
@@ -562,7 +561,7 @@ namespace vApus.Util {
         /// <param name="separator"></param>
         /// <returns></returns>
         public static string Combine(this Array array, string separator, params object[] exclude) {
-            lock (_lock) {
+            lock (array.SyncRoot) {
                 if (array.Length == 0) return string.Empty;
 
                 var sb = new StringBuilder();
@@ -622,6 +621,25 @@ namespace vApus.Util {
             lock (_lock) {
                 list.Add(item1);
                 foreach (T item in items) list.Add(item);
+            }
+        }
+        public static string Combine<T>(this List<T> list, string separator, params object[] exclude) {
+            lock (_lock) {
+                if (list.Count == 0) return string.Empty;
+
+                var sb = new StringBuilder();
+                object value;
+                for (int i = 0; i != list.Count - 1; i++) {
+                    value = list[i];
+                    if (exclude == null || !exclude.Contains(value)) {
+                        sb.Append(value);
+                        sb.Append(separator);
+                    }
+                }
+                value = list[list.Count - 1];
+                if (exclude == null || !exclude.Contains(value)) sb.Append(value);
+
+                return sb.ToString();
             }
         }
     }

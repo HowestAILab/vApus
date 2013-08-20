@@ -1046,7 +1046,7 @@ namespace vApus.DistributedTesting {
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
                 if (!confirm || MessageBox.Show("Do you want to remove the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
-                    try { _resultsHelper.RemoveDatabase(); } catch { }
+                    try { _resultsHelper.DeleteResults(); } catch { }
         }
         private void Stop(bool monitorAfter = false) {
             Cursor = Cursors.WaitCursor;
@@ -1203,8 +1203,8 @@ namespace vApus.DistributedTesting {
         /// Get all monitor result caches for al the running monitors.
         /// </summary>
         /// <returns></returns>
-        private List<MonitorResultCache> GetMonitorResultCaches(TileStresstest tileStresstest) {
-            var l = new List<MonitorResultCache>();
+        private List<MonitorResult> GetMonitorResultCaches(TileStresstest tileStresstest) {
+            var l = new List<MonitorResult>();
             if (_monitorViews != null)
                 foreach (var ts in _monitorViews.Keys)
                     if (tileStresstest == ts)

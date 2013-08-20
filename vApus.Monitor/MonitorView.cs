@@ -1273,7 +1273,7 @@ namespace vApus.Monitor {
             Cursor = Cursors.Default;
         }
 
-        public MonitorResultCache GetMonitorResultCache() {
+        public MonitorResult GetMonitorResultCache() {
             return monitorControl.MonitorResultCache;
         }
 
@@ -1289,7 +1289,7 @@ namespace vApus.Monitor {
             var connectionString = new List<string>();
             foreach (Parameter key in _parametersWithValues.Keys)
                 connectionString.Add(key.Name + "=" + _parametersWithValues[key]);
-            return connectionString.ToArray().Combine(", ");
+            return connectionString.Combine(", ");
         }
 
         #endregion

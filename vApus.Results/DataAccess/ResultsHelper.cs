@@ -5,6 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using MySql.Data.MySqlClient;
+/*
+ * Copyright 2012 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,14 +21,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 using vApus.Util;
 
 namespace vApus.Results {
     public class ResultsHelper {
 
         #region Fields
-
         private readonly object _lock = new object();
 
         private string _databaseName;
@@ -28,22 +34,17 @@ namespace vApus.Results {
         private DatabaseActions _databaseActions;
         private string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
 
-        private readonly byte[] _salt =
-            {
-                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62
-            };
+        private readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
 
         private int _vApusInstanceId, _stresstestId;
         private ulong _stresstestResultId, _concurrencyResultId, _runResultId;
-
         #endregion
 
+        #region Properties
         /// <summary>
         /// Returns null if not connected
         /// </summary>
-        public string DatabaseName {
-            get { return _databaseName; }
-        }
+        public string DatabaseName { get { return _databaseName; } }
 
         /// <summary>
         /// You can change this value for when you are distributed testing, so the right dataset is chosen.
@@ -51,13 +52,13 @@ namespace vApus.Results {
         /// </summary>
         public int StresstestId {
             get { return _stresstestId; }
-            set { lock (_lock) { _stresstestId = value; } }
+            set { lock (_lock) _stresstestId = value; }
         }
+        #endregion
 
         #region Initialize database before stresstest
-
         /// <summary>
-        ///     Builds the schema if needed, if no db target is found or no connection could be made an exception is returned.
+        ///     Builds the schema if needed, if no MySQL target is found or no connection could be made an exception is returned.
         /// </summary>
         /// <returns></returns>
         public Exception BuildSchemaAndConnect() {
@@ -78,7 +79,7 @@ namespace vApus.Results {
         }
 
         /// <summary>
-        ///     Only inserts if connected (Call BuildSchema).
+        ///     Only inserts if connected (Call BuildSchemaAndConnect).
         /// </summary>
         /// <param name="description"></param>
         /// <param name="tags"></param>
@@ -86,8 +87,15 @@ namespace vApus.Results {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL("INSERT INTO Description(Description) VALUES('" + description + "')");
-                    foreach (string tag in tags)
-                        _databaseActions.ExecuteSQL("INSERT INTO Tags(Tag) VALUES('" + tag + "')");
+                    var rowsToInsert = new List<string>(); //Insert multiple values at once.
+
+                    foreach (string tag in tags) {
+                        var sb = new StringBuilder("('");
+                        sb.Append(tag);
+                        sb.Append("')");
+                        rowsToInsert.Add(sb.ToString());
+                    }
+                    _databaseActions.ExecuteSQL("INSERT INTO Tags(Tag) VALUES('" + rowsToInsert.Combine(", ") + "')");
                 }
             }
         }
@@ -100,7 +108,7 @@ namespace vApus.Results {
         /// <param name="port"></param>
         /// <param name="version"></param>
         /// <param name="isMaster"></param>
-        /// <returns>Id of the instance.</returns>
+        /// <returns>Id of the stresstest. 0 if BuildSchemaAndConnect was not called.</returns>
         public int SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
             lock (_lock) {
                 if (_databaseActions != null) {
@@ -135,20 +143,17 @@ namespace vApus.Results {
         /// <param name="distribute"></param>
         /// <param name="monitorBeforeInMinutes"></param>
         /// <param name="monitorAfterInMinutes"></param>
-        /// <returns>Id of the stresstest.</returns>
+        /// <returns>Id of the stresstest. 0 if BuildSchemaAndConnect was not called.</returns>
         public int SetStresstest(string stresstest, string runSynchronization, string connection, string connectionProxy, string connectionString, string log, string logRuleSet, int[] concurrencies, int runs,
                                          int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle, string distribute, int monitorBeforeInMinutes, int monitorAfterInMinutes) {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
-                        string.Format(@"INSERT INTO Stresstests(
-vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
+                        string.Format(@"INSERT INTO Stresstests(vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
 MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribute, MonitorBeforeInMinutes, MonitorAfterInMinutes)
 VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}')",
-                                      _vApusInstanceId, stresstest, runSynchronization, connection, connectionProxy,
-                                      connectionString.Encrypt(_passwordGUID, _salt), log, logRuleSet,
-                                      concurrencies.Combine(", "), runs,
-                                      minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, distribute,
+                                      _vApusInstanceId, stresstest, runSynchronization, connection, connectionProxy, connectionString.Encrypt(_passwordGUID, _salt), log, logRuleSet,
+                                      concurrencies.Combine(", "), runs, minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, distribute,
                                       monitorBeforeInMinutes, monitorAfterInMinutes)
                         );
                     _stresstestId = (int)_databaseActions.GetLastInsertId();
@@ -168,7 +173,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="resultHeaders"></param>
         /// <returns>
         ///     The monitor configuration id in the database, set this in the proper monitor result cache.
-        ///     -1 if not connected.
+        ///     0 if BuildSchemaAndConnect was not called..
         /// </returns>
         public ulong SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
             return SetMonitor(_stresstestId, monitor, monitorSource, connectionString, machineConfiguration, resultHeaders);
@@ -182,7 +187,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="connectionString"></param>
         /// <param name="machineConfiguration"></param>
         /// <param name="resultHeaders"></param>
-        /// <returns></returns>
+        /// <returns>Id of the monitor. 0 if BuildSchemaAndConnect was not called.</returns>
         public ulong SetMonitor(int stresstestId, string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
             lock (_lock) {
                 if (_databaseActions != null) {
@@ -197,45 +202,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return 0;
             }
         }
-
         #endregion
 
-        public void DeleteResults() {
-            DeleteResults(_databaseName);
-        }
-        public void DeleteResults(string databaseName) {
-            try {
-                _databaseActions.ExecuteSQL("drop schema " + databaseName + ";");
-            } catch {
-            }
-        }
-
-        //SET
-
-        /// <summary>
-        /// Connect to an existing database to execute the procedures on or add slave side data to it.
-        /// </summary>
-        /// <param name="host"></param>
-        /// <param name="port"></param>
-        /// <param name="databaseName"></param>
-        /// <param name="user"></param>
-        /// <param name="password"></param>
-        public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
-            lock (_lock) {
-                try {
-                    _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password) };
-                    if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
-                    _databaseName = databaseName;
-                } catch {
-                    try { _databaseActions.ReleaseConnection(); } catch { }
-                    _databaseActions = null;
-                    throw;
-                }
-            }
-        }
+        #region Set Results
 
         #region Stresstest results
-
         /// <summary>
         ///     Started at datetime now.
         /// </summary>
@@ -270,7 +241,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         );
             }
         }
-
         #endregion
 
         #region Concurrency results
@@ -388,13 +358,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 rowsToInsert.Add(sb.ToString());
                             }
 
-                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) Values {0};",
-                            rowsToInsert.ToArray().Combine(", ")));
+                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                            rowsToInsert.Combine(", ")));
                     }
-
-                    _databaseActions.ExecuteSQL(
-                        string.Format("UPDATE RunResults SET TotalLogEntryCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalLogEntryCount, Parse(runResult.StoppedAt))
-                        );
+                    _databaseActions.ExecuteSQL(string.Format("UPDATE RunResults SET TotalLogEntryCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalLogEntryCount, Parse(runResult.StoppedAt)));
                 }
             }
         }
@@ -406,7 +373,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     Do this at the end of the test.
         /// </summary>
         /// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
-        public void SetMonitorResults(MonitorResultCache monitorResultCache) {
+        public void SetMonitorResults(MonitorResult monitorResultCache) {
             lock (_lock) {
                 if (_databaseActions != null && monitorResultCache.Rows.Count != 0) {
                     ulong monitorConfigurationId = monitorResultCache.MonitorConfigurationId;
@@ -420,18 +387,22 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         sb.Append("', '");
                         sb.Append(Parse((DateTime)row[0]));
                         sb.Append("', '");
-                        sb.Append(MySQLEscapeString(MySQLEscapeString(value.ToArray().Combine("; "))));
+                        sb.Append(MySQLEscapeString(MySQLEscapeString(value.Combine("; "))));
                         sb.Append("')");
                         rowsToInsert.Add(sb.ToString());
                     }
-                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.ToArray().Combine(", ")));
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.Combine(", ")));
                 }
             }
         }
 
         #endregion
 
-        //GET
+        #endregion
+
+        //For getting stuff fom the database ReaderAndCombiner is used: You can execute a many-to-one distributed test (a tests workload divided over multiple slaves);
+        //Results for such test must be combined before processing: it must look like a single test.
+        #region Get Configuration and Results
 
         #region Configuration
         public string GetDescription() {
@@ -517,29 +488,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         }
         #endregion
 
-        #region Not So Stored Procedures
-        /// <summary>
-        /// Get all the stresstests: ID, Stresstest, Connection
-        /// If the workload was divided over multiple slaves the datatable entries will be combined, in that case the first Id will be put in a row.
-        /// </summary>
-        /// <returns></returns>
-        public DataTable GetStresstests() {
-            lock (_lock) {
-                if (_databaseActions != null)
-                    return ReaderAndCombiner.GetStresstests(_databaseActions, "Id", "Stresstest", "Connection");
-
-                return null;
-            }
-        }
-
+        #region Formatted Results
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
-        public DataTable GetAverageConcurrencyResults(params int[] stresstestIds) {
-            return GetAverageConcurrencyResults(new CancellationToken(), stresstestIds);
-        }
         public DataTable GetAverageConcurrencyResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
@@ -646,10 +601,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return null;
             }
         }
-
-        public DataTable GetAverageUserActionResults(params int[] stresstestIds) {
-            return GetAverageUserActionResults(new CancellationToken(), stresstestIds);
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
         public DataTable GetAverageUserActionResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
@@ -886,10 +843,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return null;
             }
         }
-
-        public DataTable GetAverageLogEntryResults(params int[] stresstestIds) {
-            return GetAverageLogEntryResults(new CancellationToken(), stresstestIds);
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
         public DataTable GetAverageLogEntryResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
@@ -920,7 +879,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                             var runResults = ReaderAndCombiner.GetRunResults(_databaseActions, concurrencyResultId, "Id");
                             if (runResults == null || runResults.Rows.Count == 0) continue;
-                            
+
                             var runResultIds = new List<int>(runResults.Rows.Count);
                             foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
@@ -1062,10 +1021,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return null;
             }
         }
-
-        public DataTable GetErrors(params int[] stresstestIds) {
-            return GetErrors(new CancellationToken(), stresstestIds);
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
         public DataTable GetErrors(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
@@ -1086,7 +1047,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
                         var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(_databaseActions, stresstestResultId, "Id", "Concurrency");
                         if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
-                        
+
                         foreach (DataRow crRow in concurrencyResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
@@ -1123,17 +1084,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// Get the user actions and the log entries within, these are asked for the first user of the first run, so if you cancel a test it will not be correct.
         /// However, this is the fastest way to do this and there are no problems with a finished test.
         /// </summary>
-        /// <param name="stresstestIds"></param>
-        /// <returns></returns>
-        public DataTable GetUserActionComposition(params int[] stresstestIds) {
-            return GetUserActionComposition(new CancellationToken(), stresstestIds);
-        }
-        /// <summary>
-        /// Get the user actions and the log entries within, these are asked for the first user of the first run, so if you cancel a test it will not be correct.
-        /// However, this is the fastest way to do this and there are no problems with a finished test.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="stresstestIds"></param>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetUserActionComposition(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
@@ -1162,7 +1114,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                         var runResults = ReaderAndCombiner.GetRunResults(_databaseActions, (int)crRow.ItemArray[0], "Id");
                         if (runResults == null || runResults.Rows.Count == 0) continue;
-                        
+
                         foreach (DataRow rrRow in runResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
@@ -1228,20 +1180,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return userActionComposition;
             }
         }
-
         /// <summary>
-        /// Only works for the first stresstest.
+        /// Only works for the first stresstest. This is a known issue and it will not be fixed: 1 datatable per stressstest only, otherwise the overview is worth nothing. Use a loop to enumerate multiple stresstest ids.
         /// </summary>
-        /// <param name="stresstestIds"></param>
-        /// <returns></returns>
-        public DataTable GetOverview(params int[] stresstestIds) {
-            return GetOverview(new CancellationToken(), stresstestIds);
-        }
-        /// <summary>
-        /// Only works for the first stresstest.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="stresstestIds"></param>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetOverview(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
@@ -1256,10 +1199,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         stresstestIds[i] = (int)stresstests.Rows[i].ItemArray[0];
                 }
 
-                var averageUserActions = GetAverageUserActionResults(new CancellationToken(), stresstestIds);
+                var averageUserActions = GetAverageUserActionResults(cancellationToken, stresstestIds);
                 if (averageUserActions == null) return null;
 
-                var averageConcurrentUsers = GetAverageConcurrencyResults(new CancellationToken(), stresstestIds);
+                var averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
                 if (averageConcurrentUsers == null) return null;
 
                 var averageResponseTimesAndThroughput = CreateEmptyDataTable("AverageResponseTimesAndThroughput", "Stresstest", "Concurrency");
@@ -1297,9 +1240,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
         }
 
-        public DataTable GetMachineConfigurations(params int[] stresstestIds) {
-            return GetMachineConfigurations(new CancellationToken(), stresstestIds);
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
         public DataTable GetMachineConfigurations(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
@@ -1328,10 +1274,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return null;
             }
         }
-
-        public DataTable GetAverageMonitorResults(params int[] stresstestIds) {
-            return GetAverageMonitorResults(new CancellationToken(), stresstestIds);
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
         public DataTable GetAverageMonitorResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
@@ -1491,12 +1439,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return averageMonitorResults;
             }
         }
-
         /// <summary>
         /// From a 2 dimensional collection to an array of floats.
         /// </summary>
-        /// <param name="monitorValues"></param>
-        /// <returns></returns>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="monitorValues"></param>        /// <returns></returns>
         private float[] GetAverageMonitorResults(CancellationToken cancellationToken, List<KeyValuePair<DateTime, float[]>> monitorValues) {
             var averageMonitorResults = new float[0];
             if (monitorValues.Count != 0) {
@@ -1527,10 +1474,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
             return averageMonitorResults;
         }
-
-        public List<DataTable> GetMonitorResults(params int[] stresstestIds) {
-            return GetMonitorResults(new CancellationToken(), stresstestIds);
-        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
         public List<DataTable> GetMonitorResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
@@ -1594,11 +1543,69 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
         }
 
+        #endregion
+
+        #endregion
+
+        #region Other
+        /// <summary>
+        /// Connect to an existing database to execute the procedures on or add slave side data to it.
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="databaseName"></param>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
+            lock (_lock) {
+                try {
+                    _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password) };
+                    if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
+                    _databaseName = databaseName;
+                } catch {
+                    try { _databaseActions.ReleaseConnection(); } catch { }
+                    _databaseActions = null;
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get all the stresstests: ID, Stresstest, Connection
+        /// If the workload was divided over multiple slaves the datatable entries will be combined, in that case the first Id will be put in a row.
+        /// </summary>
+        /// <returns></returns>
+        public DataTable GetStresstests() {
+            lock (_lock) {
+                if (_databaseActions != null)
+                    return ReaderAndCombiner.GetStresstests(_databaseActions, "Id", "Stresstest", "Connection");
+
+                return null;
+            }
+        }
+        /// <summary>
+        /// Execute a query on the connected database.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public DataTable ExecuteQuery(string query) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
                 return _databaseActions.GetDataTable(query);
             }
+        }
+
+        /// <summary>
+        /// Deletes the current database.
+        /// </summary>
+        public void DeleteResults() { DeleteResults(_databaseName); }
+        public void DeleteResults(string databaseName) {
+            lock (_lock)
+                try {
+                    Schema.Drop(databaseName, _databaseActions);
+                    _databaseName = null;
+                } catch {
+                }
         }
 
         private DataTable CreateEmptyDataTable(string name, string columnName1, params string[] columnNames) {
@@ -1608,8 +1615,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             foreach (string columnName in columnNames) dataTable.Columns.Add(columnName, objectType);
             return dataTable;
         }
-        #endregion
 
+        /// <summary>
+        /// Parse a date to a valid string for in a MySQL db.
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
         private string Parse(DateTime dateTime) { return dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff"); }
         /// <summary>
         ///Mimics PHP's mysql_real_escape_string();
@@ -1617,15 +1628,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="s"></param>
         /// <returns></returns>
         private static string MySQLEscapeString(string s) { return System.Text.RegularExpressions.Regex.Replace(s, @"[\r\n\x00\x1a\\'""]", @"\$0"); }
-        /// <summary>
-        /// Remove a schema (after cancel or failed)
-        /// </summary>
-        public void RemoveDatabase() {
-            lock (_lock) {
-                Schema.Drop(_databaseName, _databaseActions);
-                _databaseName = null;
-            }
-        }
+        #endregion
 
         private class UserActionComparer : IComparer<string> {
             private static readonly UserActionComparer _userActionComparer = new UserActionComparer();

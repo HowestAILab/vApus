@@ -114,8 +114,8 @@ namespace vApus.Stresstest {
         /// Get all monitor result caches for al the running monitors.
         /// </summary>
         /// <returns></returns>
-        private List<MonitorResultCache> GetMonitorResultCaches() {
-            var l = new List<MonitorResultCache>();
+        private List<MonitorResult> GetMonitorResultCaches() {
+            var l = new List<MonitorResult>();
             if (_monitorViews != null) foreach (var view in _monitorViews) l.Add(view.GetMonitorResultCache());
             return l;
         }
@@ -698,7 +698,7 @@ namespace vApus.Stresstest {
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
                 if (!confirm || MessageBox.Show("Do you want to remove the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
-                    try { _resultsHelper.RemoveDatabase(); } catch { }
+                    try { _resultsHelper.DeleteResults(); } catch { }
         }
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
