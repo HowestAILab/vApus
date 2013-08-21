@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Reflection;
 using System.Windows.Forms;
@@ -17,6 +16,7 @@ namespace vApus.SolutionTree {
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class SavableCloneableAttribute : Attribute {
+
         #region Fields
 
         private readonly bool _encrypt;
@@ -50,6 +50,7 @@ namespace vApus.SolutionTree {
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertyControlAttribute : Attribute {
+
         #region Fields
 
         private readonly bool _advancedProperty;
