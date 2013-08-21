@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,21 +23,19 @@ namespace vApus.SolutionTree {
     public partial class SolutionComponentPropertyPanel : ValueControlPanel {
 
         #region Fields
-
         private readonly LinkLabel _showHideAdvancedSettings = new LinkLabel();
         private List<PropertyInfo> _properties;
         private bool _showAdvancedSettings;
         private SolutionComponent _solutionComponent;
         private bool _solutionComponentTypeChanged;
-
         #endregion
 
+        #region Properties
         [DefaultValue(true)]
         public new bool AutoSelectControl {
             get { return base.AutoSelectControl; }
             set { base.AutoSelectControl = value; }
         }
-
         /// <summary>
         ///     Set the gui if the panel is empty.
         /// </summary>
@@ -48,8 +45,7 @@ namespace vApus.SolutionTree {
                 if (_solutionComponent != value) {
                     ValueChanged -= SolutionComponentPropertyPanel_ValueChanged;
 
-                    _solutionComponentTypeChanged = _solutionComponent == null ||
-                                                    _solutionComponent.GetType() != value.GetType();
+                    _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
                     SetGui();
                     _solutionComponentTypeChanged = false;
@@ -58,9 +54,9 @@ namespace vApus.SolutionTree {
                 }
             }
         }
+        #endregion
 
-        #region Constructors
-
+        #region Constructor
         /// <summary>
         ///     This is a standard panel to edit a property of the types: string, char, bool, all numeric types and array or list of those.
         ///     Furthermore, a single object having a parent of the type IEnumerable (GetParent() in vApus.Util.ObjectExtension), can be displayed also.
@@ -83,11 +79,9 @@ namespace vApus.SolutionTree {
 
             ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
         }
-
         #endregion
 
         #region Functions
-
         private void _showHideAdvancedSettings_Click(object sender, EventArgs e) {
             _showAdvancedSettings = !_showAdvancedSettings;
             Refresh();
@@ -100,42 +94,20 @@ namespace vApus.SolutionTree {
             }
         }
 
-        private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueChangedEventArgs e) {
-            if (Solution.ActiveSolution != null)
-                SetValue(e.Index, e.NewValue, e.OldValue, true);
-        }
-
-        private void SetValue(int index, object newValue, object oldValue, bool invokeEvent) {
-            //Nothing can be null, this is solved this way.
-            if (oldValue is BaseItem && newValue == null) {
-                if ((oldValue as BaseItem).IsEmpty)
-                    return;
-                BaseItem empty = BaseItem.Empty(oldValue.GetType(), oldValue.GetParent() as SolutionComponent);
-                empty.SetParent(oldValue.GetParent());
-                _properties[index].SetValue(_solutionComponent, empty, null);
-            } else {
-                _properties[index].SetValue(_solutionComponent, newValue, null);
-            }
-            //Very needed, for when leaving when disposed, or key up == enter while creating.
-            if (invokeEvent)
-                try { _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); } catch { }
-        }
-
-        private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e) { SetGui(); }
-
         /// <summary>
+        /// Generates gui controls for properties with the PropertyControlAttribute.
         /// </summary>
         /// <param name="collapse">not on refresh</param>
         private void SetGui() {
             if (_solutionComponent != null && IsHandleCreated) {
                 bool locked = _locked;
                 bool showHideAdvancedSettingsControl = false;
+
+                //Get and sort all valid properties.
                 _properties = new List<PropertyInfo>();
                 foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties()) {
                     object[] attributes = propertyInfo.GetCustomAttributes(typeof(PropertyControlAttribute), true);
-                    PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0)
-                                                                            ? null
-                                                                            : (attributes[0] as PropertyControlAttribute);
+                    PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
                     if (propertyControlAttribute != null)
                         if (propertyControlAttribute.AdvancedProperty) {
                             showHideAdvancedSettingsControl = true;
@@ -148,6 +120,7 @@ namespace vApus.SolutionTree {
                 _properties.Sort(PropertyInfoComparer.GetInstance());
                 _properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
 
+                //Generate BaseValueControl.Values and generate controls.
                 var values = new BaseValueControl.Value[_properties.Count];
                 for (int i = 0; i != values.Length; i++) {
                     PropertyInfo propertyInfo = _properties[i];
@@ -163,18 +136,14 @@ namespace vApus.SolutionTree {
                     string description = value.GetDescription();
                     if (description == null) {
                         attributes = propertyInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
-                        description = (attributes.Length != 0)
-                                          ? (attributes[0] as DescriptionAttribute).Description
-                                          : string.Empty;
+                        description = (attributes.Length != 0) ? (attributes[0] as DescriptionAttribute).Description : string.Empty;
                     }
 
                     attributes = propertyInfo.GetCustomAttributes(typeof(ReadOnlyAttribute), true);
-                    bool isReadOnly = !propertyInfo.CanWrite ||
-                                      (attributes.Length > 0 && (attributes[0] as ReadOnlyAttribute).IsReadOnly);
+                    bool isReadOnly = !propertyInfo.CanWrite || (attributes.Length > 0 && (attributes[0] as ReadOnlyAttribute).IsReadOnly);
 
                     attributes = propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
                     bool isEncrypted = (attributes.Length != 0 && (attributes[0] as SavableCloneableAttribute).Encrypt);
-
 
                     values[i] = new BaseValueControl.Value {
                         __Value = value,
@@ -195,14 +164,33 @@ namespace vApus.SolutionTree {
             }
         }
 
+        private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e) { SetGui(); }
+
+        private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueChangedEventArgs e) { if (Solution.ActiveSolution != null)  SetValue(e.Index, e.NewValue, e.OldValue, true); }
+
+        private void SetValue(int index, object newValue, object oldValue, bool invokeEvent) {
+            //Nothing can be null, this is solved this way.
+            if (oldValue is BaseItem && newValue == null) {
+                if ((oldValue as BaseItem).IsEmpty)
+                    return;
+                BaseItem empty = BaseItem.Empty(oldValue.GetType(), oldValue.GetParent() as SolutionComponent);
+                empty.SetParent(oldValue.GetParent());
+                _properties[index].SetValue(_solutionComponent, empty, null);
+            } else {
+                _properties[index].SetValue(_solutionComponent, newValue, null);
+            }
+            //Very needed, for when leaving when disposed, or key up == enter while creating.
+            if (invokeEvent)
+                try { _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); } catch { }
+        }
+
         /// <summary>
-        ///     This is used in the solution component view manager, please implement this always.
+        ///     This is used in the solution component view manager, please use this always.
         /// </summary>
         public override void Refresh() {
             base.Refresh();
             SetGui();
         }
-
         #endregion
     }
 }
