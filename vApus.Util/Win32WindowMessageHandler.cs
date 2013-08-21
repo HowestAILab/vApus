@@ -38,16 +38,30 @@ namespace vApus.Util {
         }
 
         [DllImport("user32")]
-        private static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
+        public static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
 
         [DllImport("user32")]
         private static extern int RegisterWindowMessage(string message);
 
         /// <summary>
-        ///     This will broadcast the message to all the running apps, WndProc should be overridden in your main form to handle the message.
+        ///     This will broadcast the  WINDOW_MSG message to all the running apps, WndProc should be overridden in your main form to handle the message.
         /// </summary>
         public void PostMessage() {
             PostMessage(IntPtr.Zero, IntPtr.Zero);
+        }
+        /// <summary>
+        ///     This will broadcast the  WINDOW_MSG message to all the running apps, WndProc should be overridden in your main form to handle the message.
+        /// </summary>
+        public void PostMessage(int message) {
+            PostMessage(message, IntPtr.Zero, IntPtr.Zero);
+        }
+        /// <summary>
+        ///     This will broadcast the message to all the running apps, WndProc should be overridden in your main form to handle the message.
+        /// </summary>
+        /// <param name="wparam"></param>
+        /// <param name="lparam"></param>
+        public void PostMessage(IntPtr wparam, IntPtr lparam) {
+            PostMessage(WINDOW_MSG, IntPtr.Zero, IntPtr.Zero);
         }
 
         /// <summary>
@@ -55,8 +69,8 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="wparam"></param>
         /// <param name="lparam"></param>
-        public void PostMessage(IntPtr wparam, IntPtr lparam) {
-            PostMessage((IntPtr)HWND_BROADCAST, WINDOW_MSG, wparam, lparam);
+        public void PostMessage(int message, IntPtr wparam, IntPtr lparam) {
+            PostMessage((IntPtr)HWND_BROADCAST, message, wparam, lparam);
         }
     }
 }

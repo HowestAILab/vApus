@@ -27,6 +27,8 @@ namespace vApus.Gui {
         #region Fields
         private readonly string[] _args;
         private Win32WindowMessageHandler _msgHandler;
+        private bool _saveAndCloseOnUpdate = false; // To set the buttons of the messagebox.
+
         private delegate void CloseDelayed();
 
         private readonly WelcomeView _welcomeView = new WelcomeView();
@@ -243,8 +245,19 @@ namespace vApus.Gui {
                 Show();
                 TopMost = false;
             }
-            if (m.Msg == 16) //WM_CLOSE
+            //WM_CLOSE
+            if (m.Msg == 16) {
+                _saveAndCloseOnUpdate = true;
+
+                TopMost = true;
+                Show();
+                TopMost = false;
+
+                if (_optionsDialog != null && !_optionsDialog.IsDisposed)
+                    _optionsDialog.Close();
+
                 _welcomeView.DisableFormClosingEventHandling();
+            }
 
             base.WndProc(ref m);
         }
@@ -295,7 +308,7 @@ namespace vApus.Gui {
                 DialogResult result =
                     MessageBox.Show(
                         string.Format("Do you want to save '{0}' before exiting the application?",
-                                      Solution.ActiveSolution.Name), string.Empty, MessageBoxButtons.YesNoCancel,
+                        Solution.ActiveSolution.Name), string.Empty, _saveAndCloseOnUpdate ? MessageBoxButtons.YesNo : MessageBoxButtons.YesNoCancel,
                         MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes || result == DialogResult.No) {
                     if (result == DialogResult.Yes)

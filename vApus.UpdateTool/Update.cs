@@ -10,12 +10,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamir.SharpSsh;
 using vApus.Util;
 
 namespace vApus.UpdateTool {
     public partial class Update : Form {
+
         #region Fields
 
         private const int MAXRETRY = 3;
@@ -43,6 +45,7 @@ namespace vApus.UpdateTool {
 
         private List<string[]> _currentVersions;
         private Win32WindowMessageHandler _msgHandler;
+        //private Win32WindowMessageHandler _vApusMsgHandler;
         private Sftp _sftp;
         private bool _updating;
 
@@ -286,31 +289,41 @@ namespace vApus.UpdateTool {
             }
         }
 
-        private void OverwriteFiles() {
+        async private void OverwriteFiles() {
             Enabled = false;
             try {
                 if (Process.GetProcessesByName("vApus").Length != 0) {
                     string message = "vApus will now be updated, click 'Yes' to close all running instances.";
                     if (_silent || MessageBox.Show(message, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1) == DialogResult.Yes) {
                         int retry = 0;
+                        TopMost = false;
+
                     Retry:
                         foreach (Process p in Process.GetProcessesByName("vApus"))
-                            try {
-                                p.Kill();
-                                p.WaitForExit(10000);
-                            } catch {
-                            }
+                            await Task.Run(() => {
+                                try {
+                                    if (retry == 0)
+                                        //Send a close message to the process, that way a solution can be saved before vApus is closed.
+                                        Win32WindowMessageHandler.PostMessage(p.MainWindowHandle, 16, IntPtr.Zero, IntPtr.Zero); //WM_CLOSE
+                                    else
+                                        p.Kill();
+                                    p.WaitForExit(120000);
+                                } catch {
+                                }
+                            });
                         if (Process.GetProcessesByName("vApus").Length != 0)
                             if (++retry <= MAXRETRY) {
                                 Thread.Sleep(1000 * retry);
                                 goto Retry;
                             } else {
-                                if (MessageBox.Show("Something went wrong when trying to close one or more instances of vApus.\nPlease close it manually and click 'Yes' or 'No', or click 'Yes' to try again.",
+                                if (MessageBox.Show("Something went wrong when trying to close one or more instances of vApus.\nClick 'Yes' to try again.",
                                     string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes) {
                                     retry = 0;
                                     goto Retry;
                                 }
                             }
+
+                        TopMost = true;
                     } else {
                         Close();
                         return;
