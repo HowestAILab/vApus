@@ -373,7 +373,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="RuleSetLexer.cs" />
     <Compile Include="StresstestCore.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="EventArgs.cs" />

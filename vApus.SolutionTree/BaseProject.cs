@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,21 +14,23 @@ using System.Xml;
 using vApus.Util;
 
 namespace vApus.SolutionTree {
+    /// <summary>
+    /// The first childs of a solution, used to bundle different functionalities (Distributed Tests, Monitors, Connections, Logs, Stresstests).
+    /// The stuff in projects are either dirived from base items or labeled base items.
+    /// This class implements functions to load to and save from vass files (used in Solution), paste, import, ...
+    /// </summary>
     [Serializable]
     public abstract class BaseProject : SolutionComponent {
+
         #region Fields
-
         private Solution _parent;
-
         #endregion
 
         #region Properties
-
         [DisplayName("Stresstesting Solution FileName.")]
         public string StresstestingSolutionFileName {
             get { return _parent.FileName; }
         }
-
         public Solution Parent {
             get { return _parent; }
             internal set {
@@ -38,11 +39,9 @@ namespace vApus.SolutionTree {
                 _parent = value;
             }
         }
-
         #endregion
 
         #region Functions
-
         public IEnumerable<BaseProject> GetSiblings() {
             foreach (BaseProject project in _parent.Projects)
                 if (project != this)
@@ -60,7 +59,6 @@ namespace vApus.SolutionTree {
 
             return GetSolutionComponent(this, type);
         }
-
         /// <summary>
         ///     Gets a solution component by type and name.
         /// </summary>
@@ -75,7 +73,6 @@ namespace vApus.SolutionTree {
 
             return GetSolutionComponent(this, type, name);
         }
-
         private SolutionComponent GetSolutionComponent(SolutionComponent solutionComponent, Type type) {
             if (solutionComponent.GetType() == type)
                 return solutionComponent;
@@ -86,7 +83,6 @@ namespace vApus.SolutionTree {
             }
             return null;
         }
-
         private SolutionComponent GetSolutionComponent(SolutionComponent solutionComponent, Type type, string name) {
             if (solutionComponent.GetType() == type && name == solutionComponent.Name)
                 return solutionComponent;
@@ -113,9 +109,7 @@ namespace vApus.SolutionTree {
 
             return GetLabeledBaseItem(this, name, index, label);
         }
-
-        private LabeledBaseItem GetLabeledBaseItem(SolutionComponent solutionComponent, string name, int index,
-                                                   string label) {
+        private LabeledBaseItem GetLabeledBaseItem(SolutionComponent solutionComponent, string name, int index, string label) {
             if (solutionComponent is LabeledBaseItem) {
                 var labeledBaseItem = solutionComponent as LabeledBaseItem;
                 if (name == labeledBaseItem.Name && index == labeledBaseItem.Index && label == labeledBaseItem.Label)
@@ -141,7 +135,6 @@ namespace vApus.SolutionTree {
                 item.GetXmlToSave(xmlDocument, element);
             return xmlDocument;
         }
-
         /// <summary>
         ///     Load 'this' and childs based on activation and reflection.
         /// </summary>
@@ -213,7 +206,6 @@ namespace vApus.SolutionTree {
         internal void Paste_Click(object sender, EventArgs e) {
             Paste();
         }
-
         protected internal void Paste() {
             IDataObject dataObject = ClipboardWrapper.GetDataObject();
             Type stringType = typeof(string);
@@ -250,10 +242,7 @@ namespace vApus.SolutionTree {
                 item.ResolveBranchedIndices();
         }
 
-        public override string ToString() {
-            return Name;
-        }
-
+        public override string ToString() { return Name; }
         #endregion
     }
 }

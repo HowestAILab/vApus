@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,6 +15,9 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Is mainly a configuration file that bring all the pieces of a stresstest together split into basic and advanced properties
+    /// </summary>
     [Serializable]
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
@@ -24,12 +26,6 @@ namespace vApus.Stresstest {
     public class Stresstest : LabeledBaseItem {
 
         #region Fields
-
-        /// <summary>
-        ///     In seconds how fast the stresstest progress will be updated.
-        /// </summary>
-        public const int ProgressUpdateDelay = 5;
-
         private string _solution; //For the results.
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100;
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
@@ -37,6 +33,7 @@ namespace vApus.Stresstest {
         private UserActionDistribution _distribute;
         private Connection _connection;
         private Log _log;
+
         //This will be saved, I don't want to extend the save logic so I hack around it.
         [NonSerialized]
         private MonitorProject _monitorProject;
@@ -57,11 +54,9 @@ namespace vApus.Stresstest {
         ///     Let for instance the gui behave differently if this is true.
         /// </summary>
         private bool _forDistributedTest;
-
         #endregion
 
         #region Properties
-
         /// <summary>
         ///     For the stresstest results.
         /// </summary>
@@ -212,9 +207,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        [Description(
-            "The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."
-            ), DisplayName("Minimum Delay")]
+        [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
         [PropertyControl(5, true)]
         public int MinimumDelay {
             get { return _minimumDelay; }
@@ -236,9 +229,7 @@ namespace vApus.Stresstest {
             set { _minimumDelay = value; }
         }
 
-        [Description(
-            "The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."
-            ), DisplayName("Maximum Delay")]
+        [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
         [PropertyControl(6, true)]
         public int MaximumDelay {
             get { return _maximumDelay; }
@@ -260,18 +251,14 @@ namespace vApus.Stresstest {
             set { _maximumDelay = value; }
         }
 
-        [Description(
-            "The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns."
-            )]
+        [Description("The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
         [SavableCloneable, PropertyControl(7)]
         public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
         }
 
-        [Description(
-            "Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance."
-            )]
+        [Description("Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance.")]
         [SavableCloneable, PropertyControl(8, true)]
         public UserActionDistribution Distribute {
             get { return _distribute; }
@@ -318,7 +305,6 @@ namespace vApus.Stresstest {
             set { _tags = value; }
         }
 
-
 #if EnableBetaFeature
         [Description("If this equals false then the parallel switch for log entries is ignored."),
          DisplayName("Use Parallel Execution of Log Entries")]
@@ -335,7 +321,6 @@ namespace vApus.Stresstest {
             set { _useParallelExecutionOfLogEntries = false; }
         }
 #endif
-
         /// <summary>
         ///     Let for instance the gui behave differently if this is true.
         /// </summary>
@@ -343,27 +328,17 @@ namespace vApus.Stresstest {
             get { return _forDistributedTest; }
             set { _forDistributedTest = value; }
         }
-
         #endregion
 
         #region Constructors
-
-        public Stresstest() {
-            if (SolutionTree.Solution.ActiveSolution != null)
-                Init();
-            else
-                SolutionTree.Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
-        }
-
+        public Stresstest() { if (SolutionTree.Solution.ActiveSolution != null)  Init(); else  SolutionTree.Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged; }
         #endregion
 
         #region Functions
-
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             SolutionTree.Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             Init();
         }
-
         private void Init() {
             Log =
                 GetNextOrEmptyChild(typeof(Log),
@@ -393,16 +368,13 @@ namespace vApus.Stresstest {
                                         SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections)))
                     as Connection;
         }
-
         private void _log_ParentIsNull(object sender, EventArgs e) {
             if (_log == sender)
                 Log =
                     GetNextOrEmptyChild(typeof(Log),
                                         SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
-
-        private void SolutionComponentChanged_SolutionComponentChanged(object sender,
-                                                                       SolutionComponentChangedEventArgs e) {
+        private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             //Cleanup _monitors if _monitorProject Changed
             if (sender == _monitorProject || sender is Monitor.Monitor) {
                 var l = new List<Monitor.Monitor>(_monitorProject.Count);
@@ -414,10 +386,6 @@ namespace vApus.Stresstest {
             }
         }
 
-        public override void Activate() {
-            SolutionComponentViewManager.Show(this);
-        }
-
         /// <summary>
         ///     For the stresstest results.
         ///     Sets the solution field to the active one.
@@ -427,12 +395,12 @@ namespace vApus.Stresstest {
                 _solution = SolutionTree.Solution.ActiveSolution.FileName;
         }
 
+        public override void Activate() {  SolutionComponentViewManager.Show(this);   }
         public override string ToString() {
             if (_forDistributedTest)
                 return Label;
             return base.ToString();
         }
-
         #endregion
     }
 }

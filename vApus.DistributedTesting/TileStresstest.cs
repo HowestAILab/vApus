@@ -40,10 +40,7 @@ namespace vApus.DistributedTesting {
         public Stresstest.Stresstest DefaultAdvancedSettingsTo {
             get {
                 if (_defaultAdvancedSettingsTo.IsEmpty)
-                    DefaultAdvancedSettingsTo =
-                        GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
-                                            Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
-                        Stresstest.Stresstest;
+                    DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
 
                 return _defaultAdvancedSettingsTo;
             }
@@ -109,10 +106,8 @@ namespace vApus.DistributedTesting {
 
             if (Solution.ActiveSolution != null) {
                 _canDefaultAdvancedSettingsTo = false;
-                DefaultAdvancedSettingsTo =
-                    GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
-                    Stresstest.Stresstest;
+                DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
+
                 _canDefaultAdvancedSettingsTo = true;
             } else {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
@@ -126,10 +121,8 @@ namespace vApus.DistributedTesting {
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             _canDefaultAdvancedSettingsTo = false;
-            DefaultAdvancedSettingsTo =
-                GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
-                                    Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
-                Stresstest.Stresstest;
+            DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
+
             _canDefaultAdvancedSettingsTo = true;
         }
 

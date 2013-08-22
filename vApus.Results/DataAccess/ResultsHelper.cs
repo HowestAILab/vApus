@@ -95,7 +95,7 @@ namespace vApus.Results {
                         sb.Append("')");
                         rowsToInsert.Add(sb.ToString());
                     }
-                    _databaseActions.ExecuteSQL("INSERT INTO Tags(Tag) VALUES('" + rowsToInsert.Combine(", ") + "')");
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO Tags(Tag) VALUES {0};", rowsToInsert.Combine(", ")));
                 }
             }
         }
@@ -113,9 +113,8 @@ namespace vApus.Results {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
-                        string.Format(
-                            "INSERT INTO vApusInstances(HostName, IP, Port, Version, Channel, IsMaster) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
-                            hostName, ip, port, version, channel, isMaster ? 1 : 0)
+                        string.Format("INSERT INTO vApusInstances(HostName, IP, Port, Version, Channel, IsMaster) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
+                        hostName, ip, port, version, channel, isMaster ? 1 : 0)
                         );
                     _vApusInstanceId = (int)_databaseActions.GetLastInsertId();
                     return _vApusInstanceId;

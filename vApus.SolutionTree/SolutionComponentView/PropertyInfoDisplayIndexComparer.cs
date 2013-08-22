@@ -9,21 +9,26 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace vApus.SolutionTree {
-    internal class PropertyInfoDisplayIndexComparer : IComparer<PropertyInfo> {
+namespace vApus.SolutionTree
+{
+    internal class PropertyInfoDisplayIndexComparer : IComparer<PropertyInfo>
+    {
         private static readonly PropertyInfoDisplayIndexComparer _propertyInfoDisplayIndexComparer;
 
         /// <summary>
         ///     Compares the name of the property info's.
         /// </summary>
-        static PropertyInfoDisplayIndexComparer() {
+        static PropertyInfoDisplayIndexComparer()
+        {
             _propertyInfoDisplayIndexComparer = new PropertyInfoDisplayIndexComparer();
         }
 
-        private PropertyInfoDisplayIndexComparer() {
+        private PropertyInfoDisplayIndexComparer()
+        {
         }
 
-        public int Compare(PropertyInfo x, PropertyInfo y) {
+        public int Compare(PropertyInfo x, PropertyInfo y)
+        {
             PropertyControlAttribute xPropertyControlAttribute = GetPropertyControlAttribute(x);
             PropertyControlAttribute yPropertyControlAttribute = GetPropertyControlAttribute(y);
             if (xPropertyControlAttribute == null && yPropertyControlAttribute == null)
@@ -38,12 +43,14 @@ namespace vApus.SolutionTree {
         /// <summary>
         ///     Compares the name of the property info's.
         /// </summary>
-        public static PropertyInfoDisplayIndexComparer GetInstance() {
+        public static PropertyInfoDisplayIndexComparer GetInstance()
+        {
             return _propertyInfoDisplayIndexComparer;
         }
 
-        private PropertyControlAttribute GetPropertyControlAttribute(PropertyInfo info) {
-            object[] attributes = info.GetCustomAttributes(typeof(PropertyControlAttribute), true);
+        private PropertyControlAttribute GetPropertyControlAttribute(PropertyInfo info)
+        {
+            object[] attributes = info.GetCustomAttributes(typeof (PropertyControlAttribute), true);
             return (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
         }
     }

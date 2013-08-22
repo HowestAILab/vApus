@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -17,8 +16,6 @@ namespace vApus.DistributedTesting {
     [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Insert, (Keys.Control | Keys.V) })]
     [DisplayName("Distributed Testing")]
     public class DistributedTestingProject : BaseProject {
-        private void Add_Click(object sender, EventArgs e) {
-            Add(new DistributedTest());
-        }
+        private void Add_Click(object sender, EventArgs e) { Add(new DistributedTest()); }
     }
 }

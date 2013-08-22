@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using vApus.Util;
 
 namespace vApus.Stresstest {
@@ -13,13 +14,8 @@ namespace vApus.Stresstest {
         private TestWorkItem _testWorkItem;
 
         private static object _lock = new object();
-        private TestConnectionsDel _testConnectionsDel;
 
         private AutoResetEvent _testAutoResetEvent = new AutoResetEvent(false);
-        private int _testedConnections;
-        private int _totalNumberOfConnections;
-
-        private delegate void TestConnectionsDel(List<Connection> connections);
 
         public void Test(Connection connection1, params Connection[] connections) {
             var l = new List<Connection>(connections.Length + 1);
@@ -27,35 +23,32 @@ namespace vApus.Stresstest {
             l.AddRange(connections);
             Test(l);
         }
-        public void Test(List<Connection> connections) {
-            _testConnectionsDel = __TestConnections;
-            //Do this on another message loop.
-            StaticActiveObjectWrapper.ActiveObject.Send(_testConnectionsDel, connections);
-        }
+        async public void Test(IEnumerable<Connection> connections) {
+            //Do this in another message loop.
+            await Task.Run(() => {
+                try {
+                    int totalNumberOfConnections = 0, testedConnections = 0;
+                    foreach (Connection connection in connections) ++totalNumberOfConnections;
 
-        private void __TestConnections(List<Connection> connections) {
-            try {
-                _totalNumberOfConnections = connections.Count;
-                _testedConnections = 0;
-
-                foreach (Connection connection in connections) {
-                    //Use the state object, otherwise there will be a reference mismatch.
-                    var t = new Thread(delegate(object state) {
-                        try {
-                            _testWorkItem = new TestWorkItem();
-                            _testWorkItem.Message += _testWorkItem_Message;
-                            _testWorkItem.TestConnection(state as Connection);
-                            if (Interlocked.Increment(ref _testedConnections) == _totalNumberOfConnections)
-                                _testAutoResetEvent.Set();
-                        } catch {
-                        }
-                    });
-                    t.IsBackground = true;
-                    t.Start(connection);
+                    foreach (Connection connection in connections) {
+                        //Use the state object, otherwise there will be a reference mismatch.
+                        var t = new Thread(delegate(object state) {
+                            try {
+                                _testWorkItem = new TestWorkItem();
+                                _testWorkItem.Message += _testWorkItem_Message;
+                                _testWorkItem.TestConnection(state as Connection);
+                                if (Interlocked.Increment(ref testedConnections) == totalNumberOfConnections)
+                                    _testAutoResetEvent.Set();
+                            } catch {
+                            }
+                        });
+                        t.IsBackground = true;
+                        t.Start(connection);
+                    }
+                    _testAutoResetEvent.WaitOne();
+                } catch {
                 }
-                _testAutoResetEvent.WaitOne();
-            } catch {
-            }
+            });
         }
 
         private void _testWorkItem_Message(object sender, TestWorkItem.MessageEventArgs e) {

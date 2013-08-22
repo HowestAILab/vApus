@@ -86,7 +86,6 @@ namespace vApus.SolutionTree {
             _showAdvancedSettings = !_showAdvancedSettings;
             Refresh();
         }
-
         private void _showHideAdvancedSettings_KeyUp(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) {
                 _showAdvancedSettings = !_showAdvancedSettings;
@@ -118,7 +117,7 @@ namespace vApus.SolutionTree {
                         }
                 }
                 _properties.Sort(PropertyInfoComparer.GetInstance());
-                _properties.Sort(PropertyInfoDisplayIndexComparer.GetInstance());
+                _properties.Sort(PropertyControlAttributeDisplayIndexComparer.GetInstance());
 
                 //Generate BaseValueControl.Values and generate controls.
                 var values = new BaseValueControl.Value[_properties.Count];
@@ -173,7 +172,7 @@ namespace vApus.SolutionTree {
             if (oldValue is BaseItem && newValue == null) {
                 if ((oldValue as BaseItem).IsEmpty)
                     return;
-                BaseItem empty = BaseItem.Empty(oldValue.GetType(), oldValue.GetParent() as SolutionComponent);
+                BaseItem empty = BaseItem.GetEmpty(oldValue.GetType(), oldValue.GetParent() as SolutionComponent);
                 empty.SetParent(oldValue.GetParent());
                 _properties[index].SetValue(_solutionComponent, empty, null);
             } else {

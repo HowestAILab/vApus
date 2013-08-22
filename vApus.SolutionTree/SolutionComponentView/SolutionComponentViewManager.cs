@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,29 +17,22 @@ namespace vApus.SolutionTree {
     ///     When having a name that equals SolutionComponent.ToString + "View", you must not even specify the view type you want to show.
     /// </summary>
     public class SolutionComponentViewManager {
+
         #region Fields
-
-        private static readonly List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> _solutionComponentViews
-            = new List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>>();
-
         /// <summary>
         ///     Used to determine if the views should be cleared or not.
         /// </summary>
         private static Solution _activeSolution;
-
+        private static readonly List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> _solutionComponentViews = new List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>>();
         #endregion
 
         #region Constructors
-
         static SolutionComponentViewManager() {
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
             _activeSolution = Solution.ActiveSolution;
         }
-
-        private SolutionComponentViewManager() {
-        }
-
+        private SolutionComponentViewManager() { }
         #endregion
 
         #region Functions
@@ -122,22 +114,22 @@ namespace vApus.SolutionTree {
         }
 
         /// <summary>
+        ///     Searches and displays a "BaseSolutionComponentView" with the name SolutionComponent.ToString() + "View".
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="args"></param>
+        public static BaseSolutionComponentView Show(SolutionComponent owner) {
+            return Show(owner, DockState.Document);
+        }
+
+        /// <summary>
         ///     Displays a "BaseSolutionComponentView" of the given type.
         /// </summary>
         /// <param name="owner"></param>
         /// <param name="viewType"></param>
         /// <param name="args"></param>
-        public static BaseSolutionComponentView Show(SolutionComponent owner, Type viewType, params object[] args) {
-            return Show(owner, viewType, DockState.Document, args);
-        }
-
-        /// <summary>
-        ///     Searches and displays a "BaseSolutionComponentView" with the name SolutionComponent.ToString() + "View".
-        /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="args"></param>
-        public static BaseSolutionComponentView Show(SolutionComponent owner, params object[] args) {
-            return Show(owner, DockState.Document, args);
+        public static BaseSolutionComponentView Show(SolutionComponent owner, Type viewType) {
+            return Show(owner, viewType, DockState.Document);
         }
 
         /// <summary>
@@ -146,8 +138,8 @@ namespace vApus.SolutionTree {
         /// <param name="owner"></param>
         /// <param name="dockState"></param>
         /// <param name="args"></param>
-        public static BaseSolutionComponentView Show(SolutionComponent owner, DockState dockState, params object[] args) {
-            return Show(owner, owner.GetType().Assembly.GetTypeByName(owner.GetType().Name + "View"), dockState, args);
+        public static BaseSolutionComponentView Show(SolutionComponent owner, DockState dockState) {
+            return Show(owner, owner.GetType().Assembly.GetTypeByName(owner.GetType().Name + "View"), dockState);
         }
 
         /// <summary>
@@ -157,37 +149,35 @@ namespace vApus.SolutionTree {
         /// <param name="viewType"></param>
         /// <param name="dockState"></param>
         /// <param name="args"></param>
-        public static BaseSolutionComponentView Show(SolutionComponent owner, Type viewType, DockState dockState,
-                                                     params object[] args) {
+        public static BaseSolutionComponentView Show(SolutionComponent owner, Type viewType, DockState dockState) {
             BaseSolutionComponentView view = null;
             if (_solutionComponentViews.ContainsKey(owner)) {
                 bool containsView = false;
                 foreach (BaseSolutionComponentView v in _solutionComponentViews.GetValues(owner))
                     if (v.GetType() == viewType) {
                         if (v == null || v.IsDisposed) {
-                            view = CreateView(owner, viewType, args);
+                            view = CreateView(owner, viewType);
                             _solutionComponentViews.ReplaceKVP(owner, v, owner, view);
                         } else {
                             view = v;
-                            view.Args = args;
                         }
                         containsView = true;
                         break;
                     }
                 if (!containsView) {
-                    view = CreateView(owner, viewType, args);
+                    view = CreateView(owner, viewType);
                     _solutionComponentViews.AddKVP(owner, view);
                 }
             } else {
-                view = CreateView(owner, viewType, args);
+                view = CreateView(owner, viewType);
                 _solutionComponentViews.AddKVP(owner, view);
             }
             view.Show(Solution.DockPanel, dockState);
             return view;
         }
 
-        private static BaseSolutionComponentView CreateView(SolutionComponent owner, Type viewType, object[] args) {
-            var view = Activator.CreateInstance(viewType, owner, args) as BaseSolutionComponentView;
+        private static BaseSolutionComponentView CreateView(SolutionComponent owner, Type viewType) {
+            var view = Activator.CreateInstance(viewType, owner) as BaseSolutionComponentView;
             Image image = owner.GetImage();
             if (image != null)
                 view.Icon = Icon.FromHandle(new Bitmap(image).GetHicon());
@@ -210,23 +200,18 @@ namespace vApus.SolutionTree {
         #endregion
     }
 
-    public static class ListExtension {
-        public static void AddKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l,
-                                  SolutionComponent key, BaseSolutionComponentView value) {
-            l.Add(new KeyValuePair<SolutionComponent, BaseSolutionComponentView>(key, value));
-        }
-
-        public static bool RemoveKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l,
-                                     SolutionComponent key, BaseSolutionComponentView value) {
+    /// <summary>
+    /// I want multiple keys in a collection, that is why I use a List. To keep stuff managable, some extension methods where put in place. 
+    /// </summary>
+    static class ListExtension {
+        public static void AddKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent key, BaseSolutionComponentView value) { l.Add(new KeyValuePair<SolutionComponent, BaseSolutionComponentView>(key, value)); }
+        public static bool RemoveKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent key, BaseSolutionComponentView value) {
             foreach (var kvp in l)
                 if (kvp.Key == key && kvp.Value == value)
                     return l.Remove(kvp);
             return false;
         }
-
-        public static void ReplaceKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l,
-                                      SolutionComponent oldKey, BaseSolutionComponentView oldValue,
-                                      SolutionComponent newKey, BaseSolutionComponentView newValue) {
+        public static void ReplaceKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent oldKey, BaseSolutionComponentView oldValue, SolutionComponent newKey, BaseSolutionComponentView newValue) {
             foreach (var kvp in l)
                 if (kvp.Key == oldKey && kvp.Value == oldValue) {
                     l.Remove(kvp);
@@ -234,50 +219,38 @@ namespace vApus.SolutionTree {
                     break;
                 }
         }
-
-        public static bool ContainsKey(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l,
-                                       SolutionComponent key) {
+        public static bool ContainsKey(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent key) {
             foreach (var kvp in l)
                 if (kvp.Key == key)
                     return true;
             return false;
         }
-
-        public static bool ContainsKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l,
-                                       SolutionComponent key, BaseSolutionComponentView value) {
+        public static bool ContainsKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent key, BaseSolutionComponentView value) {
             foreach (var kvp in l)
                 if (kvp.Key == key && kvp.Value == value)
                     return true;
             return false;
         }
-
-        public static List<SolutionComponent> GetKeys(
-            this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l) {
+        public static List<SolutionComponent> GetKeys(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l) {
             var keys = new List<SolutionComponent>(l.Count);
             foreach (var kvp in l)
                 keys.Add(kvp.Key);
             return keys;
         }
-
-        public static SolutionComponent GetKey(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l,
-                                               BaseSolutionComponentView view) {
+        public static SolutionComponent GetKey(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, BaseSolutionComponentView view) {
             foreach (var kvp in l)
                 if (kvp.Value == view)
                     return kvp.Key;
             return null;
         }
-
-        public static List<BaseSolutionComponentView> GetValues(
-            this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent key) {
+        public static List<BaseSolutionComponentView> GetValues(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent key) {
             var values = new List<BaseSolutionComponentView>(l.Count);
             foreach (var kvp in l)
                 if (kvp.Key == key)
                     values.Add(kvp.Value);
             return values;
         }
-
-        public static List<BaseSolutionComponentView> GetValues(
-            this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l) {
+        public static List<BaseSolutionComponentView> GetValues(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l) {
             var values = new List<BaseSolutionComponentView>(l.Count);
             foreach (var kvp in l)
                 values.Add(kvp.Value);

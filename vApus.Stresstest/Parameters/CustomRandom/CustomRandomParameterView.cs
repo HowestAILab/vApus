@@ -16,8 +16,8 @@ namespace vApus.Stresstest {
             InitializeComponent();
         }
 
-        public CustomRandomParameterView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public CustomRandomParameterView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
 
             HandleCreated += CustomRandomParameterView_HandleCreated;

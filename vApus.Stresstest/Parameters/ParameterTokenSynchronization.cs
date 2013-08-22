@@ -29,8 +29,8 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="solutionComponent"></param>
         /// <param name="args"></param>
-        public ParameterTokenSynchronization(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public ParameterTokenSynchronization(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
         }
 

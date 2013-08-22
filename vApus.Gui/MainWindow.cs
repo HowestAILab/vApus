@@ -14,6 +14,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Gui.Properties;
 using vApus.Link;
@@ -28,8 +29,6 @@ namespace vApus.Gui {
         private readonly string[] _args;
         private Win32WindowMessageHandler _msgHandler;
         private bool _saveAndCloseOnUpdate = false; // To set the buttons of the messagebox.
-
-        private delegate void CloseDelayed();
 
         private readonly WelcomeView _welcomeView = new WelcomeView();
         private readonly AboutDialog _aboutDialog = new AboutDialog();
@@ -70,7 +69,7 @@ namespace vApus.Gui {
             SetGui();
         }
 
-        private void SetGui() {
+        async private void SetGui() {
             try {
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
@@ -107,9 +106,8 @@ namespace vApus.Gui {
                 if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
                     UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
                     //Doing stuff automatically
-                    if (Update(host, port, username, password, channel)) {
-                        StaticActiveObjectWrapper.ActiveObject.Send(new CloseDelayed(() => SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Close(); }, null)));
-                    }
+                    if (Update(host, port, username, password, channel))
+                        await Task.Run(() => SynchronizationContextWrapper.SynchronizationContext.Send((state) => { Close(); }, null));
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
@@ -119,6 +117,7 @@ namespace vApus.Gui {
         }
         #endregion
 
+        #region Misc
         private void SocketListenerLinker_NewTest(object sender, EventArgs e) { SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Text = sender.ToString(); }, null); }
 
         private void MainWindow_LocationChanged(object sender, EventArgs e) { RelocateLogErrorToolTip(); }
@@ -136,6 +135,7 @@ namespace vApus.Gui {
             } catch {
             }
         }
+        #endregion
 
         #region Menu
         private void SetToolStripMenuItemImage(ToolStripMenuItem item) {

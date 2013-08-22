@@ -560,7 +560,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         }
 
         /// <summary>
-        ///     Gets all project items as treenodes for visualization in a treeview.
+        ///     Gets all project items and childs (ShowInGUI must be set to true) as treenodes for visualization in a treeview.
         /// </summary>
         /// <returns></returns>
         public List<TreeNode> GetTreeNodes() {

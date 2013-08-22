@@ -27,8 +27,8 @@ namespace vApus.Stresstest {
             InitializeComponent();
         }
 
-        public ParameterView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public ParameterView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
             _parameter = solutionComponent as BaseParameter;
             solutionComponentPropertyPanel.SolutionComponent = solutionComponent;

@@ -30,6 +30,10 @@ namespace vApus.Stresstest {
         ///     Countdown for the update.
         /// </summary>
         private int _countDown;
+        /// <summary>
+        ///     In seconds how fast the stresstest progress will be updated.
+        /// </summary>
+        private const int _progressUpdateDelay = 5;
 
         /// <summary>
         ///     Caching the results to visualize in the stresstestcontrol.
@@ -61,8 +65,8 @@ namespace vApus.Stresstest {
             InitializeComponent();
         }
 
-        public StresstestView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public StresstestView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             Solution.RegisterForCancelFormClosing(this);
             _stresstest = SolutionComponent as Stresstest;
 
@@ -230,7 +234,7 @@ namespace vApus.Stresstest {
 
             tc.SelectedIndex = 1;
 
-            _countDown = Stresstest.ProgressUpdateDelay - 1;
+            _countDown = _progressUpdateDelay - 1;
         }
 
         /// <summary>
@@ -250,8 +254,8 @@ namespace vApus.Stresstest {
         private void StartStresstest() {
             Cursor = Cursors.WaitCursor;
 
-            try { LocalMonitor.StartMonitoring(Stresstest.ProgressUpdateDelay * 1000); } catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
-            tmrProgress.Interval = Stresstest.ProgressUpdateDelay * 1000;
+            try { LocalMonitor.StartMonitoring(_progressUpdateDelay * 1000); } catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
+            tmrProgress.Interval = _progressUpdateDelay * 1000;
 
             try {
                 _stresstestCore = new StresstestCore(_stresstest);
@@ -523,7 +527,7 @@ namespace vApus.Stresstest {
         }
 
         private void _stresstestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e) {
-            _countDown = Stresstest.ProgressUpdateDelay;
+            _countDown = _progressUpdateDelay;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
 
@@ -544,7 +548,7 @@ namespace vApus.Stresstest {
             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
-            _countDown = Stresstest.ProgressUpdateDelay;
+            _countDown = _progressUpdateDelay;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
 
@@ -587,7 +591,7 @@ namespace vApus.Stresstest {
                     fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
                     fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                 }
-                _countDown = Stresstest.ProgressUpdateDelay;
+                _countDown = _progressUpdateDelay;
             }
         }
 

@@ -35,9 +35,7 @@ namespace vApus.Monitor {
         private readonly Monitor _monitor;
         private IMonitorProxy _monitorProxy;
 
-
         private readonly Dictionary<Parameter, object> _parametersWithValues = new Dictionary<Parameter, object>();
-        private readonly WDYHDel _wdyhDel;
 
         private int _refreshTimeInMS;
 
@@ -46,8 +44,6 @@ namespace vApus.Monitor {
         private MonitorSource _previousMonitorSourceForParameters;
 
         private System.Timers.Timer _invokeChangedTmr = new System.Timers.Timer(1000);
-
-        private delegate void WDYHDel(bool suppressErrorMessageBox);
         #endregion
 
         #region Properties
@@ -82,13 +78,11 @@ namespace vApus.Monitor {
         /// </summary>
         /// <param name="solutionComponent"></param>
         /// <param name="args"></param>
-        public MonitorView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public MonitorView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
 
             _monitor = solutionComponent as Monitor;
-
-            _wdyhDel = __WDYH;
 
             _invokeChangedTmr.Elapsed += _invokeChangedTmr_Elapsed;
 
@@ -162,7 +156,7 @@ namespace vApus.Monitor {
             ConnectAndGetCounters();
         }
 
-        private void ConnectAndGetCounters() {
+        async private void ConnectAndGetCounters() {
             Cursor = Cursors.WaitCursor;
 
             if (_monitor.PreviousMonitorSourceIndexForCounters != _monitor.MonitorSourceIndex) {
@@ -184,10 +178,11 @@ namespace vApus.Monitor {
             btnSchedule.Enabled = false;
 
             btnGetCounters.Text = "Getting Counters...";
-            _activeObject.Send(_wdyhDel, _forStresstest);
+
+            await Task.Run(() => __WDYH());
         }
 
-        private void __WDYH(bool forStresstest) {
+        private void __WDYH() {
             if (_monitorProxy == null)
                 _monitorProxy = CreateMonitorProxy();
 
@@ -223,7 +218,7 @@ namespace vApus.Monitor {
                     btnStart.Enabled = btnSchedule.Enabled = false;
 
                     string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
-                    if (!forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (!_forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
                 }
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
@@ -596,7 +591,7 @@ namespace vApus.Monitor {
         }
 
         private void btnConfiguration_Click(object sender, EventArgs e) {
-            if (string.IsNullOrEmpty(Configuration))
+            if (!string.IsNullOrEmpty(Configuration))
                 (new HardwareConfigurationDialog(Configuration)).ShowDialog();
         }
 

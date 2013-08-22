@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,14 +17,12 @@ namespace vApus.SolutionTree {
     /// </summary>
     [Serializable]
     public abstract class LabeledBaseItem : BaseItem {
+
         #region Fields
-
         private string _label = string.Empty;
-
         #endregion
 
         #region Properties
-
         [SavableCloneable]
         public virtual string Label {
             get { return _label; }
@@ -34,7 +31,6 @@ namespace vApus.SolutionTree {
                     _label = value == null ? string.Empty : value;
             }
         }
-
         /// <summary>
         ///     The one-based index of this item in the collection of its parent.
         /// </summary>
@@ -54,15 +50,9 @@ namespace vApus.SolutionTree {
                 return index;
             }
         }
-
-        #endregion
-
-        #region Constructors
-
         #endregion
 
         #region Functions
-
         internal void Export_Click(object sender, EventArgs e) {
             var sfd = new SaveFileDialog();
             sfd.Filter = "Xml Files (*.xml) | *.xml";
@@ -77,7 +67,6 @@ namespace vApus.SolutionTree {
                 return "<none>";
             return _label == string.Empty ? Name + ' ' + Index : Name + ' ' + Index + ": " + _label;
         }
-
         #endregion
     }
 

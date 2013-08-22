@@ -14,6 +14,9 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Brings connection string, proxy and parameters together in one config file.
+    /// </summary>
     [Serializable]
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit", "Remove", "Export", "Copy", "Cut", "Duplicate" })]
@@ -22,16 +25,13 @@ namespace vApus.Stresstest {
     public class Connection : LabeledBaseItem, ISerializable {
 
         #region Fields
-
         private ConnectionProxy _connectionProxy;
         private string _connectionString = string.Empty;
 
         private Parameters _parameters;
-
         #endregion
 
         #region Properties
-
         [SavableCloneable, PropertyControl(1)]
         [Description("To be able to connect to the application-to-test."), DisplayName("Connection Proxy")]
         public ConnectionProxy ConnectionProxy {
@@ -71,27 +71,25 @@ namespace vApus.Stresstest {
                     throw new Exception(output.Error);
             }
         }
-
         #endregion
 
         #region Constructors
-
+        /// <summary>
+        /// Brings connection string, proxy and parameters together in one config file.
+        /// </summary>
         public Connection() {
             if (Solution.ActiveSolution != null) {
-                ConnectionProxy =
-                    GetNextOrEmptyChild(typeof(ConnectionProxy),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as
-                    ConnectionProxy;
+                ConnectionProxy = GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+
                 if (_parameters == null)
                     _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-            }
-            else {
+            } else {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             }
         }
 
         /// <summary>
-        ///     Only for sending from master to slave.
+        ///     Only for sending from master to slave. (Serialization)
         /// </summary>
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
@@ -112,15 +110,10 @@ namespace vApus.Stresstest {
         #region Functions
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            ConnectionProxy =
-                GetNextOrEmptyChild(typeof(ConnectionProxy),
-                                    Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as
-                ConnectionProxy;
+            ConnectionProxy = GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
+
             if (_parameters == null)
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-        }
-        public override void Activate() {
-            SolutionComponentViewManager.Show(this);
         }
         /// <summary>
         ///     Only for sending from master to slave.
@@ -143,11 +136,17 @@ namespace vApus.Stresstest {
 
         private void _connectionProxy_ParentIsNull(object sender, EventArgs e) {
             if (_connectionProxy == sender)
-                ConnectionProxy =
-                    GetNextOrEmptyChild(typeof(ConnectionProxy),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as
-                    ConnectionProxy;
+                ConnectionProxy = GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
         }
+
+        /// <summary>
+        ///     Build and returns a new connection proxy class as string.
+        ///     This is further used in vApus.Util.CompilerUnit to compile. 
+        ///     Each simulated user in StresstestCore has an instance of this class (in ConnectionProxyPool) to be able to connect to a server app and communicate with it.
+        /// </summary>
+        /// <returns></returns>
+        public string BuildConnectionProxyClass() { return _connectionProxy.BuildConnectionProxyClass(_connectionString); }
+
         public Connection Clone() {
             var clone = new Connection();
             clone._connectionProxy = _connectionProxy;
@@ -155,15 +154,7 @@ namespace vApus.Stresstest {
             clone._parameters = _parameters;
             return clone;
         }
-
-        /// <summary>
-        ///     Build and returns a new connection proxy class.
-        /// </summary>
-        /// <returns></returns>
-        public string BuildConnectionProxyClass() {
-            return _connectionProxy.BuildConnectionProxyClass(_connectionString);
-        }
-
+        public override void Activate() { SolutionComponentViewManager.Show(this); }
         #endregion
     }
 }

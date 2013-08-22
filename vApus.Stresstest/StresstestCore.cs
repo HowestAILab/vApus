@@ -341,8 +341,7 @@ namespace vApus.Stresstest {
             _logEntries = logEntries.ToArray();
             int actionCount = _stresstest.Distribute == UserActionDistribution.Fast ? _stresstest.Log.Count : _log.Count; //Needed for fast log entry distribution
 
-            _testPatternsAndDelaysGenerator = new TestPatternsAndDelaysGenerator
-                (_logEntries, actionCount, _stresstest.Shuffle, _stresstest.Distribute, _stresstest.MinimumDelay, _stresstest.MaximumDelay);
+            _testPatternsAndDelaysGenerator = new TestPatternsAndDelaysGenerator(_logEntries, actionCount, _stresstest.Shuffle, _stresstest.Distribute, _stresstest.MinimumDelay, _stresstest.MaximumDelay);
             _sw.Stop();
             InvokeMessage(string.Format(" ...Log Initialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
@@ -506,9 +505,9 @@ namespace vApus.Stresstest {
                         ++_rerun;
                         if (!SetRunDoneOnce())
                             SetRerunDone();
-                        
+
                         //Allow one last rerun, then wait for the master for a continue, or rerun nfinite.
-                        if (_maxRerunsBreakOnLast == 0 ||_rerun <= _maxRerunsBreakOnLast) {
+                        if (_maxRerunsBreakOnLast == 0 || _rerun <= _maxRerunsBreakOnLast) {
                             InvokeMessage("Initializing Rerun...");
                             //Increase resultset
                             _runResult.PrepareForRerun();

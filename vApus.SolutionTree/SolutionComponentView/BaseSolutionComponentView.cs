@@ -18,25 +18,14 @@ namespace vApus.SolutionTree {
     public class BaseSolutionComponentView : DockContent {
 
         #region Fields
-
         private readonly SolutionComponent _solutionComponent;
-
         #endregion
 
         #region Properties
-
         /// <summary>
-        ///     The 'owner' of this.
+        ///     The 'owner' of this. This property is prerequisite.
         /// </summary>
-        public SolutionComponent SolutionComponent {
-            get { return _solutionComponent; }
-        }
-
-        /// <summary>
-        ///     Contains any arg u have given with the manager.
-        /// </summary>
-        public object[] Args { get; internal set; }
-
+        public SolutionComponent SolutionComponent { get { return _solutionComponent; } }
         #endregion
 
         #region Constructors
@@ -44,25 +33,22 @@ namespace vApus.SolutionTree {
         /// <summary>
         ///     Design time only constructor.
         /// </summary>
-        protected BaseSolutionComponentView() {
-        }
-
+        protected BaseSolutionComponentView() { }
         /// <summary>
         ///     Derive a new view from this, the "SolutionComponentViewManager" can then display the view in the dockpanel of the GUI and will ensure that no multiple instances can exist.
         ///     When having a name that equals SolutionComponent.ToString + "View", you must not even specify the view type you want to show using the manager.
         ///     There is already a standard view "StandardSolutionComponentView" provided for when you just want to edit properties.
         /// </summary>
-        protected BaseSolutionComponentView(SolutionComponent solutionComponent, params object[] args) {
+        /// <param name="solutionComponent">Cannot be null!</param>
+        protected BaseSolutionComponentView(SolutionComponent solutionComponent) {
             if (solutionComponent == null)
                 throw new ArgumentNullException("solutionComponent");
             _solutionComponent = solutionComponent;
-            Args = args;
         }
 
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Override this to do your own refreshing.
         ///     This is used in the solution component view manager, please implement this always.
@@ -71,7 +57,6 @@ namespace vApus.SolutionTree {
             base.Refresh();
             Text = SolutionComponent.ToString();
         }
-
         #endregion
     }
 }

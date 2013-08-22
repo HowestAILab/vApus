@@ -38,8 +38,8 @@ namespace vApus.Stresstest {
             InitializeComponent();
         }
 
-        public ConnectionProxyCodeView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public ConnectionProxyCodeView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
 
             _connectionProxyCode = solutionComponent as ConnectionProxyCode;

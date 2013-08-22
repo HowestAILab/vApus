@@ -43,6 +43,10 @@ namespace vApus.DistributedTesting {
         ///     Countdown for the update.
         /// </summary>
         private int _countDown;
+        /// <summary>
+        ///     In seconds how fast the stresstest progress will be updated.
+        /// </summary>
+        private const int _progressUpdateDelay = 5;
 
         private Countdown _monitorBeforeCountDown, _monitorAfterCountDown;
         /// <summary>
@@ -107,8 +111,8 @@ namespace vApus.DistributedTesting {
             InitializeComponent();
         }
 
-        public DistributedTestView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public DistributedTestView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
 
             _msgHandler = new Win32WindowMessageHandler();
@@ -643,7 +647,7 @@ namespace vApus.DistributedTesting {
         private void StartTestAndMonitors() {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    try { LocalMonitor.StartMonitoring(Stresstest.Stresstest.ProgressUpdateDelay * 1000); } catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI service.", LogLevel.Error); }
+                    try { LocalMonitor.StartMonitoring(_progressUpdateDelay * 1000); } catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI service.", LogLevel.Error); }
 
                     if (_monitorViews != null) {
                         int runningMonitors = 0;
@@ -777,7 +781,7 @@ namespace vApus.DistributedTesting {
 
                     if (testProgressMessage.StresstestStatus == StresstestStatus.Busy) {
                         tmrProgressDelayCountDown.Stop();
-                        _countDown = Stresstest.Stresstest.ProgressUpdateDelay;
+                        _countDown = _progressUpdateDelay;
                         fastResultsControl.SetCountDownProgressDelay(_countDown);
                         tmrProgressDelayCountDown.Start();
                     }
@@ -1278,12 +1282,12 @@ namespace vApus.DistributedTesting {
         }
         private void MonitorBeforeDone() {
             try {
-                tmrProgress.Interval = Stresstest.Stresstest.ProgressUpdateDelay * 1000;
+                tmrProgress.Interval = _progressUpdateDelay * 1000;
                 tmrProgress.Start();
 
                 tmrProgressDelayCountDown.Start();
 
-                _countDown = Stresstest.Stresstest.ProgressUpdateDelay - 1;
+                _countDown = _progressUpdateDelay - 1;
                 _distributedTestCore.Start();
             } catch (Exception ex) { HandleInitializeOrStartException(ex); }
         }

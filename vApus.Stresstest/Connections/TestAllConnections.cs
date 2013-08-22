@@ -36,8 +36,8 @@ namespace vApus.Stresstest {
             InitializeComponent();
         }
 
-        public TestAllConnections(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public TestAllConnections(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
 
             _connections = solutionComponent as Connections;

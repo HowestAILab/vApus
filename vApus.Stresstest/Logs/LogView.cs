@@ -34,8 +34,8 @@ namespace vApus.Stresstest {
             InitializeComponent();
         }
 
-        public LogView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public LogView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
 
             _log = solutionComponent as Log;

@@ -15,8 +15,8 @@ namespace vApus.DistributedTesting {
             InitializeComponent();
         }
 
-        public RemoteDesktopClient(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public RemoteDesktopClient(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
         }
 
