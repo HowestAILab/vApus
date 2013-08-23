@@ -64,13 +64,9 @@ namespace vApus.Stresstest {
         //For distributed test
         private DateTime _stresstestStartedAt = DateTime.Now;
         private TimeSpan _measuredRuntime = new TimeSpan();
-
-        private ResultsHelper _resultsHelper;
-
         #endregion
 
         #region Properties
-
         public bool HasResults { get { return _concurrencyStresstestMetricsRows.Count != 0; } }
 
         /// <summary>
@@ -93,19 +89,11 @@ namespace vApus.Stresstest {
         public TimeSpan MeasuredRuntime {
             get { return _measuredRuntime; }
         }
-
-        public ResultsHelper ResultsHelper {
-            get { return _resultsHelper; }
-            set { _resultsHelper = value; }
-        }
-
-        public string Stresstest { get { return kvpStresstest.Key; } }
         #endregion
 
         #region Constructor
-
         /// <summary>
-        /// Dont't forget to set resultshelper
+        /// Used for displaying the fast results: stresstest progress; Progress messages and local hardware monitoring.
         /// </summary>
         public FastResultsControl() {
             InitializeComponent();
@@ -116,11 +104,9 @@ namespace vApus.Stresstest {
             cboDrillDown.SelectedIndex = 0;
             ToggleCollapseEventPanel();
         }
-
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Resets everything to the initial state.
         /// </summary>
@@ -146,7 +132,6 @@ namespace vApus.Stresstest {
                                      stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute,
                                      stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
-
         public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
                                              int runs, int minimumDelay, int maximumDelay, bool shuffle, UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
             kvpStresstest.Key = stresstest;
@@ -199,10 +184,42 @@ namespace vApus.Stresstest {
             //Reinit the datagridview.
             SetFastResultsOnGuiInteraction();
         }
-
+        //Monitor button in configuration.
         private void btnMonitor_Click(object sender, EventArgs e) {
             if (btnMonitor.Text != "Monitor" && btnMonitor.Text != "No Monitor" && MonitorClicked != null)
                 MonitorClicked(this, null);
+        }
+
+        /// <summary>
+        ///     Sets the label.
+        /// </summary>
+        /// <param name="start"></param>
+        public void SetStresstestStarted(DateTime at) {
+            _stresstestStartedAt = at;
+            lblStarted.Text = "Test started at " + at;
+            epnlMessages.BeginOfTimeFrame = at;
+        }
+
+        public void SetRerunning(bool rerun) {
+            btnRerunning.Visible = rerun;
+        }
+
+        public void ClearFastResults(bool clearLabels = true) {
+            if (clearLabels) lblUpdatesIn.Text = lblStarted.Text = lblMeasuredRuntime.Text = lblStopped.Text = string.Empty;
+
+            dgvFastResults.RowCount = 0;
+
+            _concurrencyStresstestMetrics = new List<StresstestMetrics>();
+            _concurrencyStresstestMetricsRows = new List<object[]>();
+            _runStresstestMetrics = new List<StresstestMetrics>();
+            _runStresstestMetricsRows = new List<object[]>();
+
+            _concurrencyMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
+            _concurrencyMonitorMetricsRows = new Dictionary<string, List<object[]>>();
+            _runMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
+            _runMonitorMetricsRows = new Dictionary<string, List<object[]>>();
+
+            _keepFastResultsAtEnd = true;
         }
 
         /// <summary>
@@ -230,8 +247,7 @@ namespace vApus.Stresstest {
         /// <param name="threadContentionsPerSecond"></param>
         /// <param name="memoryUsage"></param>
         /// <param name="totalVisibleMemory"></param>
-        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, float contextSwitchesPerSecond = -1f, int memoryUsage = -1,
-                                        int totalVisibleMemory = -1, float nicsSent = -1, float nicsReceived = -1) {
+        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, float contextSwitchesPerSecond = -1f, int memoryUsage = -1, int totalVisibleMemory = -1, float nicsSent = -1, float nicsReceived = -1) {
             kvmThreadsInUse.Value = threadsInUse.ToString();
             if (cpuUsage == -1) {
                 kvmCPUUsage.Value = "N/A";
@@ -282,39 +298,6 @@ namespace vApus.Stresstest {
                     AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
                 }
             }
-        }
-
-
-        /// <summary>
-        ///     Sets the label.
-        /// </summary>
-        /// <param name="start"></param>
-        public void SetStresstestStarted(DateTime at) {
-            _stresstestStartedAt = at;
-            lblStarted.Text = "Test started at " + at;
-            epnlMessages.BeginOfTimeFrame = at;
-        }
-
-        public void SetRerunning(bool rerun) {
-            btnRerunning.Visible = rerun;
-        }
-
-        public void ClearFastResults(bool clearLabels = true) {
-            if (clearLabels) lblUpdatesIn.Text = lblStarted.Text = lblMeasuredRuntime.Text = lblStopped.Text = string.Empty;
-
-            dgvFastResults.RowCount = 0;
-
-            _concurrencyStresstestMetrics = new List<StresstestMetrics>();
-            _concurrencyStresstestMetricsRows = new List<object[]>();
-            _runStresstestMetrics = new List<StresstestMetrics>();
-            _runStresstestMetricsRows = new List<object[]>();
-
-            _concurrencyMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
-            _concurrencyMonitorMetricsRows = new Dictionary<string, List<object[]>>();
-            _runMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
-            _runMonitorMetricsRows = new Dictionary<string, List<object[]>>();
-
-            _keepFastResultsAtEnd = true;
         }
 
         /// <summary>

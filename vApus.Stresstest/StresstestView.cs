@@ -94,8 +94,6 @@ namespace vApus.Stresstest {
             if (_stresstest.Connection.IsEmpty || _stresstest.Connection.ConnectionProxy.IsEmpty ||
                 _stresstest.Log.IsEmpty || _stresstest.Log.LogRuleSet.IsEmpty)
                 btnStart.Enabled = false;
-
-            fastResultsControl.ResultsHelper = _resultsHelper;
         }
 
         public override void Refresh() {

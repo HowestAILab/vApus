@@ -11,6 +11,9 @@ using System.Net.NetworkInformation;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Do do a trace route, same functionality as Windows CMD tool tracert.
+    /// </summary>
     public partial class TracertControl : UserControl {
         /// <summary>
         ///     You can call SetToTrace here last minute.
@@ -19,7 +22,6 @@ namespace vApus.Util {
         public event EventHandler Done;
 
         #region Fields
-
         private readonly TracertDialog _tracertDialog = new TracertDialog();
         private int _hops;
 
@@ -27,13 +29,17 @@ namespace vApus.Util {
         private IPStatus _lastStatus;
         private int _maxHops, _timeout;
         private Tracert _tracert;
-
         #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Do do a trace route, same functionality as Windows CMD tool tracert.
+        /// </summary>
         public TracertControl() {
             InitializeComponent();
             _tracertDialog.CancelTraceRoute += _tracertDialog_CancelTraceRoute;
         }
+        #endregion
 
         #region Functions
         public void SetToTrace(string hostNameOrIP, int maxHops = 100, int timeout = 5000) {

@@ -14,20 +14,18 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Editting a connection happens here. Gui is generated based on the connection rule set in the chosen connection proxy.
+    /// </summary>
     public partial class ConnectionView : BaseSolutionComponentView {
 
         #region Fields
         private readonly Connection _connection;
-        private readonly TestConnectionDel _testConnectionDel;
-
         /// <summary>
         ///     For endless loops.
         /// </summary>
         private bool _canUpdateGui = true;
-
         private bool _testing, _tracing;
-
-        private delegate void TestConnectionDel();
         #endregion
 
         #region Constructors
@@ -35,13 +33,14 @@ namespace vApus.Stresstest {
         /// Design time constructor.
         /// </summary>
         public ConnectionView() { InitializeComponent(); }
-
+        /// <summary>
+        /// Editting a connection happens here. Gui is generated based on the connection rule set in the chosen connection proxy.
+        /// </summary>
+        /// <param name="solutionComponent"></param>
         public ConnectionView(SolutionComponent solutionComponent)
             : base(solutionComponent) {
             InitializeComponent();
             _connection = solutionComponent as Connection;
-
-            _testConnectionDel = TestConnection;
 
             if (IsHandleCreated)
                 SetGui();
@@ -60,22 +59,21 @@ namespace vApus.Stresstest {
             ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connection.ConnectionProxy.ConnectionProxyRuleSet, _connection.ConnectionString);
             ruleSetSyntaxItemPanel.InputChanged += ruleSetSyntaxItemPanel_InputChanged;
         }
+        
         private void ruleSetSyntaxItemPanel_InputChanged(object sender, EventArgs e) {
             _connection.ConnectionString = ruleSetSyntaxItemPanel.Input;
             _canUpdateGui = false;
             _connection.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
+    
         async private void btnTestConnection_Click(object sender, EventArgs e) {
             _testing = true;
             split.Enabled = false;
             btnTestConnection.Enabled = false;
             btnTestConnection.Text = "Testing...";
 
-           // StaticActiveObjectWrapper.ActiveObject.Send(_testConnectionDel);
-
             await Task.Run(() => TestConnection());
         }
-
         private void TestConnection() {
             _testing = false;
             if (_connection.ConnectionProxy.IsEmpty) {
@@ -157,7 +155,6 @@ namespace vApus.Stresstest {
 
             tracertControl.SetToTrace(tracertField);
         }
-
         private void tracertControl_Done(object sender, EventArgs e) {
             _tracing = false;
             if (!_testing)

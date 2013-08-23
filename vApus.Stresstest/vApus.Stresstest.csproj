@@ -212,12 +212,6 @@
     <Compile Include="Connections\Proxies\Panels\FindAndReplacePanel.designer.cs">
       <DependentUpon>FindAndReplacePanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Connections\TestAllConnections.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Connections\TestAllConnections.Designer.cs">
-      <DependentUpon>TestAllConnections.cs</DependentUpon>
-    </Compile>
     <Compile Include="Connections\TestConnections.cs" />
     <Compile Include="Controls\ChartDialog.cs">
       <SubType>Form</SubType>
@@ -465,9 +459,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\Panels\ReferencesPanel.resx">
       <DependentUpon>ReferencesPanel.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Connections\TestAllConnections.resx">
-      <DependentUpon>TestAllConnections.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ChartDialog.resx">
       <DependentUpon>ChartDialog.cs</DependentUpon>

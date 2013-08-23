@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,20 +15,30 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Contains logs and LogRuleSets.
+    /// </summary>
     [ContextMenu(new[] { "Add_Click", "Import_Click", "ImportLogAndUsedParameters_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
         new[] { "Add Log", "Import Log Data Structure(s)", "Import Log and Used Parameter Data Structures", "Sort", "Clear", "Paste" })]
     [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Insert, (Keys.Control | Keys.V) })]
     public class Logs : BaseItem {
-        //Do not synchronize the tokens of a log that was imported with parameter data structures.
-        //The object is a parameters collection.
+
+        #region Fields
+        //Do not synchronize the tokens of a log that was imported together with parameter data structures. (ImportLogAndUsedParameters_Click)
+        //The value of a KVP is a parameters collection.
         private List<KeyValuePair<Log, object>> _excludeFromSynchronizeTokens = new List<KeyValuePair<Log, object>>();
+        #endregion
+
+        #region Constructor
         public Logs() {
             AddAsDefaultItem(new LogRuleSets());
 
             //To synchronize the tokens with the changed tokens in all log entries.
             SolutionComponentChanged += Parameters_SolutionComponentChanged;
         }
+        #endregion
 
+        #region Functions
         private void Parameters_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             //Added while loading, so check if it has a parent
             if (Solution.ActiveSolution != null && Parent != null &&
@@ -226,5 +235,6 @@ namespace vApus.Stresstest {
             base.Clear();
             AddRange(itemsCopy);
         }
+        #endregion
     }
 }

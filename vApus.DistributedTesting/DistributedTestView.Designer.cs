@@ -285,7 +285,6 @@
             this.fastResultsControl.Location = new System.Drawing.Point(3, 3);
             this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
             this.fastResultsControl.Name = "fastResultsControl";
-            this.fastResultsControl.ResultsHelper = null;
             this.fastResultsControl.Size = new System.Drawing.Size(595, 622);
             this.fastResultsControl.TabIndex = 0;
             // 

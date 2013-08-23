@@ -36,6 +36,8 @@
             // 
             this.dgvConnections.AllowUserToAddRows = false;
             this.dgvConnections.AllowUserToDeleteRows = false;
+            this.dgvConnections.AllowUserToResizeColumns = false;
+            this.dgvConnections.AllowUserToResizeRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
             this.dgvConnections.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvConnections.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 

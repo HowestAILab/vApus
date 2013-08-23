@@ -15,16 +15,12 @@ using FastColoredTextBoxNS;
 namespace vApus.Stresstest {
     public class ParameterTokenTextStyle {
         private readonly MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
-
         private readonly TextStyle _customListParameterStyle = new TextStyle(Brushes.Black, Brushes.LightPink, FontStyle.Bold);
-
         private readonly IEnumerable<string> _customListParameters;
 
         private readonly TextStyle _customRandomParameterStyle = new TextStyle(Brushes.Black, Brushes.Yellow, FontStyle.Bold);
-
         private readonly IEnumerable<string> _customRandomParameters;
 
-        //styles
         private readonly TextStyle _delimiterStyle = new TextStyle(Brushes.Green, null, FontStyle.Bold);
         private readonly TextStyle _vblrStyle = new TextStyle(Brushes.Gray, null, FontStyle.Italic);
 

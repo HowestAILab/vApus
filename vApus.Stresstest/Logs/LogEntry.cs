@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,28 +12,31 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Contains a captured request to a server app.
+    /// </summary>
     [DisplayName("Log Entry"), Serializable]
     public class LogEntry : LabeledBaseItem {
+
         #region Fields
-
         private static readonly char[] _beginParameterTokenDelimiterCanditates = new[] { '{', '<', '[', '(', '\\', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
-
         private static readonly char[] _endParameterTokenDelimiterCanditates = new[] { '}', '>', ']', ')', '/', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
 
-        private bool _executeInParallelWithPrevious;
+        private bool _executeInParallelWithPrevious; //For a special not yet used feature.
+
         private bool _useDelay = false;
-        private ASTNode _lexedLogEntry;
-        private LexicalResult _lexicalResult = LexicalResult.Error;
         private string _logEntryString = string.Empty;
         private int _parallelOffsetInMs;
 
         private Parameters _parameters;
 
         private LogEntry _sameAs;
+
+        private ASTNode _lexedLogEntry;
+        private LexicalResult _lexicalResult = LexicalResult.Error;
         #endregion
 
         #region Properties
-
         /// <summary>
         ///     Call ApplyLogRuleSet after setting this.
         /// </summary>
@@ -88,9 +90,7 @@ namespace vApus.Stresstest {
         /// </summary>
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description(
-            "You can parallel execute this with an immediate previous or next log entry where this is enabled too. For the first one in a group the connection proxy for the executing thread (user) is used, therefore only that one is able to make data available for the rest of a stresstest for a certain user (eg login data)."
-            ), DisplayName("Execute in Parallel with Previous")]
+        [Description("You can parallel execute this with an immediate previous or next log entry where this is enabled too. For the first one in a group the connection proxy for the executing thread (user) is used, therefore only that one is able to make data available for the rest of a stresstest for a certain user (eg login data)."), DisplayName("Execute in Parallel with Previous")]
         public bool ExecuteInParallelWithPrevious {
             get { return _executeInParallelWithPrevious; }
             set { _executeInParallelWithPrevious = value; }
@@ -98,8 +98,7 @@ namespace vApus.Stresstest {
 
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description("The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do).")
-        , DisplayName("Parallel Offset")]
+        [Description("The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do)."), DisplayName("Parallel Offset")]
         public int ParallelOffsetInMs {
             get { return _parallelOffsetInMs; }
             set { _parallelOffsetInMs = value; }
@@ -123,7 +122,9 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-
+        /// <summary>
+        /// Contains a captured request to a server app.
+        /// </summary>
         public LogEntry() {
             ShowInGui = false;
             if (_parameters == null && Solution.ActiveSolution != null)
@@ -134,8 +135,8 @@ namespace vApus.Stresstest {
 
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
-
         /// <summary>
+        /// Contains a captured request to a server app.
         /// </summary>
         /// <param name="logEntryString">Log entry string as imported will get this value also.</param>
         public LogEntry(string logEntryString)
@@ -146,7 +147,6 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Functions
-
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
@@ -238,7 +238,10 @@ namespace vApus.Stresstest {
             return _lexedLogEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
         }
 
-        //Clones and applies the log rule set.
+        /// <summary>
+        /// Clones and applies the log rule set.
+        /// </summary>
+        /// <returns></returns>
         public LogEntry Clone() {
             LogEntry logEntry = new LogEntry();
             logEntry.SetParent(Parent, false);
@@ -250,10 +253,13 @@ namespace vApus.Stresstest {
             return logEntry;
         }
 
+        /// <summary>
+        /// Log Entry #: LogEntryString.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() {
             return (base.ToString() == null ? string.Empty : base.ToString() + ": ") + _logEntryString;
         }
-
         #endregion
     }
 }

@@ -21,6 +21,7 @@ namespace vApus.Util {
     /// A panel to show all the application log entries; used in the OptionsDialog.
     /// </summary>
     public partial class LogPanel : Panel {
+
         #region Events
         public event EventHandler<LogErrorCountChangedEventArgs> LogErrorCountChanged;
         #endregion
@@ -221,34 +222,6 @@ namespace vApus.Util {
             LogWrapper.LogLevel = (LogLevel)cboLogLevel.SelectedIndex;
             dgv.DataSource = null;
             SetGui();
-        }
-
-        private void cboLogLevel_DrawItem(object sender, DrawItemEventArgs e) {
-            if (e.Index == -1)
-                return;
-            Brush brush = null;
-            if ((e.State & DrawItemState.Focus) == DrawItemState.Focus)
-                brush = Brushes.LightBlue;
-            else
-                brush = Brushes.SteelBlue;
-            e.Graphics.FillRectangle(brush, e.Bounds);
-
-            var logLevel = (LogLevel)e.Index;
-            switch (logLevel) {
-                case LogLevel.Info:
-                    brush = new SolidBrush(Color.FromArgb(224, 224, 224));
-                    break;
-                case LogLevel.Warning:
-                    brush = Brushes.Yellow;
-                    break;
-                case LogLevel.Error:
-                    brush = new SolidBrush(Color.FromArgb(255, 128, 0));
-                    break;
-                case LogLevel.Fatal:
-                    brush = Brushes.Red;
-                    break;
-            }
-            e.Graphics.DrawString(cboLogLevel.Items[e.Index].ToString(), cboLogLevel.Font, brush, e.Bounds);
         }
 
         private void btnWarning_Click(object sender, EventArgs e) {

@@ -14,8 +14,8 @@ namespace vApus.Stresstest {
     /// <summary>
     /// Groups all connections and proxies.
     /// </summary>
-    [ContextMenu(new[] { "Activate_Click", "Add_Click", "Import_Click", "Test_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
-        new[] { "Table View", "Add Connection", "Import Connection(s)", "Test All Connections", "Sort", "Clear", "Paste" })]
+    [ContextMenu(new[] { "Activate_Click", "Add_Click", "Import_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
+        new[] { "Table View / Test All Connections", "Add Connection", "Import Connection(s)", "Sort", "Clear", "Paste" })]
     [Hotkeys(new[] { "Activate_Click", "Add_Click", "Paste_Click" }, new[] { Keys.Enter, Keys.Insert, (Keys.Control | Keys.V) })]
     public class Connections : BaseItem {
 
@@ -28,7 +28,6 @@ namespace vApus.Stresstest {
 
         #region Functions
         private void Add_Click(object sender, EventArgs e) { Add(new Connection()); }
-        private void Test_Click(object sender, EventArgs e) { SolutionComponentViewManager.Show(this, typeof(TestAllConnections)); }
 
         /// <summary>
         /// Only clears connections, other items are not cleared.

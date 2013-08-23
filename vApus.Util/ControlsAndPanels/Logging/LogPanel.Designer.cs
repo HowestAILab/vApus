@@ -40,6 +40,7 @@
             this.btnWarning = new System.Windows.Forms.Button();
             this.llblLatestLog = new System.Windows.Forms.LinkLabel();
             this.label3 = new System.Windows.Forms.Label();
+            this.pnlBorder = new System.Windows.Forms.Panel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv)).BeginInit();
@@ -50,7 +51,6 @@
             this.cboLogLevel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cboLogLevel.BackColor = System.Drawing.Color.White;
-            this.cboLogLevel.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.cboLogLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboLogLevel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cboLogLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -60,18 +60,17 @@
             "Warning",
             "Error",
             "Fatal"});
-            this.cboLogLevel.Location = new System.Drawing.Point(80, 13);
+            this.cboLogLevel.Location = new System.Drawing.Point(80, 15);
             this.cboLogLevel.Name = "cboLogLevel";
-            this.cboLogLevel.Size = new System.Drawing.Size(313, 21);
+            this.cboLogLevel.Size = new System.Drawing.Size(297, 21);
             this.cboLogLevel.TabIndex = 0;
             this.toolTip.SetToolTip(this.cboLogLevel, "Selecting another item will change the log level immediately.");
-            this.cboLogLevel.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.cboLogLevel_DrawItem);
             this.cboLogLevel.SelectedIndexChanged += new System.EventHandler(this.cboLogLevel_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 16);
+            this.label1.Location = new System.Drawing.Point(6, 18);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(57, 13);
             this.label1.TabIndex = 1;
@@ -110,9 +109,10 @@
             this.groupBox1.Controls.Add(this.cboLogLevel);
             this.groupBox1.Controls.Add(this.llblPath);
             this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.pnlBorder);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(428, 312);
+            this.groupBox1.Size = new System.Drawing.Size(412, 274);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             // 
@@ -142,7 +142,7 @@
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
             this.dgv.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgv.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv.Size = new System.Drawing.Size(416, 221);
+            this.dgv.Size = new System.Drawing.Size(400, 183);
             this.dgv.TabIndex = 7;
             this.dgv.VirtualMode = true;
             this.dgv.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_CellDoubleClick);
@@ -157,7 +157,7 @@
             this.btnWarning.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnWarning.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnWarning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnWarning.Location = new System.Drawing.Point(399, 11);
+            this.btnWarning.Location = new System.Drawing.Point(383, 13);
             this.btnWarning.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
             this.btnWarning.MaximumSize = new System.Drawing.Size(176, 24);
             this.btnWarning.Name = "btnWarning";
@@ -190,9 +190,20 @@
             this.label3.TabIndex = 6;
             this.label3.Text = "Current Log:";
             // 
+            // pnlBorder
+            // 
+            this.pnlBorder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlBorder.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorder.Location = new System.Drawing.Point(79, 14);
+            this.pnlBorder.Margin = new System.Windows.Forms.Padding(0, 3, 6, 6);
+            this.pnlBorder.Name = "pnlBorder";
+            this.pnlBorder.Size = new System.Drawing.Size(299, 23);
+            this.pnlBorder.TabIndex = 8;
+            // 
             // LogPanel
             // 
-            this.ClientSize = new System.Drawing.Size(452, 336);
+            this.ClientSize = new System.Drawing.Size(436, 298);
             this.Controls.Add(this.groupBox1);
             this.Name = "LogPanel";
             this.Text = "LogPanel";
@@ -215,5 +226,6 @@
         private System.Windows.Forms.Button btnWarning;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.DataGridView dgv;
+        private System.Windows.Forms.Panel pnlBorder;
     }
 }

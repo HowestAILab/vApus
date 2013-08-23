@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,6 +16,9 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Contains UserActions that contain LogEntries.
+    /// </summary>
     [Serializable]
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "ExportLogAndUsedParameters_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit/Import", "Remove", "Export Data Structure", "Export log and Used Parameter Data Structures", "Copy", "Cut", "Duplicate" })]
@@ -24,18 +26,13 @@ namespace vApus.Stresstest {
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     public class Log : LabeledBaseItem, ISerializable {
 
-        #region Events
-
         /// <summary>
         ///     This event is used in a control, this makes sure that trying to serialize the control where this event is used will not happen.
         /// </summary>
         [field: NonSerialized] //This makes sure that trying to serialize the control where this event is used will not happen.
         internal event EventHandler<LexicalResultsChangedEventArgs> LexicalResultChanged;
 
-        #endregion
-
         #region Fields
-
         private static readonly object _lock = new object();
 
         private LexicalResult _lexicalResult;
@@ -44,16 +41,13 @@ namespace vApus.Stresstest {
         private Parameters _parameters;
         private int _preferredTokenDelimiterIndex;
 
-        //Capture settings
-        private string[] _allow = new string[] { };
-        private string[] _deny = new string[] { };
+        //Capture web traffic settings
+        private string[] _allow = new string[] { }, _deny = new string[] { };
         #endregion
 
         #region Properties
-
         [SavableCloneable, PropertyControl(1)]
-        [DisplayName("Log Rule Set"),
-         Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
+        [DisplayName("Log Rule Set"), Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
         public LogRuleSet LogRuleSet {
             get {
                 if (_logRuleSet.IsEmpty)
@@ -91,27 +85,23 @@ namespace vApus.Stresstest {
             get { return _lexicalResult; }
         }
 
+        //All the settings for capturing web traffic.
         [SavableCloneable]
         public bool UseAllow { get; set; }
         [SavableCloneable]
-        public string[] Allow {
-            get { return _allow; }
-            set { _allow = value; }
-        }
+        public string[] Allow { get { return _allow; } set { _allow = value; } }
         [SavableCloneable]
         public bool AllowIncludeReferer { get; set; }
         [SavableCloneable]
         public bool UseDeny { get; set; }
         [SavableCloneable]
-        public string[] Deny {
-            get { return _deny; }
-            set { _deny = value; }
-        }
-
+        public string[] Deny { get { return _deny; } set { _deny = value; } }
         #endregion
 
         #region Constructors
-
+        /// <summary>
+        /// Contains UserActions that contain LogEntries.
+        /// </summary>
         public Log() {
             if (Solution.ActiveSolution == null) {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
@@ -122,7 +112,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Only for sending from master to slave.
+        ///     Only for sending from master to slave. (Synchronization)
         /// </summary>
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
@@ -140,11 +130,9 @@ namespace vApus.Stresstest {
             //Not pretty, but helps against mem saturation.
             GC.Collect();
         }
-
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Only for sending from master to slave.
         /// </summary>
@@ -177,81 +165,6 @@ namespace vApus.Stresstest {
                 LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
-
-        /// <summary>
-        ///     This will apply the ruleset (lexing).
-        ///     The lexed log entry will be filled in for the log entries.
-        /// </summary>
-        public void ApplyLogRuleSet() {
-            _lexicalResult = LexicalResult.OK;
-            var logEntriesWithErrors = new List<LogEntry>();
-            foreach (LogEntry logEntry in GetAllLogEntries()) {
-                logEntry.ApplyLogRuleSet();
-                if (logEntry.LexicalResult == LexicalResult.Error) {
-                    _lexicalResult = LexicalResult.Error;
-                    logEntriesWithErrors.Add(logEntry);
-                }
-            }
-
-            if (LexicalResultChanged != null) LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrors));
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="beginTokenDelimiter"></param>
-        /// <param name="endTokenDelimiter"></param>
-        /// <param name="logEntryContainsTokens">True if one of the delimiters is in the log entry string.</param>
-        public void GetParameterTokenDelimiters(out string beginTokenDelimiter, out string endTokenDelimiter, out bool logEntryContainsTokens, bool autoNextOnLogEntryContainsTokens) {
-            beginTokenDelimiter = string.Empty;
-            endTokenDelimiter = string.Empty;
-            logEntryContainsTokens = false;
-
-            string b, e;
-            bool bln;
-            int tokenIndex = -1;
-
-            if (this.CountOf(typeof(UserAction)) == 0) {
-                tokenIndex = (new LogEntry()).GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
-                if (bln) logEntryContainsTokens = true;
-
-                beginTokenDelimiter = b;
-                endTokenDelimiter = e;
-
-                _preferredTokenDelimiterIndex = tokenIndex;
-            } else {
-                foreach (LogEntry logEntry in GetAllLogEntries()) {
-                    tokenIndex = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
-
-                    if (tokenIndex >= _preferredTokenDelimiterIndex) {
-                        beginTokenDelimiter = b;
-                        endTokenDelimiter = e;
-                        if (bln) logEntryContainsTokens = true;
-
-                        _preferredTokenDelimiterIndex = tokenIndex;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Get a list of string trees, these are used in the connection proxy code.
-        /// </summary>
-        /// <returns></returns>
-        public List<StringTree> GetParameterizedStructure() {
-            var parameterizedStructure = new List<StringTree>(Count);
-            var chosenNextValueParametersForLScope = new HashSet<BaseParameter>();
-
-            string b, e;
-            bool logEntryContainsTokens;
-            GetParameterTokenDelimiters(out b, out e, out logEntryContainsTokens, false);
-
-            foreach (UserAction userAction in this)
-                foreach (StringTree ps in userAction.GetParameterizedStructure(b, e, chosenNextValueParametersForLScope)) parameterizedStructure.Add(ps);
-
-            return parameterizedStructure;
-        }
-
         /// <summary>
         ///     Get the log entries even if they are in a user action.
         ///     Threadsafe.
@@ -267,57 +180,6 @@ namespace vApus.Stresstest {
                             yield return childItem;
                 }
             }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="oldAndNewIndices"></param>
-        /// <param name="oldAndNewBeginTokenDelimiter"></param>
-        /// <param name="oldAndNewEndTokenDelimiter"></param>
-        public void SynchronizeTokens(Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices, KeyValuePair<string, string> oldAndNewBeginTokenDelimiter,
-            KeyValuePair<string, string> oldAndNewEndTokenDelimiter) {
-            //Synchronize only if needed.
-            if (oldAndNewIndices.Count == 0)
-                return;
-
-            var oldAndNewTokens = new Dictionary<string, string>();
-
-            var scopeIdentifiers = new[] { ASTNode.LOG_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE, 
-                ASTNode.LOG_ENTRY_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.ALWAYS_PARAMETER_SCOPE };
-
-            foreach (string scopeIdentifier in scopeIdentifiers)
-                foreach (BaseParameter parameter in oldAndNewIndices.Keys) {
-                    KeyValuePair<int, int> kvp = oldAndNewIndices[parameter];
-                    string oldToken = oldAndNewBeginTokenDelimiter.Key + scopeIdentifier + kvp.Key + oldAndNewEndTokenDelimiter.Key;
-                    string newToken = oldAndNewBeginTokenDelimiter.Value + scopeIdentifier + kvp.Value + oldAndNewEndTokenDelimiter.Value;
-
-                    oldAndNewTokens.Add(oldToken, newToken);
-                }
-
-            foreach (LogEntry entry in GetAllLogEntries())
-                foreach (string oldToken in oldAndNewTokens.Keys)
-                    entry.LogEntryString = entry.LogEntryString.Replace(oldToken, oldAndNewTokens[oldToken]);
-
-            InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-
-        public Log Clone(bool cloneChildren = true) {
-            var log = new Log();
-            log.Parent = Parent;
-            log.Label = Label;
-            log.LogRuleSet = _logRuleSet;
-            log._lexicalResult = _lexicalResult;
-            log.PreferredTokenDelimiterIndex = _preferredTokenDelimiterIndex;
-            log._parameters = _parameters;
-
-            if (cloneChildren)
-                foreach (BaseItem item in this)
-                    if (item is UserAction)
-                        log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
-                    else
-                        log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
-
-            return log;
         }
 
         private void ExportLogAndUsedParameters_Click(object sender, EventArgs e) {
@@ -372,6 +234,129 @@ namespace vApus.Stresstest {
             }
         }
 
+        /// <summary>
+        ///     This will apply the ruleset (lexing).
+        ///     The lexed log entry will be filled in for the log entries.
+        /// </summary>
+        public void ApplyLogRuleSet() {
+            _lexicalResult = LexicalResult.OK;
+            var logEntriesWithErrors = new List<LogEntry>();
+            foreach (LogEntry logEntry in GetAllLogEntries()) {
+                logEntry.ApplyLogRuleSet();
+                if (logEntry.LexicalResult == LexicalResult.Error) {
+                    _lexicalResult = LexicalResult.Error;
+                    logEntriesWithErrors.Add(logEntry);
+                }
+            }
+
+            if (LexicalResultChanged != null) LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrors));
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="beginTokenDelimiter"></param>
+        /// <param name="endTokenDelimiter"></param>
+        /// <param name="logEntryContainsTokens">True if one of the delimiters is in the log entry string.</param>
+        public void GetParameterTokenDelimiters(out string beginTokenDelimiter, out string endTokenDelimiter, out bool logEntryContainsTokens, bool autoNextOnLogEntryContainsTokens) {
+            beginTokenDelimiter = string.Empty;
+            endTokenDelimiter = string.Empty;
+            logEntryContainsTokens = false;
+
+            string b, e;
+            bool bln;
+            int tokenIndex = -1;
+
+            if (this.CountOf(typeof(UserAction)) == 0) {
+                tokenIndex = (new LogEntry()).GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
+                if (bln) logEntryContainsTokens = true;
+
+                beginTokenDelimiter = b;
+                endTokenDelimiter = e;
+
+                _preferredTokenDelimiterIndex = tokenIndex;
+            } else {
+                foreach (LogEntry logEntry in GetAllLogEntries()) {
+                    tokenIndex = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
+
+                    if (tokenIndex >= _preferredTokenDelimiterIndex) {
+                        beginTokenDelimiter = b;
+                        endTokenDelimiter = e;
+                        if (bln) logEntryContainsTokens = true;
+
+                        _preferredTokenDelimiterIndex = tokenIndex;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        ///     Get a list of string trees, these are used in the connection proxy code.
+        /// </summary>
+        /// <returns></returns>
+        public List<StringTree> GetParameterizedStructure() {
+            var parameterizedStructure = new List<StringTree>(Count);
+            var chosenNextValueParametersForLScope = new HashSet<BaseParameter>();
+
+            string b, e;
+            bool logEntryContainsTokens;
+            GetParameterTokenDelimiters(out b, out e, out logEntryContainsTokens, false);
+
+            foreach (UserAction userAction in this)
+                foreach (StringTree ps in userAction.GetParameterizedStructure(b, e, chosenNextValueParametersForLScope)) parameterizedStructure.Add(ps);
+
+            return parameterizedStructure;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="oldAndNewIndices"></param>
+        /// <param name="oldAndNewBeginTokenDelimiter"></param>
+        /// <param name="oldAndNewEndTokenDelimiter"></param>
+        public void SynchronizeTokens(Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices, KeyValuePair<string, string> oldAndNewBeginTokenDelimiter,
+            KeyValuePair<string, string> oldAndNewEndTokenDelimiter) {
+            //Synchronize only if needed.
+            if (oldAndNewIndices.Count == 0)
+                return;
+
+            var oldAndNewTokens = new Dictionary<string, string>();
+
+            var scopeIdentifiers = new[] { ASTNode.LOG_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE, 
+                ASTNode.LOG_ENTRY_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.ALWAYS_PARAMETER_SCOPE };
+
+            foreach (string scopeIdentifier in scopeIdentifiers)
+                foreach (BaseParameter parameter in oldAndNewIndices.Keys) {
+                    KeyValuePair<int, int> kvp = oldAndNewIndices[parameter];
+                    string oldToken = oldAndNewBeginTokenDelimiter.Key + scopeIdentifier + kvp.Key + oldAndNewEndTokenDelimiter.Key;
+                    string newToken = oldAndNewBeginTokenDelimiter.Value + scopeIdentifier + kvp.Value + oldAndNewEndTokenDelimiter.Value;
+
+                    oldAndNewTokens.Add(oldToken, newToken);
+                }
+
+            foreach (LogEntry entry in GetAllLogEntries())
+                foreach (string oldToken in oldAndNewTokens.Keys)
+                    entry.LogEntryString = entry.LogEntryString.Replace(oldToken, oldAndNewTokens[oldToken]);
+
+            InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+
+        public Log Clone(bool cloneChildren = true) {
+            var log = new Log();
+            log.Parent = Parent;
+            log.Label = Label;
+            log.LogRuleSet = _logRuleSet;
+            log._lexicalResult = _lexicalResult;
+            log.PreferredTokenDelimiterIndex = _preferredTokenDelimiterIndex;
+            log._parameters = _parameters;
+
+            if (cloneChildren)
+                foreach (BaseItem item in this)
+                    if (item is UserAction)
+                        log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
+                    else
+                        log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
+
+            return log;
+        }
+
+        public override void Activate() { SolutionComponentViewManager.Show(this); }
         #endregion
 
         public class LexicalResultsChangedEventArgs : EventArgs {

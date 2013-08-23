@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using SpreadsheetLight;
 using SpreadsheetLight.Charts;
 using System;
@@ -18,14 +17,27 @@ using vApus.Results;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Uses ResultsHelper to gather all results.
+    /// </summary>
     public partial class ExportToExcelDialog : Form {
-        private ResultsHelper _resultsHelper;
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
+        #region Fields
+        private ResultsHelper _resultsHelper;
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //To Cancel refreshing the report.
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Uses ResultsHelper to gather all results.
+        /// </summary>
         public ExportToExcelDialog() {
             InitializeComponent();
             saveFileDialog.FileName = "results" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
         }
+        #endregion
+
+        #region Funtions
         public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;
 
@@ -143,6 +155,7 @@ namespace vApus.Stresstest {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = true;
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -283,7 +296,6 @@ namespace vApus.Stresstest {
 
             return worksheet;
         }
-
         /// <summary>
         /// Format the user action comosition differently so it is more readable for customers.
         /// </summary>
@@ -315,7 +327,6 @@ namespace vApus.Stresstest {
             int rangeWidth, rangeOffset, rangeHeight;
             return MakeWorksheet(doc, userActionComposition, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight, true);
         }
-
         private string MakeMonitorSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
             dt.Columns.RemoveAt(1);
 
@@ -409,6 +420,7 @@ namespace vApus.Stresstest {
             }
             return rowRangesPerStresstest;
         }
+
         private void pic_Click(object sender, EventArgs e) {
             var dialog = new ChartDialog((sender as PictureBox).Image);
             dialog.ShowDialog();
@@ -417,5 +429,6 @@ namespace vApus.Stresstest {
         private void SaveChartsDialog_FormClosing(object sender, FormClosingEventArgs e) {
             _cancellationTokenSource.Cancel();
         }
+        #endregion
     }
 }

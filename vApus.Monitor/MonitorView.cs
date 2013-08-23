@@ -31,7 +31,6 @@ namespace vApus.Monitor {
         public event EventHandler<ErrorEventArgs> OnHandledException, OnUnhandledException;
 
         #region Fields
-        private readonly ActiveObject _activeObject = new ActiveObject();
         private readonly Monitor _monitor;
         private IMonitorProxy _monitorProxy;
 
@@ -180,6 +179,21 @@ namespace vApus.Monitor {
             btnGetCounters.Text = "Getting Counters...";
 
             await Task.Run(() => __WDYH());
+
+            string errorMessage = null;
+            if (split.Panel2.Enabled && lvwEntities.Items.Count != 0 && tvwCounters.Nodes.Count != 0) {
+                errorMessage = Text + ": No counters were chosen.";
+                if (_monitor.Wiw.Count != 0)
+                    foreach (Entity entity in _monitor.Wiw.Keys) {
+                        if (_monitor.Wiw[entity].Count != 0)
+                            errorMessage = null;
+                        break;
+                    }
+            } else {
+                errorMessage = Text + ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
+            }
+            if (MonitorInitialized != null)
+                MonitorInitialized(this, new MonitorInitializedEventArgs(errorMessage));
         }
 
         private void __WDYH() {
@@ -1096,31 +1110,7 @@ namespace vApus.Monitor {
 
             tc.SelectedIndex = 0;
 
-            _activeObject.OnResult += _activeObject_OnResult;
-
             ConnectAndGetCounters();
-        }
-
-        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
-            _activeObject.OnResult -= _activeObject_OnResult;
-
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                string errorMessage = null;
-                if (split.Panel2.Enabled && lvwEntities.Items.Count != 0 && tvwCounters.Nodes.Count != 0) {
-                    errorMessage = Text + ": No counters were chosen.";
-                    if (_monitor.Wiw.Count != 0)
-                        foreach (Entity entity in _monitor.Wiw.Keys) {
-                            if (_monitor.Wiw[entity].Count != 0)
-                                errorMessage = null;
-                            break;
-                        }
-                } else {
-                    errorMessage = Text +
-                                   ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
-                }
-                if (MonitorInitialized != null)
-                    MonitorInitialized(this, new MonitorInitializedEventArgs(errorMessage));
-            }, null);
         }
 
         public void Start() {
