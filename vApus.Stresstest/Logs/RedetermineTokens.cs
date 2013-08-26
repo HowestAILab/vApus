@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,16 +13,17 @@ using vApus.SolutionTree;
 
 namespace vApus.Stresstest {
     public partial class RedetermineTokens : Form {
+        #region Fields
         private readonly Log _originalLog, _toAdd;
         private bool _logEntryContainsTokens;
         private int _preferredTokenDelimiterIndexBak;
+        #endregion
 
+        #region Constructors
         /// <summary>
         ///     Design time constructor.
         /// </summary>
-        public RedetermineTokens() {
-            InitializeComponent();
-        }
+        public RedetermineTokens() { InitializeComponent(); }
 
         public RedetermineTokens(Log log)
             : this(log, log) {
@@ -31,6 +31,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
+        /// Compare the delimiters from the log entries to add with the log that is already there and redetermine accordingly.
         /// </summary>
         /// <param name="originalLog"></param>
         /// <param name="toAdd"></param>
@@ -52,7 +53,9 @@ namespace vApus.Stresstest {
             lblCurrentBegin.Text = lblNewBegin.Text = begin;
             lblCurrentEnd.Text = lblNewEnd.Text = end;
         }
+        #endregion
 
+        #region Functions
         private void btnPrevious_Click(object sender, EventArgs e) {
             int preferredTokenDelimiterIndex = _toAdd.PreferredTokenDelimiterIndex;
 
@@ -60,11 +63,9 @@ namespace vApus.Stresstest {
             while (_toAdd.PreferredTokenDelimiterIndex == preferredTokenDelimiterIndex)
                 DetermineDelimiters(--i);
         }
-
         private void btnNext_Click(object sender, EventArgs e) {
             DetermineDelimiters(1);
         }
-
         private void DetermineDelimiters(int step) {
             _toAdd.PreferredTokenDelimiterIndex += step;
 
@@ -124,5 +125,6 @@ namespace vApus.Stresstest {
             if (DialogResult == DialogResult.Cancel)
                 _toAdd.PreferredTokenDelimiterIndex = _preferredTokenDelimiterIndexBak;
         }
+        #endregion
     }
 }

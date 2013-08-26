@@ -26,7 +26,7 @@
             this.components = new System.ComponentModel.Container();
             this.chkUnique = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.compileCustomRandom = new vApus.Stresstest.TestCustomRandom();
+            this.compileCustomRandom = new vApus.Stresstest.TestCustomRandomPanel();
             this.ctxtGenerate = new vApus.Stresstest.CodeTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ctxtGenerate)).BeginInit();
             this.SuspendLayout();
@@ -60,7 +60,7 @@
             this.compileCustomRandom.Padding = new System.Windows.Forms.Padding(9);
             this.compileCustomRandom.Size = new System.Drawing.Size(915, 173);
             this.compileCustomRandom.TabIndex = 3;
-            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
+            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandomPanel.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
             // 
             // ctxtGenerate
             // 
@@ -101,7 +101,7 @@
         #endregion
 
         private CodeTextBox ctxtGenerate;
-        private TestCustomRandom compileCustomRandom;
+        private TestCustomRandomPanel compileCustomRandom;
         private System.Windows.Forms.CheckBox chkUnique;
         private System.Windows.Forms.ToolTip toolTip;
     }

@@ -295,7 +295,7 @@ namespace vApus.Stresstest {
         /// Clear before testing.
         /// </summary>
         public void ClearResults() {
-            _cancellationTokenSource.Cancel();
+            if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[0];

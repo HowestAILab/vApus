@@ -22,6 +22,8 @@ namespace vApus.Stresstest {
 
         #endregion
 
+        public delegate void WorkItemCallback(int threadIndex);
+
         #region Fields
 
         /// <summary>To be able to run to the same code with different threads while this code is unique for every thread so the callback can be threadsafe invoked without locking.</summary>

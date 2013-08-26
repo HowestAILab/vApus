@@ -1,6 +1,6 @@
 ﻿namespace vApus.Stresstest
 {
-    partial class CustomListGenerator
+    partial class CustomListGeneratorDialog
     {
         /// <summary>
         /// Required designer variable.

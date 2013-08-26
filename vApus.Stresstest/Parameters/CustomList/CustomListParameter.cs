@@ -5,29 +5,26 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using vApus.SolutionTree;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Holds a list of strings, those can be generated from other parameter types.
+    /// </summary>
     [DisplayName("Custom List Parameter"), Serializable]
     public class CustomListParameter : BaseParameter {
-        #region Fields
 
+        #region Fields
         private string[] _customList = new string[] { };
         private bool _random;
-
         #endregion
 
         #region Properties
-
         [PropertyControl(1), SavableCloneable]
-        [DisplayName("Custom List"),
-         Description(
-             "If unique, one (randomly picked) value can be given only once until none are left, then values will be reused."
-             )]
+        [Description("If unique, one (randomly picked) value can be given only once until none are left, then values will be reused."), DisplayName("Custom List")]
         public string[] CustomList {
             get { return _customList; }
             set { _customList = value; }
@@ -39,24 +36,6 @@ namespace vApus.Stresstest {
             get { return _random; }
             set { _random = value; }
         }
-
-        #endregion
-
-        public CustomListParameter() {
-            BaseParameter p = new NumericParameter();
-            p.ShowInGui = false;
-            AddAsDefaultItem(p);
-
-            p = new TextParameter();
-            p.ShowInGui = false;
-            AddAsDefaultItem(p);
-
-            p = new CustomRandomParameter();
-            p.ShowInGui = false;
-            AddAsDefaultItem(p);
-        }
-
-        #region Functions
 
         public BaseParameter GenerateFromParameter {
             get {
@@ -81,7 +60,28 @@ namespace vApus.Stresstest {
                 }
             }
         }
+        #endregion
 
+        #region Constructors
+        /// <summary>
+        /// Holds a list of strings, those can be generated from other parameter types.
+        /// </summary>
+        public CustomListParameter() {
+            BaseParameter p = new NumericParameter();
+            p.ShowInGui = false;
+            AddAsDefaultItem(p);
+
+            p = new TextParameter();
+            p.ShowInGui = false;
+            AddAsDefaultItem(p);
+
+            p = new CustomRandomParameter();
+            p.ShowInGui = false;
+            AddAsDefaultItem(p);
+        }
+        #endregion
+
+        #region Functions
         public void Add(int count, BaseParameter baseParameterType) {
             var l = new List<string>(count + _customList.Length);
             l.AddRange(_customList);
@@ -108,15 +108,14 @@ namespace vApus.Stresstest {
                     _chosenValues.Clear();
             }
 
-            _value = _customList[index];
+            Value = _customList[index];
         }
 
         public override void ResetValue() {
             if (_customList.Length > 0)
-                _value = _customList[0];
+                Value = _customList[0];
             _chosenValues.Clear();
         }
-
         #endregion
     }
 }

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -13,26 +12,26 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Generates numeric values with a pre- or suffix if you like.
+    /// </summary>
     [DisplayName("Numeric Parameter"), Serializable]
     public class NumericParameter : BaseParameter {
-        #region Fields
 
+        #region Fields
         private int _decimalPlaces;
         private string _decimalSeparator = ",";
         private double _doubleValue;
         private Fixed _fixed;
-        private int _maxValue = int.MaxValue;
-        private int _minValue = int.MinValue;
+        private int _maxValue = int.MaxValue, _minValue = int.MinValue;
 
         private string _prefix = string.Empty;
         private bool _random;
         private double _step = 1;
         private string _suffix = string.Empty;
-
         #endregion
 
         #region Properties
-
         [PropertyControl(0), SavableCloneable]
         [DisplayName("Minimum Value"), Description("An inclusive minimum value.")]
         public int MinValue {
@@ -44,7 +43,7 @@ namespace vApus.Stresstest {
                 _minValue = value;
                 if (_doubleValue < _minValue) {
                     _doubleValue = _minValue;
-                    _value = _minValue.ToString();
+                    Value = _minValue.ToString();
                 }
             }
         }
@@ -60,7 +59,7 @@ namespace vApus.Stresstest {
                 _maxValue = value;
                 if (_doubleValue >= _maxValue) {
                     _doubleValue = _maxValue;
-                    _value = _maxValue.ToString();
+                    Value = _maxValue.ToString();
                 }
             }
         }
@@ -124,38 +123,39 @@ namespace vApus.Stresstest {
 
         [PropertyControl(102), SavableCloneable]
         [DisplayName("Fixed"),
-         Description(
-             "If a pre- or suffix is not fixed their length will be adepted to the output value (try generate custom list)."
-             )]
+         Description("If a pre- or suffix is not fixed their length will be adepted to the output value (try generate custom list).")]
         public Fixed _Fixed {
             get { return _fixed; }
             set { _fixed = value; }
         }
-
         #endregion
 
         #region Constructors
-
+        /// <summary>
+        /// Generates numeric values with a pre- or suffix if you like.
+        /// </summary>
         public NumericParameter() {
-            _value = _minValue.ToString();
+            Value = _minValue.ToString();
             _doubleValue = _minValue;
 
             _decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
-
+        /// <summary>
+        /// Generates numeric values with a pre- or suffix if you like.
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <param name="maxValue"></param>
         public NumericParameter(int minValue, int maxValue)
             : this() {
             _minValue = minValue;
             _maxValue = maxValue;
-            _value = minValue.ToString();
+            Value = minValue.ToString();
             _doubleValue = _minValue;
         }
-
         #endregion
 
         #region Functions
-
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (Parent != null && Parent is CustomListParameter)
                 ShowInGui = false;
@@ -163,7 +163,7 @@ namespace vApus.Stresstest {
 
         public override void Next() {
             SetValue();
-            while (!_chosenValues.Add(_value))
+            while (!_chosenValues.Add(Value))
                 SetValue();
         }
 
@@ -184,11 +184,11 @@ namespace vApus.Stresstest {
             if (_decimalPlaces < 15) //Can only round to max 15 digits
                 _doubleValue = Math.Round(_doubleValue, _decimalPlaces);
 
-            _value = GetFixedValue();
+            Value = GetFixedValue();
         }
 
         public override void ResetValue() {
-            _value = _minValue.ToString();
+            Value = _minValue.ToString();
             _doubleValue = _minValue;
             _chosenValues.Clear();
         }
@@ -212,7 +212,6 @@ namespace vApus.Stresstest {
             }
             return pre + value + suf;
         }
-
         #endregion
     }
 }

@@ -4,6 +4,8 @@
  * 
  * Author(s):
  *    Dieter Vandroemme
+ *    
+ * Used for regular and distributed testing.
  */
 using System;
 using System.ComponentModel;

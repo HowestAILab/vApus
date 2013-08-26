@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -16,6 +15,9 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Holds instances of LogRuleSet.
+    /// </summary>
     [ContextMenu(new[] { "Import_Click", "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
         new[] { "Import Log Rule Set(s)", "Add Log Rule Set", "Sort", "Clear", "Paste" })]
     [Hotkeys(new[] { "Paste_Click" }, new[] { (Keys.Control | Keys.V) })]
@@ -66,7 +68,6 @@ namespace vApus.Stresstest {
                 }
             }
         }
-
         private void Add_Click(object sender, EventArgs e) {
             Add(new LogRuleSet());
         }

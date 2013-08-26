@@ -140,7 +140,7 @@ namespace vApus.DistributedTesting {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 Cursor = Cursors.WaitCursor;
                 btnStop.Enabled = true;
-                try { LocalMonitor.StartMonitoring(_progressUpdateDelay * 1000); } catch { fastResultsControl.AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
+                try { LocalMonitor.StartMonitoring(_progressUpdateDelay * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
                 tmrProgress.Interval = _progressUpdateDelay * 1000;
 
                 fastResultsControl.SetStresstestInitialized();
@@ -320,8 +320,8 @@ namespace vApus.DistributedTesting {
         ///     Refreshes the results for a selected node and refreshes the listed results.
         /// </summary>
         private void _stresstestCore_Message(object sender, MessageEventArgs e) {
-            if (e.Color == Color.Empty) fastResultsControl.AppendMessages(e.Message, e.LogLevel);
-            else fastResultsControl.AppendMessages(e.Message, e.Color, e.LogLevel);
+            if (e.Color == Color.Empty) fastResultsControl.AddEvent(e.Message, e.LogLevel);
+            else fastResultsControl.AddEvent(e.Message, e.Color, e.LogLevel);
         }
 
         #endregion

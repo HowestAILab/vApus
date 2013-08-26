@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -18,8 +17,6 @@ namespace vApus.Stresstest {
     [DisplayName("Custom List Parameters")]
     [Serializable]
     public class CustomListParameters : BaseItem {
-        private void Add_Click(object sender, EventArgs e) {
-            Add(new CustomListParameter());
-        }
+        private void Add_Click(object sender, EventArgs e) { Add(new CustomListParameter()); }
     }
 }

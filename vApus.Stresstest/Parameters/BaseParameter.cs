@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +14,9 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Values in log entries can be parameterized when stresstesting by the means of adding parameter tokens. This class is the base for all parameters.
+    /// </summary>
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit", "Remove", "Export", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
@@ -29,22 +31,16 @@ namespace vApus.Stresstest {
         }
 
         #region Fields
-
         internal HashSet<object> _chosenValues = new HashSet<object>();
         internal string _description = string.Empty;
 
         protected object _lock = new object();
         internal Random _r = new Random();
         private int _tokenNumericIdentifier = -1;
-        internal string _value;
-
         #endregion
 
         #region Properties
-
-        public string Value {
-            get { return _value; }
-        }
+        public string Value { get; internal set; }
 
         /// <summary>
         ///     To synchronize the numeric portion of the parameter token in the log entries when a parameter is added or removed.
@@ -63,9 +59,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(int.MaxValue), DisplayName("Read Me")]
-        public string ReadMe {
-            get { return "All parameter values are determined before the stresstest starts."; }
-        }
+        public string ReadMe { get { return "All parameter values are determined before the stresstest starts."; } }
 
         private void DetermineTokenNumericIdentifier() {
             _tokenNumericIdentifier = 0;
@@ -83,11 +77,9 @@ namespace vApus.Stresstest {
                 }
             }
         }
-
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Calculates a new value.
         ///     When not random a unique value will always be calculated.
@@ -97,10 +89,7 @@ namespace vApus.Stresstest {
 
         public abstract void ResetValue();
 
-        public override void Activate() {
-            SolutionComponentViewManager.Show(this, typeof(ParameterView));
-        }
-
+        public override void Activate() {  SolutionComponentViewManager.Show(this, typeof(ParameterView));   }
         #endregion
     }
 }

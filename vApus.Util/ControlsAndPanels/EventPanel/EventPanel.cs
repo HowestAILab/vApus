@@ -255,7 +255,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Show event message at the right date time, use this if you have an external event progress bar.
+        ///     Show / scroll to event message at the right date time, use this if you have an external event progress bar.
         /// </summary>
         /// <param name="at"></param>
         public void ShowEvent(DateTime at) {

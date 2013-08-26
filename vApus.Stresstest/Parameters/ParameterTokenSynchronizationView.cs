@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,26 +13,27 @@ using vApus.SolutionTree;
 
 namespace vApus.Stresstest {
     /// <summary>
+    ///     Visualizes the old and new indices of parameters if a parameter is added or removed.
     ///     Don't forget to call VisualizeSynchronization.
     /// </summary>
-    public partial class ParameterTokenSynchronization : BaseSolutionComponentView {
+    public partial class ParameterTokenSynchronizationView : BaseSolutionComponentView {
+
+        #region Constructors
         /// <summary>
         ///     Design time constructor
         /// </summary>
-        public ParameterTokenSynchronization() {
-            InitializeComponent();
-        }
-
+        public ParameterTokenSynchronizationView() { InitializeComponent(); }
         /// <summary>
+        ///     Visualizes the old and new indices of parameters if a parameter is added or removed.
         ///     Don't forget to call VisualizeSynchronization.
         /// </summary>
         /// <param name="solutionComponent"></param>
         /// <param name="args"></param>
-        public ParameterTokenSynchronization(SolutionComponent solutionComponent)
-            : base(solutionComponent) {
-            InitializeComponent();
-        }
+        public ParameterTokenSynchronizationView(SolutionComponent solutionComponent)
+            : base(solutionComponent) { InitializeComponent(); }
+        #endregion
 
+        #region Functions
         /// <summary>
         ///     Visualize the synchronization
         /// </summary>
@@ -68,6 +68,11 @@ namespace vApus.Stresstest {
             lvw.Items.AddRange(l.ToArray());
         }
 
+        /// <summary>
+        /// Each type of parameter has another distinctive color.
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         private Color GetBackColor(BaseParameter parameter) {
             if (parameter is CustomListParameter)
                 return Color.LightPink;
@@ -80,8 +85,7 @@ namespace vApus.Stresstest {
             return Color.Transparent;
         }
 
-        private void ParameterTokenSynchronization_Resize(object sender, EventArgs e) {
-            clmParameter.Width = lvw.ClientSize.Width - clmOld.Width - clmNew.Width - 18;
-        }
+        private void ParameterTokenSynchronization_Resize(object sender, EventArgs e) { clmParameter.Width = lvw.ClientSize.Width - clmOld.Width - clmNew.Width - 18; }
+        #endregion
     }
 }

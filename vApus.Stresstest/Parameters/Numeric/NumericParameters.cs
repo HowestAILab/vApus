@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -18,8 +17,6 @@ namespace vApus.Stresstest {
     [DisplayName("Numeric Parameters")]
     [Serializable]
     public class NumericParameters : BaseItem {
-        private void Add_Click(object sender, EventArgs e) {
-            Add(new NumericParameter());
-        }
+        private void Add_Click(object sender, EventArgs e) { Add(new NumericParameter()); }
     }
 }

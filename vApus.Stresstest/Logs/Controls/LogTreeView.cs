@@ -10,28 +10,29 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.SolutionTree;
-using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Lists a LogTreeViewItem and zero or more UserActionTreeViewItems.
+    /// Call SetLog first.
+    /// </summary>
     public partial class LogTreeView : UserControl {
-
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         /// <summary>
         ///     The selected item is the sender
         /// </summary>
         public event EventHandler AfterSelect;
 
+        #region Fields
         private Log _log;
         private LogTreeViewItem _logTreeViewItem;
 
-        private UserActionTreeViewItem _focussedUserActionTreeViewItem = null;
-
+        //Keep this focussed if possible, otherwise the LogTreeViewItem will be focussed.
+        private UserActionTreeViewItem _focussedUserActionTreeViewItem;
+        #endregion
 
         #region Properties
         /// <summary>
-        ///     get all tree view items.
+        ///     Yield returns all tree view items: a LogTreeViewItem and zero or more UserActionTreeViewItems.
         /// </summary>
         public IEnumerable<Control> Items {
             get {
@@ -39,14 +40,20 @@ namespace vApus.Stresstest {
                     yield return control;
             }
         }
-
         #endregion
 
-        public LogTreeView() {
-            InitializeComponent();
-        }
+        #region Constructor
+        /// <summary>
+        /// Lists a LogTreeViewItem and zero or more UserActionTreeViewItems.
+        /// Call SetLog first.
+        /// </summary>
+        public LogTreeView() { InitializeComponent(); }
+        #endregion
 
         #region Functions
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+
         public void SetLog(Log log, UserAction focus = null) {
             if (IsDisposed) return;
             LockWindowUpdate(Handle.ToInt32());
@@ -112,14 +119,18 @@ namespace vApus.Stresstest {
             LockWindowUpdate(0);
         }
 
-        private void _logTreeViewItem_AddPasteUserActionClicked(object sender, LogTreeView.AddUserActionEventArgs e) {
-            CreateAndAddUserActionTreeViewItem(e.UserAction);
-        }
+        private void _logTreeViewItem_AddPasteUserActionClicked(object sender, LogTreeView.AddUserActionEventArgs e) { CreateAndAddUserActionTreeViewItem(e.UserAction); }
         private void _logTreeViewItem_ClearUserActionsClicked(object sender, EventArgs e) {
             largeList.Clear();
             largeList.Add(_logTreeViewItem);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userAction"></param>
+        /// <param name="atIndex">Insert the item at a certain index, if == -1 it will be added tot the end of the collection.</param>
+        /// <returns></returns>
         private UserActionTreeViewItem CreateAndAddUserActionTreeViewItem(UserAction userAction, int atIndex = -1) {
             var uatvi = CreateUserActionTreeViewItem(userAction);
             if (atIndex == -1 || atIndex >= largeList.ControlCount)
@@ -135,7 +146,6 @@ namespace vApus.Stresstest {
             uatvi.DeleteClicked += uatvi_DeleteClicked;
             return uatvi;
         }
-
         private void uatvi_DuplicateClicked(object sender, LogTreeView.AddUserActionEventArgs e) {
             CreateAndAddUserActionTreeViewItem(e.UserAction, e.UserAction.Index);
         }
@@ -143,6 +153,24 @@ namespace vApus.Stresstest {
             largeList.Remove(sender as Control);
             largeList.Select(_logTreeViewItem);
             _logTreeViewItem.Focus();
+        }
+
+        /// <summary>
+        /// Use this in for instance find and replace functionality.
+        /// </summary>
+        /// <param name="userActionIndex">Zero-based index in the log.</param>
+        public void SelectUserActionTreeViewItem(int userActionIndex) {
+            //+ 1 because there is a LogTreeViewItem.
+            ++userActionIndex;
+
+            int i = 0;
+            foreach (Control control in largeList.AllControls)
+                if (i++ == userActionIndex) {
+                    var uatvi = control as UserActionTreeViewItem;
+                    uatvi.Select();
+                    uatvi.Focus();
+                    break;
+                }
         }
 
         private void _AfterSelect(object sender, EventArgs e) {
@@ -161,7 +189,8 @@ namespace vApus.Stresstest {
             if (AfterSelect != null)
                 AfterSelect(sender, e);
         }
-        public void SetGui() {
+
+        internal void SetGui() {
             if (_focussedUserActionTreeViewItem != null) _focussedUserActionTreeViewItem.Focus();
 
             for (int v = 0; v != largeList.ViewCount; v++)
@@ -169,19 +198,6 @@ namespace vApus.Stresstest {
                     var ctrl = largeList[v][i];
                     if (ctrl != _logTreeViewItem)
                         (ctrl as UserActionTreeViewItem).SetVisibleControls();
-                }
-        }
-
-        public void SelectFound(int userAction) {
-            int index = userAction + 1;
-
-            int i = 0;
-            foreach (Control control in largeList.AllControls)
-                if (i++ == index) {
-                    var uatvi = control as UserActionTreeViewItem;
-                        uatvi.Select();
-                        uatvi.Focus();
-                    break;
                 }
         }
         #endregion

@@ -5,28 +5,25 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
+    /// </summary>
     [DisplayName("Text Parameter"), Serializable]
     public class TextParameter : BaseParameter {
+
         #region Fields
-
         private Fixed _fixed;
-        private int _maxLength = 100;
-        private int _minLength;
-        private string _pattern = string.Empty;
-
-        private string _prefix = string.Empty, _suffix = string.Empty;
-
+        private int _maxLength = 100, _minLength;
+        private string _pattern = string.Empty, _prefix = string.Empty, _suffix = string.Empty;
         #endregion
 
         #region Properties
-
         [PropertyControl(0), SavableCloneable]
         [DisplayName("Minimum Length"), Description("Only applicable if no pattern is given.")]
         public int MinLength {
@@ -55,9 +52,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(2), SavableCloneable]
-        [Description(
-            "0 = numeric char, obligatory; 9 = optional; A = capital, obligatory; a = non-capital; B = capital, optional; b = non-capital; # = random char, obligatory; ? = optional."
-            )]
+        [Description("0 = numeric char, obligatory; 9 = optional; A = capital, obligatory; a = non-capital; B = capital, optional; b = non-capital; # = random char, obligatory; ? = optional.")]
         public string Pattern {
             get { return _pattern; }
             set { _pattern = value; }
@@ -79,9 +74,7 @@ namespace vApus.Stresstest {
 
         [PropertyControl(102), SavableCloneable]
         [DisplayName("Fixed"),
-         Description(
-             "If a pre- or suffix is not fixed their length will be adepted to the output value (try generate custom list)."
-             )]
+         Description("If a pre- or suffix is not fixed their length will be adepted to the output value (try generate custom list).")]
         public Fixed _Fixed {
             get { return _fixed; }
             set { _fixed = value; }
@@ -90,20 +83,21 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructor
-
-        public TextParameter() {
-            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
-        }
-
+      /// <summary>
+        /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
+        /// </summary>
+        public TextParameter() {       Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;    }
+     /// <summary>
+        /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
+        /// </summary>
+     /// <param name="pattern"></param>
         public TextParameter(string pattern)
             : this() {
             _pattern = pattern;
         }
-
         #endregion
 
         #region Functions
-
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (Parent != null && Parent is CustomListParameter)
                 ShowInGui = false;
@@ -111,7 +105,7 @@ namespace vApus.Stresstest {
 
         public override void Next() {
             SetValue();
-            while (!_chosenValues.Add(_value))
+            while (!_chosenValues.Add(Value))
                 SetValue();
         }
 
@@ -119,14 +113,14 @@ namespace vApus.Stresstest {
             if (_chosenValues.Count == int.MaxValue)
                 _chosenValues.Clear();
 
-            _value = (_pattern.Length > 0)
+            Value = (_pattern.Length > 0)
                          ? StringUtil.GenerateRandomPattern(_pattern)
                          : StringUtil.GenerateRandomName(_minLength, _maxLength);
-            _value = GetFixedValue();
+            Value = GetFixedValue();
         }
 
         public override void ResetValue() {
-            _value = string.Empty;
+            Value = string.Empty;
             _chosenValues.Clear();
         }
 
@@ -146,7 +140,6 @@ namespace vApus.Stresstest {
             }
             return pre + value + suf;
         }
-
         #endregion
     }
 }

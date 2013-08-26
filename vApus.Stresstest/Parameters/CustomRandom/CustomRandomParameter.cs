@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.CodeDom.Compiler;
 using System.ComponentModel;
@@ -14,8 +13,13 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// You can use your own piece of code as a parameter, an example is included as the default value.
+    /// </summary>
     [DisplayName("Custom Random Parameter"), Serializable]
     public class CustomRandomParameter : BaseParameter {
+
+        #region Fields
         private ICustomRandomParameter _customRandomParameter;
         private string _code = @"// dllreferences:System.dll;vApus.Stresstest.dll
 using System;
@@ -31,10 +35,10 @@ private DateTime GetRandomDateTime(string start, string stop) {
 return GetRandomDateTime(DateTime.Parse(start), DateTime.Parse(stop));
 }
 private DateTime GetRandomDateTime(DateTime start, DateTime stop) {
-// Uncomment the following line to test if the returning of unique values works. This line is not needed in a test.
+// Uncomment the following line to test if the returning of unique values works. This line is not needed in a test with delays.
 // System.Threading.Thread.Sleep(1);
 
-// A random can only handle 32-bit integers and we need a 64-bit integer, therefore this workaround.
+// A Random can only handle 32-bit integers and we need a 64-bit integer, therefore this workaround.
 var rand = new Random();
 byte[] buffer = new byte[8];
 
@@ -47,8 +51,9 @@ return start.AddTicks(randomTicks);
 }
 }
 }";
-        private bool _unique;
+        #endregion
 
+        #region Properties
         [SavableCloneable]
         public string Code {
             get { return _code; }
@@ -56,11 +61,10 @@ return start.AddTicks(randomTicks);
         }
 
         [SavableCloneable]
-        public bool Unique {
-            get { return _unique; }
-            set { _unique = value; }
-        }
+        public bool Unique { get; set; }
+        #endregion
 
+        #region Functions
         public override void Next() {
             lock (_lock)
             //For thread safety, only here, because only for this type of parameter this function can be used while testing.
@@ -69,22 +73,22 @@ return start.AddTicks(randomTicks);
                     if (_customRandomParameter == null)
                         CreateInstance();
 
-                    _value = _customRandomParameter.Generate();
+                    Value = _customRandomParameter.Generate();
                 } catch {
                     throw new Exception("[" + this + "] The custom code does not compile!\nPlease check it for errors.");
                 }
 
-                if (_unique) {
+                if (Unique) {
                     if (_chosenValues.Count == int.MaxValue)
                         _chosenValues.Clear();
 
                     int loops = 0; //Preferably max 1, detecting infinite loops here.
                     int maxLoops = 10;
-                    while (!_chosenValues.Add(_value)) {
+                    while (!_chosenValues.Add(Value)) {
                         if (_chosenValues.Count == int.MaxValue)
                             _chosenValues.Clear();
 
-                        _value = _customRandomParameter.Generate();
+                        Value = _customRandomParameter.Generate();
 
                         if (++loops == maxLoops)
                             throw new Exception("[" + this + "] Your code cannot provide unique values!");
@@ -92,7 +96,6 @@ return start.AddTicks(randomTicks);
                 }
             }
         }
-
         internal CompilerResults CreateInstance() {
             var cu = new CompilerUnit();
             CompilerResults results;
@@ -110,12 +113,9 @@ return start.AddTicks(randomTicks);
             _chosenValues.Clear();
         }
 
-        public override void Activate() {
-            SolutionComponentViewManager.Show(this);
-        }
+        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        #endregion
     }
 
-    public interface ICustomRandomParameter {
-        string Generate();
-    }
+    public interface ICustomRandomParameter { string Generate();  }
 }

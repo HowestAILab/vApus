@@ -1,6 +1,6 @@
 ﻿namespace vApus.Stresstest
 {
-    partial class ParameterTokenSynchronization
+    partial class ParameterTokenSynchronizationView
     {
         /// <summary>
         /// Required designer variable.

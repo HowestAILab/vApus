@@ -17,10 +17,10 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
-    public partial class EditUserAction : UserControl {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
+    /// <summary>
+    /// Says what it does, do not forget to call SetLog or SetLogAndUserAction.
+    /// </summary>
+    public partial class EditUserActionPanel : UserControl {
         public event EventHandler UserActionMoved, SplitClicked, MergeClicked, LinkedChanged;
 
         #region Fields
@@ -30,8 +30,8 @@ namespace vApus.Stresstest {
         private const string VBLRr = "<16 0C 02 12r>";
 
         private Log _log;
-        private UserActionTreeViewItem _userActionTreeViewItem;
 
+        //This list should be long enough to color user actions grouped together in a 'link'.
         private static int[] _linkColors = { 0x00FF00, 0x0000FF, 0xFF0000, 0x01FFFE, 0xFFA6FE, 0xFFDB66, 0x006401, 0x010067, 0x95003A, 0x007DB5, 0xFF00F6, 0xFFEEE8, 0x774D00, 0x90FB92, 0x0076FF, 0xD5FF00, 
                                              0xFF937E, 0x6A826C, 0xFF029D, 0xFE8900, 0x7A4782, 0x7E2DD2, 0x85A900, 0xFF0056, 0xA42400, 0x00AE7E, 0x683D3B, 0xBDC6FF, 0x263400, 0xBDD393, 0x00B917, 0x9E008E,
                                              0x001544, 0xC28C9F, 0xFF74A3, 0x01D0FF, 0x004754, 0xE56FFE, 0x788231, 0x0E4CA1, 0x91D0CB, 0xBE9970, 0x968AE8, 0xBB8800, 0x43002C, 0xDEFF74, 0x00FFC6, 0xFFE502,
@@ -57,11 +57,15 @@ namespace vApus.Stresstest {
         private System.Timers.Timer _labelChanged = new System.Timers.Timer(500);
         #endregion
 
-        public UserActionTreeViewItem UserActionTreeViewItem {
-            get { return _userActionTreeViewItem; }
-        }
+        #region Properties
+        public UserActionTreeViewItem UserActionTreeViewItem { get; private set; }
+        #endregion
 
-        public EditUserAction() {
+        #region Constructor
+        /// <summary>
+        /// Says what it does, do not forget to call SetLog.
+        /// </summary>
+        public EditUserActionPanel() {
             InitializeComponent();
             try {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
@@ -69,8 +73,12 @@ namespace vApus.Stresstest {
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
             } catch { }
         }
+        #endregion
 
         #region Functions
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+        
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender is CustomListParameters || sender is CustomListParameter || sender is CustomRandomParameters || sender is CustomRandomParameter
                 || sender is NumericParameters || sender is NumericParameter || sender is TextParameters || sender is TextParameter) {
@@ -78,11 +86,12 @@ namespace vApus.Stresstest {
                 SetCodeStyle();
             }
         }
+        
         internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
             LockWindowUpdate(this.Handle.ToInt32());
             _log = log;
-            _userActionTreeViewItem = userActionTreeViewItem;
+            UserActionTreeViewItem = userActionTreeViewItem;
 
             cboParameterScope.SelectedIndex = 5;
 
@@ -105,9 +114,9 @@ namespace vApus.Stresstest {
             if (_labelChanged != null) _labelChanged.Stop();
             if (!IsDisposed)
                 SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    _userActionTreeViewItem.UserAction.Label = txtLabel.Text;
-                    _userActionTreeViewItem.SetLabel();
-                    _userActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+                    UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
+                    UserActionTreeViewItem.SetLabel();
+                    UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }, null);
         }
 
@@ -115,59 +124,6 @@ namespace vApus.Stresstest {
             if (_labelChanged != null) {
                 _labelChanged.Stop();
                 _labelChanged.Start();
-            }
-        }
-        private void SetMove() {
-            var userAction = _userActionTreeViewItem.UserAction;
-            int index, count;
-
-            GetOneBasedIndexAndCount(userAction, out index, out count);
-
-            picMoveUp.Enabled = index != 1;
-            picMoveDown.Enabled = index != count;
-
-            picMoveUp.Image = picMoveUp.Enabled ? global::vApus.Stresstest.Properties.Resources.MoveUp : global::vApus.Stresstest.Properties.Resources.MoveUpGreyedOut;
-            picMoveDown.Image = picMoveDown.Enabled ? global::vApus.Stresstest.Properties.Resources.MoveDown : global::vApus.Stresstest.Properties.Resources.MoveDownGreyedOut;
-
-            decimal value = nudMoveSteps.Value;
-            //Move down
-            nudMoveSteps.Maximum = count - index;
-
-            //Move up
-            int candidate = count - Math.Abs(index - count) - 1;
-            if (candidate > nudMoveSteps.Maximum) nudMoveSteps.Maximum = candidate;
-
-            if (nudMoveSteps.Maximum < 1) nudMoveSteps.Maximum = 1;
-
-            if (value > nudMoveSteps.Maximum) value = nudMoveSteps.Maximum;
-            if (value < 1) value = 1;
-
-            nudMoveSteps.Minimum = 1;
-            nudMoveSteps.Value = value;
-        }
-        /// <summary>
-        /// Takes linked user actions into account.
-        /// </summary>
-        private void GetOneBasedIndexAndCount(UserAction userAction, out int index, out int count) {
-            index = -1;
-            count = -1;
-
-            UserAction linkUserAction;
-            var linkUserActions = userAction.LinkedToUserActions;
-            if (userAction.IsLinked(out linkUserAction))
-                if (userAction != linkUserAction) {
-                    index = linkUserAction.LinkedToUserActionIndices.IndexOf(userAction.Index) + 1;
-                    count = linkUserAction.LinkedToUserActionIndices.Count;
-                    return;
-                }
-
-            var l = new List<UserAction>(_log.Count);
-            foreach (UserAction ua in _log) {
-                if (!ua.IsLinked(out linkUserAction) || ua == linkUserAction)
-                    l.Add(ua);
-
-                index = l.IndexOf(userAction) + 1;
-                count = l.Count;
             }
         }
 
@@ -180,7 +136,7 @@ namespace vApus.Stresstest {
             SetMove();
         }
         private void MoveUserAction(bool down) {
-            MoveUserAction(_userActionTreeViewItem.UserAction, down, (int)nudMoveSteps.Value);
+            MoveUserAction(UserActionTreeViewItem.UserAction, down, (int)nudMoveSteps.Value);
         }
         private void MoveUserAction(UserAction userAction, bool down, int moveSteps, bool invokeEvents = true) {
             if (moveSteps == 0) return;
@@ -223,7 +179,7 @@ namespace vApus.Stresstest {
             }
 
             _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
-            if (UserActionMoved != null) UserActionMoved(_userActionTreeViewItem, null);
+            if (UserActionMoved != null) UserActionMoved(UserActionTreeViewItem, null);
         }
         private void MoveDownOneStep(UserAction userAction) {
             UserAction linkUserAction;
@@ -278,13 +234,65 @@ namespace vApus.Stresstest {
             for (int j = 0; j != linkedIndices.Length; j++)
                 nextUserAction.LinkedToUserActionIndices[j] = linkedIndices[j] - subtract;
         }
-        private void picDelay_Click(object sender, EventArgs e) {
-            _userActionTreeViewItem.UserAction.UseDelay = !_userActionTreeViewItem.UserAction.UseDelay;
-            _userActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-            SetPicDelay();
+
+        private void SetMove() {
+            var userAction = UserActionTreeViewItem.UserAction;
+            int index, count;
+
+            GetOneBasedIndexAndCount(userAction, out index, out count);
+
+            picMoveUp.Enabled = index != 1;
+            picMoveDown.Enabled = index != count;
+
+            picMoveUp.Image = picMoveUp.Enabled ? global::vApus.Stresstest.Properties.Resources.MoveUp : global::vApus.Stresstest.Properties.Resources.MoveUpGreyedOut;
+            picMoveDown.Image = picMoveDown.Enabled ? global::vApus.Stresstest.Properties.Resources.MoveDown : global::vApus.Stresstest.Properties.Resources.MoveDownGreyedOut;
+
+            decimal value = nudMoveSteps.Value;
+            //Move down
+            nudMoveSteps.Maximum = count - index;
+
+            //Move up
+            int candidate = count - Math.Abs(index - count) - 1;
+            if (candidate > nudMoveSteps.Maximum) nudMoveSteps.Maximum = candidate;
+
+            if (nudMoveSteps.Maximum < 1) nudMoveSteps.Maximum = 1;
+
+            if (value > nudMoveSteps.Maximum) value = nudMoveSteps.Maximum;
+            if (value < 1) value = 1;
+
+            nudMoveSteps.Minimum = 1;
+            nudMoveSteps.Value = value;
         }
+        /// <summary>
+        /// Takes linked user actions into account.
+        /// </summary>
+        private void GetOneBasedIndexAndCount(UserAction userAction, out int index, out int count) {
+            index = -1;
+            count = -1;
+
+            UserAction linkUserAction;
+            var linkUserActions = userAction.LinkedToUserActions;
+            if (userAction.IsLinked(out linkUserAction))
+                if (userAction != linkUserAction) {
+                    index = linkUserAction.LinkedToUserActionIndices.IndexOf(userAction.Index) + 1;
+                    count = linkUserAction.LinkedToUserActionIndices.Count;
+                    return;
+                }
+
+            var l = new List<UserAction>(_log.Count);
+            foreach (UserAction ua in _log) {
+                if (!ua.IsLinked(out linkUserAction) || ua == linkUserAction)
+                    l.Add(ua);
+
+                index = l.IndexOf(userAction) + 1;
+                count = l.Count;
+            }
+        }
+
+        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone()); }
+
         private void SetPicDelay() {
-            if (_userActionTreeViewItem.UserAction.UseDelay) {
+            if (UserActionTreeViewItem.UserAction.UseDelay) {
                 picDelay.Image = global::vApus.Stresstest.Properties.Resources.Delay;
                 toolTip.SetToolTip(picDelay, "Click to NOT use delay after this user action.\nDelay is determined in the stresstest settings.");
             } else {
@@ -292,31 +300,35 @@ namespace vApus.Stresstest {
                 toolTip.SetToolTip(picDelay, "Click to use delay after this user action.\nDelay is determined in the stresstest settings.");
             }
         }
-        private void picCopy_Click(object sender, EventArgs e) {
-            ClipboardWrapper.SetDataObject(_userActionTreeViewItem.UserAction.Clone());
+        private void picDelay_Click(object sender, EventArgs e) {
+            UserActionTreeViewItem.UserAction.UseDelay = !UserActionTreeViewItem.UserAction.UseDelay;
+            UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+            SetPicDelay();
         }
-        private void btnSplit_Click(object sender, EventArgs e) {
-            _userActionTreeViewItem.UserAction.Split();
-            if (SplitClicked != null) SplitClicked(this, null);
-        }
+
         private void SetBtnSplit() {
-            bool enabled = _userActionTreeViewItem != null;
+            bool enabled = UserActionTreeViewItem != null;
             if (enabled) {
-                enabled = _userActionTreeViewItem.UserAction.Count > 1;
+                enabled = UserActionTreeViewItem.UserAction.Count > 1;
                 if (enabled) {
                     UserAction linkUserAction;
-                    if (_userActionTreeViewItem.UserAction.IsLinked(out linkUserAction))
+                    if (UserActionTreeViewItem.UserAction.IsLinked(out linkUserAction))
                         enabled = false;
                 }
             }
             btnSplit.Enabled = enabled;
         }
+        private void btnSplit_Click(object sender, EventArgs e) {
+            UserActionTreeViewItem.UserAction.Split();
+            if (SplitClicked != null) SplitClicked(this, null);
+        }
+       
         private void SetLinked() {
-            var userAction = _userActionTreeViewItem.UserAction;
+            var userAction = UserActionTreeViewItem.UserAction;
 
             //Check if the user action is not part of a chain of user actions.
             UserAction linkedUserAction;
-            _userActionTreeViewItem.UserAction.IsLinked(out linkedUserAction);
+            UserActionTreeViewItem.UserAction.IsLinked(out linkedUserAction);
 
             while (flpLink.Controls.Count != 1) {
                 var ctrl = flpLink.Controls[0];
@@ -398,23 +410,29 @@ namespace vApus.Stresstest {
             var cbo = sender as ComboBox;
             var ua = cbo.Tag as UserAction;
             if (ua != null)
-                _userActionTreeViewItem.UserAction.RemoveFromLink(ua);
+                UserActionTreeViewItem.UserAction.RemoveFromLink(ua);
 
             if (cbo.SelectedIndex != 0)
-                _userActionTreeViewItem.UserAction.AddToLink(cbo.SelectedItem as UserAction, _linkColors);
+                UserActionTreeViewItem.UserAction.AddToLink(cbo.SelectedItem as UserAction, _linkColors);
 
             if (LinkedChanged != null) LinkedChanged(this, null);
         }
         private void btnMerge_Click(object sender, EventArgs e) {
-            _userActionTreeViewItem.UserAction.MergeLinked();
+            UserActionTreeViewItem.UserAction.MergeLinked();
             if (MergeClicked != null) MergeClicked(this, null);
         }
 
+        /// <summary>
+        /// Editable or As Imported  toggled.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void lbtn_ActiveChanged(object sender, EventArgs e) {
             SetLogEntries();
             SetParameters();
             SetCodeStyle();
         }
+    
         private void SetLogEntries(bool fillEditView = true) {
             dgvLogEntries.CellValuePushed -= dgvLogEntries_CellValuePushed;
             _cache = new DataTable("Cache");
@@ -432,7 +450,7 @@ namespace vApus.Stresstest {
 
             var plainText = new StringBuilder();
 
-            var userAction = _userActionTreeViewItem.UserAction;
+            var userAction = UserActionTreeViewItem.UserAction;
             if (lbtnEditable.Active)
                 foreach (LogEntry logEntry in userAction) {
                     string formattedS = logEntry.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr);
@@ -476,7 +494,7 @@ namespace vApus.Stresstest {
 
             dgvLogEntries.RowCount = dgvLogEntries.ReadOnly ? _cache.Rows.Count : _cache.Rows.Count + 1;
 
-            lblLogEntryCount.Text = "[" + _userActionTreeViewItem.UserAction.Count + "]";
+            lblLogEntryCount.Text = "[" + UserActionTreeViewItem.UserAction.Count + "]";
 
             dgvLogEntries.CellValuePushed += dgvLogEntries_CellValuePushed;
 
@@ -614,7 +632,7 @@ namespace vApus.Stresstest {
             _rowIndexOfItemUnderMouseToDrop = dgvLogEntries.HitTest(clientPoint.X, clientPoint.Y).RowIndex;
 
             if (e.Effect == DragDropEffects.Move) {
-                var userAction = _userActionTreeViewItem.UserAction;
+                var userAction = UserActionTreeViewItem.UserAction;
                 var logEntry = userAction[_rowIndexFromMouseDown];
 
                 userAction.RemoveWithoutInvokingEvent(logEntry);
@@ -636,7 +654,7 @@ namespace vApus.Stresstest {
             PushCellValueToLogEntry(e.RowIndex, e.ColumnIndex, e.Value);
         }
         private void PushCellValueToLogEntry(int cellRowIndex, int cellColumnIndex, object cellValue) {
-            var userAction = _userActionTreeViewItem.UserAction;
+            var userAction = UserActionTreeViewItem.UserAction;
 
             if (cellRowIndex >= userAction.Count) {
                 var sb = new StringBuilder();
@@ -680,7 +698,7 @@ namespace vApus.Stresstest {
 
         private void dgvLogEntries_KeyUp(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Delete && dgvLogEntries.SelectedRows.Count != 0) {
-                var userAction = _userActionTreeViewItem.UserAction;
+                var userAction = UserActionTreeViewItem.UserAction;
                 var toRemove = new List<BaseItem>();
                 foreach (DataGridViewRow row in dgvLogEntries.SelectedRows) {
                     int index = dgvLogEntries.Rows.IndexOf(row);
@@ -699,7 +717,7 @@ namespace vApus.Stresstest {
         private void dgvLogEntries_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
                 if (e.RowIndex < _cache.Rows.Count && e.ColumnIndex < _cache.Columns.Count) {
-                    var userAction = _userActionTreeViewItem.UserAction;
+                    var userAction = UserActionTreeViewItem.UserAction;
                     if (e.ColumnIndex == 0) {
                         var logEntry = userAction[e.RowIndex] as LogEntry;
                         if (logEntry.LexicalResult == LexicalResult.OK) {
@@ -726,7 +744,7 @@ namespace vApus.Stresstest {
 
         private void btnRevertToImported_Click(object sender, EventArgs e) {
             if (MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                var userAction = _userActionTreeViewItem.UserAction;
+                var userAction = UserActionTreeViewItem.UserAction;
                 userAction.ClearWithoutInvokingEvent(false);
 
                 foreach (string s in userAction.LogEntryStringsAsImported)
@@ -769,7 +787,7 @@ namespace vApus.Stresstest {
             SetBtnSplit();
         }
         private void btnApply_Click(object sender, EventArgs e) {
-            var userAction = _userActionTreeViewItem.UserAction;
+            var userAction = UserActionTreeViewItem.UserAction;
             bool changed = false;
 
             int i = 0;
@@ -970,7 +988,6 @@ namespace vApus.Stresstest {
                 SetCodeStyle();
             }
         }
-        #endregion
 
         #region Edit View
         private void chkUseEditView_CheckedChanged(object sender, EventArgs e) { FillEditView(); }
@@ -1023,6 +1040,8 @@ namespace vApus.Stresstest {
             } catch {
             }
         }
+        #endregion
+
         #endregion
     }
 }

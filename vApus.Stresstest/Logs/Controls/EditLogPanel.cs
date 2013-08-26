@@ -7,16 +7,18 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
-    public partial class EditLog : UserControl {
+    /// <summary>
+    /// Capture HTTP(S) traffic, import a log from text and extra tools.
+    /// Call SetLog before doing anything else.
+    /// </summary>
+    public partial class EditLogPanel : UserControl {
         public event EventHandler LogImported, RevertedToAsImported, RedeterminedTokens;
 
         #region Fields
@@ -33,14 +35,21 @@ namespace vApus.Stresstest {
 
         #endregion
 
-        public EditLog() {
+        #region Constructors
+        /// <summary>
+        /// Capture HTTP(S) traffic, import a log from text and extra tools.
+        /// Call SetLog before doing anything else.
+        /// </summary>
+        public EditLogPanel() {
             InitializeComponent();
             try {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
             } catch { }
         }
+        #endregion
 
+        #region Functions
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender is CustomListParameters || sender is CustomListParameter || sender is CustomRandomParameters || sender is CustomRandomParameter
                 || sender is NumericParameters || sender is NumericParameter || sender is TextParameters || sender is TextParameter) {
@@ -64,6 +73,56 @@ namespace vApus.Stresstest {
             captureControl.Deny = _log.Deny;
         }
 
+        #region Capture HTTP(S)
+        private void captureControl_StartClicked(object sender, EventArgs e) {
+            if (chkClearLogBeforeCapture.Checked && _log.Count != 0)
+                if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                    _log.ClearWithoutInvokingEvent(false);
+                } else {
+                    captureControl.CancelStart();
+                    return;
+                }
+            SaveCaptureSettings();
+        }
+        private void captureControl_StopClicked(object sender, EventArgs e) {
+            SaveCaptureSettings();
+            Import(captureControl.ParsedLog, false);
+            ProxyHelper.UnsetProxy();
+        }
+        private void SaveCaptureSettings() {
+            try {
+                if (_log != null) {
+                    bool editted = false;
+                    if (_log.UseAllow != captureControl.UseAllow) {
+                        _log.UseAllow = captureControl.UseAllow;
+                        editted = true;
+                    }
+                    if (_log.Allow.Length != captureControl.Allow.Length) {
+                        _log.Allow = captureControl.Allow;
+                        editted = true;
+                    }
+                    if (_log.AllowIncludeReferer != captureControl.AllowIncludeReferer) {
+                        _log.AllowIncludeReferer = captureControl.AllowIncludeReferer;
+                        editted = true;
+                    }
+                    if (_log.UseDeny != captureControl.UseDeny) {
+                        _log.UseDeny = captureControl.UseDeny;
+                        editted = true;
+                    }
+                    if (_log.Deny.Length != captureControl.Deny.Length) {
+                        _log.Deny = captureControl.Deny;
+                        editted = true;
+                    }
+                    if (editted)
+                        _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                }
+            } catch { }
+        }
+        #endregion
+
+        #region Import from Text
+        private void fctxtxImport_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) { btnImport.Enabled = fctxtxImport.Text.Trim().Length != 0; }
+
         private void btnBrowse_Click(object sender, EventArgs e) {
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
                 fctxtxImport.Clear();
@@ -81,7 +140,6 @@ namespace vApus.Stresstest {
                 } catch { }
             }
         }
-
         private void SetCodeStyle() {
             BaseItem customListParameters = _parameters[0];
             BaseItem numericParameters = _parameters[1];
@@ -150,14 +208,7 @@ namespace vApus.Stresstest {
                         yield return delimiter;
         }
 
-        private void fctxtxImport_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
-            btnImport.Enabled = fctxtxImport.Text.Trim().Length != 0;
-        }
-
-        private void btnImport_Click(object sender, EventArgs e) {
-            Import(fctxtxImport.Text, chkClearLogBeforeImport.Checked);
-        }
-
+        private void btnImport_Click(object sender, EventArgs e) { Import(fctxtxImport.Text, chkClearLogBeforeImport.Checked); }
         private void Import(string text, bool clearLog) {
             //Clone and add to the clone to redetermine the tokens if needed.
             Log toAdd = _log.Clone(false);
@@ -300,7 +351,6 @@ namespace vApus.Stresstest {
             }
             return false;
         }
-
         private string FormatComment(string input) {
             int i = 0;
             input = input.TrimStart();
@@ -312,7 +362,6 @@ namespace vApus.Stresstest {
             }
             return sb.ToString();
         }
-
         private void RemoveEmptyUserActions() {
             var emptyUserActions = new List<BaseItem>(_log.Count);
             foreach (BaseItem item in _log)
@@ -322,52 +371,9 @@ namespace vApus.Stresstest {
             foreach (BaseItem item in emptyUserActions)
                 _log.RemoveWithoutInvokingEvent(item);
         }
+        #endregion
 
-        private void captureControl_StartClicked(object sender, EventArgs e) {
-            if (chkClearLogBeforeCapture.Checked && _log.Count != 0)
-                if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                    _log.ClearWithoutInvokingEvent(false);
-                } else {
-                    captureControl.CancelStart();
-                    return;
-                }
-            SaveSettings();
-        }
-        private void captureControl_StopClicked(object sender, EventArgs e) {
-            SaveSettings();
-            Import(captureControl.ParsedLog, false);
-            ProxyHelper.UnsetProxy();
-        }
-        private void SaveSettings() {
-            try {
-                if (_log != null) {
-                    bool editted = false;
-                    if (_log.UseAllow != captureControl.UseAllow) {
-                        _log.UseAllow = captureControl.UseAllow;
-                        editted = true;
-                    }
-                    if (_log.Allow.Length != captureControl.Allow.Length) {
-                        _log.Allow = captureControl.Allow;
-                        editted = true;
-                    }
-                    if (_log.AllowIncludeReferer != captureControl.AllowIncludeReferer) {
-                        _log.AllowIncludeReferer = captureControl.AllowIncludeReferer;
-                        editted = true;
-                    }
-                    if (_log.UseDeny != captureControl.UseDeny) {
-                        _log.UseDeny = captureControl.UseDeny;
-                        editted = true;
-                    }
-                    if (_log.Deny.Length != captureControl.Deny.Length) {
-                        _log.Deny = captureControl.Deny;
-                        editted = true;
-                    }
-                    if (editted)
-                        _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                }
-            } catch { }
-        }
-
+        #region Extra Tools
         private void btnExportToTextFile_Click(object sender, EventArgs e) {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 var sb = new StringBuilder();
@@ -382,12 +388,6 @@ namespace vApus.Stresstest {
                     sw.Write(sb.ToString().TrimEnd());
             }
         }
-
-        private void btnRedetermineParameterTokens_Click(object sender, EventArgs e) {
-            if ((new RedetermineTokens(_log)).ShowDialog() == DialogResult.OK && RedeterminedTokens != null)
-                RedeterminedTokens(this, null);
-        }
-
         private void btnRevertToImported_Click(object sender, EventArgs e) {
             if (_log != null && MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 foreach (UserAction userAction in _log) {
@@ -403,5 +403,12 @@ namespace vApus.Stresstest {
                     RevertedToAsImported(this, null);
             }
         }
+        private void btnRedetermineParameterTokens_Click(object sender, EventArgs e) {
+            if ((new RedetermineTokens(_log)).ShowDialog() == DialogResult.OK && RedeterminedTokens != null)
+                RedeterminedTokens(this, null);
+        }
+        #endregion
+
+        #endregion
     }
 }

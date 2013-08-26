@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -18,8 +17,6 @@ namespace vApus.Stresstest {
     [DisplayName("Custom Random Parameters")]
     [Serializable]
     public class CustomRandomParameters : BaseItem {
-        private void Add_Click(object sender, EventArgs e) {
-            Add(new CustomRandomParameter());
-        }
+        private void Add_Click(object sender, EventArgs e) { Add(new CustomRandomParameter()); }
     }
 }

@@ -231,17 +231,17 @@
     <Compile Include="Controls\ExportToExcelDialog.Designer.cs">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\EditLog.cs">
+    <Compile Include="Logs\Controls\EditLogPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\EditLog.Designer.cs">
-      <DependentUpon>EditLog.cs</DependentUpon>
+    <Compile Include="Logs\Controls\EditLogPanel.Designer.cs">
+      <DependentUpon>EditLogPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\EditUserAction.cs">
+    <Compile Include="Logs\Controls\EditUserActionPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\EditUserAction.Designer.cs">
-      <DependentUpon>EditUserAction.cs</DependentUpon>
+    <Compile Include="Logs\Controls\EditUserActionPanel.Designer.cs">
+      <DependentUpon>EditUserActionPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Logs\FindAndReplaceDialog.cs">
       <SubType>Form</SubType>
@@ -281,10 +281,10 @@
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.Designer.cs">
       <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
     </Compile>
-    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.cs">
+    <Compile Include="RuleSets\RuleSetSyntaxItemPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.Designer.cs">
+    <Compile Include="RuleSets\RuleSetSyntaxItemPanel.Designer.cs">
       <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="StresstestThreadPool.cs" />
@@ -294,17 +294,17 @@
     <Compile Include="Logs\RedetermineTokens.Designer.cs">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\CustomList\CustomListGenerator.cs">
+    <Compile Include="Parameters\CustomList\CustomListGeneratorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Parameters\CustomList\CustomListGenerator.Designer.cs">
-      <DependentUpon>CustomListGenerator.cs</DependentUpon>
+    <Compile Include="Parameters\CustomList\CustomListGeneratorDialog.Designer.cs">
+      <DependentUpon>CustomListGeneratorDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\TestCustomRandom.cs">
+    <Compile Include="Parameters\CustomRandom\TestCustomRandomPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\TestCustomRandom.designer.cs">
-      <DependentUpon>TestCustomRandom.cs</DependentUpon>
+    <Compile Include="Parameters\CustomRandom\TestCustomRandomPanel.designer.cs">
+      <DependentUpon>TestCustomRandomPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\CustomRandom\CustomRandomParameter.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameters.cs" />
@@ -314,11 +314,11 @@
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterPanel.Designer.cs">
       <DependentUpon>CustomRandomParameterPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\ParameterTokenSynchronization.cs">
+    <Compile Include="Parameters\ParameterTokenSynchronizationView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Parameters\ParameterTokenSynchronization.Designer.cs">
-      <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>
+    <Compile Include="Parameters\ParameterTokenSynchronizationView.Designer.cs">
+      <DependentUpon>ParameterTokenSynchronizationView.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\ConnectionView.cs">
       <SubType>Form</SubType>
@@ -360,7 +360,6 @@
     <Compile Include="Controls\FastResultsControl.Designer.cs">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Delegates.cs" />
     <Compile Include="Logs\RuleSets\LogSyntaxItem.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -472,11 +471,11 @@
     <EmbeddedResource Include="Controls\ExportToExcelDialog.resx">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\EditLog.resx">
-      <DependentUpon>EditLog.cs</DependentUpon>
+    <EmbeddedResource Include="Logs\Controls\EditLogPanel.resx">
+      <DependentUpon>EditLogPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\EditUserAction.resx">
-      <DependentUpon>EditUserAction.cs</DependentUpon>
+    <EmbeddedResource Include="Logs\Controls\EditUserActionPanel.resx">
+      <DependentUpon>EditUserActionPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\FindAndReplaceDialog.resx">
       <DependentUpon>FindAndReplaceDialog.cs</DependentUpon>
@@ -496,11 +495,11 @@
     <EmbeddedResource Include="Logs\RedetermineTokens.resx">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\CustomList\CustomListGenerator.resx">
-      <DependentUpon>CustomListGenerator.cs</DependentUpon>
+    <EmbeddedResource Include="Parameters\CustomList\CustomListGeneratorDialog.resx">
+      <DependentUpon>CustomListGeneratorDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\CustomRandom\TestCustomRandom.resx">
-      <DependentUpon>TestCustomRandom.cs</DependentUpon>
+    <EmbeddedResource Include="Parameters\CustomRandom\TestCustomRandomPanel.resx">
+      <DependentUpon>TestCustomRandomPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\CustomRandom\CustomRandomParameterView.resx">
       <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
@@ -508,8 +507,8 @@
     <EmbeddedResource Include="Parameters\CustomRandom\CustomRandomParameterPanel.resx">
       <DependentUpon>CustomRandomParameterPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\ParameterTokenSynchronization.resx">
-      <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>
+    <EmbeddedResource Include="Parameters\ParameterTokenSynchronizationView.resx">
+      <DependentUpon>ParameterTokenSynchronizationView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\ParameterView.resx">
       <DependentUpon>ParameterView.cs</DependentUpon>

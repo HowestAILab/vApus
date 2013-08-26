@@ -5,17 +5,26 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using vApus.SolutionTree;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Holds collections of parameters.
+    /// </summary>
     [Serializable]
     public class Parameters : BaseItem {
-        private static readonly object _lock = new object();
 
+        #region Fields
+        private readonly object _lock = new object();
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// Holds collections of parameters.
+        /// </summary>
         public Parameters() {
             AddAsDefaultItem(new CustomListParameters());
             AddAsDefaultItem(new NumericParameters());
@@ -24,7 +33,9 @@ namespace vApus.Stresstest {
 
             Loaded += Parameters_Loaded;
         }
+        #endregion
 
+        #region Functions
         private void Parameters_Loaded(object sender, EventArgs e) {
             Loaded -= Parameters_Loaded;
 
@@ -36,7 +47,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Threadsafe call.
+        ///     Threadsafe call. Used in RedetermineTokens, BaseParameter and ASTNode.
         /// </summary>
         /// <returns></returns>
         public List<BaseParameter> GetAllParameters() {
@@ -67,8 +78,7 @@ namespace vApus.Stresstest {
         ///     This is a reversed collection, the last occurs first so that the synchronization in the log entries is correct.
         ///     Otherwise, 3 can become 4 and after this 4 can become 5.
         /// </param>
-        public void SynchronizeTokenNumericIdentifierToIndices(
-            out Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices) {
+        public void SynchronizeTokenNumericIdentifierToIndices(out Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices) {
             var l1 = new List<BaseParameter>();
             var l2 = new List<KeyValuePair<int, int>>();
 
@@ -87,15 +97,11 @@ namespace vApus.Stresstest {
             l1.Reverse();
             l2.Reverse();
 
-            for (int j = 0; j != l1.Count; j++)
-                oldAndNewIndices.Add(l1[j], l2[j]);
+            for (int j = 0; j != l1.Count; j++) oldAndNewIndices.Add(l1[j], l2[j]);
 
-            if (oldAndNewIndices.Count != 0) {
-                BaseSolutionComponentView view = SolutionComponentViewManager.Show(this,
-                                                                                   typeof(ParameterTokenSynchronization
-                                                                                       ));
-                (view as ParameterTokenSynchronization).VisualizeSynchronization(oldAndNewIndices);
-            }
+            if (oldAndNewIndices.Count != 0)
+                (SolutionComponentViewManager.Show(this, typeof(ParameterTokenSynchronizationView)) as ParameterTokenSynchronizationView).VisualizeSynchronization(oldAndNewIndices);
         }
+        #endregion
     }
 }

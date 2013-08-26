@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -13,20 +12,25 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// A view with auto generated gui for the different parameter flavors.
+    /// </summary>
     public partial class ParameterView : BaseSolutionComponentView {
+
         #region Fields
-
-        private CustomListGenerator _customListGenerator;
+        private CustomListGeneratorDialog _customListGeneratorDialog;
         private BaseParameter _parameter;
-
         #endregion
 
         #region Constructors
-
-        public ParameterView() {
-            InitializeComponent();
-        }
-
+        /// <summary>
+        /// Design time constructor.
+        /// </summary>
+        public ParameterView() { InitializeComponent(); }
+        /// <summary>
+        /// A view with auto generated gui for the different parameter flavors.
+        /// </summary>
+        /// <param name="solutionComponent"></param>
         public ParameterView(SolutionComponent solutionComponent)
             : base(solutionComponent) {
             InitializeComponent();
@@ -36,9 +40,9 @@ namespace vApus.Stresstest {
 
             SetGui();
         }
-
         #endregion
 
+        #region Functions
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             solutionComponentPropertyPanel.Refresh();
             SetGui();
@@ -62,17 +66,6 @@ namespace vApus.Stresstest {
             }
         }
 
-        private void btnGenerate_Click(object sender, EventArgs e) {
-            if (_customListGenerator == null)
-                _customListGenerator = new CustomListGenerator(_parameter as CustomListParameter);
-
-            if (_customListGenerator.ShowDialog() == DialogResult.OK) {
-                SolutionComponent.InvokeSolutionComponentChangedEvent(
-                    SolutionComponentChangedEventArgs.DoneAction.Edited);
-                solutionComponentPropertyPanel.Refresh();
-            }
-        }
-
         private void btnAddFromText_Click(object sender, EventArgs e) {
             var parameter = _parameter as CustomListParameter;
 
@@ -85,13 +78,16 @@ namespace vApus.Stresstest {
             SolutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             solutionComponentPropertyPanel.Refresh();
         }
+        private void btnGenerate_Click(object sender, EventArgs e) {
+            if (_customListGeneratorDialog == null)
+                _customListGeneratorDialog = new CustomListGeneratorDialog(_parameter as CustomListParameter);
 
-        private void btnClear_Click(object sender, EventArgs e) {
-            (_parameter as CustomListParameter).CustomList = new string[] { };
-            SolutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            solutionComponentPropertyPanel.Refresh();
+            if (_customListGeneratorDialog.ShowDialog() == DialogResult.OK) {
+                SolutionComponent.InvokeSolutionComponentChangedEvent(
+                    SolutionComponentChangedEventArgs.DoneAction.Edited);
+                solutionComponentPropertyPanel.Refresh();
+            }
         }
-
         private void btnRemoveDuplicates_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             var parameter = _parameter as CustomListParameter;
@@ -106,5 +102,11 @@ namespace vApus.Stresstest {
             btnRemoveDuplicates.Enabled = false;
             Cursor = Cursors.Default;
         }
+        private void btnClear_Click(object sender, EventArgs e) {
+            (_parameter as CustomListParameter).CustomList = new string[] { };
+            SolutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+            solutionComponentPropertyPanel.Refresh();
+        }
+        #endregion
     }
 }

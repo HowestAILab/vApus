@@ -95,6 +95,125 @@ namespace vApus.Monitor {
         #region Functions
 
         #region Private
+        #region Init
+
+        private void MonitorView_HandleCreated(object sender, EventArgs e) {
+            HandleCreated -= MonitorView_HandleCreated;
+            InitMonitorView();
+        }
+
+        /// <summary>
+        ///     Sets the Gui and connects to smt.
+        /// </summary>
+        private void InitMonitorView() {
+            Text = SolutionComponent.ToString();
+            if (SynchronizationContextWrapper.SynchronizationContext == null)
+                SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
+
+            Exception exception = InitMonitorProxy();
+            propertyPanel.SolutionComponent = _monitor;
+            SetFilterTextBox();
+
+            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
+            SetParameters(parameters);
+
+            _previousMonitorSourceForParameters = _monitor.MonitorSource;
+            _previousFilter = _monitor.Filter.Combine(", ");
+
+            if (exception != null) {
+                string message = "Could not connect to the monitor client.";
+                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
+            }
+
+            //Use this for filtering the counters.
+            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+        }
+
+        /// <summary>
+        ///     Destroys the previous one if any and returns a new one.
+        /// </summary>
+        /// <returns></returns>
+        private Exception InitMonitorProxy() {
+            Exception exception = null;
+
+            try {
+                if (_monitorProxy != null) {
+                    try {
+                        Exception stopEx;
+                        _monitorProxy.Stop(out stopEx);
+                    } catch {
+                    }
+                    try {
+                        _monitorProxy.Dispose();
+                    } catch {
+                    }
+                    _monitorProxy = null;
+                }
+
+                _monitorProxy = CreateMonitorProxy();
+            } catch (Exception ex) {
+                exception = ex;
+            }
+
+            if (exception == null) {
+                //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
+                Directory.SetCurrentDirectory(Application.StartupPath);
+
+                string[] sources = _monitorProxy.GetMonitorSources(out exception);
+                //Ignore this exception
+                _monitor.SetMonitorSources(sources);
+
+                exception = null;
+            }
+            return exception;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        private IMonitorProxy CreateMonitorProxy() {
+            var monitorProxy = new MonitorProxy();
+            monitorProxy.OnHandledException += _monitorProxy_OnHandledException;
+            monitorProxy.OnUnhandledException += _monitorProxy_OnUnhandledException;
+            monitorProxy.OnMonitor += _monitorProxy_OnMonitor;
+
+            return monitorProxy;
+        }
+
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            if (sender == _monitor && IsHandleCreated) {
+                if (_monitor.MonitorSource != _previousMonitorSourceForParameters) {
+                    _previousMonitorSourceForParameters = _monitor.MonitorSource;
+
+                    Exception exception;
+                    if (_monitorProxy == null)
+                        _monitorProxy = CreateMonitorProxy();
+
+                    Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
+                    SetParameters(parameters);
+                }
+                if (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
+                    lvwEntities.Items.Count == 0) {
+                    split.Panel2.Enabled = true;
+                    lblMonitorSourceMismatch.Visible = false;
+
+                    btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+                } else {
+                    split.Panel2.Enabled = false;
+                    lblMonitorSourceMismatch.Visible = true;
+
+                    btnStart.Enabled = btnSchedule.Enabled = false;
+                }
+                //Filter the treenodes again if this is changed.
+                string filter = _monitor.Filter.Combine(", ");
+                if (filter != _previousFilter) {
+                    _previousFilter = filter;
+                    FillCounters();
+                }
+            }
+        }
+        #endregion
+
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
@@ -207,17 +326,11 @@ namespace vApus.Monitor {
             Exception exception;
             Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetParameters(parameters); }, null);
-            if (exception == null)
-                _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
 
-            if (exception == null)
-                _refreshTimeInMS = _monitorProxy.GetRefreshRateInMs(_monitor.MonitorSource.Source, out exception);
-
-            if (exception == null)
-                configuration = _monitorProxy.GetConfigurationXML(out exception);
-
-            if (exception == null)
-                wdyh = _monitorProxy.GetWDYH(out exception);
+            if (exception == null) _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
+            if (exception == null) _refreshTimeInMS = _monitorProxy.GetRefreshRateInMs(_monitor.MonitorSource.Source, out exception);
+            if (exception == null) configuration = _monitorProxy.GetConfigurationXML(out exception);
+            if (exception == null) wdyh = _monitorProxy.GetWDYH(out exception);
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (exception == null) {
@@ -720,126 +833,6 @@ namespace vApus.Monitor {
             txtFilterMonitorControlColumns.Text = filter.Combine(", ");
         }
 
-        #region Init
-
-        private void MonitorView_HandleCreated(object sender, EventArgs e) {
-            HandleCreated -= MonitorView_HandleCreated;
-            InitMonitorView();
-        }
-
-        /// <summary>
-        ///     Sets the Gui and connects to smt.
-        /// </summary>
-        private void InitMonitorView() {
-            Text = SolutionComponent.ToString();
-            if (SynchronizationContextWrapper.SynchronizationContext == null)
-                SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
-
-            Exception exception = InitMonitorProxy();
-            propertyPanel.SolutionComponent = _monitor;
-            SetFilterTextBox();
-
-            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
-            SetParameters(parameters);
-
-            _previousMonitorSourceForParameters = _monitor.MonitorSource;
-            _previousFilter = _monitor.Filter.Combine(", ");
-
-            if (exception != null) {
-                string message = "Could not connect to the monitor client.";
-                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
-            }
-
-            //Use this for filtering the counters.
-            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-        }
-
-        /// <summary>
-        ///     Destroys the previous one if any and returns a new one.
-        /// </summary>
-        /// <returns></returns>
-        private Exception InitMonitorProxy() {
-            Exception exception = null;
-
-            try {
-                if (_monitorProxy != null) {
-                    try {
-                        Exception stopEx;
-                        _monitorProxy.Stop(out stopEx);
-                    } catch {
-                    }
-                    try {
-                        _monitorProxy.Dispose();
-                    } catch {
-                    }
-                    _monitorProxy = null;
-                }
-
-                _monitorProxy = CreateMonitorProxy();
-            } catch (Exception ex) {
-                exception = ex;
-            }
-
-            if (exception == null) {
-                //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
-                Directory.SetCurrentDirectory(Application.StartupPath);
-
-                string[] sources = _monitorProxy.GetMonitorSources(out exception);
-                //Ignore this exception
-                _monitor.SetMonitorSources(sources);
-
-                exception = null;
-            }
-            return exception;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
-        private IMonitorProxy CreateMonitorProxy() {
-            var monitorProxy = new MonitorProxy();
-            monitorProxy.OnHandledException += _monitorProxy_OnHandledException;
-            monitorProxy.OnUnhandledException += _monitorProxy_OnUnhandledException;
-            monitorProxy.OnMonitor += _monitorProxy_OnMonitor;
-
-            return monitorProxy;
-        }
-
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
-            if (sender == _monitor && IsHandleCreated) {
-                if (_monitor.MonitorSource != _previousMonitorSourceForParameters) {
-                    _previousMonitorSourceForParameters = _monitor.MonitorSource;
-
-                    Exception exception;
-                    if (_monitorProxy == null)
-                        _monitorProxy = CreateMonitorProxy();
-
-                    Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
-                    SetParameters(parameters);
-                }
-                if (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
-                    lvwEntities.Items.Count == 0) {
-                    split.Panel2.Enabled = true;
-                    lblMonitorSourceMismatch.Visible = false;
-
-                    btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
-                } else {
-                    split.Panel2.Enabled = false;
-                    lblMonitorSourceMismatch.Visible = true;
-
-                    btnStart.Enabled = btnSchedule.Enabled = false;
-                }
-                //Filter the treenodes again if this is changed.
-                string filter = _monitor.Filter.Combine(", ");
-                if (filter != _previousFilter) {
-                    _previousFilter = filter;
-                    FillCounters();
-                }
-            }
-        }
-
-        #endregion
-
         #region Fill & Filter tvwCounters, push the saved WIW tot the gui
 
         /// <summary>
@@ -970,6 +963,9 @@ namespace vApus.Monitor {
             lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
             tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
 
+            //Autoscroll to the first selected/checked counter.
+            TreeNode firstVisible = null;
+
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
             var newWIW = new Dictionary<Entity, List<CounterInfo>>();
             foreach (ListViewItem lvwi in lvwEntities.Items) {
@@ -991,8 +987,9 @@ namespace vApus.Monitor {
                             node.Checked = info != null;
 
                             if (node.Checked) {
-                                newInfo = new CounterInfo(info.Counter,
-                                                          node.Nodes.Count == 0 ? null : new List<string>());
+                                if (firstVisible == null) firstVisible = node;
+
+                                newInfo = new CounterInfo(info.Counter, node.Nodes.Count == 0 ? null : new List<string>());
                                 foreach (TreeNode child in node.Nodes) {
                                     child.Checked = info.Instances.Contains(child.Text);
                                     if (child.Checked)
@@ -1044,6 +1041,32 @@ namespace vApus.Monitor {
 
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
             tvwCounters.AfterCheck += tvwCounter_AfterCheck;
+
+            //Scroll the first checked into view if any.
+            if (tvwCounters.Nodes.Count != 0) {
+                if (firstVisible == null)
+                    firstVisible = tvwCounters.Nodes[0];
+                else {
+                    //Scroll down first so firstVisible will be at the top of the list.
+                    tvwCounters.Nodes[tvwCounters.Nodes.Count - 1].EnsureVisible();
+                    firstVisible.EnsureVisible();
+                }
+            }
+
+            //Select the first visible counter, stupid but only way to do this.
+            var tmr = new System.Timers.Timer(200);
+            tmr.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) => {
+                tmr.Stop();
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    tvwCounters.Focus();
+                    if (firstVisible != null) tvwCounters.SelectedNode = firstVisible;
+                }, null);
+            };
+            tmr.Start();
+        }
+
+        void tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            throw new NotImplementedException();
         }
 
         private CounterInfo GetCounterInfo(string counter, List<CounterInfo> l) {
@@ -1053,19 +1076,13 @@ namespace vApus.Monitor {
             return null;
         }
 
-        private void txtFilter_Leave(object sender, EventArgs e) {
-            SetFilter();
-        }
-
+        private void txtFilter_TextChanged(object sender, EventArgs e) { txtFilter.BackColor = (txtFilter.Text.Length == 0) ? SystemColors.Window : Color.LightBlue; }
+        private void txtFilter_Leave(object sender, EventArgs e) { SetFilter(); }
         private void txtFilter_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Return)
                 SetFilter();
         }
-
-        private void picFilter_Click(object sender, EventArgs e) {
-            SetFilter();
-        }
-
+        private void picFilter_Click(object sender, EventArgs e) { SetFilter(); }
         private void SetFilter() {
             string[] filter = txtFilter.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             var l = new List<string>();
@@ -1080,7 +1097,6 @@ namespace vApus.Monitor {
             SetFilterTextBox();
             InvokeChanged();
         }
-
         private void SetFilterTextBox() {
             try {
                 txtFilter.Text = _monitor.Filter.Combine(", ");

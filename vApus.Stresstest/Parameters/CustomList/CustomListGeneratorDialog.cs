@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -13,20 +12,29 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
-    public partial class CustomListGenerator : Form {
+    /// <summary>
+    /// To generate a list of parameters of a given type. Those are added to the given CustomListParameter.
+    /// </summary>
+    public partial class CustomListGeneratorDialog : Form {
+
+        #region Fields
         private readonly CustomListParameter _customListParameter;
         private readonly CustomRandomParameterPanel _customRandomParameterPanel = new CustomRandomParameterPanel();
 
-        private readonly SolutionComponentPropertyPanel _parameterTypeSolutionComponentPropertyPanel =
-            new SolutionComponentPropertyPanel();
-
+        private readonly SolutionComponentPropertyPanel _parameterTypeSolutionComponentPropertyPanel = new SolutionComponentPropertyPanel();
         private BaseParameter _generateFromParameter;
+        #endregion
 
-        public CustomListGenerator() {
-            InitializeComponent();
-        }
-
-        public CustomListGenerator(CustomListParameter customListParameter)
+        #region Constructors
+        /// <summary>
+        /// Design time constructor
+        /// </summary>
+        public CustomListGeneratorDialog() { InitializeComponent(); }
+        /// <summary>
+        /// To generate a list of parameters of a given type. Those are added to the given CustomListParameter.
+        /// </summary>
+        /// <param name="customListParameter"></param>
+        public CustomListGeneratorDialog(CustomListParameter customListParameter)
             : this() {
             _customListParameter = customListParameter;
 
@@ -45,7 +53,9 @@ namespace vApus.Stresstest {
                 HandleCreated += CustomListGenerator_HandleCreated;
             }
         }
+        #endregion
 
+        #region Functions
         private void CustomListGenerator_HandleCreated(object sender, EventArgs e) {
             if (cboParameterType.SelectedIndex == -1) {
                 if (_customListParameter.GenerateFromParameter is NumericParameter)
@@ -57,6 +67,46 @@ namespace vApus.Stresstest {
             } else {
                 timer.Start();
             }
+        }
+
+        private void cboParameterType_SelectedIndexChanged(object sender, EventArgs e) {
+            timer.Stop();
+            if (cboParameterType.SelectedIndex == 0)
+                _generateFromParameter = new NumericParameter();
+            else if (cboParameterType.SelectedIndex == 1)
+                _generateFromParameter = new TextParameter();
+            else
+                _generateFromParameter = new CustomRandomParameter();
+
+            _customListParameter.GenerateFromParameter = _generateFromParameter;
+
+            if (_generateFromParameter is CustomRandomParameter) {
+                if (pnlPlaceHolder.Controls.Count == 0 || pnlPlaceHolder.Controls[0] != _customRandomParameterPanel) {
+                    pnlPlaceHolder.Controls.Clear();
+                    pnlPlaceHolder.Controls.Add(_customRandomParameterPanel);
+                    _customRandomParameterPanel.Dock = DockStyle.Fill;
+                }
+                _customRandomParameterPanel.Init(_generateFromParameter);
+            } else {
+                if (pnlPlaceHolder.Controls.Count == 0 ||
+                    pnlPlaceHolder.Controls[0] != _parameterTypeSolutionComponentPropertyPanel) {
+                    pnlPlaceHolder.Controls.Clear();
+                    pnlPlaceHolder.Controls.Add(_parameterTypeSolutionComponentPropertyPanel);
+                    _parameterTypeSolutionComponentPropertyPanel.Dock = DockStyle.Fill;
+                }
+                _parameterTypeSolutionComponentPropertyPanel.SolutionComponent =
+                    _customListParameter.GenerateFromParameter;
+                timer.Start();
+            }
+        }
+        private void timer_Tick(object sender, EventArgs e) {
+            if (!IsDisposed && IsHandleCreated && Visible)
+                foreach (BaseValueControl ctrl in _parameterTypeSolutionComponentPropertyPanel.ValueControls)
+                    if (ctrl.Label == "Label") {
+                        ctrl.Visible = false;
+                        timer.Stop();
+                        break;
+                    }
         }
 
         private void btnOK_Click(object sender, EventArgs e) {
@@ -103,51 +153,10 @@ namespace vApus.Stresstest {
                 Close();
             }
         }
-
         private void btnCancel_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.Cancel;
             Close();
         }
-
-        private void cboParameterType_SelectedIndexChanged(object sender, EventArgs e) {
-            timer.Stop();
-            if (cboParameterType.SelectedIndex == 0)
-                _generateFromParameter = new NumericParameter();
-            else if (cboParameterType.SelectedIndex == 1)
-                _generateFromParameter = new TextParameter();
-            else
-                _generateFromParameter = new CustomRandomParameter();
-
-            _customListParameter.GenerateFromParameter = _generateFromParameter;
-
-            if (_generateFromParameter is CustomRandomParameter) {
-                if (pnlPlaceHolder.Controls.Count == 0 || pnlPlaceHolder.Controls[0] != _customRandomParameterPanel) {
-                    pnlPlaceHolder.Controls.Clear();
-                    pnlPlaceHolder.Controls.Add(_customRandomParameterPanel);
-                    _customRandomParameterPanel.Dock = DockStyle.Fill;
-                }
-                _customRandomParameterPanel.Init(_generateFromParameter);
-            } else {
-                if (pnlPlaceHolder.Controls.Count == 0 ||
-                    pnlPlaceHolder.Controls[0] != _parameterTypeSolutionComponentPropertyPanel) {
-                    pnlPlaceHolder.Controls.Clear();
-                    pnlPlaceHolder.Controls.Add(_parameterTypeSolutionComponentPropertyPanel);
-                    _parameterTypeSolutionComponentPropertyPanel.Dock = DockStyle.Fill;
-                }
-                _parameterTypeSolutionComponentPropertyPanel.SolutionComponent =
-                    _customListParameter.GenerateFromParameter;
-                timer.Start();
-            }
-        }
-
-        private void timer_Tick(object sender, EventArgs e) {
-            if (!IsDisposed && IsHandleCreated && Visible)
-                foreach (BaseValueControl ctrl in _parameterTypeSolutionComponentPropertyPanel.ValueControls)
-                    if (ctrl.Label == "Label") {
-                        ctrl.Visible = false;
-                        timer.Stop();
-                        break;
-                    }
-        }
+        #endregion
     }
 }

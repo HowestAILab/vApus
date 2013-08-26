@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,12 +13,14 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Contains log entries.
+    /// </summary>
     [DisplayName("User Action"), Serializable]
     public class UserAction : LabeledBaseItem {
 
         #region Fields
         private int _occurance = 1;
-        private bool _pinned;
         private bool _useDelay = true;
         [field: NonSerialized]
         private List<string> _logEntryStringsAsImported = new List<string>();
@@ -29,7 +30,6 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Properties
-
         [ReadOnly(true)]
         [SavableCloneable]
         [Description("How many times this user action occures in the log. Action and Log Entry Distribution in the stresstest determines how this value will be used.")]
@@ -45,15 +45,11 @@ namespace vApus.Stresstest {
         [ReadOnly(true)]
         [SavableCloneable]
         [Description("To pin this user action in place.")]
-        public bool Pinned {
-            get { return _pinned; }
-            set { _pinned = value; }
-        }
+        public bool Pinned { get; set; }
 
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description("When true the determined delay (stresstest properties) will take place after this user action.")
-        , DisplayName("Use Delay")]
+        [Description("When true the determined delay (stresstest properties) will take place after this user action."), DisplayName("Use Delay")]
         public bool UseDelay {
             get { return _useDelay; }
             set { _useDelay = value; }
@@ -89,6 +85,7 @@ namespace vApus.Stresstest {
                 return l.ToArray();
             }
         }
+
         [ReadOnly(true)]
         [SavableCloneable]
         public int LinkColorRGB {
@@ -109,11 +106,16 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-
+/// <summary>
+        /// Contains log entries.
+        /// </summary>
         public UserAction() {
             ShowInGui = false;
         }
-
+        /// <summary>
+        /// Contains log entries.
+        /// </summary>
+        /// <param name="label"></param>
         public UserAction(string label)
             : this() {
             Label = label;
@@ -121,6 +123,7 @@ namespace vApus.Stresstest {
 
         #endregion
 
+        #region Functions
         /// <summary>
         /// </summary>
         /// <param name="beginTokenDelimiter">Needed to dermine parameter tokens</param>
@@ -178,7 +181,7 @@ namespace vApus.Stresstest {
                     log.InsertWithoutInvokingEvent(index, ua, false);
                 else
                     log.AddWithoutInvokingEvent(ua, false);
-                ua.Pinned = _pinned;
+                ua.Pinned = Pinned;
                 _linkedToUserActionIndices.Add(ua.Index);
 
                 ua.LinkColorRGB = _linkColorRGB;
@@ -292,7 +295,7 @@ namespace vApus.Stresstest {
             UserAction userAction = new UserAction(Label);
             userAction.SetParent(Parent, false);
             userAction.Occurance = _occurance;
-            userAction.Pinned = _pinned;
+            userAction.Pinned = Pinned;
             userAction.UseDelay = _useDelay;
             userAction.LogEntryStringsAsImported = _logEntryStringsAsImported;
 
@@ -300,5 +303,6 @@ namespace vApus.Stresstest {
 
             return userAction;
         }
+        #endregion
     }
 }

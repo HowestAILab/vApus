@@ -1,5 +1,5 @@
 ﻿namespace vApus.Stresstest {
-    partial class EditLog {
+    partial class EditLogPanel {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditLog));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditLogPanel));
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpCapture = new System.Windows.Forms.TabPage();
             this.chkClearLogBeforeCapture = new System.Windows.Forms.CheckBox();
@@ -94,6 +94,7 @@
             // captureControl
             // 
             this.captureControl.Allow = new string[0];
+            this.captureControl.AllowIncludeReferer = true;
             this.captureControl.Deny = new string[] {
         "addthis.com",
         "apis.google.com",
@@ -232,6 +233,7 @@
             this.btnRevertToImported.Size = new System.Drawing.Size(209, 24);
             this.btnRevertToImported.TabIndex = 1;
             this.btnRevertToImported.Text = "Revert to Imported";
+            this.toolTip.SetToolTip(this.btnRevertToImported, "Revert the whole log to how it was imported.");
             this.btnRevertToImported.UseVisualStyleBackColor = false;
             this.btnRevertToImported.Click += new System.EventHandler(this.btnRevertToImported_Click);
             // 
@@ -248,6 +250,9 @@
             this.btnRedetermineParameterTokens.Size = new System.Drawing.Size(209, 24);
             this.btnRedetermineParameterTokens.TabIndex = 2;
             this.btnRedetermineParameterTokens.Text = "Redetermine Parameter Tokens...";
+            this.toolTip.SetToolTip(this.btnRedetermineParameterTokens, "Sometimes a set of parameter tokens can be used and is needed for a valid request" +
+        ".\r\nIn the following dialog you can redetermine the tokens for the whole log to a" +
+        "void this problem.\r\n");
             this.btnRedetermineParameterTokens.UseVisualStyleBackColor = false;
             this.btnRedetermineParameterTokens.Click += new System.EventHandler(this.btnRedetermineParameterTokens_Click);
             // 

@@ -11,18 +11,30 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Code is formatted on this panel. A bit of debugging can also be done (TestCustomRandomPanel).
+    /// </summary>
     public partial class CustomRandomParameterPanel : UserControl {
-        private CSharpTextStyle _csharpTextStyle;
 
+        #region Fields
+        private CSharpTextStyle _csharpTextStyle;
+        #endregion
+
+        #region Properties
         /// <summary>
         ///     Call Init(...) to set.
         /// </summary>
         public CustomRandomParameter Parameter { get; private set; }
+        #endregion
 
-        public CustomRandomParameterPanel() {
-            InitializeComponent();
-        }
+        #region Constructors
+        /// <summary>
+        /// Code is formatted on this panel. A bit of debugging can also be done (TestCustomRandomPanel).
+        /// </summary>
+        public CustomRandomParameterPanel() { InitializeComponent(); }
+        #endregion
 
+        #region Functions
         public void Init(SolutionComponent solutionComponent) {
             ctxtGenerate.TextChangedDelayed -= ctxtGenerate_TextChangedDelayed;
 
@@ -45,17 +57,17 @@ namespace vApus.Stresstest {
             Parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void compileCustomRandom_CompileErrorButtonClicked(object sender, TestCustomRandom.CompileErrorButtonClickedEventArgs e) {
-            ctxtGenerate.SelectLine(e.LineNumber);
-        }
-
-        internal void TryCompileAndTestCode(out Exception exception) {
-            compileCustomRandom.TryCompileAndTestCode(out exception);
-        }
-
         private void chkUnique_CheckedChanged(object sender, EventArgs e) {
             Parameter.Unique = chkUnique.Checked;
             Parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, null);
         }
+
+        private void compileCustomRandom_CompileErrorButtonClicked(object sender, TestCustomRandomPanel.CompileErrorButtonClickedEventArgs e) {
+            ctxtGenerate.SelectLine(e.LineNumber);
+        }
+
+        internal void TryCompileAndTestCode(out Exception exception) { compileCustomRandom.TryCompileAndTestCode(out exception); }
+
+        #endregion
     }
 }

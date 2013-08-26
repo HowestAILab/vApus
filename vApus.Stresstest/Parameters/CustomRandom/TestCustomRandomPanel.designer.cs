@@ -1,6 +1,6 @@
 ﻿namespace vApus.Stresstest
 {
-    partial class TestCustomRandom
+    partial class TestCustomRandomPanel
     {
         /// <summary> 
         /// Required designer variable.
