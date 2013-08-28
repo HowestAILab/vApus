@@ -27,7 +27,7 @@ namespace vApus.Stresstest {
 
         #region Fields
         private string _solution; //For the results.
-        private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100;
+        private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
         private UserActionDistribution _distribute;
@@ -41,10 +41,8 @@ namespace vApus.Stresstest {
         private int[] _monitorIndices = { };
         [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
-        private int _monitorBefore = 0;
-        private int _monitorAfter = 0;
 
-        private bool _useParallelExecutionOfLogEntries;
+        //private bool _useParallelExecutionOfLogEntries;
 
         //For in the results database
         private string _description = string.Empty;
@@ -315,10 +313,10 @@ namespace vApus.Stresstest {
         }
 #else
 #warning Parallel executions temp not available
-        public bool UseParallelExecutionOfLogEntries
-        {
+        public bool UseParallelExecutionOfLogEntries {
             get { return false; }
-            set { _useParallelExecutionOfLogEntries = false; }
+            set { //_useParallelExecutionOfLogEntries = false; 
+            }
         }
 #endif
         /// <summary>
@@ -395,7 +393,7 @@ namespace vApus.Stresstest {
                 _solution = SolutionTree.Solution.ActiveSolution.FileName;
         }
 
-        public override void Activate() {  SolutionComponentViewManager.Show(this);   }
+        public override void Activate() { SolutionComponentViewManager.Show(this); }
         public override string ToString() {
             if (_forDistributedTest)
                 return Label;

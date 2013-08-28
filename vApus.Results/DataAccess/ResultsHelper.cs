@@ -6,13 +6,6 @@
  *    Dieter Vandroemme
  */
 using MySql.Data.MySqlClient;
-/*
- * Copyright 2012 (c) Sizing Servers Lab
- * University College of West-Flanders, Department GKG
- * 
- * Author(s):
- *    Dieter Vandroemme
- */
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -401,7 +394,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
         //For getting stuff fom the database ReaderAndCombiner is used: You can execute a many-to-one distributed test (a tests workload divided over multiple slaves);
         //Results for such test must be combined before processing: it must look like a single test.
-        #region Get Configuration and Results
+        #region Get Configuration and Formatted Results
 
         #region Configuration
         public string GetDescription() {

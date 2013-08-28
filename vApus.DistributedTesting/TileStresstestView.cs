@@ -37,7 +37,7 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     In seconds how fast the stresstest progress will be updated.
         /// </summary>
-        private const int _progressUpdateDelay = 5;
+        private const int PROGRESSUPDATEDELAY = 5;
 
         /// <summary>
         ///     Caching the results to visualize in the stresstestcontrol.
@@ -140,15 +140,15 @@ namespace vApus.DistributedTesting {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 Cursor = Cursors.WaitCursor;
                 btnStop.Enabled = true;
-                try { LocalMonitor.StartMonitoring(_progressUpdateDelay * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
-                tmrProgress.Interval = _progressUpdateDelay * 1000;
+                try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
+                tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
 
                 fastResultsControl.SetStresstestInitialized();
                 _stresstestResult = null;
                 _stresstestMetricsCache = new StresstestMetricsCache();
                 fastResultsControl.SetConfigurationControls(_stresstest);
 
-                _countDown = _progressUpdateDelay - 1;
+                _countDown = PROGRESSUPDATEDELAY - 1;
                 try {
                     _stresstestCore = new StresstestCore(_stresstest);
                     _stresstestCore.ResultsHelper = _resultsHelper;
@@ -239,7 +239,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void _stresstestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e) {
-            _countDown = _progressUpdateDelay;
+            _countDown = PROGRESSUPDATEDELAY;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
 
@@ -259,7 +259,7 @@ namespace vApus.DistributedTesting {
 
         private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) { SendPushMessage(RunStateChange.None, false, true); }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
-            _countDown = _progressUpdateDelay;
+            _countDown = PROGRESSUPDATEDELAY;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
 
@@ -297,7 +297,7 @@ namespace vApus.DistributedTesting {
             //Set rerunning
             fastResultsControl.SetRerunning(runMetrics.Count == 0 ? false : runMetrics[runMetrics.Count - 1].RerunCount != 0);
 
-            _countDown = _progressUpdateDelay;
+            _countDown = PROGRESSUPDATEDELAY;
 
             SendPushMessage(RunStateChange.None, false, false);
         }

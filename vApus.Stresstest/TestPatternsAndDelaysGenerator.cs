@@ -13,7 +13,7 @@ namespace vApus.Stresstest {
     /// <summary>
     /// Generates test patterns with delays for the different simulated users in StresstestCore. Delays and the way a test pattern is build is determined in Stresstest (Min- max delay, shuffle, UserActionDistribution).
     /// </summary>
-    public class TestPatternsAndDelaysGenerator : IDisposable {
+    internal class TestPatternsAndDelaysGenerator : IDisposable {
 
         #region Fields
         private readonly LogEntry[] _logEntries;

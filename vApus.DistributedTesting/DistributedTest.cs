@@ -5,15 +5,16 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Holds Tiles and Clients.
+    /// </summary>
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
@@ -22,18 +23,15 @@ namespace vApus.DistributedTesting {
     public class DistributedTest : LabeledBaseItem {
 
         #region Fields
-
         private RunSynchronization _runSynchronization = RunSynchronization.BreakOnFirstFinished;
+        private int _maxRerunsBreakOnLast = 10;
 
         //For in the results database
         private string _description = string.Empty;
         private string[] _tags = new string[0];
-        private int _maxRerunsBreakOnLast = 10;
-
         #endregion
 
         #region Properties
-
         /// <summary>
         ///     True if you want vApus to open remote desktop connections to the used clients.
         ///     Regardless if you check it or not, you need to be logged into the clients to be able to stresstest.
@@ -80,14 +78,13 @@ namespace vApus.DistributedTesting {
             set { _tags = value; }
         }
 
-        public Tiles Tiles {
-            get { return this[0] as Tiles; }
-        }
+        public Tiles Tiles { get { return this[0] as Tiles; } }
 
-        public Clients Clients {
-            get { return this[1] as Clients; }
-        }
+        public Clients Clients { get { return this[1] as Clients; } }
 
+        /// <summary>
+        /// Yield returns the used (checked in GUI) tile stresstests.
+        /// </summary>
         public IEnumerable<TileStresstest> UsedTileStresstests {
             get {
                 foreach (Tile tile in Tiles)
@@ -97,24 +94,20 @@ namespace vApus.DistributedTesting {
                                 yield return tileStresstest;
             }
         }
-
         #endregion
 
         #region Constructor
-
+        /// <summary>
+        /// Holds Tiles and Clients.
+        /// </summary>
         public DistributedTest() {
             AddAsDefaultItem(new Tiles());
             AddAsDefaultItem(new Clients());
         }
-
         #endregion
 
         #region Functions
-
-        public override void Activate() {
-            SolutionComponentViewManager.Show(this, typeof(DistributedTestView));
-        }
-
+        public override void Activate() { SolutionComponentViewManager.Show(this); }
         #endregion
     }
 }

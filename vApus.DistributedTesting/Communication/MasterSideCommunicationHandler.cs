@@ -16,9 +16,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using vApus.Stresstest;
 using vApus.Util;
-using System.Linq;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Handles sending to and receiving from slaves / jumpstart service.
+    /// </summary>
     public static class MasterSideCommunicationHandler {
 
         #region Events
@@ -44,7 +46,6 @@ namespace vApus.DistributedTesting {
         private static InitializeTestWorkItem _initializeTestWorkItem;
         [ThreadStatic]
         private static StopTestWorkItem _stopTestWorkItem;
-
         #endregion
 
         #region Functions
@@ -526,7 +527,7 @@ namespace vApus.DistributedTesting {
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStresstests.Count];
 
             int tileStresstestIndex = 0;
-            foreach(var tileStresstest in dividedAndOriginalTileStresstests.Keys) {
+            foreach (var tileStresstest in dividedAndOriginalTileStresstests.Keys) {
                 var slave = tileStresstest.BasicTileStresstest.Slaves[0];
                 Exception ex;
                 var socketWrapper = Get(slave.IP, slave.Port, out ex);

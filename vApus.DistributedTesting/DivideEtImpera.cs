@@ -5,14 +5,13 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Holds functionality to divide workload over slaves.
+    /// </summary>
     public static class DivideEtImpera {
         /// <summary>
         /// 
@@ -27,8 +26,7 @@ namespace vApus.DistributedTesting {
                 foreach (var kvp in DivideTileStresstestOverSlaves(tileStresstest, out b))
                     dividedAndOriginalTileStresstests.Add(kvp.Key, kvp.Value);
 
-                if (b)
-                    notACleanDivision = true;
+                if (b) notACleanDivision = true;
             }
 
             return dividedAndOriginalTileStresstests;
@@ -60,7 +58,7 @@ namespace vApus.DistributedTesting {
                     addOnesPerConcurrency.Add(addOne);
 
                     notACleanDivision = mod != 0;
-                    if (notACleanDivision) 
+                    if (notACleanDivision)
                         LogWrapper.LogByLevel(tileStresstest.ToString() +
                             " The averages in the fast results will NOT be correct because one or more given concurrencies divided by the number of slaves is not an integer! Please use the detailed results." +
                             "\nIn the following example both outcomes should be the same, but that is not possible:\n\t3 concurrencies; 1 slave; a log of one entry.\n\tAvg.Response time: (10 + 7 + 9) / 3 = 26 / 3 = 8,67." +

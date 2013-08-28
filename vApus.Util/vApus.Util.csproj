@@ -386,11 +386,11 @@
     <Compile Include="Dialogs\LogMessageDialog.Designer.cs">
       <DependentUpon>LogMessageDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\ExtendedSchedule.cs">
+    <Compile Include="Dialogs\ExtendedScheduleDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\ExtendedSchedule.designer.cs">
-      <DependentUpon>ExtendedSchedule.cs</DependentUpon>
+    <Compile Include="Dialogs\ExtendedScheduleDialog.designer.cs">
+      <DependentUpon>ExtendedScheduleDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\FromTextDialog.cs">
       <SubType>Form</SubType>
@@ -412,11 +412,11 @@
       <DependentUpon>OptionsDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\Logging\PostNewIssue.cs" />
-    <Compile Include="Dialogs\Schedule.cs">
+    <Compile Include="Dialogs\ScheduleDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Schedule.Designer.cs">
-      <DependentUpon>Schedule.cs</DependentUpon>
+    <Compile Include="Dialogs\ScheduleDialog.Designer.cs">
+      <DependentUpon>ScheduleDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="DictionaryUtil.cs" />
     <Compile Include="Extensions.cs" />
@@ -535,8 +535,8 @@
     <EmbeddedResource Include="Dialogs\LogMessageDialog.resx">
       <DependentUpon>LogMessageDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\ExtendedSchedule.resx">
-      <DependentUpon>ExtendedSchedule.cs</DependentUpon>
+    <EmbeddedResource Include="Dialogs\ExtendedScheduleDialog.resx">
+      <DependentUpon>ExtendedScheduleDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\FromTextDialog.resx">
       <DependentUpon>FromTextDialog.cs</DependentUpon>
@@ -551,8 +551,8 @@
     <EmbeddedResource Include="ControlsAndPanels\Logging\LogPanel.resx">
       <DependentUpon>LogPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Schedule.resx">
-      <DependentUpon>Schedule.cs</DependentUpon>
+    <EmbeddedResource Include="Dialogs\ScheduleDialog.resx">
+      <DependentUpon>ScheduleDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

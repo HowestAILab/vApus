@@ -21,15 +21,12 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     public partial class DistributedTestView : BaseSolutionComponentView {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
 
         #region Fields
-
         private readonly object _lock = new object();
         private Win32WindowMessageHandler _msgHandler;
 
-        private Schedule _schedule = null;
+        private ScheduleDialog _schedule = null;
 
         private ITreeViewItem _selectedTestTreeViewItem;
 
@@ -40,13 +37,13 @@ namespace vApus.DistributedTesting {
         private ResultsHelper _resultsHelper = new ResultsHelper();
 
         /// <summary>
-        ///     Countdown for the update.
-        /// </summary>
-        private int _countDown;
-        /// <summary>
         ///     In seconds how fast the stresstest progress will be updated.
         /// </summary>
-        private const int _progressUpdateDelay = 5;
+        private const int PROGRESSUPDATEDELAY = 5;
+        /// <summary>
+        ///     Countdown for the update.
+        /// </summary>
+        private int _progressCountDown;
 
         private Countdown _monitorBeforeCountDown, _monitorAfterCountDown;
         /// <summary>
@@ -67,7 +64,6 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Properties
-
         private int TileStresstestCount {
             get {
                 int count = 0;
@@ -103,14 +99,12 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Constructors
-
         /// <summary>
         ///     Desing time constructor
         /// </summary>
         public DistributedTestView() {
             InitializeComponent();
         }
-
         public DistributedTestView(SolutionComponent solutionComponent)
             : base(solutionComponent) {
             InitializeComponent();
@@ -125,10 +119,11 @@ namespace vApus.DistributedTesting {
 
             Shown += DistributedTestView_Shown; //if the test is empty, show the wizard.
         }
-
         #endregion
 
         #region General Functions
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         private void SetDistributedTest(DistributedTest distributedTest) {
             _distributedTest = distributedTest;
@@ -168,7 +163,7 @@ namespace vApus.DistributedTesting {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnSchedule_Click(object sender, EventArgs e) {
-            _schedule = (btnSchedule.Tag != null && btnSchedule.Tag is DateTime) ? new Schedule((DateTime)btnSchedule.Tag) : new Schedule();
+            _schedule = (btnSchedule.Tag != null && btnSchedule.Tag is DateTime) ? new ScheduleDialog((DateTime)btnSchedule.Tag) : new ScheduleDialog();
             if (_schedule.ShowDialog() == DialogResult.OK) {
                 if (_schedule.ScheduledAt > DateTime.Now) {
                     btnSchedule.Tag = _schedule.ScheduledAt;
@@ -341,7 +336,6 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Start & Schedule
-
         private void btnStart_Click(object sender, EventArgs e) {
             if (_distributedTestCore != null && _distributedTestCore.HasResults &&
                 MessageBox.Show("Do you want to clear the previous results, before starting the test (at the scheduled date / time)?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
@@ -396,7 +390,6 @@ namespace vApus.DistributedTesting {
 
             testConnections.Test(l);
         }
-
         private void testConnections_Message(object sender, TestConnections.TestWorkItem.MessageEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 if (!e.Succes)
@@ -647,7 +640,7 @@ namespace vApus.DistributedTesting {
         private void StartTestAndMonitors() {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    try { LocalMonitor.StartMonitoring(_progressUpdateDelay * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI service.", LogLevel.Error); }
+                    try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI service.", LogLevel.Error); }
 
                     if (_monitorViews != null) {
                         int runningMonitors = 0;
@@ -733,11 +726,9 @@ namespace vApus.DistributedTesting {
                 Cursor = Cursors.Default;
             }, null);
         }
-
         #endregion
 
         #region Progress
-
         private void _distributedTestCore_Message(object sender, MessageEventArgs e) { distributedStresstestControl.AppendMessages(e.Message); }
 
         private void _distributedTestCore_TestProgressMessageReceivedDelayed(object sender, EventArgs e) {
@@ -781,8 +772,8 @@ namespace vApus.DistributedTesting {
 
                     if (testProgressMessage.StresstestStatus == StresstestStatus.Busy) {
                         tmrProgressDelayCountDown.Stop();
-                        _countDown = _progressUpdateDelay;
-                        fastResultsControl.SetCountDownProgressDelay(_countDown);
+                        _progressCountDown = PROGRESSUPDATEDELAY;
+                        fastResultsControl.SetCountDownProgressDelay(_progressCountDown);
                         tmrProgressDelayCountDown.Start();
                     }
                 }
@@ -962,7 +953,7 @@ namespace vApus.DistributedTesting {
             bool setCountDown = true;
             if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem)
                 setCountDown = (_selectedTestTreeViewItem as TileStresstestTreeViewItem).StresstestResult == StresstestStatus.Busy;
-            if (--_countDown > 0 && setCountDown) fastResultsControl.SetCountDownProgressDelay(_countDown);
+            if (--_progressCountDown > 0 && setCountDown) fastResultsControl.SetCountDownProgressDelay(_progressCountDown);
 
 #if EnableBetaFeature
             WriteMonitorRestProgress();
@@ -1146,7 +1137,6 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Monitors
-
         private void ShowAndInitMonitorView(TileStresstest tileStresstest, Monitor.Monitor monitor) {
             //show the monitorview
             MonitorView monitorView;
@@ -1282,12 +1272,12 @@ namespace vApus.DistributedTesting {
         }
         private void MonitorBeforeDone() {
             try {
-                tmrProgress.Interval = _progressUpdateDelay * 1000;
+                tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
                 tmrProgress.Start();
 
                 tmrProgressDelayCountDown.Start();
 
-                _countDown = _progressUpdateDelay - 1;
+                _progressCountDown = PROGRESSUPDATEDELAY - 1;
                 _distributedTestCore.Start();
             } catch (Exception ex) { HandleInitializeOrStartException(ex); }
         }
@@ -1439,7 +1429,6 @@ namespace vApus.DistributedTesting {
             } catch {
             }
         }
-
         #endregion
     }
 }

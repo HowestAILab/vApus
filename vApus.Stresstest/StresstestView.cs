@@ -21,50 +21,44 @@ namespace vApus.Stresstest {
     public partial class StresstestView : BaseSolutionComponentView {
 
         #region Fields
-        private Schedule _schedule;
-
-        private readonly List<MonitorView> _monitorViews = new List<MonitorView>();
         private readonly Stresstest _stresstest;
 
-        /// <summary>
-        ///     Countdown for the update.
-        /// </summary>
-        private int _countDown;
+        private ScheduleDialog _scheduleDialog;
+
         /// <summary>
         ///     In seconds how fast the stresstest progress will be updated.
         /// </summary>
-        private const int _progressUpdateDelay = 5;
+        private const int PROGRESSUPDATEDELAY = 5;
+        /// <summary>
+        ///     Countdown for the update.
+        /// </summary>
+        private int _progressCountDown;
+
+        private ResultsHelper _resultsHelper = new ResultsHelper();
 
         /// <summary>
         ///     Caching the results to visualize in the stresstestcontrol.
         /// </summary>
         private StresstestMetricsCache _stresstestMetricsCache;
-        private MonitorMetricsCache _monitorMetricsCache;
-
-        private Countdown _monitorBeforeCountDown, _monitorAfterCountDown;
-        private int _monitorsInitialized;
-
-        private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
-        private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
-
         private StresstestCore _stresstestCore;
         private StresstestResult _stresstestResult;
-
-        private ResultsHelper _resultsHelper = new ResultsHelper();
-
         private StresstestStatus _stresstestStatus; //Set on calling Stop(...);
 
+        private MonitorMetricsCache _monitorMetricsCache;
+        private readonly List<MonitorView> _monitorViews = new List<MonitorView>();
+        private Countdown _monitorBeforeCountDown, _monitorAfterCountDown;
+        private int _monitorsInitialized;
+        private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
+        private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
         #endregion
 
         #region Constructor
-
         /// <summary>
         ///     Designer time constructor.
         /// </summary>
         public StresstestView() {
             InitializeComponent();
         }
-
         public StresstestView(SolutionComponent solutionComponent)
             : base(solutionComponent) {
             Solution.RegisterForCancelFormClosing(this);
@@ -72,19 +66,19 @@ namespace vApus.Stresstest {
 
             InitializeComponent();
 
-            if (IsHandleCreated) SetGui(); else HandleCreated += StresstestProjectView_HandleCreated;
+            if (IsHandleCreated)
+                SetGui();
+            else
+                HandleCreated += StresstestProjectView_HandleCreated;
         }
-
         #endregion
 
         #region Functions
 
         #region Set the Gui
-
         private void StresstestProjectView_HandleCreated(object sender, EventArgs e) {
             SetGui();
         }
-
         private void SetGui() {
             Text = SolutionComponent.ToString();
             solutionComponentPropertyPanel.SolutionComponent = SolutionComponent;
@@ -95,13 +89,11 @@ namespace vApus.Stresstest {
                 _stresstest.Log.IsEmpty || _stresstest.Log.LogRuleSet.IsEmpty)
                 btnStart.Enabled = false;
         }
-
         public override void Refresh() {
             base.Refresh();
             SetGui();
             solutionComponentPropertyPanel.Refresh();
         }
-
         #endregion
 
         private void stresstestControl_MonitorClicked(object sender, EventArgs e) {
@@ -123,19 +115,18 @@ namespace vApus.Stresstest {
         }
 
         #region Start
-
         /// <summary>
         ///     Schedule the test at another time.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnSchedule_Click(object sender, EventArgs e) {
-            _schedule = (btnSchedule.Tag is DateTime)
-                                    ? new Schedule((DateTime)btnSchedule.Tag)
-                                    : new Schedule();
-            if (_schedule.ShowDialog() == DialogResult.OK) {
-                if (_schedule.ScheduledAt > DateTime.Now) {
-                    btnSchedule.Tag = _schedule.ScheduledAt;
+            _scheduleDialog = (btnSchedule.Tag is DateTime)
+                                    ? new ScheduleDialog((DateTime)btnSchedule.Tag)
+                                    : new ScheduleDialog();
+            if (_scheduleDialog.ShowDialog() == DialogResult.OK) {
+                if (_scheduleDialog.ScheduledAt > DateTime.Now) {
+                    btnSchedule.Tag = _scheduleDialog.ScheduledAt;
                 } else {
                     btnSchedule.Text = string.Empty;
                     btnSchedule.Tag = null;
@@ -144,14 +135,15 @@ namespace vApus.Stresstest {
             } else {
                 btnSchedule.Text = string.Empty;
             }
-            _schedule = null;
+            _scheduleDialog = null;
         }
         private void btnSchedule_MouseEnter(object sender, EventArgs e) {
             btnSchedule.Text = btnSchedule.ToolTipText;
         }
         private void btnSchedule_MouseLeave(object sender, EventArgs e) {
-            if (!btnSchedule.Text.StartsWith("Scheduled") && _schedule == null) btnSchedule.Text = string.Empty;
+            if (!btnSchedule.Text.StartsWith("Scheduled") && _scheduleDialog == null) btnSchedule.Text = string.Empty;
         }
+
         /// <summary>
         ///     Start a test with or without monitoring it.
         /// </summary>
@@ -232,7 +224,7 @@ namespace vApus.Stresstest {
 
             tc.SelectedIndex = 1;
 
-            _countDown = _progressUpdateDelay - 1;
+            _progressCountDown = PROGRESSUPDATEDELAY - 1;
         }
 
         /// <summary>
@@ -252,8 +244,8 @@ namespace vApus.Stresstest {
         private void StartStresstest() {
             Cursor = Cursors.WaitCursor;
 
-            try { LocalMonitor.StartMonitoring(_progressUpdateDelay * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
-            tmrProgress.Interval = _progressUpdateDelay * 1000;
+            try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
+            tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
 
             try {
                 _stresstestCore = new StresstestCore(_stresstest);
@@ -378,7 +370,6 @@ namespace vApus.Stresstest {
                 monitorView.InitializeForStresstest();
             }
         }
-
         private void monitorView_MonitorInitialized(object sender, MonitorView.MonitorInitializedEventArgs e) {
             var monitorView = sender as MonitorView;
             monitorView.MonitorInitialized -= monitorView_MonitorInitialized;
@@ -392,7 +383,6 @@ namespace vApus.Stresstest {
                 }
             }
         }
-
         private void monitorView_OnHandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(
                 delegate {
@@ -400,7 +390,6 @@ namespace vApus.Stresstest {
                         e.GetException(), LogLevel.Warning);
                 }, null);
         }
-
         private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(
                 delegate {
@@ -465,7 +454,6 @@ namespace vApus.Stresstest {
                 MonitorBeforeDone();
             }
         }
-
         private void monitorBeforeCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (_monitorBeforeBogusConcurrencyResult != null)
@@ -490,7 +478,6 @@ namespace vApus.Stresstest {
                 }
             }, null);
         }
-
         private void monitorBeforeCountDown_Stopped(object sender, EventArgs e) {
             if (_monitorBeforeCountDown != null) {
                 _monitorBeforeCountDown.Dispose();
@@ -514,18 +501,16 @@ namespace vApus.Stresstest {
 
             MonitorBeforeDone();
         }
-
         #endregion
 
         #region Progress
-
         private void _stresstestCore_StresstestStarted(object sender, StresstestResultEventArgs e) {
             _stresstestResult = e.StresstestResult;
             fastResultsControl.SetStresstestStarted(e.StresstestResult.StartedAt);
         }
 
         private void _stresstestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e) {
-            _countDown = _progressUpdateDelay;
+            _progressCountDown = PROGRESSUPDATEDELAY;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
 
@@ -546,7 +531,7 @@ namespace vApus.Stresstest {
             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
-            _countDown = _progressUpdateDelay;
+            _progressCountDown = PROGRESSUPDATEDELAY;
             StopProgressDelayCountDown();
             tmrProgress.Stop();
 
@@ -557,7 +542,7 @@ namespace vApus.Stresstest {
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
             }
 
-            fastResultsControl.SetCountDownProgressDelay(_countDown--);
+            fastResultsControl.SetCountDownProgressDelay(_progressCountDown--);
             tmrProgressDelayCountDown.Start();
 
             tmrProgress.Start();
@@ -569,7 +554,7 @@ namespace vApus.Stresstest {
         }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) {
-            fastResultsControl.SetCountDownProgressDelay(_countDown--);
+            fastResultsControl.SetCountDownProgressDelay(_progressCountDown--);
         }
 
         private void tmrProgress_Tick(object sender, EventArgs e) {
@@ -589,18 +574,16 @@ namespace vApus.Stresstest {
                     fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
                     fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                 }
-                _countDown = _progressUpdateDelay;
+                _progressCountDown = PROGRESSUPDATEDELAY;
             }
         }
 
         private void _stresstestCore_Message(object sender, MessageEventArgs e) {
             if (e.Color == Color.Empty) fastResultsControl.AddEvent(e.Message, e.LogLevel); else fastResultsControl.AddEvent(e.Message, e.Color, e.LogLevel);
         }
-
         #endregion
 
         #region Stop
-
         private void StresstestView_FormClosing(object sender, FormClosingEventArgs e) {
             if (btnStart.Enabled || _stresstestCore == null || _stresstestCore.IsDisposed ||
                 MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo,
@@ -838,7 +821,6 @@ namespace vApus.Stresstest {
                     fastResultsControl.SetCountDownProgressDelay(-1);
             } catch { }
         }
-
         #endregion
 
         #endregion

@@ -5,9 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,14 +15,13 @@ using System.Net;
 using System.Threading;
 using vApus.REST.Convert;
 using vApus.Results;
-using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
-    public class DistributedTestCore  {
-        #region Fields
+    public class DistributedTestCore {
 
+        #region Fields
         private readonly DistributedTest _distributedTest;
         // For adding and getting results.
         private Dictionary<TileStresstest, int> _tileStresstestsWithDbIds;
@@ -58,7 +55,6 @@ namespace vApus.DistributedTesting {
         private object _usedTileStresstestsLock = new object();
 
         private ResultsHelper _resultsHelper;
-
         #endregion
 
         #region Properties
@@ -175,15 +171,6 @@ namespace vApus.DistributedTesting {
         /// <returns>Stresstests and the IDs in the db</returns>
         public void Initialize(out bool notACleanDivision) {
             InvokeMessage("Initializing the Test.");
-
-            //_ok = new string[] { };
-            //_cancelled = new string[] { };
-            //_failed = new string[] { };
-            //_runInitialized = new string[] { };
-            //_runDoneOnce = new string[] { };
-
-            //_finishedHandled = false;
-            //_hasResults = false;
 
             Connect(out notACleanDivision);
             SetvApusInstancesAndStresstestsInDb();

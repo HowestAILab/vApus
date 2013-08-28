@@ -5,11 +5,9 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Windows.Forms;
 using vApus.DistributedTesting.Properties;
@@ -17,92 +15,80 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     /// <summary>
+    ///     Handles communication comming from vApus master.
     ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
     /// </summary>
     public class SocketListener {
         #region Events
-
         /// <summary>
         ///     Use this for instance to show the test name in the title bar of the main window.
         /// </summary>
         public event EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> NewTest;
         public event EventHandler<ListeningErrorEventArgs> ListeningError;
-
         #endregion
 
         #region Fields
-
         public const int DEFAULTPORT = 1337;
+
+        private int _maximumStartTries = 3, _startTries;
+
         private static SocketListener _socketListener;
+        private Socket _serverSocketV4, _serverSocketV6;
+        private int _port;
 
         private readonly HashSet<SocketWrapper> _connectedMasters = new HashSet<SocketWrapper>();
 
-        private int _maximumStartTries = 3;
         public AsyncCallback _onReceiveCallBack;
-        private int _port;
-        private Socket _serverSocketV4;
-        private Socket _serverSocketV6;
-        private int _startTries;
-
         #endregion
 
         #region Properties
+        /// <summary>
+        /// </summary>
+        public bool IsRunning { get { return (_serverSocketV4 != null || _serverSocketV6 != null); } }
+
         /// <summary>
         ///     Setting an invalid port will throw an exception.
         /// </summary>
         public int Port { get { return _port; } }
 
-        /// <summary>
-        /// </summary>
-        public int ConnectedMastersCount { get { return _connectedMasters.Count; } }
-
-        /// <summary>
-        /// </summary>
-        public bool IsRunning { get { return (_serverSocketV4 != null || _serverSocketV6 != null); } }
-
         public int PreferredPort { get { return Settings.Default.PreferredPort; } }
-
         #endregion
 
         #region Constructor
-
-        private SocketListener() {
-            //NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
-            SlaveSideCommunicationHandler.NewTest += SlaveSideCommunicationHandler_NewTest;
-        }
-
+        /// <summary>
+        ///     Handles communication comming from vApus master.
+        ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
+        /// </summary>
+        private SocketListener() { SlaveSideCommunicationHandler.NewTest += SlaveSideCommunicationHandler_NewTest; }
         #endregion
 
         #region Functions
-
         public static SocketListener GetInstance() {
             if (_socketListener == null)
                 _socketListener = new SocketListener();
             return _socketListener;
         }
 
-        private void SlaveSideCommunicationHandler_NewTest(object sender,
-                                                           SlaveSideCommunicationHandler.NewTestEventArgs e) {
+        private void SlaveSideCommunicationHandler_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e) {
             if (NewTest != null)
                 foreach (EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> del in NewTest.GetInvocationList()
                     )
                     del.BeginInvoke(this, e, null, null);
         }
 
-        public bool CheckAgainstPreferred(int port) {
-            return Settings.Default.PreferredPort == port;
-        }
+        /// <summary>
+        /// Check if the given port is the same as the preferred one.
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public bool CheckAgainstPreferred(int port) { return Settings.Default.PreferredPort == port; }
 
         #region Start & Stop
-
-        //private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e) {
-        //try {
-        //    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-        //        SetPort(_port, false);
-        //    }, null);
-        //} catch { }
-        //}
-
+        /// <summary>
+        /// Restarts listening when setting this.
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="preferred"></param>
         public void SetPort(int port, bool preferred = false) {
             Stop();
             try {
@@ -221,13 +207,6 @@ namespace vApus.DistributedTesting {
 
         #region Communication
 
-        private SocketWrapper Get(string ip, int port) {
-            foreach (SocketWrapper socketWrapper in _connectedMasters)
-                if (socketWrapper.IP.ToString() == ip && socketWrapper.Port == port)
-                    return socketWrapper;
-            return null;
-        }
-
         private void ConnectMaster(string ip, int port, int connectTimeout, out Exception exception) {
             try {
                 exception = null;
@@ -245,6 +224,12 @@ namespace vApus.DistributedTesting {
                 exception = ex;
             }
         }
+        private SocketWrapper Get(string ip, int port) {
+            foreach (SocketWrapper socketWrapper in _connectedMasters)
+                if (socketWrapper.IP.ToString() == ip && socketWrapper.Port == port)
+                    return socketWrapper;
+            return null;
+        }
 
         private void DisconnectMasters() {
             foreach (SocketWrapper socketWrapper in _connectedMasters)
@@ -252,7 +237,6 @@ namespace vApus.DistributedTesting {
                     socketWrapper.Close();
             _connectedMasters.Clear();
         }
-
         private void DisconnectMaster(SocketWrapper masterSocketWrapper) {
             foreach (SocketWrapper socketWrapper in _connectedMasters)
                 if (socketWrapper == masterSocketWrapper) {
@@ -308,6 +292,10 @@ namespace vApus.DistributedTesting {
             }
         }
 
+        /// <summary>
+        /// Handles synchronization of the send and receive buffers, the rest is handled by SlaveSideCommunicationHandler.
+        /// </summary>
+        /// <param name="result"></param>
         private void OnReceive(IAsyncResult result) {
             var socketWrapper = (SocketWrapper)result.AsyncState;
             var message = new Message<Key>();
@@ -325,7 +313,6 @@ namespace vApus.DistributedTesting {
                 }
                 socketWrapper.Send(message, SendType.Binary);
             } catch (Exception exception) {
-                //MessageBox.Show(exception.ToString());
                 DisconnectMaster(socketWrapper);
                 SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
                 //The test cannot be valid without a master, stop the test if any.
@@ -334,7 +321,6 @@ namespace vApus.DistributedTesting {
                     ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
             }
         }
-
         #endregion
 
         #endregion

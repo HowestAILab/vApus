@@ -18,19 +18,37 @@ using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Handles communication comming from vApus master through SocketListener. Pushes status and metrics to the master.
+    /// </summary>
     public static class SlaveSideCommunicationHandler {
-        private static readonly object _lock = new object();
-        //For encrypting the mysql password
-        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
+        /// <summary>
+        ///     Use this for instance to show the test name in the title bar of the main window.
+        /// </summary>
+        public static event EventHandler<NewTestEventArgs> NewTest;
 
-        #region Message Handling
+        private delegate void SendPushMessageDelegate(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+                                              TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
+
+        #region Fields
+        private static readonly object _lock = new object();
 
         private static ManualResetEvent _handleMessageWaitHandle = new ManualResetEvent(true);
         private static TileStresstestView _tileStresstestView;
         //Get the right socket wrapper to push progress to.
         private static SocketWrapper _masterSocketWrapper;
 
+        private static readonly SendPushMessageDelegate _sendPushMessageDelegate = SendQueuedPushMessage;
+        private static ActiveObject _sendQueue;
+
+        //For encrypting the mysql password of the results db server.
+        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
+        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
+        #endregion
+
+        #region Functions
+
+        #region Message Handling
         public static Message<Key> HandleMessage(SocketWrapper receiver, Message<Key> message) {
             try {
                 switch (message.Key) {
@@ -171,32 +189,7 @@ namespace vApus.DistributedTesting {
         }
         #endregion
 
-        /// <summary>
-        ///     Use this for instance to show the test name in the title bar of the main window.
-        /// </summary>
-        public static event EventHandler<NewTestEventArgs> NewTest;
-
-        private static void SynchronizeBuffers(object toSend) {
-            byte[] buffer = _masterSocketWrapper.ObjectToByteArray(toSend);
-            int bufferSize = buffer.Length;
-            if (bufferSize > _masterSocketWrapper.SendBufferSize) {
-                _masterSocketWrapper.SendBufferSize = bufferSize;
-                _masterSocketWrapper.ReceiveBufferSize = _masterSocketWrapper.SendBufferSize;
-                var synchronizeBuffersMessage = new SynchronizeBuffersMessage();
-                synchronizeBuffersMessage.BufferSize = _masterSocketWrapper.SendBufferSize;
-
-                var message = new Message<Key>();
-                message.Key = Key.SynchronizeBuffers;
-                message.Content = synchronizeBuffersMessage;
-                _masterSocketWrapper.Send(message, SendType.Binary);
-            }
-        }
-
         #region Message Sending
-
-        private static readonly SendPushMessageDelegate _sendPushMessageDelegate = SendQueuedPushMessage;
-        private static ActiveObject _sendQueue;
-
         /// <summary>
         ///     Queues the messages to send in queues per stresstest (vApus.Util.ActiveObject), thread safe.
         ///     Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
@@ -208,9 +201,8 @@ namespace vApus.DistributedTesting {
         /// <param name="stresstestCore"></param>
         /// <param name="events"></param>
         /// <param name="concurrentUsersStateChange"></param>
-        public static void SendPushMessage(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus,
-                                           DateTime startedAt, TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore,
-                                           List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
+        public static void SendPushMessage(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+                                           TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
                 if (_sendQueue != null)
                     _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
@@ -218,10 +210,8 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        private static void SendQueuedPushMessage(string tileStresstestIndex,
-                                                  StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt,
-                                                  TimeSpan measuredRuntime, TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore,
-                                                  List<EventPanelEvent> events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
+        private static void SendQueuedPushMessage(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+                                                  TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (_masterSocketWrapper != null)
                 try {
                     var tpm = new TestProgressMessage();
@@ -265,10 +255,23 @@ namespace vApus.DistributedTesting {
                     }
                 } catch { }
         }
+        #endregion
 
-        private delegate void SendPushMessageDelegate(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-            TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
+        private static void SynchronizeBuffers(object toSend) {
+            byte[] buffer = _masterSocketWrapper.ObjectToByteArray(toSend);
+            int bufferSize = buffer.Length;
+            if (bufferSize > _masterSocketWrapper.SendBufferSize) {
+                _masterSocketWrapper.SendBufferSize = bufferSize;
+                _masterSocketWrapper.ReceiveBufferSize = _masterSocketWrapper.SendBufferSize;
+                var synchronizeBuffersMessage = new SynchronizeBuffersMessage();
+                synchronizeBuffersMessage.BufferSize = _masterSocketWrapper.SendBufferSize;
 
+                var message = new Message<Key>();
+                message.Key = Key.SynchronizeBuffers;
+                message.Content = synchronizeBuffersMessage;
+                _masterSocketWrapper.Send(message, SendType.Binary);
+            }
+        }
         #endregion
 
         public class NewTestEventArgs : EventArgs {

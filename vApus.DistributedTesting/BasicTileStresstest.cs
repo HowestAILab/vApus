@@ -14,6 +14,9 @@ using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Basic section of a TileStresstest.
+    /// </summary>
     public class BasicTileStresstest : BaseItem {
 
         #region Fields
@@ -28,7 +31,6 @@ namespace vApus.DistributedTesting {
 
         //This is only set when this is null or a solutioncomponent changed event is invoked.
         private List<Slave> _cachedSlavesParent = new List<Slave>();
-
         #endregion
 
         #region Properties
@@ -186,6 +188,9 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Constructor
+        /// <summary>
+        /// Basic section of a TileStresstest.
+        /// </summary>
         public BasicTileStresstest() {
             ShowInGui = false;
             if (Solution.ActiveSolution != null)

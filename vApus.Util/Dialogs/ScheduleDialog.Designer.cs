@@ -1,6 +1,6 @@
 ﻿namespace vApus.Util
 {
-    partial class Schedule
+    partial class ScheduleDialog
     {
         /// <summary>
         /// Required designer variable.

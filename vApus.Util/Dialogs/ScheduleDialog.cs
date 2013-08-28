@@ -12,36 +12,28 @@ namespace vApus.Util {
     /// <summary>
     /// If you want to be able to set a fixed duration, use ExtendedSchedule.
     /// </summary>
-    public partial class Schedule : Form {
-        private DateTime _scheduledAt;
+    public partial class ScheduleDialog : Form {
+        private DateTime _scheduledAt = DateTime.MinValue;
 
-        public Schedule() {
-            InitializeComponent();
-        }
+        public DateTime ScheduledAt { get { return _scheduledAt; } }
 
-        public Schedule(DateTime scheduledAt)
+        public ScheduleDialog() { InitializeComponent(); }
+
+        public ScheduleDialog(DateTime scheduledAt)
             : this() {
             rdbLater.Checked = (scheduledAt > dtpTime.Value);
-            if (rdbLater.Checked) {
-                dtpDate.Value = scheduledAt;
-                dtpTime.Value = scheduledAt;
-            }
+            if (rdbLater.Checked)
+                dtpDate.Value = dtpTime.Value = scheduledAt;
         }
 
-        public DateTime ScheduledAt {
-            get { return _scheduledAt; }
-        }
+        private void dtp_ValueChanged(object sender, EventArgs e) { rdbLater.Checked = true; }
 
         private void btnOK_Click(object sender, EventArgs e) {
             _scheduledAt = (rdbNow.Checked) ? DateTime.Now : (dtpDate.Value.Date + dtpTime.Value.TimeOfDay);
-            if (_scheduledAt < DateTime.Now)
-                _scheduledAt = DateTime.Now;
+            if (ScheduledAt < DateTime.Now) _scheduledAt = DateTime.Now;
 
             DialogResult = DialogResult.OK;
         }
 
-        private void dtp_ValueChanged(object sender, EventArgs e) {
-            rdbLater.Checked = true;
-        }
     }
 }
