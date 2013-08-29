@@ -30,7 +30,7 @@ namespace vApus.Stresstest {
         /// A color pallete of 40 colors to be able to visualy match overiew and 5 heaviest user actions charts.
         /// (Filled later on)
         /// </summary>
-        private List<Color> _colorPalette = new List<Color>(40);
+        private List<Color> _colorPalette = new List<Color>(25);
         #endregion
 
         #region Constructor
@@ -46,50 +46,34 @@ namespace vApus.Stresstest {
 
         #region Funtions
         private void FillColorPalette() {
-            _colorPalette.Add(Color.FromArgb(127, 201, 127));
-            _colorPalette.Add(Color.FromArgb(190, 174, 212));
-            _colorPalette.Add(Color.FromArgb(253, 192, 134));
-            _colorPalette.Add(Color.FromArgb(255, 255, 153));
-            _colorPalette.Add(Color.FromArgb(056, 108, 176));
-            _colorPalette.Add(Color.FromArgb(240, 002, 127));
-            _colorPalette.Add(Color.FromArgb(191, 091, 023));
-            _colorPalette.Add(Color.FromArgb(102, 102, 102));
+            _colorPalette.Add(Color.FromArgb(178, 247, 178));
+            _colorPalette.Add(Color.FromArgb(178, 178, 247));
+            _colorPalette.Add(Color.FromArgb(247, 179, 179));
+            _colorPalette.Add(Color.FromArgb(079, 155, 122));
+            _colorPalette.Add(Color.FromArgb(252, 102, 102));
+            _colorPalette.Add(Color.FromArgb(078, 105, 162));
+            _colorPalette.Add(Color.FromArgb(204, 212, 217));
+            _colorPalette.Add(Color.FromArgb(048, 093, 123));
 
-            _colorPalette.Add(Color.FromArgb(166, 206, 227));
-            _colorPalette.Add(Color.FromArgb(031, 120, 180));
-            _colorPalette.Add(Color.FromArgb(178, 223, 138));
-            _colorPalette.Add(Color.FromArgb(051, 160, 044));
-            _colorPalette.Add(Color.FromArgb(251, 154, 153));
+            _colorPalette.Add(Color.FromArgb(238, 238, 238));
+            _colorPalette.Add(Color.FromArgb(255, 163, 102));
+            _colorPalette.Add(Color.FromArgb(255, 102, 000));
+            _colorPalette.Add(Color.FromArgb(152, 218, 211));
+            _colorPalette.Add(Color.FromArgb(074, 121, 181));
             _colorPalette.Add(Color.FromArgb(227, 026, 028));
-            _colorPalette.Add(Color.FromArgb(253, 191, 111));
-            _colorPalette.Add(Color.FromArgb(255, 127, 000));
+            _colorPalette.Add(Color.FromArgb(059, 089, 152));
+            _colorPalette.Add(Color.FromArgb(230, 230, 230));
 
-            _colorPalette.Add(Color.FromArgb(102, 194, 165));
-            _colorPalette.Add(Color.FromArgb(252, 141, 098));
-            _colorPalette.Add(Color.FromArgb(141, 160, 203));
-            _colorPalette.Add(Color.FromArgb(231, 138, 195));
-            _colorPalette.Add(Color.FromArgb(166, 216, 084));
-            _colorPalette.Add(Color.FromArgb(255, 217, 047));
-            _colorPalette.Add(Color.FromArgb(229, 196, 148));
-            _colorPalette.Add(Color.FromArgb(179, 179, 179));
+            _colorPalette.Add(Color.FromArgb(226, 051, 081));
+            _colorPalette.Add(Color.FromArgb(242, 184, 068));
+            _colorPalette.Add(Color.FromArgb(139, 157, 195));
+            _colorPalette.Add(Color.FromArgb(234, 118, 075));
+            _colorPalette.Add(Color.FromArgb(229, 223, 204));
+            _colorPalette.Add(Color.FromArgb(083, 193, 192));
+            _colorPalette.Add(Color.FromArgb(148, 170, 161));
+            _colorPalette.Add(Color.FromArgb(083, 193, 192));
 
-            _colorPalette.Add(Color.FromArgb(141, 211, 199));
-            _colorPalette.Add(Color.FromArgb(255, 255, 179));
-            _colorPalette.Add(Color.FromArgb(190, 186, 218));
-            _colorPalette.Add(Color.FromArgb(251, 128, 114));
-            _colorPalette.Add(Color.FromArgb(128, 177, 211));
-            _colorPalette.Add(Color.FromArgb(253, 180, 098));
-            _colorPalette.Add(Color.FromArgb(179, 222, 105));
-            _colorPalette.Add(Color.FromArgb(252, 205, 229));
-
-            _colorPalette.Add(Color.FromArgb(251, 180, 174));
-            _colorPalette.Add(Color.FromArgb(179, 205, 227));
-            _colorPalette.Add(Color.FromArgb(204, 235, 197));
-            _colorPalette.Add(Color.FromArgb(222, 203, 228));
-            _colorPalette.Add(Color.FromArgb(254, 217, 166));
-            _colorPalette.Add(Color.FromArgb(255, 255, 204));
-            _colorPalette.Add(Color.FromArgb(229, 216, 189));
-            _colorPalette.Add(Color.FromArgb(253, 218, 236));
+            _colorPalette.Add(Color.FromArgb(139, 173, 083));
         }
         public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;
@@ -245,7 +229,7 @@ namespace vApus.Stresstest {
             SetDataSeriesColors(chart, rangeWidth - 2, _colorPalette);
 
             var dso = chart.GetDataSeriesOptions(rangeWidth - 1);
-            dso.Line.SetSolidLine(Color.DarkOrange, 0);
+            dso.Line.SetSolidLine(Color.LimeGreen, 0);
             chart.SetDataSeriesOptions(rangeWidth - 1, dso);
 
             doc.InsertChart(chart);
@@ -333,8 +317,11 @@ namespace vApus.Stresstest {
                     doc.SetCellStyle(rangeOffset, i + 1, boldStyle);
 
                     if (columnName.Contains(":")) {
-                        int userActionIndex = int.Parse(columnName.Split(':')[0]);
-                        colorPalette.Add(_colorPalette[userActionIndex - 1]);
+                        int index = int.Parse(columnName.Split(':')[0]) - 1;
+                        while (index >= _colorPalette.Count)
+                            index -= _colorPalette.Count;
+
+                        colorPalette.Add(_colorPalette[index]);
                     }
                 }
 
