@@ -265,15 +265,32 @@ namespace vApus.Stresstest {
             if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
             doc.AddWorksheet(worksheet);
 
-            //Sort the acions, only the last row is used for this
-            var sortedColumns = new List<int>();
-            var responseTimes = new List<double>();
             if (dt.Rows.Count != 0) {
-                DataRow dr = dt.Rows[dt.Rows.Count - 1];
+                //Make an average of all response times and use this to determine the heaviest actions.
+                var averageResponseTimes = new double[dt.Columns.Count - 4];
+                int rowCount = dt.Rows.Count;
+                foreach (DataRow dr in dt.Rows)
+                    for (int i = 2; i < dt.Columns.Count - 2; i++) {
+                        var o = dr.ItemArray[i];
+                        double value = (o is double ? (double)o : double.Parse(o as string));
+                        averageResponseTimes[i - 2] += (value / rowCount);
+                    }
+
+                var avgRow = new List<object>(dt.Columns.Count);
+                avgRow.Add("");
+                avgRow.Add("");
+                foreach (double value in averageResponseTimes)
+                    avgRow.Add(value);
+                avgRow.Add("");
+                avgRow.Add("");
+
+                //Sort the acions
+                var sortedColumns = new List<int>();
+                var responseTimes = new List<double>();
 
                 //0 = stresstest, 1 = concurrency, second to last = throughput, last = errors
                 for (int i = 2; i < dt.Columns.Count - 2; i++) {
-                    var o = dr.ItemArray[i];
+                    var o = avgRow[i];
                     double value = (o is double ? (double)o : double.Parse(o as string));
 
                     //Sort the columns by response time, we need the indices.
@@ -294,8 +311,7 @@ namespace vApus.Stresstest {
                     responseTimes.RemoveAt(4);
                     sortedColumns.RemoveAt(4);
                 }
-                if (dt.Columns.Count > 1)
-                    sortedColumns.Insert(0, 1);
+                if (dt.Columns.Count > 1) sortedColumns.Insert(0, 1);
 
                 //Add data to the worksheet, only the second column and the 5 heaviest actions
                 int rangeWidth = sortedColumns.Count, rangeOffset = 2, rangeHeight = dt.Rows.Count;
