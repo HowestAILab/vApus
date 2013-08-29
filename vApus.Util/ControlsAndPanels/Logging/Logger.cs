@@ -5,7 +5,6 @@
  * Author(s):
  *    Glenn Desmadryl
  */
-
 using System;
 using System.IO;
 using System.Windows.Forms;
@@ -16,18 +15,16 @@ namespace vApus.Util {
     ///     Before this we used Log4Net but that was a bit overrated for the things we want to log (mainly exceptions).
     /// </summary>
     public class Logger {
-        #region Fields
 
+        #region Fields
         public static readonly string DEFAULT_LOCATION;
         private static readonly object _lock = new object();
         private string _location;
         private string _logFile;
         private StreamWriter _sw;
-
         #endregion
 
         #region Properties
-
         public StreamWriter Writer {
             get {
                 lock (_lock) {
@@ -56,11 +53,9 @@ namespace vApus.Util {
         public string LogFile {
             get { return _logFile; }
         }
-
         #endregion
 
         #region Constructors
-
         static Logger() {
             DEFAULT_LOCATION = Path.Combine(Application.StartupPath, "Logs");
         }
@@ -83,9 +78,9 @@ namespace vApus.Util {
 
             OpenOrReOpenWriter();
         }
-
         #endregion
 
+        #region Functions
         public void Log(object input) {
             Writer.WriteLine(input);
             Writer.Flush();
@@ -125,5 +120,6 @@ namespace vApus.Util {
                     File.Delete(_logFile);
             }
         }
+        #endregion
     }
 }

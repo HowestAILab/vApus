@@ -5,14 +5,11 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     [Serializable]
-    public enum EventViewEventType
-    {
+    public enum EventViewEventType {
         Info = 0,
         Warning,
         Error

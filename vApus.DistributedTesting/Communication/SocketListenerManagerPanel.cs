@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -13,15 +12,16 @@ using System.Windows.Forms;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Sets the socket listener options. Used in OptionDialog.
+    /// </summary>
     public partial class SocketListenerManagerPanel : Panel {
+
         #region Fields
-
         private readonly SocketListener _socketListener;
-
         #endregion
 
         #region Constructor
-
         public SocketListenerManagerPanel() {
             _socketListener = SocketListener.GetInstance();
 
@@ -31,18 +31,48 @@ namespace vApus.DistributedTesting {
             else
                 HandleCreated += SocketListenerManager_HandleCreated;
         }
-
         #endregion
 
         #region Functions
-
         private void Init() {
             CheckRunning();
             btnSet.Enabled = false;
         }
+        private void SocketListenerManager_HandleCreated(object sender, EventArgs e) { Init(); }
 
-        private void SocketListenerManager_HandleCreated(object sender, EventArgs e) {
-            Init();
+        //Copy the ip to the clipboard.
+        private void btnCopyHost_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(txtHost.Text); }
+
+        private void llblIPAddresses_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) { Process.Start("cmd", "/k ipconfig"); }
+
+        private void nudPort_ValueChanged(object sender, EventArgs e) {
+            btnSet.Enabled = true;
+            chkPreferred.Checked = _socketListener.CheckAgainstPreferred((int)nudPort.Value);
+        }
+
+        private void chkPreferred_CheckedChanged(object sender, EventArgs e) {
+            if ((int)nudPort.Value == _socketListener.Port)
+                chkPreferred.Enabled = _socketListener.Port != _socketListener.PreferredPort;
+            else
+                chkPreferred.Enabled = true;
+            if (chkPreferred.Enabled)
+                btnSet.Enabled = true;
+        }
+
+        private void btnSet_Click(object sender, EventArgs e) {
+            StatusStopped(false);
+            btnStart.Enabled = false;
+            try {
+                _socketListener.SetPort((int)nudPort.Value, chkPreferred.Checked);
+            } catch {
+                MessageBox.Show(
+                    string.Format("The socket listening could not be bound to port {0}!", nudPort.Value), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button1);
+                _socketListener.Start();
+            }
+            CheckRunning();
+            chkPreferred.Checked = _socketListener.CheckAgainstPreferred((int)nudPort.Value);
+            btnSet.Enabled = false;
         }
 
         private void btnStart_Click(object sender, EventArgs e) {
@@ -117,49 +147,9 @@ namespace vApus.DistributedTesting {
             Cursor = Cursors.Default;
         }
 
-        //Copy the ip to the clipboard.
-        private void btnCopyHost_Click(object sender, EventArgs e) {
-            ClipboardWrapper.SetDataObject(txtHost.Text);
-        }
-
-        private void nudPort_ValueChanged(object sender, EventArgs e) {
-            btnSet.Enabled = true;
-            chkPreferred.Checked = _socketListener.CheckAgainstPreferred((int)nudPort.Value);
-        }
-
-        private void btnSet_Click(object sender, EventArgs e) {
-            StatusStopped(false);
-            btnStart.Enabled = false;
-            try {
-                _socketListener.SetPort((int)nudPort.Value, chkPreferred.Checked);
-            } catch {
-                MessageBox.Show(
-                    string.Format("The socket listening could not be bound to port {0}!", nudPort.Value), string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button1);
-                _socketListener.Start();
-            }
-            CheckRunning();
-            chkPreferred.Checked = _socketListener.CheckAgainstPreferred((int)nudPort.Value);
-            btnSet.Enabled = false;
-        }
-
-        private void chkPreferred_CheckedChanged(object sender, EventArgs e) {
-            if ((int)nudPort.Value == _socketListener.Port)
-                chkPreferred.Enabled = _socketListener.Port != _socketListener.PreferredPort;
-            else
-                chkPreferred.Enabled = true;
-            if (chkPreferred.Enabled)
-                btnSet.Enabled = true;
-        }
-
-        private void llblIPAddresses_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            Process.Start("cmd", "/k ipconfig");
-        }
-
         public override string ToString() {
             return "Socket Listener Manager";
         }
-
         #endregion
     }
 }

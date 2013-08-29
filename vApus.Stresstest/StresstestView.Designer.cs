@@ -116,7 +116,6 @@
             this.fastResultsControl.Margin = new System.Windows.Forms.Padding(0);
             this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
             this.fastResultsControl.Name = "fastResultsControl";
-            this.fastResultsControl.ResultsHelper = null;
             this.fastResultsControl.Size = new System.Drawing.Size(790, 497);
             this.fastResultsControl.TabIndex = 0;
             this.fastResultsControl.MonitorClicked += new System.EventHandler(this.stresstestControl_MonitorClicked);

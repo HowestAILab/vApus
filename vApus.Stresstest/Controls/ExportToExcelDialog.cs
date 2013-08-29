@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -18,14 +17,27 @@ using vApus.Results;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Uses ResultsHelper to gather all results.
+    /// </summary>
     public partial class ExportToExcelDialog : Form {
-        private ResultsHelper _resultsHelper;
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
+        #region Fields
+        private ResultsHelper _resultsHelper;
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //To Cancel refreshing the report.
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Uses ResultsHelper to gather all results.
+        /// </summary>
         public ExportToExcelDialog() {
             InitializeComponent();
             saveFileDialog.FileName = "results" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
         }
+        #endregion
+
+        #region Funtions
         public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;
 
@@ -45,7 +57,7 @@ namespace vApus.Stresstest {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
-                ulong selectedIndex = (ulong)cboStresstest.SelectedIndex;
+                int selectedIndex = cboStresstest.SelectedIndex;
                 bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
 
                 string fileNameWithoutExtension = saveFileDialog.FileName;
@@ -60,23 +72,23 @@ namespace vApus.Stresstest {
                         var doc = new SLDocument();
 
                         //Make different sheets per test.
-                        var stresstests = new Dictionary<ulong, string>();
+                        var stresstests = new Dictionary<int, string>();
                         var stresstestsDt = _resultsHelper.GetStresstests();
                         if (selectedIndex == 0) {
                             foreach (DataRow row in stresstestsDt.Rows) {
                                 string stresstest = row.ItemArray[1] as string;
                                 if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1];
                                 stresstest += " " + (row.ItemArray[2] as string);
-                                stresstests.Add(Convert.ToUInt64(row.ItemArray[0]), stresstest);
+                                stresstests.Add((int)row.ItemArray[0], stresstest);
                             }
                         } else {
                             foreach (DataRow row in stresstestsDt.Rows) {
-                                ulong ul = Convert.ToUInt64(row.ItemArray[0]);
-                                if (selectedIndex == ul) {
+                                int i = (int)row.ItemArray[0];
+                                if (selectedIndex == i) {
                                     string stresstest = row.ItemArray[1] as string;
                                     if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1].TrimStart();
                                     stresstest += " " + (row.ItemArray[2] as string);
-                                    stresstests.Add(ul, stresstest);
+                                    stresstests.Add(i, stresstest);
                                     break;
                                 }
                             }
@@ -84,10 +96,10 @@ namespace vApus.Stresstest {
 
                         string firstWorksheet = null;
                         int worksheetIndex = 1; //Just for a unique sheet name
-                        foreach (ulong stresstestId in stresstests.Keys) {
+                        foreach (int stresstestId in stresstests.Keys) {
                             //For some strange reason the doubles are changed to string.
                             var overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
-                            var avgUserActions = _resultsHelper.GetAverageUserActions(_cancellationTokenSource.Token, stresstestId);
+                            var avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
                             var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                             var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId); ;
                             var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
@@ -143,6 +155,7 @@ namespace vApus.Stresstest {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = true;
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -175,7 +188,7 @@ namespace vApus.Stresstest {
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
             chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
             chart.SecondaryValueAxis.ShowTitle = true;
-            
+
             doc.InsertChart(chart);
 
             return worksheet;
@@ -199,8 +212,8 @@ namespace vApus.Stresstest {
             if (dt.Rows.Count != 0) {
                 DataRow dr = dt.Rows[dt.Rows.Count - 1];
 
-                //0 = stresstest, 1 = concurrency, last = throughput
-                for (int i = 2; i < dt.Columns.Count - 1; i++) {
+                //0 = stresstest, 1 = concurrency, second to last = throughput, last = errors
+                for (int i = 2; i < dt.Columns.Count - 2; i++) {
                     var o = dr.ItemArray[i];
                     double value = (o is double ? (double)o : double.Parse(o as string));
 
@@ -283,7 +296,6 @@ namespace vApus.Stresstest {
 
             return worksheet;
         }
-
         /// <summary>
         /// Format the user action comosition differently so it is more readable for customers.
         /// </summary>
@@ -315,7 +327,6 @@ namespace vApus.Stresstest {
             int rangeWidth, rangeOffset, rangeHeight;
             return MakeWorksheet(doc, userActionComposition, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight, true);
         }
-
         private string MakeMonitorSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
             dt.Columns.RemoveAt(1);
 
@@ -409,6 +420,7 @@ namespace vApus.Stresstest {
             }
             return rowRangesPerStresstest;
         }
+
         private void pic_Click(object sender, EventArgs e) {
             var dialog = new ChartDialog((sender as PictureBox).Image);
             dialog.ShowDialog();
@@ -417,5 +429,6 @@ namespace vApus.Stresstest {
         private void SaveChartsDialog_FormClosing(object sender, FormClosingEventArgs e) {
             _cancellationTokenSource.Cancel();
         }
+        #endregion
     }
 }

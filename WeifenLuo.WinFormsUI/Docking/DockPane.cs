@@ -930,16 +930,20 @@ namespace WeifenLuo.WinFormsUI.Docking {
         }
 
         private void SetVisibleContentsToPane(DockPane pane, IDockContent activeContent) {
-            for (int i = 0; i < DisplayingContents.Count; i++) {
-                IDockContent content = DisplayingContents[i];
-                if (content.DockHandler.IsDockStateValid(pane.DockState)) {
-                    content.DockHandler.Pane = pane;
-                    i--;
+            try {
+                for (int i = 0; i < DisplayingContents.Count; i++) {
+                    IDockContent content = DisplayingContents[i];
+                    if (content.DockHandler.IsDockStateValid(pane.DockState)) {
+                        content.DockHandler.Pane = pane;
+                        i--;
+                    }
                 }
-            }
 
-            if (activeContent.DockHandler.Pane == pane)
-                pane.ActiveContent = activeContent;
+                if (activeContent.DockHandler.Pane == pane)
+                    pane.ActiveContent = activeContent;
+            } catch (Exception ex) {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         private void InternalAddToDockList(INestedPanesContainer container, DockPane prevPane, DockAlignment alignment,

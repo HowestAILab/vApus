@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -15,6 +14,18 @@ namespace vApus.Util {
     ///     To offload work to a background thread keeping that work in a synchronized order.
     /// </summary>
     public class ActiveObject : IDisposable {
+        public event EventHandler<OnResultEventArgs> OnResult;
+
+        #region Fields
+
+        private readonly AutoResetEvent _sendWaitHandle;
+
+        private bool _isDisposed;
+        private Queue<KeyValuePair<Delegate, object[]>> _sendQueue;
+        private Thread _sendWorkerThread;
+
+        #endregion
+
         /// <summary>
         ///     To offload work to a background thread keeping that work in a synchronized order.
         /// </summary>
@@ -25,8 +36,6 @@ namespace vApus.Util {
             _sendWorkerThread.IsBackground = true;
             _sendWorkerThread.Start();
         }
-
-        public event EventHandler<OnResultEventArgs> OnResult;
 
         ~ActiveObject() {
             Dispose(10);
@@ -39,9 +48,7 @@ namespace vApus.Util {
         /// <summary>
         ///     Wait indefinetly until the work is done before disposing.
         /// </summary>
-        public void Dispose() {
-            Dispose(-1);
-        }
+        public void Dispose() {  Dispose(-1);  }
 
         /// <summary>
         ///     Wait the given timeout before disposing, if the work is not done it will be aborted.
@@ -102,8 +109,7 @@ namespace vApus.Util {
                         } finally {
                             if (OnResult != null)
                                 foreach (EventHandler<OnResultEventArgs> del in OnResult.GetInvocationList())
-                                    del.BeginInvoke(this, new OnResultEventArgs(kvp.Key, kvp.Value, returned, exception),
-                                                    OnResultCallback, null);
+                                    del.BeginInvoke(this, new OnResultEventArgs(kvp.Key, kvp.Value, returned, exception), null, null);
                         }
                     }
                     _sendWaitHandle.WaitOne();
@@ -114,9 +120,6 @@ namespace vApus.Util {
         }
 
         #endregion
-
-        private void OnResultCallback(IAsyncResult ar) {
-        }
 
         #endregion
 
@@ -140,16 +143,6 @@ namespace vApus.Util {
                 Exception = exception;
             }
         }
-
-        #endregion
-
-        #region Fields
-
-        private readonly AutoResetEvent _sendWaitHandle;
-
-        private bool _isDisposed;
-        private Queue<KeyValuePair<Delegate, object[]>> _sendQueue;
-        private Thread _sendWorkerThread;
 
         #endregion
     }

@@ -13,11 +13,13 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Here you can choose the rule set, add or paste user actions or delete them all.
+    /// </summary>
     [ToolboxItem(false)]
     public partial class LogTreeViewItem : UserControl {
 
         #region Events
-
         /// <summary>
         ///     Call unfocus for the other items in the panel.
         /// </summary>
@@ -25,29 +27,29 @@ namespace vApus.Stresstest {
 
         public event EventHandler<LogTreeView.AddUserActionEventArgs> AddPasteUserActionClicked;
         public event EventHandler ClearUserActionsClicked;
-
         #endregion
 
         #region Fields
-
-
         /// <summary>
         ///     Check if the ctrl key is pressed.
         /// </summary>
-        private bool _ctrl;
+        private bool _ctrlKeyPressed;
         private readonly Log _log;
 
         private LogRuleSets _logRuleSets;
 
-        private static Color _selectedColor = Color.FromArgb(255, 240, 240, 240);
+        private static Color _selectBackColor = Color.FromArgb(255, 240, 240, 240);
         #endregion
 
         #region Constructor
-
-        public LogTreeViewItem() {
-            InitializeComponent();
-        }
-
+        /// <summary>
+        /// Design time constructor, for testing.
+        /// </summary>
+        public LogTreeViewItem() { InitializeComponent(); }
+        /// <summary>
+        /// Here you can choose the rule set, add or paste user actions or delete them all.
+        /// </summary>
+        /// <param name="log"></param>
         public LogTreeViewItem(Log log)
             : this() {
             _log = log;
@@ -59,13 +61,12 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Functions
-
         public void Unfocus() {
             BackColor = Color.Transparent;
         }
         public new void Focus() {
             base.Focus();
-            BackColor = _selectedColor;
+            BackColor = _selectBackColor;
             if (AfterSelect != null) AfterSelect(this, null);
         }
         private void _Enter(object sender, EventArgs e) {
@@ -146,19 +147,18 @@ namespace vApus.Stresstest {
                 ClearUserActionsClicked(this, null);
             _log.ApplyLogRuleSet();
         }
+
         private void _KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.ControlKey)
-                _ctrl = true;
+                _ctrlKeyPressed = true;
         }
-
         private void _KeyUp(object sender, KeyEventArgs e) {
-            if (_ctrl)
+            if (_ctrlKeyPressed)
                 if (e.KeyCode == Keys.I)
                     picAddUserAction_Click(picAddUserAction, null);
                 else if (e.KeyCode == Keys.I)
                     picPasteUserAction_Click(picPasteUserAction, null);
         }
-
         #endregion
     }
 }

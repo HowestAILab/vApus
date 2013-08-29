@@ -77,11 +77,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FilterResults.cs">
+    <Compile Include="FilterResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FilterResults.Designer.cs">
-      <DependentUpon>FilterResults.cs</DependentUpon>
+    <Compile Include="FilterResultsControl.Designer.cs">
+      <DependentUpon>FilterResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="MySQLServerDialog.cs">
       <SubType>Form</SubType>
@@ -109,8 +109,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="FilterResults.resx">
-      <DependentUpon>FilterResults.cs</DependentUpon>
+    <EmbeddedResource Include="FilterResultsControl.resx">
+      <DependentUpon>FilterResultsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MySQLServerDialog.resx">
       <DependentUpon>MySQLServerDialog.cs</DependentUpon>

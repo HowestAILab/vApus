@@ -186,7 +186,7 @@
     <Compile Include="SolutionComponentView\BaseSolutionComponentView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SolutionComponentView\PropertyInfoDisplayIndexComparer.cs" />
+    <Compile Include="SolutionComponentView\PropertyControlAttributeDisplayIndexComparer.cs" />
     <Compile Include="SolutionComponentView\PropertyManagement\SolutionComponentPropertyPanel.cs">
       <SubType>Component</SubType>
     </Compile>

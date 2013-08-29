@@ -9,6 +9,9 @@ using System.Drawing;
 using System.Windows.Forms;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Shows the image in the original size. A bit like Lightbox.
+    /// </summary>
     public partial class ChartDialog : Form {
         public ChartDialog() {
             InitializeComponent();

@@ -5,70 +5,61 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Globalization;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
+    /// <summary>
+    /// Generates numeric values with a pre- or suffix if you like.
+    /// </summary>
     [DisplayName("Numeric Parameter"), Serializable]
-    public class NumericParameter : BaseParameter
-    {
-        #region Fields
+    public class NumericParameter : BaseParameter {
 
+        #region Fields
         private int _decimalPlaces;
         private string _decimalSeparator = ",";
         private double _doubleValue;
         private Fixed _fixed;
-        private int _maxValue = int.MaxValue;
-        private int _minValue = int.MinValue;
+        private int _maxValue = int.MaxValue, _minValue = int.MinValue;
 
         private string _prefix = string.Empty;
         private bool _random;
         private double _step = 1;
         private string _suffix = string.Empty;
-
         #endregion
 
         #region Properties
-
         [PropertyControl(0), SavableCloneable]
         [DisplayName("Minimum Value"), Description("An inclusive minimum value.")]
-        public int MinValue
-        {
+        public int MinValue {
             get { return _minValue; }
-            set
-            {
+            set {
                 if (value > _maxValue)
                     value = _maxValue;
 
                 _minValue = value;
-                if (_doubleValue < _minValue)
-                {
+                if (_doubleValue < _minValue) {
                     _doubleValue = _minValue;
-                    _value = _minValue.ToString();
+                    Value = _minValue.ToString();
                 }
             }
         }
 
         [PropertyControl(1), SavableCloneable]
         [DisplayName("Maximum Value"), Description("An exclusive maximum value.")]
-        public int MaxValue
-        {
+        public int MaxValue {
             get { return _maxValue; }
-            set
-            {
+            set {
                 if (value < _minValue)
                     value = _minValue;
 
                 _maxValue = value;
-                if (_doubleValue >= _maxValue)
-                {
+                if (_doubleValue >= _maxValue) {
                     _doubleValue = _maxValue;
-                    _value = _maxValue.ToString();
+                    Value = _maxValue.ToString();
                 }
             }
         }
@@ -77,11 +68,9 @@ namespace vApus.Stresstest
         [DisplayName("Decimal Places"),
          Description(
              "If this value is greater than 15 it will be ignored and no rounding of the output value will occur.")]
-        public int DecimalPlaces
-        {
+        public int DecimalPlaces {
             get { return _decimalPlaces; }
-            set
-            {
+            set {
                 if (_decimalPlaces < 0)
                     throw new ArgumentOutOfRangeException("Cannot be smaller than 0.");
                 _decimalPlaces = value;
@@ -91,11 +80,9 @@ namespace vApus.Stresstest
         [PropertyControl(3), SavableCloneable]
         [DisplayName("Decimal Separator"),
          Description("Only . or , allowed.\nThe output of a parameter is a string, so this is important!")]
-        public string DecimalSeparator
-        {
+        public string DecimalSeparator {
             get { return _decimalSeparator; }
-            set
-            {
+            set {
                 if (value != "." && value != ",")
                     throw new ArgumentException("Only . or , allowed.");
                 _decimalSeparator = value;
@@ -104,11 +91,9 @@ namespace vApus.Stresstest
 
         [PropertyControl(4), SavableCloneable]
         [Description("Only applicable if random equals false.")]
-        public double Step
-        {
+        public double Step {
             get { return _step; }
-            set
-            {
+            set {
                 if (value < 0)
                     throw new Exception("The step cannot be smaller than zero.");
                 _step = value;
@@ -117,92 +102,80 @@ namespace vApus.Stresstest
 
         [PropertyControl(5), SavableCloneable]
         [Description("If false output values will be chosen in sequence using the step.")]
-        public bool Random
-        {
+        public bool Random {
             get { return _random; }
             set { _random = value; }
         }
 
         [PropertyControl(100), SavableCloneable]
         [Description("Prefix the output value.")]
-        public string Prefix
-        {
+        public string Prefix {
             get { return _prefix; }
             set { _prefix = value; }
         }
 
         [PropertyControl(101), SavableCloneable]
         [Description("Suffix the output value.")]
-        public string Suffix
-        {
+        public string Suffix {
             get { return _suffix; }
             set { _suffix = value; }
         }
 
         [PropertyControl(102), SavableCloneable]
         [DisplayName("Fixed"),
-         Description(
-             "If a pre- or suffix is not fixed their length will be adepted to the output value (try generate custom list)."
-             )]
-        public Fixed _Fixed
-        {
+         Description("If a pre- or suffix is not fixed their length will be adepted to the output value (try generate custom list).")]
+        public Fixed _Fixed {
             get { return _fixed; }
             set { _fixed = value; }
         }
-
         #endregion
 
         #region Constructors
-
-        public NumericParameter()
-        {
-            _value = _minValue.ToString();
+        /// <summary>
+        /// Generates numeric values with a pre- or suffix if you like.
+        /// </summary>
+        public NumericParameter() {
+            Value = _minValue.ToString();
             _doubleValue = _minValue;
 
             _decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
-
+        /// <summary>
+        /// Generates numeric values with a pre- or suffix if you like.
+        /// </summary>
+        /// <param name="minValue"></param>
+        /// <param name="maxValue"></param>
         public NumericParameter(int minValue, int maxValue)
-            : this()
-        {
+            : this() {
             _minValue = minValue;
             _maxValue = maxValue;
-            _value = minValue.ToString();
+            Value = minValue.ToString();
             _doubleValue = _minValue;
         }
-
         #endregion
 
         #region Functions
-
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e)
-        {
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (Parent != null && Parent is CustomListParameter)
                 ShowInGui = false;
         }
 
-        public override void Next()
-        {
+        public override void Next() {
             SetValue();
-            while (!_chosenValues.Add(_value))
+            while (!_chosenValues.Add(Value))
                 SetValue();
         }
 
-        private void SetValue()
-        {
+        private void SetValue() {
             if (_chosenValues.Count == int.MaxValue)
                 _chosenValues.Clear();
 
-            if (_random)
-            {
-                _doubleValue = ((_maxValue - _minValue)*_r.NextDouble()) + _minValue;
-            }
-            else
-            {
+            if (_random) {
+                _doubleValue = ((_maxValue - _minValue) * _r.NextDouble()) + _minValue;
+            } else {
                 _doubleValue += _step;
-                if (_doubleValue >= _maxValue)
-                {
+                if (_doubleValue >= _maxValue) {
                     _doubleValue = _minValue;
                     _chosenValues.Clear();
                 }
@@ -211,12 +184,11 @@ namespace vApus.Stresstest
             if (_decimalPlaces < 15) //Can only round to max 15 digits
                 _doubleValue = Math.Round(_doubleValue, _decimalPlaces);
 
-            _value = GetFixedValue();
+            Value = GetFixedValue();
         }
 
-        public override void ResetValue()
-        {
-            _value = _minValue.ToString();
+        public override void ResetValue() {
+            Value = _minValue.ToString();
             _doubleValue = _minValue;
             _chosenValues.Clear();
         }
@@ -225,26 +197,21 @@ namespace vApus.Stresstest
         ///     Value with prefix and suffix if any.
         /// </summary>
         /// <returns></returns>
-        private string GetFixedValue()
-        {
+        private string GetFixedValue() {
             string pre = _prefix, suf = _suffix, value = StringUtil.DoubleToLongString(_doubleValue);
             if (_decimalSeparator != CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)
                 value = value.Replace(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, _decimalSeparator);
 
             int length;
-            if (_fixed == Fixed.Suffix)
-            {
+            if (_fixed == Fixed.Suffix) {
                 length = pre.Length - value.Length + 1;
                 pre = (length > 0) ? pre.Substring(0, length) : string.Empty;
-            }
-            else if (_fixed == Fixed.Prefix)
-            {
+            } else if (_fixed == Fixed.Prefix) {
                 length = suf.Length - value.Length + 1;
                 suf = (length > 0) ? suf.Substring(suf.Length - length) : string.Empty;
             }
             return pre + value + suf;
         }
-
         #endregion
     }
 }

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,19 +18,7 @@ namespace vApus.Util {
 
         private bool _active;
 
-        public LinkButton() {
-            this.HandleCreated += LinkButton_HandleCreated;
-
-        }
-
-        private void LinkButton_HandleCreated(object sender, EventArgs e) {
-            TextAlign = ContentAlignment.TopCenter;
-            Padding = new Padding(3, 4, 3, 3);
-            AutoSize = true;
-            Font = new Font(Font, FontStyle.Bold);
-            SetStateInGui();
-        }
-
+        #region Properties
         public bool Active {
             get { return _active; }
             set {
@@ -42,11 +29,23 @@ namespace vApus.Util {
             }
         }
 
-        [Description(
-            "Must be set to true or false for all LinkButtons in the Parent. This behaviour is only applied when clicking or pushing the enter key on the control."
-            )]
+        [Description("Must be set to true or false for all LinkButtons in the Parent. This behaviour is only applied when clicking or pushing the enter key on the control.")]
         public bool RadioButtonBehavior { get; set; }
+        #endregion
 
+        public LinkButton() {
+            this.HandleCreated += LinkButton_HandleCreated;
+
+        }
+
+        #region Functions
+        private void LinkButton_HandleCreated(object sender, EventArgs e) {
+            TextAlign = ContentAlignment.TopCenter;
+            Padding = new Padding(3, 4, 3, 3);
+            AutoSize = true;
+            Font = new Font(Font, FontStyle.Bold);
+            SetStateInGui();
+        }
         private void SetStateInGui() {
             if (_active) {
                 BorderStyle = BorderStyle.FixedSingle;
@@ -101,5 +100,6 @@ namespace vApus.Util {
 
             if (changed && ActiveChanged != null) ActiveChanged(this, null);
         }
+        #endregion
     }
 }

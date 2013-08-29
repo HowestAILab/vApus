@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,10 +14,11 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     /// <summary>
-    ///     Makes it able to show events in time while changing the value of the progress chart.
+    ///     Makes it able to show events in time while changing the value of the progress chart. You can let this behave as a progress bar also setting the BehaveAsBar property to true.
     /// </summary>
     public class EventProgressChart : Panel {
 
+        #region Events
         [Description("Occurs when the cursor enters a progress event.")]
         public event EventHandler<ProgressEventEventArgs> EventMouseEnter;
 
@@ -27,9 +27,9 @@ namespace vApus.Util {
 
         [Description("Occurs when a progress event is clicked.")]
         public event EventHandler<ProgressEventEventArgs> EventClick;
+        #endregion
 
         #region Fields
-
         private readonly SolidBrush _brush = new SolidBrush(Color.LightSteelBlue);
         private readonly List<ChartProgressEvent> _progressEvents = new List<ChartProgressEvent>();
 
@@ -51,18 +51,9 @@ namespace vApus.Util {
         private bool _toolTipThisShown;
 
         private bool _behaveAsBar = false;
-
-        /// <summary>
-        /// If true, when the end of time frame is set the current time is remembered, thus creating a progress bar.
-        /// (SetEndOfTimeFrameTo(DateTime))
-        /// </summary>
-        public bool BehaveAsBar {
-            get { return _behaveAsBar; }
-            set { _behaveAsBar = value; }
-        }
-
         #endregion
 
+        #region Constructor
         /// <summary>
         ///     Makes it able to show events in time while changing the value of the progress chart.
         /// </summary>
@@ -76,6 +67,7 @@ namespace vApus.Util {
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.ResizeRedraw, true);
         }
+        #endregion
 
         #region Properties
 
@@ -119,19 +111,18 @@ namespace vApus.Util {
             set { base.BorderStyle = value; }
         }
 
+        /// <summary>
+        /// If true, when the end of time frame is set the current time is remembered, thus creating a progress bar.
+        /// (SetEndOfTimeFrameTo(DateTime))
+        /// </summary>
+        public bool BehaveAsBar {
+            get { return _behaveAsBar; }
+            set { _behaveAsBar = value; }
+        }
         #endregion
 
-        public class ProgressEventEventArgs : EventArgs {
-            public readonly ChartProgressEvent ProgressEvent;
-
-            public ProgressEventEventArgs(ChartProgressEvent progressEvent) {
-                ProgressEvent = progressEvent;
-            }
-        }
-
-        private ChartProgressEvent GetEventAt(int index) {
-            return _progressEvents[index];
-        }
+        #region Functions
+        private ChartProgressEvent GetEventAt(int index) { return _progressEvents[index]; }
 
         /// <summary>
         ///     Always thinks the events are chronlologically ordered.
@@ -191,29 +182,18 @@ namespace vApus.Util {
             return pes;
         }
 
-        public List<ChartProgressEvent> GetEvents() {
-            return _progressEvents;
-        }
+        public List<ChartProgressEvent> GetEvents() { return _progressEvents; }
 
         public void ClearEvents() {
             _progressEvents.Clear();
             Invalidate();
         }
 
-        private void pe_MouseEnter(object sender, EventArgs e) {
-            if (EventMouseEnter != null)
-                EventMouseEnter(this, new ProgressEventEventArgs(sender as ChartProgressEvent));
-        }
+        private void pe_MouseEnter(object sender, EventArgs e) { if (EventMouseEnter != null)  EventMouseEnter(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
 
-        private void pe_MouseLeave(object sender, EventArgs e) {
-            if (EventMouseLeave != null)
-                EventMouseLeave(this, new ProgressEventEventArgs(sender as ChartProgressEvent));
-        }
+        private void pe_MouseLeave(object sender, EventArgs e) { if (EventMouseLeave != null)   EventMouseLeave(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
 
-        private void pe_Click(object sender, EventArgs e) {
-            if (EventClick != null)
-                EventClick(this, new ProgressEventEventArgs(sender as ChartProgressEvent));
-        }
+        private void pe_Click(object sender, EventArgs e) { if (EventClick != null)   EventClick(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
 
         protected override void OnPaint(PaintEventArgs e) {
             try {
@@ -320,8 +300,7 @@ namespace vApus.Util {
             if (_previouslyHovered != null)
                 _previouslyHovered.PerformMouseLeave();
 
-            if (invalidate)
-                Invalidate();
+            if (invalidate) Invalidate();
         }
 
         public void SetEndOfTimeFrameToNow() {
@@ -335,6 +314,12 @@ namespace vApus.Util {
             else
                 _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
             Invalidate();
+        }
+        #endregion
+
+        public class ProgressEventEventArgs : EventArgs {
+            public readonly ChartProgressEvent ProgressEvent;
+            public ProgressEventEventArgs(ChartProgressEvent progressEvent) { ProgressEvent = progressEvent; }
         }
     }
 }

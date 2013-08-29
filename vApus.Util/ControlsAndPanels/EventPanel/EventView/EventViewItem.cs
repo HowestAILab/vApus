@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,12 +12,13 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     [ToolboxItem(false)]
-    public class EventViewItem : Label
-    {
+    public class EventViewItem : Label {
+
         #region Fields
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         private readonly LargeList _parent;
         private readonly ToolTip _toolTip = new ToolTip();
@@ -28,63 +28,44 @@ namespace vApus.Util
         private EventViewEventType _eventType;
         private List<int> _lineBreaks = new List<int>();
         private string _message;
-
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         #endregion
 
         #region Properties
-
-        public EventViewEventType EventType
-        {
+        public EventViewEventType EventType {
             get { return _eventType; }
-            set
-            {
+            set {
                 _eventType = value;
-                if (_eventType == EventViewEventType.Info)
-                {
+                if (_eventType == EventViewEventType.Info) {
                     _toolTip.SetToolTip(this, "Right-click to copy.");
                     ForeColor = Color.DimGray;
-                }
-                else if (_eventType == EventViewEventType.Warning)
-                {
+                } else if (_eventType == EventViewEventType.Warning) {
                     _toolTip.SetToolTip(this, "Right-click to copy.");
                     ForeColor = Color.Orange;
-                }
-                else
-                {
-                    _toolTip.SetToolTip(this,
-                                        "The given stack trace, if any, is for the developer. Right-click to copy.");
+                } else {
+                    _toolTip.SetToolTip(this, "The given stack trace, if any, is for the developer. Right-click to copy.");
                     ForeColor = Color.Red;
                 }
             }
         }
 
-        public string Message
-        {
+        public string Message {
             get { return _message; }
-            set
-            {
+            set {
                 _message = value;
                 SetText();
             }
         }
 
-        public DateTime At
-        {
+        public DateTime At {
             get { return _at; }
-            set
-            {
+            set {
                 _at = value;
                 SetText();
             }
         }
-
         #endregion
 
-        public EventViewItem(LargeList parent, EventViewEventType eventType, string message, DateTime at)
-        {
+        public EventViewItem(LargeList parent, EventViewEventType eventType, string message, DateTime at) {
             AutoSize = true;
             AutoEllipsis = true;
             Cursor = Cursors.Hand;
@@ -101,19 +82,13 @@ namespace vApus.Util
         }
 
         #region Functions
-
-        private void SetText()
-        {
+        private void SetText() {
             string message;
-            if (_entered)
-            {
+            if (_entered) {
                 message = _message;
-            }
-            else
-            {
+            } else {
                 message = string.Empty;
-                for (int i = 0; i != _message.Length; i++)
-                {
+                for (int i = 0; i != _message.Length; i++) {
                     char c = _message[i];
                     if (c == '\n' || c == '\r')
                         message += ' ';
@@ -125,8 +100,7 @@ namespace vApus.Util
             Text = message + " [" + _at + "]";
         }
 
-        protected override void OnMouseHover(EventArgs e)
-        {
+        protected override void OnMouseHover(EventArgs e) {
             LockWindowUpdate(Parent.Handle.ToInt32());
 
             base.OnMouseHover(e);
@@ -135,8 +109,7 @@ namespace vApus.Util
             LockWindowUpdate(0);
         }
 
-        public void PerformMouseEnter()
-        {
+        public void PerformMouseEnter() {
             foreach (EventViewItem item in _parent.AllControls)
                 item.PerformLeave();
 
@@ -150,10 +123,8 @@ namespace vApus.Util
             SetText();
         }
 
-        private void PerformLeave()
-        {
-            if (_entered)
-            {
+        private void PerformLeave() {
+            if (_entered) {
                 MinimumSize = new Size(Width, _defaultHeight);
                 MaximumSize = new Size(Width, _defaultHeight);
 
@@ -164,13 +135,11 @@ namespace vApus.Util
             }
         }
 
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
+        protected override void OnMouseClick(MouseEventArgs e) {
             base.OnMouseClick(e);
             if (e.Button == MouseButtons.Right)
                 ClipboardWrapper.SetDataObject(Text);
         }
-
         #endregion
     }
 }

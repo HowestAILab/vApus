@@ -6,9 +6,11 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
@@ -107,7 +109,7 @@ namespace vApus.DetailedResultsViewer {
                 var temp = databaseActions.GetDataTable("Show Databases;");
                 foreach (DataRow rrDB in temp.Rows) {
                     string db = rrDB.ItemArray[0] as string;
-                    if (db.StartsWith("vapus", StringComparison.InvariantCultureIgnoreCase)) dbs.Rows.Add(db);
+                    if (db.StartsWith("vapus", StringComparison.OrdinalIgnoreCase)) dbs.Rows.Add(db);
                 }
 
                 int count = dbs.Rows.Count;
@@ -165,14 +167,14 @@ namespace vApus.DetailedResultsViewer {
 
                 string user, host, password;
                 int port;
-                _mySQLServerDialog.GetCurrentCredentials(out user, out host, out port, out password);
+                _mySQLServerDialog.GetCurrentConnectionString(out user, out host, out port, out password);
                 _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
 
                 //Fill the stresstest cbo
                 cboStresstest.SelectedIndexChanged -= cboStresstest_SelectedIndexChanged;
                 cboStresstest.Items.Clear();
                 var stresstests = _resultsHelper.GetStresstests();
-                if (stresstests.Rows.Count == 0) {
+                if (stresstests == null || stresstests.Rows.Count == 0) {
                     if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
                 } else {
                     cboStresstest.Items.Add("<All>");
@@ -181,14 +183,14 @@ namespace vApus.DetailedResultsViewer {
 
                     cboStresstest.SelectedIndex = 1;
 
-                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, (ulong)cboStresstest.SelectedIndex));
+                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, cboStresstest.SelectedIndex));
                 }
 
                 cboStresstest.SelectedIndexChanged += cboStresstest_SelectedIndexChanged;
             }
         }
         private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
-            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, (ulong)cboStresstest.SelectedIndex));
+            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, cboStresstest.SelectedIndex));
         }
 
         private class FilterDatabasesWorkItem {
@@ -273,27 +275,33 @@ namespace vApus.DetailedResultsViewer {
             /// <summary>
             /// 0 for all
             /// </summary>
-            public ulong StresstestId { get; private set; }
+            public int StresstestId { get; private set; }
             /// <summary>
             /// 
             /// </summary>
             /// <param name="database"></param>
             /// <param name="stresstestId">0 for all</param>
-            public ResultsSelectedEventArgs(string database, ulong stresstestId) {
+            public ResultsSelectedEventArgs(string database, int stresstestId) {
                 Database = database;
                 StresstestId = stresstestId;
             }
         }
 
-        private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
+        async private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
             if (_resultsHelper != null &&
                 MessageBox.Show("Are you sure you want to delete the listed results databases?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                 Cursor = Cursors.WaitCursor;
+
+                var toDelete = new ConcurrentBag<string>();
                 foreach (DataRow row in _dataSource.Rows) {
-                    try {
-                        _resultsHelper.DeleteResults(row[3] as string);
-                    } catch { }
+                    await Task.Run(() => {
+                        try {
+                            _resultsHelper.DeleteResults(row[3] as string);
+                        } catch {
+                        }
+                    });
                 }
+                
                 _currentRow = null;
                 RefreshDatabases(true);
                 Cursor = Cursors.Default;

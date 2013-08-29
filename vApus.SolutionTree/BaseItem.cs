@@ -5,10 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -17,19 +17,23 @@ using System.Xml;
 using vApus.Util;
 namespace vApus.SolutionTree {
     /// <summary>
-    ///     The base item for everything you want in the solution. When names are not unique, use LabeledBaseItem to ensure nothing can/will break.
+    ///     The base item for almost everything you want in the solution (we have base projects also). When names are not unique, use LabeledBaseItem to ensure nothing can/will break.
+    ///     This class implements functions to load to and save from vass files (used in Solution), copy, paste, duplicate, import, export...
+    ///     This inherits from SolutionComponent which cannot be used directly.
     /// </summary>
     [Serializable]
     public abstract class BaseItem : SolutionComponent {
+        /// <summary>
+        /// To handle stuff that needs to happen after the solution is loaded and Solution.ActiveSolutionChanged is not sufficient.
+        /// This will also be invoked on errors.
+        /// </summary>
+        public event EventHandler Loaded;
 
         #region Fields
-
         protected Dictionary<PropertyInfo, string> _branchedInfos;
-
         #endregion
 
         #region Properties
-
         /// <summary>
         ///     Sets or gets the parent, using the underlying extension methods.
         /// </summary>
@@ -48,15 +52,9 @@ namespace vApus.SolutionTree {
                     (this).SetParent(value);
             }
         }
-
-        #endregion
-
-        #region Constructors
-
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     It is adviced to use Solution.GetNextOrEmptyChild instead of this when having base items not contained in the items collection.
         ///     However this is sometimes handy to add a new and empty item to the collection.
@@ -64,14 +62,13 @@ namespace vApus.SolutionTree {
         /// <param name="baseItemType"></param>
         /// <param name="parent">Required! Use Solution.ActiveSolution.GetSolutionComponent or .GetLabeledBaseItem to retrieve the right one.</param>
         /// <returns></returns>
-        public static BaseItem Empty(Type baseItemType, SolutionComponent parent) {
+        public static BaseItem GetEmpty(Type baseItemType, SolutionComponent parent) {
             var emptyItem = Activator.CreateInstance(baseItemType) as BaseItem;
             emptyItem.Parent = parent;
             emptyItem.IsEmpty = true; //Default true;
 
             return emptyItem;
         }
-
         /// <summary>
         ///     Returns the siblings of the same type as this.
         /// </summary>
@@ -81,7 +78,6 @@ namespace vApus.SolutionTree {
                 if (item != this && item.GetType() == GetType())
                     yield return item;
         }
-
         /// <summary>
         ///     Gets the xml to save based on reflection and attributes.
         ///     It will append to the xml document so nothing needs to be returned (the beauty of object orientation).
@@ -191,7 +187,6 @@ namespace vApus.SolutionTree {
                 }
             }
         }
-
         private string BranchedIndex(BaseItem item) {
             for (int i = 0; i < Solution.ActiveSolution.Projects.Count; i++) {
                 string branchedIndex = FindIndexInBranch(Solution.ActiveSolution.Projects[i], item, i.ToString());
@@ -200,7 +195,6 @@ namespace vApus.SolutionTree {
             }
             return null;
         }
-
         private string FindIndexInBranch(SolutionComponent parent, BaseItem item, string partialyBranchedIndex) {
             int index = parent.IndexOf(item);
             if (index > -1)
@@ -214,7 +208,6 @@ namespace vApus.SolutionTree {
 
             return null;
         }
-
         /// <summary>
         ///     Load 'this' and childs based on activation and reflection.
         ///     Furthermore all primary datatypes and arrays/generic lists containing primary datatypes can be loaded and base items not contained in the items collection.
@@ -347,8 +340,10 @@ namespace vApus.SolutionTree {
                             break;
                         }
             errorMessage = sb.ToString();
-        }
 
+            if (Loaded != null)
+                Loaded(this, null);
+        }
         /// <summary>
         ///     An item's dependencies are set using branched indices, they must be resolved to load the right values from "referenced" objects.
         /// </summary>
@@ -367,7 +362,6 @@ namespace vApus.SolutionTree {
                 _branchedInfos = null;
             }
         }
-
         private object ResolveBranchedIndex(string branchedIndex) {
             branchedIndex = branchedIndex.Trim();
             if (branchedIndex.Length > 0) {
@@ -411,7 +405,6 @@ namespace vApus.SolutionTree {
             }
             return null;
         }
-
         //Standard ContextMenuItems
         internal void Import_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();
@@ -419,41 +412,65 @@ namespace vApus.SolutionTree {
             ofd.Filter = "Xml Files (*.xml) | *.xml";
             ofd.Title = (sender is ToolStripMenuItem)
                             ? (sender as ToolStripMenuItem).Text
-                            : ofd.Title = "Import from...";
+                            : "Import from...";
 
-            if (ofd.ShowDialog() == DialogResult.OK) {
-                var sb = new StringBuilder();
-                foreach (string fileName in ofd.FileNames) {
-                    var xmlDocument = new XmlDocument();
-                    xmlDocument.Load(fileName);
+            if (ofd.ShowDialog() == DialogResult.OK)
+                Import(true, ofd.FileNames);
+        }
+        public void Import(bool invokeSolutionComponentChangedEvent, params string[] fileNames) {
+            if (fileNames.Length == 0)
+                return;
 
-                    try {
-                        if (xmlDocument.FirstChild.Name == GetType().Name &&
-                            xmlDocument.FirstChild.FirstChild.Name == "Items") {
-                            string errorMessage;
-                            LoadFromXml(xmlDocument.FirstChild, out errorMessage);
-                            sb.Append(errorMessage);
-                            if (errorMessage.Length == 0) {
-                                ResolveBranchedIndices();
-                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,
-                                                                    true);
-                            }
-                        } else {
-                            sb.Append(fileName + " contains no valid structure to load;");
-                        }
-                    } catch {
-                        sb.Append("Unknown or non-existing item found in " + fileName + ";");
-                    }
-                }
-                if (sb.ToString().Length > 0) {
-                    string s = "Failed loading: " + sb;
-                    LogWrapper.LogByLevel(s, LogLevel.Error);
-                    MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
-                                    MessageBoxDefaultButton.Button1);
-                }
+            var errors = new StringBuilder();
+
+            var streams = new Stream[fileNames.Length];
+            for (int i = 0; i != fileNames.Length; i++)
+                using (var sw = new StreamReader(fileNames[i]))
+                    Import(false, sw.BaseStream, errors);
+
+            InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, streams.Length == 1);
+
+            if (errors.ToString().Length > 0) {
+                string s = "Failed loading: " + errors;
+                LogWrapper.LogByLevel(s, LogLevel.Error);
+                MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
+                    MessageBoxDefaultButton.Button1);
             }
         }
+        /// <summary>
+        /// Import and add a structure
+        /// </summary>
+        /// <param name="invokeSolutionComponentChangedEvent"></param>
+        /// <param name="fileNames"></param>
+        public void Import(bool invokeSolutionComponentChanged, Stream stream, StringBuilder errors = null) {
 
+            var xmlDocument = new XmlDocument();
+            xmlDocument.Load(stream);
+
+            try {
+                bool validStructureFound = false;
+                foreach (XmlNode node in xmlDocument.ChildNodes) {
+                    if (node.Name == GetType().Name && node.FirstChild.Name == "Items") {
+                        string errorMessage;
+                        LoadFromXml(node, out errorMessage);
+                        if (errors != null) errors.Append(errorMessage);
+                        if (errorMessage.Length == 0) {
+                            ResolveBranchedIndices();
+                            if (invokeSolutionComponentChanged)
+                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
+                        }
+
+                        validStructureFound = true;
+                        break;
+                    }
+                }
+                if (!validStructureFound)
+                    errors.Append(stream + " contains no valid structure to load;");
+
+            } catch {
+                errors.Append("Unknown or non-existing item found in " + stream + ";");
+            }
+        }
         internal void Remove_Click(object sender, EventArgs e) {
             if (
                 MessageBox.Show(string.Format("Are you sure you want to remove '{0}'?", this), string.Empty,
@@ -461,24 +478,19 @@ namespace vApus.SolutionTree {
                 DialogResult.Yes)
                 Parent.Remove(this);
         }
-
         internal void Cut_Click(object sender, EventArgs e) {
             ClipboardWrapper.SetDataObject(GetXmlStructure().InnerXml);
             Parent.Remove(this);
         }
-
         internal void Copy_Click(object sender, EventArgs e) {
             Copy();
         }
-
         protected internal void Copy() {
             ClipboardWrapper.SetDataObject(GetXmlStructure().InnerXml);
         }
-
         internal void Paste_Click(object sender, EventArgs e) {
             Paste();
         }
-
         protected internal void Paste() {
             IDataObject dataObject = ClipboardWrapper.GetDataObject();
             Type stringType = typeof(string);
@@ -497,7 +509,6 @@ namespace vApus.SolutionTree {
                 }
             }
         }
-
         internal void Duplicate_Click(object sender, EventArgs e) {
             Copy();
             SolutionComponent parent = Parent;
@@ -530,7 +541,6 @@ namespace vApus.SolutionTree {
                 }
             }
         }
-
         /// <summary>
         ///     Includes parent information too.
         /// </summary>
@@ -548,19 +558,16 @@ namespace vApus.SolutionTree {
             }
             return xmlDocument;
         }
-
         /// <summary>
         ///     Get an empty BaseItem with the type and parent of the caller.
         /// </summary>
         /// <returns></returns>
         public BaseItem GetEmptyVariant() {
-            return Empty(GetType(), Parent);
+            return GetEmpty(GetType(), Parent);
         }
-
         public override string ToString() {
             return IsEmpty ? "<none>" : Name;
         }
-
         #endregion
     }
 }

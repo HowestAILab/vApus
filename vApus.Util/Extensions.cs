@@ -276,6 +276,12 @@ namespace vApus.Util {
             }
         }
 
+        /// <summary>
+        /// If the string is a binary representation of an object you can use this class to make an object out of it.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
         public static object ToByteArrayToObject(this string s, string separator = ",") {
             lock (_lock) {
                 string[] split = s.Split(new string[] { separator }, StringSplitOptions.None);
@@ -548,7 +554,6 @@ namespace vApus.Util {
         }
     }
     public static class ArrayExtension {
-        private static readonly object _lock = new object();
         /// <summary>
         /// Combine a one-dimensional array.
         /// </summary>
@@ -556,7 +561,7 @@ namespace vApus.Util {
         /// <param name="separator"></param>
         /// <returns></returns>
         public static string Combine(this Array array, string separator, params object[] exclude) {
-            lock (_lock) {
+            lock (array.SyncRoot) {
                 if (array.Length == 0) return string.Empty;
 
                 var sb = new StringBuilder();
@@ -573,6 +578,22 @@ namespace vApus.Util {
 
                 return sb.ToString();
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="item">Case sensitive in case of strings.</param>
+        /// <returns>-1 if not found</returns>
+        public static int IndexOf(this Array array, object item) {
+            int i = 0;
+            foreach (var o in array) {
+                if (o.Equals(item))
+                    return i;
+                ++i;
+            }
+            return -1;
         }
     }
     public static class ConcurrentBagExtension {
@@ -600,6 +621,25 @@ namespace vApus.Util {
             lock (_lock) {
                 list.Add(item1);
                 foreach (T item in items) list.Add(item);
+            }
+        }
+        public static string Combine<T>(this List<T> list, string separator, params object[] exclude) {
+            lock (_lock) {
+                if (list.Count == 0) return string.Empty;
+
+                var sb = new StringBuilder();
+                object value;
+                for (int i = 0; i != list.Count - 1; i++) {
+                    value = list[i];
+                    if (exclude == null || !exclude.Contains(value)) {
+                        sb.Append(value);
+                        sb.Append(separator);
+                    }
+                }
+                value = list[list.Count - 1];
+                if (exclude == null || !exclude.Contains(value)) sb.Append(value);
+
+                return sb.ToString();
             }
         }
     }

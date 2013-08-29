@@ -5,41 +5,30 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     An implementation of the old VB6 input dialog.
     /// </summary>
-    public partial class InputDialog : Form
-    {
-        #region Fields
+    public partial class InputDialog : Form {
 
+        #region Fields
         private DialogResult _cancel = DialogResult.Cancel;
         private MessageBoxButtons _messageBoxButtons = MessageBoxButtons.OKCancel;
         private int _minimumInputLength;
         private DialogResult _ok = DialogResult.OK;
-
         #endregion
 
         #region Properties
 
-        public int MinimumInputLength
-        {
-            get { return _minimumInputLength; }
-        }
+        public int MinimumInputLength {   get { return _minimumInputLength; }    }
 
-        public int MaximumInputLength
-        {
-            get { return txtInput.MaxLength; }
-        }
+        public int MaximumInputLength {  get { return txtInput.MaxLength; }   }
 
-        public string Input
-        {
+        public string Input {
             get { return txtInput.Text; }
             set { txtInput.Text = value; }
         }
@@ -47,15 +36,11 @@ namespace vApus.Util
         /// <summary>
         ///     Default: MessageBoxButtons.OKCancel
         /// </summary>
-        public MessageBoxButtons MessageBoxButtons
-        {
-            set
-            {
-                if (value != _messageBoxButtons)
-                {
+        public MessageBoxButtons MessageBoxButtons {
+            set {
+                if (value != _messageBoxButtons) {
                     _messageBoxButtons = value;
-                    switch (_messageBoxButtons)
-                    {
+                    switch (_messageBoxButtons) {
                         case MessageBoxButtons.OK:
                             btnOK.Text = "OK";
                             btnCancel.Text = "Cancel";
@@ -91,8 +76,7 @@ namespace vApus.Util
         /// <summary>
         ///     An implementation of the old VB6 input dialog.
         /// </summary>
-        public InputDialog(string question, string caption = "", string defaultValue = "")
-        {
+        public InputDialog(string question, string caption = "", string defaultValue = "") {
             InitializeComponent();
             lblQuestion.Text = question;
             Text = caption;
@@ -107,21 +91,16 @@ namespace vApus.Util
 
         #region Functions
 
-        private void InputDialog_HandleCreated(object sender, EventArgs e)
-        {
-            SetGui();
-        }
+        private void InputDialog_HandleCreated(object sender, EventArgs e) {   SetGui();    }
 
-        private void SetGui()
-        {
+        private void SetGui() {
             Graphics g = lblQuestion.CreateGraphics();
-            int difference = txtInput.Height - (int) g.MeasureString(lblQuestion.Text, lblQuestion.Font).Height;
+            int difference = txtInput.Height - (int)g.MeasureString(lblQuestion.Text, lblQuestion.Font).Height;
             if (Height - difference > MinimumSize.Height)
                 Height -= difference;
         }
 
-        public void SetInputLength(int min, int max = int.MaxValue)
-        {
+        public void SetInputLength(int min, int max = int.MaxValue) {
             if (min > max)
                 throw new ArgumentException("min cannot be larger than max.");
             _minimumInputLength = min;
@@ -131,26 +110,20 @@ namespace vApus.Util
         }
 
         /// <summary></summary>
-        private void btnOk_Click(object sender, EventArgs e)
-        {
+        private void btnOk_Click(object sender, EventArgs e) {
             DialogResult = _ok;
             Close();
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
+        private void btnCancel_Click(object sender, EventArgs e) {
             DialogResult = _cancel;
             Close();
         }
 
-        private void txtInput_TextChanged(object sender, EventArgs e)
-        {
-            btnOK.Enabled = txtInput.Text.Length >= _minimumInputLength;
-        }
+        private void txtInput_TextChanged(object sender, EventArgs e) {   btnOK.Enabled = txtInput.Text.Length >= _minimumInputLength;   }
 
 
-        protected override void OnShown(EventArgs e)
-        {
+        protected override void OnShown(EventArgs e) {
             base.OnShown(e);
             txtInput.Focus();
         }

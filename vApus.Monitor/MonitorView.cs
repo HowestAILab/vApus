@@ -7,7 +7,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -23,46 +22,35 @@ using vApusSMT.Proxy;
 using PowerState = vApusSMT.Base.PowerState;
 
 namespace vApus.Monitor {
+    /// <summary>
+    /// Communicates to a number of monitor sources provided using the vApusSMT binaries (See monitorsources in the vApus build folder).
+    /// Hardware configs can be retrieved if any; various hardware devices can be monitored.
+    /// </summary>
     public partial class MonitorView : BaseSolutionComponentView {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         public event EventHandler<MonitorInitializedEventArgs> MonitorInitialized;
         public event EventHandler<ErrorEventArgs> OnHandledException, OnUnhandledException;
 
         #region Fields
-
-        //Point the solution component to here.
-        private readonly ActiveObject _activeObject = new ActiveObject();
         private readonly Monitor _monitor;
+        private IMonitorProxy _monitorProxy;
 
         private readonly Dictionary<Parameter, object> _parametersWithValues = new Dictionary<Parameter, object>();
-        private readonly WDYHDel _wdyhDel;
 
-        //The refresht time of the counter pushing In ms 
-
-        private string _configuration = string.Empty;
-        private bool _forStresstest;
-        private IMonitorProxy _monitorProxy;
-        private string _previousFilter;
-        private MonitorSource _previousMonitorSourceForParameters;
         private int _refreshTimeInMS;
 
+        private bool _forStresstest;
+        private string _previousFilter;
+        private MonitorSource _previousMonitorSourceForParameters;
+
         private System.Timers.Timer _invokeChangedTmr = new System.Timers.Timer(1000);
-
-        private delegate void WDYHDel(bool suppressErrorMessageBox);
-
         #endregion
 
         #region Properties
-
         public Monitor Monitor {
             get { return _monitor; }
         }
 
-        public string Configuration {
-            get { return _configuration; }
-        }
+        public string Configuration { get; private set; }
         public bool IsRunning {
             get {
                 bool isRunning = false;
@@ -74,25 +62,26 @@ namespace vApus.Monitor {
                 return isRunning;
             }
         }
-
         #endregion
 
         #region Constructors
-
         /// <summary>
         ///     Designer time only
         /// </summary>
         public MonitorView() {
             InitializeComponent();
         }
-
-        public MonitorView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        /// <summary>
+        /// Communicates to a number of monitor sources provided using the vApusSMT binaries (See monitorsources in the vApus build folder).
+        /// Hardware configs can be retrieved if any; various hardware devices can be monitored.
+        /// </summary>
+        /// <param name="solutionComponent"></param>
+        /// <param name="args"></param>
+        public MonitorView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
 
             _monitor = solutionComponent as Monitor;
-
-            _wdyhDel = __WDYH;
 
             _invokeChangedTmr.Elapsed += _invokeChangedTmr_Elapsed;
 
@@ -101,12 +90,132 @@ namespace vApus.Monitor {
             else
                 HandleCreated += MonitorView_HandleCreated;
         }
-
         #endregion
 
         #region Functions
 
         #region Private
+        #region Init
+
+        private void MonitorView_HandleCreated(object sender, EventArgs e) {
+            HandleCreated -= MonitorView_HandleCreated;
+            InitMonitorView();
+        }
+
+        /// <summary>
+        ///     Sets the Gui and connects to smt.
+        /// </summary>
+        private void InitMonitorView() {
+            Text = SolutionComponent.ToString();
+            if (SynchronizationContextWrapper.SynchronizationContext == null)
+                SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
+
+            Exception exception = InitMonitorProxy();
+            propertyPanel.SolutionComponent = _monitor;
+            SetFilterTextBox();
+
+            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
+            SetParameters(parameters);
+
+            _previousMonitorSourceForParameters = _monitor.MonitorSource;
+            _previousFilter = _monitor.Filter.Combine(", ");
+
+            if (exception != null) {
+                string message = "Could not connect to the monitor client.";
+                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
+            }
+
+            //Use this for filtering the counters.
+            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+        }
+
+        /// <summary>
+        ///     Destroys the previous one if any and returns a new one.
+        /// </summary>
+        /// <returns></returns>
+        private Exception InitMonitorProxy() {
+            Exception exception = null;
+
+            try {
+                if (_monitorProxy != null) {
+                    try {
+                        Exception stopEx;
+                        _monitorProxy.Stop(out stopEx);
+                    } catch {
+                    }
+                    try {
+                        _monitorProxy.Dispose();
+                    } catch {
+                    }
+                    _monitorProxy = null;
+                }
+
+                _monitorProxy = CreateMonitorProxy();
+            } catch (Exception ex) {
+                exception = ex;
+            }
+
+            if (exception == null) {
+                //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
+                Directory.SetCurrentDirectory(Application.StartupPath);
+
+                string[] sources = _monitorProxy.GetMonitorSources(out exception);
+                //Ignore this exception
+                _monitor.SetMonitorSources(sources);
+
+                exception = null;
+            }
+            return exception;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        private IMonitorProxy CreateMonitorProxy() {
+            var monitorProxy = new MonitorProxy();
+            monitorProxy.OnHandledException += _monitorProxy_OnHandledException;
+            monitorProxy.OnUnhandledException += _monitorProxy_OnUnhandledException;
+            monitorProxy.OnMonitor += _monitorProxy_OnMonitor;
+
+            return monitorProxy;
+        }
+
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            if (sender == _monitor && IsHandleCreated) {
+                if (_monitor.MonitorSource != _previousMonitorSourceForParameters) {
+                    _previousMonitorSourceForParameters = _monitor.MonitorSource;
+
+                    Exception exception;
+                    if (_monitorProxy == null)
+                        _monitorProxy = CreateMonitorProxy();
+
+                    Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
+                    SetParameters(parameters);
+                }
+                if (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
+                    lvwEntities.Items.Count == 0) {
+                    split.Panel2.Enabled = true;
+                    lblMonitorSourceMismatch.Visible = false;
+
+                    btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+                } else {
+                    split.Panel2.Enabled = false;
+                    lblMonitorSourceMismatch.Visible = true;
+
+                    btnStart.Enabled = btnSchedule.Enabled = false;
+                }
+                //Filter the treenodes again if this is changed.
+                string filter = _monitor.Filter.Combine(", ");
+                if (filter != _previousFilter) {
+                    _previousFilter = filter;
+                    FillCounters();
+                }
+            }
+        }
+        #endregion
+
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         private void _monitorProxy_OnHandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -165,7 +274,7 @@ namespace vApus.Monitor {
             ConnectAndGetCounters();
         }
 
-        private void ConnectAndGetCounters() {
+        async private void ConnectAndGetCounters() {
             Cursor = Cursors.WaitCursor;
 
             if (_monitor.PreviousMonitorSourceIndexForCounters != _monitor.MonitorSourceIndex) {
@@ -177,7 +286,7 @@ namespace vApus.Monitor {
 
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
-            parameterPanel.Lock();
+            parameterPanel.Enabled = false;
             split.Panel2.Enabled = false;
 
             tvwCounters.Nodes.Clear();
@@ -187,10 +296,26 @@ namespace vApus.Monitor {
             btnSchedule.Enabled = false;
 
             btnGetCounters.Text = "Getting Counters...";
-            _activeObject.Send(_wdyhDel, _forStresstest);
+
+            await Task.Run(() => __WDYH());
+
+            string errorMessage = null;
+            if (split.Panel2.Enabled && lvwEntities.Items.Count != 0 && tvwCounters.Nodes.Count != 0) {
+                errorMessage = Text + ": No counters were chosen.";
+                if (_monitor.Wiw.Count != 0)
+                    foreach (Entity entity in _monitor.Wiw.Keys) {
+                        if (_monitor.Wiw[entity].Count != 0)
+                            errorMessage = null;
+                        break;
+                    }
+            } else {
+                errorMessage = Text + ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
+            }
+            if (MonitorInitialized != null)
+                MonitorInitialized(this, new MonitorInitializedEventArgs(errorMessage));
         }
 
-        private void __WDYH(bool forStresstest) {
+        private void __WDYH() {
             if (_monitorProxy == null)
                 _monitorProxy = CreateMonitorProxy();
 
@@ -201,22 +326,16 @@ namespace vApus.Monitor {
             Exception exception;
             Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetParameters(parameters); }, null);
-            if (exception == null)
-                _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
 
-            if (exception == null)
-                _refreshTimeInMS = _monitorProxy.GetRefreshRateInMs(_monitor.MonitorSource.Source, out exception);
-
-            if (exception == null)
-                configuration = _monitorProxy.GetConfigurationXML(out exception);
-
-            if (exception == null)
-                wdyh = _monitorProxy.GetWDYH(out exception);
+            if (exception == null) _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
+            if (exception == null) _refreshTimeInMS = _monitorProxy.GetRefreshRateInMs(_monitor.MonitorSource.Source, out exception);
+            if (exception == null) configuration = _monitorProxy.GetConfigurationXML(out exception);
+            if (exception == null) wdyh = _monitorProxy.GetWDYH(out exception);
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (exception == null) {
                     btnConfiguration.Enabled = (configuration != null);
-                    _configuration = configuration;
+                    Configuration = configuration;
                     try { FillEntities(wdyh); } catch (Exception ex) { exception = ex; }
                 }
 
@@ -226,12 +345,12 @@ namespace vApus.Monitor {
                     btnStart.Enabled = btnSchedule.Enabled = false;
 
                     string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
-                    if (!forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (!_forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
                 }
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
-                parameterPanel.Unlock();
+                parameterPanel.Enabled = true;
 
                 Cursor = Cursors.Default;
             }, null);
@@ -599,8 +718,8 @@ namespace vApus.Monitor {
         }
 
         private void btnConfiguration_Click(object sender, EventArgs e) {
-            if (_configuration != string.Empty)
-                (new ConfigurationDialog(_configuration)).ShowDialog();
+            if (!string.IsNullOrEmpty(Configuration))
+                (new HardwareConfigurationDialog(Configuration)).ShowDialog();
         }
 
         private void btnStart_Click(object sender, EventArgs e) {
@@ -714,126 +833,6 @@ namespace vApus.Monitor {
             txtFilterMonitorControlColumns.Text = filter.Combine(", ");
         }
 
-        #region Init
-
-        private void MonitorView_HandleCreated(object sender, EventArgs e) {
-            HandleCreated -= MonitorView_HandleCreated;
-            InitMonitorView();
-        }
-
-        /// <summary>
-        ///     Sets the Gui and connects to smt.
-        /// </summary>
-        private void InitMonitorView() {
-            Text = SolutionComponent.ToString();
-            if (SynchronizationContextWrapper.SynchronizationContext == null)
-                SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
-
-            Exception exception = InitMonitorProxy();
-            propertyPanel.SolutionComponent = _monitor;
-            SetFilterTextBox();
-
-            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
-            SetParameters(parameters);
-
-            _previousMonitorSourceForParameters = _monitor.MonitorSource;
-            _previousFilter = _monitor.Filter.Combine(", ");
-
-            if (exception != null) {
-                string message = "Could not connect to the monitor client.";
-                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
-            }
-
-            //Use this for filtering the counters.
-            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-        }
-
-        /// <summary>
-        ///     Destroys the previous one if any and returns a new one.
-        /// </summary>
-        /// <returns></returns>
-        private Exception InitMonitorProxy() {
-            Exception exception = null;
-
-            try {
-                if (_monitorProxy != null) {
-                    try {
-                        Exception stopEx;
-                        _monitorProxy.Stop(out stopEx);
-                    } catch {
-                    }
-                    try {
-                        _monitorProxy.Dispose();
-                    } catch {
-                    }
-                    _monitorProxy = null;
-                }
-
-                _monitorProxy = CreateMonitorProxy();
-            } catch (Exception ex) {
-                exception = ex;
-            }
-
-            if (exception == null) {
-                //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
-                Directory.SetCurrentDirectory(Application.StartupPath);
-
-                string[] sources = _monitorProxy.GetMonitorSources(out exception);
-                //Ignore this exception
-                _monitor.SetMonitorSources(sources);
-
-                exception = null;
-            }
-            return exception;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
-        private IMonitorProxy CreateMonitorProxy() {
-            var monitorProxy = new MonitorProxy();
-            monitorProxy.OnHandledException += _monitorProxy_OnHandledException;
-            monitorProxy.OnUnhandledException += _monitorProxy_OnUnhandledException;
-            monitorProxy.OnMonitor += _monitorProxy_OnMonitor;
-
-            return monitorProxy;
-        }
-
-        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
-            if (sender == _monitor && IsHandleCreated) {
-                if (_monitor.MonitorSource != _previousMonitorSourceForParameters) {
-                    _previousMonitorSourceForParameters = _monitor.MonitorSource;
-
-                    Exception exception;
-                    if (_monitorProxy == null)
-                        _monitorProxy = CreateMonitorProxy();
-
-                    Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
-                    SetParameters(parameters);
-                }
-                if (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
-                    lvwEntities.Items.Count == 0) {
-                    split.Panel2.Enabled = true;
-                    lblMonitorSourceMismatch.Visible = false;
-
-                    btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
-                } else {
-                    split.Panel2.Enabled = false;
-                    lblMonitorSourceMismatch.Visible = true;
-
-                    btnStart.Enabled = btnSchedule.Enabled = false;
-                }
-                //Filter the treenodes again if this is changed.
-                string filter = _monitor.Filter.Combine(", ");
-                if (filter != _previousFilter) {
-                    _previousFilter = filter;
-                    FillCounters();
-                }
-            }
-        }
-
-        #endregion
-
         #region Fill & Filter tvwCounters, push the saved WIW tot the gui
 
         /// <summary>
@@ -917,9 +916,10 @@ namespace vApus.Monitor {
                     TreeNode counterNode = null;
 
                     //Search from end (faster) if the counter node already exists.
+                    //The number of instances is important, it is possible that not each instance has the same entities for a counter.
                     for (int j = tvwCounters.Nodes.Count - 1; j != -1; j--) {
                         TreeNode node = tvwCounters.Nodes[j];
-                        if (node.Text == counter) {
+                        if (node.Text == counter && node.Nodes.Count == counterInfo.Instances.Count) {
                             counterNode = node;
                             break;
                         }
@@ -963,6 +963,9 @@ namespace vApus.Monitor {
             lvwEntities.ItemChecked -= lvwEntities_ItemChecked;
             tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
 
+            //Autoscroll to the first selected/checked counter.
+            TreeNode firstVisible = null;
+
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
             var newWIW = new Dictionary<Entity, List<CounterInfo>>();
             foreach (ListViewItem lvwi in lvwEntities.Items) {
@@ -984,8 +987,9 @@ namespace vApus.Monitor {
                             node.Checked = info != null;
 
                             if (node.Checked) {
-                                newInfo = new CounterInfo(info.Counter,
-                                                          node.Nodes.Count == 0 ? null : new List<string>());
+                                if (firstVisible == null) firstVisible = node;
+
+                                newInfo = new CounterInfo(info.Counter, node.Nodes.Count == 0 ? null : new List<string>());
                                 foreach (TreeNode child in node.Nodes) {
                                     child.Checked = info.Instances.Contains(child.Text);
                                     if (child.Checked)
@@ -1037,6 +1041,32 @@ namespace vApus.Monitor {
 
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
             tvwCounters.AfterCheck += tvwCounter_AfterCheck;
+
+            //Scroll the first checked into view if any.
+            if (tvwCounters.Nodes.Count != 0) {
+                if (firstVisible == null)
+                    firstVisible = tvwCounters.Nodes[0];
+                else {
+                    //Scroll down first so firstVisible will be at the top of the list.
+                    tvwCounters.Nodes[tvwCounters.Nodes.Count - 1].EnsureVisible();
+                    firstVisible.EnsureVisible();
+                }
+            }
+
+            //Select the first visible counter, stupid but only way to do this.
+            var tmr = new System.Timers.Timer(200);
+            tmr.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) => {
+                tmr.Stop();
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    tvwCounters.Focus();
+                    if (firstVisible != null) tvwCounters.SelectedNode = firstVisible;
+                }, null);
+            };
+            tmr.Start();
+        }
+
+        void tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            throw new NotImplementedException();
         }
 
         private CounterInfo GetCounterInfo(string counter, List<CounterInfo> l) {
@@ -1046,19 +1076,13 @@ namespace vApus.Monitor {
             return null;
         }
 
-        private void txtFilter_Leave(object sender, EventArgs e) {
-            SetFilter();
-        }
-
+        private void txtFilter_TextChanged(object sender, EventArgs e) { txtFilter.BackColor = (txtFilter.Text.Length == 0) ? SystemColors.Window : Color.LightBlue; }
+        private void txtFilter_Leave(object sender, EventArgs e) { SetFilter(); }
         private void txtFilter_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Return)
                 SetFilter();
         }
-
-        private void picFilter_Click(object sender, EventArgs e) {
-            SetFilter();
-        }
-
+        private void picFilter_Click(object sender, EventArgs e) { SetFilter(); }
         private void SetFilter() {
             string[] filter = txtFilter.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             var l = new List<string>();
@@ -1073,7 +1097,6 @@ namespace vApus.Monitor {
             SetFilterTextBox();
             InvokeChanged();
         }
-
         private void SetFilterTextBox() {
             try {
                 txtFilter.Text = _monitor.Filter.Combine(", ");
@@ -1103,38 +1126,14 @@ namespace vApus.Monitor {
 
             tc.SelectedIndex = 0;
 
-            _activeObject.OnResult += _activeObject_OnResult;
-
             ConnectAndGetCounters();
-        }
-
-        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
-            _activeObject.OnResult -= _activeObject_OnResult;
-
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                string errorMessage = null;
-                if (split.Panel2.Enabled && lvwEntities.Items.Count != 0 && tvwCounters.Nodes.Count != 0) {
-                    errorMessage = Text + ": No counters were chosen.";
-                    if (_monitor.Wiw.Count != 0)
-                        foreach (Entity entity in _monitor.Wiw.Keys) {
-                            if (_monitor.Wiw[entity].Count != 0)
-                                errorMessage = null;
-                            break;
-                        }
-                } else {
-                    errorMessage = Text +
-                                   ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
-                }
-                if (MonitorInitialized != null)
-                    MonitorInitialized(this, new MonitorInitializedEventArgs(errorMessage));
-            }, null);
         }
 
         public void Start() {
             split.Panel2.Enabled = false;
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
-            parameterPanel.Lock();
+            parameterPanel.Enabled = false;
 
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
@@ -1251,7 +1250,7 @@ namespace vApus.Monitor {
                 split.Panel2.Enabled = true;
                 btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
-                parameterPanel.Unlock();
+                parameterPanel.Enabled = true;
 
                 if (!toolStrip.Visible) {
                     //Releasing it from stresstest if any
@@ -1275,7 +1274,7 @@ namespace vApus.Monitor {
             Cursor = Cursors.Default;
         }
 
-        public MonitorResultCache GetMonitorResultCache() {
+        public MonitorResult GetMonitorResultCache() {
             return monitorControl.MonitorResultCache;
         }
 
@@ -1291,7 +1290,7 @@ namespace vApus.Monitor {
             var connectionString = new List<string>();
             foreach (Parameter key in _parametersWithValues.Keys)
                 connectionString.Add(key.Name + "=" + _parametersWithValues[key]);
-            return connectionString.ToArray().Combine(", ");
+            return connectionString.Combine(", ");
         }
 
         #endregion

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 
 namespace vApus.SolutionTree {
@@ -13,31 +12,35 @@ namespace vApus.SolutionTree {
     ///     Just a form with a docked solution component property panel.
     /// </summary>
     public partial class SolutionComponentPropertyView : BaseSolutionComponentView {
+
+        #region Constructors
         /// <summary>
         ///     Design time only constructor.
         /// </summary>
-        public SolutionComponentPropertyView() {
-            InitializeComponent();
-        }
-
+        public SolutionComponentPropertyView() { InitializeComponent(); }
         /// <summary>
         ///     Just a form with a docked solution component property panel.
         /// </summary>
         /// <param name="solutionComponent"></param>
         /// <param name="args"></param>
-        public SolutionComponentPropertyView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public SolutionComponentPropertyView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
             if (IsHandleCreated)
                 SetGui();
             else
                 HandleCreated += SolutionComponentPropertyView_HandleCreated;
         }
+        #endregion
 
+        #region Functions
         private void SolutionComponentPropertyView_HandleCreated(object sender, EventArgs e) {
             SetGui();
         }
-
+        private void SetGui() {
+            Text = "Properties for " + SolutionComponent;
+            solutionComponentPropertyPanel.SolutionComponent = SolutionComponent;
+        }
         /// <summary>
         ///     This is used in the solution component view manager, please implement this always.
         /// </summary>
@@ -46,10 +49,6 @@ namespace vApus.SolutionTree {
             SetGui();
             solutionComponentPropertyPanel.Refresh();
         }
-
-        private void SetGui() {
-            Text = "Properties for " + SolutionComponent;
-            solutionComponentPropertyPanel.SolutionComponent = SolutionComponent;
-        }
+        #endregion
     }
 }

@@ -6,18 +6,15 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
-using System.Threading;
 using vApus.Util.Properties;
 
 namespace vApus.Util {
     /// <summary>
-    /// Notifies test progress.
+    /// Notifies test progress to an e-mail address, this can be done in bulk to lower the amount of e-mails sent.
     /// </summary>
     public static class TestProgressNotifier {
         public enum What {
@@ -38,10 +35,14 @@ namespace vApus.Util {
         private static ConcurrentBag<string> _messages = new ConcurrentBag<string>();
         #endregion
 
+        /// <summary>
+        /// Notifies test progress to an e-mail address, this can be done in bulk to lower the amount of e-mails sent.
+        /// </summary>
         static TestProgressNotifier() {
             _tmrNotify.Elapsed += _tmrNotify_Elapsed;
         }
 
+        #region Functions
         /// <summary>
         /// 
         /// </summary>
@@ -99,5 +100,6 @@ namespace vApus.Util {
                 }
             }
         }
+        #endregion
     }
 }

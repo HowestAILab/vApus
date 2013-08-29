@@ -29,7 +29,7 @@ namespace vApus.Monitor {
         #endregion
 
         #region Properties
-        public MonitorResultCache MonitorResultCache { get; private set; }
+        public MonitorResult MonitorResultCache { get; private set; }
         public new bool AllowUserToAddRows { get { return base.AllowUserToAddRows; } set { base.AllowUserToAddRows = false; } }
         public new bool AllowUserToDeleteRows { get { return base.AllowUserToDeleteRows; } set { base.AllowUserToDeleteRows = false; } }
         public new bool AllowUserToResizeRows { get { return base.AllowUserToResizeRows; } set { base.AllowUserToResizeRows = false; } }
@@ -43,7 +43,7 @@ namespace vApus.Monitor {
 
         #region Constructor
         public MonitorControl() {
-            MonitorResultCache = new MonitorResultCache();
+            MonitorResultCache = new MonitorResult();
             AllowUserToAddRows = AllowUserToDeleteRows = AllowUserToResizeRows = AllowUserToOrderColumns = false;
             ReadOnly = VirtualMode = DoubleBuffered = true;
             ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
@@ -87,7 +87,7 @@ namespace vApus.Monitor {
             Rows.Clear();
             Columns.Clear();
 
-            MonitorResultCache = new MonitorResultCache() { Monitor = monitor.ToString() };
+            MonitorResultCache = new MonitorResult() { Monitor = monitor.ToString() };
             _filteredColumnIndices.Clear();
 
             RowCount = 0;

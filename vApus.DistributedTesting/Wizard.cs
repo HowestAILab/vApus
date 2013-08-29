@@ -5,11 +5,9 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -21,9 +19,13 @@ using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// This (re)constructs a distributed test for you and is shown automaticaly when opening up an empty distributed test.
+    /// </summary>
     public partial class Wizard : Form {
 
         #region Fields
+        private object _lock = new object();
 
         //All connections in the solution.
         [ThreadStatic]
@@ -36,17 +38,18 @@ namespace vApus.DistributedTesting {
 
         //Kept here, easier and faster.
         internal Dictionary<string, string> _ipsAndHostNames = new Dictionary<string, string>();
-        private object _lock = new object();
-
         #endregion
 
-        #region Init
-
+        #region Constructors
         /// <summary>
-        ///     Don't forget to call SetDistributedTest(DistributedTest).
+        /// Design time constructor, use the other one.
         /// </summary>
-        public Wizard() {
-            InitializeComponent();
+        public Wizard() { InitializeComponent(); }
+        /// <summary>
+        /// This (re)constructs a distributed test for you and is shown automaticaly when opening up an empty distributed test.
+        /// </summary>
+        public Wizard(DistributedTest distributedTest)
+            : this() {
 
             var connections = Solution.ActiveSolution.GetSolutionComponent(typeof(Connections)) as Connections;
             foreach (BaseItem item in connections)
@@ -54,34 +57,25 @@ namespace vApus.DistributedTesting {
                     _connections.Add(item as Connection);
 
             _stresstestProject = Solution.ActiveSolution.GetProject("StresstestProject") as StresstestProject;
-        }
 
-        /// <summary>
-        ///     Set this, otherwise nothing will happen.
-        /// </summary>
-        /// <param name="distributedTest"></param>
-        public void SetDistributedTest(DistributedTest distributedTest) {
-            if (_distributedTest != distributedTest) {
-                _distributedTest = distributedTest;
-                SetDistributedTestToGui();
-            }
+            _distributedTest = distributedTest;
+            SetDistributedTestToGui();
         }
+        #endregion
 
+        #region Functions
         private void SetDistributedTestToGui() {
             SetDefaultTestSettings();
             SetGenerateTiles();
             SetAddClientsAndSlaves();
         }
-
         private void SetDefaultTestSettings() {
             chkUseRDP.Checked = _distributedTest.UseRDP;
             cboRunSync.SelectedIndex = (int)_distributedTest.RunSynchronization;
         }
-
         private void SetGenerateTiles() {
             nudTiles.Value = 1;
         }
-
         private void SetAddClientsAndSlaves() {
             nudTests.Value = _stresstestProject.CountOf(typeof(Stresstest.Stresstest));
 
@@ -100,23 +94,14 @@ namespace vApus.DistributedTesting {
             dgvClients.RowsRemoved += dgvClients_RowsRemoved;
         }
 
-        #endregion
-
-        #region Default Test Settings
-
         private void chkUseRDP_CheckedChanged(object sender, EventArgs e) {
             clmUserName.HeaderText = chkUseRDP.Checked ? "* User Name (RDP)" : "User Name (RDP)";
             clmPassword.HeaderText = chkUseRDP.Checked ? "* Password" : "Password";
         }
 
-        #endregion
-
-        #region Generate and Add Tiles
-
         private void nudTilesAndTests_ValueChanged(object sender, EventArgs e) {
             SetCountsInGui();
         }
-
         private void rdbsGenerateAndtAddTiles_CheckedChanged(object sender, EventArgs e) {
             if ((sender as RadioButton).Checked) //3 rdbs handle this event here, this way it is only handled once.
             {
@@ -124,10 +109,6 @@ namespace vApus.DistributedTesting {
                 SetCountsInGui();
             }
         }
-
-        #endregion
-
-        #region Add Clients and Slaves
 
         /// <summary>
         ///     Display passwordchars in the password cell.
@@ -146,7 +127,6 @@ namespace vApus.DistributedTesting {
                     txt.UseSystemPasswordChar = false;
                 }
         }
-
         private void dgvClients_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e) {
             foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells.Count < 4 || row.Cells[3].Value == null) {
@@ -158,7 +138,6 @@ namespace vApus.DistributedTesting {
                 }
             }
         }
-
         private void dgvClients_CellEndEdit(object sender, DataGridViewCellEventArgs e) {
             if (dgvClients.CurrentCell != null && dgvClients.CurrentCell.ColumnIndex == 3)
                 if (dgvClients.CurrentCell.Value == null) {
@@ -188,7 +167,6 @@ namespace vApus.DistributedTesting {
             }
             RefreshDGV();
         }
-
         private void dgvClients_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e) {
             SetCountsInGui();
         }
@@ -200,7 +178,6 @@ namespace vApus.DistributedTesting {
         private void rdbSlavesPerCores_CheckedChanged(object sender, EventArgs e) {
             RefreshDGV();
         }
-
         private void nudSlavesPerCores_ValueChanged(object sender, EventArgs e) {
             rdbSlavesPerCores.CheckedChanged -= rdbSlavesPerCores_CheckedChanged;
             rdbSlavesPerCores.Checked = true;
@@ -208,7 +185,6 @@ namespace vApus.DistributedTesting {
 
             RefreshDGV();
         }
-
         private void nudSlavesPerClient_ValueChanged(object sender, EventArgs e) {
             rdbSlavesPerCores.CheckedChanged -= rdbSlavesPerCores_CheckedChanged;
             rdbSlavesPerClient.Checked = true;
@@ -245,7 +221,6 @@ namespace vApus.DistributedTesting {
                 SetCountsInGui();
             }, null);
         }
-
         private void SetSlaveCountsPerClients() {
             List<int> coreCounts = GetCoreCounts();
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
@@ -257,7 +232,6 @@ namespace vApus.DistributedTesting {
                 SetCountsInGui();
             }, null);
         }
-
         /// <summary>
         ///     Get the count of the cores for each client (-1 if unknown)
         /// </summary>
@@ -293,7 +267,6 @@ namespace vApus.DistributedTesting {
 
             return new List<int>(coreCounts);
         }
-
         private void SetSlaveCountInDataGridView(List<int> slaveCounts) {
             int i = 0;
             foreach (DataGridViewRow row in dgvClients.Rows) {
@@ -303,7 +276,6 @@ namespace vApus.DistributedTesting {
                 row.Cells[4].Value = slaveCounts[i++];
             }
         }
-
         private void SetCoreCountInDataGridView(List<int> coreCounts) {
             int i = 0;
             foreach (DataGridViewRow row in dgvClients.Rows) {
@@ -401,70 +373,6 @@ namespace vApus.DistributedTesting {
                     return true;
             return false;
         }
-
-        private class CoreCount {
-            private static readonly object _lock = new object();
-
-            /// <summary>
-            ///     stores the ip and hostname in the given list.
-            /// </summary>
-            /// <param name="ipOrHostName"></param>
-            /// <param name="wizard"></param>
-            /// <returns></returns>
-            public int Get(string ipOrHostName, Wizard wizard) {
-                IPAddress address = null;
-                string ip = null, hostName = null;
-                try {
-                    if (IPAddress.TryParse(ipOrHostName, out address)) {
-                        ip = ipOrHostName;
-                        hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
-                    } else {
-                        ipOrHostName = ipOrHostName.ToLower().Split('.')[0];
-                        IPHostEntry hostEntry = Dns.GetHostEntry(ipOrHostName);
-                        foreach (IPAddress a in hostEntry.AddressList)
-                            if (a.AddressFamily == AddressFamily.InterNetwork || a.AddressFamily == AddressFamily.InterNetworkV6) {
-                                address = a;
-                                break;
-                            }
-
-                        ip = address.ToString();
-                        hostName = ipOrHostName != "localhost" ? hostEntry.HostName.ToLower() : "localhost";
-                    }
-
-                    lock (_lock)
-                        if (wizard._ipsAndHostNames.ContainsKey(ip))
-                            wizard._ipsAndHostNames[ip] = hostName.Split('.')[0];
-                        else
-                            wizard._ipsAndHostNames.Add(ip, hostName.Split('.')[0]);
-                } catch {
-                    address = null;
-                }
-
-                if (address != null) {
-                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                    var sw = new SocketWrapper(address, 1314, socket);
-                    try {
-                        sw.Connect(3000);
-                        sw.Send(new Message<JumpStartStructures.Key>(JumpStartStructures.Key.CpuCoreCount, null), SendType.Binary);
-                        var message = (Message<JumpStartStructures.Key>)sw.Receive(SendType.Binary);
-                        return ((CpuCoreCountMessage)message.Content).CpuCoreCount;
-                    } catch {
-                        try {
-                            sw.Close();
-                        } catch {
-                        }
-                        sw = null;
-                        socket = null;
-                    }
-                }
-
-                return 0;
-            }
-        }
-
-        #endregion
-
-        #region Exit
 
         private void btnOK_Click(object sender, EventArgs e) {
             Connection[] toAssignConnections = SmartAssignConnections();
@@ -741,7 +649,65 @@ namespace vApus.DistributedTesting {
                 SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), stresstestProject) as
                 Stresstest.Stresstest;
         }
-
         #endregion
+
+        private class CoreCount {
+            private static readonly object _lock = new object();
+            /// <summary>
+            ///     stores the ip and hostname in the given list.
+            /// </summary>
+            /// <param name="ipOrHostName"></param>
+            /// <param name="wizard"></param>
+            /// <returns></returns>
+            public int Get(string ipOrHostName, Wizard wizard) {
+                IPAddress address = null;
+                string ip = null, hostName = null;
+                try {
+                    if (IPAddress.TryParse(ipOrHostName, out address)) {
+                        ip = ipOrHostName;
+                        hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
+                    } else {
+                        ipOrHostName = ipOrHostName.ToLower().Split('.')[0];
+                        IPHostEntry hostEntry = Dns.GetHostEntry(ipOrHostName);
+                        foreach (IPAddress a in hostEntry.AddressList)
+                            if (a.AddressFamily == AddressFamily.InterNetwork || a.AddressFamily == AddressFamily.InterNetworkV6) {
+                                address = a;
+                                break;
+                            }
+
+                        ip = address.ToString();
+                        hostName = ipOrHostName != "localhost" ? hostEntry.HostName.ToLower() : "localhost";
+                    }
+
+                    lock (_lock)
+                        if (wizard._ipsAndHostNames.ContainsKey(ip))
+                            wizard._ipsAndHostNames[ip] = hostName.Split('.')[0];
+                        else
+                            wizard._ipsAndHostNames.Add(ip, hostName.Split('.')[0]);
+                } catch {
+                    address = null;
+                }
+
+                if (address != null) {
+                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    var sw = new SocketWrapper(address, 1314, socket);
+                    try {
+                        sw.Connect(3000);
+                        sw.Send(new Message<JumpStartStructures.Key>(JumpStartStructures.Key.CpuCoreCount, null), SendType.Binary);
+                        var message = (Message<JumpStartStructures.Key>)sw.Receive(SendType.Binary);
+                        return ((CpuCoreCountMessage)message.Content).CpuCoreCount;
+                    } catch {
+                        try {
+                            sw.Close();
+                        } catch {
+                        }
+                        sw = null;
+                        socket = null;
+                    }
+                }
+
+                return 0;
+            }
+        }
     }
 }

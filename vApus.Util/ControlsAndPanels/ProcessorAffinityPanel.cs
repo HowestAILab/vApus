@@ -5,19 +5,18 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public partial class ProcessorAffinityPanel : Panel
-    {
-        public ProcessorAffinityPanel()
-        {
+namespace vApus.Util {
+    /// <summary>
+    /// Used in OptionsDialog, Handy to keep threads for different running instances of vApus separated.
+    /// </summary>
+    public partial class ProcessorAffinityPanel : Panel {
+        public ProcessorAffinityPanel() {
             InitializeComponent();
             HandleCreated += ProcessorAffinityPanel_HandleCreated;
         }
@@ -30,10 +29,8 @@ namespace vApus.Util
         [DllImport("kernel32.dll")]
         public static extern uint GetActiveProcessorCount(ushort groupNumber);
 
-        private void ProcessorAffinityPanel_HandleCreated(object sender, EventArgs e)
-        {
-            try
-            {
+        private void ProcessorAffinityPanel_HandleCreated(object sender, EventArgs e) {
+            try {
                 //Get the affinity from the current process in order to get the cpu's.
                 var cpus =
                     new List<int>(
@@ -42,29 +39,23 @@ namespace vApus.Util
                 for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) //(0xFFFF) to include all processor groups
                 {
                     ListViewItem lvwi = null;
-                    if (i < lvw.Items.Count)
-                    {
+                    if (i < lvw.Items.Count) {
                         lvwi = lvw.Items[i];
-                    }
-                    else
-                    {
+                    } else {
                         lvwi = new ListViewItem();
                         lvwi.Text = "CPU " + (i + 1);
                         lvw.Items.Add(lvwi);
                     }
                     lvwi.Checked = (cpus.Contains(i));
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Enabled = false;
                 MessageBox.Show("Processor affinity is not supported for this machine.\n" + ex, string.Empty,
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void btnSet_Click(object sender, EventArgs e)
-        {
+        private void btnSet_Click(object sender, EventArgs e) {
             var cpus = new List<int>();
             for (int i = 0; i < lvw.Items.Count; i++)
                 if (lvw.Items[i].Checked)
@@ -74,8 +65,7 @@ namespace vApus.Util
             btnSet.Enabled = false;
         }
 
-        private void lvw_ItemChecked(object sender, ItemCheckedEventArgs e)
-        {
+        private void lvw_ItemChecked(object sender, ItemCheckedEventArgs e) {
             var cpus = new List<int>();
             for (int i = 0; i < lvw.Items.Count; i++)
                 if (lvw.Items[i].Checked)
@@ -85,8 +75,7 @@ namespace vApus.Util
                              ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return "Processor Affinity";
         }
     }

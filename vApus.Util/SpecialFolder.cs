@@ -11,15 +11,12 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace vApus.Util
-{
-    public class SpecialFolder
-    {
+namespace vApus.Util {
+    public class SpecialFolder {
         /// <summary>
         ///     Describes available special folders.
         /// </summary>
-        public enum Folder
-        {
+        public enum Folder {
             /// <summary>
             ///     The file system directory that is used to store administrative tools for an individual user.
             /// </summary>
@@ -257,8 +254,7 @@ namespace vApus.Util
             Windows = 0x24,
         }
 
-        private SpecialFolder()
-        {
+        private SpecialFolder() {
         }
 
         /// <summary>
@@ -266,8 +262,7 @@ namespace vApus.Util
         /// </summary>
         /// <param name="folder">Identifier of a special folder</param>
         /// <returns>Full path of the special folder</returns>
-        public static string GetPath(Folder folder)
-        {
+        public static string GetPath(Folder folder) {
             var sPath = new String(' ', 255); // prepare buffer for result
             SHGetFolderPath(IntPtr.Zero, folder, IntPtr.Zero, 0, sPath);
             return sPath.Trim().Substring(0, sPath.Trim().Length - 1);

@@ -1,7 +1,5 @@
-﻿namespace vApus.Stresstest
-{
-    partial class CustomRandomParameterPanel
-    {
+﻿namespace vApus.Stresstest {
+    partial class CustomRandomParameterPanel {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -11,10 +9,8 @@
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
+        protected override void Dispose(bool disposing) {
+            if (disposing && (components != null)) {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -26,13 +22,13 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             this.chkUnique = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.compileCustomRandom = new vApus.Stresstest.TestCustomRandom();
-            this.cbGenerate = new vApus.Stresstest.CodeBlock();
+            this.compileCustomRandom = new vApus.Stresstest.TestCustomRandomPanel();
+            this.ctxtGenerate = new vApus.Stresstest.CodeTextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.ctxtGenerate)).BeginInit();
             this.SuspendLayout();
             // 
             // chkUnique
@@ -64,29 +60,28 @@
             this.compileCustomRandom.Padding = new System.Windows.Forms.Padding(9);
             this.compileCustomRandom.Size = new System.Drawing.Size(915, 173);
             this.compileCustomRandom.TabIndex = 3;
-            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandom.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
+            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandomPanel.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
             // 
-            // cbGenerate
+            // ctxtGenerate
             // 
-            this.cbGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.ctxtGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbGenerate.BackColor = System.Drawing.Color.White;
-            this.cbGenerate.CanCollapse = false;
-            this.cbGenerate.Collapsed = false;
-            this.cbGenerate.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbGenerate.Footer = "}";
-            this.cbGenerate.FooterVisible = true;
-            this.cbGenerate.Header = "public string Generate() {";
-            this.cbGenerate.HeaderVisible = true;
-            this.cbGenerate.LineNumberOffset = 1;
-            this.cbGenerate.Location = new System.Drawing.Point(12, 12);
-            this.cbGenerate.Name = "cbGenerate";
-            this.cbGenerate.ParentLevelControl = false;
-            this.cbGenerate.ReadOnly = false;
-            this.cbGenerate.ShowLineNumbers = true;
-            this.cbGenerate.Size = new System.Drawing.Size(891, 101);
-            this.cbGenerate.TabIndex = 0;
-            this.cbGenerate.CodeTextChangedDelayed += new System.EventHandler(this.cbGenerate_CodeTextChangedDelayed);
+            this.ctxtGenerate.AutoScrollMinSize = new System.Drawing.Size(25, 15);
+            this.ctxtGenerate.BackBrush = null;
+            this.ctxtGenerate.CharHeight = 15;
+            this.ctxtGenerate.CharWidth = 7;
+            this.ctxtGenerate.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.ctxtGenerate.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.ctxtGenerate.Font = new System.Drawing.Font("Consolas", 9.75F);
+            this.ctxtGenerate.IsReplaceMode = false;
+            this.ctxtGenerate.Location = new System.Drawing.Point(0, 0);
+            this.ctxtGenerate.Name = "ctxtGenerate";
+            this.ctxtGenerate.Paddings = new System.Windows.Forms.Padding(0);
+            this.ctxtGenerate.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.ctxtGenerate.Size = new System.Drawing.Size(915, 292);
+            this.ctxtGenerate.TabIndex = 0;
+            this.ctxtGenerate.Zoom = 100;
             // 
             // CustomRandomParameterPanel
             // 
@@ -94,19 +89,19 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.chkUnique);
             this.Controls.Add(this.compileCustomRandom);
-            this.Controls.Add(this.cbGenerate);
+            this.Controls.Add(this.ctxtGenerate);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "CustomRandomParameterPanel";
             this.Size = new System.Drawing.Size(915, 499);
+            ((System.ComponentModel.ISupportInitialize)(this.ctxtGenerate)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
-
         #endregion
 
-        private CodeBlock cbGenerate;
-        private TestCustomRandom compileCustomRandom;
+        private CodeTextBox ctxtGenerate;
+        private TestCustomRandomPanel compileCustomRandom;
         private System.Windows.Forms.CheckBox chkUnique;
         private System.Windows.Forms.ToolTip toolTip;
     }

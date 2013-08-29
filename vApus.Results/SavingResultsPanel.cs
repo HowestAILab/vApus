@@ -13,14 +13,21 @@ using vApus.Results.Properties;
 using vApus.Util;
 
 namespace vApus.Results {
+    /// <summary>
+    /// Used in vApus.Util.OptionsDialog. Servers at managing connection strings.
+    /// </summary>
     public partial class SavingResultsPanel : Panel {
-        private bool _showDescription = true;
-        private bool _showLocalHostWarning = true;
+        #region Fields
+        private bool _showDescription = true, _showLocalHostWarning = true;
+        #endregion
 
+        #region Properties
         public bool Connected {
             get {
-                if (Settings.Default.ConnectionStringIndex > -1 && Settings.Default.ConnectionStringIndex < SettingsManager.GetConnectionStrings().Count) {
-                    var databaseActions = new DatabaseActions() { ConnectionString = this.ConnectionString, CommandTimeout = 10 };
+
+                string connectionString = ConnectionStringManager.GetCurrentConnectionString();
+                if (connectionString != null) {
+                    var databaseActions = new DatabaseActions() { ConnectionString = connectionString, CommandTimeout = 10 };
                     var dbs = databaseActions.GetDataTable("Show Databases;");
                     bool connected = dbs.Columns.Count != 0;
                     databaseActions.ReleaseConnection();
@@ -29,30 +36,37 @@ namespace vApus.Results {
                 return false;
             }
         }
+        /// <summary>
+        /// A database name is not included in this connection string. Wil throw an exception if there is no current connection string or ConnectionStringManager.Enabled is set to false.
+        /// </summary>
         public string ConnectionString {
             get {
-                string user, host, password;
-                int port;
-                SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+                string connectionString = ConnectionStringManager.GetCurrentConnectionString();
 
-                if (string.IsNullOrEmpty(host)) throw new Exception("No MySQL connection was set.");
+                if (string.IsNullOrEmpty(connectionString)) throw new Exception("No MySQL connection was set.");
 
-                return string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;", host, port, user, password);
+                return connectionString;
             }
         }
-        public void GetCurrentCredentials(out string user, out string host, out int port, out string password) {
-            SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
-        }
+        #endregion
 
+        #region Properties
+        //Following can be disabled for different use cases.
         [DefaultValue(true)]
         public bool ShowDescription { get { return _showDescription; } set { _showDescription = value; } }
         [DefaultValue(true)]
         public bool ShowLocalHostWarning { get { return _showLocalHostWarning; } set { _showLocalHostWarning = value; } }
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Used in vApus.Util.OptionsDialog. Servers at managing connection strings.
+        /// </summary>
         public SavingResultsPanel() {
             InitializeComponent();
             if (IsHandleCreated) SetGui(); else HandleCreated += SavingResultsPanel_HandleCreated;
         }
+        #endregion
 
         #region Functions
 
@@ -72,7 +86,7 @@ namespace vApus.Results {
             grp.Height = btnTest.Top - grp.Top - 6;
 
             cboConnectionString.Items.Clear();
-            foreach (string connectionString in SettingsManager.GetConnectionStrings())
+            foreach (string connectionString in ConnectionStringManager.GetFormattedConnectionStrings())
                 cboConnectionString.Items.Add(connectionString);
 
             cboConnectionString.Items.Add("<New>");
@@ -80,7 +94,7 @@ namespace vApus.Results {
             btnSave.Enabled = false;
 
             txt_TextChanged(txtHost, null);
-            if (SettingsManager.Enabled) {
+            if (ConnectionStringManager.Enabled) {
                 btnEnableDisable.Text = "Disable";
                 btnDelete.Enabled = cboConnectionString.Items.Count != 1 && cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1;
             } else {
@@ -88,6 +102,10 @@ namespace vApus.Results {
 
                 grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = btnSave.Enabled = false;
             }
+        }
+
+        public void GetCurrentConnectionString(out string user, out string host, out int port, out string password) {
+            ConnectionStringManager.GetCurrentConnectionString(out user, out host, out port, out password);
         }
 
         private void cboConnectionStrings_SelectedIndexChanged(object sender, EventArgs e) {
@@ -100,7 +118,7 @@ namespace vApus.Results {
             } else {
                 string user, host, password;
                 int port;
-                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password, true);
+                ConnectionStringManager.GetConnectionString(cboConnectionString.SelectedIndex, out user, out host, out port, out password, true);
 
                 txtUser.Text = user;
                 txtHost.Text = host;
@@ -116,7 +134,7 @@ namespace vApus.Results {
             if (cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1) {
                 string user, password;
                 int port;
-                SettingsManager.GetCredentials(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
+                ConnectionStringManager.GetConnectionString(cboConnectionString.SelectedIndex, out user, out host, out port, out password);
 
                 btnSave.Enabled = txtUser.Text != user || txtHost.Text != host || (int)nudPort.Value != port || txtPassword.Text != password;
             }
@@ -145,9 +163,9 @@ namespace vApus.Results {
 
         private void btnSave_Click(object sender, EventArgs e) {
             if (cboConnectionString.SelectedIndex == cboConnectionString.Items.Count - 1)
-                SettingsManager.AddCredentials(txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
+                ConnectionStringManager.AddConnectionString(txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
             else
-                SettingsManager.EditCredentials(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
+                ConnectionStringManager.EditConnectionString(cboConnectionString.SelectedIndex, txtUser.Text, txtHost.Text, (int)nudPort.Value, txtPassword.Text);
             SetGui();
 
             string host = txtHost.Text.Trim().ToLower();
@@ -156,8 +174,20 @@ namespace vApus.Results {
         }
 
         private void btnDelete_Click(object sender, EventArgs e) {
-            SettingsManager.DeleteCredentials(cboConnectionString.SelectedIndex);
+            ConnectionStringManager.DeleteConnectionString(cboConnectionString.SelectedIndex);
             SetGui();
+        }
+
+        private void btnEnableDisable_Click(object sender, EventArgs e) {
+            if (btnEnableDisable.Text == "Disable") {
+                btnEnableDisable.Text = "Enable";
+                grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = ConnectionStringManager.Enabled = false;
+            } else {
+                btnEnableDisable.Text = "Disable";
+                grp.Enabled = ConnectionStringManager.Enabled = true;
+                btnDelete.Enabled = cboConnectionString.Items.Count != 1 && cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1;
+                txt_TextChanged(txtHost, null);
+            }
         }
 
         public override string ToString() {
@@ -165,18 +195,5 @@ namespace vApus.Results {
         }
 
         #endregion
-
-        private void btnEnableDisable_Click(object sender, EventArgs e) {
-            if (btnEnableDisable.Text == "Disable") {
-                btnEnableDisable.Text = "Enable";
-                grp.Enabled = btnTest.Enabled = btnSave.Enabled = btnDelete.Enabled = SettingsManager.Enabled = false;
-            } else {
-                btnEnableDisable.Text = "Disable";
-                grp.Enabled = SettingsManager.Enabled = true;
-                btnDelete.Enabled = cboConnectionString.Items.Count != 1 && cboConnectionString.SelectedIndex != cboConnectionString.Items.Count - 1;
-                txt_TextChanged(txtHost, null);
-            }
-        }
-
     }
 }

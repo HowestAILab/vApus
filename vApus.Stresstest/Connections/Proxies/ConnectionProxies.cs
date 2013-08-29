@@ -15,8 +15,7 @@ using System.Xml;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     [ContextMenu(
         new[]
             {
@@ -28,12 +27,10 @@ namespace vApus.Stresstest
                 "Import One or More Connection Proxies", "Add Connection Proxy", "Import Connection Proxy Prerequisite(s)",
                 "Sort", "Clear", "Paste"
             })]
-    [Hotkeys(new[] {"Add_Click", "Paste_Click"}, new[] {Keys.Enter, (Keys.Control | Keys.V)})]
+    [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Enter, (Keys.Control | Keys.V) })]
     [DisplayName("Connection Proxies"), Serializable]
-    public class ConnectionProxies : BaseItem
-    {
-        private void Import_Click(object sender, EventArgs e)
-        {
+    public class ConnectionProxies : BaseItem {
+        private void Import_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();
 
             string path = Path.Combine(Application.StartupPath, "ConnectionProxies");
@@ -46,41 +43,31 @@ namespace vApus.Stresstest
                             ? (sender as ToolStripMenuItem).Text
                             : ofd.Title = "Import from...";
 
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
+            if (ofd.ShowDialog() == DialogResult.OK) {
                 var sb = new StringBuilder();
-                foreach (string fileName in ofd.FileNames)
-                {
+                foreach (string fileName in ofd.FileNames) {
                     var xmlDocument = new XmlDocument();
                     xmlDocument.Load(fileName);
 
-                    try
-                    {
+                    try {
                         if (xmlDocument.FirstChild.Name == GetType().Name &&
-                            xmlDocument.FirstChild.FirstChild.Name == "Items")
-                        {
+                            xmlDocument.FirstChild.FirstChild.Name == "Items") {
                             string errorMessage;
                             LoadFromXml(xmlDocument.FirstChild, out errorMessage);
                             sb.Append(errorMessage);
-                            if (errorMessage.Length == 0)
-                            {
+                            if (errorMessage.Length == 0) {
                                 ResolveBranchedIndices();
                                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,
                                                                     true);
                             }
-                        }
-                        else
-                        {
+                        } else {
                             sb.Append(fileName + " contains no valid structure to load;");
                         }
-                    }
-                    catch
-                    {
+                    } catch {
                         sb.Append("Unknown or non-existing item found in " + fileName + ";");
                     }
                 }
-                if (sb.ToString().Length > 0)
-                {
+                if (sb.ToString().Length > 0) {
                     string s = "Failed loading: " + sb;
                     LogWrapper.LogByLevel(s, LogLevel.Error);
                     MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
@@ -89,42 +76,32 @@ namespace vApus.Stresstest
             }
         }
 
-        private void Add_Click(object sender, EventArgs e)
-        {
+        private void Add_Click(object sender, EventArgs e) {
             Add(new ConnectionProxy());
         }
 
-        private void Import_Prerequisites_Click(object sender, EventArgs e)
-        {
+        private void Import_Prerequisites_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();
             ofd.Multiselect = true;
             ofd.Filter =
                 "Dll Files (*.dll)|*.dll|Xml Files (*.xml)|*.xml|Config Files (*.config)|*.config|All Files|*.*";
             ofd.Title = "Import Connection Proxy Prerequisites...";
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                foreach (string fileName in ofd.FileNames)
-                {
+            if (ofd.ShowDialog() == DialogResult.OK) {
+                foreach (string fileName in ofd.FileNames) {
                     string[] filenamePath = fileName.Split('\\');
                     string copyTo = Path.Combine(Application.StartupPath, filenamePath[filenamePath.Length - 1]);
 
-                    try
-                    {
-                        if (File.Exists(copyTo))
-                        {
+                    try {
+                        if (File.Exists(copyTo)) {
                             if (
                                 MessageBox.Show("\"" + copyTo + "\" already exist, do you want to overwrite it?",
                                                 string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question,
                                                 MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                                 File.Copy(fileName, Path.Combine(Application.StartupPath, copyTo), true);
-                        }
-                        else
-                        {
+                        } else {
                             File.Copy(fileName, Path.Combine(Application.StartupPath, copyTo));
                         }
-                    }
-                    catch
-                    {
+                    } catch {
                         MessageBox.Show("Failed importing: \"" + fileName + ".\"", string.Empty, MessageBoxButtons.OK,
                                         MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                     }

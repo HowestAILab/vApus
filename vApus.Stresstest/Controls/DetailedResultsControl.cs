@@ -22,37 +22,44 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class DetailedResultsControl : UserControl {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         public event EventHandler ResultsDeleted;
+
+        #region Fields
+        private readonly object _lock = new object();
 
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
 
-        private ulong[] _stresstestIds = new ulong[0];
+        private int[] _stresstestIds = new int[0];
 
         private int _currentSelectedIndex = -1; //The event is raised even when the index stays the same, this is used to avoid it;
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
-        private System.Timers.Timer _tmr = new System.Timers.Timer(500);
-        private readonly object _lock = new object();
+        private System.Timers.Timer _tmrSizeColumns = new System.Timers.Timer(500); //To not let the columns become to wide.
+        #endregion
 
+        #region Constructors
         public DetailedResultsControl() {
             InitializeComponent();
 
             //Double buffer the datagridview.
             (dgvDetailedResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvDetailedResults, true);
 
+            //Set the GUI, do this after Initialization.
             btnCollapseExpand.PerformClick();
             chkAdvanced.Checked = false;
             cboShow.SelectedIndex = 0;
 
-            _tmr.Elapsed += _tmr_Elapsed;
+            _tmrSizeColumns.Elapsed += _tmr_Elapsed;
 
             this.VisibleChanged += DetailedResultsControl_VisibleChanged;
         }
+        #endregion
+
+        #region Functions
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
@@ -60,56 +67,12 @@ namespace vApus.Stresstest {
             SizeColumns();
         }
 
-        private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
-
         private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { if (lbtnDescription.Active) SetConfig(_resultsHelper.GetDescription()); }
         private void lbtnTags_ActiveChanged(object sender, EventArgs e) { if (lbtnTags.Active)  SetConfig(_resultsHelper.GetTags()); }
         private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) { if (lbtnvApusInstance.Active)  SetConfig(_resultsHelper.GetvApusInstances()); }
         private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) { if (lbtnStresstest.Active)  SetConfig(_resultsHelper.GetStresstestConfigurations()); }
         private void lbtnMonitors_ActiveChanged(object sender, EventArgs e) { if (lbtnMonitors.Active)  SetConfig(_resultsHelper.GetMonitors()); }
 
-        private void btnCollapseExpand_Click(object sender, EventArgs e) {
-            if (btnCollapseExpand.Text == "-") {
-                btnCollapseExpand.Text = "+";
-
-                splitContainer.SplitterDistance = splitContainer.Panel1MinSize;
-                splitContainer.IsSplitterFixed = true;
-                splitContainer.BackColor = Color.White;
-            } else ExpandConfig();
-        }
-
-        private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
-            var sfd = new SaveFileDialog();
-            sfd.Title = "Where do you want to save the displayed results?";
-            //sfd.FileName = kvpStresstest.Key.ReplaceInvalidWindowsFilenameChars('_');
-            sfd.Filter = "TXT|*.txt";
-            if (sfd.ShowDialog() == DialogResult.OK)
-                try {
-                    using (var sw = new StreamWriter(sfd.FileName)) {
-                        sw.Write(GetDisplayedResults());
-                        sw.Flush();
-                    }
-                } catch {
-                    MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-        }
-
-        /// <summary>
-        ///     Get the displayed results.
-        /// </summary>
-        /// <returns></returns>
-        private string GetDisplayedResults() {
-            var sb = new StringBuilder();
-            //Write column headers
-            foreach (DataGridViewColumn clm in dgvDetailedResults.Columns) {
-                sb.Append(clm.HeaderText);
-                sb.Append("\t");
-            }
-            sb.AppendLine();
-
-            foreach (DataGridViewRow row in dgvDetailedResults.Rows) sb.AppendLine(row.ToSV("\t"));
-            return sb.ToString();
-        }
         private void SetConfig(string value) {
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[] { new KeyValuePairControl(value, string.Empty) { BackColor = SystemColors.Control } };
@@ -141,6 +104,16 @@ namespace vApus.Stresstest {
             LockWindowUpdate(0);
         }
 
+        private void btnCollapseExpand_Click(object sender, EventArgs e) {
+            if (btnCollapseExpand.Text == "-") {
+                btnCollapseExpand.Text = "+";
+
+                splitContainer.SplitterDistance = splitContainer.Panel1MinSize;
+                splitContainer.IsSplitterFixed = true;
+                splitContainer.BackColor = Color.White;
+            } else ExpandConfig();
+        }
+
         async private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             if (cboShow.SelectedIndex != _currentSelectedIndex) {
                 _currentSelectedIndex = cboShow.SelectedIndex;
@@ -157,16 +130,22 @@ namespace vApus.Stresstest {
             Retry:
                 if (_resultsHelper != null) {
                     DataTable dt = null;
+                    Exception exception = null;
                     var cultureInfo = Thread.CurrentThread.CurrentCulture;
                     try {
                         dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token, cultureInfo), _cancellationTokenSource.Token);
-                    } catch {
+                    } catch (Exception ex) {
+                        exception = ex;
                     }
 
                     //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview and retry 3 times.
                     if (dt == null) {
                         if (retry++ < 2)
                             goto Retry;
+                        else if (exception != null)
+                            try {
+                                LogWrapper.LogByLevel("Failed loading detailed results.\n" + exception.Message + "\n" + exception.StackTrace, LogLevel.Error);
+                            } catch { }
                     } else {
                         dgvDetailedResults.DataSource = dt;
                     }
@@ -177,6 +156,8 @@ namespace vApus.Stresstest {
                 lblLoading.Visible = false;
                 flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = true;
                 dgvDetailedResults.Select();
+
+                FillCellView();
             }
         }
         private DataTable GetDataSource(CancellationToken cancellationToken, CultureInfo cultureInfo) {
@@ -184,9 +165,9 @@ namespace vApus.Stresstest {
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
                 switch (_currentSelectedIndex) {
                     case 0: return _resultsHelper.GetOverview(cancellationToken, _stresstestIds);
-                    case 1: return _resultsHelper.GetAverageConcurrentUsers(cancellationToken, _stresstestIds);
-                    case 2: return _resultsHelper.GetAverageUserActions(cancellationToken, _stresstestIds);
-                    case 3: return _resultsHelper.GetAverageLogEntries(cancellationToken, _stresstestIds);
+                    case 1: return _resultsHelper.GetAverageConcurrencyResults(cancellationToken, _stresstestIds);
+                    case 2: return _resultsHelper.GetAverageUserActionResults(cancellationToken, _stresstestIds);
+                    case 3: return _resultsHelper.GetAverageLogEntryResults(cancellationToken, _stresstestIds);
                     case 4: return _resultsHelper.GetErrors(cancellationToken, _stresstestIds);
                     case 5: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
                     case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
@@ -194,6 +175,67 @@ namespace vApus.Stresstest {
                 }
             }
             return null;
+        }
+        private void SizeColumns() {
+            if (_tmrSizeColumns != null) {
+                _tmrSizeColumns.Stop();
+                _tmrSizeColumns.Start();
+            }
+        }
+        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            lock (_lock) {
+                _tmrSizeColumns.Stop();
+                SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
+                    int[] widths = new int[dgvDetailedResults.ColumnCount];
+                    for (int i = 0; i != widths.Length; i++) {
+                        int width = dgvDetailedResults.Columns[i].Width;
+                        widths[i] = width > 500 ? 500 : width;
+                    }
+                    dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                    for (int i = 0; i != widths.Length; i++)
+                        dgvDetailedResults.Columns[i].Width = widths[i];
+                }, null);
+            }
+        }
+
+        private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
+
+        private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
+            var sfd = new SaveFileDialog();
+            sfd.Title = "Where do you want to save the displayed results?";
+            //sfd.FileName = kvpStresstest.Key.ReplaceInvalidWindowsFilenameChars('_');
+            sfd.Filter = "TXT|*.txt";
+            if (sfd.ShowDialog() == DialogResult.OK)
+                try {
+                    using (var sw = new StreamWriter(sfd.FileName)) {
+                        sw.Write(GetDisplayedResults());
+                        sw.Flush();
+                    }
+                } catch {
+                    MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+        }
+        /// <summary>
+        ///     Get the displayed results.
+        /// </summary>
+        /// <returns></returns>
+        private string GetDisplayedResults() {
+            var sb = new StringBuilder();
+            //Write column headers
+            foreach (DataGridViewColumn clm in dgvDetailedResults.Columns) {
+                sb.Append(clm.HeaderText);
+                sb.Append("\t");
+            }
+            sb.AppendLine();
+
+            foreach (DataGridViewRow row in dgvDetailedResults.Rows) sb.AppendLine(row.ToSV("\t"));
+            return sb.ToString();
+        }
+
+        private void btnExportToExcel_Click(object sender, EventArgs e) {
+            var dialog = new ExportToExcelDialog();
+            dialog.Init(_resultsHelper);
+            dialog.ShowDialog();
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {
@@ -214,32 +256,46 @@ namespace vApus.Stresstest {
             Thread.CurrentThread.CurrentCulture = cultureInfo;
             return _resultsHelper.ExecuteQuery(query);
         }
-        private void SizeColumns() {
-            if (_tmr != null) {
-                _tmr.Stop();
-                _tmr.Start();
+
+        private void btnDeleteResults_Click(object sender, EventArgs e) {
+            if (MessageBox.Show("Are you sure you want to delete the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                _resultsHelper.DeleteResults();
+                this.Enabled = false;
+
+                if (ResultsDeleted != null) ResultsDeleted(this, null);
             }
         }
-        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            lock (_lock) {
-                _tmr.Stop();
-                SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
-                    int[] widths = new int[dgvDetailedResults.ColumnCount];
-                    for (int i = 0; i != widths.Length; i++) {
-                        int width = dgvDetailedResults.Columns[i].Width;
-                        widths[i] = width > 500 ? 500 : width;
-                    }
-                    dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-                    for (int i = 0; i != widths.Length; i++)
-                        dgvDetailedResults.Columns[i].Width = widths[i];
-                }, null);
+
+        private void chkShowCellView_CheckedChanged(object sender, EventArgs e) { FillCellView(); }
+        private void dgvDetailedResults_CellEnter(object sender, DataGridViewCellEventArgs e) { FillCellView(); }
+        private void FillCellView() {
+            try {
+                //Sadly enough DIY control composition due to dodgy Winforms/Weifenluo.
+                if (chkShowCellView.Checked) {
+                    splitData.Panel2Collapsed = false;
+
+                    fctxtCellView.Width = splitData.Panel2.Width - fctxtCellView.Left;
+                    fctxtCellView.Height = splitData.Panel2.Height - fctxtCellView.Top;
+                    fctxtCellView.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+
+                    //Set the text.
+                    if (dgvDetailedResults.SelectedCells.Count == 1) dgvDetailedResults.CurrentCell = dgvDetailedResults.SelectedCells[0];
+                    fctxtCellView.Enabled = dgvDetailedResults.CurrentCell != null && dgvDetailedResults.SelectedCells.Count == 1;
+                    fctxtCellView.Text = fctxtCellView.Enabled ? dgvDetailedResults.CurrentCell.Value.ToString() : string.Empty;
+
+                } else {
+                    fctxtCellView.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                    splitData.Panel2Collapsed = true;
+                }
+            } catch {
             }
         }
+
         /// <summary>
         /// Clear before testing.
         /// </summary>
         public void ClearResults() {
-            _cancellationTokenSource.Cancel();
+            if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[0];
@@ -251,7 +307,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="resultsHelper">Give hte helper that made the db</param>
         /// <param name="stresstestIds">Filter on one or more stresstests, if this is empty no filter is applied.</param>
-        public void RefreshResults(ResultsHelper resultsHelper, params ulong[] stresstestIds) {
+        public void RefreshResults(ResultsHelper resultsHelper, params int[] stresstestIds) {
             this.Enabled = true;
 
             _resultsHelper = resultsHelper;
@@ -267,20 +323,6 @@ namespace vApus.Stresstest {
             _currentSelectedIndex = -1;
             cboShow_SelectedIndexChanged(null, null);
         }
-
-        private void btnExportToExcel_Click(object sender, EventArgs e) {
-            var dialog = new ExportToExcelDialog();
-            dialog.Init(_resultsHelper);
-            dialog.ShowDialog();
-        }
-
-        private void btnDeleteResults_Click(object sender, EventArgs e) {
-            if (MessageBox.Show("Are you sure you want to delete the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                _resultsHelper.DeleteResults();
-                this.Enabled = false;
-
-                if (ResultsDeleted != null) ResultsDeleted(this, null);
-            }
-        }
+        #endregion
     }
 }

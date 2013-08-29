@@ -5,16 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using vApus.SolutionTree;
 
-namespace vApus.DistributedTesting
-{
-    public class Clients : BaseItem
-    {
-        public Clients()
-        {
-            ShowInGui = false;
-        }
+namespace vApus.DistributedTesting {
+    public class Clients : BaseItem {
+        public Clients() { ShowInGui = false; }
     }
 }

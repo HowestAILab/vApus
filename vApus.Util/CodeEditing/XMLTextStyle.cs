@@ -6,14 +6,12 @@
  *    Dieter Vandroemme
  */
 
+using FastColoredTextBoxNS;
 using System.Drawing;
 using System.Text.RegularExpressions;
-using FastColoredTextBoxNS;
 
-namespace vApus.Util
-{
-    public class XMLTextStyle
-    {
+namespace vApus.Util {
+    public class XMLTextStyle {
         //styles
         private readonly TextStyle BlueStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
         public readonly Style GreenStyle = new TextStyle(Brushes.Green, null, FontStyle.Italic);
@@ -22,19 +20,14 @@ namespace vApus.Util
         private readonly MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
         private readonly FastColoredTextBox _fastColoredTextBox;
 
-        private Regex _HTMLAttrRegex,
-                      _HTMLAttrValRegex,
-                      _HTMLCommentRegex1,
-                      _HTMLCommentRegex2;
+        private Regex _HTMLAttrRegex, _HTMLAttrValRegex, _HTMLCommentRegex1, _HTMLCommentRegex2, _HTMLEndTagRegex, _HTMLTagNameRegex, _HTMLTagRegex;
 
-        private Regex _HTMLEndTagRegex;
-        private Regex _HTMLTagNameRegex;
-        private Regex _HTMLTagRegex;
-
-
-        public XMLTextStyle(FastColoredTextBox fastColoredTextBox)
-        {
-            _fastColoredTextBox = fastColoredTextBox;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="applyTo"></param>
+        public XMLTextStyle(FastColoredTextBox applyTo) {
+            _fastColoredTextBox = applyTo;
 
             _fastColoredTextBox.ClearStylesBuffer();
 
@@ -46,25 +39,21 @@ namespace vApus.Util
             _fastColoredTextBox.TextChanged += _fastColoredTextBox_TextChanged;
         }
 
-        private void InitHTMLRegex()
-        {
+        private void InitHTMLRegex() {
             _HTMLCommentRegex1 = new Regex(@"(<!--.*?-->)|(<!--.*)", RegexOptions.Singleline | RegexOptions.Compiled);
             _HTMLCommentRegex2 = new Regex(@"(<!--.*?-->)|(.*-->)",
                                            RegexOptions.Singleline | RegexOptions.RightToLeft | RegexOptions.Compiled);
             _HTMLTagRegex = new Regex(@"<|/>|</|>", RegexOptions.Compiled);
             _HTMLTagNameRegex = new Regex(@"<(?<range>[!\w:]+)", RegexOptions.Compiled);
             _HTMLEndTagRegex = new Regex(@"</(?<range>[\w:]+)>", RegexOptions.Compiled);
-            _HTMLAttrRegex = new Regex(@"(?<range>\S+?)='[^']*'|(?<range>\S+)=""[^""]*""|(?<range>\S+)=\S+",
-                                       RegexOptions.Compiled);
-            _HTMLAttrValRegex = new Regex(@"\S+?=(?<range>'[^']*')|\S+=(?<range>""[^""]*"")|\S+=(?<range>\S+)",
-                                          RegexOptions.Compiled);
+            _HTMLAttrRegex = new Regex(@"(?<range>\S+?)='[^']*'|(?<range>\S+)=""[^""]*""|(?<range>\S+)=\S+", RegexOptions.Compiled);
+            _HTMLAttrValRegex = new Regex(@"\S+?=(?<range>'[^']*')|\S+=(?<range>""[^""]*"")|\S+=(?<range>\S+)", RegexOptions.Compiled);
         }
 
         /// <summary>
         ///     No html specifics taken into account.
         /// </summary>
-        private void _fastColoredTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
+        private void _fastColoredTextBox_TextChanged(object sender, TextChangedEventArgs e) {
             Range range = e.ChangedRange;
             range.tb.CommentPrefix = null;
             range.tb.LeftBracket = '<';

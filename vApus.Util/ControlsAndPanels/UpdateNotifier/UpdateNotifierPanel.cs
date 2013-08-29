@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -14,17 +13,30 @@ using System.Windows.Forms;
 using vApus.Util.Properties;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Use in OptionDialog.
+    /// </summary>
     public partial class UpdateNotifierPanel : Panel {
+        private delegate void RefreshDel();
+
+        #region Fields
         private readonly RefreshDel _refreshDel;
         private Win32WindowMessageHandler _msgHandler;
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Use in OptionDialog.
+        /// </summary>
         public UpdateNotifierPanel() {
             InitializeComponent();
             _refreshDel = UpdateNotifier.Refresh;
 
             HandleCreated += UpdateNotifierPanel_HandleCreated;
         }
+        #endregion
 
+        #region Functions
         private void UpdateNotifierPanel_HandleCreated(object sender, EventArgs e) {
             _msgHandler = new Win32WindowMessageHandler();
 
@@ -192,10 +204,9 @@ namespace vApus.Util {
             btnClear.Enabled = false;
         }
 
-        private delegate void RefreshDel();
-
         public override string ToString() {
             return "Update Notifier";
         }
+        #endregion
     }
 }

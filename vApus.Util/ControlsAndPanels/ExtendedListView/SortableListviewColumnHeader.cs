@@ -10,14 +10,12 @@ using System;
 using System.Collections;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary date="16-04-2005, 21:04:26" author="S.Deckers">
     ///     A columnheader with sorting
     /// </summary>
     public class SortableListviewColumnHeader : ColumnHeader
-                                                , IComparer
-    {
+                                                , IComparer {
         #region -- Properties --
 
         #region -- Column property --
@@ -33,8 +31,7 @@ namespace vApus.Util
         /// </summary>
         private ListViewSorter _listviewSorter = new ListViewTextCaseInsensitiveSorter();
 
-        public ListViewSorter ListviewSorter
-        {
+        public ListViewSorter ListviewSorter {
             get { return (_listviewSorter); }
             set { _listviewSorter = value; }
         }
@@ -56,8 +53,7 @@ namespace vApus.Util
         /// </summary>
         private float _largestSize = -1.00F;
 
-        public float LargestSize
-        {
+        public float LargestSize {
             get { return (_largestSize); }
             set { _largestSize = value; }
         }
@@ -70,25 +66,20 @@ namespace vApus.Util
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        int IComparer.Compare(object x, object y)
-        {
-            try
-            {
-                if (ListviewSorter == null)
-                {
+        int IComparer.Compare(object x, object y) {
+            try {
+                if (ListviewSorter == null) {
                     throw new NotImplementedException("ListviewSorter is null");
                 }
 
                 // --- Get items over here ??
 
-                object left = ((ListViewItem) x).SubItems[Column];
-                object right = ((ListViewItem) y).SubItems[Column];
+                object left = ((ListViewItem)x).SubItems[Column];
+                object right = ((ListViewItem)y).SubItems[Column];
 
                 ListView listView = ListView;
                 return (ListviewSorter.OnSort(left, right, ListView.Sorting));
-            }
-            catch
-            {
+            } catch {
                 return 0;
             }
         }
@@ -97,8 +88,7 @@ namespace vApus.Util
         ///     ToString override
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
+        public override string ToString() {
             return
                 (string.Format(
                     "Index={0}, Column={1}, SortOrder={2}, Width={3}, PreviousWidth={4}, LargestWidth={5:F3}", Index,

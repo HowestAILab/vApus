@@ -6,14 +6,12 @@
  *    Dieter Vandroemme
  */
 
+using FastColoredTextBoxNS;
 using System.Drawing;
 using System.Text.RegularExpressions;
-using FastColoredTextBoxNS;
 
-namespace vApus.Util
-{
-    public class CSharpTextStyle
-    {
+namespace vApus.Util {
+    public class CSharpTextStyle {
         //styles
         private readonly TextStyle BlueStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
         private readonly TextStyle BoldStyle = new TextStyle(null, null, FontStyle.Bold | FontStyle.Underline);
@@ -25,9 +23,8 @@ namespace vApus.Util
         private readonly FastColoredTextBox _fastColoredTextBox;
         private TextStyle MaroonStyle = new TextStyle(Brushes.Maroon, null, FontStyle.Regular);
 
-        public CSharpTextStyle(FastColoredTextBox fastColoredTextBox)
-        {
-            _fastColoredTextBox = fastColoredTextBox;
+        public CSharpTextStyle(FastColoredTextBox applyTo) {
+            _fastColoredTextBox = applyTo;
 
             _fastColoredTextBox.ClearStylesBuffer();
 
@@ -37,8 +34,7 @@ namespace vApus.Util
             _fastColoredTextBox.TextChanged += _fastColoredTextBox_TextChanged;
         }
 
-        private void _fastColoredTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
+        private void _fastColoredTextBox_TextChanged(object sender, TextChangedEventArgs e) {
             _fastColoredTextBox.LeftBracket = '(';
             _fastColoredTextBox.RightBracket = ')';
             _fastColoredTextBox.LeftBracket2 = '\x0';
@@ -67,7 +63,7 @@ namespace vApus.Util
             e.ChangedRange.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
             e.ChangedRange.SetFoldingMarkers(@"#region\b", @"#endregion\b"); //allow to collapse #region blocks
             e.ChangedRange.SetFoldingMarkers(@"/\*", @"\*/"); //allow to collapse comment block
-            
+
             e.ChangedRange.SetFoldingMarkers(@"#if\b", @"#endif\b"); //allow to collapse preprocessor block
 
             e.ChangedRange.SetStyle(BlueStyle, @"(#define|#undef|#if|#else|#elif|#endif)\b");

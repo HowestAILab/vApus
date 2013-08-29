@@ -206,18 +206,13 @@
     <Compile Include="Connections\Proxies\CodeTextBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\FindAndReplace.cs">
+    <Compile Include="Connections\Proxies\Panels\FindAndReplacePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\FindAndReplace.designer.cs">
-      <DependentUpon>FindAndReplace.cs</DependentUpon>
+    <Compile Include="Connections\Proxies\Panels\FindAndReplacePanel.designer.cs">
+      <DependentUpon>FindAndReplacePanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Connections\TestAllConnections.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Connections\TestAllConnections.Designer.cs">
-      <DependentUpon>TestAllConnections.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Connections\TestConnections.cs" />
     <Compile Include="Controls\ChartDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -236,17 +231,17 @@
     <Compile Include="Controls\ExportToExcelDialog.Designer.cs">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\EditLog.cs">
+    <Compile Include="Logs\Controls\EditLogPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\EditLog.Designer.cs">
-      <DependentUpon>EditLog.cs</DependentUpon>
+    <Compile Include="Logs\Controls\EditLogPanel.Designer.cs">
+      <DependentUpon>EditLogPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\EditUserAction.cs">
+    <Compile Include="Logs\Controls\EditUserActionPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\EditUserAction.Designer.cs">
-      <DependentUpon>EditUserAction.cs</DependentUpon>
+    <Compile Include="Logs\Controls\EditUserActionPanel.Designer.cs">
+      <DependentUpon>EditUserActionPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Logs\FindAndReplaceDialog.cs">
       <SubType>Form</SubType>
@@ -286,10 +281,10 @@
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.Designer.cs">
       <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
     </Compile>
-    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.cs">
+    <Compile Include="RuleSets\RuleSetSyntaxItemPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="RuleSets\Controls\RuleSetSyntaxItemPanel.Designer.cs">
+    <Compile Include="RuleSets\RuleSetSyntaxItemPanel.Designer.cs">
       <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="StresstestThreadPool.cs" />
@@ -299,17 +294,17 @@
     <Compile Include="Logs\RedetermineTokens.Designer.cs">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\CustomList\CustomListGenerator.cs">
+    <Compile Include="Parameters\CustomList\CustomListGeneratorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Parameters\CustomList\CustomListGenerator.Designer.cs">
-      <DependentUpon>CustomListGenerator.cs</DependentUpon>
+    <Compile Include="Parameters\CustomList\CustomListGeneratorDialog.Designer.cs">
+      <DependentUpon>CustomListGeneratorDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\TestCustomRandom.cs">
+    <Compile Include="Parameters\CustomRandom\TestCustomRandomPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Parameters\CustomRandom\TestCustomRandom.designer.cs">
-      <DependentUpon>TestCustomRandom.cs</DependentUpon>
+    <Compile Include="Parameters\CustomRandom\TestCustomRandomPanel.designer.cs">
+      <DependentUpon>TestCustomRandomPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\CustomRandom\CustomRandomParameter.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameters.cs" />
@@ -319,11 +314,11 @@
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterPanel.Designer.cs">
       <DependentUpon>CustomRandomParameterPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Parameters\ParameterTokenSynchronization.cs">
+    <Compile Include="Parameters\ParameterTokenSynchronizationView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Parameters\ParameterTokenSynchronization.Designer.cs">
-      <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>
+    <Compile Include="Parameters\ParameterTokenSynchronizationView.Designer.cs">
+      <DependentUpon>ParameterTokenSynchronizationView.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\ConnectionView.cs">
       <SubType>Form</SubType>
@@ -332,29 +327,17 @@
       <DependentUpon>ConnectionView.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\Proxies\ConnectionProxyCode.cs" />
-    <Compile Include="Connections\Proxies\Panels\AddReferences.cs">
+    <Compile Include="Connections\Proxies\Panels\AddReferencesDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\AddReferences.designer.cs">
-      <DependentUpon>AddReferences.cs</DependentUpon>
+    <Compile Include="Connections\Proxies\Panels\AddReferencesDialog.designer.cs">
+      <DependentUpon>AddReferencesDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Connections\Proxies\CodeBlock.cs">
+    <Compile Include="Connections\Proxies\Panels\CompilePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\CodeBlock.designer.cs">
-      <DependentUpon>CodeBlock.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Connections\Proxies\CodeBlockTextBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Connections\Proxies\CodeBlockTextBox.designer.cs">
-      <DependentUpon>CodeBlockTextBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Connections\Proxies\Panels\Compile.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Connections\Proxies\Panels\Compile.designer.cs">
-      <DependentUpon>Compile.cs</DependentUpon>
+    <Compile Include="Connections\Proxies\Panels\CompilePanel.designer.cs">
+      <DependentUpon>CompilePanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\Proxies\ConnectionProxies.cs" />
     <Compile Include="Connections\Proxies\ConnectionProxy.cs" />
@@ -364,11 +347,11 @@
     <Compile Include="Connections\Proxies\ConnectionProxyCodeView.designer.cs">
       <DependentUpon>ConnectionProxyCodeView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\References.cs">
+    <Compile Include="Connections\Proxies\Panels\ReferencesPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Connections\Proxies\Panels\References.designer.cs">
-      <DependentUpon>References.cs</DependentUpon>
+    <Compile Include="Connections\Proxies\Panels\ReferencesPanel.designer.cs">
+      <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
     <Compile Include="Controls\FastResultsControl.cs">
@@ -377,14 +360,12 @@
     <Compile Include="Controls\FastResultsControl.Designer.cs">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Delegates.cs" />
     <Compile Include="Logs\RuleSets\LogSyntaxItem.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="RuleSetLexer.cs" />
     <Compile Include="StresstestCore.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="EventArgs.cs" />
@@ -463,29 +444,20 @@
     <EmbeddedResource Include="Connections\ConnectionView.resx">
       <DependentUpon>ConnectionView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\AddReferences.resx">
-      <DependentUpon>AddReferences.cs</DependentUpon>
+    <EmbeddedResource Include="Connections\Proxies\Panels\AddReferencesDialog.resx">
+      <DependentUpon>AddReferencesDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\CodeBlock.resx">
-      <DependentUpon>CodeBlock.cs</DependentUpon>
+    <EmbeddedResource Include="Connections\Proxies\Panels\CompilePanel.resx">
+      <DependentUpon>CompilePanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\CodeBlockTextBox.resx">
-      <DependentUpon>CodeBlockTextBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\Compile.resx">
-      <DependentUpon>Compile.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\FindAndReplace.resx">
-      <DependentUpon>FindAndReplace.cs</DependentUpon>
+    <EmbeddedResource Include="Connections\Proxies\Panels\FindAndReplacePanel.resx">
+      <DependentUpon>FindAndReplacePanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Connections\Proxies\ConnectionProxyCodeView.resx">
       <DependentUpon>ConnectionProxyCodeView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Connections\Proxies\Panels\References.resx">
-      <DependentUpon>References.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Connections\TestAllConnections.resx">
-      <DependentUpon>TestAllConnections.cs</DependentUpon>
+    <EmbeddedResource Include="Connections\Proxies\Panels\ReferencesPanel.resx">
+      <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ChartDialog.resx">
       <DependentUpon>ChartDialog.cs</DependentUpon>
@@ -499,11 +471,11 @@
     <EmbeddedResource Include="Controls\ExportToExcelDialog.resx">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\EditLog.resx">
-      <DependentUpon>EditLog.cs</DependentUpon>
+    <EmbeddedResource Include="Logs\Controls\EditLogPanel.resx">
+      <DependentUpon>EditLogPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\EditUserAction.resx">
-      <DependentUpon>EditUserAction.cs</DependentUpon>
+    <EmbeddedResource Include="Logs\Controls\EditUserActionPanel.resx">
+      <DependentUpon>EditUserActionPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\FindAndReplaceDialog.resx">
       <DependentUpon>FindAndReplaceDialog.cs</DependentUpon>
@@ -523,11 +495,11 @@
     <EmbeddedResource Include="Logs\RedetermineTokens.resx">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\CustomList\CustomListGenerator.resx">
-      <DependentUpon>CustomListGenerator.cs</DependentUpon>
+    <EmbeddedResource Include="Parameters\CustomList\CustomListGeneratorDialog.resx">
+      <DependentUpon>CustomListGeneratorDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\CustomRandom\TestCustomRandom.resx">
-      <DependentUpon>TestCustomRandom.cs</DependentUpon>
+    <EmbeddedResource Include="Parameters\CustomRandom\TestCustomRandomPanel.resx">
+      <DependentUpon>TestCustomRandomPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\CustomRandom\CustomRandomParameterView.resx">
       <DependentUpon>CustomRandomParameterView.cs</DependentUpon>
@@ -535,8 +507,8 @@
     <EmbeddedResource Include="Parameters\CustomRandom\CustomRandomParameterPanel.resx">
       <DependentUpon>CustomRandomParameterPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Parameters\ParameterTokenSynchronization.resx">
-      <DependentUpon>ParameterTokenSynchronization.cs</DependentUpon>
+    <EmbeddedResource Include="Parameters\ParameterTokenSynchronizationView.resx">
+      <DependentUpon>ParameterTokenSynchronizationView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\ParameterView.resx">
       <DependentUpon>ParameterView.cs</DependentUpon>

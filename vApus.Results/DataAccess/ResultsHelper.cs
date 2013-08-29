@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,14 +14,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 using vApus.Util;
 
 namespace vApus.Results {
     public class ResultsHelper {
 
         #region Fields
-
         private readonly object _lock = new object();
 
         private string _databaseName;
@@ -28,35 +27,31 @@ namespace vApus.Results {
         private DatabaseActions _databaseActions;
         private string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
 
-        private readonly byte[] _salt =
-            {
-                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62
-            };
+        private readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
 
-        private ulong _vApusInstanceId, _stresstestId, _stresstestResultId, _concurrencyResultId, _runResultId;
-
+        private int _vApusInstanceId, _stresstestId;
+        private ulong _stresstestResultId, _concurrencyResultId, _runResultId;
         #endregion
 
+        #region Properties
         /// <summary>
         /// Returns null if not connected
         /// </summary>
-        public string DatabaseName {
-            get { return _databaseName; }
-        }
+        public string DatabaseName { get { return _databaseName; } }
 
         /// <summary>
         /// You can change this value for when you are distributed testing, so the right dataset is chosen.
         /// This value is not used when filtering results in the procedures eg GetAverageConcurrentUsers.
         /// </summary>
-        public ulong StresstestId {
+        public int StresstestId {
             get { return _stresstestId; }
-            set { lock (_lock) { _stresstestId = value; } }
+            set { lock (_lock) _stresstestId = value; }
         }
+        #endregion
 
         #region Initialize database before stresstest
-
         /// <summary>
-        ///     Builds the schema if needed, if no db target is found or no connection could be made an exception is returned.
+        ///     Builds the schema if needed, if no MySQL target is found or no connection could be made an exception is returned.
         /// </summary>
         /// <returns></returns>
         public Exception BuildSchemaAndConnect() {
@@ -77,7 +72,7 @@ namespace vApus.Results {
         }
 
         /// <summary>
-        ///     Only inserts if connected (Call BuildSchema).
+        ///     Only inserts if connected (Call BuildSchemaAndConnect).
         /// </summary>
         /// <param name="description"></param>
         /// <param name="tags"></param>
@@ -85,8 +80,15 @@ namespace vApus.Results {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL("INSERT INTO Description(Description) VALUES('" + description + "')");
-                    foreach (string tag in tags)
-                        _databaseActions.ExecuteSQL("INSERT INTO Tags(Tag) VALUES('" + tag + "')");
+                    var rowsToInsert = new List<string>(); //Insert multiple values at once.
+
+                    foreach (string tag in tags) {
+                        var sb = new StringBuilder("('");
+                        sb.Append(tag);
+                        sb.Append("')");
+                        rowsToInsert.Add(sb.ToString());
+                    }
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO Tags(Tag) VALUES {0};", rowsToInsert.Combine(", ")));
                 }
             }
         }
@@ -99,16 +101,15 @@ namespace vApus.Results {
         /// <param name="port"></param>
         /// <param name="version"></param>
         /// <param name="isMaster"></param>
-        /// <returns>Id of the instance.</returns>
-        public ulong SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
+        /// <returns>Id of the stresstest. 0 if BuildSchemaAndConnect was not called.</returns>
+        public int SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
-                        string.Format(
-                            "INSERT INTO vApusInstances(HostName, IP, Port, Version, Channel, IsMaster) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
-                            hostName, ip, port, version, channel, isMaster ? 1 : 0)
+                        string.Format("INSERT INTO vApusInstances(HostName, IP, Port, Version, Channel, IsMaster) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
+                        hostName, ip, port, version, channel, isMaster ? 1 : 0)
                         );
-                    _vApusInstanceId = _databaseActions.GetLastInsertId();
+                    _vApusInstanceId = (int)_databaseActions.GetLastInsertId();
                     return _vApusInstanceId;
                 }
                 return 0;
@@ -134,23 +135,20 @@ namespace vApus.Results {
         /// <param name="distribute"></param>
         /// <param name="monitorBeforeInMinutes"></param>
         /// <param name="monitorAfterInMinutes"></param>
-        /// <returns>Id of the stresstest.</returns>
-        public ulong SetStresstest(string stresstest, string runSynchronization, string connection, string connectionProxy, string connectionString, string log, string logRuleSet, int[] concurrencies, int runs,
+        /// <returns>Id of the stresstest. 0 if BuildSchemaAndConnect was not called.</returns>
+        public int SetStresstest(string stresstest, string runSynchronization, string connection, string connectionProxy, string connectionString, string log, string logRuleSet, int[] concurrencies, int runs,
                                          int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle, string distribute, int monitorBeforeInMinutes, int monitorAfterInMinutes) {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
-                        string.Format(@"INSERT INTO Stresstests(
-vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
+                        string.Format(@"INSERT INTO Stresstests(vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
 MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribute, MonitorBeforeInMinutes, MonitorAfterInMinutes)
 VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}')",
-                                      _vApusInstanceId, stresstest, runSynchronization, connection, connectionProxy,
-                                      connectionString.Encrypt(_passwordGUID, _salt), log, logRuleSet,
-                                      concurrencies.Combine(", "), runs,
-                                      minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, distribute,
+                                      _vApusInstanceId, stresstest, runSynchronization, connection, connectionProxy, connectionString.Encrypt(_passwordGUID, _salt), log, logRuleSet,
+                                      concurrencies.Combine(", "), runs, minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, distribute,
                                       monitorBeforeInMinutes, monitorAfterInMinutes)
                         );
-                    _stresstestId = _databaseActions.GetLastInsertId();
+                    _stresstestId = (int)_databaseActions.GetLastInsertId();
                     return _stresstestId;
                 }
                 return 0;
@@ -167,7 +165,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="resultHeaders"></param>
         /// <returns>
         ///     The monitor configuration id in the database, set this in the proper monitor result cache.
-        ///     -1 if not connected.
+        ///     0 if BuildSchemaAndConnect was not called..
         /// </returns>
         public ulong SetMonitor(string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
             return SetMonitor(_stresstestId, monitor, monitorSource, connectionString, machineConfiguration, resultHeaders);
@@ -181,8 +179,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="connectionString"></param>
         /// <param name="machineConfiguration"></param>
         /// <param name="resultHeaders"></param>
-        /// <returns></returns>
-        public ulong SetMonitor(ulong stresstestId, string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
+        /// <returns>Id of the monitor. 0 if BuildSchemaAndConnect was not called.</returns>
+        public ulong SetMonitor(int stresstestId, string monitor, string monitorSource, string connectionString, string machineConfiguration, string[] resultHeaders) {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
@@ -196,45 +194,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return 0;
             }
         }
-
         #endregion
 
-        public void DeleteResults() {
-            DeleteResults(_databaseName);
-        }
-        public void DeleteResults(string databaseName) {
-            try {
-                _databaseActions.ExecuteSQL("drop schema " + databaseName + ";");
-            } catch { 
-            }
-        }
-
-        //SET
-
-        /// <summary>
-        /// Connect to an existing database to execute the procedures on or add slave side data to it.
-        /// </summary>
-        /// <param name="host"></param>
-        /// <param name="port"></param>
-        /// <param name="databaseName"></param>
-        /// <param name="user"></param>
-        /// <param name="password"></param>
-        public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
-            lock (_lock) {
-                try {
-                    _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password) };
-                    if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
-                    _databaseName = databaseName;
-                } catch {
-                    try { _databaseActions.ReleaseConnection(); } catch { }
-                    _databaseActions = null;
-                    throw;
-                }
-            }
-        }
+        #region Set Results
 
         #region Stresstest results
-
         /// <summary>
         ///     Started at datetime now.
         /// </summary>
@@ -269,7 +233,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         );
             }
         }
-
         #endregion
 
         #region Concurrency results
@@ -387,13 +350,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 rowsToInsert.Add(sb.ToString());
                             }
 
-                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) Values {0};",
-                            rowsToInsert.ToArray().Combine(", ")));
+                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                            rowsToInsert.Combine(", ")));
                     }
-
-                    _databaseActions.ExecuteSQL(
-                        string.Format("UPDATE RunResults SET TotalLogEntryCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalLogEntryCount, Parse(runResult.StoppedAt))
-                        );
+                    _databaseActions.ExecuteSQL(string.Format("UPDATE RunResults SET TotalLogEntryCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalLogEntryCount, Parse(runResult.StoppedAt)));
                 }
             }
         }
@@ -405,7 +365,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         ///     Do this at the end of the test.
         /// </summary>
         /// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
-        public void SetMonitorResults(MonitorResultCache monitorResultCache) {
+        public void SetMonitorResults(MonitorResult monitorResultCache) {
             lock (_lock) {
                 if (_databaseActions != null && monitorResultCache.Rows.Count != 0) {
                     ulong monitorConfigurationId = monitorResultCache.MonitorConfigurationId;
@@ -419,24 +379,28 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         sb.Append("', '");
                         sb.Append(Parse((DateTime)row[0]));
                         sb.Append("', '");
-                        sb.Append(MySQLEscapeString(MySQLEscapeString(value.ToArray().Combine("; "))));
+                        sb.Append(MySQLEscapeString(MySQLEscapeString(value.Combine("; "))));
                         sb.Append("')");
                         rowsToInsert.Add(sb.ToString());
                     }
-                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.ToArray().Combine(", ")));
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.Combine(", ")));
                 }
             }
         }
 
         #endregion
 
-        //GET
+        #endregion
+
+        //For getting stuff fom the database ReaderAndCombiner is used: You can execute a many-to-one distributed test (a tests workload divided over multiple slaves);
+        //Results for such test must be combined before processing: it must look like a single test.
+        #region Get Configuration and Formatted Results
 
         #region Configuration
         public string GetDescription() {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var dt = _databaseActions.GetDataTable("Select * FROM Description");
+                    var dt = ReaderAndCombiner.GetDescription(_databaseActions); ;
                     foreach (DataRow row in dt.Rows) return row.ItemArray[0] as string;
                 }
                 return string.Empty;
@@ -446,7 +410,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 var l = new List<string>();
                 if (_databaseActions != null) {
-                    var dt = _databaseActions.GetDataTable("Select * FROM Tags");
+                    var dt = ReaderAndCombiner.GetTags(_databaseActions);
                     foreach (DataRow row in dt.Rows) l.Add(row.ItemArray[0] as string);
                 }
                 return l;
@@ -456,7 +420,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 var l = new List<int>();
                 if (_databaseActions != null) {
-                    var dt = _databaseActions.GetDataTable("Select Id FROM vApusInstances");
+                    var dt = ReaderAndCombiner.GetvApusInstances(_databaseActions);
                     foreach (DataRow row in dt.Rows) l.Add((int)row.ItemArray[0]);
                 }
                 return l;
@@ -466,13 +430,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 var l = new List<KeyValuePair<string, string>>();
                 if (_databaseActions != null) {
-                    var dt = _databaseActions.GetDataTable("Select HostName, IP, Port, Version, Channel, IsMaster FROM vApusInstances");
+                    var dt = ReaderAndCombiner.GetvApusInstances(_databaseActions);
                     foreach (DataRow row in dt.Rows) {
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[0] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[1] + ":" + row[2], string.Empty));
-                        l.Add(new KeyValuePair<string, string>("Version", row.ItemArray[3] as string));
-                        l.Add(new KeyValuePair<string, string>("Channel", row.ItemArray[4] as string));
-                        l.Add(new KeyValuePair<string, string>("Is Master", ((bool)row.ItemArray[5]) ? "Yes" : "No"));
+                        l.Add(new KeyValuePair<string, string>(row.ItemArray[1] as string, string.Empty));
+                        l.Add(new KeyValuePair<string, string>(row.ItemArray[2] + ":" + row[3], string.Empty));
+                        l.Add(new KeyValuePair<string, string>("Version", row.ItemArray[4] as string));
+                        l.Add(new KeyValuePair<string, string>("Channel", row.ItemArray[5] as string));
+                        l.Add(new KeyValuePair<string, string>("Is Master", ((bool)row.ItemArray[6]) ? "Yes" : "No"));
                     }
                 }
                 return l;
@@ -482,24 +446,23 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 var l = new List<KeyValuePair<string, string>>();
                 if (_databaseActions != null) {
-                    var dt = _databaseActions.GetDataTable(@"Select Stresstest, RunSynchronization, Connection, ConnectionProxy, Log, LogRuleSet, Concurrencies,
-Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribute, MonitorBeforeInMinutes, MonitorAfterInMinutes FROM Stresstests");
+                    var dt = ReaderAndCombiner.GetStresstests(_databaseActions);
                     foreach (DataRow row in dt.Rows) {
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[0] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>("RunSynchronization", row.ItemArray[1] as string));
                         l.Add(new KeyValuePair<string, string>(row.ItemArray[2] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[3] as string, string.Empty));
+                        l.Add(new KeyValuePair<string, string>("RunSynchronization", row.ItemArray[3] as string));
                         l.Add(new KeyValuePair<string, string>(row.ItemArray[4] as string, string.Empty));
                         l.Add(new KeyValuePair<string, string>(row.ItemArray[5] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>("Concurrencies", row.ItemArray[6] as string));
-                        l.Add(new KeyValuePair<string, string>("Runs", row.ItemArray[7].ToString()));
-                        int minDelay = (int)row.ItemArray[8];
-                        int maxDelay = (int)row.ItemArray[9];
+                        l.Add(new KeyValuePair<string, string>(row.ItemArray[7] as string, string.Empty));
+                        l.Add(new KeyValuePair<string, string>(row.ItemArray[8] as string, string.Empty));
+                        l.Add(new KeyValuePair<string, string>("Concurrencies", row.ItemArray[9] as string));
+                        l.Add(new KeyValuePair<string, string>("Runs", row.ItemArray[10].ToString()));
+                        int minDelay = (int)row.ItemArray[11];
+                        int maxDelay = (int)row.ItemArray[12];
                         l.Add(new KeyValuePair<string, string>("Delay", minDelay == maxDelay ? minDelay + " ms" : minDelay + " - " + maxDelay + " ms"));
-                        l.Add(new KeyValuePair<string, string>("Shuffle", ((bool)row.ItemArray[10]) ? "Yes" : "No"));
-                        l.Add(new KeyValuePair<string, string>("Distribute", row.ItemArray[11] as string));
-                        l.Add(new KeyValuePair<string, string>("Monitor Before", row.ItemArray[12] + " minutes"));
-                        l.Add(new KeyValuePair<string, string>("Monitor After", row.ItemArray[13] + " minutes"));
+                        l.Add(new KeyValuePair<string, string>("Shuffle", ((bool)row.ItemArray[13]) ? "Yes" : "No"));
+                        l.Add(new KeyValuePair<string, string>("Distribute", row.ItemArray[14] as string));
+                        l.Add(new KeyValuePair<string, string>("Monitor Before", row.ItemArray[15] + " minutes"));
+                        l.Add(new KeyValuePair<string, string>("Monitor After", row.ItemArray[16] + " minutes"));
                     }
                 }
                 return l;
@@ -508,42 +471,27 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         public List<string> GetMonitors() {
             lock (_lock) {
                 var l = new List<string>();
-                if (_databaseActions != null) {
-                    var dt = _databaseActions.GetDataTable("Select Monitor, MonitorSource FROM Monitors");
-                    foreach (DataRow dr in dt.Rows) l.Add(dr.ItemArray[0] + " (" + dr.ItemArray[1] + ")");
-                }
+                if (_databaseActions != null)
+                    foreach (DataRow row in ReaderAndCombiner.GetMonitors(_databaseActions).Rows)
+                        l.Add(row.ItemArray[0] + " (" + row.ItemArray[1] + ")");
+
                 return l;
             }
         }
         #endregion
 
-        #region Not So Stored Procedures
-        /// <summary>
-        /// Get all the stresstests: ID, Stresstest, Connection
-        /// </summary>
-        /// <returns></returns>
-        public DataTable GetStresstests() {
-            lock (_lock) {
-                if (_databaseActions != null)
-                    return _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;");
-                return null;
-            }
-        }
-
+        #region Formatted Results
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
-        public DataTable GetAverageConcurrentUsers(params ulong[] stresstestIds) {
-            return GetAverageConcurrentUsers(new CancellationToken(), stresstestIds);
-        }
-        public DataTable GetAverageConcurrentUsers(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        public DataTable GetAverageConcurrencyResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection, Runs From Stresstests;") :
-                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, Runs From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                    if (stresstests.Rows.Count == 0) return null;
+                    var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "Runs");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                     var averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
         "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
@@ -552,15 +500,17 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        object stresstestId = stresstestsRow.ItemArray[0];
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                        var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
-                        if (stresstestResults.Rows.Count == 0) continue;
-                        object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(_databaseActions, stresstestId, "Id");
+                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
                         string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
                         int runs = (int)stresstestsRow.ItemArray[3];
-                        var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id, StartedAt, StoppedAt, Concurrency FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
+
+                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(_databaseActions, stresstestResultId, new string[] { "Id", "StartedAt", "StoppedAt", "Concurrency" });
+                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
 
                         foreach (DataRow crRow in concurrencyResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
@@ -569,10 +519,12 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             concurrencyResult.StartedAt = (DateTime)crRow.ItemArray[1];
                             concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
 
-                            var rr = _databaseActions.GetDataTable(string.Format("SELECT Id, Run, TotalLogEntryCount FROM RunResults WHERE ConcurrencyResultId={0};", crRow.ItemArray[0]));
-                            var runResultIds = new List<int>(rr.Rows.Count);
-                            var totalLogEntryCountsPerUser = new List<ulong>(rr.Rows.Count);
-                            foreach (DataRow rrRow in rr.Rows) {
+                            var runResults = ReaderAndCombiner.GetRunResults(_databaseActions, (int)crRow.ItemArray[0], "Id", "Run", "TotalLogEntryCount");
+                            if (runResults == null || runResults.Rows.Count == 0) continue;
+
+                            var runResultIds = new List<int>(runResults.Rows.Count);
+                            var totalLogEntryCountsPerUser = new List<ulong>(runResults.Rows.Count);
+                            foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 runResultIds.Add((int)rrRow.ItemArray[0]);
@@ -581,8 +533,9 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 totalLogEntryCountsPerUser.Add((ulong)rrRow.ItemArray[2] / (ulong)concurrencyResult.Concurrency);
                             }
 
-                            var ler = _databaseActions.GetDataTable(
-                                string.Format("Select RunResultId, VirtualUser, UserAction, LogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
+                            var ler = ReaderAndCombiner.GetLogEntryResults(_databaseActions, runResultIds.ToArray(),
+                                new string[] { "RunResultId", "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error" });
+                            if (ler == null || ler.Rows.Count == 0) continue;
 
                             for (int i = 0; i != concurrencyResult.RunResults.Count; i++) {
                                 if (cancellationToken.IsCancellationRequested) return null;
@@ -640,16 +593,17 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 return null;
             }
         }
-
-        public DataTable GetAverageUserActions(params ulong[] stresstestIds) {
-            return GetAverageUserActions(new CancellationToken(), stresstestIds);
-        }
-        public DataTable GetAverageUserActions(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public DataTable GetAverageUserActionResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                    if (stresstests.Rows.Count == 0) return null;
+                    var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                     var averageUserActions = CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
         "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
@@ -657,21 +611,26 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        object stresstestId = stresstestsRow.ItemArray[0];
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                        var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
-                        if (stresstestResults.Rows.Count == 0) return null;
-                        object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(_databaseActions, stresstestId, "Id");
+                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
                         string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                        var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id, Concurrency FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
+
+                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(_databaseActions, stresstestResultId, "Id", "Concurrency");
+                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
                         foreach (DataRow crRow in concurrencyResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            object concurrencyResultId = crRow.ItemArray[0];
+                            int concurrencyResultId = (int)crRow.ItemArray[0];
                             int concurrency = (int)crRow.ItemArray[1];
 
-                            var runResults = _databaseActions.GetDataTable(string.Format("SELECT Id, RerunCount FROM RunResults WHERE ConcurrencyResultId={0}", concurrencyResultId));
+                            var runResults = ReaderAndCombiner.GetRunResults(_databaseActions, concurrencyResultId, "Id", "RerunCount");
+                            if (runResults == null || runResults.Rows.Count == 0) continue;
+
                             var runResultIds = new List<int>(runResults.Rows.Count);
                             foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
@@ -679,8 +638,9 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 runResultIds.Add((int)rrRow.ItemArray[0]);
                             }
 
-                            DataTable logEntryResults = _databaseActions.GetDataTable(
-                                string.Format("SELECT RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
+                            var logEntryResults = ReaderAndCombiner.GetLogEntryResults(_databaseActions, runResultIds.ToArray(),
+                               new string[] { "RunResultId", "VirtualUser", "UserAction", "LogEntryIndex", "SameAsLogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "Rerun" });
+                            if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
                             //Place the log entry results under the right virtual user and the right user action
                             var userActions = new List<KeyValuePair<string, List<KeyValuePair<string, List<LogEntryResult>>>>>(); // <VirtualUser,<UserAction, LogEntryResult
@@ -875,16 +835,17 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 return null;
             }
         }
-
-        public DataTable GetAverageLogEntries(params ulong[] stresstestIds) {
-            return GetAverageLogEntries(new CancellationToken(), stresstestIds);
-        }
-        public DataTable GetAverageLogEntries(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public DataTable GetAverageLogEntryResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                    if (stresstests.Rows.Count == 0) return null;
+                    var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                     var averageLogEntries = CreateEmptyDataTable("AverageLogEntries", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
     "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
@@ -892,21 +853,25 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        object stresstestId = stresstestsRow.ItemArray[0];
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                        var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
-                        if (stresstestResults.Rows.Count == 0) continue;
-                        object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(_databaseActions, stresstestId, "Id");
+                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
                         string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                        var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id, Concurrency FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
+                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(_databaseActions, stresstestResultId, "Id", "Concurrency");
+                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
                         foreach (DataRow crRow in concurrencyResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            object concurrencyResultId = crRow.ItemArray[0];
+                            int concurrencyResultId = (int)crRow.ItemArray[0];
                             int concurrency = (int)crRow.ItemArray[1];
 
-                            var runResults = _databaseActions.GetDataTable(string.Format("SELECT Id FROM RunResults WHERE ConcurrencyResultId={0};", concurrencyResultId));
+                            var runResults = ReaderAndCombiner.GetRunResults(_databaseActions, concurrencyResultId, "Id");
+                            if (runResults == null || runResults.Rows.Count == 0) continue;
+
                             var runResultIds = new List<int>(runResults.Rows.Count);
                             foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
@@ -914,8 +879,9 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 runResultIds.Add((int)rrRow.ItemArray[0]);
                             }
 
-                            var logEntryResults = _databaseActions.GetDataTable(
-                                string.Format("SELECT LogEntryIndex, SameAsLogEntryIndex, UserAction, LogEntry, TimeToLastByteInTicks, DelayInMilliseconds, Error FROM LogEntryResults WHERE RunResultId IN({0});", runResultIds.ToArray().Combine(", ")));
+                            var logEntryResults = ReaderAndCombiner.GetLogEntryResults(_databaseActions, runResultIds.ToArray(),
+                                new string[] { "LogEntryIndex", "SameAsLogEntryIndex", "UserAction", "LogEntry", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error" });
+                            if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
                             //We don't need to keep the run ids for this one, it's much faster and simpler like this.
                             var uniqueLogEntryCounts = new Dictionary<string, int>(); //To make a correct average.
@@ -1047,47 +1013,52 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 return null;
             }
         }
-
-        public DataTable GetErrors(params ulong[] stresstestIds) {
-            return GetErrors(new CancellationToken(), stresstestIds);
-        }
-        public DataTable GetErrors(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public DataTable GetErrors(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                    if (stresstests.Rows.Count == 0) return null;
+                    var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                     var errors = CreateEmptyDataTable("Error", "Stresstest", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
 
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        object stresstestId = stresstestsRow.ItemArray[0];
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                        var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
-                        if (stresstestResults.Rows.Count == 0) return errors;
-                        object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(_databaseActions, stresstestId, "Id");
+                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
                         string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                        var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id, Concurrency FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
+                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(_databaseActions, stresstestResultId, "Id", "Concurrency");
+                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
                         foreach (DataRow crRow in concurrencyResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            object concurrencyResultId = crRow.ItemArray[0];
+                            int concurrencyResultId = (int)crRow.ItemArray[0];
                             object concurrency = crRow.ItemArray[1];
 
-                            var runResults = _databaseActions.GetDataTable("SELECT Id, Run FROM RunResults WHERE ConcurrencyResultId=" + concurrencyResultId);
+                            var runResults = ReaderAndCombiner.GetRunResults(_databaseActions, concurrencyResultId, "Id", "Run");
+                            if (runResults == null || runResults.Rows.Count == 0) continue;
 
                             foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                object runResultId = rrRow.ItemArray[0];
+                                int runResultId = (int)rrRow.ItemArray[0];
                                 object run = rrRow.ItemArray[1];
 
-                                var ler = _databaseActions.GetDataTable(string.Format("SELECT RunResultId, VirtualUser, UserAction, LogEntry, Error FROM LogEntryResults WHERE RunResultId={0} AND CHAR_LENGTH(Error) != 0;", runResultId));
+                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(_databaseActions, "CHAR_LENGTH(Error) != 0", runResultId, "RunResultId", "VirtualUser", "UserAction", "LogEntry", "Error");
+                                if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
-                                foreach (DataRow ldr in ler.Rows) {
+                                foreach (DataRow ldr in logEntryResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
                                     errors.Rows.Add(stresstest, concurrency, run, ldr.ItemArray[1], ldr.ItemArray[2], ldr.ItemArray[3], ldr.ItemArray[4]);
@@ -1105,51 +1076,45 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         /// Get the user actions and the log entries within, these are asked for the first user of the first run, so if you cancel a test it will not be correct.
         /// However, this is the fastest way to do this and there are no problems with a finished test.
         /// </summary>
-        /// <param name="stresstestIds"></param>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
-        public DataTable GetUserActionComposition(params ulong[] stresstestIds) {
-            return GetUserActionComposition(new CancellationToken(), stresstestIds);
-        }
-        /// <summary>
-        /// Get the user actions and the log entries within, these are asked for the first user of the first run, so if you cancel a test it will not be correct.
-        /// However, this is the fastest way to do this and there are no problems with a finished test.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="stresstestIds"></param>
-        /// <returns></returns>
-        public DataTable GetUserActionComposition(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        public DataTable GetUserActionComposition(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
-
-                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                if (stresstests.Rows.Count == 0) return null;
+                var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                 var userActionComposition = CreateEmptyDataTable("UserActionComposition", "Stresstest", "User Action", "Log Entry");
 
                 foreach (DataRow stresstestsRow in stresstests.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    object stresstestId = stresstestsRow.ItemArray[0];
+                    int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                    var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
-                    if (stresstestResults.Rows.Count == 0) continue;
-                    object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+                    var stresstestResults = ReaderAndCombiner.GetStresstestResults(_databaseActions, stresstestId, "Id");
+                    if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+
+                    int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
                     string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                    var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
+                    var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(_databaseActions, stresstestResultId, "Id");
+                    if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
 
                     foreach (DataRow crRow in concurrencyResults.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        var rr = _databaseActions.GetDataTable(string.Format("SELECT Id FROM RunResults WHERE ConcurrencyResultId={0};", crRow.ItemArray[0]));
-                        foreach (DataRow rrRow in rr.Rows) {
+                        var runResults = ReaderAndCombiner.GetRunResults(_databaseActions, (int)crRow.ItemArray[0], "Id");
+                        if (runResults == null || runResults.Rows.Count == 0) continue;
+
+                        foreach (DataRow rrRow in runResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var ler = _databaseActions.GetDataTable(string.Format("Select UserAction, LogEntry, SameAsLogEntryIndex FROM LogEntryResults WHERE RunResultId={0} and VirtualUser='vApus Thread Pool Thread #1';", rrRow.ItemArray[0]));
+                            var logEntryResults = ReaderAndCombiner.GetLogEntryResults(_databaseActions, "VirtualUser='vApus Thread Pool Thread #1'", (int)rrRow.ItemArray[0], "UserAction", "LogEntry", "SameAsLogEntryIndex");
+                            if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
                             var userActions = new Dictionary<string, List<string>>();
-                            foreach (DataRow lerRow in ler.Rows) {
+                            foreach (DataRow lerRow in logEntryResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
                                 object[] row = lerRow.ItemArray;
 
@@ -1203,41 +1168,33 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         }
                         break;
                     }
-                    break;
                 }
                 return userActionComposition;
             }
         }
-
         /// <summary>
-        /// Only works for the first stresstest.
+        /// Only works for the first stresstest. This is a known issue and it will not be fixed: 1 datatable per stressstest only, otherwise the overview is worth nothing. Use a loop to enumerate multiple stresstest ids.
         /// </summary>
-        /// <param name="stresstestIds"></param>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
-        public DataTable GetOverview(params ulong[] stresstestIds) {
-            return GetOverview(new CancellationToken(), stresstestIds);
-        }
-        /// <summary>
-        /// Only works for the first stresstest.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="stresstestIds"></param>
-        /// <returns></returns>
-        public DataTable GetOverview(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        public DataTable GetOverview(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
+
                 if (stresstestIds.Length == 0) {
-                    var stresstests = _databaseActions.GetDataTable("Select Id From Stresstests;");
-                    if (stresstests.Rows.Count == 0) return null;
-                    stresstestIds = new ulong[] { Convert.ToUInt64(stresstests.Rows[0].ItemArray[0]) };
-                } else {
-                    stresstestIds = new ulong[] { stresstestIds[0] };
+                    var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, "Id");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                    stresstestIds = new int[stresstests.Rows.Count];
+                    for (int i = 0; i != stresstestIds.Length; i++)
+                        stresstestIds[i] = (int)stresstests.Rows[i].ItemArray[0];
                 }
 
-                var averageUserActions = GetAverageUserActions(new CancellationToken(), stresstestIds);
+                var averageUserActions = GetAverageUserActionResults(cancellationToken, stresstestIds);
                 if (averageUserActions == null) return null;
 
-                var averageConcurrentUsers = GetAverageConcurrentUsers(new CancellationToken(), stresstestIds);
+                var averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
                 if (averageConcurrentUsers == null) return null;
 
                 var averageResponseTimesAndThroughput = CreateEmptyDataTable("AverageResponseTimesAndThroughput", "Stresstest", "Concurrency");
@@ -1275,24 +1232,28 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
         }
 
-        public DataTable GetMachineConfigurations(params ulong[] stresstestIds) {
-            return GetMachineConfigurations(new CancellationToken(), stresstestIds);
-        }
-        public DataTable GetMachineConfigurations(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public DataTable GetMachineConfigurations(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                    if (stresstests.Rows.Count == 0) return null;
+                    var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                     var machineConfigurations = CreateEmptyDataTable("MachineConfigurations", "Stresstest", "Monitor", "Monitor Source", "Machine Configuration");
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        object stresstestId = stresstestsRow.ItemArray[0];
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
                         string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
 
-                        var monitors = _databaseActions.GetDataTable(string.Format("Select Monitor, MonitorSource, MachineConfiguration from Monitors WHERE StresstestId={0}", stresstestId));
+                        var monitors = ReaderAndCombiner.GetMonitors(_databaseActions, stresstestId, "Monitor", "MonitorSource", "MachineConfiguration");
+                        if (monitors == null || monitors.Rows.Count == 0) continue;
+
                         foreach (DataRow monitorRow in monitors.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
@@ -1305,47 +1266,52 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 return null;
             }
         }
-
-        public DataTable GetAverageMonitorResults(params ulong[] stresstestIds) {
-            return GetAverageMonitorResults(new CancellationToken(), stresstestIds);
-        }
-        public DataTable GetAverageMonitorResults(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public DataTable GetAverageMonitorResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
-
-                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection, MonitorBeforeInMinutes, MonitorAfterInMinutes From Stresstests;") :
-                    _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection, MonitorBeforeInMinutes, MonitorAfterInMinutes From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                if (stresstests.Rows.Count == 0) return null;
+                var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "MonitorBeforeInMinutes", "MonitorAfterInMinutes");
+                if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                 var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
                 foreach (DataRow stresstestsRow in stresstests.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    object stresstestId = stresstestsRow.ItemArray[0];
+                    int stresstestId = (int)stresstestsRow.ItemArray[0];
                     string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
                     int monitorBeforeInMinutes = (int)stresstestsRow.ItemArray[3];
                     int monitorAfterInMinutes = (int)stresstestsRow.ItemArray[4];
 
-                    var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
-                    if (stresstestResults.Rows.Count == 0) continue;
-                    object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+                    var stresstestResults = ReaderAndCombiner.GetStresstestResults(_databaseActions, stresstestId, "Id");
+                    if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                    int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
                     //Get the monitors + values
-                    var monitors = _databaseActions.GetDataTable(string.Format("Select Id, Monitor, ResultHeaders From Monitors WHERE StresstestId={0};", stresstestId));
-                    if (monitors.Rows.Count == 0) continue;
+                    var monitors = ReaderAndCombiner.GetMonitors(_databaseActions, stresstestId, "Id", "Monitor", "ResultHeaders");
+                    if (monitors == null || monitors.Rows.Count == 0) continue;
 
                     //Get the timestamps to calculate the averages
-                    var concurrencyResults = _databaseActions.GetDataTable(string.Format("SELECT Id, Concurrency, StartedAt, StoppedAt FROM ConcurrencyResults WHERE StresstestResultId={0};", stresstestResultId));
+                    var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(_databaseActions, stresstestResultId, "Id", "Concurrency", "StartedAt", "StoppedAt");
+                    if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
                     var concurrencyDelimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
                     var runDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
                     var concurrencies = new Dictionary<int, int>();
                     foreach (DataRow crRow in concurrencyResults.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        int concurrencyId = (int)crRow.ItemArray[0];
+                        int concurrencyResultId = (int)crRow.ItemArray[0];
                         int concurrency = (int)crRow.ItemArray[1];
-                        concurrencyDelimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
-                        var runResults = _databaseActions.GetDataTable(string.Format("SELECT StartedAt, StoppedAt FROM RunResults WHERE ConcurrencyResultId={0};", crRow.ItemArray[0]));
+                        concurrencyDelimiters.Add(concurrencyResultId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
+
+                        var runResults = ReaderAndCombiner.GetRunResults(_databaseActions, concurrencyResultId, "StartedAt", "StoppedAt");
+                        if (runResults == null || runResults.Rows.Count == 0) continue;
+
                         var d = new Dictionary<DateTime, DateTime>(runResults.Rows.Count);
                         foreach (DataRow rrRow in runResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
@@ -1353,13 +1319,17 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                             var start = (DateTime)rrRow.ItemArray[0];
                             if (!d.ContainsKey(start)) d.Add(start, (DateTime)rrRow.ItemArray[1]);
                         }
-                        runDelimiters.Add(concurrencyId, d);
-                        concurrencies.Add(concurrencyId, concurrency);
+                        runDelimiters.Add(concurrencyResultId, d);
+                        concurrencies.Add(concurrencyResultId, concurrency);
                     }
 
                     //Make a bogus run and concurrency to be able to calcullate averages for monitor before and after.
                     if (monitorAfterInMinutes != 0 && runDelimiters.Count != 0) {
-                        var lastConcurrency = runDelimiters[runDelimiters.Count];
+                        int lastConcurrencyID = 0;
+                        foreach (int concId in runDelimiters.Keys)
+                            lastConcurrencyID = concId;
+
+                        var lastConcurrency = runDelimiters[lastConcurrencyID];
 
                         int i = 0;
                         foreach (var lastStop in lastConcurrency.Values)
@@ -1368,7 +1338,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                                 var bogusStop = bogusStart.AddMinutes(monitorAfterInMinutes);
                                 var monitorAfterBogusRuns = new Dictionary<DateTime, DateTime>(0);
                                 monitorAfterBogusRuns.Add(bogusStart, bogusStop);
-                                int concurrencyId = runDelimiters.Count + 1;
+                                int concurrencyId = lastConcurrencyID + 1;
                                 runDelimiters.Add(concurrencyId, monitorAfterBogusRuns);
                                 concurrencyDelimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>(bogusStart, bogusStop));
                                 concurrencies.Add(concurrencyId, 0);
@@ -1410,11 +1380,13 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                         foreach (DataRow monitorRow in monitors.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            object monitorId = monitorRow.ItemArray[0];
+                            int monitorId = (int)monitorRow.ItemArray[0];
                             object monitor = monitorRow.ItemArray[1];
                             object headers = monitorRow.ItemArray[2];
 
-                            var monitorResults = _databaseActions.GetDataTable(string.Format("Select TimeStamp, Value From MonitorResults WHERE MonitorId={0};", monitorId));
+                            var monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
+                            if (monitorResults == null || monitorResults.Rows.Count == 0) continue;
+
                             var monitorValues = new List<KeyValuePair<DateTime, float[]>>(monitorResults.Rows.Count);
                             foreach (DataRow monitorResultsRow in monitorResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
@@ -1459,12 +1431,11 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
                 return averageMonitorResults;
             }
         }
-
         /// <summary>
         /// From a 2 dimensional collection to an array of floats.
         /// </summary>
-        /// <param name="monitorValues"></param>
-        /// <returns></returns>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="monitorValues"></param>        /// <returns></returns>
         private float[] GetAverageMonitorResults(CancellationToken cancellationToken, List<KeyValuePair<DateTime, float[]>> monitorValues) {
             var averageMonitorResults = new float[0];
             if (monitorValues.Count != 0) {
@@ -1495,36 +1466,39 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
             return averageMonitorResults;
         }
-
-        public List<DataTable> GetMonitorResults(params ulong[] stresstestIds) {
-            return GetMonitorResults(new CancellationToken(), stresstestIds);
-        }
-        public List<DataTable> GetMonitorResults(CancellationToken cancellationToken, params ulong[] stresstestIds) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public List<DataTable> GetMonitorResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
-                var stresstests = (stresstestIds.Length == 0) ? _databaseActions.GetDataTable("Select Id, Stresstest, Connection From Stresstests;") :
-                   _databaseActions.GetDataTable(string.Format("Select Id, Stresstest, Connection From Stresstests WHERE Id IN({0});", stresstestIds.Combine(", ")));
-                if (stresstests.Rows.Count == 0) return null;
+                var stresstests = ReaderAndCombiner.GetStresstests(_databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                 var dts = new List<DataTable>();
 
                 foreach (DataRow stresstestsRow in stresstests.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    object stresstestId = stresstestsRow.ItemArray[0];
+                    int stresstestId = (int)stresstestsRow.ItemArray[0];
                     string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
 
-                    var stresstestResults = _databaseActions.GetDataTable(string.Format("Select Id From StresstestResults WHERE StresstestId={0};", stresstestId));
+                    var stresstestResults = ReaderAndCombiner.GetStresstestResults(_databaseActions, stresstestId, "Id");
+
                     if (stresstestResults.Rows.Count == 0) continue;
                     object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
 
                     //Get the monitors + values
-                    var monitors = _databaseActions.GetDataTable(string.Format("Select Id, Monitor, ResultHeaders From Monitors WHERE StresstestId={0};", stresstestId));
-                    if (monitors.Rows.Count == 0) continue;
+                    var monitors = ReaderAndCombiner.GetMonitors(_databaseActions, stresstestId, "Id", "Monitor", "ResultHeaders");
+
+                    if (monitors == null || monitors.Rows.Count == 0) continue;
 
                     foreach (DataRow monitorRow in monitors.Rows) {
-                        object monitorId = monitorRow.ItemArray[0];
+                        int monitorId = (int)monitorRow.ItemArray[0];
                         object monitor = monitorRow.ItemArray[1];
                         string[] headers = (monitorRow.ItemArray[2] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
@@ -1537,7 +1511,8 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
 
                         var monitorResults = CreateEmptyDataTable("MonitorResults", "Stresstest", columns.ToArray());
 
-                        var mrs = _databaseActions.GetDataTable(string.Format("Select TimeStamp, Value From MonitorResults WHERE MonitorId={0};", monitorId));
+                        var mrs = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
+
                         var monitorValues = new Dictionary<DateTime, float[]>(mrs.Rows.Count);
                         foreach (DataRow monitorResultsRow in mrs.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
@@ -1560,11 +1535,69 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             }
         }
 
+        #endregion
+
+        #endregion
+
+        #region Other
+        /// <summary>
+        /// Connect to an existing database to execute the procedures on or add slave side data to it.
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="databaseName"></param>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
+            lock (_lock) {
+                try {
+                    _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password) };
+                    if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
+                    _databaseName = databaseName;
+                } catch {
+                    try { _databaseActions.ReleaseConnection(); } catch { }
+                    _databaseActions = null;
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get all the stresstests: ID, Stresstest, Connection
+        /// If the workload was divided over multiple slaves the datatable entries will be combined, in that case the first Id will be put in a row.
+        /// </summary>
+        /// <returns></returns>
+        public DataTable GetStresstests() {
+            lock (_lock) {
+                if (_databaseActions != null)
+                    return ReaderAndCombiner.GetStresstests(_databaseActions, "Id", "Stresstest", "Connection");
+
+                return null;
+            }
+        }
+        /// <summary>
+        /// Execute a query on the connected database.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public DataTable ExecuteQuery(string query) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
                 return _databaseActions.GetDataTable(query);
             }
+        }
+
+        /// <summary>
+        /// Deletes the current database.
+        /// </summary>
+        public void DeleteResults() { DeleteResults(_databaseName); }
+        public void DeleteResults(string databaseName) {
+            lock (_lock)
+                try {
+                    Schema.Drop(databaseName, _databaseActions);
+                    _databaseName = null;
+                } catch {
+                }
         }
 
         private DataTable CreateEmptyDataTable(string name, string columnName1, params string[] columnNames) {
@@ -1574,8 +1607,12 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
             foreach (string columnName in columnNames) dataTable.Columns.Add(columnName, objectType);
             return dataTable;
         }
-        #endregion
 
+        /// <summary>
+        /// Parse a date to a valid string for in a MySQL db.
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
         private string Parse(DateTime dateTime) { return dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff"); }
         /// <summary>
         ///Mimics PHP's mysql_real_escape_string();
@@ -1583,15 +1620,7 @@ Runs, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribut
         /// <param name="s"></param>
         /// <returns></returns>
         private static string MySQLEscapeString(string s) { return System.Text.RegularExpressions.Regex.Replace(s, @"[\r\n\x00\x1a\\'""]", @"\$0"); }
-        /// <summary>
-        /// Remove a schema (after cancel or failed)
-        /// </summary>
-        public void RemoveDatabase() {
-            lock (_lock) {
-                Schema.Drop(_databaseName, _databaseActions);
-                _databaseName = null;
-            }
-        }
+        #endregion
 
         private class UserActionComparer : IComparer<string> {
             private static readonly UserActionComparer _userActionComparer = new UserActionComparer();

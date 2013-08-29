@@ -11,7 +11,11 @@ using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Entries can be given one per line, those can be returned using the Entries property.
+    /// </summary>
     public partial class FromTextDialog : Form {
+
         #region Fields
         private string[] _entries = new string[] { };
         #endregion
@@ -37,6 +41,7 @@ namespace vApus.Util {
 
         #region Constructor
 
+        /// Entries can be given one per line, those can be returned using the Entries property.
         public FromTextDialog() {
             InitializeComponent();
             WarnForEndingWithNewLine = true;
@@ -56,9 +61,7 @@ namespace vApus.Util {
         private void btnOK_Click(object sender, EventArgs e) {
             if (WarnForEndingWithNewLine &&
                 (rtxt.Text.EndsWith("\r") || rtxt.Text.EndsWith("\n")) &&
-                MessageBox.Show("The text ends with one ore more new line characters, do you want to trim these?",
-                                string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                                MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                MessageBox.Show("The text ends with one ore more new line characters, do you want to trim these?",  string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                 rtxt.Text = rtxt.Text.TrimEnd();
 
             _entries = rtxt.Text.Split('\n');

@@ -11,6 +11,9 @@ using vApus.DistributedTesting;
 using vApus.Util;
 
 namespace vApus.Link {
+    /// <summary>
+    /// This could not be included in the linker due to circular dependencies. Linking works the other way around here, this class handles communication to the socket listener (Used in vApus.Gui.MainWindow).
+    /// </summary>
     public static class SocketListenerLinker {
         /// <summary>
         ///     Use this for instance to show the test name in the title bar of the main window.
@@ -19,52 +22,34 @@ namespace vApus.Link {
         public static event EventHandler NewTest;
 
         #region Fields
-
         private static readonly SocketListener _socketListener;
-
         #endregion
 
         #region Properties
+        public static bool SocketListenerIsRunning { get { return _socketListener.IsRunning; } }
 
-        public static bool SocketListenerIsRunning {
-            get { return _socketListener.IsRunning; }
-        }
-
-        public static int SocketListenerPort {
-            get { return _socketListener.Port; }
-        }
-
+        public static int SocketListenerPort { get { return _socketListener.Port; } }
         #endregion
 
         #region Constructor
-
         static SocketListenerLinker() {
             _socketListener = SocketListener.GetInstance();
             _socketListener.NewTest += _socketListener_NewTest;
         }
-
         #endregion
 
         #region Functions
-
         private static void _socketListener_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e) {
             if (NewTest != null)
                 foreach (EventHandler del in NewTest.GetInvocationList())
                     del.BeginInvoke(e.Test, null, null, null);
         }
 
-        public static void StartSocketListener() {
-            _socketListener.Start();
-        }
+        public static void StartSocketListener() { _socketListener.Start(); }
 
-        public static void SetPort(int port, bool preferred = false) {
-            _socketListener.SetPort(port, preferred);
-        }
+        public static void SetPort(int port, bool preferred = false) { _socketListener.SetPort(port, preferred); }
 
-        public static void AddSocketListenerManagerPanel(OptionsDialog optionsDialog) {
-            optionsDialog.AddOptionsPanel(new SocketListenerManagerPanel());
-        }
-
+        public static void AddSocketListenerManagerPanel(OptionsDialog optionsDialog) { optionsDialog.AddOptionsPanel(new SocketListenerManagerPanel()); }
         #endregion
     }
 }

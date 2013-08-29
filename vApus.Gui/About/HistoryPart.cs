@@ -6,16 +6,13 @@
  *    Dieter Vandroemme
  */
 
-namespace vApus.Gui
-{
-    public struct HistoryPart
-    {
+namespace vApus.Gui {
+    public struct HistoryPart {
         public int Length;
         public int SelectionStart;
         public string Type;
 
-        public HistoryPart(string type, int selectionStart, int length)
-        {
+        public HistoryPart(string type, int selectionStart, int length) {
             Type = type;
             SelectionStart = selectionStart;
             Length = length;

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using vApus.SolutionTree;
@@ -16,34 +15,57 @@ namespace vApus.DistributedTesting {
     public class TileStresstest : LabeledBaseItem {
 
         #region Fields
-        //For encrypting the mysql password
-        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
-        private bool _automaticDefaultAdvancedSettings = true;
+        private readonly object _lock = new object();
+
+        private bool _use = true;
 
         /// <summary>
         ///     Only when the solution is fully loaded.
         ///     Use in some cases (like changing the Use property).
         /// </summary>
         internal bool _canDefaultAdvancedSettingsTo = false;
-
         private Stresstest.Stresstest _defaultAdvancedSettingsTo;
-        private bool _use = true;
+        private bool _automaticDefaultAdvancedSettings = true;
 
-        private readonly object _lock = new object();
+        private string _dividedStresstestIndex;
 
+        //For encrypting the mysql password of the resuts database.
+        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
+        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
         #endregion
 
         #region Properties
+        /// <summary>
+        ///     To be able to link the stresstest to the right tile stresstest.
+        ///     #.# (TileIndex.TileStresstestIndex eg 0.0);
+        /// </summary>
+        public string TileStresstestIndex {
+            get {
+                if (_dividedStresstestIndex == null) {
+                    object parent = Parent;
+                    if (parent == null)
+                        return "-1";
+                    return (parent as Tile).Index + "." + Index;
+                }
+                return _dividedStresstestIndex;
+            }
+        }
+
+        public BasicTileStresstest BasicTileStresstest { get { return this[0] as BasicTileStresstest; } }
+
+        public AdvancedTileStresstest AdvancedTileStresstest { get { return this[1] as AdvancedTileStresstest; } }
+
+        [SavableCloneable]
+        public bool Use {
+            get { return _use; }
+            set { _use = value; }
+        }
 
         [SavableCloneable]
         public Stresstest.Stresstest DefaultAdvancedSettingsTo {
             get {
                 if (_defaultAdvancedSettingsTo.IsEmpty)
-                    DefaultAdvancedSettingsTo =
-                        GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
-                                            Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
-                        Stresstest.Stresstest;
+                    DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
 
                 return _defaultAdvancedSettingsTo;
             }
@@ -60,37 +82,17 @@ namespace vApus.DistributedTesting {
             set { _automaticDefaultAdvancedSettings = value; }
         }
 
-        [SavableCloneable]
-        public bool Use {
-            get { return _use; }
-            set { _use = value; }
-        }
-
         /// <summary>
-        ///     To be able to link the stresstest to the right tile stresstest.
-        ///     #.# (TileIndex.TileStresstestIndex eg 0.0);
+        /// If the work is divided on multiple slaves and this is a clone of the original stresstest this must be filled in.
+        /// Must be the original index + . + # (last number being the part of the division)
         /// </summary>
-        public string TileStresstestIndex {
-            get {
-                object parent = Parent;
-                if (parent == null)
-                    return "-1";
-                return (parent as Tile).Index + "." + Index;
-            }
+        public string DividedStresstestIndex {
+            get { return _dividedStresstestIndex; }
+            set { _dividedStresstestIndex = value; }
         }
-
-        public BasicTileStresstest BasicTileStresstest {
-            get { return this[0] as BasicTileStresstest; }
-        }
-
-        public AdvancedTileStresstest AdvancedTileStresstest {
-            get { return this[1] as AdvancedTileStresstest; }
-        }
-
         #endregion
 
         #region Constructors
-
         public TileStresstest() {
             ShowInGui = false;
             AddAsDefaultItem(new BasicTileStresstest());
@@ -98,27 +100,21 @@ namespace vApus.DistributedTesting {
 
             if (Solution.ActiveSolution != null) {
                 _canDefaultAdvancedSettingsTo = false;
-                DefaultAdvancedSettingsTo =
-                    GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
-                    Stresstest.Stresstest;
+                DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
+
                 _canDefaultAdvancedSettingsTo = true;
             } else {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             }
         }
-
         #endregion
 
         #region Functions
-
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             _canDefaultAdvancedSettingsTo = false;
-            DefaultAdvancedSettingsTo =
-                GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
-                                    Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
-                Stresstest.Stresstest;
+            DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
+
             _canDefaultAdvancedSettingsTo = true;
         }
 
@@ -170,10 +166,6 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        public override string ToString() {
-            return "[TS " + TileStresstestIndex + "] ";
-        }
-
         /// <summary>
         ///     Create a clone of this.
         /// </summary>
@@ -196,7 +188,7 @@ namespace vApus.DistributedTesting {
         /// <param name="stresstestIdInDb">-1 for none</param>
         /// <param name="runSynchronization"></param>
         /// <returns></returns>
-        public StresstestWrapper GetStresstestWrapper(ulong stresstestIdInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public StresstestWrapper GetStresstestWrapper(int stresstestIdInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             lock (_lock) {
                 string tileStresstestIndex = TileStresstestIndex;
                 var stresstest = new Stresstest.Stresstest();
@@ -243,7 +235,7 @@ namespace vApus.DistributedTesting {
 
                 string user, host, password;
                 int port;
-                vApus.Results.SettingsManager.GetCurrentCredentials(out user, out host, out port, out password);
+                vApus.Results.ConnectionStringManager.GetCurrentConnectionString(out user, out host, out port, out password);
 
                 return new StresstestWrapper {
                     StresstestIdInDb = stresstestIdInDb,
@@ -254,6 +246,7 @@ namespace vApus.DistributedTesting {
             }
         }
 
+        public override string ToString() { return "[TS " + TileStresstestIndex + "] "; }
         #endregion
     }
 }

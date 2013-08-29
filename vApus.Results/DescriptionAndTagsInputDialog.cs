@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,41 +15,17 @@ using vApus.Util;
 
 namespace vApus.Results {
     /// <summary>
-    ///     Adds description and tags to the results database.
+    ///     Adds description and tags to the results database. Do not forget to set ResultsHelper.
     /// </summary>
     public partial class DescriptionAndTagsInputDialog : Form {
+
+        #region Fields
         private string _description;
         private string[] _tags;
         private ResultsHelper _resultsHelper;
+        #endregion
 
-        /// <summary>
-        /// Don't forget to set the results helper.
-        /// </summary>
-        public DescriptionAndTagsInputDialog() {
-            InitializeComponent();
-
-            this.VisibleChanged += DescriptionAndTagsInputDialog_VisibleChanged;
-        }
-        //Check connectivity to mysql results db.
-        async void DescriptionAndTagsInputDialog_VisibleChanged(object sender, EventArgs e) {
-            this.VisibleChanged -= DescriptionAndTagsInputDialog_VisibleChanged;
-
-            var cultureInfo = Thread.CurrentThread.CurrentCulture;
-            Exception ex = await Task<Exception>.Run(() => 
-            {
-                Thread.CurrentThread.CurrentCulture = cultureInfo;
-                return _resultsHelper.BuildSchemaAndConnect();
-            
-            });
-
-            btnOK.Enabled = true;
-            btnOK.Text = "OK";
-            if (ex != null) {
-                LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
-                lblCouldNotConnect.Visible = true;
-            }
-        }
-
+        #region Properties
         public string Description {
             get { return _description; }
             set {
@@ -72,6 +47,39 @@ namespace vApus.Results {
             }
         }
         public ResultsHelper ResultsHelper { set { _resultsHelper = value; } }
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        ///     Adds description and tags to the results database. Do not forget to set ResultsHelper.
+        /// </summary>
+        public DescriptionAndTagsInputDialog() {
+            InitializeComponent();
+
+            this.VisibleChanged += DescriptionAndTagsInputDialog_VisibleChanged;
+        }
+        #endregion
+
+        #region Functions
+        //Check connectivity to mysql results db.
+        async void DescriptionAndTagsInputDialog_VisibleChanged(object sender, EventArgs e) {
+            this.VisibleChanged -= DescriptionAndTagsInputDialog_VisibleChanged;
+
+            var cultureInfo = Thread.CurrentThread.CurrentCulture;
+            Exception ex = await Task<Exception>.Run(() => {
+                Thread.CurrentThread.CurrentCulture = cultureInfo;
+                return _resultsHelper.BuildSchemaAndConnect();
+
+            });
+
+            btnOK.Enabled = true;
+            btnOK.Text = "OK";
+            if (ex != null) {
+                LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
+                lblCouldNotConnect.Visible = true;
+            }
+        }
+
         private void FocusDescription() {
             var t = new Thread(delegate() {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -106,5 +114,6 @@ namespace vApus.Results {
             DialogResult = DialogResult.Cancel;
             Close();
         }
+        #endregion
     }
 }

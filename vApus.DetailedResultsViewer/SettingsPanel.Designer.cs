@@ -39,7 +39,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.btnDeleteListedDbs = new System.Windows.Forms.Button();
-            this.filterResults = new vApus.DetailedResultsViewer.FilterResults();
+            this.filterResults = new vApus.DetailedResultsViewer.FilterResultsControl();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDatabases)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDatabases)).BeginInit();
@@ -246,7 +246,7 @@
 
         private System.Windows.Forms.LinkLabel lblConnectToMySQL;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private FilterResults filterResults;
+        private FilterResultsControl filterResults;
         private System.Windows.Forms.Label lblResults;
         private System.Windows.Forms.PictureBox picDatabases;
         private System.Windows.Forms.DataGridView dgvDatabases;

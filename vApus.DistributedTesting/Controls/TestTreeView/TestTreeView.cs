@@ -9,7 +9,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -24,6 +23,7 @@ namespace vApus.DistributedTesting {
         ///     The selected item is the sender
         /// </summary>
         public event EventHandler AfterSelect;
+        public event EventHandler TileStresstestTreeViewItemDoubleClicked;
 
         /// <summary>
         ///     Event of the test clicked.
@@ -187,7 +187,7 @@ namespace vApus.DistributedTesting {
             CreateAndAddTileTreeViewItem(tile);
 
             dttvi.DistributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
-            
+
             LockWindowUpdate(0);
         }
 
@@ -331,11 +331,16 @@ namespace vApus.DistributedTesting {
             //To be able to delete the control.
             tsvi.SetParent(parent, false);
             tsvi.AfterSelect += _AfterSelect;
+            tsvi.DoubleClicked += tsvi_DoubleClicked;
             tsvi.DuplicateClicked += tsvi_DuplicateClicked;
             tsvi.DeleteClicked += tsvi_DeleteClicked;
 
             tsvi.EventClicked += tsvi_EventClicked;
             return tsvi;
+        }
+
+        private void tsvi_DoubleClicked(object sender, EventArgs e) {
+            if (TileStresstestTreeViewItemDoubleClicked != null) TileStresstestTreeViewItemDoubleClicked.Invoke(this, null);
         }
 
         private void tsvi_DeleteClicked(object sender, EventArgs e) {

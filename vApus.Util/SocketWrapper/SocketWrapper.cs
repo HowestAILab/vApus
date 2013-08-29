@@ -5,7 +5,6 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-
 using System;
 using System.IO;
 using System.Net;
@@ -21,6 +20,7 @@ namespace vApus.Util {
     ///     This can be simply bytewise, binary, soap or text.
     /// </summary>
     public class SocketWrapper {
+
         #region Fields
 
         /// <summary>
@@ -182,9 +182,7 @@ namespace vApus.Util {
         ///     Throws an exception if it is not able too.
         ///     You must check the connected property first before calling this.
         /// </summary>
-        public void Connect() {
-            Connect(0);
-        }
+        public void Connect() { Connect(0); }
 
         /// <summary>
         ///     Connects to a socket.
@@ -229,19 +227,14 @@ namespace vApus.Util {
 
             _connectWaitHandle.Set();
 
-            if (exception != null)
-                throw exception;
+            if (exception != null) throw exception;
         }
 
         /// <summary>
         /// </summary>
         /// <param name="ar"></param>
         private void ConnectCallback(IAsyncResult ar) {
-            try {
-                if (_socket.Connected)
-                    _socket.EndConnect(ar);
-            } catch {
-            }
+            try { if (_socket.Connected)  _socket.EndConnect(ar); } catch { }
             _connectWaitHandle.Set();
         }
 
@@ -256,10 +249,7 @@ namespace vApus.Util {
                 } catch {
                     //throw;
                 } finally {
-                    try {
-                        _socket = null;
-                    } catch {
-                        //throw;
+                    try { _socket = null; } catch {   //throw; 
                     }
                 }
             }

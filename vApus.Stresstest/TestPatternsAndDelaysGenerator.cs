@@ -5,59 +5,45 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using vApus.Util;
 
 namespace vApus.Stresstest {
-    public class TestPatternsAndDelaysGenerator : IDisposable {
+    /// <summary>
+    /// Generates test patterns with delays for the different simulated users in StresstestCore. Delays and the way a test pattern is build is determined in Stresstest (Min- max delay, shuffle, UserActionDistribution).
+    /// </summary>
+    internal class TestPatternsAndDelaysGenerator : IDisposable {
 
         #region Fields
-
         private readonly LogEntry[] _logEntries;
-        private readonly int _maxActionCount;
-        private readonly int _maximumDelay;
-        private readonly int _minimumDelay;
+        private readonly int _maxActionCount, _maximumDelay, _minimumDelay;
         private readonly bool _shuffleUserActions;
         private UserActionDistribution _userActionDistribution;
 
+        //Representation of the user actions (List<int>) containing log entry indices.
         private List<List<int>> _actions;
 
         //For shuffle
         private HashSet<int> _chosenSeeds = new HashSet<int>();
         private bool _isDisposed;
-
         #endregion
 
         #region Properties
-
-        public int PatternLength {
-            get { return _logEntries.Length; }
-        }
-
-        public int UserActionsInPattern {
-            get { return _actions.Count; }
-        }
-
-        public bool IsDisposed {
-            get { return _isDisposed; }
-        }
-
+        public int PatternLength { get { return _logEntries.Length; } }
         #endregion
 
         #region Con-/Destructor
-
         /// <summary>
+        /// Generates test patterns with delays for the different simulated users in StresstestCore. Delays and the way a test pattern is build is determined in Stresstest (Min- max delay, UserActionDistribution).
         /// </summary>
-        /// <param name="logEntries"></param>
-        /// <param name="maxActionCount">Pinned actions are always chosen, non pinned are if this value allows it.</param>
+        /// <param name="logEntries">Predetermined in StresstestCore for difficulty reasons (depends on UserActionDistribution).</param>
+        /// <param name="maxActionCount">Pinned actions are always chosen, non pinned are if this value allows it. This value depends on UserActionDistribution but is determined in StresstestCore for difficulty reasons.</param>
         /// <param name="shuffleUserActions"></param>
         /// <param name="userActionDistribution"></param>
         /// <param name="minimumDelay"></param>
         /// <param name="maximumDelay"></param>
-        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount, bool shuffleUserActions,
-                                              UserActionDistribution userActionDistribution, int minimumDelay, int maximumDelay) {
+        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount, bool shuffleUserActions, UserActionDistribution userActionDistribution, int minimumDelay, int maximumDelay) {
             _logEntries = logEntries;
             _maxActionCount = maxActionCount;
             _shuffleUserActions = shuffleUserActions;
@@ -67,23 +53,10 @@ namespace vApus.Stresstest {
 
             Init();
         }
-
-        ~TestPatternsAndDelaysGenerator() {
-            Dispose();
-        }
-
+        ~TestPatternsAndDelaysGenerator() { Dispose(); }
         #endregion
 
         #region Functions
-
-        public void Dispose() {
-            if (!_isDisposed) {
-                _isDisposed = true;
-                _actions = null;
-                _chosenSeeds = null;
-            }
-        }
-
         private void Init() {
             UserAction currentParent = null;
             var unlinkedActions = new List<List<int>>(_logEntries.Length);
@@ -182,7 +155,6 @@ namespace vApus.Stresstest {
             testPattern = tp.ToArray();
             delayPattern = dp.ToArray();
         }
-
         private void Shuffle(Random random) {
             int actionCount = _actions.Count;
             for (int i = 0; i < actionCount; i++) {
@@ -198,7 +170,6 @@ namespace vApus.Stresstest {
                 _actions[j] = temp;
             }
         }
-
         private int PinnedActionCount() {
             int actionCount = _actions.Count;
             int pinnedActionCount = 0;
@@ -208,6 +179,13 @@ namespace vApus.Stresstest {
             return pinnedActionCount;
         }
 
+        public void Dispose() {
+            if (!_isDisposed) {
+                _isDisposed = true;
+                _actions = null;
+                _chosenSeeds = null;
+            }
+        }
         #endregion
     }
 }

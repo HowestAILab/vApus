@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -13,28 +12,15 @@ using System.IO;
 using System.Windows.Forms;
 using System.Xml;
 
-namespace vApus.Util
-{
-    public partial class UpdateNotifierDialog : Form
-    {
-        private readonly string _currentChannel;
-        private readonly string _currentVersion;
-        private readonly string _history;
-        private readonly string _newChannel;
-        private readonly string _newVersion;
-        private Font _dateFont;
-        private Font _itemFont;
-        private Font _titleFont;
+namespace vApus.Util {
+    public partial class UpdateNotifierDialog : Form {
+        private readonly string _currentChannel, _currentVersion, _history, _newChannel, _newVersion;
+        private Font _dateFont, _itemFont, _titleFont;
 
-        public UpdateNotifierDialog()
-        {
-            InitializeComponent();
-        }
+        public UpdateNotifierDialog() { InitializeComponent(); }
 
-        public UpdateNotifierDialog(string currentVersion, string newVersion, string currentChannel, string newChannel,
-                                    string history)
-            : this()
-        {
+        public UpdateNotifierDialog(string currentVersion, string newVersion, string currentChannel, string newChannel, string history)
+            : this() {
             _currentVersion = currentVersion;
             _newVersion = newVersion;
             _currentChannel = currentChannel;
@@ -44,8 +30,7 @@ namespace vApus.Util
             HandleCreated += UpdateNotifierDialog_HandleCreated;
         }
 
-        private void UpdateNotifierDialog_HandleCreated(object sender, EventArgs e)
-        {
+        private void UpdateNotifierDialog_HandleCreated(object sender, EventArgs e) {
             _titleFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Bold);
             _dateFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Italic);
             _itemFont = new Font(rtxtHistoryOfChanges.Font, FontStyle.Regular);
@@ -57,8 +42,7 @@ namespace vApus.Util
             FillHistory(_history);
         }
 
-        private void FillHistory(string historyOfChanges)
-        {
+        private void FillHistory(string historyOfChanges) {
             rtxtHistoryOfChanges.Text = string.Empty;
 
             var parts = new List<HistoryPart>();
@@ -70,15 +54,11 @@ namespace vApus.Util
 
             //First filling the rtxt and then applying the style
             int previousCaretPosition = 0;
-            foreach (XmlNode n in node.ChildNodes)
-            {
-                switch (n.Name)
-                {
+            foreach (XmlNode n in node.ChildNodes) {
+                switch (n.Name) {
                     case "t":
-                        foreach (XmlNode nn in n.ChildNodes)
-                        {
-                            switch (nn.Name)
-                            {
+                        foreach (XmlNode nn in n.ChildNodes) {
+                            switch (nn.Name) {
                                 case "d":
                                     rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + " (" + nn.InnerText + ")" +
                                                                 Environment.NewLine;
@@ -87,12 +67,10 @@ namespace vApus.Util
                                     break;
                                 default:
                                     if (previousCaretPosition > 0)
-                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + Environment.NewLine +
-                                                                    nn.InnerText;
+                                        rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + Environment.NewLine + nn.InnerText;
                                     else
                                         rtxtHistoryOfChanges.Text = rtxtHistoryOfChanges.Text + nn.InnerText;
-                                    parts.Add(new HistoryPart("t", previousCaretPosition,
-                                                              rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
+                                    parts.Add(new HistoryPart("t", previousCaretPosition, rtxtHistoryOfChanges.Text.Length - previousCaretPosition));
                                     break;
                             }
                             previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
@@ -107,11 +85,9 @@ namespace vApus.Util
                 }
                 previousCaretPosition = rtxtHistoryOfChanges.Text.Length;
             }
-            foreach (HistoryPart part in parts)
-            {
+            foreach (HistoryPart part in parts) {
                 rtxtHistoryOfChanges.Select(part.SelectionStart, part.Length);
-                switch (part.Type)
-                {
+                switch (part.Type) {
                     case "d":
                         rtxtHistoryOfChanges.SelectionFont = _dateFont;
                         rtxtHistoryOfChanges.SelectionColor = Color.Blue;
@@ -129,20 +105,16 @@ namespace vApus.Util
             rtxtHistoryOfChanges.Select(0, 0);
         }
 
-        private void btnUpdate_Click(object sender, EventArgs e)
-        {
+        private void btnUpdate_Click(object sender, EventArgs e) {
             DialogResult = DialogResult.OK;
             Close();
         }
 
-        public struct HistoryPart
-        {
-            public int Length;
-            public int SelectionStart;
+        public struct HistoryPart {
+            public int Length, SelectionStart;
             public string Type;
 
-            public HistoryPart(string type, int selectionStart, int length)
-            {
+            public HistoryPart(string type, int selectionStart, int length) {
                 Type = type;
                 SelectionStart = selectionStart;
                 Length = length;

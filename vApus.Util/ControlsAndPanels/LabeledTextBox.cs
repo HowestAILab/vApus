@@ -5,23 +5,24 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary>
     ///     Serves at combining a label control and a text box.
     /// </summary>
-    public class LabeledTextBox : TextBox
-    {
+    public class LabeledTextBox : TextBox {
+
+        #region Fields
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _canInvokeTextChanged = true;
         private string _emptyTextBoxLabel = "Label";
         private bool _settingLabel;
+        #endregion
 
+        #region Properties
         public string EmptyTextBoxLabel {
             get { return _emptyTextBoxLabel; }
             set {
@@ -42,14 +43,16 @@ namespace vApus.Util
                 base.Text = value;
             }
         }
+        #endregion
 
-        public LabeledTextBox()
-        {
+        #region Constructor
+        public LabeledTextBox() {
             ForeColor = Color.DimGray;
         }
+        #endregion
 
-        protected override void OnEnter(EventArgs e)
-        {
+        #region Functions
+        protected override void OnEnter(EventArgs e) {
             _canInvokeTextChanged = false;
             if (ForeColor == Color.DimGray)
                 Text = string.Empty;
@@ -58,13 +61,11 @@ namespace vApus.Util
             _canInvokeTextChanged = true;
         }
 
-        public void InvokeOnLeave()
-        {
+        public void InvokeOnLeave() {
             OnLeave(new EventArgs());
         }
 
-        protected override void OnLeave(EventArgs e)
-        {
+        protected override void OnLeave(EventArgs e) {
             _canInvokeTextChanged = false;
             Text = Text.Trim();
             EmptyTextBoxLabel = _emptyTextBoxLabel;
@@ -72,10 +73,10 @@ namespace vApus.Util
             _canInvokeTextChanged = true;
         }
 
-        protected override void OnTextChanged(EventArgs e)
-        {
+        protected override void OnTextChanged(EventArgs e) {
             if (_canInvokeTextChanged && ForeColor != Color.DimGray)
                 base.OnTextChanged(e);
         }
+        #endregion
     }
 }

@@ -9,28 +9,24 @@
 using System;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     /// <summary date="16-04-2005, 22:04:24" author="S.Deckers">
     ///     Implements Text case-insensitive sorting
     /// </summary>
-    public class ListViewTextCaseInsensitiveSorter : ListViewSorter
-    {
+    public class ListViewTextCaseInsensitiveSorter : ListViewSorter {
         /// <summary>
         ///     Sorting implementation
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public override int OnSort(object x, object y, SortOrder sortOrder)
-        {
+        public override int OnSort(object x, object y, SortOrder sortOrder) {
             ListViewItem.ListViewSubItem left = GetLeft(x);
             ListViewItem.ListViewSubItem right = GetLeft(y);
 
             int res = String.Compare(left.Text, right.Text, true);
 
-            if (sortOrder == SortOrder.Descending)
-            {
+            if (sortOrder == SortOrder.Descending) {
                 res *= -1;
             }
             return (res);

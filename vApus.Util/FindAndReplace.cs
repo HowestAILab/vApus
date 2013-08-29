@@ -77,9 +77,9 @@ namespace vApus.Util {
             }
 
             //Do the actual find
-            string mustHaveRegex = mustHave.ToArray().Combine(string.Empty);
-            string canHaveRegex = canHave.ToArray().Combine("|");
-            string cannotHaveRegex = cannotHave.ToArray().Combine("|");
+            string mustHaveRegex = mustHave.Combine(string.Empty);
+            string canHaveRegex = canHave.Combine("|");
+            string cannotHaveRegex = cannotHave.Combine("|");
             RegexOptions options = ignoreCase ? RegexOptions.Singleline | RegexOptions.IgnoreCase : RegexOptions.Singleline;
 
             rows = new List<int>();
