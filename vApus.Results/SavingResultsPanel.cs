@@ -17,6 +17,7 @@ namespace vApus.Results {
     /// Used in vApus.Util.OptionsDialog. Servers at managing connection strings.
     /// </summary>
     public partial class SavingResultsPanel : Panel {
+
         #region Fields
         private bool _showDescription = true, _showLocalHostWarning = true;
         #endregion

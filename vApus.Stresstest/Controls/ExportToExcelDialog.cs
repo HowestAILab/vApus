@@ -10,6 +10,7 @@ using SpreadsheetLight.Charts;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,6 +26,11 @@ namespace vApus.Stresstest {
         #region Fields
         private ResultsHelper _resultsHelper;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //To Cancel refreshing the report.
+        /// <summary>
+        /// A color pallete of 40 colors to be able to visualy match overiew and 5 heaviest user actions charts.
+        /// (Filled later on)
+        /// </summary>
+        private List<Color> _colorPalette = new List<Color>(40);
         #endregion
 
         #region Constructor
@@ -33,11 +39,58 @@ namespace vApus.Stresstest {
         /// </summary>
         public ExportToExcelDialog() {
             InitializeComponent();
+            FillColorPalette();
             saveFileDialog.FileName = "results" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
         }
         #endregion
 
         #region Funtions
+        private void FillColorPalette() {
+            _colorPalette.Add(Color.FromArgb(127, 201, 127));
+            _colorPalette.Add(Color.FromArgb(190, 174, 212));
+            _colorPalette.Add(Color.FromArgb(253, 192, 134));
+            _colorPalette.Add(Color.FromArgb(255, 255, 153));
+            _colorPalette.Add(Color.FromArgb(056, 108, 176));
+            _colorPalette.Add(Color.FromArgb(240, 002, 127));
+            _colorPalette.Add(Color.FromArgb(191, 091, 023));
+            _colorPalette.Add(Color.FromArgb(102, 102, 102));
+
+            _colorPalette.Add(Color.FromArgb(166, 206, 227));
+            _colorPalette.Add(Color.FromArgb(031, 120, 180));
+            _colorPalette.Add(Color.FromArgb(178, 223, 138));
+            _colorPalette.Add(Color.FromArgb(051, 160, 044));
+            _colorPalette.Add(Color.FromArgb(251, 154, 153));
+            _colorPalette.Add(Color.FromArgb(227, 026, 028));
+            _colorPalette.Add(Color.FromArgb(253, 191, 111));
+            _colorPalette.Add(Color.FromArgb(255, 127, 000));
+
+            _colorPalette.Add(Color.FromArgb(102, 194, 165));
+            _colorPalette.Add(Color.FromArgb(252, 141, 098));
+            _colorPalette.Add(Color.FromArgb(141, 160, 203));
+            _colorPalette.Add(Color.FromArgb(231, 138, 195));
+            _colorPalette.Add(Color.FromArgb(166, 216, 084));
+            _colorPalette.Add(Color.FromArgb(255, 217, 047));
+            _colorPalette.Add(Color.FromArgb(229, 196, 148));
+            _colorPalette.Add(Color.FromArgb(179, 179, 179));
+
+            _colorPalette.Add(Color.FromArgb(141, 211, 199));
+            _colorPalette.Add(Color.FromArgb(255, 255, 179));
+            _colorPalette.Add(Color.FromArgb(190, 186, 218));
+            _colorPalette.Add(Color.FromArgb(251, 128, 114));
+            _colorPalette.Add(Color.FromArgb(128, 177, 211));
+            _colorPalette.Add(Color.FromArgb(253, 180, 098));
+            _colorPalette.Add(Color.FromArgb(179, 222, 105));
+            _colorPalette.Add(Color.FromArgb(252, 205, 229));
+
+            _colorPalette.Add(Color.FromArgb(251, 180, 174));
+            _colorPalette.Add(Color.FromArgb(179, 205, 227));
+            _colorPalette.Add(Color.FromArgb(204, 235, 197));
+            _colorPalette.Add(Color.FromArgb(222, 203, 228));
+            _colorPalette.Add(Color.FromArgb(254, 217, 166));
+            _colorPalette.Add(Color.FromArgb(255, 255, 204));
+            _colorPalette.Add(Color.FromArgb(229, 216, 189));
+            _colorPalette.Add(Color.FromArgb(253, 218, 236));
+        }
         public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;
 
@@ -189,6 +242,12 @@ namespace vApus.Stresstest {
             chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
             chart.SecondaryValueAxis.ShowTitle = true;
 
+            SetDataSeriesColors(chart, rangeWidth - 2, _colorPalette);
+
+            var dso = chart.GetDataSeriesOptions(rangeWidth - 1);
+            dso.Line.SetSolidLine(Color.DarkOrange, 0);
+            chart.SetDataSeriesOptions(rangeWidth - 1, dso);
+
             doc.InsertChart(chart);
 
             return worksheet;
@@ -248,12 +307,19 @@ namespace vApus.Stresstest {
                 doc.SetCellValue(1, 1, title);
                 doc.SetCellStyle(1, 1, titleStyle);
 
+                var colorPalette = new List<Color>(5);
                 var boldStyle = new SLStyle();
                 boldStyle.Font.Bold = true;
-                //Add the headers
+                //Add the headers and determine the colors.
                 for (int i = 0; i < rangeWidth; i++) {
-                    doc.SetCellValue(rangeOffset, i + 1, dt.Columns[sortedColumns[i]].ColumnName);
+                    string columnName = dt.Columns[sortedColumns[i]].ColumnName;
+                    doc.SetCellValue(rangeOffset, i + 1, columnName);
                     doc.SetCellStyle(rangeOffset, i + 1, boldStyle);
+
+                    if (columnName.Contains(":")) {
+                        int userActionIndex = int.Parse(columnName.Split(':')[0]);
+                        colorPalette.Add(_colorPalette[userActionIndex - 1]);
+                    }
                 }
 
                 for (int rowIndex = 0; rowIndex != rangeHeight; rowIndex++) {
@@ -290,6 +356,8 @@ namespace vApus.Stresstest {
                 chart.PrimaryValueAxis.Title.SetTitle("Response Time (ms)");
                 chart.PrimaryValueAxis.ShowTitle = true;
                 chart.PrimaryValueAxis.ShowMinorGridlines = true;
+
+                SetDataSeriesColors(chart, rangeWidth - 1, colorPalette);
 
                 doc.InsertChart(chart);
             }
@@ -421,14 +489,30 @@ namespace vApus.Stresstest {
             return rowRangesPerStresstest;
         }
 
+        private void SetDataSeriesColors(SLChart chart, int numberOfSeries, List<Color> colorPalette) {
+            if (colorPalette.Count == 0)
+                return;
+
+            SLDataSeriesOptions dso = null;
+
+            for (int i = 1; i <= numberOfSeries; i++) {
+                dso = chart.GetDataSeriesOptions(i);
+
+                int j = i - 1;
+                while (j >= colorPalette.Count)
+                    j -= colorPalette.Count;
+                dso.Fill.SetSolidFill(colorPalette[j], 0);
+
+                chart.SetDataSeriesOptions(i, dso);
+            }
+        }
+
         private void pic_Click(object sender, EventArgs e) {
             var dialog = new ChartDialog((sender as PictureBox).Image);
             dialog.ShowDialog();
         }
 
-        private void SaveChartsDialog_FormClosing(object sender, FormClosingEventArgs e) {
-            _cancellationTokenSource.Cancel();
-        }
+        private void SaveChartsDialog_FormClosing(object sender, FormClosingEventArgs e) { _cancellationTokenSource.Cancel(); }
         #endregion
     }
 }
