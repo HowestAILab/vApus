@@ -52,6 +52,8 @@ namespace vApus.Stresstest {
         ///     Let for instance the gui behave differently if this is true.
         /// </summary>
         private bool _forDistributedTest;
+
+        private bool _useParallelExecutionOfLogEntries;
         #endregion
 
         #region Properties
