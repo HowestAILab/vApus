@@ -5,13 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using vApus.SolutionTree;
 
 namespace vApus.DistributedTesting {
     public class Tiles : BaseItem {
-        public Tiles() {
-            ShowInGui = false;
-        }
+        public Tiles() { ShowInGui = false; }
     }
 }

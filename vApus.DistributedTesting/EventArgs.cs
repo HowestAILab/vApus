@@ -5,81 +5,79 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 
 namespace vApus.DistributedTesting {
     public class ListeningErrorEventArgs : EventArgs {
-        public readonly Exception Exception;
-        public readonly string SlaveIP;
-        public readonly int SlavePort;
 
+        #region Properties
+        public Exception Exception { get; private set; }
+        public string SlaveIP { get; private set; }
+        public int SlavePort { get; private set; }
+        #endregion
+
+        #region Constructor
         public ListeningErrorEventArgs(string slaveIP, int slavePort, Exception exception) {
             Exception = exception;
             SlaveIP = slaveIP;
             SlavePort = slavePort;
         }
+        #endregion
 
-        public override string ToString() {
-            return "Listening error occured for slave " + SlaveIP + ":" + SlavePort + " threw following exception: " + Exception;
-        }
+        #region Functions
+        public override string ToString() { return "A listening error occured for slave " + SlaveIP + ":" + SlavePort + " threw following exception: " + Exception; }
+        #endregion
     }
 
     public class TestInitializedEventArgs : EventArgs {
-        public readonly Exception Exception;
-        public readonly TileStresstest TileStresstest;
 
+        #region Properties
+        public Exception Exception { get; private set; }
+        public TileStresstest TileStresstest { get; private set; }
+        #endregion
+
+        #region Constructor
         public TestInitializedEventArgs(TileStresstest tileStresstest, Exception exception) {
             TileStresstest = tileStresstest;
             Exception = exception;
         }
+        #endregion
     }
 
     public class TestProgressMessageReceivedEventArgs : EventArgs {
-        public readonly TestProgressMessage TestProgressMessage;
-        public readonly TileStresstest TileStresstest;
 
-        public TestProgressMessageReceivedEventArgs(TestProgressMessage testProgressMessage)
-            : this(null, testProgressMessage) {
-        }
-        public TestProgressMessageReceivedEventArgs(TileStresstest tileStresstest)
-            : this(tileStresstest, new TestProgressMessage()) {
-        }
-        public TestProgressMessageReceivedEventArgs(TileStresstest tileStresstest,
-                                                    TestProgressMessage testProgressMessage) {
-            TileStresstest = tileStresstest;
-            TestProgressMessage = testProgressMessage;
-        }
+        #region Properties
+        /// <summary>
+        /// Link to the right TileStresstest using the TileStresstestIndex field.
+        /// </summary>
+        public TestProgressMessage TestProgressMessage { get; private set; }
+        #endregion
+
+        #region Constructor
+        public TestProgressMessageReceivedEventArgs(TestProgressMessage testProgressMessage) { TestProgressMessage = testProgressMessage; }
+        #endregion
     }
 
-    public class FinishedEventArgs : EventArgs {
-        public readonly int Cancelled, Error;
-        public readonly int OK;
+    public class TestFinishedEventArgs : EventArgs {
 
-        public FinishedEventArgs(int ok, int cancelled, int error) {
+        #region Properties
+        public int Cancelled { get; private set; }
+        public int Error { get; private set; }
+        public int OK { get; private set; }
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ok"># of tile stresstests that finished succesfully.</param>
+        /// <param name="cancelled"># of tile stresstests that where cancelled.</param>
+        /// <param name="error"># of tile stresstests that failed.</param>
+        public TestFinishedEventArgs(int ok, int cancelled, int error) {
             OK = ok;
             Cancelled = cancelled;
             Error = error;
         }
-    }
-
-    public class ResultsDownloadProgressUpdatedEventArgs : EventArgs {
-        public readonly int PercentCompleted;
-        public readonly TileStresstest TileStresstest;
-
-        public ResultsDownloadProgressUpdatedEventArgs(TileStresstest tileStresstest, int percentCompleted) {
-            TileStresstest = tileStresstest;
-            PercentCompleted = percentCompleted;
-        }
-    }
-
-    public class ResultsDownloadCompletedEventArgs : EventArgs {
-        public readonly string ResultPath;
-        public readonly TileStresstest TileStresstest;
-
-        public ResultsDownloadCompletedEventArgs(TileStresstest tileStresstest, string resultPath) {
-            TileStresstest = tileStresstest;
-            ResultPath = resultPath;
-        }
+        #endregion
     }
 }

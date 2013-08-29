@@ -5,24 +5,23 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System.Collections.Generic;
 using System.Linq;
 using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Holds information about the slave and client (via properties) to be able to let a stresstest happen there.
+    /// </summary>
     public class Slave : BaseItem {
 
         #region Fields
-
         private int _port = 1347;
         private int[] _processorAffinity = { };
-
         #endregion
 
         #region Properties
-
         [SavableCloneable]
         public int Port {
             get { return _port; }
@@ -90,15 +89,10 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Constructor
-
-        public Slave() {
-            ShowInGui = false;
-        }
-
+        public Slave() { ShowInGui = false; }
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Clears the stresstest if it is null.
         /// </summary>
@@ -142,22 +136,29 @@ namespace vApus.DistributedTesting {
 
             return base.ToString();
         }
-
         #endregion
 
+        /// <summary>
+        /// Compares the ports.
+        /// </summary>
         public class SlaveComparer : IComparer<Slave> {
             private static readonly SlaveComparer _labeledBaseItemComparer = new SlaveComparer();
 
-            private SlaveComparer() {
-            }
+            private SlaveComparer() { }
 
-            public int Compare(Slave x, Slave y) {
-                return x.Port.CompareTo(y.Port);
-            }
+            /// <summary>
+            /// Compares the ports.
+            /// </summary>
+            /// <param name="x"></param>
+            /// <param name="y"></param>
+            /// <returns></returns>
+            public int Compare(Slave x, Slave y) { return x.Port.CompareTo(y.Port); }
 
-            public static SlaveComparer GetInstance() {
-                return _labeledBaseItemComparer;
-            }
+            /// <summary>
+            /// Compares the ports.
+            /// </summary>
+            /// <returns></returns>
+            public static SlaveComparer GetInstance() { return _labeledBaseItemComparer; }
         }
     }
 }

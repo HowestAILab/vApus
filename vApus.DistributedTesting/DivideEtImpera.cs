@@ -17,6 +17,7 @@ namespace vApus.DistributedTesting {
         /// 
         /// </summary>
         /// <param name="distributedTest"></param>
+        /// <param name="notACleanDivision">Notifies if there is a reset after dividing. This is important to know for calculating the fast results.</param>
         /// <returns>key = Divided, value = original</returns>
         public static Dictionary<TileStresstest, TileStresstest> DivideTileStresstestsOverSlaves(DistributedTest distributedTest, out bool notACleanDivision) {
             notACleanDivision = false;

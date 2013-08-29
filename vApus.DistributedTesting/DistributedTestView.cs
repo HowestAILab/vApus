@@ -151,10 +151,8 @@ namespace vApus.DistributedTesting {
         }
         private void btnWizard_Click(object sender, EventArgs e) { ShowWizard(); }
         private void ShowWizard() {
-            using (var wizard = new Wizard()) {
-                wizard.SetDistributedTest(_distributedTest);
+            using (var wizard = new Wizard(_distributedTest))
                 wizard.ShowDialog();
-            }
         }
 
         /// <summary>
@@ -1007,7 +1005,7 @@ namespace vApus.DistributedTesting {
 
             Cursor = Cursors.Default;
         }
-        private void _distributedTestCore_OnFinished(object sender, FinishedEventArgs e) {
+        private void _distributedTestCore_OnFinished(object sender, TestFinishedEventArgs e) {
             _distributedTestCore.OnFinished -= _distributedTestCore_OnFinished;
 
             Stop(e.Cancelled == 0 && e.Error == 0);

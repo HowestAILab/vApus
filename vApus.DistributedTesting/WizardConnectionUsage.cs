@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,51 +14,45 @@ using vApus.SolutionTree;
 using vApus.Stresstest;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Tries to intelligently make tiles based on the connections used in the single tests. You could say that this is a blueprint for a Tile.
+    /// Please call Init(..) after making a new WizardConnectionUsage.
+    /// </summary>
     public partial class WizardConnectionUsage : Form {
-        #region Fields
 
+        #region Fields
         private Connections _connections;
         private int _numberOfNewTiles, _numberOfTestsPerNewTile;
         private Tiles _tilesAlreadyInDistributedTest = new Tiles();
-        private Connection[] _toAssignConnections;
-
-        //All connections in the solution.
-
         #endregion
 
+        #region Properties
         /// <summary>
         ///     Get this afer OK is clicked.
         /// </summary>
-        public Connection[] ToAssignConnections {
-            get { return _toAssignConnections; }
-            set { _toAssignConnections = value; }
-        }
+        public Connection[] ToAssignConnections { get; set; }
+        #endregion
 
         #region Constructor
-
         /// <summary>
-        ///     Please call Init(..) after making a new WizardConnectionUsage.
+        /// Tries to intelligently make tiles based on the connections used in the single tests. You could say that this is a blueprint for a Tile.
+        /// Please call Init(..) after making a new WizardConnectionUsage.
         /// </summary>
-        public WizardConnectionUsage() {
-            InitializeComponent();
-        }
-
+        public WizardConnectionUsage() { InitializeComponent(); }
         #endregion
 
         #region Functions
-
         /// <summary>
         /// </summary>
         /// <param name="tilesAlreadyInDistributedTest"></param>
         /// <param name="numberOfNewTiles"></param>
         /// <param name="numberOfTestsPerNewTile"></param>
         /// <param name="toAssignConnections">Must be predetermined in Wizard (SmartAssignConnections)</param>
-        public void Init(Tiles tilesAlreadyInDistributedTest, int numberOfNewTiles, int numberOfTestsPerNewTile,
-                         Connection[] toAssignConnections) {
+        public void Init(Tiles tilesAlreadyInDistributedTest, int numberOfNewTiles, int numberOfTestsPerNewTile, Connection[] toAssignConnections) {
             _tilesAlreadyInDistributedTest = tilesAlreadyInDistributedTest;
             _numberOfNewTiles = numberOfNewTiles;
             _numberOfTestsPerNewTile = numberOfTestsPerNewTile;
-            _toAssignConnections = toAssignConnections;
+            ToAssignConnections = toAssignConnections;
 
             _connections = Solution.ActiveSolution.GetSolutionComponent(typeof(Connections)) as Connections;
 
@@ -136,8 +129,7 @@ namespace vApus.DistributedTesting {
             foreach (Tile tile in _tilesAlreadyInDistributedTest) {
                 TreeNode tileNode = AddNewTileNode();
                 foreach (TileStresstest tileStresstest in tile) {
-                    TreeNode testNode = AddNewTestNode(tileNode, tileStresstest.DefaultAdvancedSettingsTo,
-                                                       _toAssignConnections[connectionIndex++]);
+                    TreeNode testNode = AddNewTestNode(tileNode, tileStresstest.DefaultAdvancedSettingsTo, ToAssignConnections[connectionIndex++]);
                 }
             }
 
@@ -146,7 +138,7 @@ namespace vApus.DistributedTesting {
                 TreeNode tileNode = AddNewTileNode();
                 for (int ts = 0; ts != _numberOfTestsPerNewTile; ts++) {
                     defaultTo = GetNextDefaultToStresstest(defaultTo);
-                    TreeNode testNode = AddNewTestNode(tileNode, defaultTo, _toAssignConnections[connectionIndex++]);
+                    TreeNode testNode = AddNewTestNode(tileNode, defaultTo, ToAssignConnections[connectionIndex++]);
                 }
             }
             tvw.ExpandAll();
@@ -165,8 +157,7 @@ namespace vApus.DistributedTesting {
             return tn;
         }
 
-        private TreeNode AddNewTestNode(TreeNode tileNode, Stresstest.Stresstest defaultSettingsTo,
-                                        Connection connection) {
+        private TreeNode AddNewTestNode(TreeNode tileNode, Stresstest.Stresstest defaultSettingsTo, Connection connection) {
             string label = (tileNode.Nodes.Count + 1) + ") " +
                            ((connection == null || connection.IsEmpty)
                                 ? string.Empty
@@ -289,13 +280,12 @@ namespace vApus.DistributedTesting {
             foreach (TreeNode tileNode in tvw.Nodes)
                 foreach (TreeNode tileStresstestNode in tileNode.Nodes) {
                     var kvp = (KeyValuePair<Stresstest.Stresstest, Connection>)tileStresstestNode.Tag;
-                    _toAssignConnections[connectionIndex++] = kvp.Value;
+                    ToAssignConnections[connectionIndex++] = kvp.Value;
                 }
 
             DialogResult = DialogResult.OK;
             Close();
         }
-
         #endregion
     }
 }

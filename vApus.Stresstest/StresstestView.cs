@@ -277,7 +277,26 @@ namespace vApus.Stresstest {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 Cursor = Cursors.WaitCursor;
                 try {
-                    var stresstestThread = new Thread(StartStresstestInBackground);
+                    //The stresstest threadpool is blocking so we run this on another thread.
+                    var stresstestThread = new Thread(() => {
+                        var stresstestStatus = StresstestStatus.Busy;
+                        Exception ex = null;
+                        try {
+                            stresstestStatus = _stresstestCore.ExecuteStresstest();
+                        } catch (Exception e) {
+                            stresstestStatus = StresstestStatus.Error;
+                            ex = e;
+                        } finally {
+                            if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
+                                try {
+                                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                                        Stop(stresstestStatus, ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
+                                    }, null);
+                                } catch { }
+                            }
+                        }
+                    });
+
                     stresstestThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
                     stresstestThread.IsBackground = true;
                     stresstestThread.Start();
@@ -292,28 +311,6 @@ namespace vApus.Stresstest {
                 }
                 Cursor = Cursors.Default;
             }, null);
-        }
-
-        /// <summary>
-        ///     The stresstest is executed here, it handles also the results.
-        /// </summary>
-        private void StartStresstestInBackground() {
-            var stresstestStatus = StresstestStatus.Busy;
-            Exception ex = null;
-            try {
-                stresstestStatus = _stresstestCore.ExecuteStresstest();
-            } catch (Exception e) {
-                stresstestStatus = StresstestStatus.Error;
-                ex = e;
-            } finally {
-                if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
-                    try {
-                        SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                            Stop(stresstestStatus, ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
-                        }, null);
-                    } catch { }
-                }
-            }
         }
 
         /// <summary>
