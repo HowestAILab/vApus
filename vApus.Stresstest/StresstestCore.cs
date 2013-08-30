@@ -554,6 +554,14 @@ namespace vApus.Stresstest {
                         } else {
                             SetRunStopped();
                         }
+                        //For many-to-one testing, run-sync not supported.
+                    } else if (_stresstest.IsDividedStresstest && !_break) {
+                        SetRunDoneOnce();
+                        SetRunStopped();
+
+                        InvokeMessage("Waiting for Continue Message from Master...");
+                        _runSynchronizationContinueWaitHandle.WaitOne();
+                        InvokeMessage("Continuing...");
                     } else {
                         SetRunStopped();
                     }

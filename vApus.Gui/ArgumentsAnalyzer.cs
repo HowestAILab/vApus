@@ -8,8 +8,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using vApus.Link;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -50,12 +52,26 @@ namespace vApus.Gui {
         /// <summary>
         /// Basic vApus CLI stuff.
         /// </summary>
-        static ArgumentsAnalyzer() { Init(); }
+        static ArgumentsAnalyzer() {
+            Init();
+            Application.ApplicationExit += (object sender, EventArgs e) => { try { FreeConsole(); } catch { } };
+        }
         #endregion
 
         #region Functions
 
         #region Public
+        /// <summary>
+        /// Allocates a new console for current process.
+        /// </summary>
+        [DllImport("kernel32.dll")]
+        public static extern Boolean AllocConsole();
+
+        /// <summary>
+        /// Frees the console.
+        /// </summary>
+        [DllImport("kernel32.dll")]
+        public static extern Boolean FreeConsole();
 
         /// <summary>
         ///     Initializes the possible arguments.
@@ -72,16 +88,13 @@ namespace vApus.Gui {
             _argumentsWithDescription.Add("-h", "Help.");
 
             _argumentsWithDelegate.Add("-ll", new ArgumentsAnalyzerParametersDelegate(LogLevel));
-            _argumentsWithDescription.Add("-ll",
-                                          "Sets the log level, if no parameters are given it just returns the current log level.\n\tParameters:\n\t0 (= info), 1 (= warning), 2 (= error) or 3 (= fatal)\n\t(example: -ll 0)");
+            _argumentsWithDescription.Add("-ll", "Sets the log level, if no parameters are given it just returns the current log level. Parameters: 0 (= info), 1 (= warning), 2 (= error) or 3 (= fatal) (example: -ll 0)");
 
             _argumentsWithDelegate.Add("-pa", new ArgumentsAnalyzerParametersDelegate(ProcessorAffinity));
-            _argumentsWithDescription.Add("-pa",
-                                          "Sets the processor affinity, if no parameters are given it just returns the current processor affinity.\n\tProcessor indices can be given space seperated.\n\t(example: -pa 0 1)");
+            _argumentsWithDescription.Add("-pa", "Sets the processor affinity, if no parameters are given it just returns the current processor affinity. Processor indices can be given space seperated. (example: -pa 0 1)");
 
             _argumentsWithDelegate.Add("-p", new ArgumentsAnalyzerParametersDelegate(SocketListenerPort));
-            _argumentsWithDescription.Add("-p",
-                                          "Sets the socket listener port, if no parameters are given it just returns the current socket port.\n\t(example: -p 1337)");
+            _argumentsWithDescription.Add("-p", "Sets the socket listener port, if no parameters are given it just returns the current socket port. (example: -p 1337)");
         }
 
         /// <summary>
@@ -190,6 +203,8 @@ namespace vApus.Gui {
         /// </summary>
         /// <returns></returns>
         private static string About() {
+            AllocConsole();
+
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("ABOUT");
             Console.WriteLine("Developed by Dieter Vandroemme.");
@@ -204,23 +219,19 @@ namespace vApus.Gui {
         /// </summary>
         /// <returns></returns>
         private static string Help() {
+            AllocConsole();
+
             Console.ForegroundColor = ConsoleColor.Gray;
             var sb = new StringBuilder();
             Console.WriteLine("HELP");
-            Console.WriteLine(
-                "Arguments can be combined any way you want to, but a solution filename must always come first (no argument key needed).");
-            Console.WriteLine(
-                "You can run vApus from a script and feed it directly arguments\nor you can type them in the console.");
+            Console.WriteLine("Arguments can be combined any way you want to, but a solution filename must always come first (no argument key needed).");
+            Console.WriteLine("You can run vApus from a script and feed it directly arguments or you can type them in the console.");
             Console.WriteLine();
-            Console.WriteLine(
-                "Keep in mind that they are sequentialy handled, so if there is an error\nthe remaining arguments will not be interpreted.");
+            Console.WriteLine("Keep in mind that they are sequentialy handled, so if there is an error the remaining arguments will not be interpreted.");
             Console.WriteLine();
-            Console.WriteLine(
-                "Arguments can have parameters, not all of them are required\n(those between '(' and ')').");
-            Console.WriteLine(
-                "The typing of more parameters than needed will not have any effect\non the process of execution.");
-            Console.WriteLine("If you want to use parameters with spaces, like a filename, encapsulate them\nwith '" +
-                              "\"" + "'.");
+            Console.WriteLine("Arguments can have parameters, not all of them are required (those between '(' and ')').");
+            Console.WriteLine("The typing of more parameters than needed will not have any effect\non the process of execution.");
+            Console.WriteLine("If you want to use parameters with spaces, like a filename, encapsulate them with ''.");
             Console.WriteLine();
             Console.WriteLine();
 

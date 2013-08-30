@@ -16,4 +16,8 @@
     </StartArguments>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
+    <StartArguments>
+    </StartArguments>
+  </PropertyGroup>
 </Project>

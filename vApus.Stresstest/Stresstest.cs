@@ -328,6 +328,10 @@ namespace vApus.Stresstest {
             get { return _forDistributedTest; }
             set { _forDistributedTest = value; }
         }
+        /// <summary>
+        /// Is this a part of a stresstest divided over multiple slaves?
+        /// </summary>
+        public bool IsDividedStresstest { get; set; }
         #endregion
 
         #region Constructors

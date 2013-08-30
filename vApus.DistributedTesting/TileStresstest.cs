@@ -27,8 +27,6 @@ namespace vApus.DistributedTesting {
         private Stresstest.Stresstest _defaultAdvancedSettingsTo;
         private bool _automaticDefaultAdvancedSettings = true;
 
-        private string _dividedStresstestIndex;
-
         //For encrypting the mysql password of the resuts database.
         private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
         private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
@@ -41,13 +39,13 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public string TileStresstestIndex {
             get {
-                if (_dividedStresstestIndex == null) {
+                if (DividedStresstestIndex == null) {
                     object parent = Parent;
                     if (parent == null)
                         return "-1";
                     return (parent as Tile).Index + "." + Index;
                 }
-                return _dividedStresstestIndex;
+                return DividedStresstestIndex;
             }
         }
 
@@ -86,10 +84,7 @@ namespace vApus.DistributedTesting {
         /// If the work is divided on multiple slaves and this is a clone of the original stresstest this must be filled in.
         /// Must be the original index + . + # (last number being the part of the division)
         /// </summary>
-        public string DividedStresstestIndex {
-            get { return _dividedStresstestIndex; }
-            set { _dividedStresstestIndex = value; }
-        }
+        public string DividedStresstestIndex { get; set; }
         #endregion
 
         #region Constructors
@@ -194,6 +189,7 @@ namespace vApus.DistributedTesting {
                 var stresstest = new Stresstest.Stresstest();
                 stresstest.SetSolution();
                 stresstest.ForDistributedTest = true;
+                stresstest.IsDividedStresstest = DividedStresstestIndex != null;
                 stresstest.ShowInGui = false;
                 stresstest.Distribute = AdvancedTileStresstest.Distribute;
                 stresstest.Concurrencies = AdvancedTileStresstest.Concurrencies;
@@ -209,6 +205,7 @@ namespace vApus.DistributedTesting {
 
                 stresstest.Label = ToString();
 
+#warning The log should be cloned, but this is very slow.
                 var logs = new Logs();
                 var log = AdvancedTileStresstest._log;//.Clone();
 
