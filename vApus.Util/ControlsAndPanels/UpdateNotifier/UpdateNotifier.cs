@@ -109,7 +109,7 @@ namespace vApus.Util {
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="channel">0 == Stable; 1 == Nightly</param>
-        public static void GetCredentials(out string host, out int port, out string username, out string password,   out int channel, out bool smartUpdate) {
+        public static void GetCredentials(out string host, out int port, out string username, out string password, out int channel, out bool smartUpdate) {
             host = Settings.Default.UNHost;
             port = Settings.Default.UNPort;
             username = Settings.Default.UNUsername;
@@ -157,9 +157,11 @@ namespace vApus.Util {
                 var sftp = new Sftp(host, username, password);
                 sftp.Connect(port);
 
-                if (Directory.Exists(tempFolder) &&
+                try {
+                    if (Directory.Exists(tempFolder) &&
                     Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
-                    Directory.Delete(tempFolder, true);
+                        Directory.Delete(tempFolder, true);
+                } catch { }
 
                 Directory.CreateDirectory(tempFolder);
 
