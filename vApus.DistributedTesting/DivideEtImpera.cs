@@ -1,4 +1,5 @@
-﻿/*
+﻿using System;
+/*
  * Copyright 2013 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
  *  
@@ -6,6 +7,8 @@
  *    Vandroemme Dieter
  */
 using System.Collections.Generic;
+using vApus.Results;
+using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
@@ -14,7 +17,7 @@ namespace vApus.DistributedTesting {
     /// </summary>
     public static class DivideEtImpera {
         /// <summary>
-        /// 
+        /// Calculates the division of workload over slaves. Jumpstarting the slaves and sending the stresstests to them happens elsewhere.
         /// </summary>
         /// <param name="distributedTest"></param>
         /// <param name="notACleanDivision">Notifies if there is a reset after dividing. This is important to know for calculating the fast results.</param>
@@ -33,10 +36,10 @@ namespace vApus.DistributedTesting {
             return dividedAndOriginalTileStresstests;
         }
         /// <summary>
-        /// Divide the load over the multiple slaves.
+        /// Calculates the division of workload over slaves. Jumpstarting the slaves and sending the stresstests to them happens elsewhere.
         /// </summary>
         /// <param name="tileStresstest">A tile stresstest that is 'Used'.</param>
-        /// <returns></returns>
+        /// <returns>key = Divided, value = original</returns>
         private static Dictionary<TileStresstest, TileStresstest> DivideTileStresstestOverSlaves(TileStresstest tileStresstest, out bool notACleanDivision) {
             notACleanDivision = false;
             int slaves = tileStresstest.BasicTileStresstest.SlaveIndices.Length;
@@ -86,6 +89,58 @@ namespace vApus.DistributedTesting {
                 }
             }
             return dividedTileStresstestsAndOriginal;
+        }
+
+        /// <summary>
+        /// Returns the merged test progress message; if the ICollection contains only 1 value, that value is returned.
+        /// </summary>
+        /// <param name="tileStresstest"></param>
+        /// <param name="toBeMerged"></param>
+        /// <returns></returns>
+        public static TestProgressMessage GetMergedTestProgressMessage(TileStresstest tileStresstest, ICollection<TestProgressMessage> toBeMerged) {
+            if (toBeMerged.Count == 1) foreach (var tpm in toBeMerged) return tpm;
+
+            var stresstestMetricsCaches = new List<StresstestMetricsCache>(toBeMerged.Count);
+            foreach (var tpm in toBeMerged) stresstestMetricsCaches.Add(tpm.StresstestMetricsCache);
+
+            if (stresstestMetricsCaches.Contains(null)) {
+                //Try to return the first with a cache that is not null, otherwise return the first tpm.
+                foreach (var tpm in toBeMerged) if (tpm.StresstestMetricsCache != null) return tpm;
+                foreach (var tpm in toBeMerged) return tpm;
+            }
+
+            //First merge the status, events and resource usage
+            var testProgressMessage = new TestProgressMessage();
+
+            testProgressMessage.StresstestStatus = StresstestStatus.Error;
+            testProgressMessage.StartedAt = DateTime.MaxValue;
+            testProgressMessage.Events = new List<EventPanelEvent>();
+            foreach (var tpm in toBeMerged) {
+                if (tpm.CPUUsage > testProgressMessage.CPUUsage) testProgressMessage.CPUUsage = tpm.CPUUsage;
+                if (tpm.ContextSwitchesPerSecond > testProgressMessage.ContextSwitchesPerSecond) testProgressMessage.ContextSwitchesPerSecond = tpm.ContextSwitchesPerSecond;
+
+                testProgressMessage.Events.AddRange(tpm.Events);
+
+                if (!string.IsNullOrEmpty(tpm.Exception)) {
+                    if (testProgressMessage.Exception == null) testProgressMessage.Exception = string.Empty;
+                    testProgressMessage.Exception += tpm.Exception + "\n";
+                }
+                if (tpm.MemoryUsage > testProgressMessage.MemoryUsage) testProgressMessage.MemoryUsage = tpm.MemoryUsage;
+                if (tpm.NicsReceived > testProgressMessage.NicsReceived) testProgressMessage.NicsReceived = tpm.NicsReceived;
+                if (tpm.NicsSent > testProgressMessage.NicsSent) testProgressMessage.NicsSent = tpm.NicsSent;
+                //if (tpm.RunStateChange > testProgressMessage.RunStateChange) testProgressMessage.RunStateChange = tpm.RunStateChange; //OKAY for run sync?
+                if (tpm.StresstestStatus < testProgressMessage.StresstestStatus) testProgressMessage.StresstestStatus = tpm.StresstestStatus;
+                if (tpm.StartedAt < testProgressMessage.StartedAt) testProgressMessage.StartedAt = tpm.StartedAt;
+                if (tpm.MeasuredRuntime > testProgressMessage.MeasuredRuntime) testProgressMessage.MeasuredRuntime = tpm.MeasuredRuntime;
+                if (tpm.EstimatedRuntimeLeft > testProgressMessage.EstimatedRuntimeLeft) testProgressMessage.EstimatedRuntimeLeft = tpm.EstimatedRuntimeLeft;
+                testProgressMessage.ThreadsInUse += tpm.ThreadsInUse;
+                testProgressMessage.TileStresstestIndex = tileStresstest.TileStresstestIndex;
+                if (tpm.TotalVisibleMemory > testProgressMessage.TotalVisibleMemory) testProgressMessage.TotalVisibleMemory = tpm.TotalVisibleMemory;
+            }
+            //Then the test progress
+            testProgressMessage.StresstestMetricsCache = StresstestMetricsHelper.MergeStresstestMetricsCaches(stresstestMetricsCaches);
+
+            return testProgressMessage;
         }
     }
 }

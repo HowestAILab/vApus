@@ -481,56 +481,11 @@ namespace vApus.DistributedTesting {
         /// <returns></returns>
         public TestProgressMessage GetTestProgressMessage(TileStresstest tileStresstest) {
             lock (_testProgressMessagesLock) {
-                var testProgressMessage = new TestProgressMessage();
-                if (_testProgressMessages.ContainsKey(tileStresstest)) {
-                    var dict = _testProgressMessages[tileStresstest]; //Dictionary of divided stresstest results, for when the same test is divided over 2 or more slaves.
-                    var firstTpm = new TestProgressMessage();
-                    foreach (var tpm in dict.Values) {
-                        firstTpm = tpm;
-                        break;
-                    }
+                if (_testProgressMessages.ContainsKey(tileStresstest)) 
+                    //_testProgressMessages[tileStresstest].Values = dictionary of divided stresstest results, for when the same test is divided over 2 or more slaves.
+                    return DivideEtImpera.GetMergedTestProgressMessage(tileStresstest, _testProgressMessages[tileStresstest].Values);
 
-                    if (dict.Count == 1) {
-                        testProgressMessage = firstTpm;
-                    } else {
-                        var toBeMerged = new List<StresstestMetricsCache>();
-                        foreach (var tpm in dict.Values) toBeMerged.Add(tpm.StresstestMetricsCache);
-
-                        if (toBeMerged.Contains(null)) {
-                            testProgressMessage = firstTpm;
-                        } else {
-                            //First merge the status, events and resource usage
-                            testProgressMessage.StresstestStatus = StresstestStatus.Error;
-                            testProgressMessage.StartedAt = DateTime.MaxValue;
-                            testProgressMessage.Events = new List<EventPanelEvent>();
-                            foreach (var tpm in dict.Values) {
-                                if (tpm.CPUUsage > testProgressMessage.CPUUsage) testProgressMessage.CPUUsage = tpm.CPUUsage;
-                                if (tpm.ContextSwitchesPerSecond > testProgressMessage.ContextSwitchesPerSecond) testProgressMessage.ContextSwitchesPerSecond = tpm.ContextSwitchesPerSecond;
-
-                                testProgressMessage.Events.AddRange(tpm.Events);
-
-                                if (!string.IsNullOrEmpty(tpm.Exception)) {
-                                    if (testProgressMessage.Exception == null) testProgressMessage.Exception = string.Empty;
-                                    testProgressMessage.Exception += tpm.Exception + "\n";
-                                }
-                                if (tpm.MemoryUsage > testProgressMessage.MemoryUsage) testProgressMessage.MemoryUsage = tpm.MemoryUsage;
-                                if (tpm.NicsReceived > testProgressMessage.NicsReceived) testProgressMessage.NicsReceived = tpm.NicsReceived;
-                                if (tpm.NicsSent > testProgressMessage.NicsSent) testProgressMessage.NicsSent = tpm.NicsSent;
-                                //if (tpm.RunStateChange > testProgressMessage.RunStateChange) testProgressMessage.RunStateChange = tpm.RunStateChange; //OKAY for run sync?
-                                if (tpm.StresstestStatus < testProgressMessage.StresstestStatus) testProgressMessage.StresstestStatus = tpm.StresstestStatus;
-                                if (tpm.StartedAt < testProgressMessage.StartedAt) testProgressMessage.StartedAt = tpm.StartedAt;
-                                if (tpm.MeasuredRuntime > testProgressMessage.MeasuredRuntime) testProgressMessage.MeasuredRuntime = tpm.MeasuredRuntime;
-                                if (tpm.EstimatedRuntimeLeft > testProgressMessage.EstimatedRuntimeLeft) testProgressMessage.EstimatedRuntimeLeft = tpm.EstimatedRuntimeLeft;
-                                testProgressMessage.ThreadsInUse += tpm.ThreadsInUse;
-                                testProgressMessage.TileStresstestIndex = tileStresstest.TileStresstestIndex;
-                                if (tpm.TotalVisibleMemory > testProgressMessage.TotalVisibleMemory) testProgressMessage.TotalVisibleMemory = tpm.TotalVisibleMemory;
-                            }
-                            //Then the test progress
-                            testProgressMessage.StresstestMetricsCache = StresstestMetricsHelper.MergeStresstestMetricsCaches(toBeMerged);
-                        }
-                    }
-                }
-                return testProgressMessage;
+                return new TestProgressMessage();
             }
         }
         #endregion
