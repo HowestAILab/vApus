@@ -46,33 +46,73 @@ namespace vApus.Stresstest {
 
         #region Funtions
         private void FillColorPalette() {
-            _colorPalette.Add(Color.FromArgb(178, 247, 178));
-            _colorPalette.Add(Color.FromArgb(178, 178, 247));
-            _colorPalette.Add(Color.FromArgb(247, 179, 179));
-            _colorPalette.Add(Color.FromArgb(079, 155, 122));
-            _colorPalette.Add(Color.FromArgb(252, 102, 102));
-            _colorPalette.Add(Color.FromArgb(078, 105, 162));
-            _colorPalette.Add(Color.FromArgb(204, 212, 217));
-            _colorPalette.Add(Color.FromArgb(048, 093, 123));
-            _colorPalette.Add(Color.FromArgb(238, 238, 238));
-            _colorPalette.Add(Color.FromArgb(255, 163, 102));
+            //_colorPalette.Add(Color.FromArgb(178, 247, 178));
+            //_colorPalette.Add(Color.FromArgb(178, 178, 247));
+            //_colorPalette.Add(Color.FromArgb(247, 179, 179));
+            //_colorPalette.Add(Color.FromArgb(079, 155, 122));
+            //_colorPalette.Add(Color.FromArgb(252, 102, 102));
+            //_colorPalette.Add(Color.FromArgb(078, 105, 162));
+            //_colorPalette.Add(Color.FromArgb(204, 212, 217));
+            //_colorPalette.Add(Color.FromArgb(048, 093, 123));
+            //_colorPalette.Add(Color.FromArgb(238, 238, 238));
+            //_colorPalette.Add(Color.FromArgb(255, 163, 102));
 
-            _colorPalette.Add(Color.FromArgb(255, 102, 000));
-            _colorPalette.Add(Color.FromArgb(152, 218, 211));
-            _colorPalette.Add(Color.FromArgb(074, 121, 181));
-            _colorPalette.Add(Color.FromArgb(227, 026, 028));
-            _colorPalette.Add(Color.FromArgb(059, 089, 152));
-            _colorPalette.Add(Color.FromArgb(230, 230, 230));
-            _colorPalette.Add(Color.FromArgb(226, 051, 081));
-            _colorPalette.Add(Color.FromArgb(242, 184, 068));
-            _colorPalette.Add(Color.FromArgb(139, 157, 195));
-            _colorPalette.Add(Color.FromArgb(234, 118, 075));
+            //_colorPalette.Add(Color.FromArgb(255, 102, 000));
+            //_colorPalette.Add(Color.FromArgb(152, 218, 211));
+            //_colorPalette.Add(Color.FromArgb(074, 121, 181));
+            //_colorPalette.Add(Color.FromArgb(227, 026, 028));
+            //_colorPalette.Add(Color.FromArgb(059, 089, 152));
+            //_colorPalette.Add(Color.FromArgb(230, 230, 230));
+            //_colorPalette.Add(Color.FromArgb(226, 051, 081));
+            //_colorPalette.Add(Color.FromArgb(242, 184, 068));
+            //_colorPalette.Add(Color.FromArgb(139, 157, 195));
+            //_colorPalette.Add(Color.FromArgb(234, 118, 075));
 
-            _colorPalette.Add(Color.FromArgb(229, 223, 204));
-            _colorPalette.Add(Color.FromArgb(083, 193, 192));
-            _colorPalette.Add(Color.FromArgb(148, 170, 161));
-            _colorPalette.Add(Color.FromArgb(083, 193, 192));
-            _colorPalette.Add(Color.FromArgb(139, 173, 083));
+            //_colorPalette.Add(Color.FromArgb(229, 223, 204));
+            //_colorPalette.Add(Color.FromArgb(083, 193, 192));
+            //_colorPalette.Add(Color.FromArgb(148, 170, 161));
+            //_colorPalette.Add(Color.FromArgb(083, 193, 192));
+            //_colorPalette.Add(Color.FromArgb(139, 173, 083));
+
+            _colorPalette.Add(Color.FromArgb(50, 85, 126));
+            _colorPalette.Add(Color.FromArgb(128, 51, 49));
+            _colorPalette.Add(Color.FromArgb(103, 125, 57));
+            _colorPalette.Add(Color.FromArgb(84, 65, 107));
+            _colorPalette.Add(Color.FromArgb(47, 114, 132));
+            _colorPalette.Add(Color.FromArgb(166, 99, 44));
+
+            _colorPalette.Add(Color.FromArgb(64, 105, 156));
+            _colorPalette.Add(Color.FromArgb(158, 65, 62));
+            _colorPalette.Add(Color.FromArgb(127, 154, 72));
+            _colorPalette.Add(Color.FromArgb(105, 81, 133));
+            _colorPalette.Add(Color.FromArgb(60, 141, 163));
+            _colorPalette.Add(Color.FromArgb(204, 123, 56));
+
+            _colorPalette.Add(Color.FromArgb(74, 122, 178));
+            _colorPalette.Add(Color.FromArgb(181, 75, 72));
+            _colorPalette.Add(Color.FromArgb(146, 177, 84));
+            _colorPalette.Add(Color.FromArgb(121, 94, 153));
+            _colorPalette.Add(Color.FromArgb(70, 162, 187));
+            _colorPalette.Add(Color.FromArgb(233, 141, 66));
+
+            _colorPalette.Add(Color.FromArgb(118, 150, 198));
+            _colorPalette.Add(Color.FromArgb(200, 118, 116));
+            _colorPalette.Add(Color.FromArgb(170, 196, 123));
+            _colorPalette.Add(Color.FromArgb(149, 130, 176));
+            _colorPalette.Add(Color.FromArgb(115, 184, 205));
+            _colorPalette.Add(Color.FromArgb(248, 166, 113));
+
+            _colorPalette.Add(Color.FromArgb(170, 186, 215));
+            _colorPalette.Add(Color.FromArgb(217, 170, 169));
+            _colorPalette.Add(Color.FromArgb(198, 214, 172));
+            _colorPalette.Add(Color.FromArgb(187, 176, 201));
+            _colorPalette.Add(Color.FromArgb(169, 206, 220));
+            _colorPalette.Add(Color.FromArgb(250, 195, 168));
+
+            _colorPalette.Add(Color.FromArgb(205, 214, 230));
+            _colorPalette.Add(Color.FromArgb(231, 205, 205));
+            _colorPalette.Add(Color.FromArgb(220, 230, 207));
+            _colorPalette.Add(Color.FromArgb(214, 208, 222));
         }
         public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;
