@@ -41,6 +41,13 @@ namespace vApus.KillvApusAndTools {
                     p.Kill();
                     break;
                 }
+
+            foreach (Process p in Process.GetProcessesByName("vApus.DetailedResultsViewer"))
+                if (p != null) {
+                    p.Kill();
+                    break;
+                }
+
         }
     }
 }

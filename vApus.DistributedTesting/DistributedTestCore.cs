@@ -380,11 +380,11 @@ namespace vApus.DistributedTesting {
 
                         switch (_distributedTest.RunSynchronization) {
                             case RunSynchronization.None:
-                                //Check if it is a divided stresstest and determine what to do on run stopped: All tests that are divided from the same tile stresstest should get a continue when they have all send run stopped.
-                                //This is very difficult to implement.
-                                if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) { 
-                                    //We need to know the number of divided stresstests for a certain tile stresstest.
-                                }
+                                ////Check if it is a divided stresstest and determine what to do on run stopped: All tests that are divided from the same tile stresstest should get a continue when they have all send run stopped.
+                                ////This is very difficult to implement.
+                                //if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) { 
+                                //    //We need to know the number of divided stresstests for a certain tile stresstest.
+                                //}
                                 break;
 
                             //Send Break, wait for all stopped, send continue, wait for all started, send continue
