@@ -131,7 +131,7 @@ namespace vApus.DetailedResultsViewer {
         private class GetTagsWorkItem {
             public List<string> GetTags(DatabaseActions databaseActions, string database) {
                 List<string> tags = new List<string>();
-                var t = databaseActions.GetDataTable("Select Tag from " + database + ".Tags;");
+                var t = databaseActions.GetDataTable("Select Tag from " + database + ".tags;");
                 foreach (DataRow row in t.Rows) tags.Add((row.ItemArray[0] as string).Trim().ToLowerInvariant());
                 return tags;
             }

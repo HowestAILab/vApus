@@ -79,7 +79,7 @@ namespace vApus.Results {
         public void SetDescriptionAndTags(string description, string[] tags) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    _databaseActions.ExecuteSQL("INSERT INTO Description(Description) VALUES('" + description + "')");
+                    _databaseActions.ExecuteSQL("INSERT INTO description(Description) VALUES('" + description + "')");
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
 
                     foreach (string tag in tags) {
@@ -88,7 +88,7 @@ namespace vApus.Results {
                         sb.Append("')");
                         rowsToInsert.Add(sb.ToString());
                     }
-                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO Tags(Tag) VALUES {0};", rowsToInsert.Combine(", ")));
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO tags(Tag) VALUES {0};", rowsToInsert.Combine(", ")));
                 }
             }
         }
@@ -106,7 +106,7 @@ namespace vApus.Results {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
-                        string.Format("INSERT INTO vApusInstances(HostName, IP, Port, Version, Channel, IsMaster) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
+                        string.Format("INSERT INTO vapusinstances(HostName, IP, Port, Version, Channel, IsMaster) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')",
                         hostName, ip, port, version, channel, isMaster ? 1 : 0)
                         );
                     _vApusInstanceId = (int)_databaseActions.GetLastInsertId();
@@ -141,7 +141,7 @@ namespace vApus.Results {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
-                        string.Format(@"INSERT INTO Stresstests(vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
+                        string.Format(@"INSERT INTO stresstests(vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
 MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribute, MonitorBeforeInMinutes, MonitorAfterInMinutes)
 VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}')",
                                       _vApusInstanceId, stresstest, runSynchronization, connection, connectionProxy, connectionString.Encrypt(_passwordGUID, _salt), log, logRuleSet,
@@ -185,7 +185,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
                         string.Format(
-                            "INSERT INTO Monitors(StresstestId, Monitor, MonitorSource, ConnectionString, MachineConfiguration, ResultHeaders) VALUES('{0}', ?Monitor, ?MonitorSource, ?ConnectionString, ?MachineConfiguration, ?ResultHeaders)", stresstestId),
+                            "INSERT INTO monitors(StresstestId, Monitor, MonitorSource, ConnectionString, MachineConfiguration, ResultHeaders) VALUES('{0}', ?Monitor, ?MonitorSource, ?ConnectionString, ?MachineConfiguration, ?ResultHeaders)", stresstestId),
                             CommandType.Text, new MySqlParameter("?Monitor", monitor), new MySqlParameter("?MonitorSource", monitorSource), new MySqlParameter("?ConnectionString", connectionString.Encrypt(_passwordGUID, _salt)),
                                 new MySqlParameter("?MachineConfiguration", machineConfiguration), new MySqlParameter("?ResultHeaders", resultHeaders.Combine("; ", string.Empty))
                         );
@@ -208,7 +208,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
                         string.Format(
-                            "INSERT INTO StresstestResults(StresstestId, StartedAt, StoppedAt, Status, StatusMessage) VALUES('{0}', '{1}', '{2}', 'OK', '')",
+                            "INSERT INTO stresstestresults(StresstestId, StartedAt, StoppedAt, Status, StatusMessage) VALUES('{0}', '{1}', '{2}', 'OK', '')",
                             _stresstestId, Parse(stresstestResult.StartedAt), Parse(DateTime.MinValue))
                         );
                     _stresstestResultId = _databaseActions.GetLastInsertId();
@@ -228,7 +228,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null)
                     _databaseActions.ExecuteSQL(
                         string.Format(
-                            "UPDATE StresstestResults SET StoppedAt='{1}', Status='{2}', StatusMessage='{3}' WHERE Id='{0}'",
+                            "UPDATE stresstestresults SET StoppedAt='{1}', Status='{2}', StatusMessage='{3}' WHERE Id='{0}'",
                             _stresstestResultId, Parse(stresstestResult.StoppedAt), status, statusMessage)
                         );
             }
@@ -247,7 +247,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
                         string.Format(
-                            "INSERT INTO ConcurrencyResults(StresstestResultId, Concurrency, StartedAt, StoppedAt) VALUES('{0}', '{1}', '{2}', '{3}')",
+                            "INSERT INTO concurrencyresults(StresstestResultId, Concurrency, StartedAt, StoppedAt) VALUES('{0}', '{1}', '{2}', '{3}')",
                             _stresstestResultId, concurrencyResult.Concurrency, Parse(concurrencyResult.StartedAt),
                             Parse(DateTime.MinValue))
                         );
@@ -265,7 +265,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 concurrencyResult.StoppedAt = DateTime.Now;
                 if (_databaseActions != null)
                     _databaseActions.ExecuteSQL(
-                        string.Format("UPDATE ConcurrencyResults SET StoppedAt='{1}' WHERE Id='{0}'", _concurrencyResultId,
+                        string.Format("UPDATE concurrencyresults SET StoppedAt='{1}' WHERE Id='{0}'", _concurrencyResultId,
                                       Parse(concurrencyResult.StoppedAt))
                         );
             }
@@ -287,7 +287,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
                         string.Format(
-                            "INSERT INTO RunResults(ConcurrencyResultId, Run, TotalLogEntryCount, ReRunCount, StartedAt, StoppedAt) VALUES('{0}', '{1}', '0', '0', '{2}', '{3}')",
+                            "INSERT INTO runresults(ConcurrencyResultId, Run, TotalLogEntryCount, ReRunCount, StartedAt, StoppedAt) VALUES('{0}', '{1}', '0', '0', '{2}', '{3}')",
                             _concurrencyResultId, runResult.Run, Parse(runResult.StartedAt), Parse(DateTime.MinValue))
                         );
                     _runResultId = _databaseActions.GetLastInsertId();
@@ -303,7 +303,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions != null)
                     _databaseActions.ExecuteSQL(
-                        string.Format("UPDATE RunResults SET ReRunCount='{1}' WHERE Id='{0}'", _runResultId,
+                        string.Format("UPDATE runresults SET ReRunCount='{1}' WHERE Id='{0}'", _runResultId,
                                       runResult.RerunCount)
                         );
             }
@@ -350,10 +350,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 rowsToInsert.Add(sb.ToString());
                             }
 
-                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO LogEntryResults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO logentryresults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
                             rowsToInsert.Combine(", ")));
                     }
-                    _databaseActions.ExecuteSQL(string.Format("UPDATE RunResults SET TotalLogEntryCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalLogEntryCount, Parse(runResult.StoppedAt)));
+                    _databaseActions.ExecuteSQL(string.Format("UPDATE runresults SET TotalLogEntryCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalLogEntryCount, Parse(runResult.StoppedAt)));
                 }
             }
         }
@@ -383,7 +383,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         sb.Append("')");
                         rowsToInsert.Add(sb.ToString());
                     }
-                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO MonitorResults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.Combine(", ")));
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO monitorresults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.Combine(", ")));
                 }
             }
         }

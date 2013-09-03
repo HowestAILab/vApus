@@ -345,6 +345,14 @@ namespace vApus.UpdateTool {
                         goto RetryKillJumpStart;
                     }
 
+                foreach (Process p in Process.GetProcessesByName("vApusSMT_GUI"))
+                    if (p != null)
+                        p.Kill();
+
+                foreach (Process p in Process.GetProcessesByName("vApus.DetailedResultsViewer"))
+                    if (p != null)
+                        p.Kill();
+
                 //Delete all the files that must be replaced by updated ones.
                 string filename;
                 foreach (ListViewItem lvwi in lvwUpdate.Items) {

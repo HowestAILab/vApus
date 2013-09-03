@@ -19,13 +19,13 @@ namespace vApus.Results {
     public static class ReaderAndCombiner {
 
         #region Public
-        public static DataTable GetDescription(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM Description"); }
-        public static DataTable GetTags(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM Tags"); }
+        public static DataTable GetDescription(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM description"); }
+        public static DataTable GetTags(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM tags"); }
 
         /// <summary>
         /// Get all the vApus instances used, divided stresstests are not taken into account.
         /// </summary>
-        public static DataTable GetvApusInstances(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM vApusInstances"); }
+        public static DataTable GetvApusInstances(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM vapusinstances"); }
 
         public static DataTable GetStresstests(DatabaseActions databaseActions, params string[] selectColumns) { return GetStresstests(databaseActions, new int[0], selectColumns); }
         public static DataTable GetStresstests(DatabaseActions databaseActions, int stresstestId, params string[] selectColumns) { return GetStresstests(databaseActions, new int[] { stresstestId }, selectColumns); }
@@ -405,10 +405,10 @@ namespace vApus.Results {
             DataTable dt = null;
             if (databaseActions != null)
                 if (stresstestIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From Monitors;", GetValidSelect(selectColumns)));
+                    dt = databaseActions.GetDataTable(string.Format("Select {0} From monitors;", GetValidSelect(selectColumns)));
                 } else {
                     stresstestIds = GetStresstestIdsAndSiblings(databaseActions, stresstestIds);
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From Monitors Where StresstestId In({1});", GetValidSelect(selectColumns), stresstestIds.Combine(", ")));
+                    dt = databaseActions.GetDataTable(string.Format("Select {0} From monitors Where StresstestId In({1});", GetValidSelect(selectColumns), stresstestIds.Combine(", ")));
                 }
             return dt;
         }
@@ -424,8 +424,8 @@ namespace vApus.Results {
         public static DataTable GetMonitorResults(DatabaseActions databaseActions, int[] monitorIds, params string[] selectColumns) {
             if (databaseActions != null)
                 return (monitorIds.Length == 0) ?
-                    databaseActions.GetDataTable(string.Format("Select {0} From MonitorResults;", GetValidSelect(selectColumns))) :
-                    databaseActions.GetDataTable(string.Format("Select {0} From MonitorResults Where MonitorId In({1});", GetValidSelect(selectColumns), monitorIds.Combine(", ")));
+                    databaseActions.GetDataTable(string.Format("Select {0} From monitorresults;", GetValidSelect(selectColumns))) :
+                    databaseActions.GetDataTable(string.Format("Select {0} From monitorresults Where MonitorId In({1});", GetValidSelect(selectColumns), monitorIds.Combine(", ")));
             return null;
         }
 
@@ -456,10 +456,10 @@ namespace vApus.Results {
                 string select = GetValidSelect(selectColumns);
 
                 if (stresstestIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From Stresstests;", select));
+                    dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstests;", select));
                 } else {
                     stresstestIds = GetStresstestIdsAndSiblings(databaseActions, stresstestIds);
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From Stresstests Where Id In({1});", select, stresstestIds.Combine(", ")));
+                    dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstests Where Id In({1});", select, stresstestIds.Combine(", ")));
                 }
 
                 foreach (DataRow row in dt.Rows) {
@@ -480,10 +480,10 @@ namespace vApus.Results {
 
                 DataTable dt = null;
                 if (stresstestIds.Length == 0) {
-                    dt = databaseActions.GetDataTable("Select Id, Stresstest From Stresstests;");
+                    dt = databaseActions.GetDataTable("Select Id, Stresstest From stresstests;");
                 } else {
                     stresstestIds = GetStresstestIdsAndSiblings(databaseActions, stresstestIds);
-                    dt = databaseActions.GetDataTable(string.Format("Select Id, Stresstest From Stresstests Where Id In({0});", stresstestIds.Combine(", ")));
+                    dt = databaseActions.GetDataTable(string.Format("Select Id, Stresstest From stresstests Where Id In({0});", stresstestIds.Combine(", ")));
                 }
 
                 var dictStresstest = new Dictionary<string, List<int>>();
@@ -497,7 +497,7 @@ namespace vApus.Results {
                 string select = GetValidSelect(selectColumns);
                 foreach (string stresstest in dictStresstest.Keys) {
                     foreach (int stresstestId in dictStresstest[stresstest]) {
-                        dt = databaseActions.GetDataTable(string.Format("Select {0} From StresstestResults Where StresstestId={1};", select, stresstestId));
+                        dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstestresults Where StresstestId={1};", select, stresstestId));
 
                         if (dt.Rows.Count != 0) {
                             if (!dict.ContainsKey(stresstest))
@@ -527,12 +527,12 @@ namespace vApus.Results {
                 DataTable dt = null;
                 if (stresstestResultIds.Length == 0) {
                     dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From ConcurrencyResults{1};", GetValidSelect(selectColumns),
+                        string.Format("Select {0} From concurrencyresults{1};", GetValidSelect(selectColumns),
                         GetValidWhere(where, true)));
                 } else {
                     stresstestResultIds = GetStresstestResultIdsAndSiblings(databaseActions, stresstestResultIds);
                     dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From ConcurrencyResults Where StresstestResultId In({1}){2};", GetValidSelect(selectColumns),
+                        string.Format("Select {0} From concurrencyresults Where StresstestResultId In({1}){2};", GetValidSelect(selectColumns),
                         stresstestResultIds.Combine(", "), GetValidWhere(where, false)));
                 }
 
@@ -569,12 +569,12 @@ namespace vApus.Results {
                 DataTable dt = null;
                 if (concurrencyResultIds.Length == 0) {
                     dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From RunResults{1} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
+                        string.Format("Select {0} From runresults{1} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
                         GetValidWhere(where, true)));
                 } else {
                     concurrencyResultIds = GetConcurrencyResultIdsAndSiblings(databaseActions, concurrencyResultIds);
                     dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From RunResults Where ConcurrencyResultId In({1}){2} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
+                        string.Format("Select {0} From runresults Where ConcurrencyResultId In({1}){2} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
                         concurrencyResultIds.Combine(", "), GetValidWhere(where, false)));
                 }
 
@@ -611,11 +611,11 @@ namespace vApus.Results {
 
                 DataTable dt = null;
                 if (runResultIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From LogEntryResults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
+                    dt = databaseActions.GetDataTable(string.Format("Select {0} From logentryresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
                 } else {
                     runResultIds = GetRunResultIdsAndSiblings(databaseActions, runResultIds);
                     dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From LogEntryResults Where RunResultId In({1}){2};", GetValidSelect(selectColumns),
+                        string.Format("Select {0} From logentryresults Where RunResultId In({1}){2};", GetValidSelect(selectColumns),
                         runResultIds.Combine(", "), GetValidWhere(where, false)));
                 }
 
@@ -638,29 +638,10 @@ namespace vApus.Results {
             return dict;
         }
 
-        //private static Dictionary<string, List<int>> GetStresstestAndDividedIds(DatabaseActions databaseActions) {
-        //    var dict = new Dictionary<string, List<int>>();
-        //    if (databaseActions != null) {
-        //        var dt = databaseActions.GetDataTable("Select Id, Stresstest From Stresstests;");
-        //        foreach (DataRow row in dt.Rows) {
-        //            int id = (int)row.ItemArray[0];
-        //            string stresstest = row.ItemArray[1] as string;
-        //            string combined = TrimDividedPart(stresstest);
-        //            if (!dict.Keys.Contains(combined))
-        //                dict.Add(combined, new List<int>());
-
-        //            dict[combined].Add(id);
-        //        }
-
-        //        foreach (var l in dict.Values)
-        //            l.Sort();
-        //    }
-        //    return dict;
-        //}
         private static int[] GetStresstestIdsAndSiblings(DatabaseActions databaseActions, int[] stresstestIds) {
             var l = new List<int>();
             if (databaseActions != null) {
-                var dt = databaseActions.GetDataTable("Select Id, Stresstest From Stresstests;");
+                var dt = databaseActions.GetDataTable("Select Id, Stresstest From stresstests;");
                 var foundCombinedStresstestToStrings = new List<string>();
                 foreach (DataRow row in dt.Rows) {
                     int id = (int)row.ItemArray[0];
@@ -688,7 +669,7 @@ namespace vApus.Results {
             var l = new List<int>();
             if (databaseActions != null) {
                 //Link to FK table.
-                var dt = databaseActions.GetDataTable(string.Format("Select StresstestId From StresstestResults Where Id in({0});", stresstestResultIds.Combine(", ")));
+                var dt = databaseActions.GetDataTable(string.Format("Select StresstestId From stresstestresults Where Id in({0});", stresstestResultIds.Combine(", ")));
 
                 var stresstestIds = new int[dt.Rows.Count];
                 int i = 0;
@@ -697,7 +678,7 @@ namespace vApus.Results {
 
                 stresstestIds = GetStresstestIdsAndSiblings(databaseActions, stresstestIds);
 
-                dt = databaseActions.GetDataTable(string.Format("Select Id From StresstestResults Where StresstestId in({0});", stresstestIds.Combine(", ")));
+                dt = databaseActions.GetDataTable(string.Format("Select Id From stresstestresults Where StresstestId in({0});", stresstestIds.Combine(", ")));
 
                 foreach (DataRow row in dt.Rows)
                     l.Add((int)row.ItemArray[0]);
@@ -710,7 +691,7 @@ namespace vApus.Results {
             var l = new List<int>();
             if (databaseActions != null) {
                 //Find to which combined stresstest the different concurrencies belong to.
-                var dt = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From ConcurrencyResults Where Id in({0});", concurrencyResultIds.Combine(", ")));
+                var dt = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From concurrencyresults Where Id in({0});", concurrencyResultIds.Combine(", ")));
 
                 foreach (DataRow row in dt.Rows) {
                     int concurrencyResultId = (int)row["Id"];
@@ -723,7 +704,7 @@ namespace vApus.Results {
                     if (stresstestResultIds.Length != 1) {
                         //Find the index of the concurrency.
                         int concurrencyIndex = 0;
-                        var filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From ConcurrencyResults Where StresstestResultId={0};", stresstestResultId));
+                        var filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From concurrencyresults Where StresstestResultId={0};", stresstestResultId));
                         foreach (DataRow row2 in filterOnStresstestResultId.Rows) {
                             if ((int)row2["Id"] == concurrencyResultId)
                                 break;
@@ -733,7 +714,7 @@ namespace vApus.Results {
                         //Find the other concurrency indices.
                         for (int i = 0; i != stresstestResultIds.Length; i++)
                             if (stresstestResultIds[i] != stresstestResultId) {
-                                filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id From ConcurrencyResults Where StresstestResultId={0};", stresstestResultIds[i]));
+                                filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id From concurrencyresults Where StresstestResultId={0};", stresstestResultIds[i]));
                                 if (concurrencyIndex < filterOnStresstestResultId.Rows.Count) {
                                     DataRow row2 = filterOnStresstestResultId.Rows[concurrencyIndex];
                                     int id = (int)row2["Id"];
@@ -751,7 +732,7 @@ namespace vApus.Results {
             var l = new List<int>();
             if (databaseActions != null) {
                 //Find to which concurrencies the runs belong to.
-                var dt = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From RunResults Where Id in({0});", runResultIds.Combine(", ")));
+                var dt = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From runresults Where Id in({0});", runResultIds.Combine(", ")));
 
                 foreach (DataRow row in dt.Rows) {
                     int runResultId = (int)row["Id"];
@@ -764,7 +745,7 @@ namespace vApus.Results {
                     if (concurrencyResultIds.Length != 1) {
                         //Find the index of the run.
                         int runIndex = 0;
-                        var filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From RunResults Where ConcurrencyResultId={0};", concurrencyResultId));
+                        var filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From runresults Where ConcurrencyResultId={0};", concurrencyResultId));
                         foreach (DataRow row2 in filterOnConcurrencyResultId.Rows) {
                             if ((int)row2["Id"] == runResultId)
                                 break;
@@ -774,7 +755,7 @@ namespace vApus.Results {
                         //Find the other concurrency indices.
                         for (int i = 0; i != concurrencyResultIds.Length; i++)
                             if (concurrencyResultIds[i] != concurrencyResultId) {
-                                filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id From RunResults Where ConcurrencyResultId={0};", concurrencyResultIds[i]));
+                                filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id From runresults Where ConcurrencyResultId={0};", concurrencyResultIds[i]));
                                 if (runIndex < filterOnConcurrencyResultId.Rows.Count) {
                                     DataRow row2 = filterOnConcurrencyResultId.Rows[runIndex];
                                     int id = (int)row2["Id"];
@@ -799,9 +780,7 @@ namespace vApus.Results {
             return s;
         }
 
-        private static string GetValidSelect(string[] selectColumns) {
-            return (selectColumns == null || selectColumns.Length == 0) ? "*" : selectColumns.Combine(", ");
-        }
+        private static string GetValidSelect(string[] selectColumns) {    return (selectColumns == null || selectColumns.Length == 0) ? "*" : selectColumns.Combine(", ");    }
         private static string GetValidWhere(string where, bool mustStartWithWhere) {
             if (where == null) {
                 where = string.Empty;
@@ -817,7 +796,6 @@ namespace vApus.Results {
             }
             return where;
         }
-
 
         private static DataTable MakeEmptyCopy(DataTable from) {
             var objectType = typeof(object);

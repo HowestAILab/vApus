@@ -206,7 +206,7 @@ namespace vApus.DetailedResultsViewer {
                     object[] itemArray = new object[4];
 
                     //Get the tags
-                    var tags = databaseActions.GetDataTable("Select Tag From " + database + ".Tags");
+                    var tags = databaseActions.GetDataTable("Select Tag From " + database + ".tags");
                     string t = string.Empty;
                     if (tags.Rows.Count != 0) {
                         int countMinusOne = tags.Rows.Count - 1;
@@ -217,7 +217,7 @@ namespace vApus.DetailedResultsViewer {
                     itemArray[1] = t.Trim();
 
                     //Get the description
-                    var description = databaseActions.GetDataTable("Select Description From " + database + ".Description");
+                    var description = databaseActions.GetDataTable("Select Description From " + database + ".description");
                     foreach (DataRow dr in description.Rows) {
                         itemArray[2] = dr.ItemArray[0];
                         break;
