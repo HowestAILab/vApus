@@ -262,22 +262,22 @@ namespace vApus.Gui {
         }
 
         private static string ProcessorAffinity(List<string> parameters) {
-            try {
-                if (parameters.Count != 0) {
-                    var cpus = new int[parameters.Count];
-                    for (int i = 0; i < parameters.Count; i++)
-                        cpus[i] = int.Parse(parameters[i]);
-                    Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityCalculator.FromArrayToBitmask(cpus);
-                }
-            } catch (Exception ex) {
-                return "ERROR\nCould not set the processor affinity!\n" + ex;
-            }
-            string s = string.Empty;
-            foreach (
-                int i in ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity))
-                s += i + " ";
-            s = s.Trim();
-            return s;
+            return string.Empty;
+            //try {
+            //    if (parameters.Count != 0) {
+            //        var cpus = new int[parameters.Count];
+            //        for (int i = 0; i < parameters.Count; i++)
+            //            cpus[i] = int.Parse(parameters[i]);
+            //        Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityCalculator.FromArrayToBitmask(cpus);
+            //    }
+            //} catch (Exception ex) {
+            //    return "ERROR\nCould not set the processor affinity!\n" + ex;
+            //}
+            //string s = string.Empty;
+            //foreach (int i in ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity))
+            //    s += i + " ";
+            //s = s.Trim();
+            //return s;
         }
 
         private static string SocketListenerPort(List<string> parameters) {

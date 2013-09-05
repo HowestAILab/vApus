@@ -32,12 +32,10 @@ namespace vApus.Util {
         private void ProcessorAffinityPanel_HandleCreated(object sender, EventArgs e) {
             try {
                 //Get the affinity from the current process in order to get the cpu's.
-                var cpus =
-                    new List<int>(
-                        ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity));
-                //Add all cpu's to the listview and check them if they are in 'cpus'.
-                for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) //(0xFFFF) to include all processor groups
-                {
+                var cpus = new List<int>(ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity));
+
+                //Add all cpu's to the listview and check them if they are in 'cpus'. (0xFFFF) to include all processor groups
+                for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) {
                     ListViewItem lvwi = null;
                     if (i < lvw.Items.Count) {
                         lvwi = lvw.Items[i];
@@ -50,8 +48,7 @@ namespace vApus.Util {
                 }
             } catch (Exception ex) {
                 Enabled = false;
-                MessageBox.Show("Processor affinity is not supported for this machine.\n" + ex, string.Empty,
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Processor affinity is not supported for this machine.\n" + ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -60,8 +57,7 @@ namespace vApus.Util {
             for (int i = 0; i < lvw.Items.Count; i++)
                 if (lvw.Items[i].Checked)
                     cpus.Add(i);
-            Process.GetCurrentProcess().ProcessorAffinity =
-                ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
+            Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
             btnSet.Enabled = false;
         }
 
