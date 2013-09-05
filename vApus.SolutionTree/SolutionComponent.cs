@@ -205,10 +205,9 @@ namespace vApus.SolutionTree {
         ///     Checks if the parent has become null.
         ///     That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
         /// </summary>
-        protected void ObjectExtension_ParentChanged(
-            ObjectExtension.ParentOrTagChangedEventArgs parentOrTagChangedEventArgs) {
+        protected void ObjectExtension_ParentChanged(ObjectExtension.ParentOrTagChangedEventArgs parentOrTagChangedEventArgs) {
             if (Solution.ActiveSolution != null)
-                if (parentOrTagChangedEventArgs.Child == this)
+                if (object.ReferenceEquals(parentOrTagChangedEventArgs.Child, this))
                     if (parentOrTagChangedEventArgs.New == null && ParentIsNull != null)
                         foreach (EventHandler del in ParentIsNull.GetInvocationList())
                             del.BeginInvoke(this, null, null, null);

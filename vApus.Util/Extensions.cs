@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace vApus.Util {
@@ -346,8 +347,6 @@ namespace vApus.Util {
     }
     public static class ObjectExtension {
         public delegate void ParentChangedEventHandler(ParentOrTagChangedEventArgs parentOrTagChangedEventArgs);
-        public delegate void TagChangedEventHandler(ParentOrTagChangedEventArgs parentOrTagChangedEventArgs);
-
         public static event ParentChangedEventHandler ParentChanged;
 
         //Nifty hack to make this work everywhere (also in derived types when shallow copying).
@@ -402,9 +401,12 @@ namespace vApus.Util {
                         _parents.Add(o, parent);
                     }
 
-                    if (invokeParentChanged && ParentChanged != null)
-                        foreach (ParentChangedEventHandler del in ParentChanged.GetInvocationList())
-                            del.BeginInvoke(new ParentOrTagChangedEventArgs(o, previous, parent), null, null);
+                    if (invokeParentChanged && ParentChanged != null) {
+                        var invocationList = ParentChanged.GetInvocationList();
+                        Parallel.For(0, invocationList.Length, (i) => {
+                            (invocationList[i] as ParentChangedEventHandler).Invoke(new ParentOrTagChangedEventArgs(o, previous, parent)); //.BeginInvoke(new ParentOrTagChangedEventArgs(o, previous, parent), null, null);
+                        });
+                    }
                 }
         }
         public static object GetParent(this object o) {
