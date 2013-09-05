@@ -7,11 +7,13 @@
  */
 using System;
 using System.CodeDom.Compiler;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -375,57 +377,69 @@ namespace vApus.Stresstest {
             _sw.Reset();
         }
 
+        private readonly object _lock = new object();
         //Following init functions happen right before a run starts (ExecuteStresstest).
         private void DetermineTestableLogEntriessAndDelays(int concurrentUsers) {
             try {
-                InvokeMessage(string.Format("       |Determining Test Patterns and Delays for {0} Concurrent Users...",
-                                            concurrentUsers));
+                InvokeMessage(string.Format("       |Determining Test Patterns and Delays for {0} Concurrent Users...", concurrentUsers));
                 _sw.Start();
-                var testableLogEntries = new List<TestableLogEntry[]>();
+                var testableLogEntries = new ConcurrentBag<TestableLogEntry[]>();
                 var delays = new List<int[]>();
 
-                var delaysRandom = new Random(DateTime.Now.Millisecond);
+                //Get parameterized structures and patterns first sync first: no locking needed further on.
+                var allParameterizedStructures = new ConcurrentBag<StringTree[]>();
+                var allTestPatterns = new ConcurrentBag<int[]>();
                 for (int t = 0; t != concurrentUsers; t++) {
-                    if (_cancel) return;
+                    allParameterizedStructures.Add(_log.GetParameterizedStructure().ToArray());
 
-                    int[] testPatternIndices, delayPattern;
-                    _testPatternsAndDelaysGenerator.GetPatterns(out testPatternIndices, out delayPattern);
-
-                    var tle = new TestableLogEntry[testPatternIndices.Length];
-                    int index = 0;
-
-                    List<StringTree> parameterizedStructure = _log.GetParameterizedStructure();
-
-                    for (int i = 0; i != testPatternIndices.Length; i++) {
-                        if (_cancel) return;
-
-                        int j = testPatternIndices[i];
-
-                        LogEntry logEntry = _logEntries[j];
-
-                        string logEntryIndex = string.Empty;
-                        StringTree parameterizedLogEntry = parameterizedStructure[j];
-                        string userAction = string.Empty;
-
-                        UserAction parent = null;
-                        string sameAsLogEntryIndex = string.Empty;
-                        if (logEntry.SameAs != null) {
-                            parent = logEntry.SameAs.Parent as UserAction;
-                            sameAsLogEntryIndex = (parent == null) ? logEntry.SameAs.Index.ToString() : parent.Index + "." + logEntry.SameAs.Index;
-                        }
-
-                        parent = logEntry.Parent as UserAction;
-                        logEntryIndex = parent.Index + "." + logEntry.Index;
-                        userAction = parent.ToString();
-
-                        tle[index++] = new TestableLogEntry(logEntryIndex, sameAsLogEntryIndex, parameterizedLogEntry, userAction,
-                            logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, _rerun);
-                    }
-
-                    testableLogEntries.Add(tle);
+                    int[] testPattern, delayPattern;
+                    _testPatternsAndDelaysGenerator.GetPatterns(out testPattern, out delayPattern);
+                    allTestPatterns.Add(testPattern);
                     delays.Add(delayPattern);
+
+                    Thread.Sleep(1); //For the random in the pattern generator.
                 }
 
+                //Get testable log entries  async: way faster.
+                Parallel.For(0, concurrentUsers, (t, loopState) => {
+                    try {
+                        if (_cancel) loopState.Break();
+
+                        StringTree[] parameterizedStructure;
+                        allParameterizedStructures.TryTake(out parameterizedStructure);
+
+                        int[] testPattern;
+                        allTestPatterns.TryTake(out testPattern);
+
+                        var tle = new TestableLogEntry[testPattern.Length];
+
+                        Parallel.For(0, testPattern.Length, (i, loopState2) => {
+                            try {
+                                if (_cancel) loopState2.Break();
+
+                                int testPatternIndex = testPattern[i];
+                                var logEntry = _logEntries[testPatternIndex];
+                                var logEntryParent = logEntry.Parent as UserAction;
+
+                                string sameAsLogEntryIndex = string.Empty;
+                                if (logEntry.SameAs != null)
+                                    sameAsLogEntryIndex = (logEntry.SameAs.Parent as UserAction).Index + "." + logEntry.SameAs.Index;
+
+                                tle[i] = new TestableLogEntry(logEntryParent.Index + "." + logEntry.Index, sameAsLogEntryIndex,
+                                    parameterizedStructure[testPatternIndex], logEntryParent.ToString(), logEntry.ExecuteInParallelWithPrevious,
+                                    logEntry.ParallelOffsetInMs, _rerun);
+                            } catch (Exception ex2) {
+                                LogWrapper.LogByLevel("Failed at determining test patterns>\n" + ex2, LogLevel.Error);
+                                loopState.Break();
+                            }
+                        });
+
+                        testableLogEntries.Add(tle);
+                    } catch (Exception ex) {
+                        LogWrapper.LogByLevel("Failed at determining test patterns>\n" + ex, LogLevel.Error);
+                        loopState.Break();
+                    }
+                });
 
                 _testableLogEntries = testableLogEntries.ToArray();
                 _delays = delays.ToArray();
@@ -555,15 +569,15 @@ namespace vApus.Stresstest {
                             SetRunStopped();
                         }
                         //For many-to-one testing, run-sync not supported.
-                    } 
-                    //else if (_stresstest.IsDividedStresstest && !_break) {
-                    //    SetRunDoneOnce();
-                    //    SetRunStopped();
+                    }
+                        //else if (_stresstest.IsDividedStresstest && !_break) {
+                        //    SetRunDoneOnce();
+                        //    SetRunStopped();
 
                     //    InvokeMessage("Waiting for Continue Message from Master...");
-                    //    _runSynchronizationContinueWaitHandle.WaitOne();
-                    //    InvokeMessage("Continuing...");
-                    //} 
+                        //    _runSynchronizationContinueWaitHandle.WaitOne();
+                        //    InvokeMessage("Continuing...");
+                        //} 
                     else {
                         SetRunStopped();
                     }

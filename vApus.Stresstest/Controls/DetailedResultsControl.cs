@@ -36,6 +36,7 @@ namespace vApus.Stresstest {
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
+
         private System.Timers.Timer _tmrSizeColumns = new System.Timers.Timer(500); //To not let the columns become to wide.
         #endregion
 
@@ -116,6 +117,7 @@ namespace vApus.Stresstest {
 
         async private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             if (cboShow.SelectedIndex != _currentSelectedIndex) {
+
                 _currentSelectedIndex = cboShow.SelectedIndex;
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = new CancellationTokenSource();
@@ -296,6 +298,7 @@ namespace vApus.Stresstest {
         /// </summary>
         public void ClearResults() {
             if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
+
             _cancellationTokenSource = new CancellationTokenSource();
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[0];

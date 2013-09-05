@@ -61,10 +61,10 @@ namespace vApus.DetailedResultsViewer {
                                 if (_getTagsWorkItem == null) _getTagsWorkItem = new GetTagsWorkItem();
 
                                 lock (_lock) {
-                                    var das = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
-                                    foreach (string t in _getTagsWorkItem.GetTags(das, state as string))
+                                    var dba = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
+                                    foreach (string t in _getTagsWorkItem.GetTags(dba, state as string))
                                         if (t.Length != 0 && !tags.Contains(t)) tags.Add(t);
-                                    das.ReleaseConnection();
+                                    dba.ReleaseConnection();
                                     ++done;
                                 }
                                 if (done == count) _waitHandle.Set();

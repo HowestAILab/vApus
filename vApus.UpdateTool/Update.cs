@@ -330,28 +330,13 @@ namespace vApus.UpdateTool {
                     }
                 }
 
-                //Kill vApus JumpStart
-                int retryKillJumpStart = 0;
-            RetryKillJumpStart:
-                foreach (Process p in Process.GetProcessesByName("vApus.JumpStart"))
+                //Kill other tools
+                Parallel.ForEach(Process.GetProcesses(), (p) => {
                     try {
-                        p.Kill();
-                        p.WaitForExit(10000);
-                    } catch {
-                    }
-                if (Process.GetProcessesByName("vApus.JumpStart").Length != 0)
-                    if (++retryKillJumpStart <= MAXRETRY) {
-                        Thread.Sleep(1000 * retryKillJumpStart);
-                        goto RetryKillJumpStart;
-                    }
-
-                foreach (Process p in Process.GetProcessesByName("vApusSMT_GUI"))
-                    if (p != null)
-                        p.Kill();
-
-                foreach (Process p in Process.GetProcessesByName("vApus.DetailedResultsViewer"))
-                    if (p != null)
-                        p.Kill();
+                        if (p != null && (p.ProcessName == "vApus.JumpStart" || p.ProcessName == "vApusSMT_GUI" || p.ProcessName == "vApus.DetailedResultsViewer"))
+                            p.Kill();
+                    } catch { }
+                });
 
                 //Delete all the files that must be replaced by updated ones.
                 string filename;

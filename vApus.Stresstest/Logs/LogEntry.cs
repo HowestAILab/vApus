@@ -29,6 +29,8 @@ namespace vApus.Stresstest {
         private int _parallelOffsetInMs;
 
         private Parameters _parameters;
+        [NonSerialized]
+        private static Parameters _staticParameters;
 
         private LogEntry _sameAs;
 
@@ -122,18 +124,23 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
+        static LogEntry() {
+            if (_staticParameters == null && Solution.ActiveSolution != null)
+                try {
+                    _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+                } catch {
+                }
+
+            Solution.ActiveSolutionChanged += StaticSolution_ActiveSolutionChanged;
+
+        }
         /// <summary>
         /// Contains a captured request to a server app.
         /// </summary>
         public LogEntry() {
             ShowInGui = false;
-            if (_parameters == null && Solution.ActiveSolution != null)
-                try {
-                    _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-                } catch {
-                }
-
-            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+                _parameters = _staticParameters;
+                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
         /// <summary>
         /// Contains a captured request to a server app.
@@ -143,13 +150,14 @@ namespace vApus.Stresstest {
             : this() {
             LogEntryString = logEntryString;
         }
-
         #endregion
 
         #region Functions
+        private static void StaticSolution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
+            _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+        }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            _parameters = _staticParameters;
         }
 
         /// <summary>

@@ -7,6 +7,7 @@
  */
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace vApus.KillvApusAndTools {
     /// <summary>
@@ -18,33 +19,14 @@ namespace vApus.KillvApusAndTools {
         /// </summary>
         [STAThread]
         private static void Main() {
-            foreach (Process p in Process.GetProcessesByName("vApus"))
-                if (p != null)
-                    p.Kill();
+            Parallel.ForEach(Process.GetProcesses(), (p) => {
+                try {
+                    if (p != null && (p.ProcessName == "vApus" || p.ProcessName == "vApus.UpdateTool" || p.ProcessName == "vApus.UpdateToolLoader" || 
+                        p.ProcessName == "vApus.JumpStart" || p.ProcessName == "vApusSMT_GUI" || p.ProcessName == "vApus.DetailedResultsViewer"))
+                        p.Kill();
+                } catch { }
+            });
 
-            foreach (Process p in Process.GetProcessesByName("vApus.UpdateTool"))
-                if (p != null) {
-                    p.Kill();
-                    break;
-                }
-            foreach (Process p in Process.GetProcessesByName("vApus.UpdateToolLoader"))
-                if (p != null) {
-                    p.Kill();
-                    break;
-                }
-            foreach (Process p in Process.GetProcessesByName("vApusSMT_GUI"))
-                if (p != null)
-                    p.Kill();
-
-            foreach (Process p in Process.GetProcessesByName("vApus.JumpStart"))
-                if (p != null) {
-                    p.Kill();
-                    break;
-                }
-
-            foreach (Process p in Process.GetProcessesByName("vApus.DetailedResultsViewer"))
-                if (p != null) 
-                    p.Kill();
         }
     }
 }

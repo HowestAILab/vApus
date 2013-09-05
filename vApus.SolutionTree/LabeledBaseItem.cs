@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -19,6 +20,7 @@ namespace vApus.SolutionTree {
     public abstract class LabeledBaseItem : BaseItem {
 
         #region Fields
+        private readonly object _lock = new object();
         private string _label = string.Empty;
         #endregion
 
@@ -31,23 +33,26 @@ namespace vApus.SolutionTree {
                     _label = value == null ? string.Empty : value;
             }
         }
+
         /// <summary>
         ///     The one-based index of this item in the collection of its parent.
         /// </summary>
         [Description("The one-based index of this item in the collection of its parent.")]
         public int Index {
             get {
-                int index = -1;
-                if (!IsEmpty) {
-                    index = 1;
-                    if (Parent != null)
-                        for (int i = 0; i != Parent.Count; i++)
-                            if (Parent[i] == this)
-                                break;
-                            else if (Parent[i] is LabeledBaseItem)
-                                ++index;
+                lock (_lock) {
+                    int index = -1;
+                    if (!IsEmpty) {
+                        index = 1;
+                        if (Parent != null)
+                            for (int i = 0; i != Parent.Count; i++)
+                                if (Parent[i] == this)
+                                    break;
+                                else if (Parent[i] is LabeledBaseItem)
+                                    ++index;
+                    }
+                    return index;
                 }
-                return index;
             }
         }
         #endregion

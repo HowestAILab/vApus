@@ -34,6 +34,7 @@ namespace vApus.SolutionTree {
         #region Fields
         private bool _isDefaultItem, _isEmpty;
         protected List<BaseItem> _items = new List<BaseItem>();
+        private List<Type> _defaultItemTypes = new List<Type>();
         private bool _noImage, _showInGui = true;
 
         [NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
@@ -226,11 +227,12 @@ namespace vApus.SolutionTree {
         internal void AddWhileLoading(BaseItem item) {
             Type itemType = item.GetType();
             int index = -1;
-            for (int i = 0; i < _items.Count; i++)
-                if (_items[i].GetType() == itemType && _items[i].IsDefaultItem) {
-                    index = i;
-                    break;
-                }
+            if (_defaultItemTypes.Contains(itemType))
+                for (int i = 0; i < _items.Count; i++)
+                    if (_items[i].GetType() == itemType && _items[i].IsDefaultItem) {
+                        index = i;
+                        break;
+                    }
             if (index == -1)
                 _items.Add(item);
             else {
@@ -250,6 +252,11 @@ namespace vApus.SolutionTree {
         /// <param name="item"></param>
         /// <returns>The index</returns>
         public int AddAsDefaultItem(BaseItem item) {
+            //Faster check when calling AddWhileLoading.
+            var type = item.GetType();
+            if (!_defaultItemTypes.Contains(type))
+                _defaultItemTypes.Add(type);
+
             int index = _items.Count;
             _items.Add(item);
 
