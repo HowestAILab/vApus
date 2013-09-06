@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,6 +14,7 @@ using vApus.Util;
 namespace vApus.Stresstest {
     [Serializable]
     public class ASTNode : BaseItem {
+
         #region Fields
 
         //Parameters

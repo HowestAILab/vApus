@@ -175,9 +175,12 @@ namespace vApus.DistributedTesting {
                 Do(toKill, false);
                 Exception[] exceptions = Do(toJumpStart, true);
 
-                if (Done != null)
-                    foreach (EventHandler<DoneEventArgs> del in Done.GetInvocationList())
-                        del.BeginInvoke(null, new DoneEventArgs(exceptions), null, null);
+                if (Done != null) {
+                    var invocationList = Done.GetInvocationList();
+                    Parallel.For(0, invocationList.Length, (i) => {
+                        (invocationList[i] as EventHandler<DoneEventArgs>).Invoke(null, new DoneEventArgs(exceptions));
+                    });
+                }
             });
             worker.IsBackground = true;
             worker.Start();

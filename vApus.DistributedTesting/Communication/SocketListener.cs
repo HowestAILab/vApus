@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.DistributedTesting.Properties;
 using vApus.Util;
@@ -70,10 +71,13 @@ namespace vApus.DistributedTesting {
         }
 
         private void SlaveSideCommunicationHandler_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e) {
-            if (NewTest != null)
-                foreach (EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> del in NewTest.GetInvocationList()
-                    )
-                    del.BeginInvoke(this, e, null, null);
+            if (NewTest != null) {
+                var invocationList = NewTest.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => {
+                    (invocationList[i] as EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs>).Invoke(this, e);
+                });
+
+            }
         }
 
         /// <summary>

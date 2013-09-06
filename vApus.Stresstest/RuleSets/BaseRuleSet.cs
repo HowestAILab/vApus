@@ -5,32 +5,21 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
 namespace vApus.Stresstest {
-    [ContextMenu(
-        new[]
-            {
-                "Activate_Click", "Add_Click", "Export_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click",
-                "Duplicate_Click", "Paste_Click"
-            },
+    [ContextMenu(new[] { "Activate_Click", "Add_Click", "Export_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
         new[] { "Edit", "Add Syntax Item", "Export", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
-    [Hotkeys(
-        new[] { "Activate_Click", "Add_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }
-        ,
-        new[]
-            {
-                Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X),
-                (Keys.Control | Keys.D), (Keys.Control | Keys.V)
-            })]
+    [Hotkeys(new[] { "Activate_Click", "Add_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
+        new[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
     [Serializable]
     public abstract class BaseRuleSet : LabeledBaseItem {
+
         #region Fields
-        private static readonly object _lock = new object();
+        private readonly object _lock = new object();
         protected string _childDelimiter = string.Empty, _description = string.Empty;
         #endregion
 
@@ -52,7 +41,6 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Functions
-
         protected virtual void Add_Click(object sender, EventArgs e) { Add(new SyntaxItem()); }
 
         /// <summary>
@@ -63,99 +51,96 @@ namespace vApus.Stresstest {
         /// <param name="output"></param>
         /// <returns></returns>
         public LexicalResult TryLexicalAnalysis(string input, Parameters parameters, out ASTNode output) {
-            lock (_lock) {
-                output = new ASTNode(this, _childDelimiter, parameters);
-                if (input.Length == 0) {
-                    output.Error = "No input has been provided!";
-                    return LexicalResult.Error;
-                }
-                if (_childDelimiter.Length == 0) {
-                    if (Count == 0) {
-                        output.Value = input;
-                        return LexicalResult.OK;
-                    } else {
-                        ASTNode syntaxItemOutput = null;
-                        //When there is not split the input will be analysed with the child syntax items AND-wise.
-                        for (int i = 0; i < Count; i++) {
-                            var syntaxItem = this[i] as SyntaxItem;
-                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters, out syntaxItemOutput);
-                            if (lexicalResult != LexicalResult.OK) {
-                                output.Value = input;
-                                output.Error = syntaxItemOutput.Error;
-                                return lexicalResult;
-                            }
+            output = new ASTNode(this, _childDelimiter, parameters);
+            if (input.Length == 0) {
+                output.Error = "No input has been provided!";
+                return LexicalResult.Error;
+            }
+            if (_childDelimiter.Length == 0) {
+                if (Count == 0) {
+                    output.Value = input;
+                    return LexicalResult.OK;
+                } else {
+                    ASTNode syntaxItemOutput = null;
+                    //When there is not split the input will be analysed with the child syntax items AND-wise.
+                    for (int i = 0; i < Count; i++) {
+                        var syntaxItem = this[i] as SyntaxItem;
+                        LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters, out syntaxItemOutput);
+                        if (lexicalResult != LexicalResult.OK) {
+                            output.Value = input;
+                            output.Error = syntaxItemOutput.Error;
+                            return lexicalResult;
                         }
-                        output.AddWithoutInvokingEvent(syntaxItemOutput, false);
+                    }
+                    output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                }
+            } else {
+                string[] splitInput = input.Split(new[] { _childDelimiter }, StringSplitOptions.None);
+                if (Count == 0) {
+                    //Add AST items without validation.
+                    var syntaxItem = new SyntaxItem();
+                    syntaxItem.Parent = this;
+                    for (int i = 0; i < splitInput.Length; i++) {
+                        ASTNode syntaxItemOutput = null;
+                        syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
+                        output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
                     }
                 } else {
-                    string[] splitInput = input.Split(new[] { _childDelimiter }, StringSplitOptions.None);
-                    if (Count == 0) {
-                        //Add AST items without validation.
-                        var syntaxItem = new SyntaxItem();
-                        syntaxItem.Parent = this;
-                        for (int i = 0; i < splitInput.Length; i++) {
-                            ASTNode syntaxItemOutput = null;
-                            syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
-                            output.AddWithoutInvokingEvent(syntaxItemOutput, false);
-                        }
-                    } else {
-                        int syntaxItemIndex = 0, loops = 0;
-                        uint occuranceCheck = 0;
-                        for (int i = 0; i != Count; i++) {
-                            //Handle if not all parts can be checked.
-                            if (syntaxItemIndex == Count) {
-                                if (i < splitInput.Length && output.Count > 0) {
-                                    var last = output[output.Count - 1] as ASTNode;
-                                    for (int k = i; k < splitInput.Length; k++)
-                                        last.Value = string.Format("{0}{1}{2}", last.Value, _childDelimiter, splitInput[k]);
-                                    break;
-                                } else {
-                                    output.Error = "The input string could not be handled correctly due to not enough provided or right configured child syntax items.";
-                                    return LexicalResult.Error;
-                                }
+                    int syntaxItemIndex = 0, loops = 0;
+                    uint occuranceCheck = 0;
+                    for (int i = 0; i != Count; i++) {
+                        //Handle if not all parts can be checked.
+                        if (syntaxItemIndex == Count) {
+                            if (i < splitInput.Length && output.Count > 0) {
+                                var last = output[output.Count - 1] as ASTNode;
+                                for (int k = i; k < splitInput.Length; k++)
+                                    last.Value = string.Format("{0}{1}{2}", last.Value, _childDelimiter, splitInput[k]);
+                                break;
+                            } else {
+                                output.Error = "The input string could not be handled correctly due to not enough provided or right configured child syntax items.";
+                                return LexicalResult.Error;
                             }
+                        }
 
-                            var syntaxItem = this[syntaxItemIndex] as SyntaxItem;
-                            ASTNode syntaxItemOutput = null;
+                        var syntaxItem = this[syntaxItemIndex] as SyntaxItem;
+                        ASTNode syntaxItemOutput = null;
 
-                            string syntaxItemInput = i < splitInput.Length ? splitInput[i] : string.Empty;
-                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(syntaxItemInput, parameters, out syntaxItemOutput);
+                        string syntaxItemInput = i < splitInput.Length ? splitInput[i] : string.Empty;
+                        LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(syntaxItemInput, parameters, out syntaxItemOutput);
 
-                            //Skip invalid optional syntax items.
-                            if (lexicalResult == LexicalResult.Error)
-                                if (syntaxItem.Optional) {
-                                    occuranceCheck = 0;
-                                    ++syntaxItemIndex;
-                                    loops = i;
-                                    continue;
-                                } else {
-                                    output.AddWithoutInvokingEvent(syntaxItemOutput, false);
-                                    output.Error = syntaxItemOutput.Error;
-                                    return lexicalResult;
-                                } else
-                                output.AddWithoutInvokingEvent(syntaxItemOutput, false);
-
-                            //Apply the syntax item validation times the occurancy.
-                            if (syntaxItem.Occurance > 0 && occuranceCheck == 0)
-                                occuranceCheck = syntaxItem.Occurance;
-
-                            if (occuranceCheck > 0 && --occuranceCheck == 0)
+                        //Skip invalid optional syntax items.
+                        if (lexicalResult == LexicalResult.Error)
+                            if (syntaxItem.Optional) {
+                                occuranceCheck = 0;
                                 ++syntaxItemIndex;
-                            loops = i;
-                        }
+                                loops = i;
+                                continue;
+                            } else {
+                                output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                                output.Error = syntaxItemOutput.Error;
+                                return lexicalResult;
+                            } else
+                            output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
 
-                        //Handle if not all parts can be checked (assumption).
-                        //Use 'loops' for optional syntaxItems.
-                        if (loops < Count - 1) {
-                            output.Error = "The input string could not be handled correctly either due to an infinite occuring syntax item that is not at the end of the collection where it should be.";
-                            return LexicalResult.Error;
-                        }
+                        //Apply the syntax item validation times the occurancy.
+                        if (syntaxItem.Occurance > 0 && occuranceCheck == 0)
+                            occuranceCheck = syntaxItem.Occurance;
+
+                        if (occuranceCheck > 0 && --occuranceCheck == 0)
+                            ++syntaxItemIndex;
+                        loops = i;
+                    }
+
+                    //Handle if not all parts can be checked (assumption).
+                    //Use 'loops' for optional syntaxItems.
+                    if (loops < Count - 1) {
+                        output.Error = "The input string could not be handled correctly either due to an infinite occuring syntax item that is not at the end of the collection where it should be.";
+                        return LexicalResult.Error;
                     }
                 }
-                return LexicalResult.OK;
             }
+            return LexicalResult.OK;
         }
-
         #endregion
     }
 }

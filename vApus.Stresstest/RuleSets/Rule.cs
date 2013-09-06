@@ -19,6 +19,7 @@ namespace vApus.Stresstest {
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [Serializable]
     public class Rule : LabeledBaseItem {
+
         #region Enum
 
         [Serializable]
@@ -119,11 +120,10 @@ namespace vApus.Stresstest {
                 return LexicalResult.Error;
             }
 
-            if (Regex.IsMatch(input, _regExp, _ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+            if (_regExp.Length == 0 || Regex.IsMatch(input, _regExp, (_ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)))
                 return LexicalResult.OK;
-            output.Error =
-                string.Format("The value modifier is not valid for this input ({0} \"{1}\", Value Type {2} ).", input,
-                              _regExp, _valueType);
+
+            output.Error = string.Format("The value modifier is not valid for this input ({0} \"{1}\", Value Type {2} ).", input, _regExp, _valueType);
             return LexicalResult.Error;
         }
 

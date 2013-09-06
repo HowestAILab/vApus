@@ -438,9 +438,12 @@ namespace vApus.DistributedTesting {
         }
         private static void InvokeTestInitialized(TileStresstest tileStresstest, Exception ex) {
             lock (_lock) {
-                if (TestInitialized != null)
-                    foreach (EventHandler<TestInitializedEventArgs> del in TestInitialized.GetInvocationList())
-                        del.BeginInvoke(null, new TestInitializedEventArgs(tileStresstest, ex), null, null);
+                if (TestInitialized != null) {
+                    var invocationList = TestInitialized.GetInvocationList();
+                    Parallel.For(0, invocationList.Length, (i) => {
+                        (invocationList[i] as EventHandler<TestInitializedEventArgs>).Invoke(null, new TestInitializedEventArgs(tileStresstest, ex));
+                    });
+                }
             }
         }
         #endregion

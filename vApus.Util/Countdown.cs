@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace vApus.Util {
@@ -63,18 +64,24 @@ namespace vApus.Util {
         public void Start() {
             _tmr.Start();
 
-            if (Started != null)
-                foreach (EventHandler del in Started.GetInvocationList())
-                    del.BeginInvoke(this, null, null, null);
+            if (Started != null) {
+                var invocationList = Started.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => {
+                    (invocationList[i] as EventHandler).Invoke(this, null);
+                });
+            }
         }
 
         public void Stop() {
             _tmr.Stop();
             Dispose();
 
-            if (Stopped != null)
-                foreach (EventHandler del in Stopped.GetInvocationList())
-                    del.BeginInvoke(this, null, null, null);
+            if (Stopped != null) {
+                var invocationList = Stopped.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => {
+                    (invocationList[i] as EventHandler).Invoke(this, null);
+                });
+            }
         }
 
         private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
@@ -84,9 +91,12 @@ namespace vApus.Util {
                 _countdownTime = 0;
             }
 
-            if (Tick != null)
-                foreach (EventHandler del in Tick.GetInvocationList())
-                    del.BeginInvoke(this, e, null, null);
+            if (Tick != null) {
+                var invocationList = Tick.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => {
+                    (invocationList[i] as EventHandler).Invoke(this, e);
+                });
+            }
 
             if (_countdownTime == 0) Stop();
         }

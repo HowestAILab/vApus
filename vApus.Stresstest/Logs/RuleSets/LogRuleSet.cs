@@ -161,6 +161,7 @@ namespace vApus.Stresstest {
         }
 
         protected new void Add_Click(object sender, EventArgs e) { Add(new LogSyntaxItem()); }
+
         #endregion
     }
 }

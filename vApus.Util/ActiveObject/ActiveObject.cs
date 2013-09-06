@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace vApus.Util {
     /// <summary>
@@ -107,9 +108,12 @@ namespace vApus.Util {
                         } catch (Exception ex) {
                             exception = ex;
                         } finally {
-                            if (OnResult != null)
-                                foreach (EventHandler<OnResultEventArgs> del in OnResult.GetInvocationList())
-                                    del.BeginInvoke(this, new OnResultEventArgs(kvp.Key, kvp.Value, returned, exception), null, null);
+                            if (OnResult != null) {
+                                var invocationList = OnResult.GetInvocationList();
+                                Parallel.For(0, invocationList.Length, (i) => {
+                                    (invocationList[i] as EventHandler<OnResultEventArgs>).Invoke(this, new OnResultEventArgs(kvp.Key, kvp.Value, returned, exception));
+                                });
+                            }
                         }
                     }
                     _sendWaitHandle.WaitOne();

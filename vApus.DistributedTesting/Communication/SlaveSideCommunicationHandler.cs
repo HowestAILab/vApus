@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using vApus.Monitor;
 using vApus.Results;
 using vApus.SolutionTree;
@@ -108,9 +109,13 @@ namespace vApus.DistributedTesting {
 
                     if (pushIPException != null) throw pushIPException;
 
-                    if (NewTest != null)
-                        foreach (EventHandler<NewTestEventArgs> del in NewTest.GetInvocationList())
-                            del.BeginInvoke(null, new NewTestEventArgs(stresstestWrapper.Stresstest.ToString()), null, null);
+                    if (NewTest != null) {
+                        var invocationList = NewTest.GetInvocationList();
+                        string stresstestToString = stresstestWrapper.Stresstest.ToString();
+                        Parallel.For(0, invocationList.Length, (i) => {
+                            (invocationList[i] as EventHandler<NewTestEventArgs>).Invoke(null, new NewTestEventArgs(stresstestToString));
+                        });
+                    }
 
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         int done = 1;

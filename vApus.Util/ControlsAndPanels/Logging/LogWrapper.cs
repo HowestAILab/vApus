@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using vApus.Util.Properties;
 
 namespace vApus.Util {
@@ -168,8 +169,9 @@ namespace vApus.Util {
             if (BeforeLogging != null) {
                 var ea = new BeforeLoggingEventArgs(false, input);
 
-                //Invoke and let the user change the data or cancel. Invoke because the data can be changed
-                BeforeLogging.Invoke(this, ea);
+                //Invoke and let the user change the data or cancel. Invoke because the data can be change
+                BeforeLogging(this, ea);
+
                 input = ea.Data;
 
                 if (ea.Cancel) {
@@ -188,7 +190,7 @@ namespace vApus.Util {
             _logger.Log(input);
 
             //raise the event that there has been logged, BeginInvoke because we dont want to wait.
-            if (AfterLogging != null)
+            if (AfterLogging != null) 
                 AfterLogging.BeginInvoke(this, new LogEventArgs(timeStamp, level, data), null, null);
 
             if (_consoleEnabled)

@@ -346,7 +346,7 @@ namespace vApus.Util {
         }
     }
     public static class ObjectExtension {
-        public delegate void ParentChangedEventHandler(ParentOrTagChangedEventArgs parentOrTagChangedEventArgs);
+        public delegate void ParentChangedEventHandler(ParentChangedEventArgs parentOrTagChangedEventArgs);
         public static event ParentChangedEventHandler ParentChanged;
 
         //Nifty hack to make this work everywhere (also in derived types when shallow copying).
@@ -404,7 +404,7 @@ namespace vApus.Util {
                     if (invokeParentChanged && ParentChanged != null) {
                         var invocationList = ParentChanged.GetInvocationList();
                         Parallel.For(0, invocationList.Length, (i) => {
-                            (invocationList[i] as ParentChangedEventHandler).Invoke(new ParentOrTagChangedEventArgs(o, previous, parent)); //.BeginInvoke(new ParentOrTagChangedEventArgs(o, previous, parent), null, null);
+                            (invocationList[i] as ParentChangedEventHandler).Invoke(new ParentChangedEventArgs(o, previous, parent));
                         });
                     }
                 }
@@ -441,9 +441,13 @@ namespace vApus.Util {
                     _parents.Remove(o);
                     removed = true;
 
-                    if (invokeParentChanged && ParentChanged != null)
-                        foreach (ParentChangedEventHandler del in ParentChanged.GetInvocationList())
-                            del.BeginInvoke(new ParentOrTagChangedEventArgs(o, parent, null), null, null);
+                    if (invokeParentChanged && ParentChanged != null) {
+                        var invocationList = ParentChanged.GetInvocationList();
+                        Parallel.For(0, invocationList.Length, (i) => {
+                            (invocationList[i] as ParentChangedEventHandler).Invoke(new ParentChangedEventArgs(o, parent, null));
+                        });
+
+                    }
                 }
                 return removed;
             }
@@ -491,10 +495,10 @@ namespace vApus.Util {
             }
         }
 
-        public class ParentOrTagChangedEventArgs : EventArgs {
+        public class ParentChangedEventArgs : EventArgs {
             public object Child, Previous, New;
 
-            public ParentOrTagChangedEventArgs(object child, object previous, object __new) {
+            public ParentChangedEventArgs(object child, object previous, object __new) {
                 Child = child;
                 Previous = previous;
                 New = __new;

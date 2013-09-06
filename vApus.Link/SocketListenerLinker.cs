@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Threading.Tasks;
 using vApus.DistributedTesting;
 using vApus.Util;
 
@@ -40,9 +41,12 @@ namespace vApus.Link {
 
         #region Functions
         private static void _socketListener_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e) {
-            if (NewTest != null)
-                foreach (EventHandler del in NewTest.GetInvocationList())
-                    del.BeginInvoke(e.Test, null, null, null);
+            if (NewTest != null) {
+                var invocationList = NewTest.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => {
+                    (invocationList[i] as EventHandler).Invoke(e.Test, null);
+                });
+            }
         }
 
         public static void StartSocketListener() { _socketListener.Start(); }

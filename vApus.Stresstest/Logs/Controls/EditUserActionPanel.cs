@@ -78,7 +78,7 @@ namespace vApus.Stresstest {
         #region Functions
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
-        
+
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender is CustomListParameters || sender is CustomListParameter || sender is CustomRandomParameters || sender is CustomRandomParameter
                 || sender is NumericParameters || sender is NumericParameter || sender is TextParameters || sender is TextParameter) {
@@ -86,7 +86,7 @@ namespace vApus.Stresstest {
                 SetCodeStyle();
             }
         }
-        
+
         internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
             LockWindowUpdate(this.Handle.ToInt32());
@@ -289,7 +289,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone()); }
+        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone(_log.LogRuleSet)); }
 
         private void SetPicDelay() {
             if (UserActionTreeViewItem.UserAction.UseDelay) {
@@ -322,7 +322,7 @@ namespace vApus.Stresstest {
             UserActionTreeViewItem.UserAction.Split();
             if (SplitClicked != null) SplitClicked(this, null);
         }
-       
+
         private void SetLinked() {
             var userAction = UserActionTreeViewItem.UserAction;
 
@@ -432,7 +432,7 @@ namespace vApus.Stresstest {
             SetParameters();
             SetCodeStyle();
         }
-    
+
         private void SetLogEntries(bool fillEditView = true) {
             dgvLogEntries.CellValuePushed -= dgvLogEntries_CellValuePushed;
             _cache = new DataTable("Cache");

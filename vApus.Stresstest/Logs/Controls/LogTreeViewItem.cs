@@ -81,7 +81,9 @@ namespace vApus.Stresstest {
         }
 
         private void _log_LexicalResultChanged(object sender, Log.LexicalResultsChangedEventArgs e) {
-            picValid.Image = _log.LexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                picValid.Image = _log.LexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
+            }, null);
         }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;

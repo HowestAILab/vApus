@@ -6,11 +6,13 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Packaging;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -28,6 +30,7 @@ namespace vApus.Stresstest {
 
         /// <summary>
         ///     This event is used in a control, this makes sure that trying to serialize the control where this event is used will not happen.
+        ///     This is asynchronously invoked, invoke to the gui where needed.
         /// </summary>
         [field: NonSerialized] //This makes sure that trying to serialize the control where this event is used will not happen.
         internal event EventHandler<LexicalResultsChangedEventArgs> LexicalResultChanged;
@@ -170,15 +173,21 @@ namespace vApus.Stresstest {
         ///     Threadsafe.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<LogEntry> GetAllLogEntries() {
+        public LogEntry[] GetAllLogEntries() {
             lock (_lock) {
-                foreach (BaseItem item in this) {
-                    if (item is LogEntry)
-                        yield return (item as LogEntry);
-                    else
+                int count = 0, index = 0;
+                foreach (BaseItem item in this)
+                    if (item is UserAction)
+                        count += item.Count;
+
+                var arr = new LogEntry[count];
+
+                foreach (BaseItem item in this)
+                    if (item is UserAction)
                         foreach (LogEntry childItem in item)
-                            yield return childItem;
-                }
+                            arr[index++] = childItem;
+
+                return arr;
             }
         }
 
@@ -239,17 +248,22 @@ namespace vApus.Stresstest {
         ///     The lexed log entry will be filled in for the log entries.
         /// </summary>
         public void ApplyLogRuleSet() {
-            _lexicalResult = LexicalResult.OK;
             var logEntriesWithErrors = new List<LogEntry>();
-            foreach (LogEntry logEntry in GetAllLogEntries()) {
-                logEntry.ApplyLogRuleSet();
-                if (logEntry.LexicalResult == LexicalResult.Error) {
-                    _lexicalResult = LexicalResult.Error;
-                    logEntriesWithErrors.Add(logEntry);
+            foreach(var logEntry in GetAllLogEntries()) {
+                try {
+                    logEntry.ApplyLogRuleSet(_logRuleSet);
+                    if (logEntry.LexicalResult == LexicalResult.Error)
+                        logEntriesWithErrors.Add(logEntry);
+                } catch (Exception ex) {
+                    LogWrapper.LogByLevel(ex, LogLevel.Error);
                 }
             }
 
-            if (LexicalResultChanged != null) LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrors));
+            _lexicalResult = (logEntriesWithErrors.Count == 0) ? LexicalResult.OK : LexicalResult.Error;
+
+            var logEntriesWithErrorsArr = logEntriesWithErrors.ToArray();
+            if (LexicalResultChanged != null) 
+                LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrorsArr));
         }
         /// <summary>
         /// </summary>
@@ -349,9 +363,7 @@ namespace vApus.Stresstest {
             if (cloneChildren)
                 foreach (BaseItem item in this)
                     if (item is UserAction)
-                        log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
-                    else
-                        log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
+                        log.AddWithoutInvokingEvent((item as UserAction).Clone(_logRuleSet), false);
 
             return log;
         }
@@ -360,8 +372,8 @@ namespace vApus.Stresstest {
         #endregion
 
         public class LexicalResultsChangedEventArgs : EventArgs {
-            public List<LogEntry> LogEntriesWithErrors { get; private set; }
-            public LexicalResultsChangedEventArgs(List<LogEntry> logEntriesWithErrors) {
+            public LogEntry[] LogEntriesWithErrors { get; private set; }
+            public LexicalResultsChangedEventArgs(LogEntry[] logEntriesWithErrors) {
                 LogEntriesWithErrors = logEntriesWithErrors;
             }
         }

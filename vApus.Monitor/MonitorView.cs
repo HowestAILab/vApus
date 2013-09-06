@@ -222,9 +222,12 @@ namespace vApus.Monitor {
                 LogWrapper.LogByLevel(
                     Text + ": A counter became unavailable while monitoring:\n" + e.GetException(), LogLevel.Warning);
 
-                if (_forStresstest && OnHandledException != null)
-                    foreach (EventHandler<ErrorEventArgs> del in OnHandledException.GetInvocationList())
-                        del.BeginInvoke(this, e, null, null);
+                if (_forStresstest && OnHandledException != null) {
+                    var invocationList = OnHandledException.GetInvocationList();
+                    Parallel.For(0, invocationList.Length, (i) => {
+                        (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
+                    });
+                }
             }, null);
         }
 
@@ -235,9 +238,13 @@ namespace vApus.Monitor {
                     Text + ": An error has occured while monitoring, monitor stopped!\n" + e.GetException(),
                     LogLevel.Error);
 
-                if (_forStresstest && OnUnhandledException != null)
-                    foreach (EventHandler<ErrorEventArgs> del in OnUnhandledException.GetInvocationList())
-                        del.BeginInvoke(this, e, null, null);
+                if (_forStresstest && OnUnhandledException != null) {
+                    var invocationList = OnHandledException.GetInvocationList();
+                    Parallel.For(0, invocationList.Length, (i) => {
+                        (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
+                    });
+
+                }
             }, null);
         }
 
@@ -1214,8 +1221,10 @@ namespace vApus.Monitor {
                 if (_forStresstest)
                     if (OnUnhandledException != null) {
                         var e = new Exception(message);
-                        foreach (EventHandler<ErrorEventArgs> del in OnUnhandledException.GetInvocationList())
-                            del.BeginInvoke(this, new ErrorEventArgs(e), null, null);
+                        var invocationList = OnHandledException.GetInvocationList();
+                        Parallel.For(0, invocationList.Length, (i) => {
+                            (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, new ErrorEventArgs(e));
+                        });
                     } else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }

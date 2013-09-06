@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Resources;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -205,18 +206,29 @@ namespace vApus.SolutionTree {
         ///     Checks if the parent has become null.
         ///     That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
         /// </summary>
-        protected void ObjectExtension_ParentChanged(ObjectExtension.ParentOrTagChangedEventArgs parentOrTagChangedEventArgs) {
+        protected void ObjectExtension_ParentChanged(ObjectExtension.ParentChangedEventArgs parentOrTagChangedEventArgs) {
             if (Solution.ActiveSolution != null)
                 if (object.ReferenceEquals(parentOrTagChangedEventArgs.Child, this))
-                    if (parentOrTagChangedEventArgs.New == null && ParentIsNull != null)
-                        foreach (EventHandler del in ParentIsNull.GetInvocationList())
-                            del.BeginInvoke(this, null, null, null);
+                    if (parentOrTagChangedEventArgs.New == null && ParentIsNull != null) {
+                        var invocationList = ParentIsNull.GetInvocationList();
+                        Parallel.For(0, invocationList.Length, (i) => {
+                            (invocationList[i] as EventHandler).Invoke(this, null);
+                        });
+                    }
         }
 
         public void AddWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true) {
             _items.Add(item);
             item.SetParent(this, invokeParentChanged);
             item.ForceSettingChildsParent();
+        }
+
+        /// <summary>
+        /// Most basic add, do this for building fast temp structures.
+        /// </summary>
+        /// <param name="item"></param>
+        public void AddWithoutInvokingEventDoNotSetParent(BaseItem item) {
+            _items.Add(item);
         }
 
         /// <summary>

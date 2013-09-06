@@ -175,9 +175,12 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="message"></param>
         private void WriteThreadWorkException(string message) {
-            if (ThreadWorkException != null)
-                foreach (EventHandler<MessageEventArgs> del in ThreadWorkException.GetInvocationList())
-                    del.BeginInvoke(this, new MessageEventArgs(message, Color.Empty, LogLevel.Error), null, null);
+            if (ThreadWorkException != null) {
+                var invocationList = ThreadWorkException.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => {
+                    (invocationList[i] as EventHandler<MessageEventArgs>).Invoke(this, new MessageEventArgs(message, Color.Empty, LogLevel.Error));
+                });
+            }
         }
 
         public void Dispose() { Dispose(0); }

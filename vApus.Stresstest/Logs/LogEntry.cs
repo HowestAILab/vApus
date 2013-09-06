@@ -22,6 +22,8 @@ namespace vApus.Stresstest {
         private static readonly char[] _beginParameterTokenDelimiterCanditates = new[] { '{', '<', '[', '(', '\\', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
         private static readonly char[] _endParameterTokenDelimiterCanditates = new[] { '}', '>', ']', ')', '/', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
 
+        private readonly object _lock = new object();
+
         private bool _executeInParallelWithPrevious; //For a special not yet used feature.
 
         private bool _useDelay = false;
@@ -63,21 +65,6 @@ namespace vApus.Stresstest {
         /// </summary>
         public ASTNode LexedLogEntry {
             get { return _lexedLogEntry; }
-        }
-
-        public LogRuleSet LogRuleSet {
-            get {
-                SolutionComponent parent = Parent;
-                if (parent == null)
-                    return null;
-                while (!(parent is Log)) {
-                    if (parent == null)
-                        return null;
-
-                    parent = (parent as BaseItem).Parent;
-                }
-                return (parent as Log).LogRuleSet;
-            }
         }
 
         [ReadOnly(true)]
@@ -130,7 +117,6 @@ namespace vApus.Stresstest {
                     _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 } catch {
                 }
-
             Solution.ActiveSolutionChanged += StaticSolution_ActiveSolutionChanged;
 
         }
@@ -139,8 +125,8 @@ namespace vApus.Stresstest {
         /// </summary>
         public LogEntry() {
             ShowInGui = false;
-                _parameters = _staticParameters;
-                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+            _parameters = _staticParameters;
+            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
         /// <summary>
         /// Contains a captured request to a server app.
@@ -164,14 +150,11 @@ namespace vApus.Stresstest {
         ///     This will apply the ruleset (lexing).
         ///     The lexed log entry will be filled in.
         /// </summary>
-        public void ApplyLogRuleSet() {
+        public void ApplyLogRuleSet(LogRuleSet logRuleSet) {
             //For cleaning old solutions
-            ClearWithoutInvokingEvent();
+            //ClearWithoutInvokingEvent();
 
-            if (LogRuleSet == null)
-                _lexicalResult = LexicalResult.Error;
-            else
-                _lexicalResult = LogRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
+            _lexicalResult = (logRuleSet == null) ? LexicalResult.Error : logRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
         }
 
         /// <summary>
@@ -250,13 +233,13 @@ namespace vApus.Stresstest {
         /// Clones and applies the log rule set.
         /// </summary>
         /// <returns></returns>
-        public LogEntry Clone() {
+        public LogEntry Clone(LogRuleSet logRuleSet) {
             LogEntry logEntry = new LogEntry();
             logEntry.SetParent(Parent, false);
             logEntry.LogEntryString = _logEntryString;
             logEntry._parameters = _parameters;
 
-            logEntry.ApplyLogRuleSet();
+            logEntry.ApplyLogRuleSet(logRuleSet);
 
             return logEntry;
         }

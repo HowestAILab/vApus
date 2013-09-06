@@ -6,9 +6,15 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     /// <summary>
@@ -28,6 +34,8 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Fields
+        private readonly object _lock = new object();
+
         //Primary and secundary color for readability.
         private static Color _selectBackColor = Color.FromArgb(255, 240, 240, 240), _primaryBackColor = Color.FromArgb(255, 250, 250, 250), _secundaryBackColor = Color.FromArgb(255, 255, 255, 255);
 
@@ -73,13 +81,18 @@ namespace vApus.Stresstest {
         private void SetPicValid() {
             var lexicalResult = LexicalResult.OK;
 
-            foreach (LogEntry logEntry in UserAction)
-                if (logEntry.LexicalResult == LexicalResult.Error) {
-                    lexicalResult = LexicalResult.Error;
-                    break;
-                }
+            //For a big log it is best that we do this in parallel.
+            Parallel.ForEach(UserAction as ICollection<BaseItem>, (logEntry, loopState) => {
+                if ((logEntry as LogEntry).LexicalResult == LexicalResult.Error)
+                    lock (_lock) {
+                        lexicalResult = LexicalResult.Error;
+                        loopState.Break();
+                    }
+            });
 
-            picValid.Image = lexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                picValid.Image = lexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
+            }, null);
         }
 
         public void Unfocus() {
@@ -134,7 +147,7 @@ namespace vApus.Stresstest {
         private void _MouseLeave(object sender, EventArgs e) { SetVisibleControls(); }
 
         private void picDuplicate_Click(object sender, EventArgs e) {
-            var ua = UserAction.Clone();
+            var ua = UserAction.Clone(_log.LogRuleSet);
             int index = UserAction.Index;
 
             if (index < _log.Count) _log.InsertWithoutInvokingEvent(index, ua); else _log.AddWithoutInvokingEvent(ua);
