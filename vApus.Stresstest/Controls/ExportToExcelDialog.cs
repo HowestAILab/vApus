@@ -46,34 +46,6 @@ namespace vApus.Stresstest {
 
         #region Funtions
         private void FillColorPalette() {
-            //_colorPalette.Add(Color.FromArgb(178, 247, 178));
-            //_colorPalette.Add(Color.FromArgb(178, 178, 247));
-            //_colorPalette.Add(Color.FromArgb(247, 179, 179));
-            //_colorPalette.Add(Color.FromArgb(079, 155, 122));
-            //_colorPalette.Add(Color.FromArgb(252, 102, 102));
-            //_colorPalette.Add(Color.FromArgb(078, 105, 162));
-            //_colorPalette.Add(Color.FromArgb(204, 212, 217));
-            //_colorPalette.Add(Color.FromArgb(048, 093, 123));
-            //_colorPalette.Add(Color.FromArgb(238, 238, 238));
-            //_colorPalette.Add(Color.FromArgb(255, 163, 102));
-
-            //_colorPalette.Add(Color.FromArgb(255, 102, 000));
-            //_colorPalette.Add(Color.FromArgb(152, 218, 211));
-            //_colorPalette.Add(Color.FromArgb(074, 121, 181));
-            //_colorPalette.Add(Color.FromArgb(227, 026, 028));
-            //_colorPalette.Add(Color.FromArgb(059, 089, 152));
-            //_colorPalette.Add(Color.FromArgb(230, 230, 230));
-            //_colorPalette.Add(Color.FromArgb(226, 051, 081));
-            //_colorPalette.Add(Color.FromArgb(242, 184, 068));
-            //_colorPalette.Add(Color.FromArgb(139, 157, 195));
-            //_colorPalette.Add(Color.FromArgb(234, 118, 075));
-
-            //_colorPalette.Add(Color.FromArgb(229, 223, 204));
-            //_colorPalette.Add(Color.FromArgb(083, 193, 192));
-            //_colorPalette.Add(Color.FromArgb(148, 170, 161));
-            //_colorPalette.Add(Color.FromArgb(083, 193, 192));
-            //_colorPalette.Add(Color.FromArgb(139, 173, 083));
-
             _colorPalette.Add(Color.FromArgb(50, 85, 126));
             _colorPalette.Add(Color.FromArgb(128, 51, 49));
             _colorPalette.Add(Color.FromArgb(103, 125, 57));
@@ -331,8 +303,8 @@ namespace vApus.Stresstest {
                     }
                 }
                 while (responseTimes.Count > 5) {
-                    responseTimes.RemoveAt(4);
-                    sortedColumns.RemoveAt(4);
+                    responseTimes.RemoveAt(5);
+                    sortedColumns.RemoveAt(5);
                 }
                 if (dt.Columns.Count > 1) sortedColumns.Insert(0, 1);
 
