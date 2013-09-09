@@ -236,6 +236,7 @@ namespace vApus.DistributedTesting {
 
                     tpm.StresstestMetricsCache = stresstestMetricsCache;
                     tpm.Events = events;
+
                     tpm.StresstestStatus = stresstestStatus;
                     tpm.StartedAt = startedAt;
                     tpm.MeasuredRuntime = measuredRuntime;

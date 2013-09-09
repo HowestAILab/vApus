@@ -34,6 +34,7 @@ namespace vApus.DetailedResultsViewer {
 
         private DataTable _dataSource = null;
         private DataRow _currentRow = null; //RowEnter happens multiple times for some strange reason, use this to not execute the refresh code when not needed.
+        private System.Timers.Timer _rowEnterTimer = new System.Timers.Timer(1000);
 
         public ResultsHelper ResultsHelper {
             get { return _resultsHelper; }
@@ -44,10 +45,23 @@ namespace vApus.DetailedResultsViewer {
         /// </summary>
         public SettingsPanel() {
             InitializeComponent();
+            _rowEnterTimer.Elapsed += _rowEnterTimer_Elapsed;
             RefreshDatabases(true);
             _initing = false;
         }
-        ~SettingsPanel() { try { _waitHandle.Dispose(); } catch { } }
+
+        ~SettingsPanel() {
+            try {
+                _waitHandle.Dispose();
+                if (_rowEnterTimer != null) {
+                    try {
+                        _rowEnterTimer.Stop();
+                        _rowEnterTimer.Dispose();
+                    } catch { }
+                }
+                _rowEnterTimer = null;
+            } catch { }
+        }
 
         private void lblConnectToMySQL_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             string connectionString = _mySQLServerDialog.ConnectionString;
@@ -161,28 +175,49 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void dgvDatabases_RowEnter(object sender, DataGridViewCellEventArgs e) {
-            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] != _currentRow) {
-                if (CancelGettingResults != null) CancelGettingResults(this, null);
+            if (_rowEnterTimer != null) {
+                _rowEnterTimer.Stop();
+                _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
+                _rowEnterTimer.SetTag(e);
+                _rowEnterTimer.Elapsed += _rowEnterTimer_Elapsed;
+                _rowEnterTimer.Start();
+            }
+        }
+        private void _rowEnterTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            if (_rowEnterTimer != null) {
+                _rowEnterTimer.Stop();
+                _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
+                try {
+                    dgvDatabases_RowEnterDelayed(_rowEnterTimer.GetTag() as DataGridViewCellEventArgs);
+                } catch { }
+            }
+        }
 
-                Thread.Sleep(1000);
+        private void dgvDatabases_RowEnterDelayed(DataGridViewCellEventArgs e) {
+            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] != _currentRow)
+                SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
+                    if (CancelGettingResults != null) CancelGettingResults(this, null);
+                }, null);
 
-                _resultsHelper.KillConnection();
+            _resultsHelper.KillConnection();
 
-                _currentRow = _dataSource.Rows[e.RowIndex];
-                string databaseName = _currentRow[3] as string;
+            _currentRow = _dataSource.Rows[e.RowIndex];
+            string databaseName = _currentRow[3] as string;
 
-                string user, host, password;
-                int port;
-                _mySQLServerDialog.GetCurrentConnectionString(out user, out host, out port, out password);
-                _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
+            string user, host, password;
+            int port;
+            _mySQLServerDialog.GetCurrentConnectionString(out user, out host, out port, out password);
+            _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
 
+            var stresstests = _resultsHelper.GetStresstests();
+
+            SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
                 //Fill the stresstest cbo
                 cboStresstest.SelectedIndexChanged -= cboStresstest_SelectedIndexChanged;
                 cboStresstest.Items.Clear();
-                var stresstests = _resultsHelper.GetStresstests();
+
                 if (stresstests == null || stresstests.Rows.Count == 0) {
                     if (MessageBox.Show("The selected database appears to be invalid.\nClick 'Yes' to delete it. This is irreversible!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-
                         ThreadPool.QueueUserWorkItem((x) => {
                             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                                 _resultsHelper.DeleteResults();
@@ -202,7 +237,7 @@ namespace vApus.DetailedResultsViewer {
                 }
 
                 cboStresstest.SelectedIndexChanged += cboStresstest_SelectedIndexChanged;
-            }
+            }, null);
         }
         private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
             if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, cboStresstest.SelectedIndex));

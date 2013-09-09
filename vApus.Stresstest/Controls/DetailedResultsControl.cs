@@ -52,7 +52,7 @@ namespace vApus.Stresstest {
             chkAdvanced.Checked = false;
             cboShow.SelectedIndex = 0;
 
-            _tmrSizeColumns.Elapsed += _tmr_Elapsed;
+            _tmrSizeColumns.Elapsed += _tmrSizeColumns_Elapsed;
 
             this.VisibleChanged += DetailedResultsControl_VisibleChanged;
         }
@@ -64,11 +64,11 @@ namespace vApus.Stresstest {
 
         private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
-            dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            if (dgvDetailedResults.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             SizeColumns();
         }
 
-        private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { if (lbtnDescription.Active) SetConfig(_resultsHelper.GetDescription()); }
+        private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { if (lbtnDescription.Active) SetConfig(_resultsHelper.GetDescription().Replace('\r', ' ').Replace('\n', ' ')); }
         private void lbtnTags_ActiveChanged(object sender, EventArgs e) { if (lbtnTags.Active)  SetConfig(_resultsHelper.GetTags()); }
         private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) { if (lbtnvApusInstance.Active)  SetConfig(_resultsHelper.GetvApusInstances()); }
         private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) { if (lbtnStresstest.Active)  SetConfig(_resultsHelper.GetStresstestConfigurations()); }
@@ -123,7 +123,7 @@ namespace vApus.Stresstest {
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 dgvDetailedResults.DataSource = null;
-                dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 
                 flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
                 lblLoading.Visible = true;
@@ -149,6 +149,7 @@ namespace vApus.Stresstest {
                                 LogWrapper.LogByLevel("Failed loading detailed results.\n" + exception.Message + "\n" + exception.StackTrace, LogLevel.Error);
                             } catch { }
                     } else {
+                        if (dt.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                         dgvDetailedResults.DataSource = dt;
                     }
                 }
@@ -179,12 +180,12 @@ namespace vApus.Stresstest {
             return null;
         }
         private void SizeColumns() {
-            if (_tmrSizeColumns != null) {
+            if (_tmrSizeColumns != null && dgvDetailedResults.Columns.Count < 100) {
                 _tmrSizeColumns.Stop();
                 _tmrSizeColumns.Start();
             }
         }
-        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+        private void _tmrSizeColumns_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
             lock (_lock) {
                 _tmrSizeColumns.Stop();
                 SynchronizationContextWrapper.SynchronizationContext.Send((x) => {

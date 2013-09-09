@@ -50,7 +50,7 @@ namespace vApus.Stresstest {
         /// <param name="parameters">Can be null.</param>
         /// <param name="output"></param>
         /// <returns></returns>
-        public LexicalResult TryLexicalAnalysis(string input, Parameters parameters, out ASTNode output) {
+        internal LexicalResult TryLexicalAnalysis(string input, Parameters parameters, out ASTNode output) {
             output = new ASTNode(this, _childDelimiter, parameters);
             if (input.Length == 0) {
                 output.Error = "No input has been provided!";
@@ -72,7 +72,7 @@ namespace vApus.Stresstest {
                             return lexicalResult;
                         }
                     }
-                    output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                    output.Add(syntaxItemOutput);
                 }
             } else {
                 string[] splitInput = input.Split(new[] { _childDelimiter }, StringSplitOptions.None);
@@ -83,7 +83,7 @@ namespace vApus.Stresstest {
                     for (int i = 0; i < splitInput.Length; i++) {
                         ASTNode syntaxItemOutput = null;
                         syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
-                        output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                        output.Add(syntaxItemOutput);
                     }
                 } else {
                     int syntaxItemIndex = 0, loops = 0;
@@ -116,11 +116,11 @@ namespace vApus.Stresstest {
                                 loops = i;
                                 continue;
                             } else {
-                                output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                                output.Add(syntaxItemOutput);
                                 output.Error = syntaxItemOutput.Error;
                                 return lexicalResult;
                             } else
-                            output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                            output.Add(syntaxItemOutput);
 
                         //Apply the syntax item validation times the occurancy.
                         if (syntaxItem.Occurance > 0 && occuranceCheck == 0)

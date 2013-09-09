@@ -663,6 +663,8 @@ namespace vApus.DistributedTesting {
                                             try { waitHandle.Set(); } catch {
                                             }
                                     } catch {
+                                    } finally {
+                                        _stopTestWorkItem = null;
                                     }
                                 });
                                 t.IsBackground = true;

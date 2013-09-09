@@ -146,7 +146,7 @@ namespace vApus.Stresstest {
                             var syntaxItem = this[i] as SyntaxItem;
                             ASTNode syntaxItemOutput = null;
                             LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters, out syntaxItemOutput);
-                            output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                            output.Add(syntaxItemOutput);
                             if (lexicalResult != LexicalResult.OK) {
                                 output.Value = input;
                                 output.Error = syntaxItemOutput.Error;
@@ -166,7 +166,7 @@ namespace vApus.Stresstest {
                         }
                         output.Error = "The input does not comply to one of the rules.";
                         foreach (ASTNode ruleoutput in ruleOutputs)
-                            output.AddWithoutInvokingEventDoNotSetParent(ruleoutput);
+                            output.Add(ruleoutput);
                         return LexicalResult.Error;
                     }
                 }
@@ -183,7 +183,7 @@ namespace vApus.Stresstest {
                     for (int i = 0; i < splitInput.Length; i++) {
                         ASTNode syntaxItemOutput = null;
                         syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
-                        output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                        output.Add(syntaxItemOutput);
                     }
                 } else {
                     if (this[0] is Rule) {
@@ -193,7 +193,7 @@ namespace vApus.Stresstest {
                                 ASTNode ruleOutput = null;
                                 LexicalResult lexicalResult = rule.TryLexicalAnaysis(splitInput[i], parameters, out ruleOutput);
                                 if (lexicalResult == LexicalResult.OK) {
-                                    output.AddWithoutInvokingEventDoNotSetParent(ruleOutput);
+                                    output.Add(ruleOutput);
                                     break;
                                 }
                             }
@@ -212,12 +212,10 @@ namespace vApus.Stresstest {
                                 if (i < splitInput.Length && output.Count > 0) {
                                     var last = output[output.Count - 1] as ASTNode;
                                     for (int k = i; k < splitInput.Length; k++)
-                                        last.Value = string.Format("{0}{1}{2}", last.Value, _childDelimiter,
-                                                                   splitInput[k]);
+                                        last.Value = string.Format("{0}{1}{2}", last.Value, _childDelimiter, splitInput[k]);
                                     break;
                                 } else {
-                                    output.Error =
-                                        "The input string could not be handled correctly due to not enough provided or right configured child syntax items.";
+                                    output.Error = "The input string could not be handled correctly due to not enough provided or right configured child syntax items.";
                                     return LexicalResult.Error;
                                 }
                             }
@@ -234,11 +232,11 @@ namespace vApus.Stresstest {
                                     loops = i;
                                     continue;
                                 } else {
-                                    output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                                    output.Add(syntaxItemOutput);
                                     output.Error = syntaxItemOutput.Error;
                                     return lexicalResult;
                                 } else
-                                output.AddWithoutInvokingEventDoNotSetParent(syntaxItemOutput);
+                                output.Add(syntaxItemOutput);
 
                             //Apply the syntax item validation times the occurancy.
                             if (syntaxItem.Occurance > 0 && occuranceCheck == 0)

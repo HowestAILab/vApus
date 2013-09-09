@@ -63,9 +63,7 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Is valid after calling ApplyLogRuleSet.
         /// </summary>
-        public ASTNode LexedLogEntry {
-            get { return _lexedLogEntry; }
-        }
+        internal ASTNode LexedLogEntry { get { return _lexedLogEntry; } }
 
         [ReadOnly(true)]
         [Description("When true the determined delay (stresstest properties) will take place after this log entry."), DisplayName("Ignore Delay")]

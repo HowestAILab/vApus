@@ -221,8 +221,7 @@ namespace vApus.SolutionTree {
                 if (childNode.Name == "Items")
                     foreach (XmlNode elementNode in childNode.ChildNodes) {
                         try {
-                            var item =
-                                Activator.CreateInstance(GetType().Assembly.GetTypeByName(elementNode.Name)) as BaseItem;
+                            var item = Activator.CreateInstance(GetType().Assembly.GetTypeByName(elementNode.Name)) as BaseItem;
                             string childErrorMessage;
                             item.LoadFromXml(elementNode, out childErrorMessage);
                             sb.Append(childErrorMessage);
@@ -239,9 +238,7 @@ namespace vApus.SolutionTree {
                         }
                     } else
                     foreach (
-                        PropertyInfo info in
-                            GetType()
-                                .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                        PropertyInfo info in GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                         if (info.Name == childNode.Name) {
                             try {
                                 bool branchedIndexType = false;
@@ -265,11 +262,8 @@ namespace vApus.SolutionTree {
                                         string innerText = childNode.InnerText;
                                         if (encrypted)
                                             innerText = innerText.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
-                                                                          new byte[]
-                                                                              {
-                                                                                  0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65,
-                                                                                  0x64, 0x76, 0x65, 0x64, 0x65, 0x76
-                                                                              });
+                                                                          new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65,
+                                                                                  0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 
                                         if (info.PropertyType.BaseType == typeof(Enum)) {
                                             info.SetValue(this, Enum.Parse(info.PropertyType, innerText), null);
@@ -289,11 +283,8 @@ namespace vApus.SolutionTree {
                                                 string value = s;
                                                 if (encrypted)
                                                     value = value.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
-                                                                          new byte[]
-                                                                              {
-                                                                                  0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65,
-                                                                                  0x64, 0x76, 0x65, 0x64, 0x65, 0x76
-                                                                              });
+                                                                          new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65,
+                                                                                  0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 
                                                 arrayList.Add(Enum.Parse(elementType, value));
                                             } else
@@ -301,11 +292,8 @@ namespace vApus.SolutionTree {
                                                 string value = s;
                                                 if (encrypted)
                                                     value = value.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
-                                                                          new byte[]
-                                                                              {
-                                                                                  0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65,
-                                                                                  0x64, 0x76, 0x65, 0x64, 0x65, 0x76
-                                                                              });
+                                                                          new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65,
+                                                                                  0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 
                                                 try {
                                                     object o = Convert.ChangeType(value, elementType);

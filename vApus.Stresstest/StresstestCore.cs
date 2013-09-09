@@ -348,7 +348,7 @@ namespace vApus.Stresstest {
             InvokeMessage("Initialize Connection Proxy Pool...");
             _sw.Start();
             _connectionProxyPool = new ConnectionProxyPool(_stresstest.Connection);
-            CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(true, false);
+            CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(false);
             if (compilerResults.Errors.HasErrors) {
                 var sb = new StringBuilder("Failed at compiling the connection proxy class:");
                 sb.AppendLine();
@@ -377,7 +377,6 @@ namespace vApus.Stresstest {
             _sw.Reset();
         }
 
-        private readonly object _lock = new object();
         //Following init functions happen right before a run starts (ExecuteStresstest).
         private void DetermineTestableLogEntriessAndDelays(int concurrentUsers) {
             try {
@@ -766,7 +765,7 @@ namespace vApus.Stresstest {
             DisposeThreadPool();
             _connectionProxyPool.Dispose();
 
-            if (_cancel) {
+            if (_cancel) {                
                 _resultsHelper.SetStresstestStopped(_stresstestResult, "Cancelled");
                 return StresstestStatus.Cancelled;
             }

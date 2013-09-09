@@ -499,6 +499,10 @@ namespace vApus.DistributedTesting {
             if (!_finishedHandled) {
                 _finishedHandled = true;
 
+                MasterSideCommunicationHandler.ListeningError -= _masterCommunication_ListeningError;
+                MasterSideCommunicationHandler.TestInitialized -= MasterSideCommunicationHandler_TestInitialized;
+                MasterSideCommunicationHandler.OnTestProgressMessageReceived -= _masterCommunication_OnTestProgressMessageReceived;
+
                 ObjectRegistrar.Unregister(this);
                 InvokeOnFinished();
             }
