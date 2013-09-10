@@ -5,12 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using FastColoredTextBoxNS;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using FastColoredTextBoxNS;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -38,8 +38,8 @@ namespace vApus.Stresstest {
             InitializeComponent();
         }
 
-        public ConnectionProxyCodeView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        public ConnectionProxyCodeView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
 
             _connectionProxyCode = solutionComponent as ConnectionProxyCode;
@@ -91,7 +91,7 @@ namespace vApus.Stresstest {
 
         #region Tools
 
-        private void find_FoundButtonClicked(object sender, FindAndReplace.FoundReplacedButtonClickedEventArgs e) {
+        private void find_FoundButtonClicked(object sender, FindAndReplacePanel.FoundReplacedButtonClickedEventArgs e) {
             codeTextBox.ClearSelection();
             codeTextBox.SelectLine(e.LineNumber);
         }
@@ -100,7 +100,7 @@ namespace vApus.Stresstest {
             tcTools.SelectedIndex = 2;
         }
 
-        private void compile_CompileErrorButtonClicked(object sender, Compile.CompileErrorButtonClickedEventArgs e) {
+        private void compile_CompileErrorButtonClicked(object sender, CompilePanel.CompileErrorButtonClickedEventArgs e) {
             codeTextBox.ClearSelection();
             codeTextBox.SelectLine(e.LineNumber);
         }

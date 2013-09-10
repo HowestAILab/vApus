@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -19,12 +18,19 @@ using vApus.JumpStartStructures;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Starts, kills and smart updates vApus slaves.
+    /// </summary>
     public static class JumpStart {
-        private static readonly object _lock = new object();
-        [ThreadStatic]
-        private static WorkItem _workItem;
         public static event EventHandler<DoneEventArgs> Done;
 
+        #region Fields
+        [ThreadStatic]
+        private static WorkItem _workItem;
+        private static readonly object _lock = new object();
+        #endregion
+
+        #region Functions
         /// <summary>
         /// The update notifier must be refreshed before calling this.
         /// Use await keyword when calling this.
@@ -60,7 +66,7 @@ namespace vApus.DistributedTesting {
                         foreach (string ip in ips) {
                             var t = new Thread(delegate(object state) {
                                 _workItem = new WorkItem();
-                                _workItem.DoSmartUpdate(state as string, version, host, username, password, port, channel);
+                                exs.Add(_workItem.DoSmartUpdate(state as string, version, host, username, password, port, channel));
 
                                 if (Interlocked.Increment(ref i) == count) waithandle.Set();
                             });
@@ -93,7 +99,6 @@ namespace vApus.DistributedTesting {
 
             Do(slaves);
         }
-
         private static void Do(List<Slave> slaves) {
             Hashtable toKill = RegisterForKill(slaves);
 
@@ -116,7 +121,6 @@ namespace vApus.DistributedTesting {
                 toJumpStart.Add(ip, kvp);
             }
         }
-
         private static string GetZeroBasedPA(int[] processorAffinity) {
             var pa = new int[processorAffinity.Length];
             for (int i = 0; i != pa.Length; i++) pa[i] = processorAffinity[i] - 1;
@@ -130,7 +134,6 @@ namespace vApus.DistributedTesting {
 
             return toKill;
         }
-
         /// <summary>
         /// </summary>
         /// <param name="ip"></param>
@@ -169,25 +172,19 @@ namespace vApus.DistributedTesting {
         /// </summary>
         private static void Do(Hashtable toKill, Hashtable toJumpStart) {
             var worker = new Thread(delegate() {
-                DoKill(toKill);
-                Exception[] exceptions = DoJumpStart(toJumpStart);
+                Do(toKill, false);
+                Exception[] exceptions = Do(toJumpStart, true);
 
-                if (Done != null)
-                    foreach (EventHandler<DoneEventArgs> del in Done.GetInvocationList())
-                        del.BeginInvoke(null, new DoneEventArgs(exceptions), null, null);
+                if (Done != null) {
+                    var invocationList = Done.GetInvocationList();
+                    Parallel.For(0, invocationList.Length, (i) => {
+                        (invocationList[i] as EventHandler<DoneEventArgs>).Invoke(null, new DoneEventArgs(exceptions));
+                    });
+                }
             });
             worker.IsBackground = true;
             worker.Start();
         }
-
-        private static void DoKill(Hashtable toKill) {
-            Do(toKill, false);
-        }
-
-        private static Exception[] DoJumpStart(Hashtable toJumpStart) {
-            return Do(toJumpStart, true);
-        }
-
         /// <summary>
         ///     Error handling happens afterwards.
         /// </summary>
@@ -236,75 +233,17 @@ namespace vApus.DistributedTesting {
                 return l.ToArray();
             }
         }
+        #endregion
 
         public class DoneEventArgs : EventArgs {
             /// <summary>
             ///     One exception per slave.
             /// </summary>
             public readonly Exception[] Exceptions;
-
             public DoneEventArgs(Exception[] exceptions) { Exceptions = exceptions; }
         }
 
         private class WorkItem {
-            /// <summary>
-            ///     Error handling happens afterwards.
-            /// </summary>
-            /// <param name="ip"></param>
-            /// <param name="port"></param>
-            public Exception DoJumpStart(string ip, string port, string processorAffinity) {
-                Exception exception = null;
-                SocketWrapper socketWrapper = null;
-                try {
-                    socketWrapper = Connect(ip);
-                    if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
-
-                    var jumpStartMessage = new JumpStartMessage(port, processorAffinity);
-                    var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.JumpStart, jumpStartMessage);
-
-                    socketWrapper.Send(message, SendType.Binary);
-                    message = (Message<JumpStartStructures.Key>)socketWrapper.Receive(SendType.Binary);
-
-                    if (message.Content == null) throw new Exception("The vApus process won't start, take a look client side.");
-
-                    jumpStartMessage = (JumpStartMessage)message.Content;
-                } catch (Exception ex) {
-                    exception = new Exception("JumpStart failed for " + ip + ":" + port + "\n" + ex);
-                }
-
-                if (socketWrapper != null) {
-                    try {
-                        if (socketWrapper.Connected)
-                            socketWrapper.Close();
-                    } catch { }
-                    socketWrapper = null;
-                }
-
-                return exception;
-            }
-
-            /// <summary>
-            ///     Error handling happens afterwards.
-            /// </summary>
-            /// <param name="slaveProcessID">if -1 all will be killed</param>
-            public void DoKill(string ip, int excludeProcessID) {
-                SocketWrapper socketWrapper = null;
-                try {
-                    socketWrapper = Connect(ip);
-                    if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
-
-                    var killMessage = new KillMessage(excludeProcessID);
-                    var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.Kill, killMessage);
-
-                    socketWrapper.Send(message, SendType.Binary);
-                    message = (Message<JumpStartStructures.Key>)socketWrapper.Receive(SendType.Binary);
-                } catch { }
-
-                if (socketWrapper != null) {
-                    try { if (socketWrapper.Connected)  socketWrapper.Close(); } catch { }
-                    socketWrapper = null;
-                }
-            }
             /// <summary>
             /// Ip is the ip of the client, the rest are update credentials.
             /// </summary>
@@ -343,6 +282,65 @@ namespace vApus.DistributedTesting {
 
                 if (socketWrapper != null) {
                     try { if (socketWrapper.Connected)  socketWrapper.Close(); } catch { }
+                    socketWrapper = null;
+                }
+
+                return exception;
+            }
+
+            /// <summary>
+            ///     Error handling happens afterwards.
+            /// </summary>
+            /// <param name="slaveProcessID">if -1 all will be killed</param>
+            public void DoKill(string ip, int excludeProcessID) {
+                SocketWrapper socketWrapper = null;
+                try {
+                    socketWrapper = Connect(ip);
+                    if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
+
+                    var killMessage = new KillMessage(excludeProcessID);
+                    var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.Kill, killMessage);
+
+                    socketWrapper.Send(message, SendType.Binary);
+                    message = (Message<JumpStartStructures.Key>)socketWrapper.Receive(SendType.Binary);
+                } catch { }
+
+                if (socketWrapper != null) {
+                    try { if (socketWrapper.Connected)  socketWrapper.Close(); } catch { }
+                    socketWrapper = null;
+                }
+            }
+
+            /// <summary>
+            ///     Error handling happens afterwards.
+            /// </summary>
+            /// <param name="ip"></param>
+            /// <param name="port"></param>
+            public Exception DoJumpStart(string ip, string port, string processorAffinity) {
+                Exception exception = null;
+                SocketWrapper socketWrapper = null;
+                try {
+                    socketWrapper = Connect(ip);
+                    if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
+
+                    var jumpStartMessage = new JumpStartMessage(port, processorAffinity);
+                    var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.JumpStart, jumpStartMessage);
+
+                    socketWrapper.Send(message, SendType.Binary);
+                    message = (Message<JumpStartStructures.Key>)socketWrapper.Receive(SendType.Binary);
+
+                    if (message.Content == null) throw new Exception("The vApus process won't start, take a look client side.");
+
+                    jumpStartMessage = (JumpStartMessage)message.Content;
+                } catch (Exception ex) {
+                    exception = new Exception("JumpStart failed for " + ip + ":" + port + "\n" + ex);
+                }
+
+                if (socketWrapper != null) {
+                    try {
+                        if (socketWrapper.Connected)
+                            socketWrapper.Close();
+                    } catch { }
                     socketWrapper = null;
                 }
 

@@ -193,6 +193,7 @@
             this.testTreeView.Size = new System.Drawing.Size(294, 619);
             this.testTreeView.TabIndex = 0;
             this.testTreeView.AfterSelect += new System.EventHandler(this.testTreeView_AfterSelect);
+            this.testTreeView.TileStresstestTreeViewItemDoubleClicked += new System.EventHandler(this.testTreeView_TileStresstestTreeViewItemDoubleClicked);
             this.testTreeView.EventClicked += new System.EventHandler<vApus.Util.EventProgressChart.ProgressEventEventArgs>(this.testTreeView_ProgressEventClicked);
             // 
             // tpSlaves
@@ -214,6 +215,7 @@
             this.slaveTreeView.Size = new System.Drawing.Size(294, 619);
             this.slaveTreeView.TabIndex = 0;
             this.slaveTreeView.AfterSelect += new System.EventHandler(this.slaveTreeView_AfterSelect);
+            this.slaveTreeView.ClientTreeViewItemDoubleClicked += new System.EventHandler(this.slaveTreeView_ClientTreeViewItemDoubleClicked);
             // 
             // tcTest
             // 
@@ -283,7 +285,6 @@
             this.fastResultsControl.Location = new System.Drawing.Point(3, 3);
             this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
             this.fastResultsControl.Name = "fastResultsControl";
-            this.fastResultsControl.ResultsHelper = null;
             this.fastResultsControl.Size = new System.Drawing.Size(595, 622);
             this.fastResultsControl.TabIndex = 0;
             // 

@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataAccess\ReaderAndCombiner.cs" />
     <Compile Include="DataAccess\Schema.cs" />
     <Compile Include="DescriptionAndTagsInputDialog.cs">
       <SubType>Form</SubType>
@@ -68,13 +69,13 @@
     <Compile Include="DescriptionAndTagsInputDialog.Designer.cs">
       <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Metrics\Monitor\MonitorMetrics.cs" />
-    <Compile Include="Metrics\Monitor\MonitorMetricsCache.cs" />
-    <Compile Include="Metrics\Monitor\MonitorMetricsHelper.cs" />
-    <Compile Include="Metrics\Stresstest\StresstestMetrics.cs" />
-    <Compile Include="Metrics\Stresstest\StresstestMetricsCache.cs" />
-    <Compile Include="Metrics\Stresstest\StresstestMetricsHelper.cs" />
-    <Compile Include="Cache\Monitor\MonitorResultCache.cs" />
+    <Compile Include="Metrics\MonitorMetrics.cs" />
+    <Compile Include="Metrics\MonitorMetricsCache.cs" />
+    <Compile Include="Metrics\MonitorMetricsHelper.cs" />
+    <Compile Include="Metrics\StresstestMetrics.cs" />
+    <Compile Include="Metrics\StresstestMetricsCache.cs" />
+    <Compile Include="Metrics\StresstestMetricsHelper.cs" />
+    <Compile Include="Results\MonitorResult.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -87,13 +88,13 @@
     <Compile Include="SavingResultsPanel.Designer.cs">
       <DependentUpon>SavingResultsPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="SettingsManager.cs" />
-    <Compile Include="Cache\Stresstest\ConcurrencyResult.cs" />
-    <Compile Include="Cache\Stresstest\LogEntryResult.cs" />
-    <Compile Include="Cache\Stresstest\RunResult.cs" />
-    <Compile Include="Cache\Stresstest\StresstestResult.cs" />
+    <Compile Include="ConnectionStringManager.cs" />
+    <Compile Include="Results\ConcurrencyResult.cs" />
+    <Compile Include="Results\LogEntryResult.cs" />
+    <Compile Include="Results\RunResult.cs" />
+    <Compile Include="Results\StresstestResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Cache\Stresstest\VirtualUserResult.cs" />
+    <Compile Include="Results\VirtualUserResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">

@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -19,8 +18,8 @@ namespace vApus.JumpStart {
     ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
     /// </summary>
     public class SocketListener {
-        #region Fields
 
+        #region Fields
         public const int PORT = 1314;
         private static SocketListener _socketListener;
 
@@ -29,40 +28,22 @@ namespace vApus.JumpStart {
 
         //To queue the communication
         private readonly object _lock = new object();
-        private int _maximumStartTries = 3;
+        private int _startTries, _maximumStartTries = 3;
         public AsyncCallback _onReceiveCallBack;
-        private Socket _serverSocketIPv4;
-        private Socket _serverSocketIPv6;
-        private int _startTries;
-
+        private Socket _serverSocketIPv4, _serverSocketIPv6;
         #endregion
 
         #region Properties
-
         /// <summary>
         /// </summary>
-        public int ConnectedMastersCount {
-            get { return _connectedMasters.Count; }
-        }
-
-        /// <summary>
-        /// </summary>
-        public bool IsRunning {
-            get { return (_serverSocketIPv4 != null); }
-        }
-
+        public bool IsRunning { get { return (_serverSocketIPv4 != null); } }
         #endregion
 
         #region Constructor
-
-        private SocketListener() {
-            NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
-        }
-
+        private SocketListener() { NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged; }
         #endregion
 
         #region Functions
-
         public static SocketListener GetInstance() {
             if (_socketListener == null)
                 _socketListener = new SocketListener();
@@ -70,13 +51,7 @@ namespace vApus.JumpStart {
         }
 
         #region Start & Stop
-
-        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e) {
-            try {
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Start(); }, null);
-            } catch {
-            }
-        }
+        private void NetworkChange_NetworkAddressChanged(object sender, EventArgs e) {   try { SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Start(); }, null); } catch { }  }
 
         /// <summary>
         /// </summary>
@@ -111,17 +86,14 @@ namespace vApus.JumpStart {
         /// </summary>
         public void Stop() {
             try {
-                if (_serverSocketIPv4 != null)
-                    _serverSocketIPv4.Close();
+                if (_serverSocketIPv4 != null)  _serverSocketIPv4.Close();
                 _serverSocketIPv4 = null;
-                if (_serverSocketIPv6 != null)
-                    _serverSocketIPv6.Close();
+                if (_serverSocketIPv6 != null)   _serverSocketIPv6.Close();
                 _serverSocketIPv6 = null;
                 DisconnectMasters();
             } catch {
             }
         }
-
         #endregion
 
         #region Communication

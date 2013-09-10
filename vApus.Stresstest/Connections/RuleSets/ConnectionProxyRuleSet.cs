@@ -11,15 +11,13 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest
-{
-    [ContextMenu(new[] {"Activate_Click", "Add_Click", "Clear_Click", "Paste_Click"},
-        new[] {"Edit", "Add Syntax Item", "Clear", "Paste"})]
-    [Hotkeys(new[] {"Activate_Click", "Add_Click", "Paste_Click"},
-        new[] {Keys.Enter, Keys.Insert, (Keys.Control | Keys.V)})]
+namespace vApus.Stresstest {
+    [ContextMenu(new[] { "Activate_Click", "Add_Click", "Clear_Click", "Paste_Click" },
+        new[] { "Edit", "Add Syntax Item", "Clear", "Paste" })]
+    [Hotkeys(new[] { "Activate_Click", "Add_Click", "Paste_Click" },
+        new[] { Keys.Enter, Keys.Insert, (Keys.Control | Keys.V) })]
     [DisplayName("Connection Proxy Rule Set"), Serializable]
-    public class ConnectionProxyRuleSet : BaseRuleSet
-    {
+    public class ConnectionProxyRuleSet : BaseRuleSet {
         #region Fields
 
         private bool _connected = true;
@@ -29,16 +27,14 @@ namespace vApus.Stresstest
 
         #region Properties
 
-        public new string Label
-        {
+        public new string Label {
             get { return string.Empty; }
             set { }
         }
 
         [SavableCloneable, PropertyControl(3)]
         [Description("Is it a connected or connectionless protocol that is used?")]
-        public bool Connected
-        {
+        public bool Connected {
             get { return _connected; }
             set { _connected = value; }
         }
@@ -46,8 +42,7 @@ namespace vApus.Stresstest
         [SavableCloneable, PropertyControl(3)]
         [Description("The one-base index of the syntax item that is used for tracing the route of communication."),
          DisplayName("Trace Route Field")]
-        public uint TracertField
-        {
+        public uint TracertField {
             get { return _tracertField; }
             set { _tracertField = value; }
         }
@@ -56,16 +51,13 @@ namespace vApus.Stresstest
 
         #region Functions
 
-        protected new void Add_Click(object sender, EventArgs e)
-        {
+        protected new void Add_Click(object sender, EventArgs e) {
             Add(new ConnectionProxySyntaxItem());
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return Name;
         }
-
         #endregion
     }
 }

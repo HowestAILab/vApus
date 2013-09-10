@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using vApus.Results;
@@ -15,13 +14,13 @@ using vApus.Util;
 namespace vApus.DistributedTesting {
     [Serializable]
     public enum Key {
-        SynchronizeBuffers,
-
         /// <summary>
         ///     To poll if the slave is online.
         ///     If so, this slave will connect back to the master.
         /// </summary>
         Poll,
+
+        SynchronizeBuffers,
 
         /// <summary>
         ///     Use this key sending a stresstest project from the master, initiate the stresstest at the slave whereupon the slave must send a message with this key in it back.
@@ -40,8 +39,12 @@ namespace vApus.DistributedTesting {
     }
 
     [Serializable]
-    public struct PollMessage {
-        public int ProcessID;
+    public struct PollMessage { public int ProcessID; }
+
+    [Serializable]
+    public struct SynchronizeBuffersMessage {
+        public int BufferSize;
+        public string Exception;
     }
 
     [Serializable]
@@ -63,7 +66,7 @@ namespace vApus.DistributedTesting {
 
     [Serializable]
     public class StresstestWrapper {
-        public ulong StresstestIdInDb;
+        public int StresstestIdInDb;
         public string MySqlHost;
         public int MySqlPort;
         public string MySqlDatabaseName;
@@ -71,6 +74,7 @@ namespace vApus.DistributedTesting {
         public string MySqlPassword;
 
         public RunSynchronization RunSynchronization;
+        public int MaxRerunsBreakOnLast;
         public Stresstest.Stresstest Stresstest;
 
         /// <summary>
@@ -113,21 +117,13 @@ namespace vApus.DistributedTesting {
     }
 
     [Serializable]
-    public struct SynchronizeBuffersMessage {
-        public int BufferSize;
-        public string Exception;
-    }
-
-    [Serializable]
     public struct StartAndStopMessage {
         public string Exception;
         public string TileStresstestIndex;
     }
 
     [Serializable]
-    public struct ContinueMessage {
-        public int ContinueCounter;
-    }
+    public struct ContinueMessage { public int ContinueCounter; }
 
     [Serializable]
     public struct ResultsMessage {

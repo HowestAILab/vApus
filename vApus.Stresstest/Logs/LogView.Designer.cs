@@ -32,8 +32,8 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             this.logTreeView = new vApus.Stresstest.LogTreeView();
-            this.editLog = new vApus.Stresstest.EditLog();
-            this.editUserAction = new vApus.Stresstest.EditUserAction();
+            this.editLogPanel = new vApus.Stresstest.EditLogPanel();
+            this.editUserActionPanel = new vApus.Stresstest.EditUserActionPanel();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -57,8 +57,8 @@
             // split.Panel2
             // 
             this.split.Panel2.BackColor = System.Drawing.Color.White;
-            this.split.Panel2.Controls.Add(this.editLog);
-            this.split.Panel2.Controls.Add(this.editUserAction);
+            this.split.Panel2.Controls.Add(this.editLogPanel);
+            this.split.Panel2.Controls.Add(this.editUserActionPanel);
             this.split.Size = new System.Drawing.Size(1046, 595);
             this.split.SplitterDistance = 348;
             this.split.TabIndex = 0;
@@ -152,29 +152,29 @@
             // 
             // editLog
             // 
-            this.editLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editLog.Location = new System.Drawing.Point(0, 0);
-            this.editLog.Name = "editLog";
-            this.editLog.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.editLog.Size = new System.Drawing.Size(694, 595);
-            this.editLog.TabIndex = 0;
-            this.editLog.LogImported += new System.EventHandler(this.editLog_LogImported);
-            this.editLog.RevertedToAsImported += new System.EventHandler(this.editLog_RevertedToAsImported);
-            this.editLog.RedeterminedTokens += new System.EventHandler(this.editLog_RedeterminedTokens);
+            this.editLogPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editLogPanel.Location = new System.Drawing.Point(0, 0);
+            this.editLogPanel.Name = "editLog";
+            this.editLogPanel.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.editLogPanel.Size = new System.Drawing.Size(694, 595);
+            this.editLogPanel.TabIndex = 0;
+            this.editLogPanel.LogImported += new System.EventHandler(this.editLog_LogImported);
+            this.editLogPanel.RevertedToAsImported += new System.EventHandler(this.editLog_RevertedToAsImported);
+            this.editLogPanel.RedeterminedTokens += new System.EventHandler(this.editLog_RedeterminedTokens);
             // 
             // editUserAction
             // 
-            this.editUserAction.BackColor = System.Drawing.Color.White;
-            this.editUserAction.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editUserAction.Location = new System.Drawing.Point(0, 0);
-            this.editUserAction.Name = "editUserAction";
-            this.editUserAction.Size = new System.Drawing.Size(694, 595);
-            this.editUserAction.TabIndex = 1;
-            this.editUserAction.Visible = false;
-            this.editUserAction.UserActionMoved += new System.EventHandler(this.editUserAction_UserActionMoved);
-            this.editUserAction.SplitClicked += new System.EventHandler(this.editUserAction_SplitClicked);
-            this.editUserAction.MergeClicked += new System.EventHandler(this.editUserAction_MergeClicked);
-            this.editUserAction.LinkedChanged += new System.EventHandler(this.editUserAction_LinkedChanged);
+            this.editUserActionPanel.BackColor = System.Drawing.Color.White;
+            this.editUserActionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editUserActionPanel.Location = new System.Drawing.Point(0, 0);
+            this.editUserActionPanel.Name = "editUserAction";
+            this.editUserActionPanel.Size = new System.Drawing.Size(694, 595);
+            this.editUserActionPanel.TabIndex = 1;
+            this.editUserActionPanel.Visible = false;
+            this.editUserActionPanel.UserActionMoved += new System.EventHandler(this.editUserAction_UserActionMoved);
+            this.editUserActionPanel.SplitClicked += new System.EventHandler(this.editUserAction_SplitClicked);
+            this.editUserActionPanel.MergeClicked += new System.EventHandler(this.editUserAction_MergeClicked);
+            this.editUserActionPanel.LinkedChanged += new System.EventHandler(this.editUserAction_LinkedChanged);
             // 
             // LogView
             // 
@@ -204,8 +204,8 @@
         private System.Windows.Forms.Panel pnlFilter;
         private System.Windows.Forms.PictureBox picFind;
         private System.Windows.Forms.TextBox txtFind;
-        private EditLog editLog;
-        private EditUserAction editUserAction;
+        private EditLogPanel editLogPanel;
+        private EditUserActionPanel editUserActionPanel;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.Timer tmrRefreshGui;
         private System.Windows.Forms.LinkLabel llblFindAndReplace;

@@ -17,7 +17,7 @@ namespace vApus.Stresstest {
 
         #region Fields
 
-        protected string _childDelimiter = string.Empty, _description = string.Empty,_defaultValue = string.Empty;
+        protected string _childDelimiter = string.Empty, _description = string.Empty, _defaultValue = string.Empty;
         protected uint _occurance = 1;
         protected bool _optional;
 
@@ -146,7 +146,7 @@ namespace vApus.Stresstest {
                             var syntaxItem = this[i] as SyntaxItem;
                             ASTNode syntaxItemOutput = null;
                             LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters, out syntaxItemOutput);
-                            output.AddWithoutInvokingEvent(syntaxItemOutput, false);
+                            output.Add(syntaxItemOutput);
                             if (lexicalResult != LexicalResult.OK) {
                                 output.Value = input;
                                 output.Error = syntaxItemOutput.Error;
@@ -166,7 +166,7 @@ namespace vApus.Stresstest {
                         }
                         output.Error = "The input does not comply to one of the rules.";
                         foreach (ASTNode ruleoutput in ruleOutputs)
-                            output.AddWithoutInvokingEvent(ruleoutput, false);
+                            output.Add(ruleoutput);
                         return LexicalResult.Error;
                     }
                 }
@@ -183,7 +183,7 @@ namespace vApus.Stresstest {
                     for (int i = 0; i < splitInput.Length; i++) {
                         ASTNode syntaxItemOutput = null;
                         syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
-                        output.AddWithoutInvokingEvent(syntaxItemOutput, false);
+                        output.Add(syntaxItemOutput);
                     }
                 } else {
                     if (this[0] is Rule) {
@@ -191,10 +191,9 @@ namespace vApus.Stresstest {
                             for (int j = 0; j < Count; j++) {
                                 var rule = this[j] as Rule;
                                 ASTNode ruleOutput = null;
-                                LexicalResult lexicalResult = rule.TryLexicalAnaysis(splitInput[i], parameters,
-                                                                                     out ruleOutput);
+                                LexicalResult lexicalResult = rule.TryLexicalAnaysis(splitInput[i], parameters, out ruleOutput);
                                 if (lexicalResult == LexicalResult.OK) {
-                                    output.AddWithoutInvokingEvent(ruleOutput, false);
+                                    output.Add(ruleOutput);
                                     break;
                                 }
                             }
@@ -213,20 +212,17 @@ namespace vApus.Stresstest {
                                 if (i < splitInput.Length && output.Count > 0) {
                                     var last = output[output.Count - 1] as ASTNode;
                                     for (int k = i; k < splitInput.Length; k++)
-                                        last.Value = string.Format("{0}{1}{2}", last.Value, _childDelimiter,
-                                                                   splitInput[k]);
+                                        last.Value = string.Format("{0}{1}{2}", last.Value, _childDelimiter, splitInput[k]);
                                     break;
                                 } else {
-                                    output.Error =
-                                        "The input string could not be handled correctly due to not enough provided or right configured child syntax items.";
+                                    output.Error = "The input string could not be handled correctly due to not enough provided or right configured child syntax items.";
                                     return LexicalResult.Error;
                                 }
                             }
 
                             var syntaxItem = this[syntaxItemIndex] as SyntaxItem;
                             ASTNode syntaxItemOutput = null;
-                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(splitInput[i], parameters,
-                                                                                       out syntaxItemOutput);
+                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
 
                             //Skip invalid optional syntax items.
                             if (lexicalResult == LexicalResult.Error)
@@ -236,11 +232,11 @@ namespace vApus.Stresstest {
                                     loops = i;
                                     continue;
                                 } else {
-                                    output.AddWithoutInvokingEvent(syntaxItemOutput, false);
+                                    output.Add(syntaxItemOutput);
                                     output.Error = syntaxItemOutput.Error;
                                     return lexicalResult;
                                 } else
-                                output.AddWithoutInvokingEvent(syntaxItemOutput, false);
+                                output.Add(syntaxItemOutput);
 
                             //Apply the syntax item validation times the occurancy.
                             if (syntaxItem.Occurance > 0 && occuranceCheck == 0)

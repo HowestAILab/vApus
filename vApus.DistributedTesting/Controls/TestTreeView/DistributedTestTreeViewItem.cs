@@ -68,7 +68,7 @@ namespace vApus.DistributedTesting {
             cboRunSync.SelectedIndexChanged += cboRunSync_SelectedIndexChanged;
 
             nudMaxBreakOnLast.Value = _distributedTest.MaxRerunsBreakOnLast;
-            //nudMaxBreakOnLast.Visible = cboRunSync.SelectedIndex == 2;
+            nudMaxBreakOnLast.Visible = cboRunSync.SelectedIndex == 2;
             nudMaxBreakOnLast.ValueChanged += nudMaxBreakOnLast_ValueChanged;
         }
 

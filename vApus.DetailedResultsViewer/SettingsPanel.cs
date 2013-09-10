@@ -6,9 +6,11 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
@@ -18,6 +20,7 @@ namespace vApus.DetailedResultsViewer {
     public partial class SettingsPanel : DockablePanel {
 
         public event EventHandler<ResultsSelectedEventArgs> ResultsSelected;
+        public event EventHandler CancelGettingResults;
 
         private MySQLServerDialog _mySQLServerDialog = new MySQLServerDialog();
         [ThreadStatic]
@@ -31,6 +34,7 @@ namespace vApus.DetailedResultsViewer {
 
         private DataTable _dataSource = null;
         private DataRow _currentRow = null; //RowEnter happens multiple times for some strange reason, use this to not execute the refresh code when not needed.
+        private System.Timers.Timer _rowEnterTimer = new System.Timers.Timer(1000);
 
         public ResultsHelper ResultsHelper {
             get { return _resultsHelper; }
@@ -41,10 +45,23 @@ namespace vApus.DetailedResultsViewer {
         /// </summary>
         public SettingsPanel() {
             InitializeComponent();
+            _rowEnterTimer.Elapsed += _rowEnterTimer_Elapsed;
             RefreshDatabases(true);
             _initing = false;
         }
-        ~SettingsPanel() { try { _waitHandle.Dispose(); } catch { } }
+
+        ~SettingsPanel() {
+            try {
+                _waitHandle.Dispose();
+                if (_rowEnterTimer != null) {
+                    try {
+                        _rowEnterTimer.Stop();
+                        _rowEnterTimer.Dispose();
+                    } catch { }
+                }
+                _rowEnterTimer = null;
+            } catch { }
+        }
 
         private void lblConnectToMySQL_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             string connectionString = _mySQLServerDialog.ConnectionString;
@@ -107,7 +124,7 @@ namespace vApus.DetailedResultsViewer {
                 var temp = databaseActions.GetDataTable("Show Databases;");
                 foreach (DataRow rrDB in temp.Rows) {
                     string db = rrDB.ItemArray[0] as string;
-                    if (db.StartsWith("vapus", StringComparison.InvariantCultureIgnoreCase)) dbs.Rows.Add(db);
+                    if (db.StartsWith("vapus", StringComparison.OrdinalIgnoreCase)) dbs.Rows.Add(db);
                 }
 
                 int count = dbs.Rows.Count;
@@ -121,13 +138,13 @@ namespace vApus.DetailedResultsViewer {
                                 Thread.CurrentThread.CurrentCulture = cultureInfo;
                                 if (_filterDatabasesWorkItem == null) _filterDatabasesWorkItem = new FilterDatabasesWorkItem();
 
-                                var das = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
-                                var arr = _filterDatabasesWorkItem.FilterDatabase(das, state as string, filter);
+                                var dba = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
+                                var arr = _filterDatabasesWorkItem.FilterDatabase(dba, state as string, filter);
                                 lock (_lock) {
                                     if (arr != null) _dataSource.Rows.Add(arr);
                                     ++done;
                                 }
-                                das.ReleaseConnection();
+                                dba.ReleaseConnection();
                                 if (done == count) _waitHandle.Set();
                             } catch {
                                 try {
@@ -158,22 +175,57 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void dgvDatabases_RowEnter(object sender, DataGridViewCellEventArgs e) {
-            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] != _currentRow) {
-                DataRow row = _dataSource.Rows[e.RowIndex];
-                _currentRow = row;
-                string databaseName = row[3] as string;
+            if (_rowEnterTimer != null) {
+                _rowEnterTimer.Stop();
+                _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
+                _rowEnterTimer.SetTag(e);
+                _rowEnterTimer.Elapsed += _rowEnterTimer_Elapsed;
+                _rowEnterTimer.Start();
+            }
+        }
+        private void _rowEnterTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            if (_rowEnterTimer != null) {
+                _rowEnterTimer.Stop();
+                _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
+                try {
+                    dgvDatabases_RowEnterDelayed(_rowEnterTimer.GetTag() as DataGridViewCellEventArgs);
+                } catch { }
+            }
+        }
 
-                string user, host, password;
-                int port;
-                _mySQLServerDialog.GetCurrentCredentials(out user, out host, out port, out password);
-                _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
+        private void dgvDatabases_RowEnterDelayed(DataGridViewCellEventArgs e) {
+            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] != _currentRow)
+                SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
+                    if (CancelGettingResults != null) CancelGettingResults(this, null);
+                }, null);
 
+            _resultsHelper.KillConnection();
+
+            _currentRow = _dataSource.Rows[e.RowIndex];
+            string databaseName = _currentRow[3] as string;
+
+            string user, host, password;
+            int port;
+            _mySQLServerDialog.GetCurrentConnectionString(out user, out host, out port, out password);
+            _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
+
+            var stresstests = _resultsHelper.GetStresstests();
+
+            SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
                 //Fill the stresstest cbo
                 cboStresstest.SelectedIndexChanged -= cboStresstest_SelectedIndexChanged;
                 cboStresstest.Items.Clear();
-                var stresstests = _resultsHelper.GetStresstests();
-                if (stresstests.Rows.Count == 0) {
-                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
+
+                if (stresstests == null || stresstests.Rows.Count == 0) {
+                    if (MessageBox.Show("The selected database appears to be invalid.\nClick 'Yes' to delete it. This is irreversible!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                        ThreadPool.QueueUserWorkItem((x) => {
+                            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                                _resultsHelper.DeleteResults();
+                                RefreshDatabases(true);
+                            }, null);
+                        }, null);
+
+                    } else if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
                 } else {
                     cboStresstest.Items.Add("<All>");
                     foreach (DataRow stresstestRow in stresstests.Rows)
@@ -181,14 +233,14 @@ namespace vApus.DetailedResultsViewer {
 
                     cboStresstest.SelectedIndex = 1;
 
-                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, (ulong)cboStresstest.SelectedIndex));
+                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, cboStresstest.SelectedIndex));
                 }
 
                 cboStresstest.SelectedIndexChanged += cboStresstest_SelectedIndexChanged;
-            }
+            }, null);
         }
         private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
-            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, (ulong)cboStresstest.SelectedIndex));
+            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, cboStresstest.SelectedIndex));
         }
 
         private class FilterDatabasesWorkItem {
@@ -204,7 +256,7 @@ namespace vApus.DetailedResultsViewer {
                     object[] itemArray = new object[4];
 
                     //Get the tags
-                    var tags = databaseActions.GetDataTable("Select Tag From " + database + ".Tags");
+                    var tags = databaseActions.GetDataTable("Select Tag From " + database + ".tags");
                     string t = string.Empty;
                     if (tags.Rows.Count != 0) {
                         int countMinusOne = tags.Rows.Count - 1;
@@ -215,7 +267,7 @@ namespace vApus.DetailedResultsViewer {
                     itemArray[1] = t.Trim();
 
                     //Get the description
-                    var description = databaseActions.GetDataTable("Select Description From " + database + ".Description");
+                    var description = databaseActions.GetDataTable("Select Description From " + database + ".description");
                     foreach (DataRow dr in description.Rows) {
                         itemArray[2] = dr.ItemArray[0];
                         break;
@@ -273,27 +325,33 @@ namespace vApus.DetailedResultsViewer {
             /// <summary>
             /// 0 for all
             /// </summary>
-            public ulong StresstestId { get; private set; }
+            public int StresstestId { get; private set; }
             /// <summary>
             /// 
             /// </summary>
             /// <param name="database"></param>
             /// <param name="stresstestId">0 for all</param>
-            public ResultsSelectedEventArgs(string database, ulong stresstestId) {
+            public ResultsSelectedEventArgs(string database, int stresstestId) {
                 Database = database;
                 StresstestId = stresstestId;
             }
         }
 
-        private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
+        async private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
             if (_resultsHelper != null &&
                 MessageBox.Show("Are you sure you want to delete the listed results databases?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
                 Cursor = Cursors.WaitCursor;
+
+                var toDelete = new ConcurrentBag<string>();
                 foreach (DataRow row in _dataSource.Rows) {
-                    try {
-                        _resultsHelper.DeleteResults(row[3] as string);
-                    } catch { }
+                    await Task.Run(() => {
+                        try {
+                            _resultsHelper.DeleteResults(row[3] as string);
+                        } catch {
+                        }
+                    });
                 }
+
                 _currentRow = null;
                 RefreshDatabases(true);
                 Cursor = Cursors.Default;

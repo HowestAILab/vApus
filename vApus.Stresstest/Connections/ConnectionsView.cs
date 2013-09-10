@@ -5,28 +5,47 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Shows, edit, test all connections in one view.
+    /// </summary>
     public partial class ConnectionsView : BaseSolutionComponentView {
+
+        #region Fields
+        private readonly object _lock = new object();
+
+        //Handier than SoltuionComponent.
         private readonly Connections _connections;
+        //Holds all connection data.
         private readonly DataTable _dataSource;
         private volatile int _preferedRowToSelect = -1;
 
-        public ConnectionsView() {
-            InitializeComponent();
-        }
+        private ConcurrentBag<TestConnections.TestWorkItem.MessageEventArgs> _testConnectionMessages;
+        #endregion
 
-        public ConnectionsView(SolutionComponent solutionComponent, params object[] args)
-            : base(solutionComponent, args) {
+        #region Constructors
+        /// <summary>
+        /// Design time constructor.
+        /// </summary>
+        public ConnectionsView() { InitializeComponent(); }
+        /// <summary>
+        /// Shows, edit, test all connections in one view.
+        /// </summary>
+        /// <param name="solutionComponent"></param>
+        public ConnectionsView(SolutionComponent solutionComponent)
+            : base(solutionComponent) {
             InitializeComponent();
+
             _connections = solutionComponent as Connections;
             _dataSource = new DataTable("Connections");
             _dataSource.Columns.Add("Connection");
@@ -37,10 +56,13 @@ namespace vApus.Stresstest {
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
         }
+        #endregion
 
+        #region Functions
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender == _connections || sender is Connection) FillConnectionsDatagrid();
         }
+
         public void FillConnectionsDatagrid() {
             dgvConnections.DataSource = null;
             _dataSource.Clear();
@@ -74,7 +96,45 @@ namespace vApus.Stresstest {
             dgvConnections.Refresh();
         }
 
-        private void btnEditConnectionStrings_Click(object sender, EventArgs e) {
+        private void btnTest_Click(object sender, EventArgs e) {
+            btnTest.Text = "Busy...";
+            btnTest.Enabled = btnEdit.Enabled = btnUndo.Enabled = false;
+
+            var testConnections = new TestConnections();
+            testConnections.Message += testConnections_Message;
+
+            var l = new List<Connection>();
+            foreach (var item in _connections)
+                if (item is Connection) l.Add(item as Connection);
+            _testConnectionMessages = new ConcurrentBag<TestConnections.TestWorkItem.MessageEventArgs>();
+
+            testConnections.Test(l);
+        }
+        private void testConnections_Message(object sender, TestConnections.TestWorkItem.MessageEventArgs e) {
+            _testConnectionMessages.Add(e);
+
+            lock (_lock) {
+                dgvConnections.Refresh();
+                if (_testConnectionMessages.Count == _connections.CountOf(typeof(Connection)))
+                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                        btnTest.Text = "Test";
+                        btnTest.Enabled = btnEdit.Enabled = btnUndo.Enabled = true;
+                    }, null);
+            }
+        }
+        private void dgvConnections_CellPainting(object sender, DataGridViewCellPaintingEventArgs e) {
+            if (_testConnectionMessages != null)
+                foreach (var message in _testConnectionMessages)
+                    if (message.Connection.Index == e.RowIndex + 1) {
+                        var br = new SolidBrush(message.Succes ? Color.LightGreen : Color.Red);
+                        e.Graphics.FillRectangle(br, e.CellBounds);
+                        e.PaintContent(e.ClipBounds);
+                        e.Handled = true;
+                        break;
+                    }
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e) {
             var dialog = new FromTextDialog();
             dialog.Height = 800;
             dialog.Width = 800;
@@ -164,7 +224,6 @@ namespace vApus.Stresstest {
                 _connections.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
-
         private void btnUndo_Click(object sender, EventArgs e) {
             if (btnUndo.Tag != null) {
                 var connectionsUndo = btnUndo.Tag as List<Connection>;
@@ -176,6 +235,6 @@ namespace vApus.Stresstest {
             }
             btnUndo.Enabled = false;
         }
-
+        #endregion
     }
 }

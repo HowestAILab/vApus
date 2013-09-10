@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Copyright 2009 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
@@ -7,16 +14,16 @@ using System.Xml;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    [ContextMenu(new[] {"Import_Click", "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click"},
-        new[] {"Import Log Rule Set(s)", "Add Log Rule Set", "Sort", "Clear", "Paste"})]
-    [Hotkeys(new[] {"Paste_Click"}, new[] {(Keys.Control | Keys.V)})]
+namespace vApus.Stresstest {
+    /// <summary>
+    /// Holds instances of LogRuleSet.
+    /// </summary>
+    [ContextMenu(new[] { "Import_Click", "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
+        new[] { "Import Log Rule Set(s)", "Add Log Rule Set", "Sort", "Clear", "Paste" })]
+    [Hotkeys(new[] { "Paste_Click" }, new[] { (Keys.Control | Keys.V) })]
     [DisplayName("Log Rule Sets"), Serializable]
-    public class LogRuleSets : BaseRuleSets
-    {
-        private void Import_Click(object sender, EventArgs e)
-        {
+    public class LogRuleSets : BaseRuleSets {
+        private void Import_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();
 
             string path = Path.Combine(Application.StartupPath, "LogRuleSets");
@@ -29,41 +36,31 @@ namespace vApus.Stresstest
                             ? (sender as ToolStripMenuItem).Text
                             : ofd.Title = "Import from...";
 
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
+            if (ofd.ShowDialog() == DialogResult.OK) {
                 var sb = new StringBuilder();
-                foreach (string fileName in ofd.FileNames)
-                {
+                foreach (string fileName in ofd.FileNames) {
                     var xmlDocument = new XmlDocument();
                     xmlDocument.Load(fileName);
 
-                    try
-                    {
+                    try {
                         if (xmlDocument.FirstChild.Name == GetType().Name &&
-                            xmlDocument.FirstChild.FirstChild.Name == "Items")
-                        {
+                            xmlDocument.FirstChild.FirstChild.Name == "Items") {
                             string errorMessage;
                             LoadFromXml(xmlDocument.FirstChild, out errorMessage);
                             sb.Append(errorMessage);
-                            if (errorMessage.Length == 0)
-                            {
+                            if (errorMessage.Length == 0) {
                                 ResolveBranchedIndices();
                                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,
                                                                     true);
                             }
-                        }
-                        else
-                        {
+                        } else {
                             sb.Append(fileName + " contains no valid structure to load;");
                         }
-                    }
-                    catch
-                    {
+                    } catch {
                         sb.Append("Unknown or non-existing item found in " + fileName + ";");
                     }
                 }
-                if (sb.ToString().Length > 0)
-                {
+                if (sb.ToString().Length > 0) {
                     string s = "Failed loading: " + sb;
                     LogWrapper.LogByLevel(s, LogLevel.Error);
                     MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
@@ -71,9 +68,7 @@ namespace vApus.Stresstest
                 }
             }
         }
-
-        private void Add_Click(object sender, EventArgs e)
-        {
+        private void Add_Click(object sender, EventArgs e) {
             Add(new LogRuleSet());
         }
     }

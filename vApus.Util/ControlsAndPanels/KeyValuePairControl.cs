@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -14,19 +13,16 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     public partial class KeyValuePairControl : UserControl {
+        #region Properties
         public string Key {
             get { return lblKey.Text; }
             set { lblKey.Text = value; }
         }
-
         public string Value {
             get { return lblValue.Text; }
             set { lblValue.Text = value; }
         }
-
-        [Editor(
-            "System.ComponentModel.Design.MultilineStringEditor, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
-            , typeof(UITypeEditor))]
+        [Editor("System.ComponentModel.Design.MultilineStringEditor, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", typeof(UITypeEditor))]
         public string Tooltip {
             set {
                 value = value.Replace("\\n", "\n").Replace("\\r", "\r");
@@ -36,7 +32,9 @@ namespace vApus.Util {
             }
             get { return toolTip.GetToolTip(this); }
         }
+        #endregion
 
+        #region Constructors
         public KeyValuePairControl() {
             InitializeComponent();
         }
@@ -46,7 +44,9 @@ namespace vApus.Util {
             lblKey.Text = key;
             lblValue.Text = value;
         }
+        #endregion
 
+        #region Functions
         private void lbl_SizeChanged(object sender, EventArgs e) {
             lblValue.Left = lblKey.Right;
             Width = lblValue.Right + 3;
@@ -67,5 +67,6 @@ namespace vApus.Util {
         private void lbl_MouseDown(object sender, MouseEventArgs e) {
             OnMouseDown(e);
         }
+        #endregion
     }
 }

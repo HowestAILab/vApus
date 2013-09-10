@@ -1,7 +1,17 @@
-﻿using System;
+﻿/*
+ * Copyright 2010 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// This panel is designed to group all available options/preferences for vApus.
+    /// </summary>
     public partial class OptionsDialog : Form {
         private int _selectedPanel;
 

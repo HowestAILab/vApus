@@ -5,7 +5,7 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-
+using Microsoft.CSharp;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -13,20 +13,17 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using Microsoft.CSharp;
 
 namespace vApus.Util {
     /// <summary>
-    ///     A C# .net v4.0 compiler unit.
+    ///     A C# .net v4.5 compiler unit.
     ///     For references there is linked in Application.StartupPath or in the folders given in ReferenceResolver.ini if the Use property of ReferenceResolver is set to true.
     /// </summary>
     public class CompilerUnit {
         private readonly List<TempFileCollection> _tempFiles = new List<TempFileCollection>();
         private readonly string _tempFilesDirectory = Path.Combine(Application.StartupPath, "ConnectionProxyTempFiles");
 
-        public CompilerUnit() {
-            Application.ApplicationExit += Application_ApplicationExit;
-        }
+        public CompilerUnit() { Application.ApplicationExit += Application_ApplicationExit;   }
 
         /// <summary>
         ///     A threadsafe compile.
@@ -99,8 +96,7 @@ namespace vApus.Util {
                 string readme = Path.Combine(_tempFilesDirectory, "README.TXT");
                 if (!File.Exists(readme))
                     using (var sw = new StreamWriter(readme)) {
-                        sw.Write(
-                            "These files are compiled connection proxies used for stresstesting, this folder can be removed safely.");
+                        sw.Write( "These files are compiled connection proxies used for stresstesting, this folder can be removed safely.");
                         sw.Flush();
                     }
                 compilerParameters.GenerateInMemory = false;
@@ -128,8 +124,7 @@ namespace vApus.Util {
                     if (compilerResults.Errors.HasErrors && i == 3 || !compilerResults.Errors.HasErrors) {
                         break;
                     } else {
-                        if (debug)
-                            break;
+                        if (debug)  break;
 
                         compilerResults.Errors.Clear();
                         Thread.Sleep(1000 * i);
@@ -187,19 +182,6 @@ namespace vApus.Util {
         private List<string> GetMatches(string dllReference) {
             var matches =
                 new List<string>(Directory.GetFiles(Application.StartupPath, dllReference, SearchOption.AllDirectories));
-            //if (ReferenceResolver.Use)
-            //{
-            //    //Check the reference resolver
-            //    var dict = ReferenceResolver.AlternativeDirectories;
-            //    foreach (string path in dict.Keys)
-            //        if (Directory.Exists(path))
-            //        {
-            //            if (dict[path])
-            //                matches.AddRange(Directory.GetFiles(path, dllReference, SearchOption.AllDirectories));
-            //            else
-            //                matches.AddRange(Directory.GetFiles(path, dllReference, SearchOption.TopDirectoryOnly));
-            //        }
-            //}
             return matches;
         }
 

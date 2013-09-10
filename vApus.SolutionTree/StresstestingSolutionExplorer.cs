@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,16 +14,16 @@ using vApus.Util;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.SolutionTree {
+    /// <summary>
+    /// Contains a treeview and displays all solution components where ShowInGui == true. Adds images, context menu's and hotkeys.
+    /// </summary>
     public partial class StresstestingSolutionExplorer : DockablePanel {
 
         #region Fields
-
         private Keys _hotkey = Keys.None;
-
         #endregion
 
         #region Constructor
-
         public StresstestingSolutionExplorer() {
             InitializeComponent();
             if (IsHandleCreated)
@@ -32,15 +31,10 @@ namespace vApus.SolutionTree {
             else
                 HandleCreated += StresstestingSolutionExplorer_HandleCreated;
         }
-
         #endregion
 
         #region Functions
-
-        private void StresstestingSolutionExplorer_HandleCreated(object sender, EventArgs e) {
-            Init();
-        }
-
+        private void StresstestingSolutionExplorer_HandleCreated(object sender, EventArgs e) { Init(); }
         private void Init() {
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
@@ -99,16 +93,16 @@ namespace vApus.SolutionTree {
 
         private void NodeBeginEdit(object o) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    try {
-                        (o as TreeNode).BeginEdit();
-                    } catch {
-                        var node = o as TreeNode;
-                        var item = node.Tag as LabeledBaseItem;
-                        node.Text = item.ToString();
-                    }
-                    tvw.AfterLabelEdit += tvw_AfterLabelEdit;
-                    tvw.BeforeLabelEdit += tvw_BeforeLabelEdit;
-                }, null);
+                try {
+                    (o as TreeNode).BeginEdit();
+                } catch {
+                    var node = o as TreeNode;
+                    var item = node.Tag as LabeledBaseItem;
+                    node.Text = item.ToString();
+                }
+                tvw.AfterLabelEdit += tvw_AfterLabelEdit;
+                tvw.BeforeLabelEdit += tvw_BeforeLabelEdit;
+            }, null);
         }
 
         private void tvw_AfterLabelEdit(object sender, NodeLabelEditEventArgs e) {
@@ -123,28 +117,28 @@ namespace vApus.SolutionTree {
 
         private void AfterEdit(object o) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    try {
-                        var node = o as TreeNode;
-                        var item = node.Tag as LabeledBaseItem;
-                        if (item.Label != node.Text) {
-                            try {
-                                item.Label = node.Text;
-                                if (RefreshTreeNode(tvw.SelectedNode)) {
-                                    SolutionComponent.SolutionComponentChanged -=
-                                        SolutionComponent_SolutionComponentChanged;
-                                    item.InvokeSolutionComponentChangedEvent(
-                                        SolutionComponentChangedEventArgs.DoneAction.Edited);
-                                    SolutionComponent.SolutionComponentChanged +=
-                                        SolutionComponent_SolutionComponentChanged;
-                                }
-                            } catch {
+                try {
+                    var node = o as TreeNode;
+                    var item = node.Tag as LabeledBaseItem;
+                    if (item.Label != node.Text) {
+                        try {
+                            item.Label = node.Text;
+                            if (RefreshTreeNode(tvw.SelectedNode)) {
+                                SolutionComponent.SolutionComponentChanged -=
+                                    SolutionComponent_SolutionComponentChanged;
+                                item.InvokeSolutionComponentChangedEvent(
+                                    SolutionComponentChangedEventArgs.DoneAction.Edited);
+                                SolutionComponent.SolutionComponentChanged +=
+                                    SolutionComponent_SolutionComponentChanged;
                             }
+                        } catch {
                         }
-                        //A leave and enter will otherwise lead in resulting a wrong label of the node.
-                        node.Text = item.ToString();
-                    } catch {
                     }
-                }, null);
+                    //A leave and enter will otherwise lead in resulting a wrong label of the node.
+                    node.Text = item.ToString();
+                } catch {
+                }
+            }, null);
         }
 
         private void tvw_Leave(object sender, EventArgs e) {
@@ -197,8 +191,7 @@ namespace vApus.SolutionTree {
                 tvw.Nodes.AddRange(Solution.ActiveSolution.GetTreeNodes().ToArray());
 
                 //Applying images/expanding.
-                foreach (TreeNode node in tvw.Nodes)
-                    RefreshTreeNode(node);
+                foreach (TreeNode node in tvw.Nodes) RefreshTreeNode(node);
 
                 tvw.Select();
                 tvw.SelectedNode = tvw.Nodes[0];

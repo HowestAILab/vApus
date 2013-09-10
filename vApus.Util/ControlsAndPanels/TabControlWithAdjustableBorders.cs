@@ -5,60 +5,38 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
-    public class TabControlWithAdjustableBorders : TabControl
-    {
+namespace vApus.Util {
+    public class TabControlWithAdjustableBorders : TabControl {
+        #region Fields
         private const int TCM_ADJUSTRECT = 0X1328;
-        private bool _bottomVisible, _leftVisible, _rightVisible, _topVisible;
+        #endregion
 
-        public bool LeftVisible
-        {
-            get { return _leftVisible; }
-            set { _leftVisible = value; }
-        }
+        #region Properties
+        public bool BottomVisible { get; set; }
+        public bool LeftVisible { get; set; }
+        public bool RightVisible { get; set; }
+        public bool TopVisible { get; set; }
+        #endregion
 
-        public bool RightVisible
-        {
-            get { return _rightVisible; }
-            set { _rightVisible = value; }
-        }
-
-        public bool TopVisible
-        {
-            get { return _topVisible; }
-            set { _topVisible = value; }
-        }
-
-        public bool BottomVisible
-        {
-            get { return _bottomVisible; }
-            set { _bottomVisible = value; }
-        }
-
-        protected override void WndProc(ref Message m)
-        {
-            if (m.Msg == TCM_ADJUSTRECT)
-            {
+        #region Functions
+        protected override void WndProc(ref Message m) {
+            if (m.Msg == TCM_ADJUSTRECT) {
                 var rc = (RECT)m.GetLParam(typeof(RECT));
 
-                if (!_leftVisible) rc.Left -= 4;
-                if (!_rightVisible) rc.Right += 3;
-                if (!_topVisible) rc.Top -= 3;
-                if (!_bottomVisible) rc.Bottom += 3;
+                if (!LeftVisible) rc.Left -= 4;
+                if (!RightVisible) rc.Right += 3;
+                if (!TopVisible) rc.Top -= 3;
+                if (!BottomVisible) rc.Bottom += 3;
 
                 Marshal.StructureToPtr(rc, m.LParam, true);
             }
             base.WndProc(ref m);
         }
+        #endregion
 
-        private struct RECT
-        {
-            public int Left, Top, Right, Bottom;
-        }
+        private struct RECT { public int Left, Top, Right, Bottom;  }
     }
 }

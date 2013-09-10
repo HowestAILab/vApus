@@ -64,13 +64,9 @@ namespace vApus.Stresstest {
         //For distributed test
         private DateTime _stresstestStartedAt = DateTime.Now;
         private TimeSpan _measuredRuntime = new TimeSpan();
-
-        private ResultsHelper _resultsHelper;
-
         #endregion
 
         #region Properties
-
         public bool HasResults { get { return _concurrencyStresstestMetricsRows.Count != 0; } }
 
         /// <summary>
@@ -93,17 +89,11 @@ namespace vApus.Stresstest {
         public TimeSpan MeasuredRuntime {
             get { return _measuredRuntime; }
         }
-
-        public ResultsHelper ResultsHelper {
-            get { return _resultsHelper; }
-            set { _resultsHelper = value; }
-        }
         #endregion
 
         #region Constructor
-
         /// <summary>
-        /// Dont't forget to set resultshelper
+        /// Used for displaying the fast results: stresstest progress; Progress messages and local hardware monitoring.
         /// </summary>
         public FastResultsControl() {
             InitializeComponent();
@@ -114,11 +104,9 @@ namespace vApus.Stresstest {
             cboDrillDown.SelectedIndex = 0;
             ToggleCollapseEventPanel();
         }
-
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Resets everything to the initial state.
         /// </summary>
@@ -144,7 +132,6 @@ namespace vApus.Stresstest {
                                      stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute,
                                      stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
-
         public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
                                              int runs, int minimumDelay, int maximumDelay, bool shuffle, UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
             kvpStresstest.Key = stresstest;
@@ -195,93 +182,13 @@ namespace vApus.Stresstest {
             flpConfiguration.ScrollControlIntoView(pnlScrollConfigTo);
 
             //Reinit the datagridview.
-            SetFastResultsOnGuiInteraction();
+            RefreshFastResults();
         }
-
+        //Monitor button in configuration.
         private void btnMonitor_Click(object sender, EventArgs e) {
             if (btnMonitor.Text != "Monitor" && btnMonitor.Text != "No Monitor" && MonitorClicked != null)
                 MonitorClicked(this, null);
         }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="countDown">smaller than 0 for paused or unknown</param>
-        public void SetCountDownProgressDelay(int countDown) {
-            if (countDown > -1) {
-                lblUpdatesIn.ForeColor = Color.SteelBlue;
-                lblUpdatesIn.Text = "updates in " + countDown;
-                lblUpdatesIn.Image = null;
-            } else {
-                lblUpdatesIn.ForeColor = Color.DarkGray;
-                lblUpdatesIn.Text = "updates in  ";
-                lblUpdatesIn.Image = Resources.Wait;
-            }
-        }
-
-        /// <summary>
-        ///     Leave all empty for the default values.
-        /// </summary>
-        /// <param name="threadsInUse"></param>
-        /// <param name="cpuUsage"></param>
-        /// <param name="contextSwitchesPerSecond"></param>
-        /// <param name="threadQueueLengthPerSecond"></param>
-        /// <param name="threadContentionsPerSecond"></param>
-        /// <param name="memoryUsage"></param>
-        /// <param name="totalVisibleMemory"></param>
-        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, float contextSwitchesPerSecond = -1f, int memoryUsage = -1,
-                                        int totalVisibleMemory = -1, float nicsSent = -1, float nicsReceived = -1) {
-            kvmThreadsInUse.Value = threadsInUse.ToString();
-            if (cpuUsage == -1) {
-                kvmCPUUsage.Value = "N/A";
-            } else {
-                kvmCPUUsage.Value = Math.Round(cpuUsage, 2).ToString() + " %";
-
-                if (cpuUsage < 60) {
-                    kvmCPUUsage.BackColor = Color.GhostWhite;
-                } else {
-                    kvmCPUUsage.BackColor = Color.Orange;
-                    AppendMessages(cpuUsage + " % CPU Usage", LogLevel.Warning);
-                }
-            }
-            kvmContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1)
-                                                    ? "N/A"
-                                                    : contextSwitchesPerSecond.ToString();
-
-            if (memoryUsage == -1 || totalVisibleMemory == -1) {
-                kvmMemoryUsage.Value = "N/A";
-            } else {
-                kvmMemoryUsage.Value = memoryUsage.ToString() + " / " + totalVisibleMemory + " MB";
-                if (memoryUsage < 0.9 * totalVisibleMemory) {
-                    kvmMemoryUsage.BackColor = Color.GhostWhite;
-                } else if (memoryUsage != 0) {
-                    kvmMemoryUsage.BackColor = Color.Orange;
-                    AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
-                }
-            }
-            if (nicsSent == -1) {
-                kvmNicsSent.Value = "N/A";
-            } else {
-                kvmNicsSent.Value = Math.Round(nicsSent, 2).ToString() + " %";
-                if (nicsSent < 90) {
-                    kvmNicsSent.BackColor = Color.GhostWhite;
-                } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
-                    kvmNicsSent.BackColor = Color.Orange;
-                    AppendMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
-                }
-            }
-            if (nicsReceived == -1) {
-                kvmNicsReceived.Value = "N/A";
-            } else {
-                kvmNicsReceived.Value = Math.Round(nicsReceived, 2).ToString() + " %";
-                if (nicsReceived < 90) {
-                    kvmNicsReceived.BackColor = Color.GhostWhite;
-                } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
-                    kvmNicsReceived.BackColor = Color.Orange;
-                    AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
-                }
-            }
-        }
-
 
         /// <summary>
         ///     Sets the label.
@@ -313,6 +220,84 @@ namespace vApus.Stresstest {
             _runMonitorMetricsRows = new Dictionary<string, List<object[]>>();
 
             _keepFastResultsAtEnd = true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="countDown">smaller than 0 for paused or unknown</param>
+        public void SetCountDownProgressDelay(int countDown) {
+            if (countDown > -1) {
+                lblUpdatesIn.ForeColor = Color.SteelBlue;
+                lblUpdatesIn.Text = "updates in " + countDown;
+                lblUpdatesIn.Image = null;
+            } else {
+                lblUpdatesIn.ForeColor = Color.DarkGray;
+                lblUpdatesIn.Text = "updates in  ";
+                lblUpdatesIn.Image = Resources.Wait;
+            }
+        }
+
+        /// <summary>
+        ///     Leave all empty for the default values.
+        /// </summary>
+        /// <param name="threadsInUse"></param>
+        /// <param name="cpuUsage"></param>
+        /// <param name="contextSwitchesPerSecond"></param>
+        /// <param name="threadQueueLengthPerSecond"></param>
+        /// <param name="threadContentionsPerSecond"></param>
+        /// <param name="memoryUsage"></param>
+        /// <param name="totalVisibleMemory"></param>
+        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, float contextSwitchesPerSecond = -1f, int memoryUsage = -1, int totalVisibleMemory = -1, float nicsSent = -1, float nicsReceived = -1) {
+            kvmThreadsInUse.Value = threadsInUse.ToString();
+            if (cpuUsage == -1) {
+                kvmCPUUsage.Value = "N/A";
+            } else {
+                kvmCPUUsage.Value = Math.Round(cpuUsage, 2).ToString() + " %";
+
+                if (cpuUsage < 60) {
+                    kvmCPUUsage.BackColor = Color.GhostWhite;
+                } else {
+                    kvmCPUUsage.BackColor = Color.Orange;
+                    AddEvent(cpuUsage + " % CPU Usage", LogLevel.Warning);
+                }
+            }
+            kvmContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1)
+                                                    ? "N/A"
+                                                    : contextSwitchesPerSecond.ToString();
+
+            if (memoryUsage == -1 || totalVisibleMemory == -1) {
+                kvmMemoryUsage.Value = "N/A";
+            } else {
+                kvmMemoryUsage.Value = memoryUsage.ToString() + " / " + totalVisibleMemory + " MB";
+                if (memoryUsage < 0.9 * totalVisibleMemory) {
+                    kvmMemoryUsage.BackColor = Color.GhostWhite;
+                } else if (memoryUsage != 0) {
+                    kvmMemoryUsage.BackColor = Color.Orange;
+                    AddEvent(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
+                }
+            }
+            if (nicsSent == -1) {
+                kvmNicsSent.Value = "N/A";
+            } else {
+                kvmNicsSent.Value = Math.Round(nicsSent, 2).ToString() + " %";
+                if (nicsSent < 90) {
+                    kvmNicsSent.BackColor = Color.GhostWhite;
+                } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
+                    kvmNicsSent.BackColor = Color.Orange;
+                    AddEvent(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
+                }
+            }
+            if (nicsReceived == -1) {
+                kvmNicsReceived.Value = "N/A";
+            } else {
+                kvmNicsReceived.Value = Math.Round(nicsReceived, 2).ToString() + " %";
+                if (nicsReceived < 90) {
+                    kvmNicsReceived.BackColor = Color.GhostWhite;
+                } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
+                    kvmNicsReceived.BackColor = Color.Orange;
+                    AddEvent(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
+                }
+            }
         }
 
         /// <summary>
@@ -354,7 +339,7 @@ namespace vApus.Stresstest {
                 KeepFastResultsAtEnd();
             }
 
-            if (_trySettingDataGridViewColumnsOnNextMonitorUpdate) SetFastResultsOnGuiInteraction();
+            if (_trySettingDataGridViewColumnsOnNextMonitorUpdate) RefreshFastResults();
         }
 
         /// <summary>
@@ -395,7 +380,7 @@ namespace vApus.Stresstest {
                 dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
             }
-            if (_trySettingDataGridViewColumnsOnNextMonitorUpdate) SetFastResultsOnGuiInteraction();
+            if (_trySettingDataGridViewColumnsOnNextMonitorUpdate) RefreshFastResults();
         }
         private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
@@ -493,7 +478,7 @@ namespace vApus.Stresstest {
                     message = exception.Message + "\n" + exception.StackTrace + "\n\nSee " +
                               Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
                     LogWrapper.LogByLevel(message, LogLevel.Error);
-                    AppendMessages(message, Color.Red);
+                    AddEvent(message, Color.Red);
                 }
                 string lblStoppedText = null;
                 switch (stresstestResult) {
@@ -505,7 +490,7 @@ namespace vApus.Stresstest {
 
                             message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString());
                             LogWrapper.LogByLevel(message, LogLevel.Info);
-                            AppendMessages(message, Color.GreenYellow);
+                            AddEvent(message, Color.GreenYellow);
 
                             SetStresstestStopped();
                         }
@@ -527,7 +512,7 @@ namespace vApus.Stresstest {
 
                             message = "The stresstest was cancelled.";
                             LogWrapper.LogByLevel(message, LogLevel.Info);
-                            AppendMessages(message, Color.Orange);
+                            AddEvent(message, Color.Orange);
 
                             SetStresstestStopped();
                         }
@@ -538,17 +523,23 @@ namespace vApus.Stresstest {
                 }
             } catch { }
         }
-        public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
-            var c = new[] { Color.DarkGray, Color.Orange, Color.Red };
-            AppendMessages(message, c[(int)logLevel], logLevel);
-        }
 
         /// <summary>
+        /// Append stresstest progress and error messages.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="logLevel"></param>
+        public void AddEvent(string message, LogLevel logLevel = LogLevel.Info) {
+            var c = new[] { Color.DarkGray, Color.Orange, Color.Red };
+            AddEvent(message, c[(int)logLevel], logLevel);
+        }
+        /// <summary>
+        /// Append stresstest progress and error messages.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="eventColor">a custom color if you need one</param>
         /// <param name="logLevel"></param>
-        public void AppendMessages(string message, Color eventColor, LogLevel logLevel = LogLevel.Info) {
+        public void AddEvent(string message, Color eventColor, LogLevel logLevel = LogLevel.Info) {
             try { epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message); } catch { }
         }
 
@@ -556,47 +547,54 @@ namespace vApus.Stresstest {
         ///     Get all events (messages).
         /// </summary>
         /// <returns></returns>
-        public List<EventPanelEvent> GetEvents() {
-            return epnlMessages.GetEvents();
-        }
+        public List<EventPanelEvent> GetEvents() { return epnlMessages.GetEvents(); }
 
         /// <summary>
         ///     Set events
         /// </summary>
         public void SetEvents(List<EventPanelEvent> events) {
             if (IsDisposed) return;
+            int toSetCount = events.Count;
+            int currentEventCount = epnlMessages.EventCount;
 
-            LockWindowUpdate(Handle.ToInt32());
-            epnlMessages.ClearEvents();
-            foreach (EventPanelEvent epe in events)
-                epnlMessages.AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At);
-            LockWindowUpdate(0);
+            if (currentEventCount == 0 || toSetCount < currentEventCount) {
+                epnlMessages.SetEvents(events);
+            } else if (toSetCount > currentEventCount) {
+                var eventSubset = new List<EventPanelEvent>(toSetCount - currentEventCount);
+                for (int i = currentEventCount; i != toSetCount; i++)
+                    eventSubset.Add(events[i]);
+
+                epnlMessages.AddEvents(eventSubset);
+            }
         }
 
         public void ClearEvents() { epnlMessages.ClearEvents(); }
 
         /// <summary>
-        ///     Show event message at the right date time, use this if you have an external event progress bar.
+        ///     Show / scroll to event message at the right date time, use this if you have an external event progress bar.
         /// </summary>
         /// <param name="at"></param>
         public void ShowEvent(DateTime at) { epnlMessages.ShowEvent(at); }
 
         private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) {
-            if (lbtnStresstest.Active) SetFastResultsOnGuiInteraction();
+            if (lbtnStresstest.Active) RefreshFastResults();
         }
         private void lbtnMonitor_ActiveChanged(object sender, EventArgs e) {
-            if ((sender as LinkButton).Active) SetFastResultsOnGuiInteraction();
+            if ((sender as LinkButton).Active) RefreshFastResults();
         }
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e) {
-            SetFastResultsOnGuiInteraction();
+            RefreshFastResults();
         }
 
         private void chkReadable_CheckedChanged(object sender, EventArgs e) {
-            SetFastResultsOnGuiInteraction();
+            RefreshFastResults();
             toolTip.SetToolTip(chkReadable, chkReadable.Checked ? "Uncheck this if you want results you can calculate with." : "Check this if you want readable results.");
         }
 
-        private void SetFastResultsOnGuiInteraction() {
+        /// <summary>
+        /// WHen a filter is applied (cboDrillDown_SelectedIndexChanged for instance).
+        /// </summary>
+        private void RefreshFastResults() {
             //Set the headers.
             dgvFastResults.Columns.Clear();
 
@@ -660,7 +658,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Get the displayed results.
+        ///     Get the displayed results for saving to file.
         /// </summary>
         /// <returns></returns>
         private string GetDisplayedResults() {
@@ -690,33 +688,7 @@ namespace vApus.Stresstest {
             return sb.ToString();
         }
 
-        private void btnExport_Click(object sender, EventArgs e) {
-            epnlMessages.Export();
-        }
-
-        // Gui correction, the epnl wil not be sized correctly otherwise.
-        private void StresstestControl_SizeChanged(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
-            epnlMessages.Collapsed = !epnlMessages.Collapsed;
-            epnlMessages.Collapsed = !epnlMessages.Collapsed;
-            LockWindowUpdate(0);
-        }
-
-        // Set the splitter distance of the splitcontainer if collapsed has changed.
-        private void epnlMessages_CollapsedChanged(object sender, EventArgs e) {
-            epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
-
-            try {
-                int distance = splitContainer.Panel2.Height - epnlMessages.Bottom;
-                if (splitContainer.SplitterDistance + distance > 0)
-                    splitContainer.SplitterDistance += distance;
-
-                splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
-                BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;
-            } catch { }
-
-            epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-        }
+        private void btnExport_Click(object sender, EventArgs e) { epnlMessages.Export(); }
 
         private void btnCollapseExpand_Click(object sender, EventArgs e) {
             if (btnCollapseExpand.Text == "-") {
@@ -735,6 +707,36 @@ namespace vApus.Stresstest {
         public void ToggleCollapseEventPanel() {
             btnCollapseExpand.PerformClick();
             epnlMessages.Collapsed = btnCollapseExpand.Text == "+";
+        }
+        /// <summary>
+        /// Set the splitter distance of the splitcontainer if collapsed has changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void epnlMessages_CollapsedChanged(object sender, EventArgs e) {
+            epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
+
+            try {
+                int distance = splitContainer.Panel2.Height - epnlMessages.Bottom;
+                if (splitContainer.SplitterDistance + distance > 0)
+                    splitContainer.SplitterDistance += distance;
+
+                splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
+                BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;
+            } catch { }
+
+            epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+        }
+        /// <summary>
+        /// Gui correction, the epnl wil not be sized correctly otherwise.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StresstestControl_SizeChanged(object sender, EventArgs e) {
+            LockWindowUpdate(Handle.ToInt32());
+            epnlMessages.Collapsed = !epnlMessages.Collapsed;
+            epnlMessages.Collapsed = !epnlMessages.Collapsed;
+            LockWindowUpdate(0);
         }
         #endregion
     }

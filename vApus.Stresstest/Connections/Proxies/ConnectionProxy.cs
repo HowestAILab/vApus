@@ -13,24 +13,20 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    [ContextMenu(new[] {"Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {"Remove", "Export", "Copy", "Cut", "Duplicate"})]
-    [Hotkeys(new[] {"Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click"},
-        new[] {Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D)})]
+namespace vApus.Stresstest {
+    [ContextMenu(new[] { "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { "Remove", "Export", "Copy", "Cut", "Duplicate" })]
+    [Hotkeys(new[] { "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [DisplayName("Connection Proxy"), Serializable]
-    public class ConnectionProxy : LabeledBaseItem, ISerializable
-    {
+    public class ConnectionProxy : LabeledBaseItem, ISerializable {
         #region Properties
 
-        public ConnectionProxyRuleSet ConnectionProxyRuleSet
-        {
+        public ConnectionProxyRuleSet ConnectionProxyRuleSet {
             get { return this[0] as ConnectionProxyRuleSet; }
         }
 
-        public ConnectionProxyCode ConnectionProxyCode
-        {
+        public ConnectionProxyCode ConnectionProxyCode {
             get { return this[1] as ConnectionProxyCode; }
         }
 
@@ -38,8 +34,7 @@ namespace vApus.Stresstest
 
         #region Constructor
 
-        public ConnectionProxy()
-        {
+        public ConnectionProxy() {
             AddAsDefaultItem(new ConnectionProxyRuleSet());
             AddAsDefaultItem(new ConnectionProxyCode());
         }
@@ -49,11 +44,9 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
-        public ConnectionProxy(SerializationInfo info, StreamingContext ctxt)
-        {
+        public ConnectionProxy(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
-            using (sr = SerializationReader.GetReader(info))
-            {
+            using (sr = SerializationReader.GetReader(info)) {
                 Label = sr.ReadString();
                 ClearWithoutInvokingEvent(false);
                 AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyRuleSet, false);
@@ -73,11 +66,9 @@ namespace vApus.Stresstest
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
             SerializationWriter sw;
-            using (sw = SerializationWriter.GetWriter())
-            {
+            using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(Label);
                 sw.WriteObject(ConnectionProxyRuleSet);
                 sw.WriteObject(ConnectionProxyCode);
@@ -92,8 +83,7 @@ namespace vApus.Stresstest
         ///     Build and returns a new connection proxy class.
         /// </summary>
         /// <returns></returns>
-        public string BuildConnectionProxyClass(string connectionString = "")
-        {
+        public string BuildConnectionProxyClass(string connectionString = "") {
             return ConnectionProxyCode.BuildConnectionProxyClass(ConnectionProxyRuleSet, connectionString);
         }
 

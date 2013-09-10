@@ -64,15 +64,13 @@ namespace vApus.UpdateToolLoader {
                     Process p = Process.Start(to[0], arguments);
                     p.WaitForExit();
                 } catch {
-                    MessageBox.Show(
-                        "The update tool could not be started because the previously cached files where locked!",
-                        string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("The update tool could not be started because the previously cached files where locked!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 try {
                     Directory.Delete(cachePath, true);
                 } catch {
-                    //Will break when multiple shadow copies are alive.
+                    //Will break when update instances are alive, this can normally not be the case.
                 }
             }
         }

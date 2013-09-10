@@ -8,11 +8,9 @@
 
 using System;
 
-namespace vApus.Stresstest
-{
+namespace vApus.Stresstest {
     [Serializable]
-    public enum LexicalResult
-    {
+    public enum LexicalResult {
         OK = 0,
         Error
     }

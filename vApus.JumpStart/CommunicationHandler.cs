@@ -5,7 +5,6 @@
  * Author(s):
  *    Vandroemme Dieter
  */
-
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -16,12 +15,14 @@ using vApus.JumpStartStructures;
 using vApus.Util;
 
 namespace vApus.JumpStart {
+    /// <summary>
+    /// Jumpstarting amongst others is handled here.
+    /// </summary>
     public static class CommunicationHandler {
         [ThreadStatic]
         private static HandleJumpStartWorkItem _handleJumpStartWorkItem;
 
         #region Message Handling
-
         public static Message<Key> HandleMessage(SocketWrapper receiver, Message<Key> message) {
             try {
                 switch (message.Key) {
@@ -128,7 +129,6 @@ namespace vApus.JumpStart {
 
             return message;
         }
-
         #endregion
 
         private class HandleJumpStartWorkItem {
@@ -138,9 +138,9 @@ namespace vApus.JumpStart {
                     string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
 
                     if (processorAffinity.Length == 0)
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-p ",  port));
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-p ", port));
                     else
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-p ",  port, " -pa ", processorAffinity));
+                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-p ", port, " -pa ", processorAffinity));
 
                     p.Start();
                     if (!p.WaitForInputIdle(10000))

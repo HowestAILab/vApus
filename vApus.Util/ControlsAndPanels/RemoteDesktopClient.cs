@@ -5,17 +5,22 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
+using AxMSTSCLib;
+using MSTSCLib;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using AxMSTSCLib;
-using MSTSCLib;
 using IMsTscAxEvents_OnFatalErrorEventHandler = AxMSTSCLib.IMsTscAxEvents_OnFatalErrorEventHandler;
 using IMsTscAxEvents_OnLogonErrorEventHandler = AxMSTSCLib.IMsTscAxEvents_OnLogonErrorEventHandler;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Used in distributed testing, works with all versions of windows.
+    /// </summary>
     public partial class RemoteDesktopClient : UserControl {
+        public event EventHandler<RdpExceptionEventArgs> RdpException;
+        public event EventHandler AllConnectionsClosed;
+
         public RemoteDesktopClient() {
             InitializeComponent();
         }
@@ -132,9 +137,6 @@ namespace vApus.Util {
         }
 
         #endregion
-
-        public event EventHandler<RdpExceptionEventArgs> RdpException;
-        public event EventHandler AllConnectionsClosed;
 
         public class RdpExceptionEventArgs : EventArgs {
             public readonly int ErrorCode;

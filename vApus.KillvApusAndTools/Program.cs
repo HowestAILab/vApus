@@ -5,52 +5,28 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
-//Kill vApus and Tools when uninstalling vApus.
-
-namespace vApus.KillvApusAndTools
-{
-    internal static class Program
-    {
+namespace vApus.KillvApusAndTools {
+    /// <summary>
+    /// Used to Kill vApus and Tools when uninstalling or updating vApus. Can be used manually if you want.
+    /// </summary>
+    internal static class Program {
         /// <summary>
         ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main()
-        {
-            foreach (Process p in Process.GetProcessesByName("vApus"))
-                if (p != null)
-                    p.Kill();
+        private static void Main() {
+            Parallel.ForEach(Process.GetProcesses(), (p) => {
+                try {
+                    if (p != null && (p.ProcessName == "vApus" || p.ProcessName == "vApus.UpdateTool" || p.ProcessName == "vApus.UpdateToolLoader" || 
+                        p.ProcessName == "vApus.JumpStart" || p.ProcessName == "vApusSMT_GUI" || p.ProcessName == "vApus.DetailedResultsViewer"))
+                        p.Kill();
+                } catch { }
+            });
 
-            foreach (Process p in Process.GetProcessesByName("vApus.UpdateTool"))
-                if (p != null)
-                {
-                    p.Kill();
-                    break;
-                }
-            foreach (Process p in Process.GetProcessesByName("vApus.UpdateToolLoader"))
-                if (p != null)
-                {
-                    p.Kill();
-                    break;
-                }
-            foreach (Process p in Process.GetProcessesByName("vApusSMT_GUI"))
-                if (p != null)
-                    p.Kill();
-
-            foreach (Process p in Process.GetProcessesByName("vApus.LogFixer"))
-                if (p != null)
-                    p.Kill();
-
-            foreach (Process p in Process.GetProcessesByName("vApus.JumpStart"))
-                if (p != null)
-                {
-                    p.Kill();
-                    break;
-                }
         }
     }
 }

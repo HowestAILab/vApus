@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System.Collections.Generic;
 using vApus.SolutionTree;
 
@@ -13,7 +12,6 @@ namespace vApus.DistributedTesting {
     public class Client : BaseItem {
 
         #region Fields
-
         private string _domain = string.Empty;
         private string _hostName = string.Empty;
         private string _ip = string.Empty;
@@ -21,11 +19,9 @@ namespace vApus.DistributedTesting {
         //RDP credentials.
         private string _password = string.Empty;
         private string _userName = string.Empty;
-
         #endregion
 
         #region Properties
-
         [SavableCloneable]
         public string HostName {
             get { return _hostName; }
@@ -71,17 +67,13 @@ namespace vApus.DistributedTesting {
                 return count;
             }
         }
-
         #endregion
 
         #region Constructors
-
         public Client() { ShowInGui = false; }
-
         #endregion
 
         #region Functions
-
         public void Sort() {
             var slaves = new List<Slave>();
             foreach (Slave slave in this) slaves.Add(slave);
@@ -119,7 +111,6 @@ namespace vApus.DistributedTesting {
 
             return hostname + " - " + ip;
         }
-
         #endregion
     }
 }

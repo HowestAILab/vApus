@@ -5,44 +5,16 @@
  * Author(s):
  *    Glenn Desmadryl
  */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using vApus.Util.Properties;
 
 namespace vApus.Util {
     public delegate void BeforeLoggingEventHandler(object source, BeforeLoggingEventArgs e);
 
     public delegate void AfterLoggingEventHandler(object source, LogEventArgs e);
-
-    public class LogEventArgs : EventArgs {
-        public readonly object Data;
-        public readonly LogLevel LogLevel;
-        public readonly string Timestamp;
-
-        /// <summary>
-        /// </summary>
-        /// <param name="timestamp">As a string for the rigt formatting.</param>
-        /// <param name="logLevel"></param>
-        /// <param name="data"></param>
-        public LogEventArgs(string timestamp, LogLevel logLevel, object data) {
-            Timestamp = timestamp;
-            LogLevel = logLevel;
-            Data = data;
-        }
-    }
-
-    public class BeforeLoggingEventArgs {
-        public BeforeLoggingEventArgs(bool cancel = false, object data = null) {
-            Cancel = cancel;
-            Data = data;
-        }
-
-        public bool Cancel { get; set; }
-
-        public object Data { get; set; }
-    }
 
     /// <summary>
     ///     Different LogLevels which can be used for tagging a log.
@@ -197,8 +169,9 @@ namespace vApus.Util {
             if (BeforeLogging != null) {
                 var ea = new BeforeLoggingEventArgs(false, input);
 
-                //Invoke and let the user change the data or cancel. Invoke because the data can be changed
-                BeforeLogging.Invoke(this, ea);
+                //Invoke and let the user change the data or cancel. Invoke because the data can be change
+                BeforeLogging(this, ea);
+
                 input = ea.Data;
 
                 if (ea.Cancel) {
@@ -217,7 +190,7 @@ namespace vApus.Util {
             _logger.Log(input);
 
             //raise the event that there has been logged, BeginInvoke because we dont want to wait.
-            if (AfterLogging != null)
+            if (AfterLogging != null) 
                 AfterLogging.BeginInvoke(this, new LogEventArgs(timeStamp, level, data), null, null);
 
             if (_consoleEnabled)
@@ -229,5 +202,33 @@ namespace vApus.Util {
         }
 
         #endregion
+    }
+
+    public class LogEventArgs : EventArgs {
+        public readonly object Data;
+        public readonly LogLevel LogLevel;
+        public readonly string Timestamp;
+
+        /// <summary>
+        /// </summary>
+        /// <param name="timestamp">As a string for the rigt formatting.</param>
+        /// <param name="logLevel"></param>
+        /// <param name="data"></param>
+        public LogEventArgs(string timestamp, LogLevel logLevel, object data) {
+            Timestamp = timestamp;
+            LogLevel = logLevel;
+            Data = data;
+        }
+    }
+
+    public class BeforeLoggingEventArgs {
+        public BeforeLoggingEventArgs(bool cancel = false, object data = null) {
+            Cancel = cancel;
+            Data = data;
+        }
+
+        public bool Cancel { get; set; }
+
+        public object Data { get; set; }
     }
 }

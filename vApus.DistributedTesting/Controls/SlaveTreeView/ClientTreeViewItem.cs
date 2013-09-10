@@ -29,6 +29,7 @@ namespace vApus.DistributedTesting {
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
         public event EventHandler HostNameAndIPSet;
+        public event EventHandler DoubleClicked;
 
         #endregion
 
@@ -125,6 +126,10 @@ namespace vApus.DistributedTesting {
             SetVisibleControls();
 
             if (AfterSelect != null) AfterSelect(this, null);
+        }
+
+        private void _DoubleClick(object sender, EventArgs e) {
+            if (DoubleClicked != null) DoubleClicked.Invoke(this, null);
         }
 
         private void _MouseEnter(object sender, EventArgs e) { SetVisibleControls(); }
@@ -252,5 +257,6 @@ namespace vApus.DistributedTesting {
         }
 
         #endregion
+
     }
 }

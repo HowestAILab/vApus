@@ -17,13 +17,32 @@ using System.Windows.Forms;
 using Timer = System.Timers.Timer;
 
 namespace vApus.Util {
+    /// <summary>
+    /// A panel to show all the application log entries; used in the OptionsDialog.
+    /// </summary>
     public partial class LogPanel : Panel {
+
+        #region Events
+        public event EventHandler<LogErrorCountChangedEventArgs> LogErrorCountChanged;
+        #endregion
+
+        #region Fields
         private readonly object _lock = new object();
         private readonly Timer _tmrFireLogChangedEvent = new Timer(5000);
         private volatile int _logErrorCountCache;
 
         private const string newLineReplacement = "◦";
+        #endregion
 
+        #region Properties
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// A panel to show all the application log entries; used in the OptionsDialog.
+        /// </summary>
         public LogPanel() {
             InitializeComponent();
             HandleCreated += LogPanel_HandleCreated;
@@ -32,46 +51,9 @@ namespace vApus.Util {
 
             _tmrFireLogChangedEvent.Elapsed += tmrFireLogChangedEvent_Elapsed;
         }
-
-        #region Event Handling
-
-        private void Default_AfterLogging(object source, LogEventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetGui(); }, null);
-
-            if (e.LogLevel >= LogLevel.Error) {
-                ++_logErrorCountCache;
-                //Fire after 5 seconds.
-                if (_tmrFireLogChangedEvent != null) {
-                    _tmrFireLogChangedEvent.Stop();
-                    _tmrFireLogChangedEvent.Start();
-                }
-            }
-        }
-
-        private void tmrFireLogChangedEvent_Elapsed(object sender, ElapsedEventArgs e) {
-            lock (_lock) {
-                if (_tmrFireLogChangedEvent != null) {
-                    _tmrFireLogChangedEvent.Stop();
-                    int count = _logErrorCountCache;
-                    _logErrorCountCache = 0;
-
-                    if (LogErrorCountChanged != null)
-                        SynchronizationContextWrapper.SynchronizationContext.Send(
-                            delegate { LogErrorCountChanged(this, new LogErrorCountChangedEventArgs(count)); }, null);
-                }
-            }
-        }
-
-        private void LogPanel_HandleCreated(object sender, EventArgs e) {
-            HandleCreated -= LogPanel_HandleCreated;
-            SetGui();
-        }
-
-        private void LogPanel_VisibleChanged(object sender, EventArgs e) {
-            SetGui();
-        }
-
         #endregion
+
+        #region Functions
 
         #region Get the current log in the gui
 
@@ -200,43 +182,46 @@ namespace vApus.Util {
         }
         #endregion
 
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private void Default_AfterLogging(object source, LogEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetGui(); }, null);
 
-        public event EventHandler<LogErrorCountChangedEventArgs> LogErrorCountChanged;
+            if (e.LogLevel >= LogLevel.Error) {
+                ++_logErrorCountCache;
+                //Fire after 5 seconds.
+                if (_tmrFireLogChangedEvent != null) {
+                    _tmrFireLogChangedEvent.Stop();
+                    _tmrFireLogChangedEvent.Start();
+                }
+            }
+        }
+
+        private void tmrFireLogChangedEvent_Elapsed(object sender, ElapsedEventArgs e) {
+            lock (_lock) {
+                if (_tmrFireLogChangedEvent != null) {
+                    _tmrFireLogChangedEvent.Stop();
+                    int count = _logErrorCountCache;
+                    _logErrorCountCache = 0;
+
+                    if (LogErrorCountChanged != null)
+                        SynchronizationContextWrapper.SynchronizationContext.Send(
+                            delegate { LogErrorCountChanged(this, new LogErrorCountChangedEventArgs(count)); }, null);
+                }
+            }
+        }
+
+        private void LogPanel_HandleCreated(object sender, EventArgs e) {
+            HandleCreated -= LogPanel_HandleCreated;
+            SetGui();
+        }
+
+        private void LogPanel_VisibleChanged(object sender, EventArgs e) {
+            SetGui();
+        }
 
         private void cboLogLevel_SelectedIndexChanged(object sender, EventArgs e) {
             LogWrapper.LogLevel = (LogLevel)cboLogLevel.SelectedIndex;
             dgv.DataSource = null;
             SetGui();
-        }
-
-        private void cboLogLevel_DrawItem(object sender, DrawItemEventArgs e) {
-            if (e.Index == -1)
-                return;
-            Brush brush = null;
-            if ((e.State & DrawItemState.Focus) == DrawItemState.Focus)
-                brush = Brushes.LightBlue;
-            else
-                brush = Brushes.SteelBlue;
-            e.Graphics.FillRectangle(brush, e.Bounds);
-
-            var logLevel = (LogLevel)e.Index;
-            switch (logLevel) {
-                case LogLevel.Info:
-                    brush = new SolidBrush(Color.FromArgb(224, 224, 224));
-                    break;
-                case LogLevel.Warning:
-                    brush = Brushes.Yellow;
-                    break;
-                case LogLevel.Error:
-                    brush = new SolidBrush(Color.FromArgb(255, 128, 0));
-                    break;
-                case LogLevel.Fatal:
-                    brush = Brushes.Red;
-                    break;
-            }
-            e.Graphics.DrawString(cboLogLevel.Items[e.Index].ToString(), cboLogLevel.Font, brush, e.Bounds);
         }
 
         private void btnWarning_Click(object sender, EventArgs e) {
@@ -262,18 +247,6 @@ namespace vApus.Util {
                 MessageBox.Show("The file does not exist anymore.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
-        public override string ToString() {
-            return "Application Logging";
-        }
-
-        public class LogErrorCountChangedEventArgs : EventArgs {
-            public readonly int LogErrorCount;
-
-            public LogErrorCountChangedEventArgs(int logErrorCount) {
-                LogErrorCount = logErrorCount;
-            }
-        }
-
         private void dgv_CellDoubleClick(object sender, DataGridViewCellEventArgs e) {
             var row = (dgv.DataSource as DataTable).Rows[e.RowIndex];
             var lmd = new LogMessageDialog();
@@ -296,6 +269,17 @@ namespace vApus.Util {
                 if (string.IsNullOrEmpty(cell.ToolTipText))
                     cell.ToolTipText = "Double-click for details...";
             } catch { }
+        }
+
+        public override string ToString() { return "Application Logging"; }
+        #endregion
+
+        public class LogErrorCountChangedEventArgs : EventArgs {
+            public readonly int LogErrorCount;
+
+            public LogErrorCountChangedEventArgs(int logErrorCount) {
+                LogErrorCount = logErrorCount;
+            }
         }
     }
 }

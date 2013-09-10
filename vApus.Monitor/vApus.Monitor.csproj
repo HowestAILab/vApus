@@ -202,11 +202,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ConfigurationDialog.cs">
+    <Compile Include="HardwareConfigurationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ConfigurationDialog.designer.cs">
-      <DependentUpon>ConfigurationDialog.cs</DependentUpon>
+    <Compile Include="HardwareConfigurationDialog.designer.cs">
+      <DependentUpon>HardwareConfigurationDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -242,8 +242,8 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ConfigurationDialog.resx">
-      <DependentUpon>ConfigurationDialog.cs</DependentUpon>
+    <EmbeddedResource Include="HardwareConfigurationDialog.resx">
+      <DependentUpon>HardwareConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

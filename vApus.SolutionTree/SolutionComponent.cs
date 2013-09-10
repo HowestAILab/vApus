@@ -11,17 +11,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Resources;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Util;
 
 namespace vApus.SolutionTree {
     /// <summary>
-    ///     The base class for BaseItem and BaseProject.
+    ///     The base class for BaseItem and BaseProject. The base of everything in a solution. Contains all the plumbing for ICollection amongst others.
     /// </summary>
     [Serializable]
     public abstract class SolutionComponent : Object, ICollection<BaseItem> {
         public static event EventHandler<SolutionComponentChangedEventArgs> SolutionComponentChanged;
-
         /// <summary>
         ///     When creating a empty base item, it checks if the parent becomes null. (Happens when removed from a collection, don't set the parent null yourself)
         ///     Call SolutionComponent.GetNextChild when this happens, don't forget to suscribe to this event again for the new item.
@@ -30,10 +30,12 @@ namespace vApus.SolutionTree {
         [field: NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
         public event EventHandler ParentIsNull;
 
-        #region Fields
+        private delegate void InvokeSolutionComponentChangedEventDelegate(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg);
 
+        #region Fields
         private bool _isDefaultItem, _isEmpty;
         protected List<BaseItem> _items = new List<BaseItem>();
+        private List<Type> _defaultItemTypes = new List<Type>();
         private bool _noImage, _showInGui = true;
 
         [NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
@@ -41,7 +43,6 @@ namespace vApus.SolutionTree {
         #endregion
 
         #region Properties
-
         [Description("The name of this item.")]
         public string Name {
             get {
@@ -69,47 +70,37 @@ namespace vApus.SolutionTree {
             }
         }
 
-        public BaseItem this[int index] {
-            get { return _items[index]; }
-        }
+        public BaseItem this[int index] { get { return _items[index]; } }
 
         [SavableCloneable]
-        public bool ShowInGui {
-            get { return _showInGui; }
-            set { _showInGui = value; }
-        }
+        public bool ShowInGui { get { return _showInGui; } set { _showInGui = value; } }
 
         [SavableCloneable]
-        public bool IsDefaultItem {
-            get { return _isDefaultItem; }
-            set { _isDefaultItem = value; }
-        }
+        public bool IsDefaultItem { get { return _isDefaultItem; } set { _isDefaultItem = value; } }
 
+        /// <summary>
+        /// Can never be null (for load and save checks), but can be empty.
+        /// </summary>
         [SavableCloneable]
-        public bool IsEmpty {
-            get { return _isEmpty; }
-            set { _isEmpty = value; }
-        }
+        public bool IsEmpty { get { return _isEmpty; } set { _isEmpty = value; } }
 
         /// <summary>
         ///     The count of the child items (regardless the parent of those items).
         /// </summary>
         [Description("The count of the child items (regardless the parent of those items).")]
-        public int Count {
-            get { return _items.Count; }
-        }
+        public int Count { get { return _items.Count; } }
 
-        public bool IsReadOnly {
-            get { return false; }
-        }
+        /// <summary>
+        /// Is overriden in base item / project.
+        /// </summary>
+        public bool IsReadOnly { get { return false; } }
 
         /// <summary>
         ///     The count of the child items that are of a derived type from BaseItem (where the parent is this).
         /// </summary>
         /// <param name="derivedType"></param>
         /// <returns></returns>
-        [Description("The count of the child items that are of a derived type from BaseItem (where the parent is this)."
-            )]
+        [Description("The count of the child items that are of a derived type from BaseItem (where the parent is this).")]
         public int CountOf(Type derivedType) {
             int count = 0;
             foreach (object item in _items)
@@ -118,21 +109,23 @@ namespace vApus.SolutionTree {
 
             return count;
         }
-
         #endregion
 
+        #region Constructor
+        /// <summary>
+        ///     The base class for BaseItem and BaseProject. The base of everything in a solution. Contains all the plumbing for ICollection amongst others.
+        /// </summary>
         public SolutionComponent() {
             /// <summary>
             /// To Check if the parent has become null.
             /// 
             /// That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
             ObjectExtension.ParentChanged += ObjectExtension_ParentChanged;
-
             _invokeSolutionComponentChangedEventDelegate = InvokeSolutionComponentChangedEventCallback;
         }
+        #endregion
 
         #region Functions
-
         /// <summary>
         ///     Will only invoke SolutionComponentChanged if the ShowOnGui property of the item equals true.
         /// </summary>
@@ -153,13 +146,9 @@ namespace vApus.SolutionTree {
             }
         }
 
-        public bool Contains(BaseItem item) {
-            return _items.Contains(item);
-        }
+        public bool Contains(BaseItem item) { return _items.Contains(item); }
 
-        public void CopyTo(BaseItem[] array, int arrayIndex) {
-            _items.CopyTo(array, arrayIndex);
-        }
+        public void CopyTo(BaseItem[] array, int arrayIndex) { _items.CopyTo(array, arrayIndex); }
 
         /// <summary>
         ///     Use Parent.Remove(this) and not Remove(this) ('this' is not a part of its own items collection).
@@ -187,19 +176,11 @@ namespace vApus.SolutionTree {
         /// <returns>True for one or more items removed.</returns>
         public bool RemoveRange(IEnumerable<BaseItem> collection) {
             bool removed = false;
-            //foreach (var item in collection)
-            //    if (RemoveWithoutInvokingEvent(item)) removed = true;
-            //if (removed)
-            //    InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            foreach (var item in collection) if(Remove(item)) removed = true;
+            foreach (var item in collection) if (Remove(item)) removed = true;
             return removed;
         }
         public bool RemoveRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection, bool invokeParentChanged = true) {
             bool removed = false;
-            //foreach (var item in collection)
-            //    if (RemoveWithoutInvokingEvent(item)) removed = true;
-            //if (removed)
-            //    InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             foreach (var item in collection) if (RemoveWithoutInvokingEvent(item, invokeParentChanged)) removed = true;
             return removed;
         }
@@ -217,25 +198,23 @@ namespace vApus.SolutionTree {
             return false;
         }
 
-        public IEnumerator<BaseItem> GetEnumerator() {
-            return _items.GetEnumerator();
-        }
+        public IEnumerator<BaseItem> GetEnumerator() { return _items.GetEnumerator(); }
 
-        IEnumerator IEnumerable.GetEnumerator() {
-            return _items.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() { return _items.GetEnumerator(); }
 
         /// <summary>
         ///     Checks if the parent has become null.
         ///     That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
         /// </summary>
-        protected void ObjectExtension_ParentChanged(
-            ObjectExtension.ParentOrTagChangedEventArgs parentOrTagChangedEventArgs) {
+        protected void ObjectExtension_ParentChanged(ObjectExtension.ParentChangedEventArgs parentOrTagChangedEventArgs) {
             if (Solution.ActiveSolution != null)
-                if (parentOrTagChangedEventArgs.Child == this)
-                    if (parentOrTagChangedEventArgs.New == null && ParentIsNull != null)
-                        foreach (EventHandler del in ParentIsNull.GetInvocationList())
-                            del.BeginInvoke(this, null, null, null);
+                if (object.ReferenceEquals(parentOrTagChangedEventArgs.Child, this))
+                    if (parentOrTagChangedEventArgs.New == null && ParentIsNull != null) {
+                        var invocationList = ParentIsNull.GetInvocationList();
+                        Parallel.For(0, invocationList.Length, (i) => {
+                            (invocationList[i] as EventHandler).Invoke(this, null);
+                        });
+                    }
         }
 
         public void AddWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true) {
@@ -245,17 +224,26 @@ namespace vApus.SolutionTree {
         }
 
         /// <summary>
+        /// Most basic add, do this for building fast temp structures.
+        /// </summary>
+        /// <param name="item"></param>
+        public void AddWithoutInvokingEventDoNotSetParent(BaseItem item) {
+            _items.Add(item);
+        }
+
+        /// <summary>
         ///     Add a new item, if the same type is found marked as default item (AddAsDefaultItem in the constructor of another base item) it will be replaced.
         /// </summary>
         /// <param name="item"></param>
         internal void AddWhileLoading(BaseItem item) {
             Type itemType = item.GetType();
             int index = -1;
-            for (int i = 0; i < _items.Count; i++)
-                if (_items[i].GetType() == itemType && _items[i].IsDefaultItem) {
-                    index = i;
-                    break;
-                }
+            if (_defaultItemTypes.Contains(itemType))
+                for (int i = 0; i < _items.Count; i++)
+                    if (_items[i].GetType() == itemType && _items[i].IsDefaultItem) {
+                        index = i;
+                        break;
+                    }
             if (index == -1)
                 _items.Add(item);
             else {
@@ -275,6 +263,11 @@ namespace vApus.SolutionTree {
         /// <param name="item"></param>
         /// <returns>The index</returns>
         public int AddAsDefaultItem(BaseItem item) {
+            //Faster check when calling AddWhileLoading.
+            var type = item.GetType();
+            if (!_defaultItemTypes.Contains(type))
+                _defaultItemTypes.Add(type);
+
             int index = _items.Count;
             _items.Add(item);
 
@@ -352,12 +345,10 @@ namespace vApus.SolutionTree {
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int IndexOf(BaseItem item) {
-            return _items.IndexOf(item);
-        }
+        public int IndexOf(BaseItem item) { return _items.IndexOf(item); }
 
         /// <summary>
-        ///     Gets the tree nodes for the childs.
+        ///     Gets the tree nodes for the childs (where ShoInGui == true).
         /// </summary>
         /// <returns></returns>
         internal List<TreeNode> GetChildNodes() {
@@ -447,9 +438,7 @@ namespace vApus.SolutionTree {
                 Clear();
         }
 
-        internal void SortItemsByLabel_Click(object sender, EventArgs e) {
-            SortItemsByLabel();
-        }
+        internal void SortItemsByLabel_Click(object sender, EventArgs e) { SortItemsByLabel(); }
         /// <summary>
         ///     Only the labeled ones are sorted, (BaseItems are put at the start of the collections, but they should always be there anyways).
         /// </summary>
@@ -505,18 +494,17 @@ namespace vApus.SolutionTree {
                             //GetParent is the parent from the global cache, default items in a collection don't know their parents.
                             return item as BaseItem;
 
-                return BaseItem.Empty(childType, parent);
+                return BaseItem.GetEmpty(childType, parent);
             }
             return null;
         }
 
         /// <summary>
         ///     Virtual method for activation, example: SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)) --> default.
+        ///     Override this if you want to provide your own GUI (must inherit BaseSolutionComponentView).
         /// </summary>
         /// <returns></returns>
-        public virtual void Activate() {
-            SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView));
-        }
+        public virtual void Activate() { SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)); }
 
         /// <summary>
         /// </summary>
@@ -535,8 +523,6 @@ namespace vApus.SolutionTree {
             } catch { }
         }
         #endregion
-
-        private delegate void InvokeSolutionComponentChangedEventDelegate(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg);
     }
 
     public class SolutionComponentChangedEventArgs : EventArgs {
@@ -557,12 +543,16 @@ namespace vApus.SolutionTree {
             Removed
         }
 
-        public readonly object Arg;
-        public readonly DoneAction __DoneAction;
+        #region Properties
+        public object Arg { get; private set; }
+        public DoneAction __DoneAction { get; private set; }
+        #endregion
 
+        #region Constructor
         public SolutionComponentChangedEventArgs(DoneAction doneAction, object arg) {
             __DoneAction = doneAction;
             Arg = arg;
         }
+        #endregion
     }
 }

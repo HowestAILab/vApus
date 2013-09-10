@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,28 +12,35 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Contains a captured request to a server app.
+    /// </summary>
     [DisplayName("Log Entry"), Serializable]
     public class LogEntry : LabeledBaseItem {
+
         #region Fields
-
         private static readonly char[] _beginParameterTokenDelimiterCanditates = new[] { '{', '<', '[', '(', '\\', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
-
         private static readonly char[] _endParameterTokenDelimiterCanditates = new[] { '}', '>', ']', ')', '/', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
 
-        private bool _executeInParallelWithPrevious;
+        private readonly object _lock = new object();
+
+        private bool _executeInParallelWithPrevious; //For a special not yet used feature.
+
         private bool _useDelay = false;
-        private ASTNode _lexedLogEntry;
-        private LexicalResult _lexicalResult = LexicalResult.Error;
         private string _logEntryString = string.Empty;
         private int _parallelOffsetInMs;
 
         private Parameters _parameters;
+        [NonSerialized]
+        private static Parameters _staticParameters;
 
         private LogEntry _sameAs;
+
+        private ASTNode _lexedLogEntry;
+        private LexicalResult _lexicalResult = LexicalResult.Error;
         #endregion
 
         #region Properties
-
         /// <summary>
         ///     Call ApplyLogRuleSet after setting this.
         /// </summary>
@@ -57,24 +63,7 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Is valid after calling ApplyLogRuleSet.
         /// </summary>
-        public ASTNode LexedLogEntry {
-            get { return _lexedLogEntry; }
-        }
-
-        public LogRuleSet LogRuleSet {
-            get {
-                SolutionComponent parent = Parent;
-                if (parent == null)
-                    return null;
-                while (!(parent is Log)) {
-                    if (parent == null)
-                        return null;
-
-                    parent = (parent as BaseItem).Parent;
-                }
-                return (parent as Log).LogRuleSet;
-            }
-        }
+        internal ASTNode LexedLogEntry { get { return _lexedLogEntry; } }
 
         [ReadOnly(true)]
         [Description("When true the determined delay (stresstest properties) will take place after this log entry."), DisplayName("Ignore Delay")]
@@ -88,9 +77,7 @@ namespace vApus.Stresstest {
         /// </summary>
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description(
-            "You can parallel execute this with an immediate previous or next log entry where this is enabled too. For the first one in a group the connection proxy for the executing thread (user) is used, therefore only that one is able to make data available for the rest of a stresstest for a certain user (eg login data)."
-            ), DisplayName("Execute in Parallel with Previous")]
+        [Description("You can parallel execute this with an immediate previous or next log entry where this is enabled too. For the first one in a group the connection proxy for the executing thread (user) is used, therefore only that one is able to make data available for the rest of a stresstest for a certain user (eg login data)."), DisplayName("Execute in Parallel with Previous")]
         public bool ExecuteInParallelWithPrevious {
             get { return _executeInParallelWithPrevious; }
             set { _executeInParallelWithPrevious = value; }
@@ -98,8 +85,7 @@ namespace vApus.Stresstest {
 
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description("The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do).")
-        , DisplayName("Parallel Offset")]
+        [Description("The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do)."), DisplayName("Parallel Offset")]
         public int ParallelOffsetInMs {
             get { return _parallelOffsetInMs; }
             set { _parallelOffsetInMs = value; }
@@ -123,47 +109,50 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-
-        public LogEntry() {
-            ShowInGui = false;
-            if (_parameters == null && Solution.ActiveSolution != null)
+        static LogEntry() {
+            if (_staticParameters == null && Solution.ActiveSolution != null)
                 try {
-                    _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+                    _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 } catch {
                 }
+            Solution.ActiveSolutionChanged += StaticSolution_ActiveSolutionChanged;
 
+        }
+        /// <summary>
+        /// Contains a captured request to a server app.
+        /// </summary>
+        public LogEntry() {
+            ShowInGui = false;
+            _parameters = _staticParameters;
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
-
         /// <summary>
+        /// Contains a captured request to a server app.
         /// </summary>
         /// <param name="logEntryString">Log entry string as imported will get this value also.</param>
         public LogEntry(string logEntryString)
             : this() {
             LogEntryString = logEntryString;
         }
-
         #endregion
 
         #region Functions
-
+        private static void StaticSolution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
+            _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+        }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            _parameters = _staticParameters;
         }
 
         /// <summary>
         ///     This will apply the ruleset (lexing).
         ///     The lexed log entry will be filled in.
         /// </summary>
-        public void ApplyLogRuleSet() {
+        public void ApplyLogRuleSet(LogRuleSet logRuleSet) {
             //For cleaning old solutions
-            ClearWithoutInvokingEvent();
+            //ClearWithoutInvokingEvent();
 
-            if (LogRuleSet == null)
-                _lexicalResult = LexicalResult.Error;
-            else
-                _lexicalResult = LogRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
+            _lexicalResult = (logRuleSet == null) ? LexicalResult.Error : logRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
         }
 
         /// <summary>
@@ -238,22 +227,28 @@ namespace vApus.Stresstest {
             return _lexedLogEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
         }
 
-        //Clones and applies the log rule set.
-        public LogEntry Clone() {
+        /// <summary>
+        /// Clones and applies the log rule set.
+        /// </summary>
+        /// <returns></returns>
+        public LogEntry Clone(LogRuleSet logRuleSet) {
             LogEntry logEntry = new LogEntry();
             logEntry.SetParent(Parent, false);
             logEntry.LogEntryString = _logEntryString;
             logEntry._parameters = _parameters;
 
-            logEntry.ApplyLogRuleSet();
+            logEntry.ApplyLogRuleSet(logRuleSet);
 
             return logEntry;
         }
 
+        /// <summary>
+        /// Log Entry #: LogEntryString.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() {
             return (base.ToString() == null ? string.Empty : base.ToString() + ": ") + _logEntryString;
         }
-
         #endregion
     }
 }

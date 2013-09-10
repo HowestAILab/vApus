@@ -11,38 +11,29 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    /// <summary>
+    /// Used in DefinedCollectionControl and DefinedKVPCollectionControl.
+    /// </summary>
     public partial class SelectCollectionItemsDialog : Form {
 
         #region Fields
-
-        private IEnumerable _newValue;
-        private IEnumerable _value;
-
+        private IEnumerable _newValue, _value;
         #endregion
 
         #region Properties
-
-        public IEnumerable NewValue {
-            get { return _newValue; }
-        }
+        public IEnumerable NewValue { get { return _newValue; } }
 
         public bool MultipleValues {
             get { return lvw.CheckBoxes; }
             set { lvw.CheckBoxes = value; }
         }
-
         #endregion
 
         #region Constructor
-
-        public SelectCollectionItemsDialog() {
-            InitializeComponent();
-        }
-
+        public SelectCollectionItemsDialog() { InitializeComponent(); }
         #endregion
 
         #region Functions
-
         public void SetValue(IEnumerable value) {
             _value = value;
             var parent = value.GetParent() as IEnumerable;
@@ -75,7 +66,7 @@ namespace vApus.Util {
             ArrayList arrayList = null;
             Type elementType = _value.AsQueryable().ElementType;
             if (MultipleValues) {
-                 arrayList = new ArrayList(lvw.CheckedItems.Count);
+                arrayList = new ArrayList(lvw.CheckedItems.Count);
 
                 foreach (ListViewItem item in lvw.CheckedItems)
                     arrayList.Add(item.Tag);
@@ -100,7 +91,6 @@ namespace vApus.Util {
             DialogResult = DialogResult.OK;
             Close();
         }
-
         #endregion
     }
 }

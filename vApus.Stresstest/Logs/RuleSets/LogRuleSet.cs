@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,43 +14,31 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
-    [ContextMenu(
-        new[]
-            {
-                "Activate_Click", "Add_Click", "Export_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click",
-                "Duplicate_Click", "Paste_Click"
-            },
+    /// <summary>
+    /// Describes how a log should look like to be usable in a stresstest.
+    /// </summary>
+    [ContextMenu(new[] { "Activate_Click", "Add_Click", "Export_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
         new[] { "Edit", "Add Syntax Item", "Export", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
-    [Hotkeys(
-        new[] { "Activate_Click", "Add_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" }
-        ,
-        new[]
-            {
-                Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X),
-                (Keys.Control | Keys.D), (Keys.Control | Keys.V)
-            })]
+    [Hotkeys(new[] { "Activate_Click", "Add_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
+        new[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
     [DisplayName("Log Rule Set"), Serializable]
     public class LogRuleSet : BaseRuleSet, ISerializable {
         [field: NonSerialized]
         public event EventHandler LogRuleSetChanged;
 
         #region Fields
-
         private bool _actionizeOnComment = true;
         private string _beginCommentString = string.Empty;
         private uint _beginTimestampIndex;
         private string _endCommentString = string.Empty;
         private uint _endTimestampIndex;
         private string _singleLineCommentString = string.Empty;
-
         #endregion
 
         #region Properties
-
         [SavableCloneable, PropertyControl(1)]
-        [Description(
-            "If no delimiter is given, the log entry will not be splitted into parts (space = valid). Please use <16 0C 02 12$> as it is the default for the log recorder. Just like new lines this is replaced by \"◦\" in the labels of the log entry controls for readability."
-            ), DisplayName("Child Delimiter")]
+        [Description("If no delimiter is given, the log entry will not be splitted into parts (space = valid). Please use <16 0C 02 12$> as it is the default for the log recorder. Just like new lines this is replaced by \"◦\" in the labels of the log entry controls for readability."),
+        DisplayName("Child Delimiter")]
         public override string ChildDelimiter {
             get { return base.ChildDelimiter; }
             set { base.ChildDelimiter = value; }
@@ -104,15 +91,13 @@ namespace vApus.Stresstest {
             get { return Count < _endTimestampIndex ? 0 : _endTimestampIndex; }
             set { _endTimestampIndex = value; }
         }
-
         #endregion
 
         #region Constructors
-
-        public LogRuleSet() {
-            SolutionComponentChanged += BaseItem_SolutionComponentChanged;
-        }
-
+        /// <summary>
+        /// Describes how a log should look like to be usable in a stresstest.
+        /// </summary>
+        public LogRuleSet() { SolutionComponentChanged += BaseItem_SolutionComponentChanged; }
         /// <summary>
         ///     Only for sending from master to slave.
         /// </summary>
@@ -132,11 +117,9 @@ namespace vApus.Stresstest {
             //Not pretty, but helps against mem saturation.
             GC.Collect();
         }
-
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Only for sending from master to slave.
         /// </summary>
@@ -177,9 +160,7 @@ namespace vApus.Stresstest {
             return contains;
         }
 
-        protected new void Add_Click(object sender, EventArgs e) {
-            Add(new LogSyntaxItem());
-        }
+        protected new void Add_Click(object sender, EventArgs e) { Add(new LogSyntaxItem()); }
 
         #endregion
     }

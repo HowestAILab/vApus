@@ -5,70 +5,69 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
-namespace vApus.Stresstest
-{
-    public partial class CustomRandomParameterPanel : UserControl
-    {
-        private CustomRandomParameter _parameter;
+namespace vApus.Stresstest {
+    /// <summary>
+    /// Code is formatted on this panel. A bit of debugging can also be done (TestCustomRandomPanel).
+    /// </summary>
+    public partial class CustomRandomParameterPanel : UserControl {
 
-        public CustomRandomParameterPanel()
-        {
-            InitializeComponent();
-        }
+        #region Fields
+        private CSharpTextStyle _csharpTextStyle;
+        #endregion
 
+        #region Properties
         /// <summary>
         ///     Call Init(...) to set.
         /// </summary>
-        public CustomRandomParameter Parameter
-        {
-            get { return _parameter; }
-        }
+        public CustomRandomParameter Parameter { get; private set; }
+        #endregion
 
-        public void Init(SolutionComponent solutionComponent)
-        {
-            cbGenerate.CodeTextChangedDelayed -= cbGenerate_CodeTextChangedDelayed;
+        #region Constructors
+        /// <summary>
+        /// Code is formatted on this panel. A bit of debugging can also be done (TestCustomRandomPanel).
+        /// </summary>
+        public CustomRandomParameterPanel() { InitializeComponent(); }
+        #endregion
 
-            _parameter = solutionComponent as CustomRandomParameter;
-            compileCustomRandom.Document = cbGenerate;
-            compileCustomRandom.Parameter = _parameter;
+        #region Functions
+        public void Init(SolutionComponent solutionComponent) {
+            ctxtGenerate.TextChangedDelayed -= ctxtGenerate_TextChangedDelayed;
 
-            cbGenerate.ShowLineNumbers = true;
-            cbGenerate.Code = _parameter.GenerateFunction;
-            cbGenerate.RefreshLineNumbers(2);
-            cbGenerate.CodeTextChangedDelayed += cbGenerate_CodeTextChangedDelayed;
+            Parameter = solutionComponent as CustomRandomParameter;
+            compileCustomRandom.Document = ctxtGenerate;
+            compileCustomRandom.Parameter = Parameter;
+
+            ctxtGenerate.ShowLineNumbers = true;
+            _csharpTextStyle = new CSharpTextStyle(ctxtGenerate);
+            ctxtGenerate.Text = Parameter.Code;
+            ctxtGenerate.TextChangedDelayed += ctxtGenerate_TextChangedDelayed;
 
             chkUnique.CheckedChanged -= chkUnique_CheckedChanged;
-            chkUnique.Checked = _parameter.Unique;
+            chkUnique.Checked = Parameter.Unique;
             chkUnique.CheckedChanged += chkUnique_CheckedChanged;
         }
 
-        private void cbGenerate_CodeTextChangedDelayed(object sender, EventArgs e)
-        {
-            cbGenerate.RefreshLineNumbers(2);
-            _parameter.GenerateFunction = cbGenerate.Code;
-            _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        private void ctxtGenerate_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
+            Parameter.Code = ctxtGenerate.Text;
+            Parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void compileCustomRandom_CompileErrorButtonClicked(object sender,
-                                                                   TestCustomRandom.CompileErrorButtonClickedEventArgs e)
-        {
-            e.CodePart.SelectLine(e.LineNumber);
+        private void chkUnique_CheckedChanged(object sender, EventArgs e) {
+            Parameter.Unique = chkUnique.Checked;
+            Parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, null);
         }
 
-        internal void TryCompileAndTestCode(out Exception exception)
-        {
-            compileCustomRandom.TryCompileAndTestCode(out exception);
+        private void compileCustomRandom_CompileErrorButtonClicked(object sender, TestCustomRandomPanel.CompileErrorButtonClickedEventArgs e) {
+            ctxtGenerate.SelectLine(e.LineNumber);
         }
 
-        private void chkUnique_CheckedChanged(object sender, EventArgs e)
-        {
-            _parameter.Unique = chkUnique.Checked;
-            _parameter.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, null);
-        }
+        internal void TryCompileAndTestCode(out Exception exception) { compileCustomRandom.TryCompileAndTestCode(out exception); }
+
+        #endregion
     }
 }

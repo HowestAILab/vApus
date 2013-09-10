@@ -6,10 +6,8 @@
  *    Dieter Vandroemme
  */
 
-namespace vApus.Util
-{
-    public interface IValueControl
-    {
+namespace vApus.Util {
+    public interface IValueControl {
         void Init(BaseValueControl.Value value);
     }
 }

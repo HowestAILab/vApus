@@ -5,35 +5,37 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.IO.Packaging;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Contains UserActions that contain LogEntries.
+    /// </summary>
     [Serializable]
-    [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
-        new[] { "Edit/Import", "Remove", "Export Data Structure", "Copy", "Cut", "Duplicate" })]
+    [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "ExportLogAndUsedParameters_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { "Edit/Import", "Remove", "Export Data Structure", "Export log and Used Parameter Data Structures", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     public class Log : LabeledBaseItem, ISerializable {
 
-        #region Events
-
         /// <summary>
         ///     This event is used in a control, this makes sure that trying to serialize the control where this event is used will not happen.
+        ///     This is asynchronously invoked, invoke to the gui where needed.
         /// </summary>
         [field: NonSerialized] //This makes sure that trying to serialize the control where this event is used will not happen.
         internal event EventHandler<LexicalResultsChangedEventArgs> LexicalResultChanged;
 
-        #endregion
-
         #region Fields
-
         private static readonly object _lock = new object();
 
         private LexicalResult _lexicalResult;
@@ -42,16 +44,13 @@ namespace vApus.Stresstest {
         private Parameters _parameters;
         private int _preferredTokenDelimiterIndex;
 
-        //Capture settings
-        private string[] _allow = new string[] { };
-        private string[] _deny = new string[] { };
+        //Capture web traffic settings
+        private string[] _allow = new string[] { }, _deny = new string[] { };
         #endregion
 
         #region Properties
-
         [SavableCloneable, PropertyControl(1)]
-        [DisplayName("Log Rule Set"),
-         Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
+        [DisplayName("Log Rule Set"), Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
         public LogRuleSet LogRuleSet {
             get {
                 if (_logRuleSet.IsEmpty)
@@ -89,25 +88,23 @@ namespace vApus.Stresstest {
             get { return _lexicalResult; }
         }
 
+        //All the settings for capturing web traffic.
         [SavableCloneable]
         public bool UseAllow { get; set; }
         [SavableCloneable]
-        public string[] Allow {
-            get { return _allow; }
-            set { _allow = value; }
-        }
+        public string[] Allow { get { return _allow; } set { _allow = value; } }
+        [SavableCloneable]
+        public bool AllowIncludeReferer { get; set; }
         [SavableCloneable]
         public bool UseDeny { get; set; }
         [SavableCloneable]
-        public string[] Deny {
-            get { return _deny; }
-            set { _deny = value; }
-        }
-
+        public string[] Deny { get { return _deny; } set { _deny = value; } }
         #endregion
 
         #region Constructors
-
+        /// <summary>
+        /// Contains UserActions that contain LogEntries.
+        /// </summary>
         public Log() {
             if (Solution.ActiveSolution == null) {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
@@ -118,7 +115,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Only for sending from master to slave.
+        ///     Only for sending from master to slave. (Synchronization)
         /// </summary>
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
@@ -136,11 +133,9 @@ namespace vApus.Stresstest {
             //Not pretty, but helps against mem saturation.
             GC.Collect();
         }
-
         #endregion
 
         #region Functions
-
         /// <summary>
         ///     Only for sending from master to slave.
         /// </summary>
@@ -173,26 +168,103 @@ namespace vApus.Stresstest {
                 LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        /// <summary>
+        ///     Get the log entries even if they are in a user action.
+        ///     Threadsafe.
+        /// </summary>
+        /// <returns></returns>
+        public LogEntry[] GetAllLogEntries() {
+            lock (_lock) {
+                int count = 0, index = 0;
+                foreach (BaseItem item in this)
+                    if (item is UserAction)
+                        count += item.Count;
+
+                var arr = new LogEntry[count];
+
+                foreach (BaseItem item in this)
+                    if (item is UserAction)
+                        foreach (LogEntry childItem in item)
+                            arr[index++] = childItem;
+
+                return arr;
+            }
+        }
+
+        private void ExportLogAndUsedParameters_Click(object sender, EventArgs e) {
+            var sfd = new SaveFileDialog();
+            sfd.Filter = "Zip Files (*.zip) | *.zip";
+            sfd.Title = "Export log and used parameters to...";
+            sfd.FileName = Label.ReplaceInvalidWindowsFilenameChars('_');
+            if (sfd.ShowDialog() == DialogResult.OK) {
+                Package package = null;
+
+                try {
+                    package = Package.Open(sfd.FileName, FileMode.Create, FileAccess.ReadWrite);
+
+                    var uri = new Uri("/" + Name, UriKind.Relative);
+                    var part = package.CreatePart(uri, string.Empty, CompressionOption.Maximum);
+                    using (var sw = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))
+                        GetXmlStructure().Save(sw);
+
+                    //Get the parameters used in the log
+                    string begin, end;
+                    bool logEntryContainsTokens;
+                    GetParameterTokenDelimiters(out begin, out end, out logEntryContainsTokens, false);
+
+                    var usedParameters = new List<BaseParameter>();
+                    var allParameterTokens = ASTNode.GetParameterTokens(begin, end, _parameters);
+
+                    foreach (UserAction userAction in this)
+                        foreach (LogEntry logEntry in userAction)
+                            foreach (string token in allParameterTokens.Keys) {
+                                var parameter = allParameterTokens[token];
+                                if (!usedParameters.Contains(parameter) && logEntry.LogEntryString.Contains(token))
+                                    usedParameters.Add(allParameterTokens[token]);
+                            }
+
+                    //Save thenm to the package.
+                    foreach (var parameter in usedParameters) {
+                        uri = new Uri("/" + parameter.Name.Replace(' ', '_') + "_0" + parameter.Index, UriKind.Relative);
+                        part = package.CreatePart(uri, string.Empty, CompressionOption.Maximum);
+                        using (var sw = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))
+                            parameter.GetXmlStructure().Save(sw);
+                    }
+
+                    package.Flush();
+                } catch (Exception ex) {
+                    LogWrapper.LogByLevel("Failed to export the log + parameters.\n" + ex.ToString(), LogLevel.Error);
+                }
+
+                try {
+                    if (package != null)
+                        package.Close();
+                } catch { }
+            }
+        }
 
         /// <summary>
         ///     This will apply the ruleset (lexing).
         ///     The lexed log entry will be filled in for the log entries.
         /// </summary>
         public void ApplyLogRuleSet() {
-            _lexicalResult = LexicalResult.OK;
             var logEntriesWithErrors = new List<LogEntry>();
-            foreach (LogEntry logEntry in GetAllLogEntries()) {
-                logEntry.ApplyLogRuleSet();
-                if (logEntry.LexicalResult == LexicalResult.Error) {
-                    _lexicalResult = LexicalResult.Error;
-                    logEntriesWithErrors.Add(logEntry);
+            foreach(var logEntry in GetAllLogEntries()) {
+                try {
+                    logEntry.ApplyLogRuleSet(_logRuleSet);
+                    if (logEntry.LexicalResult == LexicalResult.Error)
+                        logEntriesWithErrors.Add(logEntry);
+                } catch (Exception ex) {
+                    LogWrapper.LogByLevel(ex, LogLevel.Error);
                 }
             }
 
-            if (LexicalResultChanged != null) LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrors));
-        }
+            _lexicalResult = (logEntriesWithErrors.Count == 0) ? LexicalResult.OK : LexicalResult.Error;
 
+            var logEntriesWithErrorsArr = logEntriesWithErrors.ToArray();
+            if (LexicalResultChanged != null) 
+                LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrorsArr));
+        }
         /// <summary>
         /// </summary>
         /// <param name="beginTokenDelimiter"></param>
@@ -209,7 +281,7 @@ namespace vApus.Stresstest {
 
             if (this.CountOf(typeof(UserAction)) == 0) {
                 tokenIndex = (new LogEntry()).GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
-                logEntryContainsTokens = true;
+                if (bln) logEntryContainsTokens = true;
 
                 beginTokenDelimiter = b;
                 endTokenDelimiter = e;
@@ -229,7 +301,6 @@ namespace vApus.Stresstest {
                 }
             }
         }
-
         /// <summary>
         ///     Get a list of string trees, these are used in the connection proxy code.
         /// </summary>
@@ -242,30 +313,10 @@ namespace vApus.Stresstest {
             bool logEntryContainsTokens;
             GetParameterTokenDelimiters(out b, out e, out logEntryContainsTokens, false);
 
-            foreach (BaseItem item in this)
-                if (item is UserAction)
-                    foreach (StringTree ps in (item as UserAction).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope)) parameterizedStructure.Add(ps);
-                else
-                    parameterizedStructure.Add((item as LogEntry).GetParameterizedStructure(b, e, chosenNextValueParametersForLScope, new HashSet<BaseParameter>()));
+            foreach (UserAction userAction in this)
+                foreach (StringTree ps in userAction.GetParameterizedStructure(b, e, chosenNextValueParametersForLScope)) parameterizedStructure.Add(ps);
 
             return parameterizedStructure;
-        }
-
-        /// <summary>
-        ///     Get the log entries even if they are in a user action.
-        ///     Threadsafe.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<LogEntry> GetAllLogEntries() {
-            lock (_lock) {
-                foreach (BaseItem item in this) {
-                    if (item is LogEntry)
-                        yield return (item as LogEntry);
-                    else
-                        foreach (LogEntry childItem in item)
-                            yield return childItem;
-                }
-            }
         }
 
         /// <summary>
@@ -312,18 +363,17 @@ namespace vApus.Stresstest {
             if (cloneChildren)
                 foreach (BaseItem item in this)
                     if (item is UserAction)
-                        log.AddWithoutInvokingEvent((item as UserAction).Clone(), false);
-                    else
-                        log.AddWithoutInvokingEvent((item as LogEntry).Clone(), false);
+                        log.AddWithoutInvokingEvent((item as UserAction).Clone(_logRuleSet), false);
 
             return log;
         }
 
+        public override void Activate() { SolutionComponentViewManager.Show(this); }
         #endregion
 
         public class LexicalResultsChangedEventArgs : EventArgs {
-            public List<LogEntry> LogEntriesWithErrors { get; private set; }
-            public LexicalResultsChangedEventArgs(List<LogEntry> logEntriesWithErrors) {
+            public LogEntry[] LogEntriesWithErrors { get; private set; }
+            public LexicalResultsChangedEventArgs(LogEntry[] logEntriesWithErrors) {
                 LogEntriesWithErrors = logEntriesWithErrors;
             }
         }

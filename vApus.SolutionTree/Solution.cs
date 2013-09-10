@@ -471,8 +471,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
         #region Functions
 
-        private static void SolutionComponent_SolutionComponentChanged(object sender,
-                                                                       SolutionComponentChangedEventArgs e) {
+        private static void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (_activeSolution.FileName != null && ActiveSolutionChanged != null) {
                 _activeSolution.IsSaved = false;
                 ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(true, false));
@@ -561,7 +560,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         }
 
         /// <summary>
-        ///     Gets all project items as treenodes for visualization in a treeview.
+        ///     Gets all project items and childs (ShowInGUI must be set to true) as treenodes for visualization in a treeview.
         /// </summary>
         /// <returns></returns>
         public List<TreeNode> GetTreeNodes() {
@@ -605,6 +604,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         }
                 }
                 package.Close();
+
             } catch (Exception ex) {
                 sb.Append(ex);
             }

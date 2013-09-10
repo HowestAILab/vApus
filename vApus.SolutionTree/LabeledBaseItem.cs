@@ -5,10 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -18,14 +18,13 @@ namespace vApus.SolutionTree {
     /// </summary>
     [Serializable]
     public abstract class LabeledBaseItem : BaseItem {
+
         #region Fields
-
+        private readonly object _lock = new object();
         private string _label = string.Empty;
-
         #endregion
 
         #region Properties
-
         [SavableCloneable]
         public virtual string Label {
             get { return _label; }
@@ -41,28 +40,24 @@ namespace vApus.SolutionTree {
         [Description("The one-based index of this item in the collection of its parent.")]
         public int Index {
             get {
-                int index = -1;
-                if (!IsEmpty) {
-                    index = 1;
-                    if (Parent != null)
-                        for (int i = 0; i != Parent.Count; i++)
-                            if (Parent[i] == this)
-                                break;
-                            else if (Parent[i] is LabeledBaseItem)
-                                ++index;
+                lock (_lock) {
+                    int index = -1;
+                    if (!IsEmpty) {
+                        index = 1;
+                        if (Parent != null)
+                            for (int i = 0; i != Parent.Count; i++)
+                                if (Parent[i] == this)
+                                    break;
+                                else if (Parent[i] is LabeledBaseItem)
+                                    ++index;
+                    }
+                    return index;
                 }
-                return index;
             }
         }
-
-        #endregion
-
-        #region Constructors
-
         #endregion
 
         #region Functions
-
         internal void Export_Click(object sender, EventArgs e) {
             var sfd = new SaveFileDialog();
             sfd.Filter = "Xml Files (*.xml) | *.xml";
@@ -77,7 +72,6 @@ namespace vApus.SolutionTree {
                 return "<none>";
             return _label == string.Empty ? Name + ' ' + Index : Name + ' ' + Index + ": " + _label;
         }
-
         #endregion
     }
 

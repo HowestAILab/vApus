@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.ComponentModel;
 using vApus.SolutionTree;
@@ -13,37 +12,31 @@ using vApus.Stresstest;
 using vApus.Util;
 
 namespace vApus.DistributedTesting {
+    /// <summary>
+    /// Advanced section of a TileStresstest
+    /// </summary>
     public class AdvancedTileStresstest : BaseItem {
-        #region Fields
 
+        #region Fields
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private Stresstest.Stresstest _defaultSettingsTo;
         private UserActionDistribution _distribute;
         protected internal Log _log;
-        private int _maximumDelay = 1100;
-        private int _minimumDelay = 900;
-        private int _monitorAfter;
-        private int _monitorBefore;
-        private int _runs = 1;
+        private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorAfter, _monitorBefore;
         private bool _shuffle = true;
-
         #endregion
 
         #region Properties
-
         [Description("The log used to test the application.")]
         [SavableCloneable, PropertyControl(0)]
         public Log Log {
             get {
                 if (_log != null) {
                     if (_log.IsEmpty)
-                        Log =
-                            GetNextOrEmptyChild(typeof(Log),
-                                                Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+                        Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
 
                     _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
                 }
-
                 return _log;
             }
             set {
@@ -90,9 +83,7 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        [Description(
-            "The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."
-            ), DisplayName("Minimum Delay")]
+        [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
         [PropertyControl(3)]
         public int MinimumDelay {
             get { return _minimumDelay; }
@@ -114,9 +105,7 @@ namespace vApus.DistributedTesting {
             set { _minimumDelay = value; }
         }
 
-        [Description(
-            "The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."
-            ), DisplayName("Maximum Delay")]
+        [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
         [PropertyControl(4)]
         public int MaximumDelay {
             get { return _maximumDelay; }
@@ -138,27 +127,21 @@ namespace vApus.DistributedTesting {
             set { _maximumDelay = value; }
         }
 
-        [Description(
-            "The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns."
-            )]
+        [Description("The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
         [SavableCloneable, PropertyControl(5)]
         public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
         }
 
-        [Description(
-            "Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance."
-            )]
+        [Description("Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance.")]
         [SavableCloneable, PropertyControl(6)]
         public UserActionDistribution Distribute {
             get { return _distribute; }
             set { _distribute = value; }
         }
 
-        [Description(
-            "Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."
-            ), DisplayName("Monitor Before")]
+        [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
         [SavableCloneable, PropertyControl(7)]
         public int MonitorBefore {
             get { return _monitorBefore; }
@@ -171,9 +154,7 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        [Description(
-            "Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."
-            ), DisplayName("Monitor After")]
+        [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
         [SavableCloneable, PropertyControl(8)]
         public int MonitorAfter {
             get { return _monitorAfter; }
@@ -189,7 +170,9 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Constructors
-
+        /// <summary>
+        /// Advanced section of a TileStresstest
+        /// </summary>
         public AdvancedTileStresstest() {
             ShowInGui = false;
             if (Solution.ActiveSolution != null)
@@ -197,16 +180,13 @@ namespace vApus.DistributedTesting {
             else
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
-
         #endregion
 
         #region Functions
-
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             Init();
         }
-
         private void Init() {
             Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
 
@@ -215,9 +195,7 @@ namespace vApus.DistributedTesting {
 
         private void _log_ParentIsNull(object sender, EventArgs e) {
             if (_log == sender)
-                Log =
-                    GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as
-                    Log;
+                Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
@@ -268,7 +246,6 @@ namespace vApus.DistributedTesting {
             clone.MonitorAfter = _monitorAfter;
             return clone;
         }
-
         #endregion
     }
 }

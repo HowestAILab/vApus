@@ -6,16 +6,24 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Properties of a user action can be set here, more advanced stuff and viewing log entries happens in EditUserAction.
+    /// </summary>
     [ToolboxItem(false)]
     public partial class UserActionTreeViewItem : UserControl {
 
         #region Events
-
         /// <summary>
         ///     Call unfocus for the other items in the panel.
         /// </summary>
@@ -23,35 +31,39 @@ namespace vApus.Stresstest {
 
         public event EventHandler<LogTreeView.AddUserActionEventArgs> DuplicateClicked;
         public event EventHandler DeleteClicked;
-
         #endregion
 
         #region Fields
-        private static Color _selectedColor = Color.FromArgb(255, 240, 240, 240);
-        private static Color _primaryColor = Color.FromArgb(255, 250, 250, 250);
-        private static Color _secundaryColor = Color.FromArgb(255, 255, 255, 255);
+        private readonly object _lock = new object();
+
+        //Primary and secundary color for readability.
+        private static Color _selectBackColor = Color.FromArgb(255, 240, 240, 240), _primaryBackColor = Color.FromArgb(255, 250, 250, 250), _secundaryBackColor = Color.FromArgb(255, 255, 255, 255);
 
         /// <summary>
         ///     Check if the ctrl key is pressed.
         /// </summary>
-        private bool _ctrl;
+        private bool _ctrlKeyPressed;
         private Log _log;
-        private UserAction _userAction;
         #endregion
 
-        public UserAction UserAction {
-            get { return _userAction; }
-        }
+        #region Properties
+        public UserAction UserAction { get; private set; }
+        #endregion
 
         #region Constructors
-
-        public UserActionTreeViewItem() {
-            InitializeComponent();
-        }
+        /// <summary>
+        /// Design time constructor, for testing.
+        /// </summary>
+        public UserActionTreeViewItem() { InitializeComponent(); }
+        /// <summary>
+        /// Properties of a user action can be set here, more advanced stuff and viewing log entries happens in EditUserAction.
+        /// </summary>
+        /// <param name="log"></param>
+        /// <param name="userAction"></param>
         public UserActionTreeViewItem(Log log, UserAction userAction)
             : this() {
             _log = log;
-            _userAction = userAction;
+            UserAction = userAction;
             SetLabel();
 
             SetPicValid();
@@ -60,23 +72,27 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Functions
-        public void SetLabel() {
-            lblUserAction.Text = _userAction.ToString(); // +" (" + _userAction.Count + ")";
-        }
+        /// <summary>
+        /// UserAction.ToString();
+        /// </summary>
+        internal void SetLabel() { lblUserAction.Text = UserAction.ToString(); }
 
-        private void _log_LexicalResultChanged(object sender, Log.LexicalResultsChangedEventArgs e) {
-            SetPicValid();
-        }
+        private void _log_LexicalResultChanged(object sender, Log.LexicalResultsChangedEventArgs e) { SetPicValid(); }
         private void SetPicValid() {
             var lexicalResult = LexicalResult.OK;
 
-            foreach (LogEntry logEntry in _userAction)
-                if (logEntry.LexicalResult == LexicalResult.Error) {
-                    lexicalResult = LexicalResult.Error;
-                    break;
-                }
+            //For a big log it is best that we do this in parallel.
+            Parallel.ForEach(UserAction as ICollection<BaseItem>, (logEntry, loopState) => {
+                if ((logEntry as LogEntry).LexicalResult == LexicalResult.Error)
+                    lock (_lock) {
+                        lexicalResult = LexicalResult.Error;
+                        loopState.Break();
+                    }
+            });
 
-            picValid.Image = lexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                picValid.Image = lexicalResult == LexicalResult.OK ? null : global::vApus.Stresstest.Properties.Resources.LogEntryError;
+            }, null);
         }
 
         public void Unfocus() {
@@ -85,7 +101,7 @@ namespace vApus.Stresstest {
         }
         public new void Focus() {
             base.Focus();
-            BackColor = _selectedColor;
+            BackColor = _selectBackColor;
             SetVisibleControls();
 
             if (AfterSelect != null) AfterSelect(this, null);
@@ -93,23 +109,23 @@ namespace vApus.Stresstest {
         public void SetVisibleControls(bool visible) {
             SetLabel();
             UserAction linkedUserAction;
-            if (_userAction.IsLinked(out linkedUserAction)) {
-                picLinkColor.BackColor = _userAction.LinkColor;
+            if (UserAction.IsLinked(out linkedUserAction)) {
+                picLinkColor.BackColor = UserAction.LinkColor;
                 picLinkColor.Visible = true;
             } else {
                 picLinkColor.Visible = false;
             }
 
             picDuplicate.Visible = picDelete.Visible = visible;
-            picPin.Visible = _userAction.Pinned || visible;
-            picPin.Image = _userAction.Pinned ? global::vApus.Stresstest.Properties.Resources.Pin : global::vApus.Stresstest.Properties.Resources.PinGreyedOut;
-            nudOccurance.Visible = _userAction.Occurance != 1 || visible;
+            picPin.Visible = UserAction.Pinned || visible;
+            picPin.Image = UserAction.Pinned ? global::vApus.Stresstest.Properties.Resources.Pin : global::vApus.Stresstest.Properties.Resources.PinGreyedOut;
+            nudOccurance.Visible = UserAction.Occurance != 1 || visible;
             nudOccurance.ValueChanged -= nudOccurance_ValueChanged;
-            nudOccurance.Value = _userAction.Occurance;
+            nudOccurance.Value = UserAction.Occurance;
             nudOccurance.ValueChanged += nudOccurance_ValueChanged;
 
-            if (BackColor != _selectedColor)
-                BackColor = (((float)_userAction.Index % 2) == 0) ? _secundaryColor : _primaryColor;
+            if (BackColor != _selectBackColor)
+                BackColor = (((float)UserAction.Index % 2) == 0) ? _secundaryBackColor : _primaryBackColor;
 
             Control ctrl = null;
             if (picLinkColor.Visible) ctrl = picLinkColor;
@@ -117,48 +133,28 @@ namespace vApus.Stresstest {
             else ctrl = nudOccurance;
 
             int width = ctrl.Left - lblUserAction.Left;
-            if (width != lblUserAction.Width)
-                lblUserAction.Width = width;
+            if (width != lblUserAction.Width) lblUserAction.Width = width;
         }
         public void SetVisibleControls() {
             if (IsDisposed) return;
 
-            if (BackColor == _selectedColor) SetVisibleControls(true);
+            if (BackColor == _selectBackColor) SetVisibleControls(true);
             else SetVisibleControls(ClientRectangle.Contains(PointToClient(Cursor.Position)));
         }
 
-        private void _Enter(object sender, EventArgs e) {
-            Focus();
-        }
-
+        private void _Enter(object sender, EventArgs e) { Focus(); }
         private void _MouseEnter(object sender, EventArgs e) { SetVisibleControls(); }
-
         private void _MouseLeave(object sender, EventArgs e) { SetVisibleControls(); }
 
-        private void _KeyUp(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.ControlKey)
-                _ctrl = false;
-            else if (_ctrl) {
-                if (e.KeyCode == Keys.R)
-                    picDelete_Click(picDelete, null);
-                else if (e.KeyCode == Keys.D)
-                    picDuplicate_Click(picDuplicate, null);
-            }
-        }
-
-        private void _KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.ControlKey) _ctrl = true;
-        }
-
         private void picDuplicate_Click(object sender, EventArgs e) {
-            var ua = _userAction.Clone();
-            int index = _userAction.Index;
+            var ua = UserAction.Clone(_log.LogRuleSet);
+            int index = UserAction.Index;
 
             if (index < _log.Count) _log.InsertWithoutInvokingEvent(index, ua); else _log.AddWithoutInvokingEvent(ua);
 
             //Add to the link if any
             UserAction linkedUserAction;
-            if (_userAction.IsLinked(out linkedUserAction)) {
+            if (UserAction.IsLinked(out linkedUserAction)) {
                 linkedUserAction.LinkedToUserActionIndices.Add(linkedUserAction.LinkedToUserActionIndices[linkedUserAction.LinkedToUserActionIndices.Count - 1] + 1);
                 ua.LinkColorRGB = linkedUserAction.LinkColorRGB;
                 linkedUserAction.LinkedToUserActionIndices.Sort();
@@ -178,15 +174,14 @@ namespace vApus.Stresstest {
             _log.ApplyLogRuleSet();
             if (DuplicateClicked != null) DuplicateClicked(this, new LogTreeView.AddUserActionEventArgs(ua));
         }
-
         private void picDelete_Click(object sender, EventArgs e) {
-            int index = _userAction.Index - 1;
+            int index = UserAction.Index - 1;
             //Remove from the link if any
             UserAction linkedUserAction;
-            if (_userAction.IsLinked(out linkedUserAction))
-                linkedUserAction.RemoveFromLink(_userAction);
+            if (UserAction.IsLinked(out linkedUserAction))
+                linkedUserAction.RemoveFromLink(UserAction);
 
-            _log.Remove(_userAction);
+            _log.Remove(UserAction);
 
             //Update the linked indices for the other user actions.
             for (int i = index; i != _log.Count; i++) {
@@ -200,22 +195,35 @@ namespace vApus.Stresstest {
             if (DeleteClicked != null) DeleteClicked(this, null);
         }
 
+        private void nudOccurance_ValueChanged(object sender, EventArgs e) {
+            UserAction.Occurance = (int)nudOccurance.Value;
+            UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
+
         private void picPin_Click(object sender, EventArgs e) {
-            _userAction.Pinned = !_userAction.Pinned;
-            picPin.Image = _userAction.Pinned ? global::vApus.Stresstest.Properties.Resources.Pin : global::vApus.Stresstest.Properties.Resources.PinGreyedOut;
+            UserAction.Pinned = !UserAction.Pinned;
+            picPin.Image = UserAction.Pinned ? global::vApus.Stresstest.Properties.Resources.Pin : global::vApus.Stresstest.Properties.Resources.PinGreyedOut;
 
             UserAction linkUserAction;
-            if (_userAction.IsLinked(out linkUserAction)) {
-                linkUserAction.Pinned = _userAction.Pinned;
+            if (UserAction.IsLinked(out linkUserAction)) {
+                linkUserAction.Pinned = UserAction.Pinned;
                 foreach (var ua in linkUserAction.LinkedToUserActions)
-                    ua.Pinned = _userAction.Pinned;
+                    ua.Pinned = UserAction.Pinned;
             }
-            _userAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+            UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
-        private void nudOccurance_ValueChanged(object sender, EventArgs e) {
-            _userAction.Occurance = (int)nudOccurance.Value;
-            _userAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+
+        private void _KeyUp(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.ControlKey)
+                _ctrlKeyPressed = false;
+            else if (_ctrlKeyPressed) {
+                if (e.KeyCode == Keys.R)
+                    picDelete_Click(picDelete, null);
+                else if (e.KeyCode == Keys.D)
+                    picDuplicate_Click(picDuplicate, null);
+            }
         }
+        private void _KeyDown(object sender, KeyEventArgs e) { if (e.KeyCode == Keys.ControlKey) _ctrlKeyPressed = true; }
         #endregion
     }
 }

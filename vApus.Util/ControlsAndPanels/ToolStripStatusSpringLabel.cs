@@ -6,18 +6,17 @@
  *    Dieter Vandroemme
  */
 //Thanks to Hans Passant http://stackoverflow.com/users/17034/hans-passant
-
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
+    /// <summary>
+    /// To spring the label to the end.
+    /// </summary>
     [ToolStripItemDesignerAvailability(ToolStripItemDesignerAvailability.StatusStrip)]
-    public class ToolStripStatusSpringLabel : ToolStripStatusLabel
-    {
-        protected override void OnPaint(PaintEventArgs e)
-        {
+    public class ToolStripStatusSpringLabel : ToolStripStatusLabel {
+        protected override void OnPaint(PaintEventArgs e) {
             TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.EndEllipsis;
             var bounds = new Rectangle(0, 0, Bounds.Width, Bounds.Height);
 

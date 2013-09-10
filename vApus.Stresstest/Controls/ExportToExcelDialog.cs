@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -11,6 +10,7 @@ using SpreadsheetLight.Charts;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -18,13 +18,73 @@ using vApus.Results;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    /// <summary>
+    /// Uses ResultsHelper to gather all results.
+    /// </summary>
     public partial class ExportToExcelDialog : Form {
-        private ResultsHelper _resultsHelper;
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //Cancel refreshing the report.
 
+        #region Fields
+        private ResultsHelper _resultsHelper;
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //To Cancel refreshing the report.
+        /// <summary>
+        /// A color pallete of 40 colors to be able to visualy match overiew and 5 heaviest user actions charts.
+        /// (Filled later on)
+        /// </summary>
+        private List<Color> _colorPalette = new List<Color>(25);
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Uses ResultsHelper to gather all results.
+        /// </summary>
         public ExportToExcelDialog() {
             InitializeComponent();
+            FillColorPalette();
             saveFileDialog.FileName = "results" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+        }
+        #endregion
+
+        #region Funtions
+        private void FillColorPalette() {
+            _colorPalette.Add(Color.FromArgb(50, 85, 126));
+            _colorPalette.Add(Color.FromArgb(128, 51, 49));
+            _colorPalette.Add(Color.FromArgb(103, 125, 57));
+            _colorPalette.Add(Color.FromArgb(84, 65, 107));
+            _colorPalette.Add(Color.FromArgb(47, 114, 132));
+            _colorPalette.Add(Color.FromArgb(166, 99, 44));
+
+            _colorPalette.Add(Color.FromArgb(64, 105, 156));
+            _colorPalette.Add(Color.FromArgb(158, 65, 62));
+            _colorPalette.Add(Color.FromArgb(127, 154, 72));
+            _colorPalette.Add(Color.FromArgb(105, 81, 133));
+            _colorPalette.Add(Color.FromArgb(60, 141, 163));
+            _colorPalette.Add(Color.FromArgb(204, 123, 56));
+
+            _colorPalette.Add(Color.FromArgb(74, 122, 178));
+            _colorPalette.Add(Color.FromArgb(181, 75, 72));
+            _colorPalette.Add(Color.FromArgb(146, 177, 84));
+            _colorPalette.Add(Color.FromArgb(121, 94, 153));
+            _colorPalette.Add(Color.FromArgb(70, 162, 187));
+            _colorPalette.Add(Color.FromArgb(233, 141, 66));
+
+            _colorPalette.Add(Color.FromArgb(118, 150, 198));
+            _colorPalette.Add(Color.FromArgb(200, 118, 116));
+            _colorPalette.Add(Color.FromArgb(170, 196, 123));
+            _colorPalette.Add(Color.FromArgb(149, 130, 176));
+            _colorPalette.Add(Color.FromArgb(115, 184, 205));
+            _colorPalette.Add(Color.FromArgb(248, 166, 113));
+
+            _colorPalette.Add(Color.FromArgb(170, 186, 215));
+            _colorPalette.Add(Color.FromArgb(217, 170, 169));
+            _colorPalette.Add(Color.FromArgb(198, 214, 172));
+            _colorPalette.Add(Color.FromArgb(187, 176, 201));
+            _colorPalette.Add(Color.FromArgb(169, 206, 220));
+            _colorPalette.Add(Color.FromArgb(250, 195, 168));
+
+            _colorPalette.Add(Color.FromArgb(205, 214, 230));
+            _colorPalette.Add(Color.FromArgb(231, 205, 205));
+            _colorPalette.Add(Color.FromArgb(220, 230, 207));
+            _colorPalette.Add(Color.FromArgb(214, 208, 222));
         }
         public void Init(ResultsHelper resultsHelper) {
             _resultsHelper = resultsHelper;
@@ -45,7 +105,7 @@ namespace vApus.Stresstest {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
-                ulong selectedIndex = (ulong)cboStresstest.SelectedIndex;
+                int selectedIndex = cboStresstest.SelectedIndex;
                 bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
 
                 string fileNameWithoutExtension = saveFileDialog.FileName;
@@ -60,23 +120,23 @@ namespace vApus.Stresstest {
                         var doc = new SLDocument();
 
                         //Make different sheets per test.
-                        var stresstests = new Dictionary<ulong, string>();
+                        var stresstests = new Dictionary<int, string>();
                         var stresstestsDt = _resultsHelper.GetStresstests();
                         if (selectedIndex == 0) {
                             foreach (DataRow row in stresstestsDt.Rows) {
                                 string stresstest = row.ItemArray[1] as string;
                                 if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1];
                                 stresstest += " " + (row.ItemArray[2] as string);
-                                stresstests.Add(Convert.ToUInt64(row.ItemArray[0]), stresstest);
+                                stresstests.Add((int)row.ItemArray[0], stresstest);
                             }
                         } else {
                             foreach (DataRow row in stresstestsDt.Rows) {
-                                ulong ul = Convert.ToUInt64(row.ItemArray[0]);
-                                if (selectedIndex == ul) {
+                                int i = (int)row.ItemArray[0];
+                                if (selectedIndex == i) {
                                     string stresstest = row.ItemArray[1] as string;
                                     if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1].TrimStart();
                                     stresstest += " " + (row.ItemArray[2] as string);
-                                    stresstests.Add(ul, stresstest);
+                                    stresstests.Add(i, stresstest);
                                     break;
                                 }
                             }
@@ -84,10 +144,10 @@ namespace vApus.Stresstest {
 
                         string firstWorksheet = null;
                         int worksheetIndex = 1; //Just for a unique sheet name
-                        foreach (ulong stresstestId in stresstests.Keys) {
+                        foreach (int stresstestId in stresstests.Keys) {
                             //For some strange reason the doubles are changed to string.
                             var overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
-                            var avgUserActions = _resultsHelper.GetAverageUserActions(_cancellationTokenSource.Token, stresstestId);
+                            var avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
                             var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                             var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId); ;
                             var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
@@ -143,6 +203,7 @@ namespace vApus.Stresstest {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = true;
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -175,7 +236,13 @@ namespace vApus.Stresstest {
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
             chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
             chart.SecondaryValueAxis.ShowTitle = true;
-            
+
+            SetDataSeriesColors(chart, rangeWidth - 2, _colorPalette);
+
+            var dso = chart.GetDataSeriesOptions(rangeWidth - 1);
+            dso.Line.SetSolidLine(Color.LimeGreen, 0);
+            chart.SetDataSeriesOptions(rangeWidth - 1, dso);
+
             doc.InsertChart(chart);
 
             return worksheet;
@@ -193,15 +260,32 @@ namespace vApus.Stresstest {
             if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
             doc.AddWorksheet(worksheet);
 
-            //Sort the acions, only the last row is used for this
-            var sortedColumns = new List<int>();
-            var responseTimes = new List<double>();
             if (dt.Rows.Count != 0) {
-                DataRow dr = dt.Rows[dt.Rows.Count - 1];
+                //Make an average of all response times and use this to determine the heaviest actions.
+                var averageResponseTimes = new double[dt.Columns.Count - 4];
+                int rowCount = dt.Rows.Count;
+                foreach (DataRow dr in dt.Rows)
+                    for (int i = 2; i < dt.Columns.Count - 2; i++) {
+                        var o = dr.ItemArray[i];
+                        double value = (o is double ? (double)o : double.Parse(o as string));
+                        averageResponseTimes[i - 2] += (value / rowCount);
+                    }
 
-                //0 = stresstest, 1 = concurrency, last = throughput
-                for (int i = 2; i < dt.Columns.Count - 1; i++) {
-                    var o = dr.ItemArray[i];
+                var avgRow = new List<object>(dt.Columns.Count);
+                avgRow.Add("");
+                avgRow.Add("");
+                foreach (double value in averageResponseTimes)
+                    avgRow.Add(value);
+                avgRow.Add("");
+                avgRow.Add("");
+
+                //Sort the acions
+                var sortedColumns = new List<int>();
+                var responseTimes = new List<double>();
+
+                //0 = stresstest, 1 = concurrency, second to last = throughput, last = errors
+                for (int i = 2; i < dt.Columns.Count - 2; i++) {
+                    var o = avgRow[i];
                     double value = (o is double ? (double)o : double.Parse(o as string));
 
                     //Sort the columns by response time, we need the indices.
@@ -219,11 +303,10 @@ namespace vApus.Stresstest {
                     }
                 }
                 while (responseTimes.Count > 5) {
-                    responseTimes.RemoveAt(4);
-                    sortedColumns.RemoveAt(4);
+                    responseTimes.RemoveAt(5);
+                    sortedColumns.RemoveAt(5);
                 }
-                if (dt.Columns.Count > 1)
-                    sortedColumns.Insert(0, 1);
+                if (dt.Columns.Count > 1) sortedColumns.Insert(0, 1);
 
                 //Add data to the worksheet, only the second column and the 5 heaviest actions
                 int rangeWidth = sortedColumns.Count, rangeOffset = 2, rangeHeight = dt.Rows.Count;
@@ -235,12 +318,22 @@ namespace vApus.Stresstest {
                 doc.SetCellValue(1, 1, title);
                 doc.SetCellStyle(1, 1, titleStyle);
 
+                var colorPalette = new List<Color>(5);
                 var boldStyle = new SLStyle();
                 boldStyle.Font.Bold = true;
-                //Add the headers
+                //Add the headers and determine the colors.
                 for (int i = 0; i < rangeWidth; i++) {
-                    doc.SetCellValue(rangeOffset, i + 1, dt.Columns[sortedColumns[i]].ColumnName);
+                    string columnName = dt.Columns[sortedColumns[i]].ColumnName;
+                    doc.SetCellValue(rangeOffset, i + 1, columnName);
                     doc.SetCellStyle(rangeOffset, i + 1, boldStyle);
+
+                    if (columnName.Contains(":")) {
+                        int index = int.Parse(columnName.Split(':')[0]) - 1;
+                        while (index >= _colorPalette.Count)
+                            index -= _colorPalette.Count;
+
+                        colorPalette.Add(_colorPalette[index]);
+                    }
                 }
 
                 for (int rowIndex = 0; rowIndex != rangeHeight; rowIndex++) {
@@ -278,12 +371,13 @@ namespace vApus.Stresstest {
                 chart.PrimaryValueAxis.ShowTitle = true;
                 chart.PrimaryValueAxis.ShowMinorGridlines = true;
 
+                SetDataSeriesColors(chart, rangeWidth - 1, colorPalette);
+
                 doc.InsertChart(chart);
             }
 
             return worksheet;
         }
-
         /// <summary>
         /// Format the user action comosition differently so it is more readable for customers.
         /// </summary>
@@ -315,7 +409,6 @@ namespace vApus.Stresstest {
             int rangeWidth, rangeOffset, rangeHeight;
             return MakeWorksheet(doc, userActionComposition, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight, true);
         }
-
         private string MakeMonitorSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
             dt.Columns.RemoveAt(1);
 
@@ -409,13 +502,31 @@ namespace vApus.Stresstest {
             }
             return rowRangesPerStresstest;
         }
+
+        private void SetDataSeriesColors(SLChart chart, int numberOfSeries, List<Color> colorPalette) {
+            if (colorPalette.Count == 0)
+                return;
+
+            SLDataSeriesOptions dso = null;
+
+            for (int i = 1; i <= numberOfSeries; i++) {
+                dso = chart.GetDataSeriesOptions(i);
+
+                int j = i - 1;
+                while (j >= colorPalette.Count)
+                    j -= colorPalette.Count;
+                dso.Fill.SetSolidFill(colorPalette[j], 0);
+
+                chart.SetDataSeriesOptions(i, dso);
+            }
+        }
+
         private void pic_Click(object sender, EventArgs e) {
             var dialog = new ChartDialog((sender as PictureBox).Image);
             dialog.ShowDialog();
         }
 
-        private void SaveChartsDialog_FormClosing(object sender, FormClosingEventArgs e) {
-            _cancellationTokenSource.Cancel();
-        }
+        private void SaveChartsDialog_FormClosing(object sender, FormClosingEventArgs e) { _cancellationTokenSource.Cancel(); }
+        #endregion
     }
 }

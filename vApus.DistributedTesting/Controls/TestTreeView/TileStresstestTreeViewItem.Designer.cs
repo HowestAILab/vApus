@@ -97,7 +97,7 @@
             // 
             // lblTileStresstest
             // 
-            this.lblTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.lblTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblTileStresstest.AutoEllipsis = true;
             this.lblTileStresstest.Location = new System.Drawing.Point(40, 6);
@@ -106,6 +106,7 @@
             this.lblTileStresstest.Size = new System.Drawing.Size(489, 13);
             this.lblTileStresstest.TabIndex = 20;
             this.lblTileStresstest.Click += new System.EventHandler(this._Enter);
+            this.lblTileStresstest.DoubleClick += new System.EventHandler(this._DoubleClick);
             // 
             // picStresstestStatus
             // 
@@ -118,10 +119,11 @@
             this.picStresstestStatus.TabIndex = 22;
             this.picStresstestStatus.TabStop = false;
             this.picStresstestStatus.Click += new System.EventHandler(this._Enter);
+            this.picStresstestStatus.DoubleClick += new System.EventHandler(this._DoubleClick);
             // 
             // eventProgressChart
             // 
-            this.eventProgressChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.eventProgressChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.eventProgressChart.BeginOfTimeFrame = new System.DateTime(((long)(0)));
             this.eventProgressChart.BehaveAsBar = true;
@@ -166,6 +168,7 @@
             this.Name = "TileStresstestTreeViewItem";
             this.Size = new System.Drawing.Size(598, 32);
             this.Click += new System.EventHandler(this._Enter);
+            this.DoubleClick += new System.EventHandler(this._DoubleClick);
             this.Enter += new System.EventHandler(this._Enter);
             this.MouseEnter += new System.EventHandler(this._MouseEnter);
             this.MouseLeave += new System.EventHandler(this._MouseLeave);

@@ -10,60 +10,42 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace vApus.Util
-{
+namespace vApus.Util {
     [ToolboxItem(false)]
-    public partial class NumericValueControl : BaseValueControl, IValueControl
-    {
-        public NumericValueControl()
-        {
+    public partial class NumericValueControl : BaseValueControl, IValueControl {
+        public NumericValueControl() {
             InitializeComponent();
         }
 
-        public void Init(Value value)
-        {
+        public void Init(Value value) {
             base.__Value = value;
 
             //Only take the value into account, the other properties are taken care off.
             //Keep control recycling in mind.
             FixedNumericUpDown nud = null;
 
-            if (base.ValueControl == null)
-            {
+            if (base.ValueControl == null) {
                 nud = new FixedNumericUpDown();
 
-                if (value.__Value is short)
-                {
+                if (value.__Value is short) {
                     nud.Minimum = short.MinValue;
                     nud.Maximum = short.MaxValue;
-                }
-                else if (value.__Value is int)
-                {
+                } else if (value.__Value is int) {
                     nud.Minimum = int.MinValue;
                     nud.Maximum = int.MaxValue;
-                }
-                else if (value.__Value is long)
-                {
+                } else if (value.__Value is long) {
                     nud.Minimum = long.MinValue;
                     nud.Maximum = long.MaxValue;
-                }
-                else if (value.__Value is ushort)
-                {
+                } else if (value.__Value is ushort) {
                     nud.Minimum = ushort.MinValue;
                     nud.Maximum = ushort.MaxValue;
-                }
-                else if (value.__Value is uint)
-                {
+                } else if (value.__Value is uint) {
                     nud.Minimum = uint.MinValue;
                     nud.Maximum = uint.MaxValue;
-                }
-                else if (value.__Value is ulong)
-                {
+                } else if (value.__Value is ulong) {
                     nud.Minimum = ulong.MinValue;
                     nud.Maximum = ulong.MaxValue;
-                }
-                else
-                {
+                } else {
                     nud.Minimum = decimal.MinValue;
                     nud.Maximum = decimal.MaxValue;
 
@@ -75,9 +57,7 @@ namespace vApus.Util
                 //Use text changed rather then value changed, value changed is not invoked when the text is changed.
                 nud.Leave += nud_Leave;
                 nud.KeyUp += nud_KeyUp;
-            }
-            else
-            {
+            } else {
                 nud = base.ValueControl as FixedNumericUpDown;
             }
 
@@ -86,42 +66,36 @@ namespace vApus.Util
             base.ValueControl = nud;
         }
 
-        private void nud_KeyUp(object sender, KeyEventArgs e)
-        {
+        private void nud_KeyUp(object sender, KeyEventArgs e) {
             var nud = sender as FixedNumericUpDown;
             base.HandleKeyUp(e.KeyCode, ConvertToNumericType(nud.Value));
         }
 
-        private void nud_Leave(object sender, EventArgs e)
-        {
-            try
-            {
+        private void nud_Leave(object sender, EventArgs e) {
+            try {
                 var nud = sender as FixedNumericUpDown;
                 base.HandleValueChanged(ConvertToNumericType(nud.Value));
-            }
-            catch
-            {
+            } catch {
             }
         }
 
-        private object ConvertToNumericType(decimal value)
-        {
+        private object ConvertToNumericType(decimal value) {
             Type numericType = base.__Value.__Value.GetType();
-            if (numericType == typeof (short))
+            if (numericType == typeof(short))
                 return Convert.ToInt16(value);
-            if (numericType == typeof (int))
+            if (numericType == typeof(int))
                 return Convert.ToInt32(value);
-            if (numericType == typeof (long))
+            if (numericType == typeof(long))
                 return Convert.ToInt64(value);
-            if (numericType == typeof (ushort))
+            if (numericType == typeof(ushort))
                 return Convert.ToUInt16(value);
-            if (numericType == typeof (uint))
+            if (numericType == typeof(uint))
                 return Convert.ToUInt32(value);
-            if (numericType == typeof (ulong))
+            if (numericType == typeof(ulong))
                 return Convert.ToUInt64(value);
-            if (numericType == typeof (float))
+            if (numericType == typeof(float))
                 return Convert.ToSingle(value);
-            if (numericType == typeof (double))
+            if (numericType == typeof(double))
                 return Convert.ToDouble(value);
             return Convert.ToDecimal(value);
         }

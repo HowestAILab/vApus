@@ -13,11 +13,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.DistributedTesting
-{
+namespace vApus.DistributedTesting {
     [ToolboxItem(false)]
-    public partial class ClientsAndSlavesTreeViewItem : UserControl, ITreeViewItem
-    {
+    public partial class ClientsAndSlavesTreeViewItem : UserControl, ITreeViewItem {
         #region Events
 
         /// <summary>
@@ -49,13 +47,11 @@ namespace vApus.DistributedTesting
 
         #region Properties
 
-        public Clients Clients
-        {
+        public Clients Clients {
             get { return _distributedTest.Clients; }
         }
 
-        public List<ClientTreeViewItem> ChildControls
-        {
+        public List<ClientTreeViewItem> ChildControls {
             get { return _childControls; }
         }
 
@@ -63,14 +59,12 @@ namespace vApus.DistributedTesting
 
         #region Constructor
 
-        public ClientsAndSlavesTreeViewItem()
-        {
+        public ClientsAndSlavesTreeViewItem() {
             InitializeComponent();
         }
 
         public ClientsAndSlavesTreeViewItem(DistributedTest distributedTest)
-            : this()
-        {
+            : this() {
             _distributedTest = distributedTest;
         }
 
@@ -78,76 +72,61 @@ namespace vApus.DistributedTesting
 
         #region Functions
 
-        public void Unfocus()
-        {
+        public void Unfocus() {
             BackColor = Color.Transparent;
         }
 
-        public void SetVisibleControls()
-        {
+        public void SetVisibleControls() {
         }
 
-        public void SetVisibleControls(bool visible)
-        {
+        public void SetVisibleControls(bool visible) {
         }
 
-        public void RefreshGui()
-        {
+        public void RefreshGui() {
         }
 
-        public void SetDistributedTestMode(DistributedTestMode distributedTestMode)
-        {
+        public void SetDistributedTestMode(DistributedTestMode distributedTestMode) {
             _distributedTestMode = distributedTestMode;
-            if (_distributedTestMode == DistributedTestMode.Edit)
-            {
+            if (_distributedTestMode == DistributedTestMode.Edit) {
                 picAddClient.Visible = true;
-            }
-            else
-            {
+            } else {
                 picAddClient.Visible = false;
             }
         }
 
-        private void ClientsAndSlavesTreeViewItem_Click(object sender, EventArgs e)
-        {
+        private void ClientsAndSlavesTreeViewItem_Click(object sender, EventArgs e) {
             Select();
             _Enter(sender, e);
         }
 
-        private void _Enter(object sender, EventArgs e)
-        {
+        private void _Enter(object sender, EventArgs e) {
             BackColor = SystemColors.Control;
             if (AfterSelect != null)
                 AfterSelect(this, null);
         }
 
-        private void picAddClient_Click(object sender, EventArgs e)
-        {
+        private void picAddClient_Click(object sender, EventArgs e) {
             Focus();
             if (AddClientClicked != null)
                 AddClientClicked(this, null);
         }
 
-        private void picWizard_Click(object sender, EventArgs e)
-        {
+        private void picWizard_Click(object sender, EventArgs e) {
         }
 
-        private void picRefresh_Click(object sender, EventArgs e)
-        {
+        private void picRefresh_Click(object sender, EventArgs e) {
             SetHostNameAndIP();
         }
 
-        private void picRemoteDesktop_Click(object sender, EventArgs e)
-        {
+        private void picRemoteDesktop_Click(object sender, EventArgs e) {
             var rdc =
-                SolutionComponentViewManager.Show(_distributedTest, typeof (RemoteDesktopClient)) as RemoteDesktopClient;
+                SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
             rdc.Text = "Remote Desktop Client";
             foreach (Client client in _distributedTest.Clients)
                 rdc.ShowRemoteDesktop(client.HostName, client.IP, client.UserName, client.Password, client.Domain);
         }
 
-        private void _KeyDown(object sender, KeyEventArgs e)
-        {
+        private void _KeyDown(object sender, KeyEventArgs e) {
             if (_distributedTestMode == DistributedTestMode.Test)
                 return;
 
@@ -155,10 +134,8 @@ namespace vApus.DistributedTesting
                 _ctrl = true;
         }
 
-        private void _KeyUp(object sender, KeyEventArgs e)
-        {
-            if (_distributedTestMode == DistributedTestMode.Test)
-            {
+        private void _KeyUp(object sender, KeyEventArgs e) {
+            if (_distributedTestMode == DistributedTestMode.Test) {
                 _ctrl = false;
                 return;
             }
@@ -173,15 +150,13 @@ namespace vApus.DistributedTesting
         /// <summary>
         ///     Set the host name and the ip in the gui, check if the computer is online.
         /// </summary>
-        public void SetHostNameAndIP()
-        {
+        public void SetHostNameAndIP() {
             Select();
 
             EnableControls(false);
 
             _refreshingClientCount = _childControls.Count;
-            foreach (ClientTreeViewItem ctvi in _childControls)
-            {
+            foreach (ClientTreeViewItem ctvi in _childControls) {
                 ctvi.HostNameAndIPSet += ctvi_HostNameAndIPSet;
                 if (!ctvi.SetHostNameAndIP())
                     --_refreshingClientCount;
@@ -191,13 +166,11 @@ namespace vApus.DistributedTesting
                 EnableControls(true);
         }
 
-        private void ctvi_HostNameAndIPSet(object sender, EventArgs e)
-        {
+        private void ctvi_HostNameAndIPSet(object sender, EventArgs e) {
             var ctvi = sender as ClientTreeViewItem;
             ctvi.HostNameAndIPSet -= ctvi_HostNameAndIPSet;
 
-            if (--_refreshingClientCount <= 0)
-            {
+            if (--_refreshingClientCount <= 0) {
                 EnableControls(true);
 
                 //Only select this if non is focused.
@@ -214,8 +187,7 @@ namespace vApus.DistributedTesting
         ///     This way the next item in the panel does not auto get the focus.
         /// </summary>
         /// <param name="enabled"></param>
-        private void EnableControls(bool enabled)
-        {
+        private void EnableControls(bool enabled) {
             foreach (Control ctrl in Controls)
                 ctrl.Enabled = enabled;
         }

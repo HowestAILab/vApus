@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace vApus.Util {
@@ -276,6 +277,12 @@ namespace vApus.Util {
             }
         }
 
+        /// <summary>
+        /// If the string is a binary representation of an object you can use this class to make an object out of it.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
         public static object ToByteArrayToObject(this string s, string separator = ",") {
             lock (_lock) {
                 string[] split = s.Split(new string[] { separator }, StringSplitOptions.None);
@@ -339,9 +346,7 @@ namespace vApus.Util {
         }
     }
     public static class ObjectExtension {
-        public delegate void ParentChangedEventHandler(ParentOrTagChangedEventArgs parentOrTagChangedEventArgs);
-        public delegate void TagChangedEventHandler(ParentOrTagChangedEventArgs parentOrTagChangedEventArgs);
-
+        public delegate void ParentChangedEventHandler(ParentChangedEventArgs parentOrTagChangedEventArgs);
         public static event ParentChangedEventHandler ParentChanged;
 
         //Nifty hack to make this work everywhere (also in derived types when shallow copying).
@@ -396,9 +401,12 @@ namespace vApus.Util {
                         _parents.Add(o, parent);
                     }
 
-                    if (invokeParentChanged && ParentChanged != null)
-                        foreach (ParentChangedEventHandler del in ParentChanged.GetInvocationList())
-                            del.BeginInvoke(new ParentOrTagChangedEventArgs(o, previous, parent), null, null);
+                    if (invokeParentChanged && ParentChanged != null) {
+                        var invocationList = ParentChanged.GetInvocationList();
+                        Parallel.For(0, invocationList.Length, (i) => {
+                            (invocationList[i] as ParentChangedEventHandler).Invoke(new ParentChangedEventArgs(o, previous, parent));
+                        });
+                    }
                 }
         }
         public static object GetParent(this object o) {
@@ -433,9 +441,13 @@ namespace vApus.Util {
                     _parents.Remove(o);
                     removed = true;
 
-                    if (invokeParentChanged && ParentChanged != null)
-                        foreach (ParentChangedEventHandler del in ParentChanged.GetInvocationList())
-                            del.BeginInvoke(new ParentOrTagChangedEventArgs(o, parent, null), null, null);
+                    if (invokeParentChanged && ParentChanged != null) {
+                        var invocationList = ParentChanged.GetInvocationList();
+                        Parallel.For(0, invocationList.Length, (i) => {
+                            (invocationList[i] as ParentChangedEventHandler).Invoke(new ParentChangedEventArgs(o, parent, null));
+                        });
+
+                    }
                 }
                 return removed;
             }
@@ -483,10 +495,10 @@ namespace vApus.Util {
             }
         }
 
-        public class ParentOrTagChangedEventArgs : EventArgs {
+        public class ParentChangedEventArgs : EventArgs {
             public object Child, Previous, New;
 
-            public ParentOrTagChangedEventArgs(object child, object previous, object __new) {
+            public ParentChangedEventArgs(object child, object previous, object __new) {
                 Child = child;
                 Previous = previous;
                 New = __new;
@@ -548,7 +560,6 @@ namespace vApus.Util {
         }
     }
     public static class ArrayExtension {
-        private static readonly object _lock = new object();
         /// <summary>
         /// Combine a one-dimensional array.
         /// </summary>
@@ -556,7 +567,7 @@ namespace vApus.Util {
         /// <param name="separator"></param>
         /// <returns></returns>
         public static string Combine(this Array array, string separator, params object[] exclude) {
-            lock (_lock) {
+            lock (array.SyncRoot) {
                 if (array.Length == 0) return string.Empty;
 
                 var sb = new StringBuilder();
@@ -573,6 +584,22 @@ namespace vApus.Util {
 
                 return sb.ToString();
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="item">Case sensitive in case of strings.</param>
+        /// <returns>-1 if not found</returns>
+        public static int IndexOf(this Array array, object item) {
+            int i = 0;
+            foreach (var o in array) {
+                if (o.Equals(item))
+                    return i;
+                ++i;
+            }
+            return -1;
         }
     }
     public static class ConcurrentBagExtension {
@@ -600,6 +627,25 @@ namespace vApus.Util {
             lock (_lock) {
                 list.Add(item1);
                 foreach (T item in items) list.Add(item);
+            }
+        }
+        public static string Combine<T>(this List<T> list, string separator, params object[] exclude) {
+            lock (_lock) {
+                if (list.Count == 0) return string.Empty;
+
+                var sb = new StringBuilder();
+                object value;
+                for (int i = 0; i != list.Count - 1; i++) {
+                    value = list[i];
+                    if (exclude == null || !exclude.Contains(value)) {
+                        sb.Append(value);
+                        sb.Append(separator);
+                    }
+                }
+                value = list[list.Count - 1];
+                if (exclude == null || !exclude.Contains(value)) sb.Append(value);
+
+                return sb.ToString();
             }
         }
     }
