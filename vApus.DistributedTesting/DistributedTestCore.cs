@@ -62,6 +62,10 @@ namespace vApus.DistributedTesting {
         ///     The messages pushed from the slaves.
         /// </summary>
         private Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>> _testProgressMessages = new Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>>();
+        /// <summary>
+        /// To know when a combined run is finished.
+        /// </summary>
+        private Dictionary<TileStresstest, List<string>> _dividedRunInitializedOrDoneOnce = new Dictionary<TileStresstest, List<string>>();
 
         private object _testProgressMessagesLock = new object();
         private Dictionary<TileStresstest, TileStresstest> _usedTileStresstests = new Dictionary<TileStresstest, TileStresstest>(); //the divided stresstests and the originals
@@ -354,8 +358,20 @@ namespace vApus.DistributedTesting {
                     _hasResults = true;
 
                     TestProgressMessage tpm = e.TestProgressMessage;
-                    TileStresstest originalTileStresstest = GetTileStresstest(e.TestProgressMessage.TileStresstestIndex);
-                    lock (_testProgressMessagesLock) _testProgressMessages[originalTileStresstest][tpm.TileStresstestIndex] = tpm;
+                    TileStresstest originalTileStresstest = GetTileStresstest(tpm.TileStresstestIndex);
+                    lock (_testProgressMessagesLock) {
+                        var dictParts = _testProgressMessages[originalTileStresstest];
+                        dictParts[tpm.TileStresstestIndex] = tpm;
+                        if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime || tpm.RunStateChange == RunStateChange.ToRunDoneOnce) {
+                            if (!_dividedRunInitializedOrDoneOnce.ContainsKey(originalTileStresstest)) _dividedRunInitializedOrDoneOnce.Add(originalTileStresstest, new List<string>());
+                            if (!_dividedRunInitializedOrDoneOnce[originalTileStresstest].Contains(tpm.TileStresstestIndex)) _dividedRunInitializedOrDoneOnce[originalTileStresstest].Add(tpm.TileStresstestIndex);
+
+                            if (GetDividedCount(originalTileStresstest.TileStresstestIndex) == _dividedRunInitializedOrDoneOnce[originalTileStresstest].Count) {
+                                MasterSideCommunicationHandler.SendDividedContinue(originalTileStresstest.BasicTileStresstest.Slaves);
+                                _dividedRunInitializedOrDoneOnce.Remove(originalTileStresstest);
+                            }
+                        }
+                    }
 
                     bool okCancelError = true;
                     switch (tpm.StresstestStatus) {
@@ -380,11 +396,6 @@ namespace vApus.DistributedTesting {
 
                         switch (_distributedTest.RunSynchronization) {
                             case RunSynchronization.None:
-                                ////Check if it is a divided stresstest and determine what to do on run stopped: All tests that are divided from the same tile stresstest should get a continue when they have all send run stopped.
-                                ////This is very difficult to implement.
-                                //if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) { 
-                                //    //We need to know the number of divided stresstests for a certain tile stresstest.
-                                //}
                                 break;
 
                             //Send Break, wait for all stopped, send continue, wait for all started, send continue
@@ -441,12 +452,31 @@ namespace vApus.DistributedTesting {
                 } catch { }
             }
         }
-        private TileStresstest GetTileStresstest(string tileStresstestIndex) {
+        /// <summary>
+        /// Get the original tile stresstest for the given divided index.
+        /// </summary>
+        /// <param name="dividedTileStresstestIndex"></param>
+        /// <returns></returns>
+        private TileStresstest GetTileStresstest(string dividedTileStresstestIndex) {
             lock (_usedTileStresstestsLock) {
                 foreach (TileStresstest ts in _usedTileStresstests.Values)
-                    if (tileStresstestIndex.Contains(ts.TileStresstestIndex)) //Take divided stresstests into account.
+                    if (dividedTileStresstestIndex.Contains(ts.TileStresstestIndex)) //Take divided stresstests into account.
                         return ts;
                 return null;
+            }
+        }
+        /// <summary>
+        /// Get the count of the divided stresstests for a certain tile stresstest.
+        /// </summary>
+        /// <param name="originalTileStresstestIndex"></param>
+        /// <returns></returns>
+        private int GetDividedCount(string originalTileStresstestIndex) {
+            lock (_usedTileStresstestsLock) {
+                int count = 0;
+                foreach (TileStresstest ts in _usedTileStresstests.Keys)
+                    if (ts.TileStresstestIndex.Contains(originalTileStresstestIndex)) //Take divided stresstests into account.
+                        ++count;
+                return count;
             }
         }
         private int IncrementReruns(string tileStresstestIndex) {
@@ -481,7 +511,7 @@ namespace vApus.DistributedTesting {
         /// <returns></returns>
         public TestProgressMessage GetTestProgressMessage(TileStresstest tileStresstest) {
             lock (_testProgressMessagesLock) {
-                if (_testProgressMessages.ContainsKey(tileStresstest)) 
+                if (_testProgressMessages.ContainsKey(tileStresstest))
                     //_testProgressMessages[tileStresstest].Values = dictionary of divided stresstest results, for when the same test is divided over 2 or more slaves.
                     return DivideEtImpera.GetMergedTestProgressMessage(tileStresstest, _testProgressMessages[tileStresstest].Values);
 

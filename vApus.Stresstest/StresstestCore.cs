@@ -66,7 +66,7 @@ namespace vApus.Stresstest {
         /// <summary> Every time the execution is broken (Break) the continue counter is incremented by one. This to be sure that if a continue is send it is reacted on it the right way. </summary>
         private int _continueCounter;
 
-        private AutoResetEvent _runSynchronizationContinueWaitHandle = new AutoResetEvent(false);
+        private AutoResetEvent _runSynchronizationContinueWaitHandle = new AutoResetEvent(false), _manyToOneWaitHandle = new AutoResetEvent(false);
 
         /// <summary>Measures intit actions and such to be able to output to the gui.</summary>
         private Stopwatch _sw = new Stopwatch();
@@ -519,8 +519,13 @@ namespace vApus.Stresstest {
                         ++_continueCounter;
 
                         SetRunInitializedFirstTime(concurrentUsersIndex, run + 1);
+                        if (_stresstest.IsDividedStresstest && !_cancel) {
+                            InvokeMessage("Waiting for Continue Message from Master...");
+                            _manyToOneWaitHandle.WaitOne();
+                            InvokeMessage("Continuing...");
+                        }
                         //Wait here untill the master sends continue when using run sync.
-                        if (RunSynchronization != RunSynchronization.None) {
+                        if (RunSynchronization != RunSynchronization.None && !_cancel) {
                             InvokeMessage("Waiting for Continue Message from Master...");
                             _runSynchronizationContinueWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
@@ -567,17 +572,16 @@ namespace vApus.Stresstest {
                         } else {
                             SetRunStopped();
                         }
-                        //For many-to-one testing, run-sync not supported.
                     }
-                        //else if (_stresstest.IsDividedStresstest && !_break) {
-                        //    SetRunDoneOnce();
-                        //    SetRunStopped();
+                        //For many-to-one testing, run-sync not supported.
+                    else if (_stresstest.IsDividedStresstest && !_break) {
+                        SetRunDoneOnce();
+                        SetRunStopped();
 
-                    //    InvokeMessage("Waiting for Continue Message from Master...");
-                        //    _runSynchronizationContinueWaitHandle.WaitOne();
-                        //    InvokeMessage("Continuing...");
-                        //} 
-                    else {
+                        InvokeMessage("Waiting for Continue Message from Master...");
+                        _manyToOneWaitHandle.WaitOne();
+                        InvokeMessage("Continuing...");
+                    } else {
                         SetRunStopped();
                     }
                 }
@@ -607,6 +611,14 @@ namespace vApus.Stresstest {
                 _break = false;
                 _runSynchronizationContinueWaitHandle.Set();
             }
+        }
+
+        /// <summary>
+        /// Keeping the shared run for a divided tile stresstest in sync.
+        /// </summary>
+        public void ContinueDivided() {
+            if (!(_completed | _cancel | _isFailed)) 
+                _manyToOneWaitHandle.Set();
         }
 
         /// <summary>
@@ -755,6 +767,7 @@ namespace vApus.Stresstest {
                 _cancel = true;
                 _sleepWaitHandle.Set();
                 _runSynchronizationContinueWaitHandle.Set();
+                _manyToOneWaitHandle.Set();
                 DisposeThreadPool();
                 if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
             }
@@ -765,7 +778,7 @@ namespace vApus.Stresstest {
             DisposeThreadPool();
             _connectionProxyPool.Dispose();
 
-            if (_cancel) {                
+            if (_cancel) {
                 _resultsHelper.SetStresstestStopped(_stresstestResult, "Cancelled");
                 return StresstestStatus.Cancelled;
             }
@@ -797,6 +810,10 @@ namespace vApus.Stresstest {
                     _runSynchronizationContinueWaitHandle.Close();
                     _runSynchronizationContinueWaitHandle.Dispose();
                     _runSynchronizationContinueWaitHandle = null;
+
+                    _manyToOneWaitHandle.Close();
+                    _manyToOneWaitHandle.Dispose();
+                    _manyToOneWaitHandle = null;
 
                     _logEntries = null;
                     _testableLogEntries = null;

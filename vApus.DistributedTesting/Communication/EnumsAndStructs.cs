@@ -29,6 +29,7 @@ namespace vApus.DistributedTesting {
         StartTest,
         Break,
         Continue,
+        ContinueDivided,
         StopTest,
 
         /// <summary>

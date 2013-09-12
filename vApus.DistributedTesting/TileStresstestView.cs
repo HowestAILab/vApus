@@ -218,6 +218,15 @@ namespace vApus.DistributedTesting {
                 }
         }
 
+        /// <summary>
+        ///     Thread safe, Keeping the shared run for a divided tile stresstest in sync.
+        /// </summary>
+        public void ContinueDivided() {
+            lock (_lock)
+                if (_stresstestStatus == StresstestStatus.Busy) 
+                    _stresstestCore.ContinueDivided();
+        }
+
         #region Progress
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_countDown--); }
         private void tmrProgress_Tick(object sender, ElapsedEventArgs e) {

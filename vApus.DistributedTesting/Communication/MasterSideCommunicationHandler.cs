@@ -629,6 +629,12 @@ namespace vApus.DistributedTesting {
             SendAndReceive(Key.Continue, continueMessage, out exception, 30000);
         }
 
+        public static void SendDividedContinue(Slave[] slaves) {
+            Exception exception = null;
+            foreach (var slave in slaves)
+                SendAndReceive(slave.IP, slave.Port, Key.ContinueDivided, null, out exception);
+        }
+
         /// <summary>
         /// The retry count is 3 with a send and a receive timeout of 30 seconds.
         /// </summary>

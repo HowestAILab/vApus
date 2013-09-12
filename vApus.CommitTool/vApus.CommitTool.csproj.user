@@ -9,7 +9,7 @@
     <ErrorReportUrlHistory />
     <FallbackCulture>en-US</FallbackCulture>
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
-    <ProjectView>ShowAllFiles</ProjectView>
+    <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
     <StartArguments>vapusupdate.sslab.lan 22 vapussuper Eshykv12 "D:\Werk\devteam\vapus\history.xml" "D:\Werk\devteam\vapus" "C:\Program Files (x86)\Git\cmd\git.cmd" Logs SlaveSideResults *vshost* *Commit* Lock* vApus.UpdateTool.exe.config vApus.Report.exe.config vApus.LogFixer.exe.config *.pdb FastColoredTextBox.xml unsortedlupusproxytemplog*</StartArguments>

@@ -63,6 +63,8 @@ namespace vApus.DistributedTesting {
                         return HandleBreak(message);
                     case Key.Continue:
                         return HandleContinue(message);
+                    case Key.ContinueDivided:
+                        return HandleContinueDivided(message);
                     case Key.StopTest:
                         return HandleStopTest(message);
                 }
@@ -176,6 +178,11 @@ namespace vApus.DistributedTesting {
 
         private static Message<Key> HandleContinue(Message<Key> message) {
             _tileStresstestView.Continue(((ContinueMessage)message.Content).ContinueCounter);
+            return message;
+        }
+
+        private static Message<Key> HandleContinueDivided(Message<Key> message) {
+            _tileStresstestView.ContinueDivided();
             return message;
         }
 
