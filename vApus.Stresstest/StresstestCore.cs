@@ -518,6 +518,7 @@ namespace vApus.Stresstest {
                     } else {
                         ++_continueCounter;
 
+                        //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
                         SetRunInitializedFirstTime(concurrentUsersIndex, run + 1);
                         if (_stresstest.IsDividedStresstest && !_cancel) {
                             InvokeMessage("Waiting for Continue Message from Master...");
@@ -543,6 +544,16 @@ namespace vApus.Stresstest {
                     } catch (Exception ex) {
                         if (!_isDisposed)
                             InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, LogLevel.Error);
+                    }
+
+                    //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
+                    if (_stresstest.IsDividedStresstest) {
+                        SetRunDoneOnce();
+                        SetRunStopped();
+
+                        InvokeMessage("Waiting for Continue Message from Master...");
+                        _manyToOneWaitHandle.WaitOne();
+                        InvokeMessage("Continuing...");
                     }
 
                     //Wait here when the run is broken untill the master sends continue when using run sync.
@@ -573,15 +584,7 @@ namespace vApus.Stresstest {
                             SetRunStopped();
                         }
                     }
-                        //For many-to-one testing, run-sync not supported.
-                    else if (_stresstest.IsDividedStresstest && !_break) {
-                        SetRunDoneOnce();
-                        SetRunStopped();
-
-                        InvokeMessage("Waiting for Continue Message from Master...");
-                        _manyToOneWaitHandle.WaitOne();
-                        InvokeMessage("Continuing...");
-                    } else {
+                    else {
                         SetRunStopped();
                     }
                 }
