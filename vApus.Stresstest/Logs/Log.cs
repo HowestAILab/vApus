@@ -375,7 +375,7 @@ namespace vApus.Stresstest {
 
         public override void Activate() {
             if ((Count > 499 || GetTotalLogEntryCount() > 4999) &&
-                MessageBox.Show("This is a large log, do you want to use the plain text editor?\nYou will loose most functionality, but vApus will stay responsive and memory usage within boundaries.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                MessageBox.Show("This is a large log! Do you want to use the plain text editor?\nYou will loose most functionality, but vApus will stay responsive and memory usage within boundaries.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView));
             } else {
                 SolutionComponentViewManager.Show(this);
