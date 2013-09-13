@@ -151,10 +151,7 @@ namespace vApus.Stresstest {
 
 
             int index;
-            List<string> clp = new List<string>(),
-                         np = new List<string>(),
-                         tp = new List<string>(),
-                         crp = new List<string>();
+            List<string> clp = new List<string>(), np = new List<string>(), tp = new List<string>(), crp = new List<string>();
             foreach (string scopeIdentifier in scopeIdentifiers) {
                 index = 1;
                 for (int i = 0; i < customListParameters.Count; i++) {

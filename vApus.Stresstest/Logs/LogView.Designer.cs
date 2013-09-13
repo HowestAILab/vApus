@@ -29,11 +29,11 @@
             this.picFind = new System.Windows.Forms.PictureBox();
             this.llblFindAndReplace = new System.Windows.Forms.LinkLabel();
             this.txtFind = new System.Windows.Forms.TextBox();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             this.logTreeView = new vApus.Stresstest.LogTreeView();
             this.editLogPanel = new vApus.Stresstest.EditLogPanel();
             this.editUserActionPanel = new vApus.Stresstest.EditUserActionPanel();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.tmrRefreshGui = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
@@ -127,6 +127,43 @@
             this.txtFind.TextChanged += new System.EventHandler(this.txtFind_TextChanged);
             this.txtFind.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFind_KeyDown);
             // 
+            // logTreeView
+            // 
+            this.logTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.logTreeView.Location = new System.Drawing.Point(0, 3);
+            this.logTreeView.Name = "logTreeView";
+            this.logTreeView.Size = new System.Drawing.Size(348, 560);
+            this.logTreeView.TabIndex = 0;
+            this.logTreeView.AfterSelect += new System.EventHandler(this.logTreeView_AfterSelect);
+            // 
+            // editLogPanel
+            // 
+            this.editLogPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editLogPanel.Location = new System.Drawing.Point(0, 0);
+            this.editLogPanel.Name = "editLogPanel";
+            this.editLogPanel.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.editLogPanel.Size = new System.Drawing.Size(694, 595);
+            this.editLogPanel.TabIndex = 0;
+            this.editLogPanel.LogImported += new System.EventHandler(this.editLog_LogImported);
+            this.editLogPanel.RevertedToAsImported += new System.EventHandler(this.editLog_RevertedToAsImported);
+            this.editLogPanel.RedeterminedTokens += new System.EventHandler(this.editLog_RedeterminedTokens);
+            // 
+            // editUserActionPanel
+            // 
+            this.editUserActionPanel.BackColor = System.Drawing.Color.White;
+            this.editUserActionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editUserActionPanel.Location = new System.Drawing.Point(0, 0);
+            this.editUserActionPanel.Name = "editUserActionPanel";
+            this.editUserActionPanel.Size = new System.Drawing.Size(694, 595);
+            this.editUserActionPanel.TabIndex = 1;
+            this.editUserActionPanel.Visible = false;
+            this.editUserActionPanel.UserActionMoved += new System.EventHandler(this.editUserAction_UserActionMoved);
+            this.editUserActionPanel.SplitClicked += new System.EventHandler(this.editUserAction_SplitClicked);
+            this.editUserActionPanel.MergeClicked += new System.EventHandler(this.editUserAction_MergeClicked);
+            this.editUserActionPanel.LinkedChanged += new System.EventHandler(this.editUserAction_LinkedChanged);
+            // 
             // toolTip
             // 
             this.toolTip.AutomaticDelay = 100;
@@ -139,43 +176,6 @@
             this.tmrRefreshGui.Enabled = true;
             this.tmrRefreshGui.Tick += new System.EventHandler(this.tmrRefreshGui_Tick);
             // 
-            // logTreeView
-            // 
-            this.logTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.logTreeView.Location = new System.Drawing.Point(0, 3);
-            this.logTreeView.Name = "logTreeView";
-            this.logTreeView.Size = new System.Drawing.Size(348, 560);
-            this.logTreeView.TabIndex = 0;
-            this.logTreeView.AfterSelect += new System.EventHandler(this.logTreeView_AfterSelect);
-            // 
-            // editLog
-            // 
-            this.editLogPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editLogPanel.Location = new System.Drawing.Point(0, 0);
-            this.editLogPanel.Name = "editLog";
-            this.editLogPanel.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.editLogPanel.Size = new System.Drawing.Size(694, 595);
-            this.editLogPanel.TabIndex = 0;
-            this.editLogPanel.LogImported += new System.EventHandler(this.editLog_LogImported);
-            this.editLogPanel.RevertedToAsImported += new System.EventHandler(this.editLog_RevertedToAsImported);
-            this.editLogPanel.RedeterminedTokens += new System.EventHandler(this.editLog_RedeterminedTokens);
-            // 
-            // editUserAction
-            // 
-            this.editUserActionPanel.BackColor = System.Drawing.Color.White;
-            this.editUserActionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editUserActionPanel.Location = new System.Drawing.Point(0, 0);
-            this.editUserActionPanel.Name = "editUserAction";
-            this.editUserActionPanel.Size = new System.Drawing.Size(694, 595);
-            this.editUserActionPanel.TabIndex = 1;
-            this.editUserActionPanel.Visible = false;
-            this.editUserActionPanel.UserActionMoved += new System.EventHandler(this.editUserAction_UserActionMoved);
-            this.editUserActionPanel.SplitClicked += new System.EventHandler(this.editUserAction_SplitClicked);
-            this.editUserActionPanel.MergeClicked += new System.EventHandler(this.editUserAction_MergeClicked);
-            this.editUserActionPanel.LinkedChanged += new System.EventHandler(this.editUserAction_LinkedChanged);
-            // 
             // LogView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -185,7 +185,7 @@
             this.Controls.Add(this.split);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "LogView";
-            this.Text = "NewLogView";
+            this.Text = "LogView";
             this.split.Panel1.ResumeLayout(false);
             this.split.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.split)).EndInit();

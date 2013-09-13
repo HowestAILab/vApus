@@ -22,8 +22,8 @@ namespace vApus.Stresstest {
     /// Contains UserActions that contain LogEntries.
     /// </summary>
     [Serializable]
-    [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "ExportLogAndUsedParameters_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
-        new[] { "Edit/Import", "Remove", "Export Data Structure", "Export log and Used Parameter Data Structures", "Copy", "Cut", "Duplicate" })]
+    [ContextMenu(new[] { "Activate_Click", "EditPlainText_Click", "Remove_Click", "Export_Click", "ExportLogAndUsedParameters_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { "Edit/Import", "Edit Plain Text", "Remove", "Export Data Structure", "Export log and Used Parameter Data Structures", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     public class Log : LabeledBaseItem, ISerializable {
@@ -175,13 +175,10 @@ namespace vApus.Stresstest {
         /// <returns></returns>
         public LogEntry[] GetAllLogEntries() {
             lock (_lock) {
-                int count = 0, index = 0;
-                foreach (BaseItem item in this)
-                    if (item is UserAction)
-                        count += item.Count;
-
+                int count = GetTotalLogEntryCount();
                 var arr = new LogEntry[count];
 
+                int index = 0;
                 foreach (BaseItem item in this)
                     if (item is UserAction)
                         foreach (LogEntry childItem in item)
@@ -189,6 +186,13 @@ namespace vApus.Stresstest {
 
                 return arr;
             }
+        }
+
+        public int GetTotalLogEntryCount() {
+            int count = 0;
+            foreach (UserAction item in this)
+                count += item.Count;
+            return count;
         }
 
         private void ExportLogAndUsedParameters_Click(object sender, EventArgs e) {
@@ -242,6 +246,7 @@ namespace vApus.Stresstest {
                 } catch { }
             }
         }
+        private void EditPlainText_Click(object sender, EventArgs e) { SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView)); }
 
         /// <summary>
         ///     This will apply the ruleset (lexing).
@@ -249,7 +254,7 @@ namespace vApus.Stresstest {
         /// </summary>
         public void ApplyLogRuleSet() {
             var logEntriesWithErrors = new List<LogEntry>();
-            foreach(var logEntry in GetAllLogEntries()) {
+            foreach (var logEntry in GetAllLogEntries()) {
                 try {
                     logEntry.ApplyLogRuleSet(_logRuleSet);
                     if (logEntry.LexicalResult == LexicalResult.Error)
@@ -262,7 +267,7 @@ namespace vApus.Stresstest {
             _lexicalResult = (logEntriesWithErrors.Count == 0) ? LexicalResult.OK : LexicalResult.Error;
 
             var logEntriesWithErrorsArr = logEntriesWithErrors.ToArray();
-            if (LexicalResultChanged != null) 
+            if (LexicalResultChanged != null)
                 LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrorsArr));
         }
         /// <summary>
@@ -368,7 +373,15 @@ namespace vApus.Stresstest {
             return log;
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override void Activate() {
+            if ((Count > 499 || GetTotalLogEntryCount() > 4999) &&
+                MessageBox.Show("This is a large log, do you want to use the plain text editor?\nYou will loose most functionality, but vApus will stay responsive and memory usage within boundaries.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView));
+            } else {
+                SolutionComponentViewManager.Show(this);
+            }
+        }
+
         #endregion
 
         public class LexicalResultsChangedEventArgs : EventArgs {
