@@ -183,9 +183,8 @@
             this.lbl.Name = "lbl";
             this.lbl.Size = new System.Drawing.Size(735, 51);
             this.lbl.TabIndex = 4;
-            this.lbl.Text = "Put each item on a new line:\r\n*A user action like so +USERACTION: Foobar (the +, " +
-    "caps, : and space are neccessary!)\r\n*A log entry like it is defined in the used " +
-    "rule set";
+            this.lbl.Text = "Put each item on a new line:\r\n*A user action like so <!--Foobar-->\r\n*A log entry " +
+    "like it is defined in the used rule set";
             // 
             // pnlRuleSet
             // 

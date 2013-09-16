@@ -79,8 +79,9 @@ namespace vApus.Stresstest {
         private void SetLog() {
             var sb = new StringBuilder();
             foreach (UserAction userAction in _log) {
-                sb.Append("+USERACTION: ");
-                sb.AppendLine(userAction.Label);
+                sb.Append("<!--");
+                sb.Append(userAction.Label);
+                sb.AppendLine("-->");
                 foreach (LogEntry logEntry in userAction)
                     sb.AppendLine(logEntry.LogEntryString);
             }
@@ -239,10 +240,10 @@ namespace vApus.Stresstest {
                 } catch { }
 
             UserAction currentUserAction = null;
-            string userActionDef = "+USERACTION: ";
+            string userActionBegin = "<!--", userActionEnd = "-->";
             foreach (string s in fctxt.Lines)
-                if (s.StartsWith(userActionDef)) {
-                    currentUserAction = new UserAction(s.Substring(userActionDef.Length));
+                if (s.StartsWith(userActionBegin) && s.EndsWith(userActionEnd)) {
+                    currentUserAction = new UserAction(s.Substring(userActionBegin.Length, s.Length - 7));
                     _log.AddWithoutInvokingEvent(currentUserAction);
                 } else if (currentUserAction != null) {
                     currentUserAction.AddWithoutInvokingEvent(new LogEntry(s), false);
