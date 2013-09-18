@@ -261,9 +261,7 @@ namespace vApus.Stresstest {
                     AddEvent(cpuUsage + " % CPU Usage", LogLevel.Warning);
                 }
             }
-            kvmContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1)
-                                                    ? "N/A"
-                                                    : contextSwitchesPerSecond.ToString();
+            kvmContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1) ? "N/A" : contextSwitchesPerSecond.ToString();
 
             if (memoryUsage == -1 || totalVisibleMemory == -1) {
                 kvmMemoryUsage.Value = "N/A";

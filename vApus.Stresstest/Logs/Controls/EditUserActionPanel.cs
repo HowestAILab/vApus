@@ -784,7 +784,6 @@ namespace vApus.Stresstest {
 
         private void fctxtxPlainText_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             btnApply.Enabled = true;
-            SetBtnSplit();
         }
         private void btnApply_Click(object sender, EventArgs e) {
             var userAction = UserActionTreeViewItem.UserAction;
@@ -815,6 +814,7 @@ namespace vApus.Stresstest {
                 _log.ApplyLogRuleSet();
                 SetLogEntries();
                 SetCodeStyle();
+                SetBtnSplit();
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
             btnApply.Enabled = false;

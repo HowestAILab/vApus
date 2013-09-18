@@ -35,7 +35,7 @@ private DateTime GetRandomDateTime(string start, string stop) {
 return GetRandomDateTime(DateTime.Parse(start), DateTime.Parse(stop));
 }
 private DateTime GetRandomDateTime(DateTime start, DateTime stop) {
-// Uncomment the following line to test if the returning of unique values works. This line is not needed in a test with delays.
+// Uncomment the following line to test if the returning of unique values works. You can add these values to a custom list parameter.
 // System.Threading.Thread.Sleep(1);
 
 // A Random can only handle 32-bit integers and we need a 64-bit integer, therefore this workaround.

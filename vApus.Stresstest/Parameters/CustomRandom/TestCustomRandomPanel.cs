@@ -108,7 +108,7 @@ namespace vApus.Stresstest {
 
             btn.FlatStyle = FlatStyle.Flat;
 
-            int line = error.Line - 7;
+            int line = error.Line;
             if (error.IsWarning) {
                 btn.FlatAppearance.BorderColor = Color.DarkOrange;
                 btn.Text = "Warning at line " + line + " column " + error.Column + ":\n" + error.ErrorText;
