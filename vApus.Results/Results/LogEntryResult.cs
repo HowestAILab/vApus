@@ -8,7 +8,7 @@
 using System;
 
 namespace vApus.Results {
-    public class LogEntryResult {
+    public struct LogEntryResult {
         public string VirtualUser { get; internal set; }
         public string UserAction { get; set; }
 

@@ -90,7 +90,7 @@ namespace vApus.Results {
                     if (calculate95thPercentileResponseTimes)
                         foreach (var vur in runResult.VirtualUserResults)
                             foreach (var ler in vur.LogEntryResults)
-                                if (ler != null && ler.LogEntryIndex != null) {
+                                if (ler.LogEntryIndex != null) {
                                     for (int i = 0; i != timesToLastByteInTicks.Count; i++)
                                         if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
                                             timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
@@ -157,7 +157,7 @@ namespace vApus.Results {
 
                 if (calculate95thPercentileResponseTimes)
                     foreach (var ler in virtualUserResult.LogEntryResults)
-                        if (ler != null && ler.LogEntryIndex != null) {
+                        if (ler.LogEntryIndex != null) {
                             for (int i = 0; i != timesToLastByteInTicks.Count; i++)
                                 if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
                                     timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
@@ -184,7 +184,7 @@ namespace vApus.Results {
             var uniqueUserActions = new List<string>();
             TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
             foreach (LogEntryResult logEntryResult in result.LogEntryResults)
-                if (logEntryResult != null && logEntryResult.LogEntryIndex != null) {
+                if (logEntryResult.LogEntryIndex != null) {
                     ++metrics.LogEntriesProcessed;
                     if (!uniqueUserActions.Contains(logEntryResult.UserAction)) uniqueUserActions.Add(logEntryResult.UserAction);
 
@@ -236,12 +236,11 @@ namespace vApus.Results {
                             --runs; //Use to get the erl for the next, not commenced yet, runs
                             if (rr.StoppedAt == DateTime.MinValue) {
                                 for (int vur = 0; vur != rr.VirtualUserResults.Length; vur++) {
-                                    var virtualUserResult = rr.VirtualUserResults[vur];
-                                    if (virtualUserResult != null) {
-                                        var logEntryResults = virtualUserResult.LogEntryResults;
+                                    var logEntryResults = rr.VirtualUserResults[vur].LogEntryResults;
+                                    if (logEntryResults != null) {
                                         for (int ler = 0; ler != logEntryResults.Length; ler++) {
                                             ++logEntries;
-                                            if (logEntryResults[ler] != null) ++logEntriesProcessed;
+                                            if (logEntryResults[ler].LogEntryIndex != null) ++logEntriesProcessed;
                                         }
                                     }
                                 }

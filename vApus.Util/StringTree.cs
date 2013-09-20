@@ -12,52 +12,24 @@ using System.Linq;
 using System.Text;
 
 namespace vApus.Util {
-    public class StringTree : ICollection<StringTree> {
+    public struct StringTree {
 
         #region Fields
-
-        private string _childDelimiter;
-
-        private StringTree[] _childs = new StringTree[] { };
-        public bool _isReadOnly = false;
-        private string _value;
-
+        private string _value, _childDelimiter;
+        private StringTree[] _childs;
         #endregion
 
         #region Properties
+        public string Value { get { return _value; } }
 
-        public string Value {
-            get { return _value; }
-            set {
-                if (value == null)
-                    throw new ArgumentNullException("Value");
-                _value = value;
-            }
-        }
-
-        public string ChildDelimiter {
-            get { return _childDelimiter; }
-            set {
-                if (value == null)
-                    throw new ArgumentNullException("ChildDelimiter");
-                _childDelimiter = value;
-            }
-        }
+        public string ChildDelimiter { get { return _childDelimiter; } }
 
         public StringTree this[int index] {
             get { return _childs[index]; }
             set { _childs[index] = value; }
         }
 
-        public bool IsReadOnly {
-            get { return _isReadOnly; }
-            set { _isReadOnly = value; }
-        }
-
-        public int Count {
-            get { return _childs.Length; }
-        }
-
+        public int Count { get { return _childs.Length; } }
         #endregion
 
         #region Constructors
@@ -68,90 +40,45 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="value"></param>
         /// <param name="childDelimiter">Use combine values to return a string representation of the elements in this structure.</param>
-        public StringTree(string value = "", string childDelimiter = "") {
-            Value = value;
-            ChildDelimiter = childDelimiter;
+        public StringTree(string value = "", string childDelimiter = "", int count = 0) {
+            if (value == null)
+                throw new ArgumentNullException("value");
+            if (childDelimiter == null)
+                throw new ArgumentNullException("childDelimiter");
+
+            _childs = new StringTree[count];
+
+            _value = value;
+            _childDelimiter = value;
         }
 
         #endregion
 
         #region Functions
 
-        public void Add(StringTree item) {
-            if (_isReadOnly)
-                throw new Exception("Is read only");
-
-            var childs = new List<StringTree>(_childs);
-            childs.Add(item);
-            _childs = childs.ToArray();
-        }
-
-        public void Clear() {
-            if (_isReadOnly)
-                throw new Exception("Is read only");
-
-            _childs = new StringTree[] { };
-        }
-
-        public bool Contains(StringTree item) {
-            return _childs.Contains(item);
-        }
-
-        public void CopyTo(StringTree[] array, int arrayIndex) {
-            _childs.CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(StringTree item) {
-            if (_isReadOnly)
-                throw new Exception("Is read only");
-
-            bool removed = false;
-
-            var childs = new List<StringTree>();
-            for (int i = 0; i < _childs.Length; i++) {
-                if (_childs[i] == item)
-                    removed = true;
-                else
-                    childs.Add(_childs[i]);
-            }
-
-            if (removed)
-                _childs = childs.ToArray();
-
-            return removed;
-        }
-
-        public IEnumerator<StringTree> GetEnumerator() {
-            return _childs.Cast<StringTree>().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() {
-            return _childs.GetEnumerator();
-        }
         /// <summary>
-        /// 
+        /// Not thread safe
         /// </summary>
         /// <returns>If this has no childs the value is returned.</returns>
         public string CombineValues() {
-            lock (this) {
-                var sb = new StringBuilder(_value);
-                if (Count != 0) {
-                    if (_childDelimiter.Length == 0) {
-                        sb.Append(this[0].CombineValues());
-                    } else {
-                        for (int i = 0; i < Count - 1; i++) {
-                            sb.Append(this[i].CombineValues());
-                            sb.Append(_childDelimiter);
-                        }
-                        sb.Append((this[Count - 1]).CombineValues());
-                    }
+            if (_childs.Length == 0)
+                return _value;
+
+            var sb = new StringBuilder();
+            if (_childDelimiter.Length == 0) {
+                sb.Append(this[0].CombineValues());
+            } else {
+                for (int i = 0; i < _childs.Length - 1; i++) {
+                    sb.Append(this[i].CombineValues());
+                    sb.Append(_childDelimiter);
                 }
-                return sb.ToString();
+                sb.Append((this[_childs.Length - 1]).CombineValues());
             }
+            return sb.ToString();
         }
 
         public override string ToString() {
-            return base.ToString() + (Count == 0 ? " value: " + Value : " count: " + Count);
+            return base.ToString() + (_childs.Length == 0 ? " value: " + _value : " count: " + _childs.Length);
         }
 
         #endregion

@@ -12,6 +12,7 @@ namespace vApus.Results {
     /// Do not forget the prepare for rerun function.
     /// </summary>
     public class RunResult {
+
         #region Properties
         public int Run { get; private set; }
 

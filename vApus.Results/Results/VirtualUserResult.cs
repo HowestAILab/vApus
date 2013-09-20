@@ -7,9 +7,10 @@
  */
 
 namespace vApus.Results {
-    public class VirtualUserResult {
+    public struct VirtualUserResult {
 
         #region Fields
+        private string _virtualUser;
         /// <summary>
         ///     For break on last runsync.
         /// </summary>
@@ -18,27 +19,37 @@ namespace vApus.Results {
         ///     For break on last runsync.
         /// </summary>
         private readonly long _baseLogEntryCount;
+
+        private LogEntryResult[] _logEntryResults;
         #endregion
 
         #region Properties
         /// <summary>
         ///     When not entered in the test this remains null. This is set in the StresstestCore.
         /// </summary>
-        public string VirtualUser { get; set; }
+        public string VirtualUser {
+            get { return _virtualUser; }
+            set { _virtualUser = value; }
+        }
 
         /// <summary>
         ///     Use the SetLogEntryResultAt function to add an item to this. (this fixes the index when using break on last run sync.)
         ///     Don't forget to initialize this the first time.
         ///     Can contain null!
         /// </summary>
-        public LogEntryResult[] LogEntryResults { get; internal set; }
+        public LogEntryResult[] LogEntryResults {
+            get { return _logEntryResults; }
+            internal set { _logEntryResults = value; }
+        }
 
         #endregion
 
         #region Constructor
         public VirtualUserResult(int logLength) {
-            LogEntryResults = new LogEntryResult[logLength];
-            _baseLogEntryCount = LogEntryResults.LongLength;
+            _virtualUser = null;
+            _runOffset = 0;
+            _logEntryResults = new LogEntryResult[logLength];
+            _baseLogEntryCount = _logEntryResults.LongLength;
         }
         #endregion
 

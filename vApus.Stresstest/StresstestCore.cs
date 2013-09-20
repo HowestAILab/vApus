@@ -382,6 +382,7 @@ namespace vApus.Stresstest {
             try {
                 InvokeMessage(string.Format("       |Determining Test Patterns and Delays for {0} Concurrent Users...", concurrentUsers));
                 _sw.Start();
+
                 var testableLogEntries = new ConcurrentBag<TestableLogEntry[]>();
                 var delays = new List<int[]>();
 
@@ -389,7 +390,7 @@ namespace vApus.Stresstest {
                 var allParameterizedStructures = new ConcurrentBag<StringTree[]>();
                 var allTestPatterns = new ConcurrentBag<int[]>();
                 for (int t = 0; t != concurrentUsers; t++) {
-                    allParameterizedStructures.Add(_log.GetParameterizedStructure().ToArray());
+                    allParameterizedStructures.Add(_log.GetParameterizedStructure());
 
                     int[] testPattern, delayPattern;
                     _testPatternsAndDelaysGenerator.GetPatterns(out testPattern, out delayPattern);
@@ -398,6 +399,27 @@ namespace vApus.Stresstest {
 
                     Thread.Sleep(1); //For the random in the pattern generator.
                 }
+
+                //Get all this stuff here, otherwise locking will slow down all following code.
+                var logEntryIndices = new ConcurrentDictionary<LogEntry, string>();
+                var logEntryParents = new ConcurrentDictionary<LogEntry, string>();
+                string dot = ".", empty = " ", colon = ": ";
+
+                Parallel.For(0, _log.Count, (userActionIndex) => {
+                    var userAction = _log[userActionIndex] as UserAction;
+                    if (!userAction.IsEmpty) {
+                        string userActionString = string.Join(empty, userAction.Name, userActionIndex);
+                        if (userAction.Label != string.Empty)
+                            userActionString = string.Join(colon, userActionString, userAction.Label);
+
+                        Parallel.For(0, userAction.Count, (logEntryIndex) => {
+                            var logEntry = userAction[logEntryIndex] as LogEntry;
+
+                            logEntryIndices.TryAdd(logEntry, string.Join(dot, userActionIndex, logEntryIndex));
+                            logEntryParents.TryAdd(logEntry, userActionString);
+                        });
+                    }
+                });
 
                 //Get testable log entries  async: way faster.
                 Parallel.For(0, concurrentUsers, (t, loopState) => {
@@ -418,14 +440,13 @@ namespace vApus.Stresstest {
 
                                 int testPatternIndex = testPattern[i];
                                 var logEntry = _logEntries[testPatternIndex];
-                                var logEntryParent = logEntry.Parent as UserAction;
 
                                 string sameAsLogEntryIndex = string.Empty;
                                 if (logEntry.SameAs != null)
-                                    sameAsLogEntryIndex = (logEntry.SameAs.Parent as UserAction).Index + "." + logEntry.SameAs.Index;
+                                    sameAsLogEntryIndex = logEntryIndices[logEntry.SameAs];
 
-                                tle[i] = new TestableLogEntry(logEntryParent.Index + "." + logEntry.Index, sameAsLogEntryIndex,
-                                    parameterizedStructure[testPatternIndex], logEntryParent.ToString(), logEntry.ExecuteInParallelWithPrevious,
+                                tle[i] = new TestableLogEntry(logEntryIndices[logEntry], sameAsLogEntryIndex,
+                                    parameterizedStructure[testPatternIndex], logEntryParents[logEntry], logEntry.ExecuteInParallelWithPrevious,
                                     logEntry.ParallelOffsetInMs, _rerun);
                             } catch (Exception ex2) {
                                 LogWrapper.LogByLevel("Failed at determining test patterns>\n" + ex2, LogLevel.Error);
@@ -442,6 +463,17 @@ namespace vApus.Stresstest {
 
                 _testableLogEntries = testableLogEntries.ToArray();
                 _delays = delays.ToArray();
+
+                testableLogEntries = null;
+                delays = null;
+
+                allParameterizedStructures = null;
+                allTestPatterns = null;
+
+                logEntryIndices = null;
+                logEntryParents = null;
+
+                GC.Collect();
 
                 _sw.Stop();
                 InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToLongFormattedString()));
@@ -583,8 +615,7 @@ namespace vApus.Stresstest {
                         } else {
                             SetRunStopped();
                         }
-                    }
-                    else {
+                    } else {
                         SetRunStopped();
                     }
                 }
@@ -620,7 +651,7 @@ namespace vApus.Stresstest {
         /// Keeping the shared run for a divided tile stresstest in sync.
         /// </summary>
         public void ContinueDivided() {
-            if (!(_completed | _cancel | _isFailed)) 
+            if (!(_completed | _cancel | _isFailed))
                 _manyToOneWaitHandle.Set();
         }
 
@@ -835,7 +866,6 @@ namespace vApus.Stresstest {
         ///     Log entry with metadata.
         /// </summary>
         private struct TestableLogEntry {
-
             #region Fields
             /// <summary>
             ///     Should be log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry); this must be unique.

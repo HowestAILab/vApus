@@ -217,7 +217,7 @@ namespace vApus.Stresstest {
                     GetParameterTokenDelimiters(out begin, out end, out logEntryContainsTokens, false);
 
                     var usedParameters = new List<BaseParameter>();
-                    var allParameterTokens = ASTNode.GetParameterTokens(begin, end, _parameters);
+                    var allParameterTokens = GetParameterTokens(begin, end);
 
                     foreach (UserAction userAction in this)
                         foreach (LogEntry logEntry in userAction)
@@ -274,7 +274,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="beginTokenDelimiter"></param>
         /// <param name="endTokenDelimiter"></param>
-        /// <param name="logEntryContainsTokens">True if one of the delimiters is in the log entry string.</param>
+        /// <param name="logEntryContainsTokens">True if one of the delimiters is in a log entry string.</param>
         public void GetParameterTokenDelimiters(out string beginTokenDelimiter, out string endTokenDelimiter, out bool logEntryContainsTokens, bool autoNextOnLogEntryContainsTokens) {
             beginTokenDelimiter = string.Empty;
             endTokenDelimiter = string.Empty;
@@ -284,44 +284,53 @@ namespace vApus.Stresstest {
             bool bln;
             int tokenIndex = -1;
 
-            if (this.CountOf(typeof(UserAction)) == 0) {
-                tokenIndex = (new LogEntry()).GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
-                if (bln) logEntryContainsTokens = true;
+            foreach (LogEntry logEntry in GetAllLogEntries()) {
+                tokenIndex = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
 
-                beginTokenDelimiter = b;
-                endTokenDelimiter = e;
+                if (tokenIndex >= _preferredTokenDelimiterIndex) {
+                    beginTokenDelimiter = b;
+                    endTokenDelimiter = e;
+                    if (bln) logEntryContainsTokens = true;
 
-                _preferredTokenDelimiterIndex = tokenIndex;
-            } else {
-                foreach (LogEntry logEntry in GetAllLogEntries()) {
-                    tokenIndex = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
-
-                    if (tokenIndex >= _preferredTokenDelimiterIndex) {
-                        beginTokenDelimiter = b;
-                        endTokenDelimiter = e;
-                        if (bln) logEntryContainsTokens = true;
-
-                        _preferredTokenDelimiterIndex = tokenIndex;
-                    }
+                    _preferredTokenDelimiterIndex = tokenIndex;
                 }
             }
         }
+        private Dictionary<string, BaseParameter> GetParameterTokens(string beginTokenDelimiter, string endTokenDelimiter) {
+
+            var scopeIdentifiers = new[] { ASTNode.LOG_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE, ASTNode.LOG_ENTRY_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.ALWAYS_PARAMETER_SCOPE };
+
+            var parameterTokens = new Dictionary<string, BaseParameter>();
+
+            int i;
+            foreach (string scopeIdentifier in scopeIdentifiers) {
+                i = 1;
+                foreach (BaseParameter parameter in _parameters.GetAllParameters())
+                    parameterTokens.Add(beginTokenDelimiter + scopeIdentifier + (i++) + endTokenDelimiter, parameter);
+            }
+
+            return parameterTokens;
+        }
+
         /// <summary>
         ///     Get a list of string trees, these are used in the connection proxy code.
         /// </summary>
         /// <returns></returns>
-        public List<StringTree> GetParameterizedStructure() {
+        public StringTree[] GetParameterizedStructure() {
             var parameterizedStructure = new List<StringTree>(Count);
-            var chosenNextValueParametersForLScope = new HashSet<BaseParameter>();
 
             string b, e;
             bool logEntryContainsTokens;
             GetParameterTokenDelimiters(out b, out e, out logEntryContainsTokens, false);
 
-            foreach (UserAction userAction in this)
-                foreach (StringTree ps in userAction.GetParameterizedStructure(b, e, chosenNextValueParametersForLScope)) parameterizedStructure.Add(ps);
+            HashSet<BaseParameter> chosenNextValueParametersForLScope = logEntryContainsTokens ? new HashSet<BaseParameter>() : null;
 
-            return parameterizedStructure;
+            Dictionary<string, BaseParameter> parameterTokens = logEntryContainsTokens ? GetParameterTokens(b, e) : null;
+
+            foreach (UserAction userAction in this)
+                parameterizedStructure.AddRange(userAction.GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope));
+
+            return parameterizedStructure.ToArray();
         }
 
         /// <summary>

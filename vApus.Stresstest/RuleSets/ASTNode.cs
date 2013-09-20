@@ -23,7 +23,7 @@ namespace vApus.Stresstest {
         public const string LOG_ENTRY_PARAMETER_SCOPE = "LE.";
         public const string LEAF_NODE_PARAMETER_SCOPE = "LN.";
         public const string ALWAYS_PARAMETER_SCOPE = "";
-        
+
         private static object _lock = new object();
 
         private static Parameters _parameters;
@@ -97,47 +97,28 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="beginTokenDelimiter">Must be determined for a collection of ast nodes (a log) (GetUniqueParameterTokenDelimiters()).</param>
         /// <param name="endTokenDelimiter">Must be determined for a collection of ast nodes (a log) (GetUniqueParameterTokenDelimiters()).</param>
-        public StringTree GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter, HashSet<BaseParameter> chosenNextValueParametersForLScope,
-                                                    HashSet<BaseParameter> chosenNextValueParametersForUAScope, HashSet<BaseParameter> chosenNextValueParametersForLEScope) {
-            return GetParameterizedStructure(GetParameterTokens(beginTokenDelimiter, endTokenDelimiter, _parameters), chosenNextValueParametersForLScope,
-                                             chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
-        }
-
-        private StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope,
+        public StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope,
                                                      HashSet<BaseParameter> chosenNextValueParametersForUAScope, HashSet<BaseParameter> chosenNextValueParametersForLEScope) {
-            var st = new StringTree(string.Empty, _childDelimiter);
-
-            if (_children == null || _children.Count == 0)
-                st.Value = ParameterizeValue(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
-            else
-                foreach (ASTNode node in _children)
-                    st.Add(node.GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope));
+            StringTree st;
+            int count = _children == null ? 0 : _children.Count;
+            if (count == 0) {
+                st = new StringTree(ParameterizeValue(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope), _childDelimiter, count);
+            } else {
+                st = new StringTree(string.Empty, _childDelimiter, count);
+                for (int i = 0; i != count; i++)
+                    st[i] = _children[i].GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
+            }
 
             return st;
         }
 
-        public static Dictionary<string, BaseParameter> GetParameterTokens(string beginTokenDelimiter, string endTokenDelimiter, Parameters parameters) {
-            lock (_lock) {
-                var scopeIdentifiers = new[] { LOG_PARAMETER_SCOPE, USER_ACTION_PARAMETER_SCOPE, LOG_ENTRY_PARAMETER_SCOPE, LEAF_NODE_PARAMETER_SCOPE, ALWAYS_PARAMETER_SCOPE };
-
-                var parameterTokens = new Dictionary<string, BaseParameter>();
-
-                int i;
-                foreach (string scopeIdentifier in scopeIdentifiers) {
-                    i = 1;
-                    foreach (BaseParameter parameter in parameters.GetAllParameters())
-                        parameterTokens.Add(beginTokenDelimiter + scopeIdentifier + (i++) + endTokenDelimiter, parameter);
-                }
-
-                return parameterTokens;
-            }
-        }
 
         private string ParameterizeValue(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope, HashSet<BaseParameter> chosenNextValueParametersForUAScope, HashSet<BaseParameter> chosenNextValueParametersForLEScope) {
-            var chosenNextValueParametersForLNScope = new HashSet<BaseParameter>();
+            if (_value.Length == 0) return _defaultValue;
 
-            if (_value.Length == 0)
-                return _defaultValue;
+            HashSet<BaseParameter> chosenNextValueParametersForLNScope = parameterTokens == null ? null : new HashSet<BaseParameter>();
+
+            if (parameterTokens == null) return _value;
 
             string parameterizedValue = _value;
             /*

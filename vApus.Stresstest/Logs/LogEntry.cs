@@ -219,12 +219,11 @@ namespace vApus.Stresstest {
         /// <param name="chosenNextValueParametersForLScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
         /// <param name="chosenNextValueParametersForUAScope">Can be an empty hash set but may not be null, used to store all these values for the right scope. If the log entry is not in a user action this should be an empty hash set.</param>
         /// <returns></returns>
-        internal StringTree GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter, HashSet<BaseParameter> chosenNextValueParametersForLScope, HashSet<BaseParameter> chosenNextValueParametersForUAScope) {
-            if (chosenNextValueParametersForUAScope == null)
-                chosenNextValueParametersForUAScope = new HashSet<BaseParameter>();
-            var chosenNextValueParametersForLEScope = new HashSet<BaseParameter>();
+        internal StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope, HashSet<BaseParameter> chosenNextValueParametersForUAScope) {
 
-            return _lexedLogEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
+            HashSet<BaseParameter> chosenNextValueParametersForLEScope = parameterTokens == null ? null : new HashSet<BaseParameter>();
+
+            return _lexedLogEntry.GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope);
         }
 
         /// <summary>

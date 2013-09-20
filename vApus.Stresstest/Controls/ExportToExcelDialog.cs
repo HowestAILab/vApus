@@ -103,7 +103,7 @@ namespace vApus.Stresstest {
 
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                btnExportToExcel.Enabled = cboStresstest.Enabled = false;
+                btnExportToExcel.Enabled = cboStresstest.Enabled = chkMonitorDataToDifferentFiles.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
                 int selectedIndex = cboStresstest.SelectedIndex;
                 bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
@@ -200,7 +200,7 @@ namespace vApus.Stresstest {
                 }, _cancellationTokenSource.Token);
 
                 btnExportToExcel.Text = "Export to Excel...";
-                btnExportToExcel.Enabled = cboStresstest.Enabled = true;
+                btnExportToExcel.Enabled = cboStresstest.Enabled = chkMonitorDataToDifferentFiles.Enabled = true;
             }
         }
 

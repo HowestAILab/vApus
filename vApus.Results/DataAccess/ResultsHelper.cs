@@ -323,7 +323,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                         var rowsToInsert = new List<string>(); //Insert multiple values at once.
                         foreach (var logEntryResult in virtualUserResult.LogEntryResults)
-                            if (logEntryResult != null && logEntryResult.LogEntryIndex != null) {
+                            if (logEntryResult.LogEntryIndex != null) {
                                 var sb = new StringBuilder("('");
                                 sb.Append(_runResultId);
                                 sb.Append("', '");
@@ -550,10 +550,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                                     if ((int)lerRow.ItemArray[0] == runResultId) {
                                         string virtualUser = (lerRow.ItemArray[1] as string);
-                                        virtualUserResults.TryAdd(virtualUser, new VirtualUserResult(0) { VirtualUser = virtualUser });
                                         logEntryResults.TryAdd(virtualUser, new List<LogEntryResult>());
 
-                                        var virtualUserResult = virtualUserResults[virtualUser];
                                         logEntryResults[virtualUser].Add(new LogEntryResult() {
                                             VirtualUser = virtualUser, UserAction = lerRow.ItemArray[2] as string, LogEntryIndex = lerRow.ItemArray[3] as string,
                                             TimeToLastByteInTicks = (long)lerRow.ItemArray[4], DelayInMilliseconds = (int)lerRow.ItemArray[5], Error = lerRow.ItemArray[6] as string
@@ -573,7 +571,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 Parallel.ForEach(logEntryResults, (item, loopState) => {
                                     if (cancellationToken.IsCancellationRequested) loopState.Break();
 
-                                    virtualUserResults[item.Key].LogEntryResults = item.Value.ToArray();
+                                    virtualUserResults.TryAdd(item.Key, new VirtualUserResult(logEntryResults[item.Key].Count) { VirtualUser = item.Key });
+
+                                    for (int k = 0; k != item.Value.Count; k++)
+                                        virtualUserResults[item.Key].LogEntryResults[k] = item.Value[k];
                                 });
                                 if (cancellationToken.IsCancellationRequested) return null;
 
