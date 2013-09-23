@@ -230,13 +230,14 @@ namespace vApus.Stresstest {
         /// Clones and applies the log rule set.
         /// </summary>
         /// <returns></returns>
-        public LogEntry Clone(LogRuleSet logRuleSet) {
+        public LogEntry Clone(LogRuleSet logRuleSet, bool applyRuleSet) {
             LogEntry logEntry = new LogEntry();
             logEntry.SetParent(Parent, false);
             logEntry.LogEntryString = _logEntryString;
             logEntry._parameters = _parameters;
 
-            logEntry.ApplyLogRuleSet(logRuleSet);
+            if (applyRuleSet)
+                logEntry.ApplyLogRuleSet(logRuleSet);
 
             return logEntry;
         }

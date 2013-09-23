@@ -365,7 +365,7 @@ namespace vApus.Stresstest {
             InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        public Log Clone(bool cloneChildren = true) {
+        public Log Clone(bool cloneChildren = true, bool applyRuleSet = true) {
             var log = new Log();
             log.Parent = Parent;
             log.Label = Label;
@@ -375,9 +375,8 @@ namespace vApus.Stresstest {
             log._parameters = _parameters;
 
             if (cloneChildren)
-                foreach (BaseItem item in this)
-                    if (item is UserAction)
-                        log.AddWithoutInvokingEvent((item as UserAction).Clone(_logRuleSet), false);
+                foreach (UserAction item in this)
+                    log.AddWithoutInvokingEvent(item.Clone(_logRuleSet, applyRuleSet), false);
 
             return log;
         }

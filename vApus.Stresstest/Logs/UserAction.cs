@@ -291,7 +291,7 @@ namespace vApus.Stresstest {
 
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
-        public UserAction Clone(LogRuleSet logRuleSet) {
+        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet) {
             UserAction userAction = new UserAction(Label);
             userAction.SetParent(Parent, false);
             userAction.Occurance = _occurance;
@@ -299,7 +299,7 @@ namespace vApus.Stresstest {
             userAction.UseDelay = _useDelay;
             userAction.LogEntryStringsAsImported = _logEntryStringsAsImported;
 
-            foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(logRuleSet), false);
+            foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(logRuleSet, applyRuleSet), false);
 
             return userAction;
         }

@@ -264,6 +264,7 @@ namespace vApus.DistributedTesting {
                     if (_masterSocketWrapper.Connected) {
                         var message = new Message<Key>(Key.Push, tpm);
                         SynchronizeBuffers(message);
+                        GC.Collect();
                         _masterSocketWrapper.Send(message, SendType.Binary);
                     }
                 } catch { }

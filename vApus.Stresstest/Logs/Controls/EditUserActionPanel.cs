@@ -289,7 +289,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone(_log.LogRuleSet)); }
+        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone(_log.LogRuleSet, true)); }
 
         private void SetPicDelay() {
             if (UserActionTreeViewItem.UserAction.UseDelay) {

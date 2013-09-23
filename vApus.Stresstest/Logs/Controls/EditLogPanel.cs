@@ -208,7 +208,7 @@ namespace vApus.Stresstest {
         private void btnImport_Click(object sender, EventArgs e) { Import(fctxtxImport.Text, chkClearLogBeforeImport.Checked); }
         private void Import(string text, bool clearLog) {
             //Clone and add to the clone to redetermine the tokens if needed.
-            Log toAdd = _log.Clone(false);
+            Log toAdd = _log.Clone(false, false);
 
             if (clearLog && _log.Count != 0)
                 if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)

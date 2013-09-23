@@ -303,7 +303,7 @@ namespace vApus.Stresstest {
                 log.ApplyLogRuleSet();
                 return log;
             } else {
-                Log newLog = log.Clone(false);
+                Log newLog = log.Clone(false, false);
                 var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
                 foreach (UserAction action in log) {
                     var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
@@ -315,7 +315,7 @@ namespace vApus.Stresstest {
                         bool canAddClones = firstEntryClones.Count == 0;
                         int logEntryIndex = 0;
                         foreach (LogEntry child in action) {
-                            LogEntry childClone = child.Clone(log.LogRuleSet);
+                            LogEntry childClone = child.Clone(log.LogRuleSet, true);
 
                             if (canAddClones)
                                 firstEntryClones.Add(childClone);
@@ -386,7 +386,7 @@ namespace vApus.Stresstest {
                 var testableLogEntries = new ConcurrentBag<TestableLogEntry[]>();
                 var delays = new List<int[]>();
 
-                //Get parameterized structures and patterns first sync first: no locking needed further on.
+                //Get parameterized structures and patterns first sync first.
                 var allParameterizedStructures = new ConcurrentBag<StringTree[]>();
                 var allTestPatterns = new ConcurrentBag<int[]>();
                 for (int t = 0; t != concurrentUsers; t++) {
@@ -421,7 +421,7 @@ namespace vApus.Stresstest {
                     }
                 });
 
-                //Get testable log entries  async: way faster.
+                //Get testable log entries  async.
                 Parallel.For(0, concurrentUsers, (t, loopState) => {
                     try {
                         if (_cancel) loopState.Break();
@@ -859,6 +859,7 @@ namespace vApus.Stresstest {
                 }
             }
             ObjectRegistrar.Unregister(this);
+            GC.Collect();
         }
         #endregion
 
