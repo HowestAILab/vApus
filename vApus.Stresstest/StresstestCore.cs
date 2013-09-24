@@ -986,6 +986,7 @@ namespace vApus.Stresstest {
                     result.VirtualUser = Thread.CurrentThread.Name;
 
                     var logEntryResult = new LogEntryResult {
+                        VirtualUser = result.VirtualUser,
                         LogEntryIndex = testableLogEntry.LogEntryIndex,
                         SameAsLogEntryIndex = testableLogEntry.SameAsLogEntryIndex,
                         LogEntry = testableLogEntry.ParameterizedLogEntryString,
@@ -997,6 +998,8 @@ namespace vApus.Stresstest {
                         Rerun = testableLogEntry.Rerun
                     };
                     result.SetLogEntryResultAt(testableLogEntryIndex, logEntryResult);
+
+                    runResult.VirtualUserResults[threadIndex] = result;
 
 
                     if (delayInMilliseconds != 0 && !(stresstestCore._cancel || stresstestCore._break)) sleepWaitHandle.WaitOne(delayInMilliseconds);

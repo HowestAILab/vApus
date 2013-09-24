@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 
+using System;
 namespace vApus.Results {
     public struct VirtualUserResult {
 
