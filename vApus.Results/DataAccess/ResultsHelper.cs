@@ -1282,7 +1282,27 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "MonitorBeforeInMinutes", "MonitorAfterInMinutes");
                 if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
+                //var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
+
+                //Get the monitors + values
+                var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestIds, "Id", "StresstestId", "Monitor", "ResultHeaders");
+                if (monitors == null || monitors.Rows.Count == 0) return null;
+
+                var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time (ms)", "Concurrency" });
+                var resultHeaders = new List<string>();
+                var monitorColumnOffsets = new Dictionary<int, int>(); //key monitorID, value offset
+
+                foreach (DataRow monitorRow in monitors.Rows) {
+                    int monitorId = (int)monitorRow.ItemArray[0];
+                    var rh = (monitorRow[3] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+
+                    monitorColumnOffsets.Add(monitorId, resultHeaders.Count);
+                    resultHeaders.AddRange(rh);
+                }
+
+                columnNames.AddRange(resultHeaders);
+                var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", columnNames.ToArray());
+
                 foreach (DataRow stresstestsRow in stresstests.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
@@ -1294,10 +1314,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
                     if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
                     int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                    //Get the monitors + values
-                    var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestId, "Id", "Monitor", "ResultHeaders");
-                    if (monitors == null || monitors.Rows.Count == 0) continue;
 
                     //Get the timestamps to calculate the averages
                     var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency", "StartedAt", "StoppedAt");
@@ -1384,9 +1400,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         foreach (DataRow monitorRow in monitors.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
+                            int monitorStresstestId = (int)monitorRow.ItemArray[1];
+                            if (monitorStresstestId != stresstestId) continue;
+                            
                             int monitorId = (int)monitorRow.ItemArray[0];
-                            object monitor = monitorRow.ItemArray[1];
-                            object headers = monitorRow.ItemArray[2];
+                            object monitor = monitorRow.ItemArray[2];
 
                             var monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
                             if (monitorResults == null || monitorResults.Rows.Count == 0) continue;
@@ -1420,14 +1438,25 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 }
                             }
 
-                            string averages = GetAverageMonitorResults(cancellationToken, monitorValues).Combine("; ");
+                            float[] averages = GetAverageMonitorResults(cancellationToken, monitorValues);
                             if (cancellationToken.IsCancellationRequested) return null;
 
                             var startedAt = concurrencyDelimiters[concurrencyId].Key;
                             var measuredRunTime = Math.Round((concurrencyDelimiters[concurrencyId].Value - startedAt).TotalMilliseconds, 2);
 
                             string concurrency = concurrencies[concurrencyId] == 0 ? "--" : concurrencies[concurrencyId].ToString();
-                            averageMonitorResults.Rows.Add(stresstest, monitor, startedAt, measuredRunTime, concurrency, headers, averages);
+
+                            var newRow = new List<object>(new object[] { stresstest, monitor, startedAt, measuredRunTime, concurrency });
+
+                            var fragmentedAverages = new object[resultHeaders.Count];
+                            for (long p = 0; p != fragmentedAverages.Length; p++)
+                                fragmentedAverages[p] = "--";
+
+                            int offset = monitorColumnOffsets[monitorId];
+                            averages.CopyTo(fragmentedAverages, offset);
+
+                            newRow.AddRange(fragmentedAverages);
+                            averageMonitorResults.Rows.Add(newRow.ToArray());
                         }
                     }
                 }
