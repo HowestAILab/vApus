@@ -49,7 +49,7 @@ namespace vApus.Util {
         /// <summary>
         ///     Wait indefinetly until the work is done before disposing.
         /// </summary>
-        public void Dispose() {  Dispose(-1);  }
+        public void Dispose() { Dispose(-1); }
 
         /// <summary>
         ///     Wait the given timeout before disposing, if the work is not done it will be aborted.
@@ -67,7 +67,8 @@ namespace vApus.Util {
 
                 _sendWaitHandle.Close();
                 _sendWaitHandle.Dispose();
-                _sendWorkerThread.Abort();
+                try { _sendWorkerThread.Abort(); } catch { }
+                try { _sendWorkerThread.Join(); } catch { }
                 _sendWorkerThread = null;
                 _sendQueue = null;
             }

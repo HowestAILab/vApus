@@ -191,13 +191,13 @@ namespace vApus.Stresstest {
                 _doWorkWaitHandle.Set();
                 _poolInitializedWaitHandle.Set();
                 if (_threads != null) {
-                    //Join
-                    Parallel.ForEach(_threads, delegate(Thread t) { try { if (t != null) t.Join(timeout); } catch { } });
-
                     _size = 0;
 
                     //Abort
                     Parallel.ForEach(_threads, delegate(Thread t) { try { if (t != null) t.Abort(); } catch { } });
+
+                    //Join
+                    Parallel.ForEach(_threads, delegate(Thread t) { try { if (t != null) t.Join(timeout); } catch { } });
 
                     _poolIdleWaitHandle.Set();
                 }

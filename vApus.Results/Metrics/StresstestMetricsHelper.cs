@@ -138,11 +138,12 @@ namespace vApus.Results {
             int enteredUserResultsCount = 0;
             var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
             int percent5 = -1;
-            foreach (VirtualUserResult virtualUserResult in result.VirtualUserResults)
-                if (virtualUserResult.VirtualUser != null) {
-                    ++enteredUserResultsCount;
+            foreach (VirtualUserResult virtualUserResult in result.VirtualUserResults) {
+                StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult);
+                metrics.LogEntries += virtualUserMetrics.LogEntries;
 
-                    StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult);
+                if (virtualUserResult.VirtualUser != null) {
+                    ++enteredUserResultsCount;   
 
                     if (calculate95thPercentileResponseTimes && percent5 == -1)
                         percent5 = (int)(result.VirtualUserResults.Length * virtualUserMetrics.LogEntries * 0.05) + 1;
@@ -150,7 +151,6 @@ namespace vApus.Results {
                     metrics.AverageResponseTime = metrics.AverageResponseTime.Add(virtualUserMetrics.AverageResponseTime);
                     if (virtualUserMetrics.MaxResponseTime > metrics.MaxResponseTime) metrics.MaxResponseTime = virtualUserMetrics.MaxResponseTime;
                     metrics.AverageDelay = metrics.AverageDelay.Add(virtualUserMetrics.AverageDelay);
-                    metrics.LogEntries += virtualUserMetrics.LogEntries;
                     metrics.LogEntriesProcessed += virtualUserMetrics.LogEntriesProcessed;
                     metrics.ResponsesPerSecond += virtualUserMetrics.ResponsesPerSecond;
                     metrics.UserActionsPerSecond += virtualUserMetrics.UserActionsPerSecond;
@@ -167,6 +167,7 @@ namespace vApus.Results {
                                 while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
                             }
                 }
+            }
 
             if (enteredUserResultsCount != 0) {
                 metrics.AverageResponseTime = new TimeSpan(metrics.AverageResponseTime.Ticks / enteredUserResultsCount);
