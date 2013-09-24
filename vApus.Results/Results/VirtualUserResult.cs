@@ -66,13 +66,9 @@ namespace vApus.Results {
             _runOffset += _baseLogEntryCount;
 
             var increasedLogEntryResults = new LogEntryResult[LogEntryResults.LongLength + _baseLogEntryCount];
-            for (long l = 0; l != LogEntryResults.LongLength; l++)
-                increasedLogEntryResults[l] = LogEntryResults[l];
+            _logEntryResults.CopyTo(increasedLogEntryResults, 0);
 
-            for (long l = LogEntryResults.LongLength; l != increasedLogEntryResults.LongLength; l++)
-                increasedLogEntryResults[l] = new LogEntryResult();
-
-            LogEntryResults = increasedLogEntryResults;
+            _logEntryResults = increasedLogEntryResults;
         }
         #endregion
     }

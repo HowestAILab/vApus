@@ -182,7 +182,9 @@ namespace vApus.Stresstest {
         private void SizeColumns() {
             if (_tmrSizeColumns != null && dgvDetailedResults.Columns.Count < 100) {
                 _tmrSizeColumns.Stop();
-                _tmrSizeColumns.Start();
+
+                if (dgvDetailedResults.Columns.Count > 1)
+                    _tmrSizeColumns.Start();
             }
         }
         private void _tmrSizeColumns_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {

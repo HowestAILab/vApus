@@ -505,7 +505,9 @@ namespace vApus.Stresstest {
             if (_tmr != null) {
                 _tmr.Stop();
                 dgvLogEntries.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                _tmr.Start();
+
+                if (dgvLogEntries.Columns.Count > 2)
+                    _tmr.Start();
             }
         }
         private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
