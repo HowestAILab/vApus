@@ -318,40 +318,43 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 runResult.StoppedAt = DateTime.Now;
                 if (_databaseActions != null) {
                     ulong totalLogEntryCount = 0;
+
                     foreach (VirtualUserResult virtualUserResult in runResult.VirtualUserResults) {
                         totalLogEntryCount += (ulong)virtualUserResult.LogEntryResults.LongLength;
 
-                        var rowsToInsert = new List<string>(); //Insert multiple values at once.
-                        foreach (var logEntryResult in virtualUserResult.LogEntryResults)
-                            if (logEntryResult.LogEntryIndex != null) {
-                                var sb = new StringBuilder("('");
-                                sb.Append(_runResultId);
-                                sb.Append("', '");
-                                sb.Append(virtualUserResult.VirtualUser);
-                                sb.Append("', '");
-                                sb.Append(MySQLEscapeString(logEntryResult.UserAction));
-                                sb.Append("', '");
-                                sb.Append(logEntryResult.LogEntryIndex);
-                                sb.Append("', '");
-                                sb.Append(logEntryResult.SameAsLogEntryIndex);
-                                sb.Append("', '");
-                                sb.Append(MySQLEscapeString(logEntryResult.LogEntry));
-                                sb.Append("', '");
-                                sb.Append(Parse(logEntryResult.SentAt));
-                                sb.Append("', '");
-                                sb.Append(logEntryResult.TimeToLastByteInTicks);
-                                sb.Append("', '");
-                                sb.Append(logEntryResult.DelayInMilliseconds);
-                                sb.Append("', '");
-                                sb.Append(MySQLEscapeString(logEntryResult.Error));
-                                sb.Append("', '");
-                                sb.Append(logEntryResult.Rerun);
-                                sb.Append("')");
-                                rowsToInsert.Add(sb.ToString());
-                            }
+                        if (virtualUserResult.VirtualUser != null) {
+                            var rowsToInsert = new List<string>(); //Insert multiple values at once.
+                            foreach (var logEntryResult in virtualUserResult.LogEntryResults)
+                                if (logEntryResult.VirtualUser != null) {
+                                    var sb = new StringBuilder("('");
+                                    sb.Append(_runResultId);
+                                    sb.Append("', '");
+                                    sb.Append(virtualUserResult.VirtualUser);
+                                    sb.Append("', '");
+                                    sb.Append(MySQLEscapeString(logEntryResult.UserAction));
+                                    sb.Append("', '");
+                                    sb.Append(logEntryResult.LogEntryIndex);
+                                    sb.Append("', '");
+                                    sb.Append(logEntryResult.SameAsLogEntryIndex);
+                                    sb.Append("', '");
+                                    sb.Append(MySQLEscapeString(logEntryResult.LogEntry));
+                                    sb.Append("', '");
+                                    sb.Append(Parse(logEntryResult.SentAt));
+                                    sb.Append("', '");
+                                    sb.Append(logEntryResult.TimeToLastByteInTicks);
+                                    sb.Append("', '");
+                                    sb.Append(logEntryResult.DelayInMilliseconds);
+                                    sb.Append("', '");
+                                    sb.Append(MySQLEscapeString(logEntryResult.Error));
+                                    sb.Append("', '");
+                                    sb.Append(logEntryResult.Rerun);
+                                    sb.Append("')");
+                                    rowsToInsert.Add(sb.ToString());
+                                }
 
-                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO logentryresults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
-                            rowsToInsert.Combine(", ")));
+                            _databaseActions.ExecuteSQL(string.Format("INSERT INTO logentryresults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                                rowsToInsert.Combine(", ")));
+                        }
                     }
                     _databaseActions.ExecuteSQL(string.Format("UPDATE runresults SET TotalLogEntryCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalLogEntryCount, Parse(runResult.StoppedAt)));
                 }
