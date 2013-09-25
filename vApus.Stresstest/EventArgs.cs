@@ -13,6 +13,10 @@ using vApus.Results;
 using vApus.Util;
 
 namespace vApus.Stresstest {
+    public class TestInitializedEventArgs : EventArgs {
+        public Exception Exception { private set; get; }
+        public TestInitializedEventArgs(Exception exception) { Exception = exception; }
+    }
     public class StresstestResultEventArgs : EventArgs {
         public StresstestResult StresstestResult { private set; get; }
         public StresstestResultEventArgs(StresstestResult stresstestResult) { StresstestResult = stresstestResult; }

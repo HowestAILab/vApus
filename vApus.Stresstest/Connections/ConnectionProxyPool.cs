@@ -323,25 +323,18 @@ namespace vApus.Stresstest {
                 if (connectionProxy != null)
                     try {
                         try {
-                            if (connectionProxy.IsConnectionOpen)
-                                connectionProxy.CloseConnection();
+                            if (connectionProxy.IsConnectionOpen) connectionProxy.CloseConnection();
                         } catch {
                             throw;
                         } finally {
-                            if (!connectionProxy.IsDisposed)
-                                connectionProxy.Dispose();
+                            if (!connectionProxy.IsDisposed) connectionProxy.Dispose();
                         }
                     } catch (Exception ex) {
-                        lock (_lock) {
+                        lock (_lock)
                             if (parallel)
-                                LogWrapper.LogByLevel(
-                                    "Parallel connection #" + index + " could not be closed and/or disposed.\n" + ex,
-                                    LogLevel.Error);
+                                LogWrapper.LogByLevel("Parallel connection #" + index + " could not be closed and/or disposed.\n" + ex, LogLevel.Error);
                             else
-                                LogWrapper.LogByLevel(
-                                    "Connection #" + index + " could not be closed and/or disposed.\n" + ex,
-                                    LogLevel.Error);
-                        }
+                                LogWrapper.LogByLevel("Connection #" + index + " could not be closed and/or disposed.\n" + ex, LogLevel.Error);
                     }
             }
         }

@@ -39,6 +39,9 @@ namespace vApus.DistributedTesting {
         //Get the right socket wrapper to push progress to.
         private static SocketWrapper _masterSocketWrapper;
 
+        private static AutoResetEvent _testInitializedWaitHandle = new AutoResetEvent(false);
+        private static Exception _testInitializedException;
+
         private static readonly SendPushMessageDelegate _sendPushMessageDelegate = SendQueuedPushMessage;
         private static ActiveObject _sendQueue;
 
@@ -144,9 +147,14 @@ namespace vApus.DistributedTesting {
                     }, null);
 
                     //This is threadsafe
+                    _tileStresstestView.TestInitialized += _tileStresstestView_TestInitialized;
                     _tileStresstestView.InitializeTest();
+                    _testInitializedWaitHandle.WaitOne();
+
+                    if (_testInitializedException != null) throw _testInitializedException;
                 } catch (Exception ex) {
                     initializeTestMessage.Exception = ex.ToString();
+                    LogWrapper.LogByLevel(ex, LogLevel.Error);
                 }
 
                 initializeTestMessage.StresstestWrapper = null;
@@ -157,6 +165,11 @@ namespace vApus.DistributedTesting {
                 }, null);
             }
             return message;
+        }
+        private static void _tileStresstestView_TestInitialized(object sender, Stresstest.TestInitializedEventArgs e) {
+            _tileStresstestView.TestInitialized -= _tileStresstestView_TestInitialized;
+            _testInitializedException = e.Exception;
+            _testInitializedWaitHandle.Set();
         }
 
         private static Message<Key> HandleStartTest(Message<Key> message) {

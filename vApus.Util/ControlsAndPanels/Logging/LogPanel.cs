@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Timers;
@@ -28,7 +27,7 @@ namespace vApus.Util {
 
         #region Fields
         private readonly object _lock = new object();
-        private readonly Timer _tmrFireLogChangedEvent = new Timer(5000);
+        private readonly Timer _tmrFireLogChangedEvent = new Timer(2000);
         private volatile int _logErrorCountCache;
 
         private const string newLineReplacement = "◦";

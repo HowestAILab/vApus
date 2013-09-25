@@ -22,6 +22,7 @@ namespace vApus.Stresstest {
     public class StresstestCore : IDisposable {
 
         #region Events
+        public event EventHandler<TestInitializedEventArgs> TestInitialized;
         public event EventHandler<StresstestResultEventArgs> StresstestStarted;
         public event EventHandler<ConcurrencyResultEventArgs> ConcurrencyStarted, ConcurrencyStopped;
         public event EventHandler<RunResultEventArgs> RunInitializedFirstTime, RunStarted, RunStopped;
@@ -238,14 +239,16 @@ namespace vApus.Stresstest {
         ///     Do this before everything else.
         /// </summary>
         public void InitializeTest() {
+            Exception ex = null;
             try {
                 InvokeMessage("Initializing the Test.");
                 InitializeLog();
                 InitializeConnectionProxyPool();
-            } catch {
+            } catch (Exception e) {
                 _isFailed = true;
-                throw;
+                ex = e;
             }
+            if (TestInitialized != null) TestInitialized(this, new TestInitializedEventArgs(ex));
         }
 
         /// <summary>
@@ -363,13 +366,18 @@ namespace vApus.Stresstest {
                 // This handles notification to the user.
                 throw ex;
             }
-            string error;
+
+            InvokeMessage("|->Testing the connection to the server application...");
+            string error = null;
             _connectionProxyPool.TestConnection(out error);
+
+            if (error == null) {
+                InvokeMessage("|-> ...Succes!");
+            }
             if (error != null) {
                 _connectionProxyPool.Dispose();
                 _connectionProxyPool = null;
-                var ex = new Exception(error);
-                LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
+                var ex = new Exception("Failed at testing the connection!\n" + error);
                 throw ex;
             }
             _sw.Stop();

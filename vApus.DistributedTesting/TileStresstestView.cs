@@ -19,6 +19,7 @@ using vApus.Util;
 
 namespace vApus.DistributedTesting {
     public partial class TileStresstestView : BaseSolutionComponentView {
+        public event EventHandler<vApus.Stresstest.TestInitializedEventArgs> TestInitialized;
 
         #region Fields
         /// <summary>
@@ -151,15 +152,32 @@ namespace vApus.DistributedTesting {
                     _stresstestCore.RerunDone += _stresstestCore_RerunDone;
                     _stresstestCore.RunStopped += _stresstestCore_RunStopped;
                     _stresstestCore.Message += _stresstestCore_Message;
-                    _stresstestCore.InitializeTest();
 
+                    _stresstestCore.TestInitialized += _stresstestCore_TestInitialized;
+                    ThreadPool.QueueUserWorkItem((state) => { _stresstestCore.InitializeTest(); }, null);
+                } catch (Exception ex) {
+                    Stop(ex);
+
+                    if (TestInitialized != null) TestInitialized(this, new Stresstest.TestInitializedEventArgs(ex));
+                }
+            }, null);
+        }
+
+        private void _stresstestCore_TestInitialized(object sender, Stresstest.TestInitializedEventArgs e) {
+            _stresstestCore.TestInitialized -= _stresstestCore_TestInitialized;
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                if (e.Exception == null) {
                     try {
                         fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
                                                               (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
                                                               LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                     } catch { } //Exception on false WMI. 
-                } catch (Exception ex) { Stop(ex); }
+                } else {
+                    Stop(e.Exception);
+                }
                 Cursor = Cursors.Default;
+
+                if (TestInitialized != null) TestInitialized(this, e);
             }, null);
         }
 
@@ -223,7 +241,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public void ContinueDivided() {
             lock (_lock)
-                if (_stresstestStatus == StresstestStatus.Busy) 
+                if (_stresstestStatus == StresstestStatus.Busy)
                     _stresstestCore.ContinueDivided();
         }
 
