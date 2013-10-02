@@ -547,7 +547,7 @@ namespace vApus.Gui {
         }
 
         private void SetProcessorAffinityLabel() {
-            int[] cpus = ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity);
+            int[] cpus = ProcessorAffinityHelper.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity);
             //Make it one-based
             var oneBasedCPUs = new int[cpus.Length];
             for (int i = 0; i != cpus.Length; i++)

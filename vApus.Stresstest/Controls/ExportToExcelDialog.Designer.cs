@@ -41,6 +41,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorderStresstest = new System.Windows.Forms.Panel();
             this.cboStresstest = new System.Windows.Forms.ComboBox();
+            this.picRunsOverTime = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).BeginInit();
             this.flpCharts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).BeginInit();
@@ -50,6 +51,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picMonitor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.pnlBorderStresstest.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picRunsOverTime)).BeginInit();
             this.SuspendLayout();
             // 
             // btnExportToExcel
@@ -102,6 +104,7 @@
             this.flpCharts.Controls.Add(this.picErrors);
             this.flpCharts.Controls.Add(this.picUserActionComposition);
             this.flpCharts.Controls.Add(this.picMonitor);
+            this.flpCharts.Controls.Add(this.picRunsOverTime);
             this.flpCharts.Controls.Add(this.chkMonitorDataToDifferentFiles);
             this.flpCharts.Location = new System.Drawing.Point(12, 63);
             this.flpCharts.Name = "flpCharts";
@@ -183,7 +186,7 @@
             // 
             this.chkMonitorDataToDifferentFiles.Checked = true;
             this.chkMonitorDataToDifferentFiles.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkMonitorDataToDifferentFiles.Location = new System.Drawing.Point(297, 98);
+            this.chkMonitorDataToDifferentFiles.Location = new System.Drawing.Point(444, 98);
             this.chkMonitorDataToDifferentFiles.Name = "chkMonitorDataToDifferentFiles";
             this.chkMonitorDataToDifferentFiles.Size = new System.Drawing.Size(141, 89);
             this.chkMonitorDataToDifferentFiles.TabIndex = 12;
@@ -250,6 +253,21 @@
             this.cboStresstest.Size = new System.Drawing.Size(298, 21);
             this.cboStresstest.TabIndex = 0;
             // 
+            // picRunsOverTime
+            // 
+            this.picRunsOverTime.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picRunsOverTime.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picRunsOverTime.Image = ((System.Drawing.Image)(resources.GetObject("picRunsOverTime.Image")));
+            this.picRunsOverTime.Location = new System.Drawing.Point(297, 98);
+            this.picRunsOverTime.Name = "picRunsOverTime";
+            this.picRunsOverTime.Size = new System.Drawing.Size(141, 89);
+            this.picRunsOverTime.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picRunsOverTime.TabIndex = 13;
+            this.picRunsOverTime.TabStop = false;
+            this.toolTip.SetToolTip(this.picRunsOverTime, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
+        "e manually");
+            this.picRunsOverTime.Click += new System.EventHandler(this.pic_Click);
+            // 
             // ExportToExcelDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -281,6 +299,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picMonitor)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.pnlBorderStresstest.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picRunsOverTime)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -304,5 +323,6 @@
         private System.Windows.Forms.PictureBox picErrors;
         private System.Windows.Forms.PictureBox picUserActionComposition;
         private System.Windows.Forms.CheckBox chkMonitorDataToDifferentFiles;
+        private System.Windows.Forms.PictureBox picRunsOverTime;
     }
 }

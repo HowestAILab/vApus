@@ -166,6 +166,7 @@ namespace vApus.Stresstest {
         private DataTable GetDataSource(CancellationToken cancellationToken, CultureInfo cultureInfo) {
             if (!cancellationToken.IsCancellationRequested) {
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
+                Dictionary<string, List<string>> stub;
                 switch (_currentSelectedIndex) {
                     case 0: return _resultsHelper.GetOverview(cancellationToken, _stresstestIds);
                     case 1: return _resultsHelper.GetAverageConcurrencyResults(cancellationToken, _stresstestIds);
@@ -175,6 +176,7 @@ namespace vApus.Stresstest {
                     case 5: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
                     case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
                     case 7: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
+                    case 8: return _resultsHelper.GetRunsOverTime(cancellationToken, out stub, _stresstestIds);
                 }
             }
             return null;

@@ -1402,7 +1402,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                             int monitorStresstestId = (int)monitorRow.ItemArray[1];
                             if (monitorStresstestId != stresstestId) continue;
-                            
+
                             int monitorId = (int)monitorRow.ItemArray[0];
                             object monitor = monitorRow.ItemArray[2];
 
@@ -1568,6 +1568,93 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="concurrencyAndRunsDic">To link the run index to the correct run. stresstest as key, List<concurrency.run> as value</param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetRunsOverTime(CancellationToken cancellationToken, out Dictionary<string, List<string>> concurrencyAndRunsDic, params int[] stresstestIds) {
+            lock (_lock) {
+                concurrencyAndRunsDic = new Dictionary<string, List<string>>();
+
+                if (_databaseActions == null) return null;
+
+                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                DataTable runsOverTime = CreateEmptyDataTable("RunsOverTime", "Stresstest");
+
+                var rows = new List<List<object>>();
+                int longestRowCount = 0;
+                foreach (DataRow stresstestsRow in stresstests.Rows) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    int stresstestId = (int)stresstestsRow.ItemArray[0];
+                    string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+
+                    //To link the run index to the correct run
+                    concurrencyAndRunsDic.Add(stresstest, new List<string>());
+
+                    var row = new List<object>();
+                    row.Add(stresstest);
+                    var stoppedAts = new List<DateTime>();
+
+                    var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+
+                    if (stresstestResults.Rows.Count == 0) continue;
+                    int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
+
+                    var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, new string[] { "Id", "Concurrency" });
+                    if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                    foreach (DataRow crRow in concurrencyResults.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+                        int concurrencyResultId = (int)crRow.ItemArray[0];
+                        int concurrency = (int)crRow.ItemArray[1];
+
+                        var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Run", "StartedAt", "StoppedAt");
+                        if (runResults == null || runResults.Rows.Count == 0) continue;
+
+                        foreach (DataRow rrRow in runResults.Rows) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+                            int run = (int)rrRow.ItemArray[0];
+                            var startedAt = (DateTime)rrRow.ItemArray[1];
+                            var stoppedAt = (DateTime)rrRow.ItemArray[2];
+
+                            if (stoppedAts.Count != 0) row.Add(startedAt - stoppedAts[stoppedAts.Count - 1]); //Add gap (test init time and write db results time)
+                            stoppedAts.Add(stoppedAt);
+
+                            row.Add(stoppedAt - startedAt); //run time
+
+                            concurrencyAndRunsDic[stresstest].Add(concurrency + "." + run);
+                        }
+                    }
+
+                    if (row.Count > longestRowCount) longestRowCount = row.Count;
+                    rows.Add(row);
+                }
+
+                //Add run time and gap columns.
+                float longestRowCountMod = ((float)longestRowCount / 2) + 0.5f;
+                for (float f = 1f; f != longestRowCountMod; f += 0.5f) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+                    int i = (int)f;
+                    runsOverTime.Columns.Add((f - i == 0.5) ? "Init time" + i : i.ToString());
+                }
+
+                //Add the rows.
+                foreach (var row in rows) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+                    var newRow = new object[longestRowCount];
+                    row.ToArray().CopyTo(newRow, 0);
+                    runsOverTime.Rows.Add(newRow);
+                }
+
+                return runsOverTime;
+            }
+        }
         #endregion
 
         #endregion

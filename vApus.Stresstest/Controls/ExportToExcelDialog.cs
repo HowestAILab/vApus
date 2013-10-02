@@ -142,6 +142,7 @@ namespace vApus.Stresstest {
                             }
                         }
 
+
                         string firstWorksheet = null;
                         int worksheetIndex = 1; //Just for a unique sheet name
                         foreach (int stresstestId in stresstests.Keys) {
@@ -188,6 +189,13 @@ namespace vApus.Stresstest {
                                 break;
                             }
                         }
+
+                        int[] stresstestIds = new int[stresstests.Count];
+                        stresstests.Keys.CopyTo(stresstestIds, 0);
+                        Dictionary<string, List<string>> concurrencyAndRuns;
+                        var runsOverTimeDt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out concurrencyAndRuns, stresstestIds); //This one is special, it is for multiple tests by default.
+
+                        MakeRunsOverTimeSheet(doc, runsOverTimeDt, concurrencyAndRuns);
 
                         try { doc.SelectWorksheet(firstWorksheet); } catch { }
                         try { doc.DeleteWorksheet("Sheet1"); } catch { }
@@ -416,6 +424,123 @@ namespace vApus.Stresstest {
             return MakeWorksheet(doc, dt, worksheetIndex++, title, out rangeWidth, out rangeOffset, out rangeHeight);
         }
 
+        private string MakeRunsOverTimeSheet(SLDocument doc, DataTable dt, Dictionary<string, List<string>> concurrencyAndRuns) {
+            string title = "Runs over Time in Minutes";
+            doc.AddWorksheet(title);
+
+            int rangeOffset = 2;
+            int rangeWidth = dt.Columns.Count - 1;
+            int rangeHeight = dt.Rows.Count;
+
+            //Add the title
+            var titleStyle = new SLStyle();
+            titleStyle.Font.Bold = true;
+            titleStyle.Font.FontSize = 12d;
+            doc.SetCellValue(1, 1, title);
+            doc.SetCellStyle(1, 1, titleStyle);
+
+            var boldStyle = new SLStyle();
+            boldStyle.Font.Bold = true;
+
+            doc.SetCellValue(rangeOffset, 1, dt.Columns[0].ColumnName);
+            doc.SetCellStyle(rangeOffset, 1, boldStyle);
+            for (int clmIndex = 1; clmIndex < dt.Columns.Count; clmIndex++) {
+                string clmName = dt.Columns[clmIndex].ColumnName;
+                int i;
+                if (int.TryParse(clmName, out i)) {
+                    doc.SetCellValue(rangeOffset, clmIndex + 1, i);
+                    doc.SetCellStyle(rangeOffset, clmIndex + 1, boldStyle);
+                } else {
+                    doc.SetCellValue(rangeOffset, clmIndex + 1, clmName);
+                }
+            }
+
+            var formattedValues = new List<List<string>>();
+            int rowOffset = 3;
+            for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
+                var row = dt.Rows[rowIndex].ItemArray;
+                formattedValues.Add(new List<string>());
+                for (int clmIndex = 1; clmIndex <= row.Length; clmIndex++) {
+                    var value = row[clmIndex - 1];
+
+                    if (value is System.DBNull)
+                        break;
+
+                    int rowInSheet = rowIndex + rowOffset;
+                    TimeSpan ts = new TimeSpan(0);
+                    if (value is string) {
+                        string s = value as string;
+                        if (!TimeSpan.TryParse(s, out ts)) {
+                            int conIndex = s.IndexOf("Connection");
+                            if (conIndex != -1) s = s.Substring(0, conIndex) + "\n" + s.Substring(conIndex);
+
+                            doc.SetCellValue(rowInSheet, clmIndex, s);
+                        }
+                    } else if (value is TimeSpan) {
+                        ts = (TimeSpan)value;
+                    }
+
+                    if (ts.Ticks != 0) {
+                        doc.SetCellValue(rowInSheet, clmIndex, Convert.ToDouble(ts.Ticks) / TimeSpan.TicksPerMinute);
+                        formattedValues[rowIndex].Add(ts.ToShortFormattedString());
+                    }
+
+                    if (clmIndex == 1) doc.SetCellStyle(rowInSheet, clmIndex, boldStyle);
+                }
+            }
+
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth + rangeOffset, false, false);
+            chart.Title.SetTitle("Runs over Time");
+            chart.ShowChartTitle(false);
+            chart.HideChartLegend();
+
+            chart.SetChartType(SLBarChartType.StackedBar);
+            chart.PrimaryValueAxis.MajorUnit = 1;
+            chart.PrimaryValueAxis.MinorUnit = 1.0d / 6;
+            chart.PrimaryValueAxis.ShowMinorGridlines = true;
+            chart.PrimaryValueAxis.Title.SetTitle("Concurrency.Run Duration in Minutes");
+            chart.PrimaryValueAxis.ShowTitle = true;
+
+            chart.PrimaryTextAxis.InReverseOrder = true;
+            chart.PrimaryTextAxis.Title.SetTitle("Stresstests");
+            chart.PrimaryTextAxis.ShowTitle = true;
+
+            var runTimeOptions = new SLDataSeriesOptions();
+            runTimeOptions.Fill.SetSolidFill(Color.OrangeRed, 0);
+            runTimeOptions.Line.SetSolidLine(Color.LightSteelBlue, 0);
+
+
+
+            var gapOptions = new SLDataSeriesOptions();
+            gapOptions.Fill.SetNoFill();
+
+            for (int clmIndex = 1; clmIndex <= dt.Columns.Count; clmIndex++) {
+                if (Convert.ToDouble(clmIndex) % 2 == 0) {
+                    chart.SetDataSeriesOptions(clmIndex, gapOptions);
+                } else {
+                    chart.SetDataSeriesOptions(clmIndex, runTimeOptions);
+
+                    for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
+                        List<string> l = concurrencyAndRuns[dt.Rows[rowIndex].ItemArray[0] as string];
+                        int labelIndex = clmIndex / 2;
+                        if (labelIndex >= l.Count)
+                            continue;
+
+                        var dataLabelOptions = chart.CreateDataLabelOptions();
+                        dataLabelOptions.ShowValue = dataLabelOptions.ShowPercentage = dataLabelOptions.ShowSeriesName = false;
+                        dataLabelOptions.SetLabelText(l[labelIndex] + "\n" + formattedValues[rowIndex][clmIndex - 1]);
+                        chart.SetDataLabelOptions(clmIndex, rowIndex + 1, dataLabelOptions);
+                    }
+                }
+            }
+
+            chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 45, 20);
+
+            doc.InsertChart(chart);
+
+            return title;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -435,7 +560,6 @@ namespace vApus.Stresstest {
             rangeOffset = 2;
             rangeWidth = dt.Columns.Count - 1;
             rangeHeight = dt.Rows.Count;
-
 
             //Add the title
             var titleStyle = new SLStyle();
