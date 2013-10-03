@@ -1282,11 +1282,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "MonitorBeforeInMinutes", "MonitorAfterInMinutes");
                 if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                //var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Monitor", "Started At", "Measured Time (ms)", "Concurrency", "Headers", "Values");
-
                 //Get the monitors + values
                 var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestIds, "Id", "StresstestId", "Monitor", "ResultHeaders");
-                if (monitors == null || monitors.Rows.Count == 0) return null;
+                if (monitors == null || monitors.Rows.Count == 0) return CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Result Headers");
 
                 var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time (ms)", "Concurrency" });
                 var resultHeaders = new List<string>();
@@ -1641,7 +1639,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 for (float f = 1f; f != longestRowCountMod; f += 0.5f) {
                     if (cancellationToken.IsCancellationRequested) return null;
                     int i = (int)f;
-                    runsOverTime.Columns.Add((f - i == 0.5) ? "Init time" + i : i.ToString());
+                    runsOverTime.Columns.Add((f - i == 0.5) ? "Init time " + i : i.ToString());
                 }
 
                 //Add the rows.
