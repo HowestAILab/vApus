@@ -1,4 +1,8 @@
-﻿/*
+﻿//#if !defined(_WIN32_WINNT)
+//#define _WIN32_WINNT 0x0600
+//#endif
+
+/*
  * Copyright 2008 (c) Sizing Servers Lab 
  * University College of West-Flanders, Department GKG
  * 
@@ -8,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -33,6 +38,15 @@ namespace vApus.Util {
         private static extern bool SetThreadGroupAffinity(IntPtr threadHandle, GROUP_AFFINITY groupAffinity, out GROUP_AFFINITY previousGroupAffinity);
 
         /// <summary>
+        /// Retrieves the processor group affinity of the specified thread
+        /// </summary>
+        /// <param name="threadHandle">handle of the thread to check</param>
+        /// <param name="groupAffinity">pointer to a GROUP_AFFINITY struct who will contain the information on success</param>
+        /// <returns>nonzero on success, zero on failure. Use Marshal.GetLastWin32Error to get the errorcode</returns>
+        [DllImport("kernel32.dll")]
+        private static extern bool GetThreadGroupAffinity(IntPtr threadHandle, out GROUP_AFFINITY groupAffinity);
+
+        /// <summary>
         /// Duplicates an object handle
         /// </summary>
         /// <param name="hSourceProcessHandle">source process handle</param>
@@ -54,6 +68,8 @@ namespace vApus.Util {
         [DllImport("kernel32.dll")]
         private static extern bool CloseHandle(IntPtr handle);
 
+        [DllImport("kernel32.dll", CallingConvention = CallingConvention.Winapi)]
+        public static extern ulong GetLastError();
         /// <summary>
         ///     Converts from a hex bitmask to an array of cpu's this process its affinity is set to.
         /// </summary>
@@ -83,42 +99,65 @@ namespace vApus.Util {
             return new IntPtr(l);
         }
 
-        public static void SetCoreAffinity(int core) {
+        public static void SetCoreAffinity(int[] array) {
 
-            #region tryout
-            uint logicalCoresPerGroup = GetActiveProcessorCount(0); //The number should be the same for each group.
-            ushort group = 0;
-            while (core > logicalCoresPerGroup) {
-                group++; //maximum of 4 groups on Win7
-                core -= (int)logicalCoresPerGroup;
+            int logicalCoresPerGroup = (int)GetActiveProcessorCount(0); //The number should be the same for each group.
+
+            var groupAffinities = new Dictionary<ushort, GROUP_AFFINITY>();
+
+            foreach (int core in array) {
+                ushort group = 0;
+                int groupCore = core;
+                while (core >= logicalCoresPerGroup) {
+                    group++; //maximum of 4 groups on Win7
+                    groupCore -= logicalCoresPerGroup;
+                }
+                if (groupAffinities.ContainsKey(group)) {
+                    GROUP_AFFINITY aff = groupAffinities[group];
+                    aff.Mask = new IntPtr(aff.Mask.ToInt64() + (long)Math.Pow(2, groupCore));
+                    groupAffinities[group] = aff;
+
+                } else {
+                    GROUP_AFFINITY aff = new GROUP_AFFINITY() {
+                        Group = group,
+                        Mask = new IntPtr((long)Math.Pow(2, groupCore)),
+                        Reserved = new ushort[] { 0, 0, 0 }
+                    };
+                    groupAffinities.Add(group, aff);
+                }
             }
 
-            GROUP_AFFINITY aff = new GROUP_AFFINITY() {
-                Group = group,
-                Mask = new IntPtr((long)Math.Pow(2, core)),
-                Reserved = new ushort[] { 0, 0, 0 }
-            };
+            //while (core > logicalCoresPerGroup) {
+            //    group++; //maximum of 4 groups on Win7
+            //    core -= (int)logicalCoresPerGroup;
+            //}
+
+            //GROUP_AFFINITY aff = new GROUP_AFFINITY() {
+            //    Group = group,
+            //    Mask = new IntPtr((long)Math.Pow(2, core)),
+            //    Reserved = new ushort[] { 0, 0, 0 }
+            //};
+            GROUP_AFFINITY aff2;
 
             IntPtr handle = Process.GetCurrentProcess().Handle;
             IntPtr newHandle;
-            if (!DuplicateHandle(handle, handle, handle, out newHandle, 0x0200, true, 0)) {
+            if (!DuplicateHandle(handle, handle, handle, out newHandle, 0x0040 & 0x0200, true, 0)) {
 
             }
 
-            //if (!GetThreadGroupAffinity(Process.GetCurrentProcess().MainWindowHandle, out aff2))
-            //    Console.WriteLine("meh");
-
-
-            GROUP_AFFINITY aff2;
-            if (!SetThreadGroupAffinity(handle, aff, out aff2)) {
-
+            if (!GetThreadGroupAffinity(newHandle, out aff2)) {
+                var error = new Win32Exception((int)GetLastError());
             }
 
 
-            if (!CloseHandle(newHandle)) {
+            //if (!SetThreadGroupAffinity(handle, aff, out aff2)) {
 
-            }
-            #endregion
+            //}
+
+
+            //if (!CloseHandle(newHandle)) {
+
+            //}
 
             //uncomment to check if the affinity has done correctly
             //Debug.WriteLine("Affinity is set to: " + Process.GetCurrentProcess().ProcessorAffinity);

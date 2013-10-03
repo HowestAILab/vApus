@@ -50,7 +50,6 @@ namespace vApus.Stresstest {
             //Set the GUI, do this after Initialization.
             btnCollapseExpand.PerformClick();
             chkAdvanced.Checked = false;
-            cboShow.SelectedIndex = 0;
 
             _tmrSizeColumns.Elapsed += _tmrSizeColumns_Elapsed;
 
@@ -130,7 +129,7 @@ namespace vApus.Stresstest {
 
                 int retry = 0;
             Retry:
-                if (_resultsHelper != null) {
+                if (cboShow.SelectedIndex != -1 && _resultsHelper != null) {
                     DataTable dt = null;
                     Exception exception = null;
                     var cultureInfo = Thread.CurrentThread.CurrentCulture;
@@ -328,8 +327,8 @@ namespace vApus.Stresstest {
                         break;
                     }
                 }
-            _currentSelectedIndex = -1;
-            cboShow_SelectedIndexChanged(null, null);
+            _currentSelectedIndex = int.MinValue;
+            cboShow.SelectedIndex = -1;
         }
         #endregion
     }

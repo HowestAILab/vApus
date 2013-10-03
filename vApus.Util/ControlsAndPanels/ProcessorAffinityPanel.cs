@@ -58,6 +58,9 @@ namespace vApus.Util {
                 if (lvw.Items[i].Checked)
                     cpus.Add(i);
             Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityHelper.FromArrayToBitmask(cpus.ToArray());
+
+            //ProcessorAffinityHelper.SetCoreAffinity(cpus.ToArray());
+
             btnSet.Enabled = false;
         }
 

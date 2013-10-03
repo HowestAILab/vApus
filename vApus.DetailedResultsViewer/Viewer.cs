@@ -45,7 +45,7 @@ namespace vApus.DetailedResultsViewer {
                 _resultsPanel.ClearReport();
                 _resultsPanel.Enabled = false;
             } else {
-                _resultsPanel.RefreshReport(e.StresstestId);
+                _resultsPanel.RefreshResults(e.StresstestId);
                 _resultsPanel.Enabled = true;
             }
         }

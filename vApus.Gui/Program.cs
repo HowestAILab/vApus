@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Gui.Properties;
@@ -25,6 +26,9 @@ namespace vApus.Gui {
         /// </summary>
         [STAThread]
         private static void Main(string[] args) {
+            //ProfileOptimization.SetProfileRoot(Application.StartupPath);
+            //ProfileOptimization.StartProfile("Startup.Profile");
+
             LogWrapper.Log("vApus Started!");
             try {
                 Application.EnableVisualStyles();

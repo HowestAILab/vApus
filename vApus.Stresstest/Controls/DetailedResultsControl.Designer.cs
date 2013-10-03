@@ -42,7 +42,6 @@
             this.splitQueryData = new System.Windows.Forms.SplitContainer();
             this.pnlBorderExecute = new System.Windows.Forms.Panel();
             this.btnExecute = new System.Windows.Forms.Button();
-            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             this.chkShowCellView = new System.Windows.Forms.CheckBox();
             this.splitData = new System.Windows.Forms.SplitContainer();
             this.dgvDetailedResults = new System.Windows.Forms.DataGridView();
@@ -61,6 +60,7 @@
             this.lblLoading = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -72,7 +72,6 @@
             this.splitQueryData.Panel2.SuspendLayout();
             this.splitQueryData.SuspendLayout();
             this.pnlBorderExecute.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitData)).BeginInit();
             this.splitData.Panel1.SuspendLayout();
             this.splitData.Panel2.SuspendLayout();
@@ -81,6 +80,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.fctxtCellView)).BeginInit();
             this.flpDetailedMetrics.SuspendLayout();
             this.pnlBorderShow.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer
@@ -339,29 +339,6 @@
             this.btnExecute.UseVisualStyleBackColor = false;
             this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
             // 
-            // codeTextBox
-            // 
-            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
-            this.codeTextBox.BackBrush = null;
-            this.codeTextBox.CharHeight = 14;
-            this.codeTextBox.CharWidth = 8;
-            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.codeTextBox.IsReplaceMode = false;
-            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
-            this.codeTextBox.Name = "codeTextBox";
-            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
-            this.codeTextBox.PreferredLineWidth = 65536;
-            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
-            this.codeTextBox.TabIndex = 0;
-            this.codeTextBox.WordWrap = true;
-            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
-            this.codeTextBox.Zoom = 100;
-            // 
             // chkShowCellView
             // 
             this.chkShowCellView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -478,11 +455,12 @@
             // 
             // pnlBorderShow
             // 
-            this.pnlBorderShow.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderShow.BackColor = System.Drawing.Color.LightSteelBlue;
             this.pnlBorderShow.Controls.Add(this.cboShow);
-            this.pnlBorderShow.Location = new System.Drawing.Point(49, 3);
+            this.pnlBorderShow.Location = new System.Drawing.Point(49, 2);
+            this.pnlBorderShow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 3);
             this.pnlBorderShow.Name = "pnlBorderShow";
-            this.pnlBorderShow.Size = new System.Drawing.Size(400, 23);
+            this.pnlBorderShow.Size = new System.Drawing.Size(402, 25);
             this.pnlBorderShow.TabIndex = 1;
             // 
             // cboShow
@@ -504,7 +482,7 @@
             "Machine Configurations",
             "Average Monitor Results",
             "Runs over Time"});
-            this.cboShow.Location = new System.Drawing.Point(1, 1);
+            this.cboShow.Location = new System.Drawing.Point(2, 2);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboShow.Name = "cboShow";
             this.cboShow.Size = new System.Drawing.Size(398, 21);
@@ -515,7 +493,7 @@
             // 
             this.lblStarted.AutoSize = true;
             this.lblStarted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStarted.Location = new System.Drawing.Point(452, 6);
+            this.lblStarted.Location = new System.Drawing.Point(454, 6);
             this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblStarted.Name = "lblStarted";
             this.lblStarted.Size = new System.Drawing.Size(0, 16);
@@ -525,7 +503,7 @@
             // 
             this.lblMeasuredRuntime.AutoSize = true;
             this.lblMeasuredRuntime.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMeasuredRuntime.Location = new System.Drawing.Point(452, 6);
+            this.lblMeasuredRuntime.Location = new System.Drawing.Point(454, 6);
             this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
             this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
@@ -536,7 +514,7 @@
             this.lblStopped.AutoSize = true;
             this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
             this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStopped.Location = new System.Drawing.Point(458, 3);
+            this.lblStopped.Location = new System.Drawing.Point(460, 3);
             this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
             this.lblStopped.Name = "lblStopped";
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
@@ -548,7 +526,7 @@
             this.chkAdvanced.Checked = true;
             this.chkAdvanced.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAdvanced.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkAdvanced.Location = new System.Drawing.Point(467, 7);
+            this.chkAdvanced.Location = new System.Drawing.Point(469, 7);
             this.chkAdvanced.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
             this.chkAdvanced.Name = "chkAdvanced";
             this.chkAdvanced.Size = new System.Drawing.Size(72, 17);
@@ -567,7 +545,7 @@
             this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(542, 3);
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(544, 3);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
@@ -585,7 +563,7 @@
             this.btnExportToExcel.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnExportToExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportToExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExportToExcel.Location = new System.Drawing.Point(713, 3);
+            this.btnExportToExcel.Location = new System.Drawing.Point(715, 3);
             this.btnExportToExcel.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnExportToExcel.Name = "btnExportToExcel";
             this.btnExportToExcel.Size = new System.Drawing.Size(117, 24);
@@ -638,6 +616,29 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed Results";
             // 
+            // codeTextBox
+            // 
+            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.codeTextBox.BackBrush = null;
+            this.codeTextBox.CharHeight = 14;
+            this.codeTextBox.CharWidth = 8;
+            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.codeTextBox.IsReplaceMode = false;
+            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
+            this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
+            this.codeTextBox.PreferredLineWidth = 65536;
+            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
+            this.codeTextBox.TabIndex = 0;
+            this.codeTextBox.WordWrap = true;
+            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
+            this.codeTextBox.Zoom = 100;
+            // 
             // DetailedResultsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -660,7 +661,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryData)).EndInit();
             this.splitQueryData.ResumeLayout(false);
             this.pnlBorderExecute.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).EndInit();
             this.splitData.Panel1.ResumeLayout(false);
             this.splitData.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitData)).EndInit();
@@ -670,6 +670,7 @@
             this.flpDetailedMetrics.ResumeLayout(false);
             this.flpDetailedMetrics.PerformLayout();
             this.pnlBorderShow.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).EndInit();
             this.ResumeLayout(false);
 
         }
