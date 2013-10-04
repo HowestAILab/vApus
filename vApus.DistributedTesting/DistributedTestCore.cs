@@ -358,7 +358,8 @@ namespace vApus.DistributedTesting {
 
                     TestProgressMessage tpm = e.TestProgressMessage;
                     TileStresstest originalTileStresstest = DivideEtImpera.GetOriginalTileStresstest(tpm.TileStresstestIndex, _usedTileStresstests);
-                    RunStateChange combinedRunStateChanged = DivideEtImpera.PreProcessTestProgressMessage(originalTileStresstest, tpm, _testProgressMessages, _usedTileStresstests, _dividedRunInitializedOrDoneOnce);
+                    RunStateChange combinedRunStateChanged = DivideEtImpera.PreProcessTestProgressMessage(_distributedTest.RunSynchronization, originalTileStresstest, tpm,
+                        _testProgressMessages, _usedTileStresstests, _dividedRunInitializedOrDoneOnce);
 
                     bool okCancelError = true;
                     switch (tpm.StresstestStatus) {

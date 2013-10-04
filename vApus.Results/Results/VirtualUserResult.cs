@@ -19,7 +19,7 @@ namespace vApus.Results {
         /// <summary>
         ///     For break on last runsync.
         /// </summary>
-        private readonly long _baseLogEntryCount;
+        private long _baseLogEntryCount;
 
         private LogEntryResult[] _logEntryResults;
         #endregion
@@ -62,13 +62,18 @@ namespace vApus.Results {
         /// <summary>
         ///     For break on last run sync. should only be used in the RunResult class.
         /// </summary>
-        internal void PrepareForRerun() {
-            _runOffset += _baseLogEntryCount;
-
+        internal VirtualUserResult CloneAndPrepareForRerun() {
+            var clone = new VirtualUserResult();
+            clone._virtualUser = _virtualUser;
+            clone._baseLogEntryCount = _baseLogEntryCount;
+            clone._runOffset = _runOffset + _baseLogEntryCount;
+           
             var increasedLogEntryResults = new LogEntryResult[LogEntryResults.LongLength + _baseLogEntryCount];
             _logEntryResults.CopyTo(increasedLogEntryResults, 0);
 
-            _logEntryResults = increasedLogEntryResults;
+            clone._logEntryResults = increasedLogEntryResults;
+
+            return clone;
         }
         #endregion
     }

@@ -93,12 +93,13 @@ namespace vApus.DistributedTesting {
             return dividedTileStresstestsAndOriginal;
         }
 
-        public static RunStateChange PreProcessTestProgressMessage(TileStresstest originalTileStresstest, TestProgressMessage tpm, Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>> testProgressMessages,
+        public static RunStateChange PreProcessTestProgressMessage(RunSynchronization runSynchronization, TileStresstest originalTileStresstest, TestProgressMessage tpm, Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>> testProgressMessages,
             Dictionary<TileStresstest, TileStresstest> usedTileStresstests, Dictionary<TileStresstest, List<string>> dividedRunInitializedOrDoneOnce) {
             lock (_usedTileStresstestsLock) {                
                 var dictParts = testProgressMessages[originalTileStresstest];
                 dictParts[tpm.TileStresstestIndex] = tpm;
-                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime || tpm.RunStateChange == RunStateChange.ToRunDoneOnce) {
+                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime || tpm.RunStateChange == RunStateChange.ToRunDoneOnce || 
+                    (runSynchronization == RunSynchronization.BreakOnFirstFinished && tpm.RunFinished)) {
                     if (!dividedRunInitializedOrDoneOnce.ContainsKey(originalTileStresstest)) dividedRunInitializedOrDoneOnce.Add(originalTileStresstest, new List<string>());
                     if (!dividedRunInitializedOrDoneOnce[originalTileStresstest].Contains(tpm.TileStresstestIndex)) dividedRunInitializedOrDoneOnce[originalTileStresstest].Add(tpm.TileStresstestIndex);
 

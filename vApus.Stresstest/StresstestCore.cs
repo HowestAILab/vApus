@@ -620,12 +620,6 @@ namespace vApus.Stresstest {
                         if (!SetRunDoneOnce())
                             SetRerunDone();
 
-                        if (_stresstest.IsDividedStresstest) {
-                            InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
-                            _manyToOneWaitHandle.WaitOne();
-                            InvokeMessage("Continuing...");
-                        }
-
                         //Allow one last rerun, then wait for the master for a continue, or rerun nfinite.
                         if (MaxRerunsBreakOnLast == 0 || _rerun <= MaxRerunsBreakOnLast) {
                             InvokeMessage("Initializing Rerun...");
@@ -635,6 +629,11 @@ namespace vApus.Stresstest {
                             goto Rerun;
                         } else {
                             SetRunStopped();
+                            if (_stresstest.IsDividedStresstest) {
+                                InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
+                                _manyToOneWaitHandle.WaitOne();
+                                InvokeMessage("Continuing...");
+                            }
                         }
                     } else {
                         SetRunStopped();
