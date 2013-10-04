@@ -561,13 +561,13 @@ namespace vApus.Stresstest {
                         //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
                         SetRunInitializedFirstTime(concurrentUsersIndex, run + 1);
                         if (_stresstest.IsDividedStresstest && !_cancel) {
-                            InvokeMessage("Waiting for Continue Message from Master...");
+                            InvokeMessage("[Many to One Waithandle before run] Waiting for Continue Message from Master...");
                             _manyToOneWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
                         }
                         //Wait here untill the master sends continue when using run sync.
                         if (RunSynchronization != RunSynchronization.None && !_cancel) {
-                            InvokeMessage("Waiting for Continue Message from Master...");
+                            InvokeMessage("[Run Sync Waithandle before run] Waiting for Continue Message from Master...");
                             _runSynchronizationContinueWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
                         }
@@ -587,22 +587,29 @@ namespace vApus.Stresstest {
                     }
 
                     //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
-                    if (_stresstest.IsDividedStresstest) {
-                        SetRunDoneOnce();
-                        SetRunStopped();
+                    if (RunSynchronization == RunSynchronization.None) {
+                        if (_stresstest.IsDividedStresstest) {
+                            SetRunDoneOnce();
+                            SetRunStopped();
 
-                        InvokeMessage("Waiting for Continue Message from Master...");
-                        _manyToOneWaitHandle.WaitOne();
-                        InvokeMessage("Continuing...");
+                            InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
+                            _manyToOneWaitHandle.WaitOne();
+                            InvokeMessage("Continuing...");
+                        }
                     }
-
-                    //Wait here when the run is broken untill the master sends continue when using run sync.
-                    if (RunSynchronization == RunSynchronization.BreakOnFirstFinished) {
+                        //Wait here when the run is broken untill the master sends continue when using run sync.
+                    else if (RunSynchronization == RunSynchronization.BreakOnFirstFinished) {
                         ++_continueCounter;
                         SetRunDoneOnce();
                         SetRunStopped();
 
-                        InvokeMessage("Waiting for Continue Message from Master...");
+                        if (_stresstest.IsDividedStresstest) {
+                            InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
+                            _manyToOneWaitHandle.WaitOne();
+                            InvokeMessage("Continuing...");
+                        }
+
+                        InvokeMessage("[Run Sync Waithandle after run] Waiting for Continue Message from Master...");
                         _runSynchronizationContinueWaitHandle.WaitOne();
                         InvokeMessage("Continuing...");
                     }
@@ -612,6 +619,12 @@ namespace vApus.Stresstest {
                         ++_rerun;
                         if (!SetRunDoneOnce())
                             SetRerunDone();
+
+                        if (_stresstest.IsDividedStresstest) {
+                            InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
+                            _manyToOneWaitHandle.WaitOne();
+                            InvokeMessage("Continuing...");
+                        }
 
                         //Allow one last rerun, then wait for the master for a continue, or rerun nfinite.
                         if (MaxRerunsBreakOnLast == 0 || _rerun <= MaxRerunsBreakOnLast) {

@@ -121,7 +121,7 @@ namespace vApus.DistributedTesting {
         /// <returns></returns>
         public static TileStresstest GetOriginalTileStresstest(string dividedTileStresstestIndex, Dictionary<TileStresstest, TileStresstest> usedTileStresstests) {
             foreach (TileStresstest ts in usedTileStresstests.Values)
-                if (dividedTileStresstestIndex.Contains(ts.TileStresstestIndex)) //Take divided stresstests into account.
+                if (dividedTileStresstestIndex.StartsWith(ts.TileStresstestIndex)) //Take divided stresstests into account.
                     return ts;
             return null;
         }
@@ -133,7 +133,7 @@ namespace vApus.DistributedTesting {
         private static int GetDividedCount(string originalTileStresstestIndex, Dictionary<TileStresstest, TileStresstest> usedTileStresstests) {
             int count = 0;
             foreach (TileStresstest ts in usedTileStresstests.Keys)
-                if (ts.TileStresstestIndex.Contains(originalTileStresstestIndex)) //Take divided stresstests into account.
+                if (ts.TileStresstestIndex.StartsWith(originalTileStresstestIndex)) //Take divided stresstests into account.
                     ++count;
             return count;
         }
