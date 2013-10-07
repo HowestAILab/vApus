@@ -126,7 +126,6 @@ namespace vApus.JumpStart {
                     }
                 }
             }
-
             return message;
         }
         #endregion

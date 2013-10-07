@@ -54,6 +54,8 @@ namespace vApus.Stresstest {
             _tmrSizeColumns.Elapsed += _tmrSizeColumns_Elapsed;
 
             this.VisibleChanged += DetailedResultsControl_VisibleChanged;
+
+            cboShow.HandleCreated += cboShow_HandleCreated;
         }
         #endregion
 
@@ -61,10 +63,17 @@ namespace vApus.Stresstest {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, string lp);
+
         private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
             if (dgvDetailedResults.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             SizeColumns();
+        }
+        private void cboShow_HandleCreated(object sender, EventArgs e) {
+            //cb_setcuemessage
+            SendMessage(cboShow.Handle, 0x1703, (IntPtr)1, "Please, select a result set...");
         }
 
         private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { if (lbtnDescription.Active) SetConfig(_resultsHelper.GetDescription().Replace('\r', ' ').Replace('\n', ' ')); }
@@ -116,7 +125,6 @@ namespace vApus.Stresstest {
 
         async private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             if (cboShow.SelectedIndex != _currentSelectedIndex) {
-
                 _currentSelectedIndex = cboShow.SelectedIndex;
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = new CancellationTokenSource();

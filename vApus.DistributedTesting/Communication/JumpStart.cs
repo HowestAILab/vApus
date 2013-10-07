@@ -276,6 +276,18 @@ namespace vApus.DistributedTesting {
 
                     if (message.Content == null)
                         throw new Exception();
+                } catch (SocketException se) {
+                    if (se.ErrorCode == 10054) { //Connection closed because updating.
+                        int retry = 0;
+                        do {
+                            socketWrapper = Connect(ip);
+                        } while (socketWrapper == null && retry++ != 4);
+
+                        if (socketWrapper == null)
+                            exception = new Exception(string.Concat("Failed to update vApus@", ip));
+                    } else {
+                        exception = new Exception(string.Concat("Failed to update vApus@", ip));
+                    }
                 } catch {
                     exception = new Exception(string.Concat("Failed to update vApus@", ip));
                 }
