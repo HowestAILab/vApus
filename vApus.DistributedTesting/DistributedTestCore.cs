@@ -73,7 +73,7 @@ namespace vApus.DistributedTesting {
 
         private ResultsHelper _resultsHelper;
 
-        private System.Timers.Timer _tmrOnInvokeTestProgressMessageReceivedDelayed = new System.Timers.Timer(1000);
+        private System.Timers.Timer _tmrOnInvokeTestProgressMessageReceivedDelayed = new System.Timers.Timer(500);
         #endregion
 
         #region Properties
@@ -169,7 +169,8 @@ namespace vApus.DistributedTesting {
                 try {
                     _tmrOnInvokeTestProgressMessageReceivedDelayed.Stop();
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnTestProgressMessageReceivedDelayed(this, null); }, null);
-                } catch { }
+                } catch { 
+                }
         }
 
         private void InvokeOnListeningError(ListeningErrorEventArgs listeningErrorEventArgs) {

@@ -98,8 +98,9 @@ namespace vApus.DistributedTesting {
             lock (_usedTileStresstestsLock) {                
                 var dictParts = testProgressMessages[originalTileStresstest];
                 dictParts[tpm.TileStresstestIndex] = tpm;
-                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime || tpm.RunStateChange == RunStateChange.ToRunDoneOnce || 
-                    (runSynchronization == RunSynchronization.BreakOnFirstFinished && tpm.RunFinished)) {
+                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime || 
+                    ((runSynchronization == RunSynchronization.None || runSynchronization == RunSynchronization.BreakOnFirstFinished) && tpm.RunStateChange == RunStateChange.ToRunDoneOnce) || 
+                    (runSynchronization == RunSynchronization.BreakOnLastFinished && tpm.RunFinished)) {
                     if (!dividedRunInitializedOrDoneOnce.ContainsKey(originalTileStresstest)) dividedRunInitializedOrDoneOnce.Add(originalTileStresstest, new List<string>());
                     if (!dividedRunInitializedOrDoneOnce[originalTileStresstest].Contains(tpm.TileStresstestIndex)) dividedRunInitializedOrDoneOnce[originalTileStresstest].Add(tpm.TileStresstestIndex);
 
