@@ -50,11 +50,12 @@ namespace vApus.Stresstest {
             //Set the GUI, do this after Initialization.
             btnCollapseExpand.PerformClick();
             chkAdvanced.Checked = false;
-            cboShow.SelectedIndex = 0;
 
             _tmrSizeColumns.Elapsed += _tmrSizeColumns_Elapsed;
 
             this.VisibleChanged += DetailedResultsControl_VisibleChanged;
+
+            cboShow.HandleCreated += cboShow_HandleCreated;
         }
         #endregion
 
@@ -62,10 +63,17 @@ namespace vApus.Stresstest {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(int hWnd);
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, string lp);
+
         private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
             if (dgvDetailedResults.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             SizeColumns();
+        }
+        private void cboShow_HandleCreated(object sender, EventArgs e) {
+            //cb_setcuemessage
+            SendMessage(cboShow.Handle, 0x1703, (IntPtr)1, "Please, select a result set...");
         }
 
         private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { if (lbtnDescription.Active) SetConfig(_resultsHelper.GetDescription().Replace('\r', ' ').Replace('\n', ' ')); }
@@ -117,7 +125,6 @@ namespace vApus.Stresstest {
 
         async private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             if (cboShow.SelectedIndex != _currentSelectedIndex) {
-
                 _currentSelectedIndex = cboShow.SelectedIndex;
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = new CancellationTokenSource();
@@ -130,7 +137,7 @@ namespace vApus.Stresstest {
 
                 int retry = 0;
             Retry:
-                if (_resultsHelper != null) {
+                if (cboShow.SelectedIndex != -1 && _resultsHelper != null) {
                     DataTable dt = null;
                     Exception exception = null;
                     var cultureInfo = Thread.CurrentThread.CurrentCulture;
@@ -166,6 +173,7 @@ namespace vApus.Stresstest {
         private DataTable GetDataSource(CancellationToken cancellationToken, CultureInfo cultureInfo) {
             if (!cancellationToken.IsCancellationRequested) {
                 Thread.CurrentThread.CurrentCulture = cultureInfo;
+                Dictionary<string, List<string>> stub;
                 switch (_currentSelectedIndex) {
                     case 0: return _resultsHelper.GetOverview(cancellationToken, _stresstestIds);
                     case 1: return _resultsHelper.GetAverageConcurrencyResults(cancellationToken, _stresstestIds);
@@ -175,6 +183,7 @@ namespace vApus.Stresstest {
                     case 5: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
                     case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
                     case 7: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
+                    case 8: return _resultsHelper.GetRunsOverTime(cancellationToken, out stub, _stresstestIds);
                 }
             }
             return null;
@@ -182,7 +191,9 @@ namespace vApus.Stresstest {
         private void SizeColumns() {
             if (_tmrSizeColumns != null && dgvDetailedResults.Columns.Count < 100) {
                 _tmrSizeColumns.Stop();
-                _tmrSizeColumns.Start();
+
+                if (dgvDetailedResults.Columns.Count > 1)
+                    _tmrSizeColumns.Start();
             }
         }
         private void _tmrSizeColumns_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
@@ -324,8 +335,8 @@ namespace vApus.Stresstest {
                         break;
                     }
                 }
-            _currentSelectedIndex = -1;
-            cboShow_SelectedIndexChanged(null, null);
+            _currentSelectedIndex = int.MinValue;
+            cboShow.SelectedIndex = -1;
         }
         #endregion
     }

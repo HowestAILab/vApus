@@ -289,7 +289,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone(_log.LogRuleSet)); }
+        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone(_log.LogRuleSet, true)); }
 
         private void SetPicDelay() {
             if (UserActionTreeViewItem.UserAction.UseDelay) {
@@ -505,7 +505,9 @@ namespace vApus.Stresstest {
             if (_tmr != null) {
                 _tmr.Stop();
                 dgvLogEntries.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                _tmr.Start();
+
+                if (dgvLogEntries.Columns.Count > 2)
+                    _tmr.Start();
             }
         }
         private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
@@ -784,7 +786,6 @@ namespace vApus.Stresstest {
 
         private void fctxtxPlainText_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             btnApply.Enabled = true;
-            SetBtnSplit();
         }
         private void btnApply_Click(object sender, EventArgs e) {
             var userAction = UserActionTreeViewItem.UserAction;
@@ -815,6 +816,7 @@ namespace vApus.Stresstest {
                 _log.ApplyLogRuleSet();
                 SetLogEntries();
                 SetCodeStyle();
+                SetBtnSplit();
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
             btnApply.Enabled = false;

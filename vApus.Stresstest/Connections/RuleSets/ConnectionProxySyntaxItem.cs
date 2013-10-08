@@ -33,6 +33,12 @@ namespace vApus.Stresstest {
             get { return base.Optional; }
             set { }
         }
+        [SavableCloneable, PropertyControl(0)]
+        [Description("If the user did not fill in anything for this item in a connection, the given value will be used."), DisplayName("Default Value")]
+        public new string DefaultValue {
+            get { return _defaultValue; }
+            set { _defaultValue = value.Trim(); }
+        }
         protected new void AddRule_Click(object sender, EventArgs e) {
             if (Count == 0)
                 base.AddRule_Click(sender, e);

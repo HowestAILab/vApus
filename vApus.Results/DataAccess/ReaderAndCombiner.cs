@@ -20,8 +20,8 @@ namespace vApus.Results {
     public static class ReaderAndCombiner {
 
         #region Public
-        public static DataTable GetDescription(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM description"); }
-        public static DataTable GetTags(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM tags"); }
+        public static DataTable GetDescription(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select Description FROM description"); }
+        public static DataTable GetTags(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select Tag FROM tags"); }
 
         /// <summary>
         /// Get all the vApus instances used, divided stresstests are not taken into account.

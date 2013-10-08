@@ -106,7 +106,7 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-/// <summary>
+        /// <summary>
         /// Contains log entries.
         /// </summary>
         public UserAction() {
@@ -128,16 +128,16 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="beginTokenDelimiter">Needed to dermine parameter tokens</param>
         /// <param name="endTokenDelimiter">Needed to dermine parameter tokens</param>
+        /// <param name="containsTokens">Does the log contain the tokens? If not getting the structure can be simpler/faster.</param>
         /// <param name="chosenNextValueParametersForLScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
         /// <returns></returns>
-        internal List<StringTree> GetParameterizedStructure(string beginTokenDelimiter, string endTokenDelimiter, HashSet<BaseParameter> chosenNextValueParametersForLScope) {
-            var parameterizedStructure = new List<StringTree>();
-            var chosenNextValueParametersForUAScope = new HashSet<BaseParameter>();
+        internal StringTree[] GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope) {
+            var parameterizedStructure = new StringTree[Count];
 
-            foreach (LogEntry logEntry in this)
-                parameterizedStructure.Add(logEntry.GetParameterizedStructure(beginTokenDelimiter, endTokenDelimiter,
-                                                                              chosenNextValueParametersForLScope,
-                                                                              chosenNextValueParametersForUAScope));
+            HashSet<BaseParameter> chosenNextValueParametersForUAScope = parameterTokens == null ? null :  new HashSet<BaseParameter>();
+
+            for (int i = 0; i != parameterizedStructure.Length; i++)
+                parameterizedStructure[i] = (this[i] as LogEntry).GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
             return parameterizedStructure;
         }
 
@@ -291,7 +291,7 @@ namespace vApus.Stresstest {
 
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
-        public UserAction Clone(LogRuleSet logRuleSet) {
+        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet) {
             UserAction userAction = new UserAction(Label);
             userAction.SetParent(Parent, false);
             userAction.Occurance = _occurance;
@@ -299,7 +299,7 @@ namespace vApus.Stresstest {
             userAction.UseDelay = _useDelay;
             userAction.LogEntryStringsAsImported = _logEntryStringsAsImported;
 
-            foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(logRuleSet), false);
+            foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(logRuleSet, applyRuleSet), false);
 
             return userAction;
         }

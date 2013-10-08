@@ -53,7 +53,7 @@ namespace vApus.Results {
 
         private static void CreateDescriptionTable(DatabaseActions databaseActions) {
             if (!TableExists("description", databaseActions))
-                databaseActions.ExecuteSQL("Create Table description(Description longtext NOT NULL)");
+                databaseActions.ExecuteSQL("Create Table description(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), Description longtext NOT NULL)");
         }
 
         private static void CreateTagsTable(DatabaseActions databaseActions) {

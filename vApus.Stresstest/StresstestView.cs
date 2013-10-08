@@ -256,18 +256,38 @@ namespace vApus.Stresstest {
                 _stresstestCore.RunInitializedFirstTime += _stresstestCore_RunInitializedFirstTime;
                 _stresstestCore.RunStopped += _stresstestCore_RunStopped;
                 _stresstestCore.Message += _stresstestCore_Message;
-                _stresstestCore.InitializeTest();
 
-                StartMonitors();
+                _stresstestCore.TestInitialized += _stresstestCore_TestInitialized;
+                ThreadPool.QueueUserWorkItem((state) => { _stresstestCore.InitializeTest(); }, null);
+
+               
             } catch (Exception ex) {
                 //Only one test can run at the same time.
                 if (ex is ArgumentOutOfRangeException) {
                     fastResultsControl.AddEvent("Cannot start this test because another one is still running.", LogLevel.Error);
-                    ex = null;
+                    Stop(StresstestStatus.Error, null);
+                } else {
+                    Stop(StresstestStatus.Error, ex);
                 }
-                Stop(StresstestStatus.Error, ex);
             }
-            Cursor = Cursors.Default;
+        }
+
+        private void _stresstestCore_TestInitialized(object sender, TestInitializedEventArgs e) {
+            _stresstestCore.TestInitialized -= _stresstestCore_TestInitialized;
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                if (e.Exception == null) {
+                    StartMonitors();
+                } else {
+                    //Only one test can run at the same time.
+                    if (e.Exception is ArgumentOutOfRangeException) {
+                        fastResultsControl.AddEvent("Cannot start this test because another one is still running.", LogLevel.Error);
+                        Stop(StresstestStatus.Error, null);
+                    } else {
+                        Stop(StresstestStatus.Error, e.Exception);
+                    }
+                }
+                Cursor = Cursors.Default;
+            }, null);
         }
 
         /// <summary>

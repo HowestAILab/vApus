@@ -70,7 +70,7 @@ namespace vApus.SolutionTree {
         public override string ToString() {
             if (IsEmpty)
                 return "<none>";
-            return _label == string.Empty ? Name + ' ' + Index : Name + ' ' + Index + ": " + _label;
+            return _label == string.Empty ? string.Join(" ", Name, Index) : string.Join(": ", string.Join(" ", Name, Index), _label);
         }
         #endregion
     }

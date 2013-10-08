@@ -32,7 +32,7 @@ namespace vApus.Util {
         private void ProcessorAffinityPanel_HandleCreated(object sender, EventArgs e) {
             try {
                 //Get the affinity from the current process in order to get the cpu's.
-                var cpus = new List<int>(ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity));
+                var cpus = new List<int>(ProcessorAffinityHelper.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity));
 
                 //Add all cpu's to the listview and check them if they are in 'cpus'. (0xFFFF) to include all processor groups
                 for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) {
@@ -57,7 +57,10 @@ namespace vApus.Util {
             for (int i = 0; i < lvw.Items.Count; i++)
                 if (lvw.Items[i].Checked)
                     cpus.Add(i);
-            Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
+            Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityHelper.FromArrayToBitmask(cpus.ToArray());
+
+            //ProcessorAffinityHelper.SetCoreAffinity(cpus.ToArray());
+
             btnSet.Enabled = false;
         }
 
@@ -68,7 +71,7 @@ namespace vApus.Util {
                     cpus.Add(i);
             btnSet.Enabled = lvw.CheckedItems.Count > 0 &&
                              Process.GetCurrentProcess().ProcessorAffinity !=
-                             ProcessorAffinityCalculator.FromArrayToBitmask(cpus.ToArray());
+                             ProcessorAffinityHelper.FromArrayToBitmask(cpus.ToArray());
         }
 
         public override string ToString() {

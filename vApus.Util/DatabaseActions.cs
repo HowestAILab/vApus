@@ -120,7 +120,13 @@ namespace vApus.Util {
         /// <param name="parameters"></param>
         /// <returns></returns>
         private MySqlCommand BuildCommand(string commandText, CommandType commandType, MySqlParameter[] parameters) {
-            if (_connection == null) GetNewConnection();
+            if (_connection == null) {
+                GetNewConnection();
+            } else if (_connection.State != ConnectionState.Open || !_connection.Ping()) {
+                ReleaseConnection();
+                GetNewConnection();
+            }
+
             return BuildCommand(_connection, commandText, commandType, parameters);
         }
 
@@ -212,7 +218,12 @@ namespace vApus.Util {
         /// </summary>
         /// <returns></returns>
         public MySqlTransaction BeginTransaction() {
-            if (_connection == null) GetNewConnection();
+            if (_connection == null) {
+                GetNewConnection();
+            } else if (_connection.State != ConnectionState.Open || !_connection.Ping()) {
+                ReleaseConnection();
+                GetNewConnection();
+            }
             return _connection.BeginTransaction();
         }
 

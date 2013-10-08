@@ -8,8 +8,11 @@
 using System;
 
 namespace vApus.Results {
-    public class LogEntryResult {
-        public string VirtualUser { get; internal set; }
+    public struct LogEntryResult {
+        /// <summary>
+        /// Use this to determine that this is a filled in log entry result.
+        /// </summary>
+        public string VirtualUser { get; set; }
         public string UserAction { get; set; }
 
         /// <summary>

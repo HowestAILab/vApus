@@ -22,8 +22,8 @@ namespace vApus.Stresstest {
     /// Contains UserActions that contain LogEntries.
     /// </summary>
     [Serializable]
-    [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "ExportLogAndUsedParameters_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
-        new[] { "Edit/Import", "Remove", "Export Data Structure", "Export log and Used Parameter Data Structures", "Copy", "Cut", "Duplicate" })]
+    [ContextMenu(new[] { "Activate_Click", "EditPlainText_Click", "Remove_Click", "Export_Click", "ExportLogAndUsedParameters_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
+        new[] { "Edit/Import", "Edit Plain Text", "Remove", "Export Data Structure", "Export log and Used Parameter Data Structures", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     public class Log : LabeledBaseItem, ISerializable {
@@ -175,13 +175,10 @@ namespace vApus.Stresstest {
         /// <returns></returns>
         public LogEntry[] GetAllLogEntries() {
             lock (_lock) {
-                int count = 0, index = 0;
-                foreach (BaseItem item in this)
-                    if (item is UserAction)
-                        count += item.Count;
-
+                int count = GetTotalLogEntryCount();
                 var arr = new LogEntry[count];
 
+                int index = 0;
                 foreach (BaseItem item in this)
                     if (item is UserAction)
                         foreach (LogEntry childItem in item)
@@ -189,6 +186,13 @@ namespace vApus.Stresstest {
 
                 return arr;
             }
+        }
+
+        public int GetTotalLogEntryCount() {
+            int count = 0;
+            foreach (UserAction item in this)
+                count += item.Count;
+            return count;
         }
 
         private void ExportLogAndUsedParameters_Click(object sender, EventArgs e) {
@@ -213,7 +217,7 @@ namespace vApus.Stresstest {
                     GetParameterTokenDelimiters(out begin, out end, out logEntryContainsTokens, false);
 
                     var usedParameters = new List<BaseParameter>();
-                    var allParameterTokens = ASTNode.GetParameterTokens(begin, end, _parameters);
+                    var allParameterTokens = GetParameterTokens(begin, end);
 
                     foreach (UserAction userAction in this)
                         foreach (LogEntry logEntry in userAction)
@@ -242,6 +246,7 @@ namespace vApus.Stresstest {
                 } catch { }
             }
         }
+        private void EditPlainText_Click(object sender, EventArgs e) { SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView)); }
 
         /// <summary>
         ///     This will apply the ruleset (lexing).
@@ -249,7 +254,7 @@ namespace vApus.Stresstest {
         /// </summary>
         public void ApplyLogRuleSet() {
             var logEntriesWithErrors = new List<LogEntry>();
-            foreach(var logEntry in GetAllLogEntries()) {
+            foreach (var logEntry in GetAllLogEntries()) {
                 try {
                     logEntry.ApplyLogRuleSet(_logRuleSet);
                     if (logEntry.LexicalResult == LexicalResult.Error)
@@ -262,14 +267,14 @@ namespace vApus.Stresstest {
             _lexicalResult = (logEntriesWithErrors.Count == 0) ? LexicalResult.OK : LexicalResult.Error;
 
             var logEntriesWithErrorsArr = logEntriesWithErrors.ToArray();
-            if (LexicalResultChanged != null) 
+            if (LexicalResultChanged != null)
                 LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrorsArr));
         }
         /// <summary>
         /// </summary>
         /// <param name="beginTokenDelimiter"></param>
         /// <param name="endTokenDelimiter"></param>
-        /// <param name="logEntryContainsTokens">True if one of the delimiters is in the log entry string.</param>
+        /// <param name="logEntryContainsTokens">True if one of the delimiters is in a log entry string.</param>
         public void GetParameterTokenDelimiters(out string beginTokenDelimiter, out string endTokenDelimiter, out bool logEntryContainsTokens, bool autoNextOnLogEntryContainsTokens) {
             beginTokenDelimiter = string.Empty;
             endTokenDelimiter = string.Empty;
@@ -279,44 +284,53 @@ namespace vApus.Stresstest {
             bool bln;
             int tokenIndex = -1;
 
-            if (this.CountOf(typeof(UserAction)) == 0) {
-                tokenIndex = (new LogEntry()).GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
-                if (bln) logEntryContainsTokens = true;
+            foreach (LogEntry logEntry in GetAllLogEntries()) {
+                tokenIndex = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
 
-                beginTokenDelimiter = b;
-                endTokenDelimiter = e;
+                if (tokenIndex >= _preferredTokenDelimiterIndex) {
+                    beginTokenDelimiter = b;
+                    endTokenDelimiter = e;
+                    if (bln) logEntryContainsTokens = true;
 
-                _preferredTokenDelimiterIndex = tokenIndex;
-            } else {
-                foreach (LogEntry logEntry in GetAllLogEntries()) {
-                    tokenIndex = logEntry.GetParameterTokenDelimiters(autoNextOnLogEntryContainsTokens, out b, out e, out bln, _preferredTokenDelimiterIndex);
-
-                    if (tokenIndex >= _preferredTokenDelimiterIndex) {
-                        beginTokenDelimiter = b;
-                        endTokenDelimiter = e;
-                        if (bln) logEntryContainsTokens = true;
-
-                        _preferredTokenDelimiterIndex = tokenIndex;
-                    }
+                    _preferredTokenDelimiterIndex = tokenIndex;
                 }
             }
         }
+        private Dictionary<string, BaseParameter> GetParameterTokens(string beginTokenDelimiter, string endTokenDelimiter) {
+
+            var scopeIdentifiers = new[] { ASTNode.LOG_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE, ASTNode.LOG_ENTRY_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.ALWAYS_PARAMETER_SCOPE };
+
+            var parameterTokens = new Dictionary<string, BaseParameter>();
+
+            int i;
+            foreach (string scopeIdentifier in scopeIdentifiers) {
+                i = 1;
+                foreach (BaseParameter parameter in _parameters.GetAllParameters())
+                    parameterTokens.Add(beginTokenDelimiter + scopeIdentifier + (i++) + endTokenDelimiter, parameter);
+            }
+
+            return parameterTokens;
+        }
+
         /// <summary>
         ///     Get a list of string trees, these are used in the connection proxy code.
         /// </summary>
         /// <returns></returns>
-        public List<StringTree> GetParameterizedStructure() {
+        public StringTree[] GetParameterizedStructure() {
             var parameterizedStructure = new List<StringTree>(Count);
-            var chosenNextValueParametersForLScope = new HashSet<BaseParameter>();
 
             string b, e;
             bool logEntryContainsTokens;
             GetParameterTokenDelimiters(out b, out e, out logEntryContainsTokens, false);
 
-            foreach (UserAction userAction in this)
-                foreach (StringTree ps in userAction.GetParameterizedStructure(b, e, chosenNextValueParametersForLScope)) parameterizedStructure.Add(ps);
+            HashSet<BaseParameter> chosenNextValueParametersForLScope = logEntryContainsTokens ? new HashSet<BaseParameter>() : null;
 
-            return parameterizedStructure;
+            Dictionary<string, BaseParameter> parameterTokens = logEntryContainsTokens ? GetParameterTokens(b, e) : null;
+
+            foreach (UserAction userAction in this)
+                parameterizedStructure.AddRange(userAction.GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope));
+
+            return parameterizedStructure.ToArray();
         }
 
         /// <summary>
@@ -351,7 +365,7 @@ namespace vApus.Stresstest {
             InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        public Log Clone(bool cloneChildren = true) {
+        public Log Clone(bool cloneChildren = true, bool applyRuleSet = true) {
             var log = new Log();
             log.Parent = Parent;
             log.Label = Label;
@@ -361,14 +375,21 @@ namespace vApus.Stresstest {
             log._parameters = _parameters;
 
             if (cloneChildren)
-                foreach (BaseItem item in this)
-                    if (item is UserAction)
-                        log.AddWithoutInvokingEvent((item as UserAction).Clone(_logRuleSet), false);
+                foreach (UserAction item in this)
+                    log.AddWithoutInvokingEvent(item.Clone(_logRuleSet, applyRuleSet), false);
 
             return log;
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override void Activate() {
+            if ((Count > 499 || GetTotalLogEntryCount() > 4999) &&
+                MessageBox.Show("This is a large log! Do you want to use the plain text editor?\nYou will loose most functionality, but vApus will stay responsive and memory usage within boundaries.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView));
+            } else {
+                SolutionComponentViewManager.Show(this);
+            }
+        }
+
         #endregion
 
         public class LexicalResultsChangedEventArgs : EventArgs {

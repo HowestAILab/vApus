@@ -1,11 +1,11 @@
-﻿using System;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
  *  
  * Author(s):
  *    Vandroemme Dieter
  */
+using System;
 using System.Collections.Generic;
 using vApus.Results;
 using vApus.Stresstest;
@@ -16,6 +16,8 @@ namespace vApus.DistributedTesting {
     /// Holds functionality to divide workload over slaves.
     /// </summary>
     public static class DivideEtImpera {
+        private static object _usedTileStresstestsLock = new object();
+
         /// <summary>
         /// Calculates the division of workload over slaves. Jumpstarting the slaves and sending the stresstests to them happens elsewhere.
         /// </summary>
@@ -89,6 +91,53 @@ namespace vApus.DistributedTesting {
                 }
             }
             return dividedTileStresstestsAndOriginal;
+        }
+
+        public static RunStateChange PreProcessTestProgressMessage(RunSynchronization runSynchronization, TileStresstest originalTileStresstest, TestProgressMessage tpm, Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>> testProgressMessages,
+            Dictionary<TileStresstest, TileStresstest> usedTileStresstests, Dictionary<TileStresstest, List<string>> dividedRunInitializedOrDoneOnce) {
+            lock (_usedTileStresstestsLock) {                
+                var dictParts = testProgressMessages[originalTileStresstest];
+                dictParts[tpm.TileStresstestIndex] = tpm;
+                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime || 
+                    ((runSynchronization == RunSynchronization.None || runSynchronization == RunSynchronization.BreakOnFirstFinished) && tpm.RunStateChange == RunStateChange.ToRunDoneOnce) || 
+                    (runSynchronization == RunSynchronization.BreakOnLastFinished && tpm.RunFinished)) {
+                    if (!dividedRunInitializedOrDoneOnce.ContainsKey(originalTileStresstest)) dividedRunInitializedOrDoneOnce.Add(originalTileStresstest, new List<string>());
+                    if (!dividedRunInitializedOrDoneOnce[originalTileStresstest].Contains(tpm.TileStresstestIndex)) dividedRunInitializedOrDoneOnce[originalTileStresstest].Add(tpm.TileStresstestIndex);
+
+                    if (GetDividedCount(originalTileStresstest.TileStresstestIndex, usedTileStresstests) == dividedRunInitializedOrDoneOnce[originalTileStresstest].Count) {
+                        MasterSideCommunicationHandler.SendDividedContinue(originalTileStresstest.BasicTileStresstest.Slaves);
+                        dividedRunInitializedOrDoneOnce.Remove(originalTileStresstest);
+
+                        return tpm.RunStateChange;
+                    }
+                }
+
+                return RunStateChange.None;
+            }
+        }
+
+        /// <summary>
+        /// Get the original tile stresstest for the given divided index.
+        /// </summary>
+        /// <param name="dividedTileStresstestIndex"></param>
+        /// <returns></returns>
+        public static TileStresstest GetOriginalTileStresstest(string dividedTileStresstestIndex, Dictionary<TileStresstest, TileStresstest> usedTileStresstests) {
+            foreach (TileStresstest ts in usedTileStresstests.Values)
+                if (dividedTileStresstestIndex.StartsWith(ts.TileStresstestIndex)) //Take divided stresstests into account.
+                    return ts;
+            return null;
+        }
+        /// <summary>
+        /// Get the count of the divided stresstests for a certain tile stresstest.
+        /// </summary>
+        /// <param name="originalTileStresstestIndex"></param>
+        /// <returns></returns>
+        private static int GetDividedCount(string originalTileStresstestIndex, Dictionary<TileStresstest, TileStresstest> usedTileStresstests) {
+            int count = 0;
+            foreach (TileStresstest ts in usedTileStresstests.Keys)
+                if (ts.TileStresstestIndex.StartsWith(originalTileStresstestIndex)) //Take divided stresstests into account.
+                    ++count;
+            return count;
         }
 
         /// <summary>

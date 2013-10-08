@@ -35,7 +35,7 @@ namespace vApus.DetailedResultsViewer {
         /// 
         /// </summary>
         /// <param name="stresstestId">0 for all</param>
-        public void RefreshReport(int stresstestId) {
+        public void RefreshResults(int stresstestId) {
             this.Enabled = false;
             if (stresstestId == 0) detailedResultsControl.RefreshResults(_resultsHelper); else detailedResultsControl.RefreshResults(_resultsHelper, stresstestId);
             this.Enabled = true;

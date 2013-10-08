@@ -37,7 +37,7 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Properties
-        public IConnectionProxy this[int index] {   get { return _connectionProxies[index]; }   }
+        public IConnectionProxy this[int index] { get { return _connectionProxies[index]; } }
         /// <summary>
         ///     The connection proxies for parallely executed log entries are kept in this array.
         ///     The index of the connection proxy for the log entry that is on the start of the parallel executed range
@@ -51,7 +51,7 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Sometimes needed in connection proxy code, MaxConnectionLimit for HttpWebRequests for instance.
         /// </summary>
-        public int PoolSize {  get { return (_connectionProxies == null) ? 0 : _connectionProxies.Length; }   }
+        public int PoolSize { get { return (_connectionProxies == null) ? 0 : _connectionProxies.Length; } }
 
         public bool IsDisposed {
             get { return _isDisposed; }
@@ -114,8 +114,7 @@ namespace vApus.Stresstest {
             error = null;
             IConnectionProxy connectionProxy = null;
             try {
-                connectionProxy =
-                    _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                connectionProxy = _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
                 connectionProxy.SetParent(this);
                 connectionProxy.TestConnection(out error);
             } catch (Exception ex) {
@@ -145,8 +144,7 @@ namespace vApus.Stresstest {
                 if (_isDisposed || _isShutdown)
                     return;
 
-                var connectionProxy =
-                    _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                var connectionProxy = _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
                 connectionProxy.SetParent(this);
                 _connectionProxies[i] = connectionProxy;
 
@@ -325,25 +323,18 @@ namespace vApus.Stresstest {
                 if (connectionProxy != null)
                     try {
                         try {
-                            if (connectionProxy.IsConnectionOpen)
-                                connectionProxy.CloseConnection();
+                            if (connectionProxy.IsConnectionOpen) connectionProxy.CloseConnection();
                         } catch {
                             throw;
                         } finally {
-                            if (!connectionProxy.IsDisposed)
-                                connectionProxy.Dispose();
+                            if (!connectionProxy.IsDisposed) connectionProxy.Dispose();
                         }
                     } catch (Exception ex) {
-                        lock (_lock) {
+                        lock (_lock)
                             if (parallel)
-                                LogWrapper.LogByLevel(
-                                    "Parallel connection #" + index + " could not be closed and/or disposed.\n" + ex,
-                                    LogLevel.Error);
+                                LogWrapper.LogByLevel("Parallel connection #" + index + " could not be closed and/or disposed.\n" + ex, LogLevel.Error);
                             else
-                                LogWrapper.LogByLevel(
-                                    "Connection #" + index + " could not be closed and/or disposed.\n" + ex,
-                                    LogLevel.Error);
-                        }
+                                LogWrapper.LogByLevel("Connection #" + index + " could not be closed and/or disposed.\n" + ex, LogLevel.Error);
                     }
             }
         }

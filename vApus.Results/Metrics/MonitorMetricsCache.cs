@@ -79,12 +79,15 @@ namespace vApus.Results {
                     metrics.Add(o.Metrics);
                 }
 
+            bool resultsRemoved = false;
             foreach (MetricsCacheObject removeResult in removeResults) {
                 var cr = removeResult.Result as ConcurrencyResult;
                 removeResult.Result = null;
 
-                GC.Collect();
+                resultsRemoved = true;
             }
+            if (resultsRemoved) GC.Collect();
+
             return metrics;
         }
         /// <summary>

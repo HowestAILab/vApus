@@ -1054,11 +1054,10 @@ namespace vApus.Monitor {
             if (tvwCounters.Nodes.Count != 0) {
                 if (firstVisible == null)
                     firstVisible = tvwCounters.Nodes[0];
-                else {
+                else
                     //Scroll down first so firstVisible will be at the top of the list.
                     tvwCounters.Nodes[tvwCounters.Nodes.Count - 1].EnsureVisible();
-                    firstVisible.EnsureVisible();
-                }
+                firstVisible.EnsureVisible();
             }
 
             //Select the first visible counter, stupid but only way to do this.

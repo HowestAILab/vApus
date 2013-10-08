@@ -62,15 +62,18 @@ namespace vApus.DistributedTesting {
         ///     The messages pushed from the slaves.
         /// </summary>
         private Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>> _testProgressMessages = new Dictionary<TileStresstest, Dictionary<string, TestProgressMessage>>();
+        /// <summary>
+        /// To know when a combined run is finished.
+        /// </summary>
+        private Dictionary<TileStresstest, List<string>> _dividedRunInitializedOrDoneOnce = new Dictionary<TileStresstest, List<string>>();
 
         private object _testProgressMessagesLock = new object();
         private Dictionary<TileStresstest, TileStresstest> _usedTileStresstests = new Dictionary<TileStresstest, TileStresstest>(); //the divided stresstests and the originals
         private int _totalTestCount = 0; //This way we do not need a lock to get the count.
-        private object _usedTileStresstestsLock = new object();
 
         private ResultsHelper _resultsHelper;
 
-        private System.Timers.Timer _tmrOnInvokeTestProgressMessageReceivedDelayed = new System.Timers.Timer(1000);
+        private System.Timers.Timer _tmrOnInvokeTestProgressMessageReceivedDelayed = new System.Timers.Timer(500);
         #endregion
 
         #region Properties
@@ -166,7 +169,8 @@ namespace vApus.DistributedTesting {
                 try {
                     _tmrOnInvokeTestProgressMessageReceivedDelayed.Stop();
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnTestProgressMessageReceivedDelayed(this, null); }, null);
-                } catch { }
+                } catch { 
+                }
         }
 
         private void InvokeOnListeningError(ListeningErrorEventArgs listeningErrorEventArgs) {
@@ -354,8 +358,9 @@ namespace vApus.DistributedTesting {
                     _hasResults = true;
 
                     TestProgressMessage tpm = e.TestProgressMessage;
-                    TileStresstest originalTileStresstest = GetTileStresstest(e.TestProgressMessage.TileStresstestIndex);
-                    lock (_testProgressMessagesLock) _testProgressMessages[originalTileStresstest][tpm.TileStresstestIndex] = tpm;
+                    TileStresstest originalTileStresstest = DivideEtImpera.GetOriginalTileStresstest(tpm.TileStresstestIndex, _usedTileStresstests);
+                    RunStateChange combinedRunStateChanged = DivideEtImpera.PreProcessTestProgressMessage(_distributedTest.RunSynchronization, originalTileStresstest, tpm,
+                        _testProgressMessages, _usedTileStresstests, _dividedRunInitializedOrDoneOnce);
 
                     bool okCancelError = true;
                     switch (tpm.StresstestStatus) {
@@ -380,11 +385,6 @@ namespace vApus.DistributedTesting {
 
                         switch (_distributedTest.RunSynchronization) {
                             case RunSynchronization.None:
-                                ////Check if it is a divided stresstest and determine what to do on run stopped: All tests that are divided from the same tile stresstest should get a continue when they have all send run stopped.
-                                ////This is very difficult to implement.
-                                //if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) { 
-                                //    //We need to know the number of divided stresstests for a certain tile stresstest.
-                                //}
                                 break;
 
                             //Send Break, wait for all stopped, send continue, wait for all started, send continue
@@ -438,15 +438,9 @@ namespace vApus.DistributedTesting {
 
                     if (Cancelled != 0 || Failed != 0) Stop(); //Test is invalid stop the test.
                     if (Finished == _totalTestCount) HandleFinished();
-                } catch { }
-            }
-        }
-        private TileStresstest GetTileStresstest(string tileStresstestIndex) {
-            lock (_usedTileStresstestsLock) {
-                foreach (TileStresstest ts in _usedTileStresstests.Values)
-                    if (tileStresstestIndex.Contains(ts.TileStresstestIndex)) //Take divided stresstests into account.
-                        return ts;
-                return null;
+                } catch (Exception ex) {
+                    LogWrapper.LogByLevel("Something went wrong when handling test progress in the distributed test core.\n" + ex, LogLevel.Error);
+                }
             }
         }
         private int IncrementReruns(string tileStresstestIndex) {
@@ -481,7 +475,7 @@ namespace vApus.DistributedTesting {
         /// <returns></returns>
         public TestProgressMessage GetTestProgressMessage(TileStresstest tileStresstest) {
             lock (_testProgressMessagesLock) {
-                if (_testProgressMessages.ContainsKey(tileStresstest)) 
+                if (_testProgressMessages.ContainsKey(tileStresstest))
                     //_testProgressMessages[tileStresstest].Values = dictionary of divided stresstest results, for when the same test is divided over 2 or more slaves.
                     return DivideEtImpera.GetMergedTestProgressMessage(tileStresstest, _testProgressMessages[tileStresstest].Values);
 
@@ -519,7 +513,6 @@ namespace vApus.DistributedTesting {
 
                     _communicationLock = null;
                     _testProgressMessagesLock = null;
-                    _usedTileStresstestsLock = null;
 
                     _hasResults = false;
                     _usedTileStresstests = null;

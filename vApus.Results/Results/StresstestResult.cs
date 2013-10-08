@@ -10,6 +10,7 @@ using System.Collections.Generic;
 
 namespace vApus.Results {
     public class StresstestResult {
+
         #region Properties
         public DateTime StartedAt { get; private set; }
         public DateTime StoppedAt { get; internal set; }

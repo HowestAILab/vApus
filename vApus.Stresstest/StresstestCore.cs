@@ -22,6 +22,7 @@ namespace vApus.Stresstest {
     public class StresstestCore : IDisposable {
 
         #region Events
+        public event EventHandler<TestInitializedEventArgs> TestInitialized;
         public event EventHandler<StresstestResultEventArgs> StresstestStarted;
         public event EventHandler<ConcurrencyResultEventArgs> ConcurrencyStarted, ConcurrencyStopped;
         public event EventHandler<RunResultEventArgs> RunInitializedFirstTime, RunStarted, RunStopped;
@@ -66,7 +67,7 @@ namespace vApus.Stresstest {
         /// <summary> Every time the execution is broken (Break) the continue counter is incremented by one. This to be sure that if a continue is send it is reacted on it the right way. </summary>
         private int _continueCounter;
 
-        private AutoResetEvent _runSynchronizationContinueWaitHandle = new AutoResetEvent(false);
+        private AutoResetEvent _runSynchronizationContinueWaitHandle = new AutoResetEvent(false), _manyToOneWaitHandle = new AutoResetEvent(false);
 
         /// <summary>Measures intit actions and such to be able to output to the gui.</summary>
         private Stopwatch _sw = new Stopwatch();
@@ -238,14 +239,16 @@ namespace vApus.Stresstest {
         ///     Do this before everything else.
         /// </summary>
         public void InitializeTest() {
+            Exception ex = null;
             try {
                 InvokeMessage("Initializing the Test.");
                 InitializeLog();
                 InitializeConnectionProxyPool();
-            } catch {
+            } catch (Exception e) {
                 _isFailed = true;
-                throw;
+                ex = e;
             }
+            if (TestInitialized != null) TestInitialized(this, new TestInitializedEventArgs(ex));
         }
 
         /// <summary>
@@ -303,7 +306,7 @@ namespace vApus.Stresstest {
                 log.ApplyLogRuleSet();
                 return log;
             } else {
-                Log newLog = log.Clone(false);
+                Log newLog = log.Clone(false, false);
                 var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
                 foreach (UserAction action in log) {
                     var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
@@ -315,7 +318,7 @@ namespace vApus.Stresstest {
                         bool canAddClones = firstEntryClones.Count == 0;
                         int logEntryIndex = 0;
                         foreach (LogEntry child in action) {
-                            LogEntry childClone = child.Clone(log.LogRuleSet);
+                            LogEntry childClone = child.Clone(log.LogRuleSet, true);
 
                             if (canAddClones)
                                 firstEntryClones.Add(childClone);
@@ -363,13 +366,18 @@ namespace vApus.Stresstest {
                 // This handles notification to the user.
                 throw ex;
             }
-            string error;
+
+            InvokeMessage("|->Testing the connection to the server application...");
+            string error = null;
             _connectionProxyPool.TestConnection(out error);
+
+            if (error == null) {
+                InvokeMessage("|-> ...Succes!");
+            }
             if (error != null) {
                 _connectionProxyPool.Dispose();
                 _connectionProxyPool = null;
-                var ex = new Exception(error);
-                LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
+                var ex = new Exception("Failed at testing the connection!\n" + error);
                 throw ex;
             }
             _sw.Stop();
@@ -382,14 +390,15 @@ namespace vApus.Stresstest {
             try {
                 InvokeMessage(string.Format("       |Determining Test Patterns and Delays for {0} Concurrent Users...", concurrentUsers));
                 _sw.Start();
+
                 var testableLogEntries = new ConcurrentBag<TestableLogEntry[]>();
                 var delays = new List<int[]>();
 
-                //Get parameterized structures and patterns first sync first: no locking needed further on.
+                //Get parameterized structures and patterns first sync first.
                 var allParameterizedStructures = new ConcurrentBag<StringTree[]>();
                 var allTestPatterns = new ConcurrentBag<int[]>();
                 for (int t = 0; t != concurrentUsers; t++) {
-                    allParameterizedStructures.Add(_log.GetParameterizedStructure().ToArray());
+                    allParameterizedStructures.Add(_log.GetParameterizedStructure());
 
                     int[] testPattern, delayPattern;
                     _testPatternsAndDelaysGenerator.GetPatterns(out testPattern, out delayPattern);
@@ -399,7 +408,28 @@ namespace vApus.Stresstest {
                     Thread.Sleep(1); //For the random in the pattern generator.
                 }
 
-                //Get testable log entries  async: way faster.
+                //Get all this stuff here, otherwise locking will slow down all following code.
+                var logEntryIndices = new ConcurrentDictionary<LogEntry, string>();
+                var logEntryParents = new ConcurrentDictionary<LogEntry, string>();
+                string dot = ".", empty = " ", colon = ": ";
+
+                Parallel.For(0, _log.Count, (userActionIndex) => {
+                    var userAction = _log[userActionIndex] as UserAction;
+                    if (!userAction.IsEmpty) {
+                        string userActionString = string.Join(empty, userAction.Name, userActionIndex);
+                        if (userAction.Label != string.Empty)
+                            userActionString = string.Join(colon, userActionString, userAction.Label);
+
+                        Parallel.For(0, userAction.Count, (logEntryIndex) => {
+                            var logEntry = userAction[logEntryIndex] as LogEntry;
+
+                            logEntryIndices.TryAdd(logEntry, string.Join(dot, userActionIndex, logEntryIndex));
+                            logEntryParents.TryAdd(logEntry, userActionString);
+                        });
+                    }
+                });
+
+                //Get testable log entries  async.
                 Parallel.For(0, concurrentUsers, (t, loopState) => {
                     try {
                         if (_cancel) loopState.Break();
@@ -418,14 +448,13 @@ namespace vApus.Stresstest {
 
                                 int testPatternIndex = testPattern[i];
                                 var logEntry = _logEntries[testPatternIndex];
-                                var logEntryParent = logEntry.Parent as UserAction;
 
                                 string sameAsLogEntryIndex = string.Empty;
                                 if (logEntry.SameAs != null)
-                                    sameAsLogEntryIndex = (logEntry.SameAs.Parent as UserAction).Index + "." + logEntry.SameAs.Index;
+                                    sameAsLogEntryIndex = logEntryIndices[logEntry.SameAs];
 
-                                tle[i] = new TestableLogEntry(logEntryParent.Index + "." + logEntry.Index, sameAsLogEntryIndex,
-                                    parameterizedStructure[testPatternIndex], logEntryParent.ToString(), logEntry.ExecuteInParallelWithPrevious,
+                                tle[i] = new TestableLogEntry(logEntryIndices[logEntry], sameAsLogEntryIndex,
+                                    parameterizedStructure[testPatternIndex], logEntryParents[logEntry], logEntry.ExecuteInParallelWithPrevious,
                                     logEntry.ParallelOffsetInMs, _rerun);
                             } catch (Exception ex2) {
                                 LogWrapper.LogByLevel("Failed at determining test patterns>\n" + ex2, LogLevel.Error);
@@ -442,6 +471,17 @@ namespace vApus.Stresstest {
 
                 _testableLogEntries = testableLogEntries.ToArray();
                 _delays = delays.ToArray();
+
+                testableLogEntries = null;
+                delays = null;
+
+                allParameterizedStructures = null;
+                allTestPatterns = null;
+
+                logEntryIndices = null;
+                logEntryParents = null;
+
+                GC.Collect();
 
                 _sw.Stop();
                 InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToLongFormattedString()));
@@ -518,10 +558,16 @@ namespace vApus.Stresstest {
                     } else {
                         ++_continueCounter;
 
+                        //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
                         SetRunInitializedFirstTime(concurrentUsersIndex, run + 1);
+                        if (_stresstest.IsDividedStresstest && !_cancel) {
+                            InvokeMessage("[Many to One Waithandle before run] Waiting for Continue Message from Master...");
+                            _manyToOneWaitHandle.WaitOne();
+                            InvokeMessage("Continuing...");
+                        }
                         //Wait here untill the master sends continue when using run sync.
-                        if (RunSynchronization != RunSynchronization.None) {
-                            InvokeMessage("Waiting for Continue Message from Master...");
+                        if (RunSynchronization != RunSynchronization.None && !_cancel) {
+                            InvokeMessage("[Run Sync Waithandle before run] Waiting for Continue Message from Master...");
                             _runSynchronizationContinueWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
                         }
@@ -540,13 +586,30 @@ namespace vApus.Stresstest {
                             InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, LogLevel.Error);
                     }
 
-                    //Wait here when the run is broken untill the master sends continue when using run sync.
-                    if (RunSynchronization == RunSynchronization.BreakOnFirstFinished) {
+                    //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
+                    if (RunSynchronization == RunSynchronization.None) {
+                        if (_stresstest.IsDividedStresstest) {
+                            SetRunDoneOnce();
+                            SetRunStopped();
+
+                            InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
+                            _manyToOneWaitHandle.WaitOne();
+                            InvokeMessage("Continuing...");
+                        }
+                    }
+                        //Wait here when the run is broken untill the master sends continue when using run sync.
+                    else if (RunSynchronization == RunSynchronization.BreakOnFirstFinished) {
                         ++_continueCounter;
                         SetRunDoneOnce();
                         SetRunStopped();
 
-                        InvokeMessage("Waiting for Continue Message from Master...");
+                        if (_stresstest.IsDividedStresstest) {
+                            InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
+                            _manyToOneWaitHandle.WaitOne();
+                            InvokeMessage("Continuing...");
+                        }
+
+                        InvokeMessage("[Run Sync Waithandle after run] Waiting for Continue Message from Master...");
                         _runSynchronizationContinueWaitHandle.WaitOne();
                         InvokeMessage("Continuing...");
                     }
@@ -566,18 +629,13 @@ namespace vApus.Stresstest {
                             goto Rerun;
                         } else {
                             SetRunStopped();
+                            if (_stresstest.IsDividedStresstest) {
+                                InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
+                                _manyToOneWaitHandle.WaitOne();
+                                InvokeMessage("Continuing...");
+                            }
                         }
-                        //For many-to-one testing, run-sync not supported.
-                    }
-                        //else if (_stresstest.IsDividedStresstest && !_break) {
-                        //    SetRunDoneOnce();
-                        //    SetRunStopped();
-
-                    //    InvokeMessage("Waiting for Continue Message from Master...");
-                        //    _runSynchronizationContinueWaitHandle.WaitOne();
-                        //    InvokeMessage("Continuing...");
-                        //} 
-                    else {
+                    } else {
                         SetRunStopped();
                     }
                 }
@@ -607,6 +665,14 @@ namespace vApus.Stresstest {
                 _break = false;
                 _runSynchronizationContinueWaitHandle.Set();
             }
+        }
+
+        /// <summary>
+        /// Keeping the shared run for a divided tile stresstest in sync.
+        /// </summary>
+        public void ContinueDivided() {
+            if (!(_completed | _cancel | _isFailed))
+                _manyToOneWaitHandle.Set();
         }
 
         /// <summary>
@@ -755,6 +821,7 @@ namespace vApus.Stresstest {
                 _cancel = true;
                 _sleepWaitHandle.Set();
                 _runSynchronizationContinueWaitHandle.Set();
+                _manyToOneWaitHandle.Set();
                 DisposeThreadPool();
                 if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
             }
@@ -765,7 +832,7 @@ namespace vApus.Stresstest {
             DisposeThreadPool();
             _connectionProxyPool.Dispose();
 
-            if (_cancel) {                
+            if (_cancel) {
                 _resultsHelper.SetStresstestStopped(_stresstestResult, "Cancelled");
                 return StresstestStatus.Cancelled;
             }
@@ -798,6 +865,10 @@ namespace vApus.Stresstest {
                     _runSynchronizationContinueWaitHandle.Dispose();
                     _runSynchronizationContinueWaitHandle = null;
 
+                    _manyToOneWaitHandle.Close();
+                    _manyToOneWaitHandle.Dispose();
+                    _manyToOneWaitHandle = null;
+
                     _logEntries = null;
                     _testableLogEntries = null;
                     _testPatternsAndDelaysGenerator.Dispose();
@@ -808,6 +879,7 @@ namespace vApus.Stresstest {
                 }
             }
             ObjectRegistrar.Unregister(this);
+            GC.Collect();
         }
         #endregion
 
@@ -815,7 +887,6 @@ namespace vApus.Stresstest {
         ///     Log entry with metadata.
         /// </summary>
         private struct TestableLogEntry {
-
             #region Fields
             /// <summary>
             ///     Should be log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry); this must be unique.
@@ -935,6 +1006,7 @@ namespace vApus.Stresstest {
                     result.VirtualUser = Thread.CurrentThread.Name;
 
                     var logEntryResult = new LogEntryResult {
+                        VirtualUser = result.VirtualUser,
                         LogEntryIndex = testableLogEntry.LogEntryIndex,
                         SameAsLogEntryIndex = testableLogEntry.SameAsLogEntryIndex,
                         LogEntry = testableLogEntry.ParameterizedLogEntryString,
@@ -946,6 +1018,8 @@ namespace vApus.Stresstest {
                         Rerun = testableLogEntry.Rerun
                     };
                     result.SetLogEntryResultAt(testableLogEntryIndex, logEntryResult);
+
+                    runResult.VirtualUserResults[threadIndex] = result;
 
 
                     if (delayInMilliseconds != 0 && !(stresstestCore._cancel || stresstestCore._break)) sleepWaitHandle.WaitOne(delayInMilliseconds);

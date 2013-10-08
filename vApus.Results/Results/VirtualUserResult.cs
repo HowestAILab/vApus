@@ -6,10 +6,12 @@
  *    Dieter Vandroemme
  */
 
+using System;
 namespace vApus.Results {
-    public class VirtualUserResult {
+    public struct VirtualUserResult {
 
         #region Fields
+        private string _virtualUser;
         /// <summary>
         ///     For break on last runsync.
         /// </summary>
@@ -17,28 +19,38 @@ namespace vApus.Results {
         /// <summary>
         ///     For break on last runsync.
         /// </summary>
-        private readonly long _baseLogEntryCount;
+        private long _baseLogEntryCount;
+
+        private LogEntryResult[] _logEntryResults;
         #endregion
 
         #region Properties
         /// <summary>
         ///     When not entered in the test this remains null. This is set in the StresstestCore.
         /// </summary>
-        public string VirtualUser { get; set; }
+        public string VirtualUser {
+            get { return _virtualUser; }
+            set { _virtualUser = value; }
+        }
 
         /// <summary>
         ///     Use the SetLogEntryResultAt function to add an item to this. (this fixes the index when using break on last run sync.)
         ///     Don't forget to initialize this the first time.
         ///     Can contain null!
         /// </summary>
-        public LogEntryResult[] LogEntryResults { get; internal set; }
+        public LogEntryResult[] LogEntryResults {
+            get { return _logEntryResults; }
+            internal set { _logEntryResults = value; }
+        }
 
         #endregion
 
         #region Constructor
         public VirtualUserResult(int logLength) {
-            LogEntryResults = new LogEntryResult[logLength];
-            _baseLogEntryCount = LogEntryResults.LongLength;
+            _virtualUser = null;
+            _runOffset = 0;
+            _logEntryResults = new LogEntryResult[logLength];
+            _baseLogEntryCount = _logEntryResults.LongLength;
         }
         #endregion
 
@@ -50,17 +62,18 @@ namespace vApus.Results {
         /// <summary>
         ///     For break on last run sync. should only be used in the RunResult class.
         /// </summary>
-        internal void PrepareForRerun() {
-            _runOffset += _baseLogEntryCount;
-
+        internal VirtualUserResult CloneAndPrepareForRerun() {
+            var clone = new VirtualUserResult();
+            clone._virtualUser = _virtualUser;
+            clone._baseLogEntryCount = _baseLogEntryCount;
+            clone._runOffset = _runOffset + _baseLogEntryCount;
+           
             var increasedLogEntryResults = new LogEntryResult[LogEntryResults.LongLength + _baseLogEntryCount];
-            for (long l = 0; l != LogEntryResults.LongLength; l++)
-                increasedLogEntryResults[l] = LogEntryResults[l];
+            _logEntryResults.CopyTo(increasedLogEntryResults, 0);
 
-            for (long l = LogEntryResults.LongLength; l != increasedLogEntryResults.LongLength; l++)
-                increasedLogEntryResults[l] = new LogEntryResult();
+            clone._logEntryResults = increasedLogEntryResults;
 
-            LogEntryResults = increasedLogEntryResults;
+            return clone;
         }
         #endregion
     }

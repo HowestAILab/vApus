@@ -46,7 +46,7 @@ namespace vApus.Stresstest {
             if (IsHandleCreated)
                 SetLog();
             else
-                HandleCreated += NewLogView_HandleCreated;
+                HandleCreated += LogView_HandleCreated;
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
         }
@@ -64,8 +64,8 @@ namespace vApus.Stresstest {
                 }
         }
 
-        private void NewLogView_HandleCreated(object sender, EventArgs e) {
-            HandleCreated -= NewLogView_HandleCreated;
+        private void LogView_HandleCreated(object sender, EventArgs e) {
+            HandleCreated -= LogView_HandleCreated;
             _log.LogRuleSet.LogRuleSetChanged += LogRuleSet_LogRuleSetChanged;
             SetLog();
         }

@@ -16,7 +16,7 @@ namespace vApus.Util {
         [Description("Use this rather than LinkClicked, Click or KeyDown.")]
         public event EventHandler ActiveChanged;
 
-        private bool _active;
+        private bool _active, _forceInvokeEvent;
 
         #region Properties
         public bool Active {
@@ -35,7 +35,6 @@ namespace vApus.Util {
 
         public LinkButton() {
             this.HandleCreated += LinkButton_HandleCreated;
-
         }
 
         #region Functions
@@ -58,7 +57,9 @@ namespace vApus.Util {
             }
         }
         public void PerformClick() {
+            _forceInvokeEvent = true;
             OnClick(new EventArgs());
+            _forceInvokeEvent = false;
         }
         protected override void OnClick(EventArgs e) {
             base.OnClick(e);
@@ -71,7 +72,7 @@ namespace vApus.Util {
         }
 
         private void Activate() {
-            bool changed = false;
+            bool changed = _forceInvokeEvent ? true : false;
             if (RadioButtonBehavior) {
                 if (Parent != null) {
                     var otherActiveLinkButtons = new List<LinkButton>();

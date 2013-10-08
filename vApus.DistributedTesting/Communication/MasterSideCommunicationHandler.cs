@@ -587,6 +587,7 @@ namespace vApus.DistributedTesting {
                 waitHandle.Dispose();
                 waitHandle = null;
             }
+            GC.Collect();
 
             return exception;
         }
@@ -627,6 +628,12 @@ namespace vApus.DistributedTesting {
             continueMessage.ContinueCounter = ++_continueCounter;
 
             SendAndReceive(Key.Continue, continueMessage, out exception, 30000);
+        }
+
+        public static void SendDividedContinue(Slave[] slaves) {
+            Exception exception = null;
+            foreach (var slave in slaves)
+                SendAndReceive(slave.IP, slave.Port, Key.ContinueDivided, null, out exception);
         }
 
         /// <summary>
@@ -717,6 +724,8 @@ namespace vApus.DistributedTesting {
 
                     //Reset the buffers to keep the messages as small as possible.
                     ResetBuffers(socketWrapper);
+                    GC.Collect();
+
                     if (initializeTestMessage.Exception != null) throw new Exception(initializeTestMessage.Exception);
                 } catch (Exception ex) {
                     exception = ex;

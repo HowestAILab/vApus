@@ -205,9 +205,8 @@ namespace vApus.DistributedTesting {
 
                 stresstest.Label = ToString();
 
-#warning The log should be cloned, but this is very slow.
                 var logs = new Logs();
-                var log = AdvancedTileStresstest._log;//.Clone();
+                var log = AdvancedTileStresstest._log.Clone(true, false);
 
                 log.RemoveDescription();
                 logs.AddWithoutInvokingEvent(log);

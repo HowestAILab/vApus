@@ -756,6 +756,12 @@ namespace vApus.DistributedTesting {
                 if (found) break;
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tileStresstest">Can be null, but then the given test progress message will not be taken into account.</param>
+        /// <param name="testProgressMessage"></param>
         private void Handle_distributedTestCore_TestProgressMessageReceivedDelayed(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
             var testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
             if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStresstestTreeViewItem) {
