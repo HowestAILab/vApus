@@ -110,8 +110,8 @@ namespace vApus.Stresstest {
 
                 bool general = chkGeneral.Checked;
                 bool monitorData = chkMonitorData.Checked;
-                bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
                 bool specialized = chkSpecialized.Checked;
+                bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
 
                 string fileNameWithoutExtension = saveFileDialog.FileName;
                 if (fileNameWithoutExtension.EndsWith(".xlsx"))
@@ -224,13 +224,16 @@ namespace vApus.Stresstest {
                             runsOverTimeDt = null;
                         }
 
-                        if (firstWorksheet != null) {
+                        if (firstWorksheet == null) {
+                            doc = null;
+                        } else {
                             try { doc.SelectWorksheet(firstWorksheet); } catch { }
                             try { doc.DeleteWorksheet("Sheet1"); } catch { }
+                            try { doc.SaveAs(saveFileDialog.FileName); } catch {
+                                MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                         }
-                        try { doc.SaveAs(saveFileDialog.FileName); } catch {
-                            MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
+                        
                     } catch {
                         MessageBox.Show("Failed to get data from the database.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
