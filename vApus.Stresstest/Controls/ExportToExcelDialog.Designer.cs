@@ -28,12 +28,13 @@
             this.btnExportToExcel = new System.Windows.Forms.Button();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.picOverview = new System.Windows.Forms.PictureBox();
-            this.flpCharts = new System.Windows.Forms.FlowLayoutPanel();
+            this.flpGeneral = new System.Windows.Forms.FlowLayoutPanel();
             this.picTop5HeaviestUserActions = new System.Windows.Forms.PictureBox();
             this.picAverageUserActions = new System.Windows.Forms.PictureBox();
             this.picErrors = new System.Windows.Forms.PictureBox();
             this.picUserActionComposition = new System.Windows.Forms.PictureBox();
             this.picMonitor = new System.Windows.Forms.PictureBox();
+            this.picRunsOverTime = new System.Windows.Forms.PictureBox();
             this.chkMonitorDataToDifferentFiles = new System.Windows.Forms.CheckBox();
             this.lblDescription = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -41,17 +42,23 @@
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorderStresstest = new System.Windows.Forms.Panel();
             this.cboStresstest = new System.Windows.Forms.ComboBox();
-            this.picRunsOverTime = new System.Windows.Forms.PictureBox();
+            this.flpMonitors = new System.Windows.Forms.FlowLayoutPanel();
+            this.flpSpecialized = new System.Windows.Forms.FlowLayoutPanel();
+            this.chkGeneral = new System.Windows.Forms.CheckBox();
+            this.chkMonitorData = new System.Windows.Forms.CheckBox();
+            this.chkSpecialized = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).BeginInit();
-            this.flpCharts.SuspendLayout();
+            this.flpGeneral.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picAverageUserActions)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picErrors)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picUserActionComposition)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMonitor)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRunsOverTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.pnlBorderStresstest.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picRunsOverTime)).BeginInit();
+            this.flpMonitors.SuspendLayout();
+            this.flpSpecialized.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnExportToExcel
@@ -63,7 +70,7 @@
             this.btnExportToExcel.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnExportToExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportToExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExportToExcel.Location = new System.Drawing.Point(543, 276);
+            this.btnExportToExcel.Location = new System.Drawing.Point(653, 489);
             this.btnExportToExcel.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnExportToExcel.Name = "btnExportToExcel";
             this.btnExportToExcel.Size = new System.Drawing.Size(117, 24);
@@ -83,7 +90,7 @@
             this.picOverview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picOverview.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picOverview.Image = ((System.Drawing.Image)(resources.GetObject("picOverview.Image")));
-            this.picOverview.Location = new System.Drawing.Point(3, 3);
+            this.picOverview.Location = new System.Drawing.Point(6, 6);
             this.picOverview.Name = "picOverview";
             this.picOverview.Size = new System.Drawing.Size(141, 89);
             this.picOverview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -92,31 +99,28 @@
             this.toolTip.SetToolTip(this.picOverview, "Overview / Cumulative Response Times vs Achieved Throughput Example");
             this.picOverview.Click += new System.EventHandler(this.pic_Click);
             // 
-            // flpCharts
+            // flpGeneral
             // 
-            this.flpCharts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flpCharts.AutoScroll = true;
-            this.flpCharts.Controls.Add(this.picOverview);
-            this.flpCharts.Controls.Add(this.picTop5HeaviestUserActions);
-            this.flpCharts.Controls.Add(this.picAverageUserActions);
-            this.flpCharts.Controls.Add(this.picErrors);
-            this.flpCharts.Controls.Add(this.picUserActionComposition);
-            this.flpCharts.Controls.Add(this.picMonitor);
-            this.flpCharts.Controls.Add(this.picRunsOverTime);
-            this.flpCharts.Controls.Add(this.chkMonitorDataToDifferentFiles);
-            this.flpCharts.Location = new System.Drawing.Point(12, 63);
-            this.flpCharts.Name = "flpCharts";
-            this.flpCharts.Size = new System.Drawing.Size(648, 207);
-            this.flpCharts.TabIndex = 7;
+            this.flpGeneral.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpGeneral.AutoScroll = true;
+            this.flpGeneral.BackColor = System.Drawing.SystemColors.Control;
+            this.flpGeneral.Controls.Add(this.picOverview);
+            this.flpGeneral.Controls.Add(this.picTop5HeaviestUserActions);
+            this.flpGeneral.Controls.Add(this.picAverageUserActions);
+            this.flpGeneral.Controls.Add(this.picErrors);
+            this.flpGeneral.Controls.Add(this.picUserActionComposition);
+            this.flpGeneral.Location = new System.Drawing.Point(28, 83);
+            this.flpGeneral.Name = "flpGeneral";
+            this.flpGeneral.Padding = new System.Windows.Forms.Padding(3);
+            this.flpGeneral.Size = new System.Drawing.Size(742, 101);
+            this.flpGeneral.TabIndex = 7;
             // 
             // picTop5HeaviestUserActions
             // 
             this.picTop5HeaviestUserActions.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picTop5HeaviestUserActions.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picTop5HeaviestUserActions.Image = ((System.Drawing.Image)(resources.GetObject("picTop5HeaviestUserActions.Image")));
-            this.picTop5HeaviestUserActions.Location = new System.Drawing.Point(150, 3);
+            this.picTop5HeaviestUserActions.Location = new System.Drawing.Point(153, 6);
             this.picTop5HeaviestUserActions.Name = "picTop5HeaviestUserActions";
             this.picTop5HeaviestUserActions.Size = new System.Drawing.Size(141, 89);
             this.picTop5HeaviestUserActions.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -130,7 +134,7 @@
             this.picAverageUserActions.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picAverageUserActions.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picAverageUserActions.Image = ((System.Drawing.Image)(resources.GetObject("picAverageUserActions.Image")));
-            this.picAverageUserActions.Location = new System.Drawing.Point(297, 3);
+            this.picAverageUserActions.Location = new System.Drawing.Point(300, 6);
             this.picAverageUserActions.Name = "picAverageUserActions";
             this.picAverageUserActions.Size = new System.Drawing.Size(141, 89);
             this.picAverageUserActions.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -144,7 +148,7 @@
             this.picErrors.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picErrors.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picErrors.Image = ((System.Drawing.Image)(resources.GetObject("picErrors.Image")));
-            this.picErrors.Location = new System.Drawing.Point(444, 3);
+            this.picErrors.Location = new System.Drawing.Point(447, 6);
             this.picErrors.Name = "picErrors";
             this.picErrors.Size = new System.Drawing.Size(141, 89);
             this.picErrors.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -158,7 +162,7 @@
             this.picUserActionComposition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picUserActionComposition.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picUserActionComposition.Image = ((System.Drawing.Image)(resources.GetObject("picUserActionComposition.Image")));
-            this.picUserActionComposition.Location = new System.Drawing.Point(3, 98);
+            this.picUserActionComposition.Location = new System.Drawing.Point(594, 6);
             this.picUserActionComposition.Name = "picUserActionComposition";
             this.picUserActionComposition.Size = new System.Drawing.Size(141, 89);
             this.picUserActionComposition.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -172,7 +176,7 @@
             this.picMonitor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picMonitor.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picMonitor.Image = ((System.Drawing.Image)(resources.GetObject("picMonitor.Image")));
-            this.picMonitor.Location = new System.Drawing.Point(150, 98);
+            this.picMonitor.Location = new System.Drawing.Point(6, 6);
             this.picMonitor.Name = "picMonitor";
             this.picMonitor.Size = new System.Drawing.Size(141, 89);
             this.picMonitor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -182,15 +186,30 @@
         "e manually");
             this.picMonitor.Click += new System.EventHandler(this.pic_Click);
             // 
+            // picRunsOverTime
+            // 
+            this.picRunsOverTime.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picRunsOverTime.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picRunsOverTime.Image = ((System.Drawing.Image)(resources.GetObject("picRunsOverTime.Image")));
+            this.picRunsOverTime.Location = new System.Drawing.Point(6, 6);
+            this.picRunsOverTime.Name = "picRunsOverTime";
+            this.picRunsOverTime.Size = new System.Drawing.Size(141, 89);
+            this.picRunsOverTime.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picRunsOverTime.TabIndex = 13;
+            this.picRunsOverTime.TabStop = false;
+            this.toolTip.SetToolTip(this.picRunsOverTime, "Runs over Time Example");
+            this.picRunsOverTime.Click += new System.EventHandler(this.pic_Click);
+            // 
             // chkMonitorDataToDifferentFiles
             // 
             this.chkMonitorDataToDifferentFiles.Checked = true;
             this.chkMonitorDataToDifferentFiles.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkMonitorDataToDifferentFiles.Location = new System.Drawing.Point(444, 98);
+            this.chkMonitorDataToDifferentFiles.Location = new System.Drawing.Point(153, 6);
             this.chkMonitorDataToDifferentFiles.Name = "chkMonitorDataToDifferentFiles";
-            this.chkMonitorDataToDifferentFiles.Size = new System.Drawing.Size(141, 89);
+            this.chkMonitorDataToDifferentFiles.Size = new System.Drawing.Size(166, 89);
             this.chkMonitorDataToDifferentFiles.TabIndex = 12;
-            this.chkMonitorDataToDifferentFiles.Text = "Export monitor data to different Excel files";
+            this.chkMonitorDataToDifferentFiles.TabStop = false;
+            this.chkMonitorDataToDifferentFiles.Text = "Export to different Excel file(s)";
             this.toolTip.SetToolTip(this.chkMonitorDataToDifferentFiles, resources.GetString("chkMonitorDataToDifferentFiles.ToolTip"));
             this.chkMonitorDataToDifferentFiles.UseVisualStyleBackColor = true;
             // 
@@ -209,7 +228,7 @@
             // 
             this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(15, 281);
+            this.pictureBox2.Location = new System.Drawing.Point(15, 493);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(16, 16);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -221,7 +240,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(37, 281);
+            this.label1.Location = new System.Drawing.Point(37, 493);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(119, 16);
             this.label1.TabIndex = 17;
@@ -233,9 +252,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlBorderStresstest.BackColor = System.Drawing.Color.Silver;
             this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
-            this.pnlBorderStresstest.Location = new System.Drawing.Point(162, 277);
+            this.pnlBorderStresstest.Location = new System.Drawing.Point(162, 489);
             this.pnlBorderStresstest.Name = "pnlBorderStresstest";
-            this.pnlBorderStresstest.Size = new System.Drawing.Size(300, 23);
+            this.pnlBorderStresstest.Size = new System.Drawing.Size(485, 23);
             this.pnlBorderStresstest.TabIndex = 0;
             // 
             // cboStresstest
@@ -250,35 +269,96 @@
             this.cboStresstest.Location = new System.Drawing.Point(1, 1);
             this.cboStresstest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboStresstest.Name = "cboStresstest";
-            this.cboStresstest.Size = new System.Drawing.Size(298, 21);
+            this.cboStresstest.Size = new System.Drawing.Size(483, 21);
             this.cboStresstest.TabIndex = 0;
             // 
-            // picRunsOverTime
+            // flpMonitors
             // 
-            this.picRunsOverTime.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picRunsOverTime.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picRunsOverTime.Image = ((System.Drawing.Image)(resources.GetObject("picRunsOverTime.Image")));
-            this.picRunsOverTime.Location = new System.Drawing.Point(297, 98);
-            this.picRunsOverTime.Name = "picRunsOverTime";
-            this.picRunsOverTime.Size = new System.Drawing.Size(141, 89);
-            this.picRunsOverTime.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picRunsOverTime.TabIndex = 13;
-            this.picRunsOverTime.TabStop = false;
-            this.toolTip.SetToolTip(this.picRunsOverTime, "Monitor Example \r\nNote: since monitor values are heterogeneous charts must be mad" +
-        "e manually");
-            this.picRunsOverTime.Click += new System.EventHandler(this.pic_Click);
+            this.flpMonitors.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpMonitors.AutoScroll = true;
+            this.flpMonitors.BackColor = System.Drawing.SystemColors.Control;
+            this.flpMonitors.Controls.Add(this.picMonitor);
+            this.flpMonitors.Controls.Add(this.chkMonitorDataToDifferentFiles);
+            this.flpMonitors.Location = new System.Drawing.Point(28, 224);
+            this.flpMonitors.Name = "flpMonitors";
+            this.flpMonitors.Padding = new System.Windows.Forms.Padding(3);
+            this.flpMonitors.Size = new System.Drawing.Size(742, 101);
+            this.flpMonitors.TabIndex = 19;
+            // 
+            // flpSpecialized
+            // 
+            this.flpSpecialized.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpSpecialized.AutoScroll = true;
+            this.flpSpecialized.BackColor = System.Drawing.SystemColors.Control;
+            this.flpSpecialized.Controls.Add(this.picRunsOverTime);
+            this.flpSpecialized.Location = new System.Drawing.Point(28, 363);
+            this.flpSpecialized.Name = "flpSpecialized";
+            this.flpSpecialized.Padding = new System.Windows.Forms.Padding(3);
+            this.flpSpecialized.Size = new System.Drawing.Size(742, 101);
+            this.flpSpecialized.TabIndex = 20;
+            // 
+            // chkGeneral
+            // 
+            this.chkGeneral.AutoSize = true;
+            this.chkGeneral.Checked = true;
+            this.chkGeneral.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkGeneral.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkGeneral.Location = new System.Drawing.Point(15, 63);
+            this.chkGeneral.Name = "chkGeneral";
+            this.chkGeneral.Size = new System.Drawing.Size(70, 17);
+            this.chkGeneral.TabIndex = 21;
+            this.chkGeneral.TabStop = false;
+            this.chkGeneral.Text = "General";
+            this.chkGeneral.UseVisualStyleBackColor = true;
+            this.chkGeneral.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
+            // 
+            // chkMonitorData
+            // 
+            this.chkMonitorData.AutoSize = true;
+            this.chkMonitorData.Checked = true;
+            this.chkMonitorData.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkMonitorData.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkMonitorData.Location = new System.Drawing.Point(12, 204);
+            this.chkMonitorData.Name = "chkMonitorData";
+            this.chkMonitorData.Size = new System.Drawing.Size(99, 17);
+            this.chkMonitorData.TabIndex = 22;
+            this.chkMonitorData.TabStop = false;
+            this.chkMonitorData.Text = "Monitor Data";
+            this.toolTip.SetToolTip(this.chkMonitorData, "If any...");
+            this.chkMonitorData.UseVisualStyleBackColor = true;
+            this.chkMonitorData.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
+            // 
+            // chkSpecialized
+            // 
+            this.chkSpecialized.AutoSize = true;
+            this.chkSpecialized.Checked = true;
+            this.chkSpecialized.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkSpecialized.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkSpecialized.Location = new System.Drawing.Point(15, 343);
+            this.chkSpecialized.Name = "chkSpecialized";
+            this.chkSpecialized.Size = new System.Drawing.Size(91, 17);
+            this.chkSpecialized.TabIndex = 23;
+            this.chkSpecialized.TabStop = false;
+            this.chkSpecialized.Text = "Specialized";
+            this.chkSpecialized.UseVisualStyleBackColor = true;
+            this.chkSpecialized.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
             // 
             // ExportToExcelDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(672, 312);
+            this.ClientSize = new System.Drawing.Size(782, 524);
+            this.Controls.Add(this.chkSpecialized);
+            this.Controls.Add(this.chkMonitorData);
+            this.Controls.Add(this.chkGeneral);
+            this.Controls.Add(this.flpSpecialized);
+            this.Controls.Add(this.flpMonitors);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnlBorderStresstest);
             this.Controls.Add(this.lblDescription);
-            this.Controls.Add(this.flpCharts);
+            this.Controls.Add(this.flpGeneral);
             this.Controls.Add(this.btnExportToExcel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -291,15 +371,17 @@
             this.Text = "Export to Excel";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SaveChartsDialog_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).EndInit();
-            this.flpCharts.ResumeLayout(false);
+            this.flpGeneral.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picAverageUserActions)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picErrors)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picUserActionComposition)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMonitor)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picRunsOverTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.pnlBorderStresstest.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.picRunsOverTime)).EndInit();
+            this.flpMonitors.ResumeLayout(false);
+            this.flpSpecialized.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -310,7 +392,7 @@
         private System.Windows.Forms.Button btnExportToExcel;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.PictureBox picOverview;
-        private System.Windows.Forms.FlowLayoutPanel flpCharts;
+        private System.Windows.Forms.FlowLayoutPanel flpGeneral;
         private System.Windows.Forms.Label lblDescription;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picTop5HeaviestUserActions;
@@ -324,5 +406,10 @@
         private System.Windows.Forms.PictureBox picUserActionComposition;
         private System.Windows.Forms.CheckBox chkMonitorDataToDifferentFiles;
         private System.Windows.Forms.PictureBox picRunsOverTime;
+        private System.Windows.Forms.FlowLayoutPanel flpMonitors;
+        private System.Windows.Forms.FlowLayoutPanel flpSpecialized;
+        private System.Windows.Forms.CheckBox chkGeneral;
+        private System.Windows.Forms.CheckBox chkMonitorData;
+        private System.Windows.Forms.CheckBox chkSpecialized;
     }
 }

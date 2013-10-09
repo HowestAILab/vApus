@@ -204,6 +204,9 @@
     <Compile Include="ControlsAndPanels\CleanTempDataPanel.Designer.cs">
       <DependentUpon>CleanTempDataPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\CueTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ControlsAndPanels\DataGridViewImageCellBlank.cs" />
     <Compile Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.cs">
       <SubType>Component</SubType>
@@ -219,9 +222,6 @@
     </Compile>
     <Compile Include="ControlsAndPanels\KeyValuePairControl.Designer.cs">
       <DependentUpon>KeyValuePairControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ControlsAndPanels\LabeledTextBox.cs">
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\LinkButton.cs">
       <SubType>Component</SubType>

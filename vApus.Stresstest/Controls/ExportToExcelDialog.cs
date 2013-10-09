@@ -91,7 +91,7 @@ namespace vApus.Stresstest {
 
             var stresstests = _resultsHelper.GetStresstests();
             if (stresstests.Rows.Count == 0) {
-                btnExportToExcel.Enabled = false;
+                this.Enabled = false;
             } else {
                 cboStresstest.Items.Add("<All>");
                 foreach (DataRow stresstestRow in stresstests.Rows)
@@ -101,12 +101,17 @@ namespace vApus.Stresstest {
             }
         }
 
+        private void chkCharts_CheckedChanged(object sender, EventArgs e) { btnExportToExcel.Enabled = chkGeneral.Checked || chkMonitorData.Checked || chkSpecialized.Checked; }
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                btnExportToExcel.Enabled = cboStresstest.Enabled = chkMonitorDataToDifferentFiles.Enabled = false;
+                btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = chkMonitorDataToDifferentFiles.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
                 int selectedIndex = cboStresstest.SelectedIndex;
+
+                bool general = chkGeneral.Checked;
+                bool monitorData = chkMonitorData.Checked;
                 bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
+                bool specialized = chkSpecialized.Checked;
 
                 string fileNameWithoutExtension = saveFileDialog.FileName;
                 if (fileNameWithoutExtension.EndsWith(".xlsx"))
@@ -141,64 +146,88 @@ namespace vApus.Stresstest {
                                 }
                             }
                         }
-
+                        stresstestsDt = null;
 
                         string firstWorksheet = null;
                         int worksheetIndex = 1; //Just for a unique sheet name
                         foreach (int stresstestId in stresstests.Keys) {
-                            //For some strange reason the doubles are changed to string.
-                            var overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
-                            var avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
-                            var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
-                            var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId); ;
-                            var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
-
                             string stresstest = stresstests[stresstestId];
-                            string fws = MakeCumulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
-                            if (firstWorksheet == null) firstWorksheet = fws;
 
-                            MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
+                            //Save general stuff
+                            //----------
+                            if (general) {
+                                //For some strange reason the doubles are changed to string.
+                                var overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
+                                var avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
+                                var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
+                                var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
 
-                            int rangeWidth, rangeOffset, rangeHeight;
-                            MakeWorksheet(doc, avgUserActions, worksheetIndex++, stresstest + " - Average User Actions", out rangeWidth, out rangeOffset, out rangeHeight);
-                            MakeWorksheet(doc, errors, worksheetIndex++, stresstest + " - Errors", out rangeWidth, out rangeOffset, out rangeHeight);
-                            MakeUserActionCompositionSheet(doc, userActionComposition, worksheetIndex++, stresstest + " - User Action Composition");
 
-                            //An ugly piece of code to make 'export monitor data to different excel files' work.
-                            try {
-                                foreach (DataTable monitorDt in monitors)
-                                    if (monitorDt.Rows.Count != 0) {
-                                        var monitor = monitorDt.Rows[0].ItemArray[1];
+                                string worksheet = MakeCumulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
+                                if (firstWorksheet == null) firstWorksheet = worksheet;
 
-                                        if (monitorDataToDifferentFiles) {
-                                            SLDocument monitorDoc = new SLDocument();
-                                            var monitorSheet = MakeMonitorSheet(monitorDoc, monitorDt, 1, stresstest + " - " + monitor);
-                                            try { monitorDoc.SelectWorksheet(monitorSheet); } catch { }
-                                            try { monitorDoc.DeleteWorksheet("Sheet1"); } catch { }
+                                MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
 
-                                            string monitorFileName = fileNameWithoutExtension + "_" + monitor.ToString().ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
-                                            monitorDoc.SaveAs(monitorFileName);
+                                int rangeWidth, rangeOffset, rangeHeight;
+                                MakeWorksheet(doc, avgUserActions, worksheetIndex++, stresstest + " - Average User Actions", out rangeWidth, out rangeOffset, out rangeHeight);
+                                MakeWorksheet(doc, errors, worksheetIndex++, stresstest + " - Errors", out rangeWidth, out rangeOffset, out rangeHeight);
+                                MakeUserActionCompositionSheet(doc, userActionComposition, worksheetIndex++, stresstest + " - User Action Composition");
 
-                                        } else {
-                                            MakeMonitorSheet(doc, monitorDt, worksheetIndex++, stresstest + " - " + monitor);
+                                overview = null;
+                                avgUserActions = null;
+                                errors = null;
+                                userActionComposition = null;
+                            }
+
+                            //Save monitor stuff
+                            //----------
+                            if (monitorData) {
+                                var monitors = _resultsHelper.GetMonitorResults(_cancellationTokenSource.Token, stresstestId);
+                                //An ugly piece of code to make 'export monitor data to different excel files' work.
+                                try {
+                                    foreach (DataTable monitorDt in monitors)
+                                        if (monitorDt.Rows.Count != 0) {
+                                            var monitor = monitorDt.Rows[0].ItemArray[1];
+
+                                            if (monitorDataToDifferentFiles) {
+                                                SLDocument monitorDoc = new SLDocument();
+                                                var monitorSheet = MakeMonitorSheet(monitorDoc, monitorDt, 1, stresstest + " - " + monitor);
+                                                try { monitorDoc.SelectWorksheet(monitorSheet); } catch { }
+                                                try { monitorDoc.DeleteWorksheet("Sheet1"); } catch { }
+
+                                                string monitorFileName = fileNameWithoutExtension + "_" + monitor.ToString().ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
+                                                monitorDoc.SaveAs(monitorFileName);
+
+                                            } else {
+                                                string worksheet = MakeMonitorSheet(doc, monitorDt, worksheetIndex++, stresstest + " - " + monitor);
+                                                if (firstWorksheet == null) firstWorksheet = worksheet;
+                                            }
                                         }
-
-                                    }
-                            } catch {
-                                MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                break;
+                                } catch {
+                                    MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    break;
+                                }
+                                monitors = null;
                             }
                         }
 
-                        int[] stresstestIds = new int[stresstests.Count];
-                        stresstests.Keys.CopyTo(stresstestIds, 0);
-                        Dictionary<string, List<string>> concurrencyAndRuns;
-                        var runsOverTimeDt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out concurrencyAndRuns, stresstestIds); //This one is special, it is for multiple tests by default.
+                        //Save specialized stuff
+                        //----------
+                        if (specialized) {
+                            int[] stresstestIds = new int[stresstests.Count];
+                            stresstests.Keys.CopyTo(stresstestIds, 0);
+                            Dictionary<string, List<string>> concurrencyAndRuns;
+                            var runsOverTimeDt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out concurrencyAndRuns, stresstestIds); //This one is special, it is for multiple tests by default.
 
-                        MakeRunsOverTimeSheet(doc, runsOverTimeDt, concurrencyAndRuns);
+                            string worksheet = MakeRunsOverTimeSheet(doc, runsOverTimeDt, concurrencyAndRuns);
+                            if (firstWorksheet == null) firstWorksheet = worksheet;
+                            runsOverTimeDt = null;
+                        }
 
-                        try { doc.SelectWorksheet(firstWorksheet); } catch { }
-                        try { doc.DeleteWorksheet("Sheet1"); } catch { }
+                        if (firstWorksheet != null) {
+                            try { doc.SelectWorksheet(firstWorksheet); } catch { }
+                            try { doc.DeleteWorksheet("Sheet1"); } catch { }
+                        }
                         try { doc.SaveAs(saveFileDialog.FileName); } catch {
                             MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
@@ -208,7 +237,9 @@ namespace vApus.Stresstest {
                 }, _cancellationTokenSource.Token);
 
                 btnExportToExcel.Text = "Export to Excel...";
-                btnExportToExcel.Enabled = cboStresstest.Enabled = chkMonitorDataToDifferentFiles.Enabled = true;
+                btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = chkMonitorDataToDifferentFiles.Enabled = true;
+
+                GC.Collect();
             }
         }
 

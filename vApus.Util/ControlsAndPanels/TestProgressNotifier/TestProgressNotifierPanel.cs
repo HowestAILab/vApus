@@ -19,7 +19,6 @@ namespace vApus.Util {
     /// By using this panel you can set the behaviour of test progress notification and to which e-mail address notifications need to be sent. Used in the OptionsDialog.
     /// </summary>
     public partial class TestProgressNotifierPanel : Panel {
-
         #region Constructor
         /// <summary>
         /// By using this panel you can set the behaviour of test progress notification and to which e-mail address notifications need to be sent. Used in the OptionsDialog.
@@ -64,17 +63,6 @@ namespace vApus.Util {
         private void nudPort_ValueChanged(object sender, EventArgs e) {
             EnableOrDisableSavebtn();
             EnableOrDisableClearbtn();
-        }
-
-        private void txtPassword_Enter(object sender, EventArgs e) {
-            if (txtPassword.Text.Length == 0)
-                txtPassword.UseSystemPasswordChar = true;
-            else if (txtPassword.ForeColor != Color.DimGray && !txtPassword.UseSystemPasswordChar)
-                txtPassword.Text = string.Empty;
-        }
-        private void txtPassword_Leave(object sender, EventArgs e) {
-            if (txtPassword.ForeColor == Color.DimGray)
-                txtPassword.UseSystemPasswordChar = false;
         }
 
         private void btnEnableDisable_Click(object sender, EventArgs e) {
@@ -128,14 +116,6 @@ namespace vApus.Util {
             txtUsername.Text = Settings.Default.PNUsername;
             txtPassword.Text = Settings.Default.PNPassword.Decrypt(TestProgressNotifier.PasswordGUID, TestProgressNotifier.Salt);
             txtSmtp.Text = Settings.Default.PNSMTP;
-
-            txtEmailaddress.EmptyTextBoxLabel = "E-Mail Address";
-            txtSmtp.EmptyTextBoxLabel = "smtp.foo.bar";
-            txtUsername.EmptyTextBoxLabel = "Username (optional)";
-            txtPassword.EmptyTextBoxLabel = "Password (optional)";
-
-            if (txtPassword.ForeColor == Color.DimGray)
-                txtPassword.UseSystemPasswordChar = false;
 
             nudPort.Value = Settings.Default.PNPort;
             chkSecure.Checked = Settings.Default.PNSecure;
@@ -215,14 +195,6 @@ namespace vApus.Util {
             chkWhenTestFinished.CheckedChanged -= chk_CheckedChanged;
 
             txtEmailaddress.Text = txtUsername.Text = txtPassword.Text = txtSmtp.Text = string.Empty;
-
-            txtEmailaddress.EmptyTextBoxLabel = "E-Mail Address";
-            txtSmtp.EmptyTextBoxLabel = "smtp.foo.bar";
-            txtUsername.EmptyTextBoxLabel = "Username (optional)";
-            txtPassword.EmptyTextBoxLabel = "Password (optional)";
-
-            if (txtPassword.ForeColor == Color.DimGray)
-                txtPassword.UseSystemPasswordChar = false;
 
             nudPort.Value = 0;
             chkSecure.Checked = chkAfterRun.Checked = chkAfterConcurrency.Checked = chkWhenTestFinished.Checked = false;
