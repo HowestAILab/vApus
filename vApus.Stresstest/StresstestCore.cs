@@ -272,7 +272,12 @@ namespace vApus.Stresstest {
                 throw ex;
             }
 
-            _log = LogTimesOccurancies(_stresstest.Log, _stresstest.Distribute);
+            if (_stresstest.ActionDistribution)
+                _log = LogTimesOccurancies(_stresstest.Log);
+            else {
+                _log = _stresstest.Log;
+                _log.ApplyLogRuleSet();
+            }
 
             //Parallel connections, check per user action
             _parallelConnectionsModifier = 0;
@@ -288,60 +293,54 @@ namespace vApus.Stresstest {
                     logEntries.Add(item as LogEntry);
 
             _logEntries = logEntries.ToArray();
-            int actionCount = _stresstest.Distribute == UserActionDistribution.Fast ? _stresstest.Log.Count : _log.Count; //Needed for fast log entry distribution
+            int actionCount = _stresstest.MaximumNumberOfUserActions == 0  ? _log.Count : _stresstest.MaximumNumberOfUserActions;
 
-            _testPatternsAndDelaysGenerator = new TestPatternsAndDelaysGenerator(_logEntries, actionCount, _stresstest.Shuffle, _stresstest.Distribute, _stresstest.MinimumDelay, _stresstest.MaximumDelay);
+            _testPatternsAndDelaysGenerator = new TestPatternsAndDelaysGenerator(_logEntries, actionCount, _stresstest.Shuffle, _stresstest.MinimumDelay, _stresstest.MaximumDelay);
             _sw.Stop();
             InvokeMessage(string.Format(" ...Log Initialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
         }
         /// <summary>
-        ///     Expands the log (into a new one) times the occurance, this is only done if the Action Distribution is not equal to none.
-        ///     Otherwise the original on is returned.
+        ///     Expands the log (into a new one) times the occurance.
         ///     This also applies the log ruleset.
         /// </summary>
         /// <returns></returns>
-        private Log LogTimesOccurancies(Log log, UserActionDistribution distribute) {
-            if (distribute == UserActionDistribution.None) {
-                log.ApplyLogRuleSet();
-                return log;
-            } else {
-                Log newLog = log.Clone(false, false);
-                var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
-                foreach (UserAction action in log) {
-                    var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
-                    for (int i = 0; i != action.Occurance; i++) {
-                        var actionClone = new UserAction(action.Label);
-                        actionClone.Occurance = 1; //Must be one now, this value doesn't matter anymore.
-                        actionClone.Pinned = action.Pinned;
+        private Log LogTimesOccurancies(Log log) {
+            Log newLog = log.Clone(false, false);
+            var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
+            foreach (UserAction action in log) {
+                var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
+                for (int i = 0; i != action.Occurance; i++) {
+                    var actionClone = new UserAction(action.Label);
+                    actionClone.Occurance = 1; //Must be one now, this value doesn't matter anymore.
+                    actionClone.Pinned = action.Pinned;
 
-                        bool canAddClones = firstEntryClones.Count == 0;
-                        int logEntryIndex = 0;
-                        foreach (LogEntry child in action) {
-                            LogEntry childClone = child.Clone(log.LogRuleSet, true);
+                    bool canAddClones = firstEntryClones.Count == 0;
+                    int logEntryIndex = 0;
+                    foreach (LogEntry child in action) {
+                        LogEntry childClone = child.Clone(log.LogRuleSet, true);
 
-                            if (canAddClones)
-                                firstEntryClones.Add(childClone);
-                            else
-                                childClone.SameAs = firstEntryClones[logEntryIndex];
+                        if (canAddClones)
+                            firstEntryClones.Add(childClone);
+                        else
+                            childClone.SameAs = firstEntryClones[logEntryIndex];
 
-                            actionClone.AddWithoutInvokingEvent(childClone, false);
-                            ++logEntryIndex;
-                        }
+                        actionClone.AddWithoutInvokingEvent(childClone, false);
+                        ++logEntryIndex;
+                    }
 
-                        newLog.AddWithoutInvokingEvent(actionClone, false);
+                    newLog.AddWithoutInvokingEvent(actionClone, false);
 
-                        if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
-                            linkCloned.Add(action, actionClone);
-                        } else {
-                            UserAction linkUserAction;
-                            if (action.IsLinked(out linkUserAction) && linkCloned.ContainsKey(linkUserAction))
-                                linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newLog.IndexOf(actionClone) + 1);
-                        }
+                    if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
+                        linkCloned.Add(action, actionClone);
+                    } else {
+                        UserAction linkUserAction;
+                        if (action.IsLinked(out linkUserAction) && linkCloned.ContainsKey(linkUserAction))
+                            linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newLog.IndexOf(actionClone) + 1);
                     }
                 }
-                return newLog;
             }
+            return newLog;
         }
 
         private void InitializeConnectionProxyPool() {

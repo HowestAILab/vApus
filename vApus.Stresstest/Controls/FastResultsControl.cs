@@ -128,12 +128,12 @@ namespace vApus.Stresstest {
             SetConfigurationControlsAndMonitorLinkButtons(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy,
                                      stresstest.Log, stresstest.LogRuleSet,
                                      stresstest.Monitors, stresstest.Concurrencies, stresstest.Runs,
-                                     stresstest.MinimumDelay,
-                                     stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute,
+                                     stresstest.MinimumDelay, stresstest.MaximumDelay, stresstest.Shuffle,
+                                     stresstest.ActionDistribution, stresstest.MaximumNumberOfUserActions,
                                      stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
         public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
-                                             int runs, int minimumDelay, int maximumDelay, bool shuffle, UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
+                                             int runs, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter) {
             kvpStresstest.Key = stresstest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
@@ -175,7 +175,8 @@ namespace vApus.Stresstest {
                                   ? minimumDelay.ToString()
                                   : minimumDelay + " - " + maximumDelay) + " ms";
             kvpShuffle.Value = shuffle ? "Yes" : "No";
-            kvpDistribute.Value = distribute.ToString();
+            kvpActionDistribution.Value = actionDistribution ? "Yes" : "No";
+            kvpMaximumNumberOfUserActions.Value = maximumNumberOfUserActions == 0 ? "N/A" : maximumNumberOfUserActions.ToString();
             kvpMonitorBefore.Value = monitorBefore + (monitorBefore == 1 ? " minute" : " minutes");
             kvpMonitorAfter.Value = monitorAfter + (monitorAfter == 1 ? " minute" : " minutes");
 

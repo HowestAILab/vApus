@@ -19,7 +19,6 @@ namespace vApus.Stresstest {
         private readonly LogEntry[] _logEntries;
         private readonly int _maxActionCount, _maximumDelay, _minimumDelay;
         private readonly bool _shuffleUserActions;
-        private UserActionDistribution _userActionDistribution;
 
         //Representation of the user actions (List<int>) containing log entry indices.
         private List<List<int>> _actions;
@@ -43,11 +42,10 @@ namespace vApus.Stresstest {
         /// <param name="userActionDistribution"></param>
         /// <param name="minimumDelay"></param>
         /// <param name="maximumDelay"></param>
-        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount, bool shuffleUserActions, UserActionDistribution userActionDistribution, int minimumDelay, int maximumDelay) {
+        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount, bool shuffleUserActions, int minimumDelay, int maximumDelay) {
             _logEntries = logEntries;
             _maxActionCount = maxActionCount;
             _shuffleUserActions = shuffleUserActions;
-            _userActionDistribution = userActionDistribution;
             _minimumDelay = minimumDelay;
             _maximumDelay = maximumDelay;
 

@@ -21,13 +21,6 @@ namespace vApus.Stresstest {
     }
 
     [Serializable]
-    public enum UserActionDistribution {
-        None = 0,
-        Fast = 1,
-        Full = 2
-    }
-
-    [Serializable]
     public enum RunSynchronization {
         None = 0,
         [Description("Break on first finished")]

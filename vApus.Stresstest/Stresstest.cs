@@ -30,7 +30,8 @@ namespace vApus.Stresstest {
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
-        private UserActionDistribution _distribute;
+        private bool _actionDistribution;
+        private int _maximumNumberOfUserActions;
         private Connection _connection;
         private Log _log;
 
@@ -251,23 +252,36 @@ namespace vApus.Stresstest {
             set { _maximumDelay = value; }
         }
 
-        [Description("The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
+        [Description("The user actions will be shuffled for each concurrent user when testing.")]
         [SavableCloneable, PropertyControl(7)]
         public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
         }
 
-        [Description("Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance.")]
+        [Description("When this is used, user actions are executed X times its occurance. You can use 'Shuffle' and 'Maximum Number of User Actions' in combination with this to define unique test patterns for each user."),
+        DisplayName("Action Distribution")]
         [SavableCloneable, PropertyControl(8, true)]
-        public UserActionDistribution Distribute {
-            get { return _distribute; }
-            set { _distribute = value; }
+        public bool ActionDistribution {
+            get { return _actionDistribution; }
+            set { _actionDistribution = value; }
+        }
+
+        [Description("The maximum number of user actions that a test pattern for a user can contain. Pinned actions however are always picked. Set this to zero to not use this."),
+        DisplayName("Maximum Number of User Actions")]
+        [SavableCloneable, PropertyControl(9, true)]
+        public int MaximumNumberOfUserActions {
+            get { return _maximumNumberOfUserActions; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
+                _maximumNumberOfUserActions = value;
+            }
         }
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."),
          DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(9, true)]
+        [SavableCloneable, PropertyControl(10, true)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -281,7 +295,7 @@ namespace vApus.Stresstest {
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."),
          DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(10, true)]
+        [SavableCloneable, PropertyControl(11, true)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {

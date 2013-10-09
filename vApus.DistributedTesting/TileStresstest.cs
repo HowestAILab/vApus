@@ -191,7 +191,8 @@ namespace vApus.DistributedTesting {
                 stresstest.ForDistributedTest = true;
                 stresstest.IsDividedStresstest = DividedStresstestIndex != null;
                 stresstest.ShowInGui = false;
-                stresstest.Distribute = AdvancedTileStresstest.Distribute;
+                stresstest.ActionDistribution = AdvancedTileStresstest.ActionDistribution;
+                stresstest.MaximumNumberOfUserActions = AdvancedTileStresstest.MaximumNumberOfUserActions;
                 stresstest.Concurrencies = AdvancedTileStresstest.Concurrencies;
 
                 var connections = new Connections();

@@ -214,7 +214,7 @@ namespace vApus.DistributedTesting {
                        tstvi.TileStresstest.BasicTileStresstest.ConnectionProxy, tstvi.TileStresstest.AdvancedTileStresstest.Log, tstvi.TileStresstest.AdvancedTileStresstest.LogRuleSet,
                        tstvi.TileStresstest.BasicTileStresstest.Monitors, tstvi.TileStresstest.AdvancedTileStresstest.Concurrencies, tstvi.TileStresstest.AdvancedTileStresstest.Runs,
                        tstvi.TileStresstest.AdvancedTileStresstest.MinimumDelay, tstvi.TileStresstest.AdvancedTileStresstest.MaximumDelay, tstvi.TileStresstest.AdvancedTileStresstest.Shuffle,
-                       tstvi.TileStresstest.AdvancedTileStresstest.Distribute, tstvi.TileStresstest.AdvancedTileStresstest.MonitorBefore, tstvi.TileStresstest.AdvancedTileStresstest.MonitorAfter);
+                       tstvi.TileStresstest.AdvancedTileStresstest.ActionDistribution, tstvi.TileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions, tstvi.TileStresstest.AdvancedTileStresstest.MonitorBefore, tstvi.TileStresstest.AdvancedTileStresstest.MonitorAfter);
                     fastResultsControl.ClearEvents();
 
                     if (_distributedTestCore != null) {

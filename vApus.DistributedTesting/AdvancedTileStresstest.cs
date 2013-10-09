@@ -20,7 +20,8 @@ namespace vApus.DistributedTesting {
         #region Fields
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private Stresstest.Stresstest _defaultSettingsTo;
-        private UserActionDistribution _distribute;
+        private bool _actionDistribution;
+        private int _maximumNumberOfUserActions;
         protected internal Log _log;
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorAfter, _monitorBefore;
         private bool _shuffle = true;
@@ -127,22 +128,35 @@ namespace vApus.DistributedTesting {
             set { _maximumDelay = value; }
         }
 
-        [Description("The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
+        [Description("The user actions will be shuffled for each concurrent user when testing.")]
         [SavableCloneable, PropertyControl(5)]
         public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
         }
 
-        [Description("Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance.")]
+        [Description("When this is used, user actions are executed X times its occurance. You can use 'Shuffle' and 'Maximum Number of User Actions' in combination with this to define unique test patterns for each user."),
+        DisplayName("Action Distribution")]
         [SavableCloneable, PropertyControl(6)]
-        public UserActionDistribution Distribute {
-            get { return _distribute; }
-            set { _distribute = value; }
+        public bool ActionDistribution {
+            get { return _actionDistribution; }
+            set { _actionDistribution = value; }
+        }
+
+        [Description("This sets the maximum number of user actions that a test pattern for a user can contain. Pinned actions however are always picked. Set this to zero to not use this."),
+        DisplayName("Maximum Number of User Actions")]
+        [SavableCloneable, PropertyControl(7)]
+        public int MaximumNumberOfUserActions {
+            get { return _maximumNumberOfUserActions; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
+                _maximumNumberOfUserActions = value;
+            }
         }
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(7)]
+        [SavableCloneable, PropertyControl(8)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -155,7 +169,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(8)]
+        [SavableCloneable, PropertyControl(9)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
@@ -220,7 +234,8 @@ namespace vApus.DistributedTesting {
             _minimumDelay = _defaultSettingsTo.MinimumDelay;
             _maximumDelay = _defaultSettingsTo.MaximumDelay;
             _shuffle = _defaultSettingsTo.Shuffle;
-            _distribute = _defaultSettingsTo.Distribute;
+            _actionDistribution = _defaultSettingsTo.ActionDistribution;
+            _maximumNumberOfUserActions = _defaultSettingsTo.MaximumNumberOfUserActions;
             _monitorBefore = _defaultSettingsTo.MonitorBefore;
             _monitorAfter = _defaultSettingsTo.MonitorAfter;
 
@@ -241,7 +256,8 @@ namespace vApus.DistributedTesting {
             clone.MinimumDelayOverride = _minimumDelay;
             clone.MaximumDelayOverride = _maximumDelay;
             clone.Shuffle = _shuffle;
-            clone.Distribute = _distribute;
+            clone.ActionDistribution = _actionDistribution;
+            clone.MaximumNumberOfUserActions = _maximumNumberOfUserActions;
             clone.MonitorBefore = _monitorBefore;
             clone.MonitorAfter = _monitorAfter;
             return clone;

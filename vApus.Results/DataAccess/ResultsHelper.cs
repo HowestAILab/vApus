@@ -137,16 +137,16 @@ namespace vApus.Results {
         /// <param name="monitorAfterInMinutes"></param>
         /// <returns>Id of the stresstest. 0 if BuildSchemaAndConnect was not called.</returns>
         public int SetStresstest(string stresstest, string runSynchronization, string connection, string connectionProxy, string connectionString, string log, string logRuleSet, int[] concurrencies, int runs,
-                                         int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle, string distribute, int monitorBeforeInMinutes, int monitorAfterInMinutes) {
+                                         int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBeforeInMinutes, int monitorAfterInMinutes) {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
                         string.Format(@"INSERT INTO stresstests(vApusInstanceId, Stresstest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Log, LogRuleSet, Concurrencies, Runs,
-MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, Distribute, MonitorBeforeInMinutes, MonitorAfterInMinutes)
-VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}')",
+MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, ActionDistribution, MaximumNumberOfUserActions, MonitorBeforeInMinutes, MonitorAfterInMinutes)
+VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}')",
                                       _vApusInstanceId, stresstest, runSynchronization, connection, connectionProxy, connectionString.Encrypt(_passwordGUID, _salt), log, logRuleSet,
-                                      concurrencies.Combine(", "), runs, minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, distribute,
-                                      monitorBeforeInMinutes, monitorAfterInMinutes)
+                                      concurrencies.Combine(", "), runs, minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, actionDistribution ? 1 : 0,
+                                      maximumNumberOfUserActions, monitorBeforeInMinutes, monitorAfterInMinutes)
                         );
                     _stresstestId = (int)_databaseActions.GetLastInsertId();
                     return _stresstestId;
@@ -447,28 +447,54 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         }
         public List<KeyValuePair<string, string>> GetStresstestConfigurations() {
             lock (_lock) {
-                var l = new List<KeyValuePair<string, string>>();
-                if (_databaseActions != null) {
-                    var dt = ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions);
-                    foreach (DataRow row in dt.Rows) {
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[2] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>("RunSynchronization", row.ItemArray[3] as string));
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[4] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[5] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[7] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>(row.ItemArray[8] as string, string.Empty));
-                        l.Add(new KeyValuePair<string, string>("Concurrencies", row.ItemArray[9] as string));
-                        l.Add(new KeyValuePair<string, string>("Runs", row.ItemArray[10].ToString()));
-                        int minDelay = (int)row.ItemArray[11];
-                        int maxDelay = (int)row.ItemArray[12];
-                        l.Add(new KeyValuePair<string, string>("Delay", minDelay == maxDelay ? minDelay + " ms" : minDelay + " - " + maxDelay + " ms"));
-                        l.Add(new KeyValuePair<string, string>("Shuffle", ((bool)row.ItemArray[13]) ? "Yes" : "No"));
-                        l.Add(new KeyValuePair<string, string>("Distribute", row.ItemArray[14] as string));
-                        l.Add(new KeyValuePair<string, string>("Monitor Before", row.ItemArray[15] + " minutes"));
-                        l.Add(new KeyValuePair<string, string>("Monitor After", row.ItemArray[16] + " minutes"));
+                try {
+                    var l = new List<KeyValuePair<string, string>>();
+                    if (_databaseActions != null) {
+                        var dt = ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions);
+                        foreach (DataRow row in dt.Rows) {
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[2] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>("Run Synchronization", row.ItemArray[3] as string));
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[4] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[5] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[7] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[8] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>("Concurrencies", row.ItemArray[9] as string));
+                            l.Add(new KeyValuePair<string, string>("Runs", row.ItemArray[10].ToString()));
+                            int minDelay = (int)row.ItemArray[11];
+                            int maxDelay = (int)row.ItemArray[12];
+                            l.Add(new KeyValuePair<string, string>("Delay", minDelay == maxDelay ? minDelay + " ms" : minDelay + " - " + maxDelay + " ms"));
+                            l.Add(new KeyValuePair<string, string>("Shuffle", ((bool)row.ItemArray[13]) ? "Yes" : "No"));
+                            l.Add(new KeyValuePair<string, string>("Action Distribution", ((bool)row.ItemArray[14]) ? "Yes" : "No"));
+                            l.Add(new KeyValuePair<string, string>("Maximum Number of User Actions", ((int)row.ItemArray[15]) == 0 ? "N/A" : ((int)row.ItemArray[15]).ToString()));
+                            l.Add(new KeyValuePair<string, string>("Monitor Before", row.ItemArray[16] + " minutes"));
+                            l.Add(new KeyValuePair<string, string>("Monitor After", row.ItemArray[17] + " minutes"));
+                        }
                     }
+                    return l;
+                } catch { //backwards compatible
+                    var l = new List<KeyValuePair<string, string>>();
+                    if (_databaseActions != null) {
+                        var dt = ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions);
+                        foreach (DataRow row in dt.Rows) {
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[2] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>("Run Synchronization", row.ItemArray[3] as string));
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[4] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[5] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[7] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>(row.ItemArray[8] as string, string.Empty));
+                            l.Add(new KeyValuePair<string, string>("Concurrencies", row.ItemArray[9] as string));
+                            l.Add(new KeyValuePair<string, string>("Runs", row.ItemArray[10].ToString()));
+                            int minDelay = (int)row.ItemArray[11];
+                            int maxDelay = (int)row.ItemArray[12];
+                            l.Add(new KeyValuePair<string, string>("Delay", minDelay == maxDelay ? minDelay + " ms" : minDelay + " - " + maxDelay + " ms"));
+                            l.Add(new KeyValuePair<string, string>("Shuffle", ((bool)row.ItemArray[13]) ? "Yes" : "No"));
+                            l.Add(new KeyValuePair<string, string>("Distribute", row.ItemArray[14] as string));
+                            l.Add(new KeyValuePair<string, string>("Monitor Before", row.ItemArray[15] + " minutes"));
+                            l.Add(new KeyValuePair<string, string>("Monitor After", row.ItemArray[16] + " minutes"));
+                        }
+                    }
+                    return l;
                 }
-                return l;
             }
         }
         public List<string> GetMonitors() {

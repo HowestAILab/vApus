@@ -254,8 +254,8 @@ namespace vApus.DistributedTesting {
                 _resultsHelper.SetvApusInstance(slave.HostName, slave.IP, slave.Port, string.Empty, string.Empty, false);
                 int id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
                           ts.BasicTileStresstest.Connection.ConnectionString, ts.AdvancedTileStresstest.Log.ToString(), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
-                          ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.Distribute.ToString(),
-                          ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
+                          ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.ActionDistribution,
+                          ts.AdvancedTileStresstest.MaximumNumberOfUserActions, ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
                 _tileStresstestsWithDbIds.Add(ts, id);
             }
 
@@ -577,7 +577,8 @@ namespace vApus.DistributedTesting {
                                                     tileStresstest.AdvancedTileStresstest.MinimumDelay,
                                                     tileStresstest.AdvancedTileStresstest.MaximumDelay,
                                                     tileStresstest.AdvancedTileStresstest.Shuffle,
-                                                    tileStresstest.AdvancedTileStresstest.Distribute,
+                                                    tileStresstest.AdvancedTileStresstest.ActionDistribution,
+                                                    tileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions,
                                                     tileStresstest.AdvancedTileStresstest.MonitorBefore,
                                                     tileStresstest.AdvancedTileStresstest.MonitorAfter);
 

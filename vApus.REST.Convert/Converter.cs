@@ -22,7 +22,7 @@ namespace vApus.REST.Convert {
 
         public static void SetTestConfig(ConverterCollection testConfigCache, string runSynchronization, string tileStresstest, Connection connection, string connectionProxy,
                                          Monitor.Monitor[] monitors, string slave, Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay,
-                                         int maximumDelay, bool shuffle, UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
+                                         int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserAction, int monitorBefore, int monitorAfter) {
             if (testConfigCache.Count == 0)
                 testConfigCache.Add("RunSynchronization", runSynchronization);
 
@@ -42,7 +42,8 @@ namespace vApus.REST.Convert {
                 MinimumDelayInMS = minimumDelay,
                 MaximumDelayInMS = maximumDelay,
                 Shuffle = shuffle,
-                Distribute = distribute.ToString(),
+                ActionDistribution = actionDistribution,
+                MaximumNumberOfUserActions = maximumNumberOfUserAction,
                 MonitorBeforeInMinutes = monitorBefore,
                 MonitorAfterInMinutes = monitorAfter
             };
@@ -133,15 +134,15 @@ namespace vApus.REST.Convert {
         public struct TestConfig {
             public int[] Concurrency;
             public string Connection, ConnectionProxy;
-            public string Distribute;
             public string Log, LogRuleSet;
             public int MaximumDelayInMS;
             public int MinimumDelayInMS;
             public int MonitorAfterInMinutes;
             public int MonitorBeforeInMinutes;
+            public int MaximumNumberOfUserActions;
             public string[] Monitors;
             public int Run;
-            public bool Shuffle;
+            public bool Shuffle, ActionDistribution;
             public string Slave;
         }
 

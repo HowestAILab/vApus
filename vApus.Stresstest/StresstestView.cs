@@ -164,7 +164,7 @@ namespace vApus.Stresstest {
 
                 _resultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(), _stresstest.ConnectionProxy, _stresstest.Connection.ConnectionString,
                                             _stresstest.Log.ToString(), _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay,
-                                            _stresstest.MaximumDelay, _stresstest.Shuffle, _stresstest.Distribute.ToString(), _stresstest.MonitorBefore, _stresstest.MonitorAfter);
+                                            _stresstest.MaximumDelay, _stresstest.Shuffle, _stresstest.ActionDistribution, _stresstest.MaximumNumberOfUserActions, _stresstest.MonitorBefore, _stresstest.MonitorAfter);
 
 
                 if (_stresstest.Monitors.Length == 0) {
