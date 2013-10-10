@@ -101,7 +101,10 @@ namespace vApus.Stresstest {
             }
         }
 
-        private void chkCharts_CheckedChanged(object sender, EventArgs e) { btnExportToExcel.Enabled = chkGeneral.Checked || chkMonitorData.Checked || chkSpecialized.Checked; }
+        private void chkCharts_CheckedChanged(object sender, EventArgs e) { 
+            btnExportToExcel.Enabled = chkGeneral.Checked || chkMonitorData.Checked || chkSpecialized.Checked;
+            chkMonitorDataToDifferentFiles.ForeColor = chkMonitorData.Checked ? Color.Black : SystemColors.GrayText;
+        }
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = chkMonitorDataToDifferentFiles.Enabled = false;

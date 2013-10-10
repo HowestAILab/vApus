@@ -38,6 +38,7 @@
             this.chkMonitorDataToDifferentFiles = new System.Windows.Forms.CheckBox();
             this.lblDescription = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.chkMonitorData = new System.Windows.Forms.CheckBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorderStresstest = new System.Windows.Forms.Panel();
@@ -45,7 +46,6 @@
             this.flpMonitors = new System.Windows.Forms.FlowLayoutPanel();
             this.flpSpecialized = new System.Windows.Forms.FlowLayoutPanel();
             this.chkGeneral = new System.Windows.Forms.CheckBox();
-            this.chkMonitorData = new System.Windows.Forms.CheckBox();
             this.chkSpecialized = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).BeginInit();
             this.flpGeneral.SuspendLayout();
@@ -204,6 +204,7 @@
             // 
             this.chkMonitorDataToDifferentFiles.Checked = true;
             this.chkMonitorDataToDifferentFiles.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkMonitorDataToDifferentFiles.ForeColor = System.Drawing.SystemColors.GrayText;
             this.chkMonitorDataToDifferentFiles.Location = new System.Drawing.Point(153, 6);
             this.chkMonitorDataToDifferentFiles.Name = "chkMonitorDataToDifferentFiles";
             this.chkMonitorDataToDifferentFiles.Size = new System.Drawing.Size(166, 89);
@@ -223,6 +224,20 @@
             this.lblDescription.TabIndex = 8;
             this.lblDescription.Text = "Charts and data will be exported to one or more Excel files.\r\nBelow you can see e" +
     "xamples of the different sheets that the document(s) will contain.";
+            // 
+            // chkMonitorData
+            // 
+            this.chkMonitorData.AutoSize = true;
+            this.chkMonitorData.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkMonitorData.Location = new System.Drawing.Point(12, 204);
+            this.chkMonitorData.Name = "chkMonitorData";
+            this.chkMonitorData.Size = new System.Drawing.Size(99, 17);
+            this.chkMonitorData.TabIndex = 22;
+            this.chkMonitorData.TabStop = false;
+            this.chkMonitorData.Text = "Monitor Data";
+            this.toolTip.SetToolTip(this.chkMonitorData, "If any...");
+            this.chkMonitorData.UseVisualStyleBackColor = true;
+            this.chkMonitorData.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
             // 
             // pictureBox2
             // 
@@ -254,7 +269,7 @@
             this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
             this.pnlBorderStresstest.Location = new System.Drawing.Point(162, 489);
             this.pnlBorderStresstest.Name = "pnlBorderStresstest";
-            this.pnlBorderStresstest.Size = new System.Drawing.Size(485, 23);
+            this.pnlBorderStresstest.Size = new System.Drawing.Size(430, 23);
             this.pnlBorderStresstest.TabIndex = 0;
             // 
             // cboStresstest
@@ -269,7 +284,7 @@
             this.cboStresstest.Location = new System.Drawing.Point(1, 1);
             this.cboStresstest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboStresstest.Name = "cboStresstest";
-            this.cboStresstest.Size = new System.Drawing.Size(483, 21);
+            this.cboStresstest.Size = new System.Drawing.Size(428, 21);
             this.cboStresstest.TabIndex = 0;
             // 
             // flpMonitors
@@ -312,27 +327,9 @@
             this.chkGeneral.UseVisualStyleBackColor = true;
             this.chkGeneral.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
             // 
-            // chkMonitorData
-            // 
-            this.chkMonitorData.AutoSize = true;
-            this.chkMonitorData.Checked = true;
-            this.chkMonitorData.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkMonitorData.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkMonitorData.Location = new System.Drawing.Point(12, 204);
-            this.chkMonitorData.Name = "chkMonitorData";
-            this.chkMonitorData.Size = new System.Drawing.Size(99, 17);
-            this.chkMonitorData.TabIndex = 22;
-            this.chkMonitorData.TabStop = false;
-            this.chkMonitorData.Text = "Monitor Data";
-            this.toolTip.SetToolTip(this.chkMonitorData, "If any...");
-            this.chkMonitorData.UseVisualStyleBackColor = true;
-            this.chkMonitorData.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
-            // 
             // chkSpecialized
             // 
             this.chkSpecialized.AutoSize = true;
-            this.chkSpecialized.Checked = true;
-            this.chkSpecialized.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkSpecialized.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkSpecialized.Location = new System.Drawing.Point(15, 343);
             this.chkSpecialized.Name = "chkSpecialized";
