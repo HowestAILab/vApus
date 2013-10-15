@@ -595,6 +595,8 @@ namespace vApus.Stresstest {
                             InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
                             _manyToOneWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
+                        } else {
+                            SetRunStopped();
                         }
                     }
                         //Wait here when the run is broken untill the master sends continue when using run sync.
