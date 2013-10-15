@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using vApus.SolutionTree;
 using vApus.Stresstest;
@@ -22,30 +23,114 @@ namespace vApus.DistributedTesting {
         private Stresstest.Stresstest _defaultSettingsTo;
         private bool _actionDistribution;
         private int _maximumNumberOfUserActions;
-        protected internal Log _log;
+
+        private Logs _allLogs;
+        private int[] _logIndices = { };
+        private uint[] _logWeights = { };
+
+        private KeyValuePair<Log, uint>[] _logs = { };
+
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorAfter, _monitorBefore;
         private bool _shuffle = true;
         #endregion
 
         #region Properties
-        [Description("The log used to test the application.")]
-        [SavableCloneable, PropertyControl(0)]
-        public Log Log {
-            get {
-                if (_log != null) {
-                    if (_log.IsEmpty)
-                        Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-
-                    _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
-                }
-                return _log;
-            }
+        [SavableCloneable]
+        public int[] LogIndices {
+            get { return _logIndices; }
             set {
                 if (value == null)
-                    return;
-                value.ParentIsNull -= _log_ParentIsNull;
-                _log = value;
-                _log.ParentIsNull += _log_ParentIsNull;
+                    throw new ArgumentNullException("Can be empty but not null.");
+                _logIndices = value;
+
+                if (_allLogs != null) {
+                    var l = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
+                    int weightIndex = 0;
+                    foreach (int index in _logIndices) {
+                        if (index < _allLogs.Count) {
+                            var log = _allLogs[index] as Log;
+
+                            bool added = false;
+                            foreach (var addedKvp in l)
+                                if (addedKvp.Key == log) {
+                                    added = true;
+                                    break;
+                                }
+                            if (!added) {
+                                uint weight = weightIndex < _logWeights.Length ? _logWeights[weightIndex] : 0;
+                                l.Add(new KeyValuePair<Log, uint>(log, weight));
+                            }
+                        }
+                        ++weightIndex;
+                    }
+                    _logs = l.ToArray();
+                    _logs.SetParent(_allLogs, false);
+                }
+            }
+        }
+        [SavableCloneable]
+        public uint[] LogWeights {
+            get { return _logWeights; }
+            set {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                _logWeights = value;
+            }
+        }
+        [Description("The logs used to test the application. Maximum 5 allowed and they must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
+        [PropertyControl(0)]
+        public KeyValuePair<Log, uint>[] Logs {
+            get { return _logs; }
+            set {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                if (value.Length > 5)
+                    throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
+
+                if (value.Length != 0) {
+                    var logRuleSet = value[0].Key.LogRuleSet;
+                    for (int i = 1; i < value.Length; i++)
+                        if (value[i].Key.LogRuleSet != logRuleSet)
+                            throw new Exception("Only logs having the same log rule set are allowed.");
+
+                    //New entries should have a weight of 1.
+                    for (int i = _logs.Length; i < value.Length; i++)
+                        value[i] = new KeyValuePair<vApus.Stresstest.Log, uint>(value[i].Key, 1);
+
+                    //1 should not be 0 :).
+                    bool allZeros = true;
+                    for (int i = 0; i != value.Length; i++)
+                        if (value[i].Value != 0) {
+                            allZeros = false;
+                            break;
+                        }
+                    if (allZeros) value[0] = new KeyValuePair<vApus.Stresstest.Log, uint>(value[0].Key, 1);
+                }
+
+                _logs = value;
+
+                if (_allLogs != null) {
+                    _logs.SetParent(_allLogs, false);
+
+                    var logIndices = new List<int>(_logs.Length);
+                    var logWeights = new List<uint>(_logs.Length);
+                    for (int allLogsIndex = 1; allLogsIndex < _allLogs.Count; allLogsIndex++) {
+                        KeyValuePair<Log, uint> kvp = new KeyValuePair<Log, uint>();
+                        for (int logIndex = 0; logIndex != _logs.Length; logIndex++)
+                            if (_logs[logIndex].Key == _allLogs[allLogsIndex]) {
+                                kvp = _logs[logIndex];
+                                break;
+                            }
+
+                        if (kvp.Key != null) {
+                            logIndices.Add(allLogsIndex);
+                            logWeights.Add(kvp.Value);
+                        }
+                    }
+
+                    _logIndices = logIndices.ToArray();
+                    _logWeights = logWeights.ToArray();
+                }
             }
         }
 
@@ -53,11 +138,15 @@ namespace vApus.DistributedTesting {
         [DisplayName("Log Rule Set")]
         public string LogRuleSet {
             get {
-                if (_log == null || _log.IsEmpty || _log.LogRuleSet.IsEmpty)
+                if (_logs.Length == 0)
                     return "Log Rule Set: <none>";
-                return _log.LogRuleSet.ToString();
+                var log = _logs[0].Key;
+                if (log == null || log.IsEmpty || log.LogRuleSet.IsEmpty)
+                    return "Log Rule Set: <none>";
+                return log.LogRuleSet.ToString();
             }
         }
+
 
         [Description("The count(s) of the concurrent users generated, the minimum given value equals one.")]
         [SavableCloneable, PropertyControl(1)]
@@ -202,14 +291,24 @@ namespace vApus.DistributedTesting {
             Init();
         }
         private void Init() {
-            Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            _allLogs = SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs)) as Logs;
+
+            var logs = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
+            int weightIndex = 0;
+            foreach (int index in _logIndices) {
+                if (index < _allLogs.Count) {
+                    var log = _allLogs[index] as Log;
+                    uint weight = weightIndex < _logWeights.Length ? _logWeights[weightIndex] : 0;
+
+                    logs.Add(new KeyValuePair<Log, uint>(log, weight));
+                }
+                ++weightIndex;
+            }
+
+            _logs = logs.ToArray();
+            _logs.SetParent(_allLogs, false);
 
             SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-        }
-
-        private void _log_ParentIsNull(object sender, EventArgs e) {
-            if (_log == sender)
-                Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
@@ -223,13 +322,37 @@ namespace vApus.DistributedTesting {
                 }
             } catch {
             }
+
+            if (sender == _allLogs || sender is Log) {
+                var l = new List<KeyValuePair<Log, uint>>(_allLogs.Count);
+                foreach (var kvp in _logs) {
+                    bool added = false;
+                    foreach (var addedKvp in l)
+                        if (addedKvp.Key == kvp.Key) {
+                            added = true;
+                            break;
+                        }
+
+                    if (!added && _allLogs.Contains(kvp.Key)) {
+                        var newKvp = new KeyValuePair<Log, uint>(kvp.Key, kvp.Value);
+                        l.Add(newKvp);
+                    }
+                }
+
+                Logs = l.ToArray();
+            }
         }
 
         internal void DefaultTo(Stresstest.Stresstest stresstest) {
             _defaultSettingsTo = stresstest;
-            Log = _defaultSettingsTo.Log;
+
+            _logs = new KeyValuePair<Log, uint>[_defaultSettingsTo.Logs.Length];
+            _defaultSettingsTo.Logs.CopyTo(_logs, 0);
+            _logs.SetParent(_allLogs, false);
+
             _concurrencies = new int[_defaultSettingsTo.Concurrencies.Length];
             _defaultSettingsTo.Concurrencies.CopyTo(_concurrencies, 0);
+
             _runs = _defaultSettingsTo.Runs;
             _minimumDelay = _defaultSettingsTo.MinimumDelay;
             _maximumDelay = _defaultSettingsTo.MaximumDelay;
@@ -249,7 +372,12 @@ namespace vApus.DistributedTesting {
         /// <returns></returns>
         public AdvancedTileStresstest Clone() {
             var clone = new AdvancedTileStresstest();
-            clone.Log = _log;
+
+            clone._logs = new KeyValuePair<Log, uint>[_defaultSettingsTo.Logs.Length];
+            _logs.CopyTo(clone._logs, 0);
+            clone._logs.SetParent(_allLogs, false);
+
+
             clone._concurrencies = new int[_concurrencies.Length];
             _concurrencies.CopyTo(clone._concurrencies, 0);
             clone.Runs = _runs;

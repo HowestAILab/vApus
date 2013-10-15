@@ -210,8 +210,9 @@ namespace vApus.DistributedTesting {
 
                 string tileStresstestToString = tstvi.TileStresstest.ToString();
                 if (!wasSelectedBefore) {
+
                     fastResultsControl.SetConfigurationControlsAndMonitorLinkButtons(tileStresstestToString, tstvi.TileStresstest.BasicTileStresstest.Connection,
-                       tstvi.TileStresstest.BasicTileStresstest.ConnectionProxy, tstvi.TileStresstest.AdvancedTileStresstest.Log, tstvi.TileStresstest.AdvancedTileStresstest.LogRuleSet,
+                       tstvi.TileStresstest.BasicTileStresstest.ConnectionProxy, tstvi.TileStresstest.AdvancedTileStresstest.Logs, tstvi.TileStresstest.AdvancedTileStresstest.LogRuleSet,
                        tstvi.TileStresstest.BasicTileStresstest.Monitors, tstvi.TileStresstest.AdvancedTileStresstest.Concurrencies, tstvi.TileStresstest.AdvancedTileStresstest.Runs,
                        tstvi.TileStresstest.AdvancedTileStresstest.MinimumDelay, tstvi.TileStresstest.AdvancedTileStresstest.MaximumDelay, tstvi.TileStresstest.AdvancedTileStresstest.Shuffle,
                        tstvi.TileStresstest.AdvancedTileStresstest.ActionDistribution, tstvi.TileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions, tstvi.TileStresstest.AdvancedTileStresstest.MonitorBefore, tstvi.TileStresstest.AdvancedTileStresstest.MonitorAfter);
@@ -745,8 +746,6 @@ namespace vApus.DistributedTesting {
                         if (testProgressMessages.ContainsKey(tileStresstest)) {
                             TestProgressMessage testProgressMessage = testProgressMessages[tileStresstest];
                             testProgressMessage.StresstestStatus = StresstestStatus.Error;
-#warning Setting a test progressmessage from outside the distributed test core won't work.
-                            //_distributedTestCore.GetAllTestProgressMessages()[tileStresstest] = testProgressMessage;
 
                             Handle_distributedTestCore_TestProgressMessageReceivedDelayed(tileStresstest, testProgressMessage);
                         }

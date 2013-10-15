@@ -11,6 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace vApus.Util {
     /// <summary>
@@ -19,6 +20,7 @@ namespace vApus.Util {
     [ToolboxItem(false)]
     public partial class DefinedKVPCollectionControl : UserControl {
         private IEnumerable _value;
+        private Type _elementType;
 
         /// <summary>
         ///     For selecting multiple items with the same parent.
@@ -40,14 +42,12 @@ namespace vApus.Util {
         public event EventHandler ValueChanged;
 
         private void SetColumn() {
-            DataGridViewColumn column = new DataGridViewTextBoxColumn();
-
+            var column = new DataGridViewTextBoxColumn();
             dataGridView.Columns.Add(column);
-            //dataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             column = new DataGridViewTextBoxColumn();
-
             dataGridView.Columns.Add(column);
+
             dataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
         }
 
@@ -55,9 +55,7 @@ namespace vApus.Util {
             try {
                 var parent = (IEnumerable)value.GetParent();
             } catch (Exception ex) {
-                throw new Exception(
-                    "value must be of type IEnumerable (direct or indirect) and must have a parent of the type IEnumerable (also direct or indirect type).",
-                    ex);
+                throw new Exception("value must be of type IEnumerable (direct or indirect) and must have a parent of the type IEnumerable (also direct or indirect type).", ex);
             }
             _value = value;
 
@@ -65,16 +63,25 @@ namespace vApus.Util {
             dataGridView.RowsRemoved -= dataGridView_RowsRemoved;
             dataGridView.Rows.Clear();
 
+            _elementType = value.AsQueryable().ElementType;
             IEnumerator enumerator = value.GetEnumerator();
+            enumerator.Reset();
             while (enumerator.MoveNext())
                 if (enumerator.Current != null) {
-                    var kvp = (KeyValuePair<object, object>)enumerator.Current;
+                    object[] kvp = { _elementType.GetProperty("Key").GetValue(enumerator.Current, null), _elementType.GetProperty("Value").GetValue(enumerator.Current, null) };
 
                     var row = new DataGridViewRow();
-                    row.Cells.Add(CreateDataGridViewCell(kvp.Key));
-                    row.Cells.Add(CreateDataGridViewCell(kvp.Value));
+                    var keyCell = CreateDataGridViewCell(kvp[0]);
+                    row.Cells.Add(keyCell);
+                    keyCell.ReadOnly = true;
+
+                    var valueCell = CreateDataGridViewCell(kvp[1]);
+                    row.Cells.Add(valueCell);
+
                     dataGridView.Rows.Add(row);
                 }
+            enumerator.Reset();
+
             dataGridView.CellValueChanged += dataGridView_CellValueChanged;
             dataGridView.RowsRemoved += dataGridView_RowsRemoved;
         }
@@ -94,19 +101,73 @@ namespace vApus.Util {
                     SetValue(selectBaseItemsDialog.NewValue);
                 } catch {
                 }
-                if (ValueChanged != null)
-                    ValueChanged(this, null);
+                if (ValueChanged != null) ValueChanged(this, null);
             }
         }
 
         private void dataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e) {
-            if (ValueChanged != null)
-                ValueChanged(this, null);
+            try {
+                if (dataGridView.CurrentCell != null && dataGridView.CurrentCell.ColumnIndex == 1)
+                    ValueEditted();
+                if (ValueChanged != null)
+                    ValueChanged(this, null);
+            } catch { }
         }
 
-        private void dataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e) {
-            if (ValueChanged != null)
-                ValueChanged(this, null);
+        private void ValueEditted() {
+            var arrayList = new ArrayList();
+            var valueType = _elementType.GetGenericArguments()[1];
+
+            int rowIndex = 0;
+
+            IEnumerator enumerator = _value.GetEnumerator();
+            enumerator.Reset();
+            while (enumerator.MoveNext()) {
+                var key = _elementType.GetProperty("Key").GetValue(enumerator.Current, null);
+                var value = _elementType.GetProperty("Value").GetValue(enumerator.Current, null);
+
+                if (rowIndex == dataGridView.CurrentCell.RowIndex)
+                    try {
+                        if (valueType.IsPrimitive) {
+                            var value2 = Convert.ChangeType(dataGridView.CurrentCell.Value, valueType);
+                            if (value == value2) return;
+                            value = value2;
+                        } else if (valueType.IsEnum) {
+                            var value2 = Enum.Parse(valueType, value.ToString());
+                            if (value == value2) return;
+                            value = value2;
+                        } else {
+                            var value2 = dataGridView.CurrentCell.Value;
+                            if (value == value2) return;
+                            value = value2;
+                        }
+                    } catch {
+                        dataGridView.CellValueChanged -= dataGridView_CellValueChanged;
+                        dataGridView.CurrentCell.Value = value.ToString();
+                        dataGridView.CellValueChanged += dataGridView_CellValueChanged;
+                        throw;
+                    }
+
+                ++rowIndex;
+
+                var kvp = Activator.CreateInstance(_elementType, new object[] { key, value });
+                arrayList.Add(kvp);
+            }
+            enumerator.Reset();
+
+            IEnumerable newValue = null;
+            if (_value is Array) {
+                newValue = arrayList.ToArray(_elementType);
+            } else if (_value is IList) {
+                newValue = Activator.CreateInstance(_value.GetType()) as IEnumerable;
+                var list = newValue as IList;
+                for (int i = 0; i < arrayList.Count; i++)
+                    list.Add(arrayList[i]);
+            }
+            newValue.SetParent(_value.GetParent());
+            _value = newValue;
         }
+
+        private void dataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e) { if (ValueChanged != null)   ValueChanged(this, null); }
     }
 }

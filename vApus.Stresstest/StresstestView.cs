@@ -86,7 +86,7 @@ namespace vApus.Stresstest {
             btnStart.Enabled = !btnStop.Enabled;
 
             if (_stresstest.Connection.IsEmpty || _stresstest.Connection.ConnectionProxy.IsEmpty ||
-                _stresstest.Log.IsEmpty || _stresstest.Log.LogRuleSet.IsEmpty)
+                _stresstest.Logs.Length == 0 || _stresstest.Logs[0].Key.LogRuleSet.IsEmpty)
                 btnStart.Enabled = false;
         }
         public override void Refresh() {
@@ -162,8 +162,12 @@ namespace vApus.Stresstest {
                     NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty, NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
                     false);
 
+                var logKeys = new List<Log>(_stresstest.Logs.Length);
+                foreach (var kvp in _stresstest.Logs)
+                    logKeys.Add(kvp.Key);
+
                 _resultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(), _stresstest.ConnectionProxy, _stresstest.Connection.ConnectionString,
-                                            _stresstest.Log.ToString(), _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay,
+                                            logKeys.Combine(", "), _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay,
                                             _stresstest.MaximumDelay, _stresstest.Shuffle, _stresstest.ActionDistribution, _stresstest.MaximumNumberOfUserActions, _stresstest.MonitorBefore, _stresstest.MonitorAfter);
 
 
@@ -260,7 +264,7 @@ namespace vApus.Stresstest {
                 _stresstestCore.TestInitialized += _stresstestCore_TestInitialized;
                 ThreadPool.QueueUserWorkItem((state) => { _stresstestCore.InitializeTest(); }, null);
 
-               
+
             } catch (Exception ex) {
                 //Only one test can run at the same time.
                 if (ex is ArgumentOutOfRangeException) {

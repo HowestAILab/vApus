@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
@@ -33,7 +34,7 @@ namespace vApus.Util {
                 SetDefinedCollectionControl();
         }
 
-        public void SetUndefinedCollectionControl() {
+        private void SetUndefinedCollectionControl() {
             //Only take the value into account, the other properties are taken care off.
             //Keep control recycling in mind.
             UndefinedCollectionControl ucc = null;
@@ -61,27 +62,49 @@ namespace vApus.Util {
             base.ValueControl = ucc;
         }
 
-        public void SetDefinedCollectionControl() {
+        private void SetDefinedCollectionControl() {
             //Only take the value into account, the other properties are taken care off.
             //Keep control recycling in mind.
-            DefinedCollectionControl dcc = null;
+            UserControl dcc = null;
 
             var ienumerable = base.__Value.__Value as IEnumerable;
+            Type elementBaseType = null;
+            try {
+                elementBaseType = ienumerable.AsQueryable().ElementType.GetGenericTypeDefinition();
+            } catch {
+                //Will fail if no generic type def.
+            }
+            bool isKVP = elementBaseType == typeof(KeyValuePair<,>);
             if (base.ValueControl == null || !(base.ValueControl is DefinedCollectionControl)) {
-                dcc = new DefinedCollectionControl();
+
+                if (isKVP) {
+                    dcc = new DefinedKVPCollectionControl();
+                    (dcc as DefinedKVPCollectionControl).ValueChanged += dkvpcc_ValueChanged;
+                } else {
+                    dcc = new DefinedCollectionControl();
+                    (dcc as DefinedCollectionControl).ValueChanged += dcc_ValueChanged;
+                }
 
                 //Hard coded for the purpose of simplicity.
                 dcc.Height = 170;
                 dcc.Dock = DockStyle.Top;
 
-                dcc.ValueChanged += dcc_ValueChanged;
             } else {
-                dcc = base.ValueControl as DefinedCollectionControl;
+                if (isKVP)
+                    dcc = base.ValueControl as DefinedKVPCollectionControl;
+                else
+                    dcc = base.ValueControl as DefinedCollectionControl;
             }
 
-            dcc.ValueChanged -= dcc_ValueChanged;
-            dcc.SetValue(ienumerable);
-            dcc.ValueChanged += dcc_ValueChanged;
+            if (isKVP) {
+                (dcc as DefinedKVPCollectionControl).ValueChanged -= dkvpcc_ValueChanged;
+                (dcc as DefinedKVPCollectionControl).SetValue(ienumerable);
+                (dcc as DefinedKVPCollectionControl).ValueChanged += dkvpcc_ValueChanged;
+            } else {
+                (dcc as DefinedCollectionControl).ValueChanged -= dcc_ValueChanged;
+                (dcc as DefinedCollectionControl).SetValue(ienumerable);
+                (dcc as DefinedCollectionControl).ValueChanged += dcc_ValueChanged;
+            }
 
             base.ValueControl = dcc;
         }
@@ -93,6 +116,10 @@ namespace vApus.Util {
 
         private void dcc_ValueChanged(object sender, EventArgs e) {
             var cc = sender as DefinedCollectionControl;
+            base.HandleValueChanged(cc.Value);
+        }
+        private void dkvpcc_ValueChanged(object sender, EventArgs e) {
+            var cc = sender as DefinedKVPCollectionControl;
             base.HandleValueChanged(cc.Value);
         }
 

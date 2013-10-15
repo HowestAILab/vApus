@@ -126,19 +126,23 @@ namespace vApus.Stresstest {
 
         public void SetConfigurationControls(Stresstest stresstest) {
             SetConfigurationControlsAndMonitorLinkButtons(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy,
-                                     stresstest.Log, stresstest.LogRuleSet,
+                                     stresstest.Logs, stresstest.LogRuleSet,
                                      stresstest.Monitors, stresstest.Concurrencies, stresstest.Runs,
                                      stresstest.MinimumDelay, stresstest.MaximumDelay, stresstest.Shuffle,
                                      stresstest.ActionDistribution, stresstest.MaximumNumberOfUserActions,
                                      stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
-        public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
+        public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, KeyValuePair<Log, uint>[] logs, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
                                              int runs, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter) {
             kvpStresstest.Key = stresstest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
 
-            kvpLog.Key = log.ToString();
+            var logKeys = new List<Log>(logs.Length);
+            foreach (var kvp in logs)
+                logKeys.Add(kvp.Key);
+
+            kvpLog.Key = logKeys.Combine(", ");
             kvpLogRuleSet.Key = logRuleSet;
 
             lbtnStresstest.Visible = false;

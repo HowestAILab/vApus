@@ -74,7 +74,7 @@ IsMaster bool NOT NULL)");
                 databaseActions.ExecuteSQL(
                     @"Create Table stresstests(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), vApusInstanceId int NOT NULL, 
 FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), Stresstest varchar(255) NOT NULL, RunSynchronization varchar(20) NOT NULL, Connection varchar(255) NOT NULL,
-ConnectionProxy varchar(255) NOT NULL, ConnectionString longtext NOT NULL, Log varchar(255) NOT NULL, LogRuleSet varchar(255) NOT NULL, Concurrencies longtext NOT NULL,
+ConnectionProxy varchar(255) NOT NULL, ConnectionString longtext NOT NULL, Logs longtext NOT NULL, LogRuleSet varchar(255) NOT NULL, Concurrencies longtext NOT NULL,
 Runs int NOT NULL, MinimumDelayInMilliseconds int NOT NULL, MaximumDelayInMilliseconds int NOT NULL, Shuffle bool NOT NULL, ActionDistribution bool NOT NULL, MaximumNumberOfUserActions int NOT NULL,
 MonitorBeforeInMinutes int NOT NULL, MonitorAfterInMinutes int NOT NULL)");
         }
