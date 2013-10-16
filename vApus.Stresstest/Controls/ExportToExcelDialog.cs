@@ -103,7 +103,8 @@ namespace vApus.Stresstest {
 
         private void chkCharts_CheckedChanged(object sender, EventArgs e) { 
             btnExportToExcel.Enabled = chkGeneral.Checked || chkMonitorData.Checked || chkSpecialized.Checked;
-            chkMonitorDataToDifferentFiles.ForeColor = chkMonitorData.Checked ? Color.Black : SystemColors.GrayText;
+            chkMonitorDataToDifferentFiles.Enabled = chkMonitorData.Checked;
+            if (!chkMonitorDataToDifferentFiles.Enabled) chkMonitorDataToDifferentFiles.Checked = true;
         }
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
@@ -243,7 +244,8 @@ namespace vApus.Stresstest {
                 }, _cancellationTokenSource.Token);
 
                 btnExportToExcel.Text = "Export to Excel...";
-                btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = chkMonitorDataToDifferentFiles.Enabled = true;
+                btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = true;
+                chkMonitorDataToDifferentFiles.Enabled = chkMonitorData.Checked;
 
                 GC.Collect();
             }
@@ -373,7 +375,7 @@ namespace vApus.Stresstest {
                     doc.SetCellStyle(rangeOffset, i + 1, boldStyle);
 
                     if (columnName.Contains(":")) {
-                        int index = int.Parse(columnName.Split(':')[0]) - 1;
+                        int index = sortedColumns[i] - 2;
                         while (index >= _colorPalette.Count)
                             index -= _colorPalette.Count;
 

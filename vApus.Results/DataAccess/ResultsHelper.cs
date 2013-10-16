@@ -1151,10 +1151,15 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                 var averageResponseTimesAndThroughput = CreateEmptyDataTable("AverageResponseTimesAndThroughput", "Stresstest", "Concurrency");
                 int range = 0; //The range of values (avg response times) to place under the right user action
+                char colon = ':';
+                string sColon = ":";
+                int userActionIndex = 1;
                 foreach (DataRow uaRow in averageUserActions.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    string userAction = (uaRow.ItemArray[2] as string).Substring(12); //Trim 'User Action: '
+                    string userAction = uaRow.ItemArray[2] as string;
+                    string[] splittedUserAction = userAction.Split(colon);
+                    userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
                     if (!averageResponseTimesAndThroughput.Columns.Contains(userAction)) {
                         averageResponseTimesAndThroughput.Columns.Add(userAction);
                         range++;

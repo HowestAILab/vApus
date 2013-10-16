@@ -204,7 +204,7 @@
             // 
             this.chkMonitorDataToDifferentFiles.Checked = true;
             this.chkMonitorDataToDifferentFiles.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkMonitorDataToDifferentFiles.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.chkMonitorDataToDifferentFiles.Enabled = false;
             this.chkMonitorDataToDifferentFiles.Location = new System.Drawing.Point(153, 6);
             this.chkMonitorDataToDifferentFiles.Name = "chkMonitorDataToDifferentFiles";
             this.chkMonitorDataToDifferentFiles.Size = new System.Drawing.Size(166, 89);
