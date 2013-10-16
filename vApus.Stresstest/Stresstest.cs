@@ -129,7 +129,7 @@ namespace vApus.Stresstest {
                 _logIndices = value;
 
                 if (_allLogs != null) {
-                    if (_logIndices.Length == 0 && _allLogs.Count != 0) {
+                    if (_logIndices.Length == 0 && _allLogs.Count > 1) {
                         _logWeights = new uint[] { 1 };
                         _logIndices = new int[] { 1 };
                     }
@@ -167,7 +167,7 @@ namespace vApus.Stresstest {
                 if (value.Length > 5)
                     throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
 
-                if (_allLogs != null && value.Length == 0) {
+                if (_allLogs != null && _allLogs.Count > 1 && value.Length == 0) {
                     _logWeights = new uint[] { 1 };
                     LogIndices = new int[] { 1 };
                     return;
@@ -481,7 +481,7 @@ namespace vApus.Stresstest {
             _logs = logs.ToArray();
             _logs.SetParent(_allLogs, false);
 
-            if (_logIndices.Length == 0) {
+            if (_allLogs != null && _allLogs.Count > 1 && _logIndices.Length == 0) {
                 _logWeights = new uint[] { 1 };
                 LogIndices = new int[] { 1 };
             }
