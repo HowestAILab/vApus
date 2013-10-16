@@ -112,6 +112,15 @@ namespace vApus.Stresstest {
         }
 
         [SavableCloneable]
+        public uint[] LogWeights {
+            get { return _logWeights; }
+            set {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                _logWeights = value;
+            }
+        }
+        [SavableCloneable]
         public int[] LogIndices {
             get { return _logIndices; }
             set {
@@ -120,6 +129,10 @@ namespace vApus.Stresstest {
                 _logIndices = value;
 
                 if (_allLogs != null) {
+                    if (_logIndices.Length == 0 && _allLogs.Count != 0) {
+                        _logWeights = new uint[] { 1 };
+                        _logIndices = new int[] { 1 };
+                    }
                     var l = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
                     int weightIndex = 0;
                     foreach (int index in _logIndices) {
@@ -144,15 +157,6 @@ namespace vApus.Stresstest {
                 }
             }
         }
-        [SavableCloneable]
-        public uint[] LogWeights {
-            get { return _logWeights; }
-            set {
-                if (value == null)
-                    throw new ArgumentNullException("Can be empty but not null.");
-                _logWeights = value;
-            }
-        }
         [Description("The logs used to test the application. Maximum 5 allowed and they must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
         [PropertyControl(1)]
         public KeyValuePair<Log, uint>[] Logs {
@@ -162,6 +166,12 @@ namespace vApus.Stresstest {
                     throw new ArgumentNullException("Can be empty but not null.");
                 if (value.Length > 5)
                     throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
+
+                if (_allLogs != null && value.Length == 0) {
+                    _logWeights = new uint[] { 1 };
+                    LogIndices = new int[] { 1 };
+                    return;
+                }
 
                 if (value.Length != 0) {
                     var logRuleSet = value[0].Key.LogRuleSet;
@@ -470,6 +480,11 @@ namespace vApus.Stresstest {
 
             _logs = logs.ToArray();
             _logs.SetParent(_allLogs, false);
+
+            if (_logIndices.Length == 0) {
+                _logWeights = new uint[] { 1 };
+                LogIndices = new int[] { 1 };
+            }
 
             Connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
             _monitorProject = SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(MonitorProject)) as MonitorProject;

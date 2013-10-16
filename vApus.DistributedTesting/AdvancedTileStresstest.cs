@@ -36,6 +36,15 @@ namespace vApus.DistributedTesting {
 
         #region Properties
         [SavableCloneable]
+        public uint[] LogWeights {
+            get { return _logWeights; }
+            set {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                _logWeights = value;
+            }
+        }
+        [SavableCloneable]
         public int[] LogIndices {
             get { return _logIndices; }
             set {
@@ -44,6 +53,10 @@ namespace vApus.DistributedTesting {
                 _logIndices = value;
 
                 if (_allLogs != null) {
+                    if (_logIndices.Length == 0 && _allLogs.Count != 0) {
+                        _logWeights = new uint[] { 1 };
+                        _logIndices = new int[] { 1 };
+                    }
                     var l = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
                     int weightIndex = 0;
                     foreach (int index in _logIndices) {
@@ -68,15 +81,6 @@ namespace vApus.DistributedTesting {
                 }
             }
         }
-        [SavableCloneable]
-        public uint[] LogWeights {
-            get { return _logWeights; }
-            set {
-                if (value == null)
-                    throw new ArgumentNullException("Can be empty but not null.");
-                _logWeights = value;
-            }
-        }
         [Description("The logs used to test the application. Maximum 5 allowed and they must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
         [PropertyControl(0)]
         public KeyValuePair<Log, uint>[] Logs {
@@ -86,6 +90,12 @@ namespace vApus.DistributedTesting {
                     throw new ArgumentNullException("Can be empty but not null.");
                 if (value.Length > 5)
                     throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
+
+                if (_allLogs != null && value.Length == 0) {
+                    _logWeights = new uint[] { 1 };
+                    LogIndices = new int[] { 1 };
+                    return;
+                }
 
                 if (value.Length != 0) {
                     var logRuleSet = value[0].Key.LogRuleSet;
@@ -308,6 +318,10 @@ namespace vApus.DistributedTesting {
             _logs = logs.ToArray();
             _logs.SetParent(_allLogs, false);
 
+            if (_logIndices.Length == 0) {
+                _logWeights = new uint[] { 1 };
+                LogIndices = new int[] { 1 };
+            }
             SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
         }
 
