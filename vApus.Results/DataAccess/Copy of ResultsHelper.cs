@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 using vApus.Util;
 
 namespace vApus.Results {
-    public class ResultsHelper {
+    public class CopyOfResultsHelper {
 
         #region Fields
         private readonly object _lock = new object();
@@ -823,16 +823,37 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             List<string> sortedUserActions = avgTimeToLastByteInTicks.Keys.ToList();
                             sortedUserActions.Sort(UserActionComparer.GetInstance);
 
-                            //Add the sorted user actions to the whole.
+                            var correctedUserActions = new Dictionary<string, string>(); //user action, corrected user action
+                            int correctIndex = 1;
+                            string ua = "User Action ";
+                            int uaIndex = ua.Length;
+
                             foreach (string userAction in sortedUserActions) {
+                                string part1 = ua;
+                                string part2 = userAction;
+                                part2 = part2.Substring(ua.Length);
+
+
+                                string[] split = part2.Split(':');
+                                part2 = split[0];
+                                string part3 = split.Length == 2 ? ":" + split[1] : string.Empty;
+
+                                int index = int.Parse(split[0]);
+                                correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + part3);
+
+                                ++correctIndex;
+                            }
+
+                            //Add the sorted user actions to the whole.
+                            foreach (string s in sortedUserActions) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                averageUserActions.Rows.Add(stresstest, concurrency, userAction,
-                                    Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(avgDelay[userAction], 2),
-                                    errors[userAction]);
+                                averageUserActions.Rows.Add(stresstest, concurrency, correctedUserActions[s],
+                                    Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
+                                    Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
+                                    Math.Round(((double)percTimeToLastBytesInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
+                                    Math.Round(avgDelay[s], 2),
+                                    errors[s]);
                             }
                         }
                     }
@@ -973,10 +994,39 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             List<string> sortedLogEntryIndices = logEntries.Keys.ToList();
                             sortedLogEntryIndices.Sort(LogEntryIndexComparer.GetInstance);
 
+                            //Correct the indices of the user actions
+                            List<string> sortedUserActions = userActions.Values.ToList();
+                            sortedUserActions.Sort(UserActionComparer.GetInstance);
+
+                            var correctedUserActions = new Dictionary<string, string>(); //user action, corrected user action
+                            int correctIndex = 1;
+                            string ua = "User Action ";
+                            string nd = "None defined ";
+                            foreach (string userAction in sortedUserActions)
+                                if (!correctedUserActions.ContainsKey(userAction)) {
+                                    string part1 = ua;
+                                    string part2 = userAction;
+                                    if (part2.StartsWith(ua)) {
+                                        part2 = part2.Substring(ua.Length);
+                                    } else if (part2.StartsWith(nd)) {
+                                        part1 = nd;
+                                        part2 = part2.Substring(nd.Length);
+                                    }
+
+                                    string[] split = part2.Split(':');
+                                    part2 = split[0];
+                                    string part3 = split.Length == 2 ? ":" + split[1] : string.Empty;
+
+                                    int index = int.Parse(split[0]);
+                                    correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + part3);
+
+                                    ++correctIndex;
+                                }
+
                             foreach (string s in sortedLogEntryIndices) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                averageLogEntries.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
+                                averageLogEntries.Rows.Add(stresstest, concurrency, correctedUserActions[userActions[s]], logEntries[s],
                                     Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
                                     Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
                                     Math.Round(((double)percTimeToLastBytesInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
@@ -1107,13 +1157,38 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             List<string> sortedUserActions = userActions.Keys.ToList();
                             sortedUserActions.Sort(UserActionComparer.GetInstance);
 
+                            var correctedUserActions = new Dictionary<string, string>(); //user action, corrected user action
+                            int correctIndex = 1;
+                            string ua = "User Action ";
+                            string nd = "None defined ";
+                            foreach (string userAction in sortedUserActions)
+                                if (!correctedUserActions.ContainsKey(userAction)) {
+                                    string part1 = ua;
+                                    string part2 = userAction;
+                                    if (part2.StartsWith(ua)) {
+                                        part2 = part2.Substring(ua.Length);
+                                    } else if (part2.StartsWith(nd)) {
+                                        part1 = nd;
+                                        part2 = part2.Substring(nd.Length);
+                                    }
+
+                                    string[] split = part2.Split(':');
+                                    part2 = split[0];
+                                    string part3 = split.Length == 2 ? ":" + split[1] : string.Empty;
+
+                                    int index = int.Parse(split[0]);
+                                    correctedUserActions.Add(userAction, index == correctIndex ? userAction : part1 + correctIndex + part3);
+
+                                    ++correctIndex;
+                                }
+
                             foreach (string userAction in sortedUserActions) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 foreach (string logEntry in userActions[userAction]) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    userActionComposition.Rows.Add(stresstest, userAction, logEntry);
+                                    userActionComposition.Rows.Add(stresstest, correctedUserActions[userAction], logEntry);
                                 }
                             }
                             break;
@@ -1697,45 +1772,22 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         #endregion
 
         private class UserActionComparer : IComparer<string> {
+            private const string UA = " User Action ";
             private const string LOG = "Log ";
-            private const string UA = "User Action ";
-            private const string ND = "None defined ";
             private const char COLON = ':';
-
             private static readonly UserActionComparer _userActionComparer = new UserActionComparer();
 
             public int Compare(string x, string y) {
-                if (x.StartsWith(LOG)) { //Backwards compatible.
 
-                    int xColonUa = x.IndexOf(COLON);
-                    if (xColonUa == -1) xColonUa = x.IndexOf(UA) - 1;
+                ulong xLogIndex = ulong.Parse(x.Substring(LOG.Length, x.IndexOf(COLON)));
+                ulong yLogIndex = ulong.Parse(y.Substring(LOG.Length, y.IndexOf(COLON)));
 
-                    int yColonUa = y.IndexOf(COLON);
-                    if (yColonUa == -1) yColonUa = y.IndexOf(UA) - 1;
+                int xIndexUA = x.IndexOf(UA);
+                int yIndexUA = y.IndexOf(UA);
 
-                    int logX = int.Parse(x.Substring(LOG.Length, xColonUa - LOG.Length));
-                    int logY = int.Parse(y.Substring(LOG.Length, yColonUa - LOG.Length));
-                    if (logX > logY) return 1;
-                    if (logY < logX) return -1;
 
-                    int xUA = x.IndexOf(UA);
-                    if (xUA == -1) xUA = x.IndexOf(ND);
-
-                    int yUA = y.IndexOf(UA);
-                    if (yUA == -1) yUA = y.IndexOf(ND);
-
-                    x = x.Substring(xUA);
-                    y = y.Substring(yUA);
-                }
-
-                return UserActionCompare(x, y);
-            }
-            private int UserActionCompare(string x, string y) {
-                if (x.StartsWith(UA)) x = x.Substring(UA.Length);
-                else if (x.StartsWith(ND)) x = x.Substring(ND.Length);
-
-                if (y.StartsWith(UA)) y = y.Substring(UA.Length);
-                else if (y.StartsWith(ND)) y = y.Substring(ND.Length);
+                x = x.Substring(x.IndexOf(UA) + UA.Length);
+                y = y.Substring(y.IndexOf(UA) + UA.Length);
 
                 x = x.Split(COLON)[0];
                 y = y.Split(COLON)[0];
@@ -1745,25 +1797,25 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                 return i.CompareTo(j);
             }
+
             public static UserActionComparer GetInstance { get { return _userActionComparer; } }
         }
         private class LogEntryIndexComparer : IComparer<string> {
-            private const char dot = '.';
-
             private static readonly LogEntryIndexComparer _logEntryIndexComparer = new LogEntryIndexComparer();
 
             public int Compare(string x, string y) {
-                string[] split1 = x.Split(dot);
-                string[] split2 = y.Split(dot);
+                string[] split1 = x.Split('.');
+                string[] split2 = y.Split('.');
 
-                int i = 0, j = 0;
-                for (int index = 0; index != split1.Length; index++) {
-                    i = int.Parse(split1[index]);
-                    j = int.Parse(split2[index]);
-                    if (i > j) return 1;
-                    if (i < j) return -1;
+                int i = int.Parse(split1[0]);
+                int j = int.Parse(split2[0]);
+                if (i > j) return 1;
+                else if (i < j) return -1;
+                else {
+                    i = int.Parse(split1[1]);
+                    j = int.Parse(split2[1]);
+                    return i.CompareTo(j);
                 }
-                return 0;
             }
 
             public static LogEntryIndexComparer GetInstance { get { return _logEntryIndexComparer; } }

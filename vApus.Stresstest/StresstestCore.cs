@@ -488,14 +488,15 @@ namespace vApus.Stresstest {
                     Parallel.For(0, log.Count, (userActionIndex) => {
                         var userAction = log[userActionIndex] as UserAction;
                         if (!userAction.IsEmpty) {
-                            string userActionString = string.Join(empty, logString, userAction.Name, userActionIndex);
+                            int oneBasedUserActionIndex = userActionIndex + 1;
+                            string userActionString = string.Join(empty, logString, userAction.Name, oneBasedUserActionIndex);
                             if (userAction.Label != string.Empty)
                                 userActionString = string.Join(colon, userActionString, userAction.Label);
 
                             Parallel.For(0, userAction.Count, (logEntryIndex) => {
                                 var logEntry = userAction[logEntryIndex] as LogEntry;
 
-                                logEntryIndices.TryAdd(logEntry, string.Join(dot, logIndex, userActionIndex, logEntryIndex));
+                                logEntryIndices.TryAdd(logEntry, string.Join(dot, logIndex, oneBasedUserActionIndex, logEntryIndex + 1));
                                 logEntryParents.TryAdd(logEntry, userActionString);
                             });
                         }
