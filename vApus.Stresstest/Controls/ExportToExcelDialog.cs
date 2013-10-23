@@ -101,7 +101,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        private void chkCharts_CheckedChanged(object sender, EventArgs e) { 
+        private void chkCharts_CheckedChanged(object sender, EventArgs e) {
             btnExportToExcel.Enabled = chkGeneral.Checked || chkMonitorData.Checked || chkSpecialized.Checked;
             chkMonitorDataToDifferentFiles.Enabled = chkMonitorData.Checked;
             if (!chkMonitorDataToDifferentFiles.Enabled) chkMonitorDataToDifferentFiles.Checked = true;
@@ -237,7 +237,7 @@ namespace vApus.Stresstest {
                                 MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-                        
+
                     } catch {
                         MessageBox.Show("Failed to get data from the database.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }

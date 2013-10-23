@@ -501,8 +501,18 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 var l = new List<string>();
                 if (_databaseActions != null)
-                    foreach (DataRow row in ReaderAndCombiner.GetMonitors(new CancellationToken(), _databaseActions).Rows)
-                        l.Add(row.ItemArray[0] + " (" + row.ItemArray[1] + ")");
+                    foreach (DataRow row in ReaderAndCombiner.GetMonitors(new CancellationToken(), _databaseActions, null, "Monitor").Rows)
+                        l.Add(row.ItemArray[0] as string);
+
+                return l;
+            }
+        }
+        public List<string> GetMonitorResultHeaders(string monitor) {
+            lock (_lock) {
+                var l = new List<string>();
+                if (_databaseActions != null)
+                    foreach (DataRow row in ReaderAndCombiner.GetMonitors(new CancellationToken(), _databaseActions, "Monitor='" + monitor + "'", "ResultHeaders").Rows)
+                        l.AddRange((row.ItemArray[0] as string).Split(new string[] { "; " }, StringSplitOptions.None));
 
                 return l;
             }
@@ -1138,9 +1148,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
                     if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                    stresstestIds = new int[stresstests.Rows.Count];
-                    for (int i = 0; i != stresstestIds.Length; i++)
-                        stresstestIds[i] = (int)stresstests.Rows[i].ItemArray[0];
+                    stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
                 }
 
                 var averageUserActions = GetAverageUserActionResults(cancellationToken, stresstestIds);
@@ -1236,7 +1244,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                 //Get the monitors + values
-                var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestIds, "Id", "StresstestId", "Monitor", "ResultHeaders");
+                var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, null, stresstestIds, "Id", "StresstestId", "Monitor", "ResultHeaders");
                 if (monitors == null || monitors.Rows.Count == 0) return CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Result Headers");
 
                 var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time (ms)", "Concurrency" });
@@ -1519,6 +1527,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
         }
 
+        //Specialized stuff
+        //----------------
+
         /// <summary>
         /// 
         /// </summary>
@@ -1606,6 +1617,113 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return runsOverTime;
             }
         }
+
+        /// <summary>
+        /// All given stings are case-sensitive
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestId"></param>
+        /// <param name="powerMonitorName"></param>
+        /// <param name="powerMonitorCounter"></param>
+        /// <param name="performanceMonitorName"></param>
+        /// <param name="performanceMonitorCounter"></param>
+        /// <returns></returns>
+        private DataTable GetThroughPutPerWattOverTime(CancellationToken cancellationToken, int stresstestId, string powerMonitorName, string powerMonitorCounter, string performanceMonitorName, string performanceMonitorCounter) {
+            lock (_lock) {
+                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestId, "Id", "Stresstest", "Connection");
+                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                float[] powerMonitorCounterValues = GetMonitorCounterValues(cancellationToken, powerMonitorName, powerMonitorCounter);
+                if (powerMonitorCounterValues == null) return null;
+
+                float[] performanceMonitorCounterValues = GetMonitorCounterValues(cancellationToken, performanceMonitorName, performanceMonitorCounter);
+                if (performanceMonitorCounterValues == null) return null;
+
+                var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+                if (stresstestResults == null || stresstestResults.Rows.Count == 0) return null;
+                int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
+
+                var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id");
+                if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) return null;
+
+
+                var concurrencyResultIds = new List<int>(concurrencyResults.Rows.Count);
+                foreach (DataRow crRow in concurrencyResults.Rows) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    concurrencyResultIds.Add((int)crRow.ItemArray[0]);
+                }
+
+
+                var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultIds.ToArray(), "Id");
+                if (runResults == null || runResults.Rows.Count == 0) return null;
+
+                var runResultIds = new List<int>(runResults.Rows.Count);
+                foreach (DataRow rrRow in runResults.Rows) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    runResultIds.Add((int)rrRow.ItemArray[0]);
+                }
+
+
+                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt");
+                if (logEntryResults == null || logEntryResults.Rows.Count == 0) return null;
+
+                //Sort on sent at.
+                var sentAts = new List<DateTime>();
+                foreach (DataRow lerRow in logEntryResults.Rows) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    sentAts.Add((DateTime)lerRow.ItemArray[0]);
+                }
+
+                sentAts.Sort();
+
+                //Split 
+                DateTime NextMinute = sentAts[0].AddMinutes(1);
+                foreach (var sentAt in sentAts) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+
+                }
+
+
+                return null;
+            }
+        }
+        /// <summary>
+        /// Returns an array of the values for a given counter.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="monitorName"></param>
+        /// <param name="counter"></param>
+        /// <returns></returns>
+        private float[] GetMonitorCounterValues(CancellationToken cancellationToken, string monitorName, string counter) {
+            var monitor = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, "Monitor='" + monitorName + "'", null, new string[] { "Id", "ResultHeaders" });
+            if (monitor == null || monitor.Rows.Count == 0) return null;
+
+            DataRow row = monitor.Rows[0];
+            int id = (int)row.ItemArray[0];
+            string[] resultHeaders = (row.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+            int resultHeaderIndex = resultHeaders.IndexOf(counter);
+
+            var monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, id, "Value");
+            if (monitorResults == null || monitorResults.Rows.Count == 0) return null;
+
+            var arr = new float[monitorResults.Rows.Count];
+
+            for (int i = 0; i != monitorResults.Rows.Count; i++) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                row = monitorResults.Rows[i];
+                string[] value = (row.ItemArray[0] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+
+                arr[i] = float.Parse(value[resultHeaderIndex]);
+            }
+
+            return arr;
+        }
+
         #endregion
 
         #endregion
@@ -1704,7 +1822,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         private class UserActionComparer : IComparer<string> {
             private const string LOG = "Log ";
             private const string UA = "User Action ";
-            private const string ND = "None defined ";
             private const char COLON = ':';
 
             private static readonly UserActionComparer _userActionComparer = new UserActionComparer();
@@ -1724,10 +1841,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     if (logY < logX) return -1;
 
                     int xUA = x.IndexOf(UA);
-                    if (xUA == -1) xUA = x.IndexOf(ND);
-
                     int yUA = y.IndexOf(UA);
-                    if (yUA == -1) yUA = y.IndexOf(ND);
 
                     x = x.Substring(xUA);
                     y = y.Substring(yUA);
@@ -1736,11 +1850,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return UserActionCompare(x, y);
             }
             private int UserActionCompare(string x, string y) {
-                if (x.StartsWith(UA)) x = x.Substring(UA.Length);
-                else if (x.StartsWith(ND)) x = x.Substring(ND.Length);
-
-                if (y.StartsWith(UA)) y = y.Substring(UA.Length);
-                else if (y.StartsWith(ND)) y = y.Substring(ND.Length);
+                x = x.Substring(UA.Length);
+                y = y.Substring(UA.Length);
 
                 x = x.Split(COLON)[0];
                 y = y.Split(COLON)[0];

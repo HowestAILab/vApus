@@ -246,7 +246,7 @@
 
         private System.Windows.Forms.LinkLabel lblConnectToMySQL;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private FilterResultsControl filterResults;
+        private vApus.DetailedResultsViewer.FilterResultsControl filterResults;
         private System.Windows.Forms.Label lblResults;
         private System.Windows.Forms.PictureBox picDatabases;
         private System.Windows.Forms.DataGridView dgvDatabases;

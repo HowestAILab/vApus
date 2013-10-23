@@ -103,7 +103,7 @@ namespace vApus.Results {
 
             foreach (string stresstest in stresstestsAndDividedRows.Keys) {
                 if (cancellationToken.IsCancellationRequested) return null;
-                
+
                 var part = stresstestsAndDividedRows[stresstest];
                 object[] row = part.Rows[0].ItemArray;
 
@@ -112,7 +112,7 @@ namespace vApus.Results {
 
                 for (int i = 1; i != part.Rows.Count; i++) {
                     if (cancellationToken.IsCancellationRequested) return null;
-                    
+
                     row = part.Rows[i].ItemArray;
 
                     if (startedAtIndex != -1) {
@@ -433,8 +433,8 @@ namespace vApus.Results {
             return combined;
         }
 
-        public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, params string[] selectColumns) { return GetMonitors(cancellationToken, databaseActions, new int[0], selectColumns); }
-        public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, int stresstestId, params string[] selectColumns) { return GetMonitors(cancellationToken, databaseActions, new int[] { stresstestId }, selectColumns); }
+        public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, params string[] selectColumns) { return GetMonitors(cancellationToken, databaseActions, where, new int[0], selectColumns); }
+        public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, int stresstestId, params string[] selectColumns) { return GetMonitors(cancellationToken, databaseActions, null, new int[] { stresstestId }, selectColumns); }
         /// <summary>
         /// 
         /// </summary>
@@ -442,16 +442,16 @@ namespace vApus.Results {
         /// <param name="stresstestIds">If only one Id is given for a tests divided over multiple stresstests those will be found and combined for you.</param>
         /// <param name="selectColumns"></param>
         /// <returns></returns>
-        public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
+        public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestIds, params string[] selectColumns) {
             DataTable dt = null;
             if (databaseActions != null)
                 if (stresstestIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From monitors;", GetValidSelect(selectColumns)));
+                    dt = databaseActions.GetDataTable(string.Format("Select {0} From monitors{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
                 } else {
                     stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From monitors Where StresstestId In({1});", GetValidSelect(selectColumns), stresstestIds.Combine(", ")));
+                    dt = databaseActions.GetDataTable(string.Format("Select {0} From monitors Where StresstestId In({1}){2};", GetValidSelect(selectColumns), stresstestIds.Combine(", "), GetValidWhere(where, false)));
                 }
             return dt;
         }
@@ -494,7 +494,7 @@ namespace vApus.Results {
         /// <returns></returns>
         private static Dictionary<string, DataTable> GetStresstestsAndDividedStresstestRows(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             if (cancellationToken.IsCancellationRequested) return null;
-            
+
             var dict = new Dictionary<string, DataTable>();
             if (databaseActions != null) {
                 DataTable dt = null;
@@ -511,7 +511,7 @@ namespace vApus.Results {
 
                 foreach (DataRow row in dt.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
-                    
+
                     string stresstest = GetCombinedStresstestToString(row["Stresstest"] as string);
                     if (!dict.ContainsKey(stresstest))
                         dict.Add(stresstest, MakeEmptyCopy(dt));
@@ -525,7 +525,7 @@ namespace vApus.Results {
         /// </summary>
         private static Dictionary<string, DataTable> GetStresstestsAndDividedStresstestResultRows(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             if (cancellationToken.IsCancellationRequested) return null;
-            
+
             var dict = new Dictionary<string, DataTable>();
             if (databaseActions != null) {
 
@@ -580,7 +580,7 @@ namespace vApus.Results {
         /// <returns>Key: Stresstest, Value: List of data tables, each entry stands for one divided test.</returns>
         private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedConcurrencyResultRows(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestResultIds, params string[] selectColumns) {
             if (cancellationToken.IsCancellationRequested) return null;
-            
+
             var dict = new Dictionary<string, List<DataTable>>();
             if (databaseActions != null) {
                 var dictStresstestResults = GetStresstestsAndDividedStresstestResultRows(cancellationToken, databaseActions, new int[0], "Id");
@@ -602,7 +602,7 @@ namespace vApus.Results {
 
                 foreach (string stresstest in dictStresstestResults.Keys) {
                     if (cancellationToken.IsCancellationRequested) return null;
-                    
+
                     dict.Add(stresstest, new List<DataTable>());
                     foreach (DataRow row in dictStresstestResults[stresstest].Rows) {
                         var emptyCopy = MakeEmptyCopy(dt);
@@ -632,7 +632,7 @@ namespace vApus.Results {
         /// <returns>Key: Stresstest, Value: List of data tables, each entry stands for one divided test.</returns>
         private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedRunResultRows(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] concurrencyResultIds, params string[] selectColumns) {
             if (cancellationToken.IsCancellationRequested) return null;
-            
+
             var dict = new Dictionary<string, List<DataTable>>();
             if (databaseActions != null) {
                 var dictStresstestConcurrencyResults = GetStresstestsAndDividedConcurrencyResultRows(cancellationToken, databaseActions, null, new int[0], "Id", "StresstestResultId");
@@ -690,7 +690,7 @@ namespace vApus.Results {
         /// <returns>Key: Stresstest, Value: Key: Divided Results Value: Number of divided stresstests</returns>
         private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedLogEntryResultRows(CancellationToken cancellationToken, DatabaseActions databaseActions, string[] selectColumns, string where, params int[] runResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
-            
+
             var dict = new Dictionary<string, List<DataTable>>();
             if (databaseActions != null) {
                 var dictStresstestRunResults = GetStresstestsAndDividedRunResultRows(cancellationToken, databaseActions, null, new int[0], "Id", "ConcurrencyResultId");
@@ -710,11 +710,11 @@ namespace vApus.Results {
 
                 foreach (string stresstest in dictStresstestRunResults.Keys) {
                     if (cancellationToken.IsCancellationRequested) return null;
-                    
+
                     dict.Add(stresstest, new List<DataTable>());
                     foreach (var rrDt in dictStresstestRunResults[stresstest]) {
                         if (cancellationToken.IsCancellationRequested) return null;
-                        
+
                         var emptyCopy = MakeEmptyCopy(dt);
                         foreach (DataRow row in rrDt.Rows)
                             foreach (DataRow toAdd in dt.Rows)
@@ -769,7 +769,7 @@ namespace vApus.Results {
         }
         private static int[] GetStresstestResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
-            
+
             var l = new List<int>();
             if (databaseActions != null) {
                 //Link to FK table.
@@ -787,7 +787,7 @@ namespace vApus.Results {
 
                 foreach (DataRow row in dt.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
-                    
+
                     l.Add((int)row.ItemArray[0]);
                 }
             }
@@ -797,7 +797,7 @@ namespace vApus.Results {
         }
         private static int[] GetConcurrencyResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] concurrencyResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
-            
+
             var l = new List<int>();
             if (databaseActions != null) {
                 //Find to which combined stresstest the different concurrencies belong to.
@@ -848,7 +848,7 @@ namespace vApus.Results {
         }
         private static int[] GetRunResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] runResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
-            
+
             var l = new List<int>();
             if (databaseActions != null) {
                 //Find to which concurrencies the runs belong to.
@@ -908,7 +908,7 @@ namespace vApus.Results {
             return s;
         }
 
-        private static string GetValidSelect(string[] selectColumns) {    return (selectColumns == null || selectColumns.Length == 0) ? "*" : selectColumns.Combine(", ");    }
+        private static string GetValidSelect(string[] selectColumns) { return (selectColumns == null || selectColumns.Length == 0) ? "*" : selectColumns.Combine(", "); }
         private static string GetValidWhere(string where, bool mustStartWithWhere) {
             if (where == null) {
                 where = string.Empty;
@@ -919,7 +919,7 @@ namespace vApus.Results {
                 else if (mustStartWithWhere && !where.StartsWith("where", StringComparison.OrdinalIgnoreCase))
                     where = " Where " + where;
 
-                if (!where.StartsWith("And", StringComparison.OrdinalIgnoreCase))
+                if (!mustStartWithWhere && !where.StartsWith("And", StringComparison.OrdinalIgnoreCase))
                     where = " And " + where;
             }
             return where;
@@ -950,7 +950,7 @@ namespace vApus.Results {
                 var l = new List<object[]>(part.Rows.Count);
                 foreach (DataRow row in part.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
-                    
+
                     l.Add(row.ItemArray);
                 }
                 toBePivotedRows.Add(l);
