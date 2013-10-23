@@ -640,13 +640,28 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetAverageUserActionResults(CancellationToken cancellationToken, params int[] stresstestIds) {
+            return GetAverageUserActionResults(cancellationToken, false, stresstestIds);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="withConcurrencyResultId">Needed for the overview datatable.</param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        private DataTable GetAverageUserActionResults(CancellationToken cancellationToken, bool withConcurrencyResultId, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
                     if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                    var averageUserActions = CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
-        "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+                    var averageUserActions = withConcurrencyResultId ? CreateEmptyDataTable("AverageUserActions", "Stresstest", "ConcurrencyId", "Concurrency", "User Action", "Avg. Response Time (ms)",
+                        "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors") :
+                        CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
+                        "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+
+
 
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
@@ -837,7 +852,15 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             foreach (string userAction in sortedUserActions) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                averageUserActions.Rows.Add(stresstest, concurrency, userAction,
+                                if (withConcurrencyResultId)
+                                    averageUserActions.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
+                                        Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
+                                        Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
+                                        Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
+                                        Math.Round(avgDelay[userAction], 2),
+                                        errors[userAction]);
+                                else
+                                    averageUserActions.Rows.Add(stresstest, concurrency, userAction,
                                     Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
                                     Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
                                     Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
@@ -1151,7 +1174,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
                 }
 
-                var averageUserActions = GetAverageUserActionResults(cancellationToken, stresstestIds);
+                var averageUserActions = GetAverageUserActionResults(cancellationToken, true, stresstestIds);
                 if (averageUserActions == null) return null;
 
                 var averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
@@ -1162,10 +1185,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 char colon = ':';
                 string sColon = ":";
                 int userActionIndex = 1;
+                int currentConcurrencyResultId = -1;
                 foreach (DataRow uaRow in averageUserActions.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    string userAction = uaRow.ItemArray[2] as string;
+                    int concurrencyResultId = (int)uaRow.ItemArray[1];
+                    if (currentConcurrencyResultId != concurrencyResultId) {
+                        userActionIndex = 1; //Do not forget to reset this, otherwise we will only get one row.
+                        currentConcurrencyResultId = concurrencyResultId;
+                    }
+
+                    string userAction = uaRow.ItemArray[3] as string;
                     string[] splittedUserAction = userAction.Split(colon);
                     userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
                     if (!averageResponseTimesAndThroughput.Columns.Contains(userAction)) {
@@ -1181,11 +1211,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                     var row = new List<object>(range + 3);
                     row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
-                    row.Add(averageUserActions.Rows[offset].ItemArray[1]); //Add concurrency
+                    row.Add(averageUserActions.Rows[offset].ItemArray[2]); //Add concurrency
                     for (int i = offset; i != offset + range; i++) { //Add the avg response times
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[3] : 0d);
+                        row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[4] : 0d);
                     }
                     row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
                     row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[12]); //And the errors: Bonus
